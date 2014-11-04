@@ -18,7 +18,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
 
-defaultTasks 'clean', 'build'
+defaultTasks 'clean', 'build', 'install'
 
 group = 'uk.co.real_logic'
 version = '1.0-SNAPSHOT'
