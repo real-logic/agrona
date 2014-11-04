@@ -72,7 +72,7 @@ public class Long2ObjectHashMap<V>
      *
      * @return load factor for when the map should increase size.
      */
-    public double getLoadFactor()
+    public double loadFactor()
     {
         return loadFactor;
     }
@@ -82,7 +82,7 @@ public class Long2ObjectHashMap<V>
      *
      * @return the total capacity for the map.
      */
-    public int getCapacity()
+    public int capacity()
     {
         return capacity;
     }
@@ -93,7 +93,7 @@ public class Long2ObjectHashMap<V>
      *
      * @return the threshold when the map will resize.
      */
-    public int getResizeThreshold()
+    public int resizeThreshold()
     {
         return resizeThreshold;
     }

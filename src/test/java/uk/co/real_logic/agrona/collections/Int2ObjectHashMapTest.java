@@ -68,18 +68,18 @@ public class Int2ObjectHashMapTest
             map.put(i, Integer.toString(i));
         }
 
-        assertThat(valueOf(map.getResizeThreshold()), is(valueOf(16)));
-        assertThat(valueOf(map.getCapacity()), is(valueOf(32)));
+        assertThat(valueOf(map.resizeThreshold()), is(valueOf(16)));
+        assertThat(valueOf(map.capacity()), is(valueOf(32)));
         assertThat(valueOf(map.size()), is(valueOf(16)));
 
         map.put(16, "16");
 
-        assertThat(valueOf(map.getResizeThreshold()), is(valueOf(32)));
-        assertThat(valueOf(map.getCapacity()), is(valueOf(64)));
+        assertThat(valueOf(map.resizeThreshold()), is(valueOf(32)));
+        assertThat(valueOf(map.capacity()), is(valueOf(64)));
         assertThat(valueOf(map.size()), is(valueOf(17)));
 
         assertThat(map.get(16), equalTo("16"));
-        assertThat(loadFactor, closeTo(map.getLoadFactor(), 0.0));
+        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
     }
 
     @Test
@@ -91,13 +91,13 @@ public class Int2ObjectHashMapTest
         final String value = "Seven";
         map.put(key, value);
 
-        final int collisionKey = key + map.getCapacity();
+        final int collisionKey = key + map.capacity();
         final String collisionValue = Integer.toString(collisionKey);
         map.put(collisionKey, collisionValue);
 
         assertThat(map.get(key), is(value));
         assertThat(map.get(collisionKey), is(collisionValue));
-        assertThat(loadFactor, closeTo(map.getLoadFactor(), 0.0));
+        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
     }
 
     @Test
@@ -131,10 +131,10 @@ public class Int2ObjectHashMapTest
             intToObjectMap.remove(i);
         }
 
-        final int capacityBeforeCompaction = intToObjectMap.getCapacity();
+        final int capacityBeforeCompaction = intToObjectMap.capacity();
         intToObjectMap.compact();
 
-        assertThat(valueOf(intToObjectMap.getCapacity()), lessThan(valueOf(capacityBeforeCompaction)));
+        assertThat(valueOf(intToObjectMap.capacity()), lessThan(valueOf(capacityBeforeCompaction)));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class Int2ObjectHashMapTest
         intToObjectMap.put(key, value);
         intToObjectMap.put(13, "13");
 
-        final int collisionKey = key + intToObjectMap.getCapacity();
+        final int collisionKey = key + intToObjectMap.capacity();
         final String collisionValue = Integer.toString(collisionKey);
 
         intToObjectMap.put(collisionKey, collisionValue);

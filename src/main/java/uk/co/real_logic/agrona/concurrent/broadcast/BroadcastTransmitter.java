@@ -16,7 +16,8 @@
 package uk.co.real_logic.agrona.concurrent.broadcast;
 
 import uk.co.real_logic.agrona.BitUtil;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
 import static uk.co.real_logic.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
 
@@ -27,7 +28,7 @@ import static uk.co.real_logic.agrona.concurrent.broadcast.BroadcastBufferDescri
  */
 public class BroadcastTransmitter
 {
-    private final UnsafeBuffer buffer;
+    private final AtomicBuffer buffer;
     private final int capacity;
     private final int mask;
     private final int maxMsgLength;
@@ -35,7 +36,7 @@ public class BroadcastTransmitter
     private final int latestCounterIndex;
 
     /**
-     * Construct a new broadcast transmitter based on an underlying {@link uk.co.real_logic.agrona.concurrent.UnsafeBuffer}.
+     * Construct a new broadcast transmitter based on an underlying {@link uk.co.real_logic.agrona.concurrent.AtomicBuffer}.
      * The underlying buffer must a power of 2 in size plus sufficient space
      * for the {@link BroadcastBufferDescriptor#TRAILER_LENGTH}.
      *
@@ -43,7 +44,7 @@ public class BroadcastTransmitter
      * @throws IllegalStateException if the buffer capacity is not a power of 2
      *                               plus {@link BroadcastBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
-    public BroadcastTransmitter(final UnsafeBuffer buffer)
+    public BroadcastTransmitter(final AtomicBuffer buffer)
     {
         this.buffer = buffer;
         this.capacity = buffer.capacity() - TRAILER_LENGTH;
@@ -86,12 +87,12 @@ public class BroadcastTransmitter
      * @throws IllegalArgumentException of the msgTypeId is not valid,
      *                                  or if the message length is greater than {@link #maxMsgLength()}.
      */
-    public void transmit(final int msgTypeId, final UnsafeBuffer srcBuffer, final int srcIndex, final int length)
+    public void transmit(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
         RecordDescriptor.checkMsgTypeId(msgTypeId);
         checkMessageLength(length);
 
-        final UnsafeBuffer buffer = this.buffer;
+        final AtomicBuffer buffer = this.buffer;
         long tail = buffer.getLong(tailCounterIndex);
         int recordOffset = (int)tail & mask;
         final int recordLength = BitUtil.align(length + RecordDescriptor.HEADER_LENGTH, RecordDescriptor.RECORD_ALIGNMENT);
@@ -116,18 +117,18 @@ public class BroadcastTransmitter
         incrementTailOrdered(buffer, tail, recordLength);
     }
 
-    private void putLatestCounter(final UnsafeBuffer buffer, final long tail)
+    private void putLatestCounter(final AtomicBuffer buffer, final long tail)
     {
         buffer.putLong(latestCounterIndex, tail);
     }
 
-    private void incrementTailOrdered(final UnsafeBuffer buffer, final long tail, final int recordLength)
+    private void incrementTailOrdered(final AtomicBuffer buffer, final long tail, final int recordLength)
     {
         buffer.putLongOrdered(tailCounterIndex, tail + recordLength);
     }
 
     private static void insertPaddingRecord(
-        final UnsafeBuffer buffer, final long tail, final int recordOffset, final int remainingBuffer)
+        final AtomicBuffer buffer, final long tail, final int recordOffset, final int remainingBuffer)
     {
         buffer.putLongOrdered(RecordDescriptor.tailSequenceOffset(recordOffset), tail);
         buffer.putInt(RecordDescriptor.recLengthOffset(recordOffset), remainingBuffer);
@@ -139,8 +140,7 @@ public class BroadcastTransmitter
     {
         if (length > maxMsgLength)
         {
-            final String msg = String.format("encoded message exceeds maxMsgLength of %d, length=%d",
-                                             maxMsgLength, length);
+            final String msg = String.format("encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length);
 
             throw new IllegalArgumentException(msg);
         }

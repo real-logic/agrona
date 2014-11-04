@@ -32,7 +32,7 @@ import static uk.co.real_logic.agrona.BitUtil.*;
  */
 public class UnsafeBuffer implements AtomicBuffer
 {
-    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "aeron.disable.bounds.checks";
+    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
 
     private static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);

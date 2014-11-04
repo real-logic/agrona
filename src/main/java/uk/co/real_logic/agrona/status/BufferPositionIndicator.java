@@ -19,7 +19,7 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
 
 /**
- * Indicates the position of some entity that stores its value in an buffer. The buffer is managed by a {@link uk.co.real_logic.agrona.concurrent.CountersManager}.
+ * Indicates the position of some entity that stores its value in an buffer. The buffer is managed by a {@link CountersManager}.
  */
 public class BufferPositionIndicator implements PositionIndicator
 {

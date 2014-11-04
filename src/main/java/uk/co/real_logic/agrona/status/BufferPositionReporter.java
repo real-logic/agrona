@@ -19,7 +19,7 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
 
 /**
- * Reports a position by recording it in an {@link uk.co.real_logic.agrona.concurrent.UnsafeBuffer}.
+ * Reports a position by recording it in an {@link UnsafeBuffer}.
  */
 public class BufferPositionReporter implements PositionReporter
 {

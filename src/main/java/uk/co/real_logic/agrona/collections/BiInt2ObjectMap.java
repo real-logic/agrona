@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.co.real_logic.agrona.collections;
 
 import java.util.function.Consumer;
 
-
 /**
- * Map that takes two part key and associates with an object.
+ * Map that takes two part int key and associates with an object.
+ *
+ * The underlying implementation use as {@link Long2ObjectHashMap} and combines both int keys into a long key.
  *
  * @param <V> type of the object stored in the map.
  */
@@ -62,6 +62,26 @@ public class BiInt2ObjectMap<V>
     public BiInt2ObjectMap(final int initialCapacity, final double loadFactor)
     {
         map = new Long2ObjectHashMap<>(initialCapacity, loadFactor);
+    }
+
+    /**
+     * Get the total capacity for the map to which the load factor with be a fraction of.
+     *
+     * @return the total capacity for the map.
+     */
+    public int capacity()
+    {
+        return map.capacity();
+    }
+
+    /**
+     * Get the load factor beyond which the map will increase size.
+     *
+     * @return load factor for when the map should increase size.
+     */
+    public double loadFactor()
+    {
+        return map.loadFactor();
     }
 
     /**
@@ -129,6 +149,7 @@ public class BiInt2ObjectMap<V>
             {
                 final int keyPartA = (int)(compoundKey >>> 32);
                 final int keyPartB = (int)(compoundKey & 0xFFFFFFFFL);
+
                 consumer.accept(keyPartA, keyPartB, value);
             });
     }
@@ -153,7 +174,7 @@ public class BiInt2ObjectMap<V>
         return map.isEmpty();
     }
 
-    private long compoundKey(final int keyPartA, final int keyPartB)
+    private static long compoundKey(final int keyPartA, final int keyPartB)
     {
         return ((long)keyPartA << 32) | keyPartB;
     }

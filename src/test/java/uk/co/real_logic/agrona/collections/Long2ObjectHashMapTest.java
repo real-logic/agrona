@@ -70,18 +70,18 @@ public class Long2ObjectHashMapTest
             map.put(i, Long.toString(i));
         }
 
-        assertThat(valueOf(map.getResizeThreshold()), is(valueOf(16)));
-        assertThat(valueOf(map.getCapacity()), is(valueOf(32)));
+        assertThat(valueOf(map.resizeThreshold()), is(valueOf(16)));
+        assertThat(valueOf(map.capacity()), is(valueOf(32)));
         assertThat(valueOf(map.size()), is(valueOf(16)));
 
         map.put(16, "16");
 
-        assertThat(valueOf(map.getResizeThreshold()), is(valueOf(32)));
-        assertThat(valueOf(map.getCapacity()), is(valueOf(64)));
+        assertThat(valueOf(map.resizeThreshold()), is(valueOf(32)));
+        assertThat(valueOf(map.capacity()), is(valueOf(64)));
         assertThat(valueOf(map.size()), is(valueOf(17)));
 
         assertThat(map.get(16), equalTo("16"));
-        assertThat(loadFactor, closeTo(map.getLoadFactor(), 0.0));
+        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
 
     }
 
@@ -94,13 +94,13 @@ public class Long2ObjectHashMapTest
         final String value = "Seven";
         map.put(key, value);
 
-        final long collisionKey = key + map.getCapacity();
+        final long collisionKey = key + map.capacity();
         final String collisionValue = Long.toString(collisionKey);
         map.put(collisionKey, collisionValue);
 
         assertThat(map.get(key), is(value));
         assertThat(map.get(collisionKey), is(collisionValue));
-        assertThat(loadFactor, closeTo(map.getLoadFactor(), 0.0));
+        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
     }
 
     @Test
@@ -134,10 +134,10 @@ public class Long2ObjectHashMapTest
             longToObjectMap.remove(i);
         }
 
-        final int capacityBeforeCompaction = longToObjectMap.getCapacity();
+        final int capacityBeforeCompaction = longToObjectMap.capacity();
         longToObjectMap.compact();
 
-        assertThat(valueOf(longToObjectMap.getCapacity()), lessThan(valueOf(capacityBeforeCompaction)));
+        assertThat(valueOf(longToObjectMap.capacity()), lessThan(valueOf(capacityBeforeCompaction)));
     }
 
     @Test
@@ -188,7 +188,7 @@ public class Long2ObjectHashMapTest
         longToObjectMap.put(key, value);
         longToObjectMap.put(13, "13");
 
-        final long collisionKey = key + longToObjectMap.getCapacity();
+        final long collisionKey = key + longToObjectMap.capacity();
         final String collisionValue = Long.toString(collisionKey);
 
         longToObjectMap.put(collisionKey, collisionValue);

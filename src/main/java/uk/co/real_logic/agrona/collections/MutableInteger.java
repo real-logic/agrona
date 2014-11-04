@@ -16,7 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 /**
- * Holder for an int value that is mutable
+ * Holder for an int value that is mutable. Useful for being a counter in a {@link java.util.Map}
  */
 public class MutableInteger
 {

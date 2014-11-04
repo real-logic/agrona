@@ -16,8 +16,6 @@
 package uk.co.real_logic.agrona;
 
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -48,28 +46,15 @@ public class BitUtil
     /** Size of the data blocks used by the CPU cache sub-system in bytes. */
     public static final int CACHE_LINE_SIZE = 64;
 
-    private static final byte[] HEX_DIGIT_TABLE = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static final byte[] HEX_DIGIT_TABLE =
+        {
+            '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+        };
 
     private static final int LAST_DIGIT_MASK = 0b1;
 
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
-
-    private static final ThreadLocal<MessageDigest> MESSAGE_DIGEST =
-        new ThreadLocal<MessageDigest>()
-        {
-            protected MessageDigest initialValue()
-            {
-                try
-                {
-                    return MessageDigest.getInstance("SHA-1");
-                }
-                catch (final NoSuchAlgorithmException ex)
-                {
-                    throw new RuntimeException(ex);
-                }
-            }
-        };
 
     /**
      * Fast method of finding the next power of 2 greater than or equal to the supplied value.
@@ -113,7 +98,7 @@ public class BitUtil
 
         for (int i = 0; i < (buffer.length << 1); i += 2)
         {
-            final byte b = buffer[i >> 1]; // readability
+            final byte b = buffer[i >> 1];
 
             outputBuffer[i] = HEX_DIGIT_TABLE[(b >> 4) & 0x0F];
             outputBuffer[i + 1] = HEX_DIGIT_TABLE[b & 0x0F];
