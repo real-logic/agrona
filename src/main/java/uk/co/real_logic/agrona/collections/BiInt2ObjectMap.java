@@ -50,6 +50,7 @@ public class BiInt2ObjectMap<V>
      * @param sessionId for the key
      * @param streamId for the key
      * @param value to put into the map
+     * @return the previous value if found otherwise null
      */
     public V put(final int sessionId, final int streamId, final V value)
     {
@@ -63,7 +64,7 @@ public class BiInt2ObjectMap<V>
      *
      * @param sessionId for the key
      * @param streamId for the key
-     * @return value
+     * @return value matching the key if found or null if not found.
      */
     public V get(final int sessionId, final int streamId)
     {
@@ -77,7 +78,7 @@ public class BiInt2ObjectMap<V>
      *
      * @param sessionId for the key
      * @param streamId for the key
-     * @return value removed
+     * @return the previous value if found otherwise null
      */
     public V remove(final int sessionId, final int streamId)
     {
