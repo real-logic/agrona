@@ -28,4 +28,4 @@ You require the following to build Agrona:
 
 Full clean and build and install into local maven repository
 
-    $ ./gradlew install
+    $ ./gradlew
