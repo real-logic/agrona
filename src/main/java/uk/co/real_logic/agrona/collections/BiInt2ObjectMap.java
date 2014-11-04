@@ -18,11 +18,31 @@ package uk.co.real_logic.agrona.collections;
 
 import java.util.function.Consumer;
 
+
 /**
- * Map that takes a sessionId and streamId and associates with an object
+ * Map that takes two part key and associates with an object.
+ *
+ * @param <V> type of the object stored in the map.
  */
 public class BiInt2ObjectMap<V>
 {
+    /**
+     * Handler for a map entry
+     *
+     * @param <V> type of the value
+     */
+    public interface EntryConsumer<V>
+    {
+        /**
+         * A map entry
+         *
+         * @param keyPartA for the key
+         * @param keyPartB for the key
+         * @param value for the entry
+         */
+        void accept(int keyPartA, int keyPartB, V value);
+    }
+
     private final Long2ObjectHashMap<V> map;
 
     /**
@@ -47,14 +67,14 @@ public class BiInt2ObjectMap<V>
     /**
      * Put a value into the map.
      *
-     * @param sessionId for the key
-     * @param streamId for the key
+     * @param keyPartA for the key
+     * @param keyPartB for the key
      * @param value to put into the map
      * @return the previous value if found otherwise null
      */
-    public V put(final int sessionId, final int streamId, final V value)
+    public V put(final int keyPartA, final int keyPartB, final V value)
     {
-        final long key = compoundKey(sessionId, streamId);
+        final long key = compoundKey(keyPartA, keyPartB);
 
         return map.put(key, value);
     }
@@ -62,13 +82,13 @@ public class BiInt2ObjectMap<V>
     /**
      * Retrieve a value from the map.
      *
-     * @param sessionId for the key
-     * @param streamId for the key
+     * @param keyPartA for the key
+     * @param keyPartB for the key
      * @return value matching the key if found or null if not found.
      */
-    public V get(final int sessionId, final int streamId)
+    public V get(final int keyPartA, final int keyPartB)
     {
-        final long key = compoundKey(sessionId, streamId);
+        final long key = compoundKey(keyPartA, keyPartB);
 
         return map.get(key);
     }
@@ -76,13 +96,13 @@ public class BiInt2ObjectMap<V>
     /**
      * Remove a value from the map and return the value.
      *
-     * @param sessionId for the key
-     * @param streamId for the key
+     * @param keyPartA for the key
+     * @param keyPartB for the key
      * @return the previous value if found otherwise null
      */
-    public V remove(final int sessionId, final int streamId)
+    public V remove(final int keyPartA, final int keyPartB)
     {
-        final long key = compoundKey(sessionId, streamId);
+        final long key = compoundKey(keyPartA, keyPartB);
 
         return map.remove(key);
     }
@@ -98,23 +118,6 @@ public class BiInt2ObjectMap<V>
     }
 
     /**
-     * Handler for a map entry
-     *
-     * @param <V> for the map
-     */
-    public interface EntryConsumer<V>
-    {
-        /**
-         * A map entry
-         *
-         * @param sessionId for the key
-         * @param streamId for the key
-         * @param value for the entry
-         */
-        void accept(final int sessionId, final int streamId, final V value);
-    }
-
-    /**
      * Iterate over the contents of the map
      *
      * @param consumer to apply to each value in the map
@@ -124,9 +127,9 @@ public class BiInt2ObjectMap<V>
         map.forEach(
             (compoundKey, value) ->
             {
-                final int sessionId = (int)(compoundKey >>> 32);
-                final int streamId = (int)(compoundKey & 0xFFFFFFFFL);
-                consumer.accept(sessionId, streamId, value);
+                final int keyPartA = (int)(compoundKey >>> 32);
+                final int keyPartB = (int)(compoundKey & 0xFFFFFFFFL);
+                consumer.accept(keyPartA, keyPartB, value);
             });
     }
 
@@ -150,8 +153,8 @@ public class BiInt2ObjectMap<V>
         return map.isEmpty();
     }
 
-    private long compoundKey(final int sessionId, final int streamId)
+    private long compoundKey(final int keyPartA, final int keyPartB)
     {
-        return ((long)sessionId << 32) | streamId;
+        return ((long)keyPartA << 32) | keyPartB;
     }
 }
