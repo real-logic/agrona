@@ -21,7 +21,7 @@ apply plugin: 'checkstyle'
 
 defaultTasks 'clean', 'build', 'install'
 
-group = 'uk.co.real_logic'
+group = 'uk.co.real-logic'
 version = '1.0-SNAPSHOT'
 
 ext {
