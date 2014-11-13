@@ -1,6 +1,9 @@
 Agrona
 ======
 
+Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
+applications in Java and C++.
+
 License (See LICENSE file for full license)
 -------------------------------------------
 Copyright 2014 Real Logic Limited
