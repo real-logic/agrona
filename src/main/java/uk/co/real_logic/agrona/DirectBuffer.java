@@ -199,9 +199,8 @@ public interface DirectBuffer
      *
      * @param index in the underlying buffer to start from.
      * @param dst   into which the dst will be copied.
-     * @return count of bytes copied.
      */
-    int getBytes(int index, byte[] dst);
+    void getBytes(int index, byte[] dst);
 
     /**
      * Get bytes from the underlying buffer into a supplied byte array.
@@ -210,9 +209,8 @@ public interface DirectBuffer
      * @param dst    into which the bytes will be copied.
      * @param offset in the supplied buffer to start the copy
      * @param length of the supplied buffer to use.
-     * @return count of bytes copied.
      */
-    int getBytes(int index, byte[] dst, int offset, int length);
+    void getBytes(int index, byte[] dst, int offset, int length);
 
     /**
      * Get bytes from this {@link DirectBuffer} into the provided {@link MutableDirectBuffer} at given indices.
@@ -229,9 +227,8 @@ public interface DirectBuffer
      * @param index     in the underlying buffer to start from.
      * @param dstBuffer into which the bytes will be copied.
      * @param length    of the supplied buffer to use.
-     * @return count of bytes copied.
      */
-    int getBytes(int index, ByteBuffer dstBuffer, int length);
+    void getBytes(int index, ByteBuffer dstBuffer, int length);
 
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
