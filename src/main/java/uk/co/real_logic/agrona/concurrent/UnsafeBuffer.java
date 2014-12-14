@@ -607,7 +607,7 @@ public class UnsafeBuffer implements AtomicBuffer
         if (srcBuffer.hasArray())
         {
             srcByteArray = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset() + srcIndex;
+            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
         }
         else
         {
