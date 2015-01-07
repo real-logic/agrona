@@ -18,6 +18,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'checkstyle'
+apply plugin: 'eclipse'
 
 defaultTasks 'clean', 'build', 'install'
 

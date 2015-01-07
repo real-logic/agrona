@@ -79,7 +79,7 @@ public class UnsafeBuffer implements AtomicBuffer
     }
 
     /**
-     * Attach a view to an existing {@link UnsafeBuffer}
+     * Attach a view to an existing {@link DirectBuffer}
      *
      * @param buffer to which the view is attached.
      */
@@ -533,21 +533,17 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putByte(byteArray, addressOffset + index, value);
     }
 
-    public int getBytes(final int index, final byte[] dst)
+    public void getBytes(final int index, final byte[] dst)
     {
-        return getBytes(index, dst, 0, dst.length);
+        getBytes(index, dst, 0, dst.length);
     }
 
-    public int getBytes(final int index, final byte[] dst, final int offset, final int length)
+    public void getBytes(final int index, final byte[] dst, final int offset, final int length)
     {
-        int count = Math.min(length, capacity - index);
-        count = Math.min(count, dst.length);
+        boundsCheck(index, length);
+        boundsCheck(dst, offset, length);
 
-        boundsCheck(index, count);
-
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, count);
-
-        return count;
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length)
@@ -555,14 +551,12 @@ public class UnsafeBuffer implements AtomicBuffer
         dstBuffer.putBytes(dstIndex, this, index, length);
     }
 
-    public int getBytes(final int index, final ByteBuffer dstBuffer, final int length)
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int length)
     {
-        int count = Math.min(dstBuffer.remaining(), capacity - index);
-        count = Math.min(count, length);
-
-        boundsCheck(index, count);
-
+        boundsCheck(index, length);
         final int dstOffset = dstBuffer.position();
+        boundsCheck(dstBuffer, dstOffset, length);
+
         final byte[] dstByteArray;
         final long dstBaseOffset;
         if (dstBuffer.hasArray())
@@ -576,55 +570,44 @@ public class UnsafeBuffer implements AtomicBuffer
             dstBaseOffset = ((sun.nio.ch.DirectBuffer)dstBuffer).address();
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, count);
-        dstBuffer.position(dstBuffer.position() + count);
-
-        return count;
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        dstBuffer.position(dstBuffer.position() + length);
     }
 
-    public int putBytes(final int index, final byte[] src)
+    public void putBytes(final int index, final byte[] src)
     {
-        return putBytes(index, src, 0, src.length);
+        putBytes(index, src, 0, src.length);
     }
 
-    public int putBytes(final int index, final byte[] src, final int offset, final int length)
+    public void putBytes(final int index, final byte[] src, final int offset, final int length)
     {
-        int count = Math.min(length, capacity - index);
-        count = Math.min(count, src.length);
+        boundsCheck(index, length);
+        boundsCheck(src, offset, length);
 
-        boundsCheck(index, count);
-
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, count);
-
-        return count;
+        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
     }
 
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int length)
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int length)
     {
-        int count = Math.min(srcBuffer.remaining(), length);
-        count = Math.min(count, capacity - index);
+        boundsCheck(index, length);
+        final int srcIndex = srcBuffer.position();
+        boundsCheck(srcBuffer, srcIndex, length);
 
-        boundsCheck(index, count);
-
-        count = putBytes(index, srcBuffer, srcBuffer.position(), count);
-        srcBuffer.position(srcBuffer.position() + count);
-
-        return count;
+        putBytes(index, srcBuffer, srcIndex, length);
+        srcBuffer.position(srcIndex + length);
     }
 
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length)
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length)
     {
-        int count = Math.min(length, capacity - index);
-        count = Math.min(count, srcBuffer.capacity() - srcIndex);
-
-        boundsCheck(index, count);
+        boundsCheck(index, length);
+        boundsCheck(srcBuffer, srcIndex, length);
 
         final byte[] srcByteArray;
         final long srcBaseOffset;
         if (srcBuffer.hasArray())
         {
             srcByteArray = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset() + srcIndex;
+            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
         }
         else
         {
@@ -632,9 +615,7 @@ public class UnsafeBuffer implements AtomicBuffer
             srcBaseOffset = ((sun.nio.ch.DirectBuffer)srcBuffer).address();
         }
 
-        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, count);
-
-        return count;
+        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
     }
 
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length)
@@ -708,6 +689,30 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            if (index < 0 || length < 0 || (index + length) > capacity)
+            {
+                throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
+            }
+        }
+    }
+
+    private static void boundsCheck(final byte[] buffer, final int index, final int length)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            final int capacity = buffer.length;
+            if (index < 0 || length < 0 || (index + length) > capacity)
+            {
+                throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
+            }
+        }
+    }
+
+    private static void boundsCheck(final ByteBuffer buffer, final int index, final int length)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            final int capacity = buffer.capacity();
             if (index < 0 || length < 0 || (index + length) > capacity)
             {
                 throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));

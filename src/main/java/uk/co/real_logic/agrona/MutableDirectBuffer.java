@@ -130,9 +130,8 @@ public interface MutableDirectBuffer extends DirectBuffer
      *
      * @param index in the underlying buffer to start from.
      * @param src   to be copied to the underlying buffer.
-     * @return count of bytes copied.
      */
-    int putBytes(int index, byte[] src);
+    void putBytes(int index, byte[] src);
 
     /**
      * Put an array into the underlying buffer.
@@ -141,9 +140,8 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param src    to be copied to the underlying buffer.
      * @param offset in the supplied buffer to begin the copy.
      * @param length of the supplied buffer to copy.
-     * @return count of bytes copied.
      */
-    int putBytes(int index, byte[] src, int offset, int length);
+    void putBytes(int index, byte[] src, int offset, int length);
 
     /**
      * Put bytes into the underlying buffer for the view.  Bytes will be copied from current
@@ -152,9 +150,8 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index     in the underlying buffer to start from.
      * @param srcBuffer to copy the bytes from.
      * @param length    of the supplied buffer to copy.
-     * @return count of bytes copied.
      */
-    int putBytes(int index, ByteBuffer srcBuffer, int length);
+    void putBytes(int index, ByteBuffer srcBuffer, int length);
 
     /**
      * Put bytes into the underlying buffer for the view. Bytes will be copied from the buffer index to
@@ -164,13 +161,12 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param srcBuffer to copy the bytes from (does not change position).
      * @param srcIndex  in the source buffer from which the copy will begin.
      * @param length    of the bytes to be copied.
-     * @return count of bytes copied.
      */
-    int putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
+    void putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
 
     /**
      * Put bytes from a source {@link DirectBuffer} into this {@link MutableDirectBuffer} at given indices.
-     *  @param index     in this buffer to begin putting the bytes.
+     * @param index     in this buffer to begin putting the bytes.
      * @param srcBuffer from which the bytes will be copied.
      * @param srcIndex  in the source buffer from which the byte copy will begin.
      * @param length    of the bytes to be copied.
