@@ -233,7 +233,7 @@ public class IoUtil
      * @return {@link java.nio.MappedByteBuffer} for the file
      */
     public static MappedByteBuffer mapExistingFile(
-        final File location, final String descriptionLabel, final int offset, final int size)
+        final File location, final String descriptionLabel, final long offset, final long size)
     {
         checkFileExists(location, descriptionLabel);
 
