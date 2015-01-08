@@ -44,16 +44,16 @@ public class RingBufferDescriptor
         int offset = 0;
         TAIL_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_SIZE;
+        offset += BitUtil.CACHE_LINE_LENGTH;
         HEAD_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_SIZE;
+        offset += BitUtil.CACHE_LINE_LENGTH;
         CORRELATION_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_SIZE;
+        offset += BitUtil.CACHE_LINE_LENGTH;
         CONSUMER_HEARTBEAT_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_SIZE;
+        offset += BitUtil.CACHE_LINE_LENGTH;
         TRAILER_LENGTH = offset;
     }
 

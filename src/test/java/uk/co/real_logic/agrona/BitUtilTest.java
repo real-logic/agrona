@@ -44,7 +44,7 @@ public class BitUtilTest
     @Test
     public void shouldAlignValueToNextMultipleOfAlignment()
     {
-        final int alignment = BitUtil.CACHE_LINE_SIZE;
+        final int alignment = BitUtil.CACHE_LINE_LENGTH;
 
         assertThat(valueOf(align(0, alignment)), is(valueOf(0)));
         assertThat(valueOf(align(1, alignment)), is(valueOf(alignment)));

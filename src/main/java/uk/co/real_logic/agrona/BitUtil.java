@@ -43,8 +43,8 @@ public class BitUtil
     /** Size of a double in bytes */
     public static final int SIZE_OF_DOUBLE = 8;
 
-    /** Size of the data blocks used by the CPU cache sub-system in bytes. */
-    public static final int CACHE_LINE_SIZE = 64;
+    /** Length of the data blocks used by the CPU cache sub-system in bytes. */
+    public static final int CACHE_LINE_LENGTH = 64;
 
     private static final byte[] HEX_DIGIT_TABLE =
         {
