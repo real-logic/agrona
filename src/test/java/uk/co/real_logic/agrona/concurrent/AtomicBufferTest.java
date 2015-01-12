@@ -44,13 +44,15 @@ public class AtomicBufferTest
     private static final double DOUBLE_VALUE = Integer.MAX_VALUE + 7.0d;
 
     @DataPoint
-    public static final AtomicBuffer BYTE_ARRAY_BACKED = new UnsafeBuffer(new byte[BUFFER_CAPACITY]);
+    public static final AtomicBuffer BYTE_ARRAY_BACKED = new UnsafeBuffer(new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY);
 
     @DataPoint
-    public static final AtomicBuffer HEAP_BYTE_BUFFER = new UnsafeBuffer(ByteBuffer.allocate(BUFFER_CAPACITY));
+    public static final AtomicBuffer HEAP_BYTE_BUFFER = new UnsafeBuffer(
+        ByteBuffer.allocate(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
 
     @DataPoint
-    public static final AtomicBuffer DIRECT_BYTE_BUFFER = new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
+    public static final AtomicBuffer DIRECT_BYTE_BUFFER = new UnsafeBuffer(
+        ByteBuffer.allocateDirect(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
 
     @DataPoint
     public static final AtomicBuffer HEAP_BYTE_BUFFER_SLICE = new UnsafeBuffer(

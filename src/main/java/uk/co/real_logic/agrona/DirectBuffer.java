@@ -31,6 +31,15 @@ public interface DirectBuffer
     void wrap(byte[] buffer);
 
     /**
+     * Attach a view to a byte[] for providing direct access.
+     *
+     * @param buffer to which the view is attached.
+     * @param offset at which the view begins.
+     * @param length of the buffer included in the view
+     */
+    void wrap(byte[] buffer, int offset, int length);
+
+    /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
      * heap based or direct.
      *
@@ -39,12 +48,13 @@ public interface DirectBuffer
     void wrap(ByteBuffer buffer);
 
     /**
-     * Attach a view to an off-heap memory region by address.
+     * Attach a view to a {@link ByteBuffer} for providing direct access.
      *
-     * @param address  where the memory begins off-heap
-     * @param capacity of the buffer from the given address
+     * @param buffer to which the view is attached.
+     * @param offset at which the view begins.
+     * @param length of the buffer included in the view
      */
-    void wrap(long address, int capacity);
+    void wrap(ByteBuffer buffer, int offset, int length);
 
     /**
      * Attach a view to an existing {@link DirectBuffer}
@@ -52,6 +62,23 @@ public interface DirectBuffer
      * @param buffer to which the view is attached.
      */
     void wrap(DirectBuffer buffer);
+
+    /**
+     * Attach a view to a {@link DirectBuffer} for providing direct access.
+     *
+     * @param buffer to which the view is attached.
+     * @param offset at which the view begins.
+     * @param length of the buffer included in the view
+     */
+    void wrap(DirectBuffer buffer, int offset, int length);
+
+    /**
+     * Attach a view to an off-heap memory region by address.
+     *
+     * @param address where the memory begins off-heap
+     * @param length  of the buffer from the given address
+     */
+    void wrap(long address, int length);
 
     /**
      * Reads the underlying offset to to the memory address.

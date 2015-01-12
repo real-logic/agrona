@@ -57,6 +57,18 @@ public class UnsafeBuffer implements AtomicBuffer
     }
 
     /**
+     * Attach a view to a byte[] for providing direct access.
+     *
+     * @param buffer to which the view is attached.
+     * @param offset within the buffer to begin.
+     * @param length of the buffer to be included.
+     */
+    public UnsafeBuffer(final byte[] buffer, final int offset, final int length)
+    {
+        wrap(buffer, offset, length);
+    }
+
+    /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
      * heap based or direct.
      *
@@ -68,14 +80,16 @@ public class UnsafeBuffer implements AtomicBuffer
     }
 
     /**
-     * Attach a view to an off-heap memory region by address.
+     * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
+     * heap based or direct.
      *
-     * @param address  where the memory begins off-heap
-     * @param capacity of the buffer from the given address
+     * @param buffer to which the view is attached.
+     * @param offset within the buffer to begin.
+     * @param length of the buffer to be included.
      */
-    public UnsafeBuffer(final long address, final int capacity)
+    public UnsafeBuffer(final ByteBuffer buffer, final int offset, final int length)
     {
-        wrap(address, capacity);
+        wrap(buffer, offset, length);
     }
 
     /**
@@ -88,46 +102,129 @@ public class UnsafeBuffer implements AtomicBuffer
         wrap(buffer);
     }
 
+    /**
+     * Attach a view to an existing {@link DirectBuffer}
+     *
+     * @param buffer to which the view is attached.
+     * @param offset within the buffer to begin.
+     * @param length of the buffer to be included.
+     */
+    public UnsafeBuffer(final DirectBuffer buffer, final int offset, final int length)
+    {
+        wrap(buffer, offset, length);
+    }
+
+    /**
+     * Attach a view to an off-heap memory region by address.
+     *
+     * @param address where the memory begins off-heap
+     * @param length  of the buffer from the given address
+     */
+    public UnsafeBuffer(final long address, final int length)
+    {
+        wrap(address, length);
+    }
+
     public void wrap(final byte[] buffer)
     {
-        addressOffset = ARRAY_BASE_OFFSET;
-        capacity = buffer.length;
+        wrap(buffer, 0, buffer.length);
+    }
+
+    public void wrap(final byte[] buffer, final int offset, final int length)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            final int bufferLength = buffer.length;
+            if (offset != 0 && (offset < 0 || offset > bufferLength - 1))
+            {
+                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.length=" + bufferLength);
+            }
+
+            if (length < 0 || length > bufferLength - offset)
+            {
+                throw new IllegalArgumentException(
+                    "offset=" + offset + " length=" + length + " not valid for buffer.length=" + bufferLength);
+            }
+        }
+
+        addressOffset = ARRAY_BASE_OFFSET + offset;
+        capacity = length;
         byteArray = buffer;
         byteBuffer = null;
     }
 
     public void wrap(final ByteBuffer buffer)
     {
+        wrap(buffer, 0, buffer.capacity());
+    }
+
+    public void wrap(final ByteBuffer buffer, final int offset, final int length)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            final int bufferCapacity = buffer.capacity();
+            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
+            {
+                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
+            }
+
+            if (length < 0 || length > bufferCapacity - offset)
+            {
+                throw new IllegalArgumentException(
+                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
+            }
+        }
+
         byteBuffer = buffer;
 
         if (buffer.hasArray())
         {
             byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
+            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset() + offset;
         }
         else
         {
             byteArray = null;
-            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address();
+            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address() + offset;
         }
 
-        capacity = buffer.capacity();
-    }
-
-    public void wrap(final long address, final int capacity)
-    {
-        addressOffset = address;
-        this.capacity = capacity;
-        byteArray = null;
-        byteBuffer = null;
+        capacity = length;
     }
 
     public void wrap(final DirectBuffer buffer)
     {
-        addressOffset = buffer.addressOffset();
-        capacity = buffer.capacity();
+        wrap(buffer, 0, buffer.capacity());
+    }
+
+    public void wrap(final DirectBuffer buffer, final int offset, final int length)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            final int bufferCapacity = buffer.capacity();
+            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
+            {
+                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
+            }
+
+            if (length < 0 || length > bufferCapacity - offset)
+            {
+                throw new IllegalArgumentException(
+                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
+            }
+        }
+
+        addressOffset = buffer.addressOffset() + offset;
+        capacity = length;
         byteArray = buffer.byteArray();
         byteBuffer = buffer.byteBuffer();
+    }
+
+    public void wrap(final long address, final int length)
+    {
+        addressOffset = address;
+        this.capacity = length;
+        byteArray = null;
+        byteBuffer = null;
     }
 
     public long addressOffset()
