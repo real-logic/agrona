@@ -127,7 +127,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void wrap(final byte[] buffer)
     {
-        wrap(buffer, 0, buffer.length);
+        addressOffset = ARRAY_BASE_OFFSET;
+        capacity = buffer.length;
+        byteArray = buffer;
+        byteBuffer = null;
     }
 
     public void wrap(final byte[] buffer, final int offset, final int length)
@@ -155,7 +158,20 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void wrap(final ByteBuffer buffer)
     {
-        wrap(buffer, 0, buffer.capacity());
+        byteBuffer = buffer;
+
+        if (buffer.hasArray())
+        {
+            byteArray = buffer.array();
+            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
+        }
+        else
+        {
+            byteArray = null;
+            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address();
+        }
+
+        capacity = buffer.capacity();
     }
 
     public void wrap(final ByteBuffer buffer, final int offset, final int length)
@@ -193,7 +209,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void wrap(final DirectBuffer buffer)
     {
-        wrap(buffer, 0, buffer.capacity());
+        addressOffset = buffer.addressOffset();
+        capacity = buffer.capacity();
+        byteArray = buffer.byteArray();
+        byteBuffer = buffer.byteBuffer();
     }
 
     public void wrap(final DirectBuffer buffer, final int offset, final int length)
@@ -222,7 +241,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public void wrap(final long address, final int length)
     {
         addressOffset = address;
-        this.capacity = length;
+        capacity = length;
         byteArray = null;
         byteBuffer = null;
     }
