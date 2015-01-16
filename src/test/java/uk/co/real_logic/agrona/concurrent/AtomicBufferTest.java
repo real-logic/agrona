@@ -21,6 +21,7 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.DirectBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -79,7 +80,7 @@ public class AtomicBufferTest
 
         buffer.setMemory(0, testBytes.length, (byte)'x');
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         final byte[] buff = new byte[testBytes.length];
         duplicateBuffer.get(buff);
 
@@ -89,7 +90,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetLongFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -99,7 +100,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutLongToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putLong(INDEX, LONG_VALUE, BYTE_ORDER);
 
@@ -109,7 +110,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetLongFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -119,7 +121,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutLongToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putLong(INDEX, LONG_VALUE);
 
@@ -129,7 +132,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetLongVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -139,7 +143,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutLongVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putLongVolatile(INDEX, LONG_VALUE);
 
@@ -149,7 +154,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutLongOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putLongOrdered(INDEX, LONG_VALUE);
 
@@ -159,7 +165,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldAddLongOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         final long initialValue = Integer.MAX_VALUE + 7L;
         final long increment = 9L;
@@ -172,7 +179,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldCompareAndSetLongToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -184,7 +192,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetAndSetLongToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -198,7 +207,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetAndAddLongToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putLong(INDEX, LONG_VALUE);
 
@@ -212,7 +222,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetIntFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -222,7 +232,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutIntToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putInt(INDEX, INT_VALUE);
 
@@ -232,7 +243,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetIntFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -242,7 +254,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutIntToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putInt(INDEX, INT_VALUE, BYTE_ORDER);
 
@@ -252,7 +264,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetIntVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -262,7 +275,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutIntVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putIntVolatile(INDEX, INT_VALUE);
 
@@ -272,7 +286,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutIntOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putIntOrdered(INDEX, INT_VALUE);
 
@@ -282,7 +297,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldAddIntOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         final int initialValue = 7;
         final int increment = 9;
@@ -295,7 +311,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldCompareAndSetIntToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -307,7 +324,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetAndSetIntToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -321,7 +339,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetAndAddIntToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putInt(INDEX, INT_VALUE);
 
@@ -335,7 +354,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetShortFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putShort(INDEX, SHORT_VALUE);
 
@@ -345,7 +364,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutShortToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putShort(INDEX, SHORT_VALUE, BYTE_ORDER);
 
@@ -355,7 +374,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetShortFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putShort(INDEX, SHORT_VALUE);
 
@@ -365,7 +385,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutShortToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putShort(INDEX, SHORT_VALUE);
 
@@ -375,7 +396,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetShortVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putShort(INDEX, SHORT_VALUE);
 
@@ -385,7 +407,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutShortVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putShortVolatile(INDEX, SHORT_VALUE);
 
@@ -395,7 +418,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetDoubleFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putDouble(INDEX, DOUBLE_VALUE);
 
@@ -405,7 +428,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutDoubleToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putDouble(INDEX, DOUBLE_VALUE, BYTE_ORDER);
 
@@ -415,7 +438,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetDoubleFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putDouble(INDEX, DOUBLE_VALUE);
 
@@ -425,7 +449,8 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutDoubleToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putDouble(INDEX, DOUBLE_VALUE);
 
@@ -435,7 +460,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetFloatFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putFloat(INDEX, FLOAT_VALUE);
 
@@ -445,7 +470,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutFloatToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putFloat(INDEX, FLOAT_VALUE, BYTE_ORDER);
 
@@ -455,7 +480,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetFloatFromNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.putFloat(INDEX, FLOAT_VALUE);
 
@@ -465,7 +490,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutFloatToNativeBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putFloat(INDEX, FLOAT_VALUE);
 
@@ -475,7 +500,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetByteFromBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         duplicateBuffer.put(INDEX, BYTE_VALUE);
 
@@ -485,7 +510,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldPutByteToBuffer(final AtomicBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putByte(INDEX, BYTE_VALUE);
 
@@ -515,7 +540,7 @@ public class AtomicBufferTest
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
         duplicateBuffer.put(testBytes);
 
@@ -530,7 +555,7 @@ public class AtomicBufferTest
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
         duplicateBuffer.put(testBytes);
 
@@ -545,7 +570,7 @@ public class AtomicBufferTest
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
         duplicateBuffer.put(testBytes);
 
@@ -564,7 +589,7 @@ public class AtomicBufferTest
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
         duplicateBuffer.put(testBytes);
 
@@ -585,7 +610,7 @@ public class AtomicBufferTest
         final byte[] testBytes = "Hello World".getBytes();
         buffer.putBytes(INDEX, testBytes);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
@@ -602,7 +627,7 @@ public class AtomicBufferTest
 
         buffer.putBytes(INDEX, srcBuffer, testBytes.length);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
@@ -620,7 +645,7 @@ public class AtomicBufferTest
 
         buffer.putBytes(INDEX, srcBuffer, testBytes.length);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
@@ -638,7 +663,7 @@ public class AtomicBufferTest
 
         buffer.putBytes(INDEX, srcBuffer, testBytes.length);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
@@ -658,7 +683,7 @@ public class AtomicBufferTest
 
         buffer.putBytes(INDEX, srcUnsafeBuffer, 0, testBytes.length);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
@@ -678,12 +703,31 @@ public class AtomicBufferTest
 
         srcUnsafeBuffer.getBytes(0, buffer, INDEX, testBytes.length);
 
-        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(BYTE_ORDER);
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.position(INDEX);
 
         final byte[] buff = new byte[testBytes.length];
         duplicateBuffer.get(buff);
 
         assertThat(buff, is(testBytes));
+    }
+
+    private static ByteBuffer byteBuffer(final DirectBuffer buffer)
+    {
+        final ByteBuffer byteBuffer;
+
+        if (null != buffer.byteBuffer())
+        {
+            byteBuffer = buffer.byteBuffer().duplicate();
+        }
+        else
+        {
+            byteBuffer = ByteBuffer.wrap(buffer.byteArray());
+        }
+
+        byteBuffer.order(BYTE_ORDER);
+        byteBuffer.clear();
+
+        return byteBuffer;
     }
 }

@@ -282,21 +282,6 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
-    public ByteBuffer duplicateByteBuffer()
-    {
-        if (null == byteBuffer)
-        {
-            return ByteBuffer.wrap(byteArray);
-        }
-        else
-        {
-            final ByteBuffer duplicate = byteBuffer.duplicate();
-            duplicate.clear();
-
-            return duplicate;
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////
 
     public long getLong(final int index, final ByteOrder byteOrder)

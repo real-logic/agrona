@@ -119,15 +119,6 @@ public interface DirectBuffer
     void checkLimit(int limit);
 
     /**
-     * Create a duplicate {@link ByteBuffer} for the view in native byte order.
-     * The duplicate {@link ByteBuffer} shares the underlying memory so all changes are reflected.
-     * If no {@link ByteBuffer} is attached then one will be created.
-     *
-     * @return a duplicate of the underlying {@link ByteBuffer}
-     */
-    ByteBuffer duplicateByteBuffer();
-
-    /**
      * Get the value at a given index.
      *
      * @param index     in bytes from which to get.
