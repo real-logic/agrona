@@ -75,6 +75,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+signing {
+    sign configurations.archives
+}
+
 artifacts {
     archives sourcesJar, javadocJar
 }
