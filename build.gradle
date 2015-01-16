@@ -23,7 +23,7 @@ apply plugin: 'eclipse'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'uk.co.real-logic'
-version = '1.0-SNAPSHOT'
+version = '0.1'
 
 ext {
     if (!project.hasProperty('ossrhUsername'))
