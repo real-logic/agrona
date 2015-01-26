@@ -540,7 +540,7 @@ public class UnsafeBuffer implements AtomicBuffer
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UNSAFE.putLong(byteArray, addressOffset + index, bits);
+            UNSAFE.putInt(byteArray, addressOffset + index, bits);
         }
         else
         {
