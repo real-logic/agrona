@@ -15,6 +15,8 @@
  */
 package uk.co.real_logic.agrona.concurrent.broadcast;
 
+import uk.co.real_logic.agrona.BitUtil;
+
 /**
  * Description of the structure for a record in the broadcast buffer.
  * All messages are stored in records with the following format.
@@ -23,16 +25,9 @@ package uk.co.real_logic.agrona.concurrent.broadcast;
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |R|                        Record Length                        |
+ *  |R|                      Message Length                         |
  *  +-+-------------------------------------------------------------+
- *  |R|                       Message Length                        |
- *  +-+-------------------------------------------------------------+
- *  |                          Message Type                         |
- *  +---------------------------------------------------------------+
- *  |                           Reserved                            |
- *  +-+-------------------------------------------------------------+
- *  |R|                       Tail Sequence                         |
- *  |                                                               |
+ *  |                         Message Type                          |
  *  +---------------------------------------------------------------+
  *  |                       Encoded Message                       ...
  * ...                                                              |
@@ -46,23 +41,17 @@ public class RecordDescriptor
     /** Message type is padding to prevent fragmentation in the buffer. */
     public static final int PADDING_MSG_TYPE_ID = -1;
 
-    /** Offset within the record at which the record length field begins. */
-    public static final int REC_LENGTH_OFFSET = 0;
-
     /** Offset within the record at which the message length field begins. */
-    public static final int MSG_LENGTH_OFFSET = 4;
+    public static final int MSG_LENGTH_OFFSET = 0;
 
     /** Offset within the record at which the message type field begins. */
-    public static final int MSG_TYPE_OFFSET = 8;
-
-    /** Offset within the record at which the message type field begins. */
-    public static final int TAIL_SEQUENCE_OFFSET = 16;
+    public static final int MSG_TYPE_OFFSET = MSG_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
 
     /** Length of the record header in bytes. */
-    public static final int HEADER_LENGTH = 24;
+    public static final int HEADER_LENGTH = BitUtil.SIZE_OF_INT * 2;
 
     /** Alignment as a multiple of bytes for each record. */
-    public static final int RECORD_ALIGNMENT = 32;
+    public static final int RECORD_ALIGNMENT = HEADER_LENGTH;
 
     /**
      * Calculate the maximum supported message length for a buffer of given capacity.
@@ -72,18 +61,7 @@ public class RecordDescriptor
      */
     public static int calculateMaxMessageLength(final int capacity)
     {
-        return Math.min(capacity / 8, 1 << 16);
-    }
-
-    /**
-     * The buffer offset at which the record length field begins.
-     *
-     * @param recordOffset at which the frame begins.
-     * @return the offset at which the record length field begins.
-     */
-    public static int recLengthOffset(final int recordOffset)
-    {
-        return recordOffset + REC_LENGTH_OFFSET;
+        return capacity / 8;
     }
 
     /**
@@ -106,17 +84,6 @@ public class RecordDescriptor
     public static int msgTypeOffset(final int recordOffset)
     {
         return recordOffset + MSG_TYPE_OFFSET;
-    }
-
-    /**
-     * The buffer offset at which the tail sequence field begins.
-     *
-     * @param recordOffset at which the frame begins.
-     * @return the offset at which the tail sequence field begins.
-     */
-    public static int tailSequenceOffset(final int recordOffset)
-    {
-        return recordOffset + TAIL_SEQUENCE_OFFSET;
     }
 
     /**

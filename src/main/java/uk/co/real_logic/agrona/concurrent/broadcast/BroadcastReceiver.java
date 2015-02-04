@@ -15,12 +15,15 @@
  */
 package uk.co.real_logic.agrona.concurrent.broadcast;
 
+import uk.co.real_logic.agrona.MutableDirectBuffer;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static uk.co.real_logic.agrona.BitUtil.align;
 import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 import static uk.co.real_logic.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
+import static uk.co.real_logic.agrona.concurrent.broadcast.RecordDescriptor.*;
 
 /**
  * Receive messages broadcast from a {@link BroadcastTransmitter} via an underlying buffer. Receivers can join
@@ -36,6 +39,7 @@ public class BroadcastReceiver
     private final AtomicBuffer buffer;
     private final int capacity;
     private final int mask;
+    private final int tailIntentCounterIndex;
     private final int tailCounterIndex;
     private final int latestCounterIndex;
 
@@ -61,6 +65,7 @@ public class BroadcastReceiver
         checkCapacity(capacity);
 
         this.mask = capacity - 1;
+        this.tailIntentCounterIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
         this.tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
         this.latestCounterIndex = capacity + LATEST_COUNTER_OFFSET;
     }
@@ -95,7 +100,7 @@ public class BroadcastReceiver
      */
     public int typeId()
     {
-        return buffer.getInt(RecordDescriptor.msgTypeOffset(recordOffset));
+        return buffer.getInt(msgTypeOffset(recordOffset));
     }
 
     /**
@@ -105,7 +110,7 @@ public class BroadcastReceiver
      */
     public int offset()
     {
-        return RecordDescriptor.msgOffset(recordOffset);
+        return msgOffset(recordOffset);
     }
 
     /**
@@ -115,7 +120,7 @@ public class BroadcastReceiver
      */
     public int length()
     {
-        return buffer.getInt(RecordDescriptor.msgLengthOffset(recordOffset));
+        return buffer.getInt(msgLengthOffset(recordOffset));
     }
 
     /**
@@ -123,7 +128,7 @@ public class BroadcastReceiver
      *
      * @return the underlying buffer containing the broadcast message stream.
      */
-    public AtomicBuffer buffer()
+    public MutableDirectBuffer buffer()
     {
         return buffer;
     }
@@ -138,36 +143,38 @@ public class BroadcastReceiver
      */
     public boolean receiveNext()
     {
+        boolean isAvailable = false;
         final AtomicBuffer buffer = this.buffer;
         final long tail = buffer.getLongVolatile(tailCounterIndex);
         long cursor = this.nextRecord;
 
         if (tail > cursor)
         {
-            recordOffset = (int)cursor & mask;
+            int recordOffset = (int)cursor & mask;
 
-            if (!validate(buffer, cursor))
+            if (!validate(cursor))
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
 
-                cursor = buffer.getLongVolatile(latestCounterIndex);
+                cursor = buffer.getLong(latestCounterIndex);
                 recordOffset = (int)cursor & mask;
             }
 
             this.cursor = cursor;
-            nextRecord = cursor + buffer.getInt(RecordDescriptor.recLengthOffset(recordOffset));
+            nextRecord = cursor + align(HEADER_LENGTH + buffer.getInt(msgLengthOffset(recordOffset)), RECORD_ALIGNMENT);
 
-            if (RecordDescriptor.PADDING_MSG_TYPE_ID == buffer.getInt(RecordDescriptor.msgTypeOffset(recordOffset)))
+            if (PADDING_MSG_TYPE_ID == buffer.getInt(msgTypeOffset(recordOffset)))
             {
                 recordOffset = 0;
                 this.cursor = nextRecord;
-                nextRecord += buffer.getInt(RecordDescriptor.recLengthOffset(recordOffset));
+                nextRecord += align(HEADER_LENGTH + buffer.getInt(msgLengthOffset(recordOffset)), RECORD_ALIGNMENT);
             }
 
-            return true;
+            this.recordOffset = recordOffset;
+            isAvailable = true;
         }
 
-        return false;
+        return isAvailable;
     }
 
     /**
@@ -180,13 +187,13 @@ public class BroadcastReceiver
      */
     public boolean validate()
     {
-        UNSAFE.loadFence(); // Needed to prevent older loads being moved ahead of the validate, see StampedLock.
+        UNSAFE.loadFence(); // Needed to prevent older loads being moved ahead of the validate, see j.u.c.StampedLock.
 
-        return validate(buffer, cursor);
+        return validate(cursor);
     }
 
-    private boolean validate(final AtomicBuffer buffer, final long cursor)
+    private boolean validate(final long cursor)
     {
-        return cursor == buffer.getLongVolatile(RecordDescriptor.tailSequenceOffset(recordOffset));
+        return (cursor + capacity) > buffer.getLongVolatile(tailIntentCounterIndex);
     }
 }

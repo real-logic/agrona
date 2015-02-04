@@ -20,6 +20,7 @@ import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
 import static uk.co.real_logic.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
+import static uk.co.real_logic.agrona.concurrent.broadcast.RecordDescriptor.*;
 
 /**
  * Transmit messages via an underlying broadcast buffer to zero or more {@link BroadcastReceiver}s.
@@ -32,6 +33,7 @@ public class BroadcastTransmitter
     private final int capacity;
     private final int mask;
     private final int maxMsgLength;
+    private final int tailIntentCountIndex;
     private final int tailCounterIndex;
     private final int latestCounterIndex;
 
@@ -52,7 +54,8 @@ public class BroadcastTransmitter
         checkCapacity(capacity);
 
         this.mask = capacity - 1;
-        this.maxMsgLength = RecordDescriptor.calculateMaxMessageLength(capacity);
+        this.maxMsgLength = calculateMaxMessageLength(capacity);
+        this.tailIntentCountIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
         this.tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
         this.latestCounterIndex = capacity + LATEST_COUNTER_OFFSET;
     }
@@ -89,51 +92,43 @@ public class BroadcastTransmitter
      */
     public void transmit(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        RecordDescriptor.checkMsgTypeId(msgTypeId);
+        checkMsgTypeId(msgTypeId);
         checkMessageLength(length);
 
         final AtomicBuffer buffer = this.buffer;
-        long tail = buffer.getLong(tailCounterIndex);
-        int recordOffset = (int)tail & mask;
-        final int recordLength = BitUtil.align(length + RecordDescriptor.HEADER_LENGTH, RecordDescriptor.RECORD_ALIGNMENT);
+        long currentTail = buffer.getLong(tailCounterIndex);
+        int recordOffset = (int)currentTail & mask;
+        final int recordLength = BitUtil.align(HEADER_LENGTH + length, RECORD_ALIGNMENT);
+        final long newTail = currentTail + recordLength;
 
-        final int remainingBuffer = capacity - recordOffset;
-        if (remainingBuffer < recordLength)
+        final int toEndOfBuffer = capacity - recordOffset;
+        if (toEndOfBuffer < recordLength)
         {
-            insertPaddingRecord(buffer, tail, recordOffset, remainingBuffer);
+            buffer.putLongOrdered(tailIntentCountIndex, newTail + toEndOfBuffer);
 
-            tail += remainingBuffer;
+            insertPaddingRecord(buffer, recordOffset, toEndOfBuffer - HEADER_LENGTH);
+
+            currentTail += toEndOfBuffer;
             recordOffset = 0;
         }
+        else
+        {
+            buffer.putLongOrdered(tailIntentCountIndex, newTail);
+        }
 
-        buffer.putLongOrdered(RecordDescriptor.tailSequenceOffset(recordOffset), tail);
-        buffer.putInt(RecordDescriptor.recLengthOffset(recordOffset), recordLength);
-        buffer.putInt(RecordDescriptor.msgLengthOffset(recordOffset), length);
-        buffer.putInt(RecordDescriptor.msgTypeOffset(recordOffset), msgTypeId);
+        buffer.putInt(msgLengthOffset(recordOffset), length);
+        buffer.putInt(msgTypeOffset(recordOffset), msgTypeId);
 
-        buffer.putBytes(RecordDescriptor.msgOffset(recordOffset), srcBuffer, srcIndex, length);
+        buffer.putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        putLatestCounter(buffer, tail);
-        incrementTailOrdered(buffer, tail, recordLength);
+        buffer.putLong(latestCounterIndex, currentTail);
+        buffer.putLongOrdered(tailCounterIndex, currentTail + recordLength);
     }
 
-    private void putLatestCounter(final AtomicBuffer buffer, final long tail)
+    private static void insertPaddingRecord(final AtomicBuffer buffer, final int recordOffset, final int length)
     {
-        buffer.putLong(latestCounterIndex, tail);
-    }
-
-    private void incrementTailOrdered(final AtomicBuffer buffer, final long tail, final int recordLength)
-    {
-        buffer.putLongOrdered(tailCounterIndex, tail + recordLength);
-    }
-
-    private static void insertPaddingRecord(
-        final AtomicBuffer buffer, final long tail, final int recordOffset, final int remainingBuffer)
-    {
-        buffer.putLongOrdered(RecordDescriptor.tailSequenceOffset(recordOffset), tail);
-        buffer.putInt(RecordDescriptor.recLengthOffset(recordOffset), remainingBuffer);
-        buffer.putInt(RecordDescriptor.msgLengthOffset(recordOffset), 0);
-        buffer.putInt(RecordDescriptor.msgTypeOffset(recordOffset), RecordDescriptor.PADDING_MSG_TYPE_ID);
+        buffer.putInt(msgLengthOffset(recordOffset), length);
+        buffer.putInt(msgTypeOffset(recordOffset), PADDING_MSG_TYPE_ID);
     }
 
     private void checkMessageLength(final int length)

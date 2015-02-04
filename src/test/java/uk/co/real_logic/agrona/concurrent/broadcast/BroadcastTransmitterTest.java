@@ -30,7 +30,8 @@ public class BroadcastTransmitterTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 1024;
-    private static final int TOTAL_BUFFER_SIZE = CAPACITY + BroadcastBufferDescriptor.TRAILER_LENGTH;
+    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + BroadcastBufferDescriptor.TRAILER_LENGTH;
+    private static final int TAIL_INTENT_COUNTER_OFFSET = CAPACITY + BroadcastBufferDescriptor.TAIL_INTENT_COUNTER_OFFSET;
     private static final int TAIL_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.TAIL_COUNTER_OFFSET;
     private static final int LATEST_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.LATEST_COUNTER_OFFSET;
 
@@ -40,7 +41,7 @@ public class BroadcastTransmitterTest
     @Before
     public void setUp()
     {
-        when(buffer.capacity()).thenReturn(TOTAL_BUFFER_SIZE);
+        when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
         broadcastTransmitter = new BroadcastTransmitter(buffer);
     }
@@ -55,15 +56,15 @@ public class BroadcastTransmitterTest
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
-        final int totalBufferSize = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
+        final int totalBufferLength = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
 
-        when(buffer.capacity()).thenReturn(totalBufferSize);
+        when(buffer.capacity()).thenReturn(totalBufferLength);
 
         new BroadcastTransmitter(buffer);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenMaxMessageSizeExceeded()
+    public void shouldThrowExceptionWhenMaxMessageLengthExceeded()
     {
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
@@ -94,8 +95,7 @@ public class BroadcastTransmitterTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
-        inOrder.verify(buffer).putLongOrdered(tailSequenceOffset(recordOffset), tail);
-        inOrder.verify(buffer).putInt(recLengthOffset(recordOffset), recordLength);
+        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLength);
         inOrder.verify(buffer).putInt(msgLengthOffset(recordOffset), length);
         inOrder.verify(buffer).putInt(msgTypeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -122,8 +122,7 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(tailSequenceOffset(recordOffset), tail);
-        inOrder.verify(buffer).putInt(recLengthOffset(recordOffset), recordLength);
+        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLength);
         inOrder.verify(buffer).putInt(msgLengthOffset(recordOffset), length);
         inOrder.verify(buffer).putInt(msgTypeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -135,10 +134,11 @@ public class BroadcastTransmitterTest
     @Test
     public void shouldTransmitIntoEndOfBuffer()
     {
-        final long tail = CAPACITY - RECORD_ALIGNMENT;
-        final int recordOffset = (int)tail;
         final int length = 8;
         final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
+        final long tail = CAPACITY - recordLength;
+        final int recordOffset = (int)tail;
+
 
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
@@ -150,8 +150,7 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(tailSequenceOffset(recordOffset), tail);
-        inOrder.verify(buffer).putInt(recLengthOffset(recordOffset), recordLength);
+        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLength);
         inOrder.verify(buffer).putInt(msgLengthOffset(recordOffset), length);
         inOrder.verify(buffer).putInt(msgTypeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -167,6 +166,7 @@ public class BroadcastTransmitterTest
         int recordOffset = (int)tail;
         final int length = RECORD_ALIGNMENT + 8;
         final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
+        final int toEndOfBuffer = CAPACITY - recordOffset;
 
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
@@ -178,15 +178,13 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(tailSequenceOffset(recordOffset), tail);
-        inOrder.verify(buffer).putInt(recLengthOffset(recordOffset), CAPACITY - recordOffset);
+        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLength + toEndOfBuffer);
+
         inOrder.verify(buffer).putInt(msgLengthOffset(recordOffset), 0);
         inOrder.verify(buffer).putInt(msgTypeOffset(recordOffset), PADDING_MSG_TYPE_ID);
 
-        tail += (CAPACITY - recordOffset);
+        tail += toEndOfBuffer;
         recordOffset = 0;
-        inOrder.verify(buffer).putLongOrdered(tailSequenceOffset(recordOffset), tail);
-        inOrder.verify(buffer).putInt(recLengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(msgLengthOffset(recordOffset), length);
         inOrder.verify(buffer).putInt(msgTypeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);

@@ -23,8 +23,11 @@ import uk.co.real_logic.agrona.BitUtil;
  */
 public class BroadcastBufferDescriptor
 {
+    /** Offset within the trailer for where the tail intended value is stored. */
+    public static final int TAIL_INTENT_COUNTER_OFFSET = 0;
+
     /** Offset within the trailer for where the tail value is stored. */
-    public static final int TAIL_COUNTER_OFFSET = BitUtil.CACHE_LINE_LENGTH;
+    public static final int TAIL_COUNTER_OFFSET = TAIL_INTENT_COUNTER_OFFSET + BitUtil.SIZE_OF_LONG;
 
     /** Offset within the trailer for where the latest sequence value is stored. */
     public static final int LATEST_COUNTER_OFFSET = TAIL_COUNTER_OFFSET + BitUtil.SIZE_OF_LONG;

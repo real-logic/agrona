@@ -31,7 +31,8 @@ public class BroadcastReceiverTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 1024;
-    private static final int TOTAL_BUFFER_SIZE = CAPACITY + BroadcastBufferDescriptor.TRAILER_LENGTH;
+    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + BroadcastBufferDescriptor.TRAILER_LENGTH;
+    private static final int TAIL_INTENT_COUNTER_OFFSET = CAPACITY + BroadcastBufferDescriptor.TAIL_INTENT_COUNTER_OFFSET;
     private static final int TAIL_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.TAIL_COUNTER_OFFSET;
     private static final int LATEST_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.LATEST_COUNTER_OFFSET;
 
@@ -41,7 +42,7 @@ public class BroadcastReceiverTest
     @Before
     public void setUp()
     {
-        when(buffer.capacity()).thenReturn(TOTAL_BUFFER_SIZE);
+        when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
         broadcastReceiver = new BroadcastReceiver(buffer);
     }
@@ -56,9 +57,9 @@ public class BroadcastReceiverTest
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
-        final int totalBufferSize = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
+        final int totalBufferLength = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
 
-        when(buffer.capacity()).thenReturn(totalBufferSize);
+        when(buffer.capacity()).thenReturn(totalBufferLength);
 
         new BroadcastReceiver(buffer);
     }
@@ -84,10 +85,8 @@ public class BroadcastReceiverTest
         final long latestRecord = tail - recordLength;
         final int recordOffset = (int)latestRecord;
 
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffset))).thenReturn(latestRecord);
-        when(buffer.getInt(recLengthOffset(recordOffset))).thenReturn(recordLength);
         when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
@@ -101,7 +100,7 @@ public class BroadcastReceiverTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
-        inOrder.verify(buffer).getLongVolatile(tailSequenceOffset(recordOffset));
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
     }
 
     @Test
@@ -114,16 +113,12 @@ public class BroadcastReceiverTest
         final int recordOffsetOne = 0;
         final int recordOffsetTwo = (int)latestRecord;
 
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
 
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffsetOne))).thenReturn(0L);
-        when(buffer.getInt(recLengthOffset(recordOffsetOne))).thenReturn(recordLength);
         when(buffer.getInt(msgLengthOffset(recordOffsetOne))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffsetOne))).thenReturn(MSG_TYPE_ID);
 
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffsetTwo))).thenReturn(latestRecord);
-        when(buffer.getInt(recLengthOffset(recordOffsetTwo))).thenReturn(recordLength);
         when(buffer.getInt(msgLengthOffset(recordOffsetTwo))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffsetTwo))).thenReturn(MSG_TYPE_ID);
 
@@ -142,6 +137,14 @@ public class BroadcastReceiverTest
         assertThat(broadcastReceiver.length(), is(length));
 
         assertTrue(broadcastReceiver.validate());
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
+        inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
     }
 
     @Test
@@ -149,17 +152,14 @@ public class BroadcastReceiverTest
     {
         final int length = 8;
         final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long tail = (CAPACITY * 3L) + RECORD_ALIGNMENT + recordLength;
+        final long tail = (CAPACITY * 3L) + HEADER_LENGTH + recordLength;
         final long latestRecord = tail - recordLength;
         final int recordOffset = (int)latestRecord & (CAPACITY - 1);
 
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
+        when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
 
-        when(buffer.getLongVolatile(tailSequenceOffset(0))).thenReturn(CAPACITY * 3L);
-
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffset))).thenReturn(latestRecord);
-        when(buffer.getInt(recLengthOffset(recordOffset))).thenReturn(recordLength);
         when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
@@ -174,34 +174,29 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldCopeWithPaddingRecordAndWrapOfBufferToNextRecord()
+    public void shouldCopeWithPaddingRecordAndWrapOfBufferForNextRecord()
     {
         final int length = 120;
         final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long catchupTail = (CAPACITY * 2L) - RECORD_ALIGNMENT;
-        final long postPaddingTail = catchupTail + RECORD_ALIGNMENT + recordLength;
+        final long catchupTail = (CAPACITY * 2L) - HEADER_LENGTH;
+        final long postPaddingTail = catchupTail + HEADER_LENGTH + recordLength;
         final long latestRecord = catchupTail - recordLength;
         final int catchupOffset = (int)latestRecord & (CAPACITY - 1);
 
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(catchupTail)
-                                                        .thenReturn(postPaddingTail);
-        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
-
-        when(buffer.getLongVolatile(tailSequenceOffset(0))).thenReturn(CAPACITY * 2L);
-
-        when(buffer.getLongVolatile(tailSequenceOffset(catchupOffset))).thenReturn(latestRecord);
-        when(buffer.getInt(recLengthOffset(catchupOffset))).thenReturn(recordLength);
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET))
+            .thenReturn(catchupTail)
+            .thenReturn(postPaddingTail);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX))
+            .thenReturn(catchupTail)
+            .thenReturn(postPaddingTail);
+        when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
         when(buffer.getInt(msgLengthOffset(catchupOffset))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(catchupOffset))).thenReturn(MSG_TYPE_ID);
 
         final int paddingOffset = (int)catchupTail & (CAPACITY - 1);
         final int recordOffset = (int)(postPaddingTail - recordLength) & (CAPACITY - 1);
-        when(buffer.getLongVolatile(tailSequenceOffset(paddingOffset))).thenReturn(catchupTail);
-        when(buffer.getInt(recLengthOffset(paddingOffset))).thenReturn(RECORD_ALIGNMENT);
         when(buffer.getInt(msgTypeOffset(paddingOffset))).thenReturn(PADDING_MSG_TYPE_ID);
 
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffset))).thenReturn(postPaddingTail - recordLength);
-        when(buffer.getInt(recLengthOffset(recordOffset))).thenReturn(recordLength);
         when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
@@ -225,11 +220,11 @@ public class BroadcastReceiverTest
         final long latestRecord = tail - recordLength;
         final int recordOffset = (int)latestRecord;
 
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET))
+            .thenReturn(tail)
+            .thenReturn(tail + (CAPACITY - (recordLength)));
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
-        when(buffer.getLongVolatile(tailSequenceOffset(recordOffset))).thenReturn(latestRecord)
-                                                                      .thenReturn(latestRecord + CAPACITY);
-        when(buffer.getInt(recLengthOffset(recordOffset))).thenReturn(recordLength);
+
         when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
         when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
@@ -243,7 +238,5 @@ public class BroadcastReceiverTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
-        inOrder.verify(buffer).getLongVolatile(tailSequenceOffset(recordOffset));
-        inOrder.verify(buffer).getLongVolatile(tailSequenceOffset(recordOffset));
     }
 }
