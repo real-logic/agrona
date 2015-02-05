@@ -35,7 +35,7 @@ public class ManyToOneRingBuffer implements RingBuffer
     /**
      * Buffer has insufficient capacity to record a message.
      */
-    public static final int INSUFFICIENT_CAPACITY = -1;
+    public static final int INSUFFICIENT_CAPACITY = -2;
 
     private final AtomicBuffer buffer;
     private final int capacity;
