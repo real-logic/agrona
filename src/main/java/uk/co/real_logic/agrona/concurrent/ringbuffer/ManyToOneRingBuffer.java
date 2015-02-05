@@ -305,7 +305,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         int msgLength;
         do
         {
-            msgLength = buffer.getIntVolatile(RecordDescriptor.msgLengthOffset(recordIndex));
+            msgLength = buffer.getIntVolatile(msgLengthOffset(recordIndex));
         }
         while (0 == msgLength);
 
