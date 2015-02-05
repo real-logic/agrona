@@ -20,6 +20,7 @@ import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 import uk.co.real_logic.agrona.concurrent.MessageHandler;
 
 import static uk.co.real_logic.agrona.BitUtil.align;
+import static uk.co.real_logic.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 
 /**
  * A ring-buffer that supports the exchange of messages from many producers to a single consumer.
@@ -82,22 +83,21 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public boolean write(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        RecordDescriptor.checkMsgTypeId(msgTypeId);
+        checkMsgTypeId(msgTypeId);
         checkMsgLength(length);
 
         final AtomicBuffer buffer = this.buffer;
-        final int requiredCapacity = align(length + RecordDescriptor.HEADER_LENGTH, RecordDescriptor.ALIGNMENT);
+        final int requiredCapacity = align(length + HEADER_LENGTH, ALIGNMENT);
         final int recordIndex = claimCapacity(buffer, requiredCapacity);
         if (INSUFFICIENT_CAPACITY == recordIndex)
         {
             return false;
         }
 
-        msgLength(buffer, recordIndex, length);
-        msgType(buffer, recordIndex, msgTypeId);
         writeMsg(buffer, recordIndex, srcBuffer, srcIndex, length);
 
-        recordLengthOrdered(buffer, recordIndex, requiredCapacity);
+        msgType(buffer, recordIndex, msgTypeId);
+        msgLengthOrdered(buffer, recordIndex, length);
 
         return true;
     }
@@ -132,17 +132,16 @@ public class ManyToOneRingBuffer implements RingBuffer
                 while ((bytesRead < contiguousBlockSize) && (messagesRead < messageCountLimit))
                 {
                     final int recordIndex = headIndex + bytesRead;
-                    final int recordLength = waitForRecordLengthVolatile(buffer, recordIndex);
+                    final int msgLength = waitForMsgLengthVolatile(buffer, recordIndex);
 
-                    final int msgLength = msgLength(buffer, recordIndex);
                     final int msgTypeId = msgType(buffer, recordIndex);
 
-                    bytesRead += recordLength;
+                    bytesRead += align(msgLength + HEADER_LENGTH, ALIGNMENT);
 
                     if (msgTypeId != PADDING_MSG_TYPE_ID)
                     {
                         ++messagesRead;
-                        handler.onMessage(msgTypeId, buffer, RecordDescriptor.encodedMsgOffset(recordIndex), msgLength);
+                        handler.onMessage(msgTypeId, buffer, encodedMsgOffset(recordIndex), msgLength);
                     }
                 }
             }
@@ -242,7 +241,7 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         if (0 != padding)
         {
-            writePaddingRecord(buffer, tailIndex, padding);
+            writePaddingRecord(buffer, tailIndex, padding - HEADER_LENGTH);
             tailIndex = 0;
         }
 
@@ -277,50 +276,40 @@ public class ManyToOneRingBuffer implements RingBuffer
     private static void writePaddingRecord(final AtomicBuffer buffer, final int recordIndex, final int padding)
     {
         msgType(buffer, recordIndex, PADDING_MSG_TYPE_ID);
-        recordLengthOrdered(buffer, recordIndex, padding);
+        msgLengthOrdered(buffer, recordIndex, padding);
     }
 
-    private static void recordLengthOrdered(final AtomicBuffer buffer, final int recordIndex, final int length)
+    private static void msgLengthOrdered(final AtomicBuffer buffer, final int recordIndex, final int length)
     {
-        buffer.putIntOrdered(RecordDescriptor.lengthOffset(recordIndex), length);
-    }
-
-    private static void msgLength(final AtomicBuffer buffer, final int recordIndex, final int length)
-    {
-        buffer.putInt(RecordDescriptor.msgLengthOffset(recordIndex), length);
+        buffer.putIntOrdered(msgLengthOffset(recordIndex), length);
     }
 
     private static void msgType(final AtomicBuffer buffer, final int recordIndex, final int msgTypeId)
     {
-        buffer.putInt(RecordDescriptor.msgTypeOffset(recordIndex), msgTypeId);
+        buffer.putInt(msgTypeOffset(recordIndex), msgTypeId);
     }
 
     private static void writeMsg(
         final AtomicBuffer buffer, final int recordIndex, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        buffer.putBytes(RecordDescriptor.encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
+        buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
     }
 
     private static int msgType(final AtomicBuffer buffer, final int recordIndex)
     {
-        return buffer.getInt(RecordDescriptor.msgTypeOffset(recordIndex));
+        return buffer.getInt(msgTypeOffset(recordIndex));
     }
 
-    private static int msgLength(final AtomicBuffer buffer, final int recordIndex)
+    private static int waitForMsgLengthVolatile(final AtomicBuffer buffer, final int recordIndex)
     {
-        return buffer.getInt(RecordDescriptor.msgLengthOffset(recordIndex));
-    }
-
-    private static int waitForRecordLengthVolatile(final AtomicBuffer buffer, final int recordIndex)
-    {
-        int recordLength;
+        int msgLength;
         do
         {
-            recordLength = buffer.getIntVolatile(RecordDescriptor.lengthOffset(recordIndex));
+            msgLength = buffer.getIntVolatile(RecordDescriptor.msgLengthOffset(recordIndex));
         }
-        while (0 == recordLength);
+        while (0 == msgLength);
 
-        return recordLength;
+        return msgLength;
     }
 
     private static void zeroBuffer(final AtomicBuffer buffer, final int position, int length)

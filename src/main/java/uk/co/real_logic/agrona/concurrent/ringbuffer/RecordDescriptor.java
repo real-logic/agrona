@@ -23,34 +23,28 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 public class RecordDescriptor
 {
     /**
-     * Header length made up of fields for record length, message length, message type, and reserved,
-     * and then the encoded message.
+     * Header length made up of fields for  message length, message type, and then the encoded message.
      * <p>
      * Writing of the record length signals the message recording is complete.
      * <pre>
-     *   0        4        8        12       16 -byte position
-     *   +--------+--------+--------+--------+------------------------+
-     *   |rec len |msg len |msg type|reserve |encoded message.........|
-     *   +--------+--------+--------+--------+------------------------+
+     *   0                   1                   2                   3
+     *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *  |R|                      Message Length                         |
+     *  +-+-------------------------------------------------------------+
+     *  |                         Message Type                          |
+     *  +---------------------------------------------------------------+
+     *  |                       Encoded Message                        ...
+     * ...                                                              |
+     *  +---------------------------------------------------------------+
      * </pre>
      */
-    public static final int HEADER_LENGTH = SIZE_OF_INT * 4;
+    public static final int HEADER_LENGTH = SIZE_OF_INT * 2;
 
     /**
      * Alignment as a multiple of bytes for each record.
      */
-    public static final int ALIGNMENT = 32;
-
-    /**
-     * The offset from the beginning of a record at which the length field begins.
-     *
-     * @param recordOffset beginning index of the record.
-     * @return offset from the beginning of a record at which the length field begins.
-     */
-    public static int lengthOffset(final int recordOffset)
-    {
-        return recordOffset;
-    }
+    public static final int ALIGNMENT = HEADER_LENGTH;
 
     /**
      * The offset from the beginning of a record at which the message length field begins.
@@ -60,7 +54,7 @@ public class RecordDescriptor
      */
     public static int msgLengthOffset(final int recordOffset)
     {
-        return recordOffset + SIZE_OF_INT;
+        return recordOffset;
     }
 
     /**
@@ -71,7 +65,7 @@ public class RecordDescriptor
      */
     public static int msgTypeOffset(final int recordOffset)
     {
-        return recordOffset + SIZE_OF_INT + SIZE_OF_INT;
+        return recordOffset + SIZE_OF_INT;
     }
 
     /**
