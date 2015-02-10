@@ -17,6 +17,7 @@ package uk.co.real_logic.agrona.concurrent.broadcast;
 
 import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.UnsafeAccess;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
 import static uk.co.real_logic.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
@@ -104,8 +105,7 @@ public class BroadcastTransmitter
         final int toEndOfBuffer = capacity - recordOffset;
         if (toEndOfBuffer < recordLength)
         {
-            buffer.putLongOrdered(tailIntentCountIndex, newTail + toEndOfBuffer);
-
+            signalTailIntent(buffer, newTail + toEndOfBuffer);
             insertPaddingRecord(buffer, recordOffset, toEndOfBuffer - HEADER_LENGTH);
 
             currentTail += toEndOfBuffer;
@@ -113,7 +113,7 @@ public class BroadcastTransmitter
         }
         else
         {
-            buffer.putLongOrdered(tailIntentCountIndex, newTail);
+            signalTailIntent(buffer, newTail);
         }
 
         buffer.putInt(msgLengthOffset(recordOffset), length);
@@ -123,6 +123,12 @@ public class BroadcastTransmitter
 
         buffer.putLong(latestCounterIndex, currentTail);
         buffer.putLongOrdered(tailCounterIndex, currentTail + recordLength);
+    }
+
+    private void signalTailIntent(final AtomicBuffer buffer, final long newTail)
+    {
+        buffer.putLongOrdered(tailIntentCountIndex, newTail);
+        UnsafeAccess.UNSAFE.storeFence();
     }
 
     private static void insertPaddingRecord(final AtomicBuffer buffer, final int recordOffset, final int length)
