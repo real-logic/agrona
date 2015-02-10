@@ -23,7 +23,7 @@ apply plugin: 'eclipse'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'uk.co.real-logic'
-version = '0.2-SNAPSHOT'
+version = '0.2'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 ext {
@@ -77,7 +77,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 signing {
-    required { isReleaseVersion && gradle.taskGrah.hasTask("uploadArchives") }
+    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 
