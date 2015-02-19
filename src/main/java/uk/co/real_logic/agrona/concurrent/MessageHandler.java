@@ -20,6 +20,7 @@ import uk.co.real_logic.agrona.MutableDirectBuffer;
 /**
  * Callback interface for processing of messages that are read from a buffer.
  */
+@FunctionalInterface
 public interface MessageHandler
 {
     /**
