@@ -16,8 +16,8 @@
 package uk.co.real_logic.agrona.concurrent.broadcast;
 
 import uk.co.real_logic.agrona.MutableDirectBuffer;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.MessageHandler;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Receiver that copies messages that have been broadcast to enable a simpler API for the client.

@@ -15,8 +15,8 @@
  */
 package uk.co.real_logic.agrona.status;
 
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Indicates the position of some entity that stores its value in an buffer. The buffer is managed by a {@link CountersManager}.

@@ -15,8 +15,8 @@
  */
 package uk.co.real_logic.agrona.status;
 
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Reports a position by recording it in an {@link UnsafeBuffer}.

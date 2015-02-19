@@ -16,8 +16,8 @@
 package uk.co.real_logic.agrona.concurrent.ringbuffer;
 
 import org.junit.Test;
-import uk.co.real_logic.agrona.concurrent.MessageHandler;
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.concurrent.MessageHandler;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 import java.nio.ByteBuffer;
