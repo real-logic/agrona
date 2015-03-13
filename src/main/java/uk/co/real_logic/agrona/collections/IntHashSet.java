@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,16 +33,18 @@ public final class IntHashSet implements Set<Integer>
 {
     private final int[] values;
     private final IntIterator iterator;
-    private final int mask;
+    @DoNotSub private final int mask;
     private final int missingValue;
 
-    private int size;
+    @DoNotSub private int size;
 
-    public IntHashSet(final int proposedCapacity, final int missingValue)
+    public IntHashSet(
+        @DoNotSub final int proposedCapacity,
+        final int missingValue)
     {
         size = 0;
         this.missingValue = missingValue;
-        final int capacity = BitUtil.findNextPositivePowerOfTwo(proposedCapacity);
+        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(proposedCapacity);
         mask = capacity - 1;
         values = new int[capacity];
         Arrays.fill(values, missingValue);
@@ -66,7 +69,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean add(final int value)
     {
-        int index = hash(value);
+        @DoNotSub int index =
+            Hashing.intHash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -100,7 +104,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean remove(final int value)
     {
-        int index = hash(value);
+        @DoNotSub int index =
+            Hashing.intHash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -117,20 +122,20 @@ public final class IntHashSet implements Set<Integer>
         return false;
     }
 
-    private int next(int index)
+    @DoNotSub private int next(int index)
     {
         index = ++index & mask;
         return index;
     }
 
-    private void compactChain(final int deleteIndex)
+    @DoNotSub private void compactChain(final int deleteIndex)
     {
         final int[] values = this.values;
 
-        int index = deleteIndex;
+        @DoNotSub int index = deleteIndex;
         while (true)
         {
-            final int previousIndex = index;
+            @DoNotSub final int previousIndex = index;
             index = next(index);
             if (values[index] == missingValue)
             {
@@ -155,7 +160,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean contains(final int value)
     {
-        int index = hash(value);
+        @DoNotSub int index =
+            Hashing.intHash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -173,16 +179,7 @@ public final class IntHashSet implements Set<Integer>
     /**
      * {@inheritDoc}
      */
-    private int hash(final int value)
-    {
-        final int hash = (value << 1) - (value << 8);
-        return hash & mask;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -201,8 +198,8 @@ public final class IntHashSet implements Set<Integer>
     public void clear()
     {
         final int[] values = this.values;
-        final int length = values.length;
-        for (int i = 0; i < length; i++)
+        @DoNotSub final int length = values.length;
+        for (@DoNotSub int i = 0; i < length; i++)
         {
             values[i] = missingValue;
         }
@@ -354,7 +351,7 @@ public final class IntHashSet implements Set<Integer>
     {
         final int[] values = this.values;
         final Object[] array = new Object[values.length];
-        for (int i = 0; i < values.length; i++)
+        for (@DoNotSub int i = 0; i < values.length; i++)
         {
             array[i] = values[i];
         }
@@ -385,13 +382,14 @@ public final class IntHashSet implements Set<Integer>
     /**
      * {@inheritDoc}
      */
-    public int hashCode()
+    @DoNotSub public int hashCode()
     {
         final IntIterator iterator = iterator();
-        int total = 0;
+        @DoNotSub int total = 0;
         while (iterator.hasNext())
         {
-            total += iterator.nextValue();
+            // Cast exists for substitutions
+            total += (int) iterator.nextValue();
         }
         return total;
     }

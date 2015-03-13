@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 
 public final class PrimitiveExpander
 {
@@ -31,40 +32,61 @@ public final class PrimitiveExpander
     private static final String SUFFIX = ".java";
     private static final String GENERATED_DIRECTORY = "build/generated-src";
 
-    private static final List<Substitution> substitutions = Arrays.asList(
-        new Substitution("long", "Long")
+    private static final List<Substitution> SUBSTITUTIONS = Arrays.asList(
+        new Substitution("long", "Long", "Long")
     );
 
     public static void main(String[] args) throws IOException
     {
         expandPrimitiveSpecialisedClass("IntIterator");
+        expandPrimitiveSpecialisedClass("IntHashSet");
     }
 
     private static void expandPrimitiveSpecialisedClass(final String className) throws IOException
     {
-        final Path path = Paths.get(SOURCE_DIRECTORY, PACKAGE, className + SUFFIX);
-        String contents = new String(Files.readAllBytes(path), UTF_8);
-        for (Substitution substitution : substitutions)
+        final Path inputPath = Paths.get(SOURCE_DIRECTORY, PACKAGE, className + SUFFIX);
+
+        Path outputDirectory = Paths.get(GENERATED_DIRECTORY, PACKAGE);
+        Files.createDirectories(outputDirectory);
+
+        final List<String> contents = Files.readAllLines(inputPath, UTF_8);
+        for (Substitution substitution : SUBSTITUTIONS)
         {
-            contents = substitution.substitute(contents);
+            final String substitutedFileName = substitution.substitute(className);
+            final List<String> substitutedContents = contents
+                    .stream()
+                    .map(substitution::checkedSubstitute)
+                    .collect(toList());
+
+            Path outputPath = Paths.get(GENERATED_DIRECTORY, PACKAGE, substitutedFileName + SUFFIX);
+            Files.write(outputPath, substitutedContents, UTF_8);
+            System.out.println("Generated " + substitutedFileName);
         }
-        System.out.println(contents);
     }
 
     public static final class Substitution
     {
         private final String primitiveType;
         private final String boxedType;
+        private final String className;
 
-        private Substitution(final String primitiveType, final String boxedType)
+        private Substitution(final String primitiveType, final String boxedType, final String className)
         {
             this.primitiveType = primitiveType;
             this.boxedType = boxedType;
+            this.className = className;
         }
 
         public String substitute(String contents)
         {
-            return contents;
+            return contents.replace("int", primitiveType)
+                           .replace("Integer", boxedType)
+                           .replace("Int", className);
+        }
+
+        public String checkedSubstitute(String contents)
+        {
+            return contents.contains("@DoNotSub") ? contents : substitute(contents);
         }
     }
 }

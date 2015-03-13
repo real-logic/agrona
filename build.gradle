@@ -50,6 +50,21 @@ compileJava {
     targetCompatibility = 1.8
 }
 
+def generatedDir = file("$buildDir/generated-src")
+sourceSets {
+    generated.java.srcDir generatedDir
+}
+
+// Code Generation Configuration
+compileGeneratedJava.dependsOn 'generatePrimitiveExpansions'
+compileGeneratedJava.classpath += sourceSets.main.runtimeClasspath
+
+task (generatePrimitiveExpansions, type: JavaExec) {
+    main = 'uk.co.real_logic.agrona.generation.PrimitiveExpander'
+    classpath = sourceSets.main.runtimeClasspath
+    outputs.dir generatedDir
+}
+
 dependencies {
     testCompile 'org.hamcrest:hamcrest-all:1.3', 'junit:junit:4.11', 'org.mockito:mockito-all:1.9.5'
 }

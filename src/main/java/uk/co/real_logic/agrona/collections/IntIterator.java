@@ -15,6 +15,8 @@
  */
 package uk.co.real_logic.agrona.collections;
 
+import uk.co.real_logic.agrona.generation.DoNotSub;
+
 import java.util.Iterator;
 
 /**
@@ -25,7 +27,7 @@ public class IntIterator implements Iterator<Integer>
     private final int missingValue;
     private final int[] values;
 
-    private int position = 0;
+    @DoNotSub private int position = 0;
 
     public IntIterator(final int missingValue, final int[] values)
     {
