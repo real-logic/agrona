@@ -58,7 +58,7 @@ public class Long2LongHashMap implements Map<Long, Long>
 
         final EntryIterator entryIterator = new EntryIterator();
         entrySet = new MapDelegatingSet<>(
-            this, entryIterator::reset, (e) -> containsKey(((Entry<Long, Long>) e).getKey()));
+            this, entryIterator::reset, (e) -> containsKey(((Entry<Long, Long>)e).getKey()));
     }
 
     /**
@@ -166,7 +166,7 @@ public class Long2LongHashMap implements Map<Long, Long>
 
     /**
      * Primitive specialised forEach implementation.
-     *
+     * <p>
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
      * expression, which doesn't interplay well with type inference in lambda expressions.
      *
@@ -226,7 +226,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public Long get(final Object key)
     {
-        return get((long) key);
+        return get((long)key);
     }
 
     /**
@@ -242,7 +242,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public void forEach(final BiConsumer<? super Long, ? super Long> action)
     {
-       longForEach(action::accept);
+        longForEach(action::accept);
     }
 
     /**
@@ -250,7 +250,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public boolean containsKey(final Object key)
     {
-        return containsKey((long) key);
+        return containsKey((long)key);
     }
 
     /**
@@ -258,7 +258,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public boolean containsValue(final Object value)
     {
-        return containsValue((long) value);
+        return containsValue((long)value);
     }
 
     /**
@@ -298,7 +298,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public Long remove(final Object key)
     {
-        return remove((long) key);
+        return remove((long)key);
     }
 
     public long remove(final long key)
@@ -345,7 +345,7 @@ public class Long2LongHashMap implements Map<Long, Long>
             final int hash = hash(entries[index]);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
-                    (hash <= deleteIndex && deleteIndex <= index))
+                (hash <= deleteIndex && deleteIndex <= index))
             {
                 entries[deleteIndex] = entries[index];
                 entries[deleteIndex + 1] = entries[index + 1];
@@ -388,7 +388,7 @@ public class Long2LongHashMap implements Map<Long, Long>
             while (entries[index] == missingValue)
             {
                 nextIndex();
-                if(index == startIndex)
+                if (index == startIndex)
                 {
                     return false;
                 }
