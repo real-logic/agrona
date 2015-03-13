@@ -330,10 +330,7 @@ public class Long2ObjectHashMap<V>
      */
     public void putAll(final Map<? extends Long, ? extends V> map)
     {
-        for (final Map.Entry<? extends Long, ? extends V> entry : map.entrySet())
-        {
-            put(entry.getKey(), entry.getValue());
-        }
+        map.forEach(this::put);
     }
 
     /**

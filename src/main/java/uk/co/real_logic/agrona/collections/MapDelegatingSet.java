@@ -29,7 +29,6 @@ import java.util.function.Supplier;
  */
 public final class MapDelegatingSet<V> extends AbstractSet<V>
 {
-
     private final Map<?, ?> delegate;
     private final Supplier<Iterator<V>> iterator;
     private final Predicate contains;

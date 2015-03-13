@@ -147,7 +147,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean contains(final Object value)
     {
-        return value instanceof Integer && contains(((Integer) value).intValue());
+        return value instanceof Integer && contains(((Integer)value).intValue());
     }
 
     /**
@@ -255,7 +255,7 @@ public final class IntHashSet implements Set<Integer>
 
     /**
      * Fast Path set difference for comparison with another IntHashSet.
-     *
+     * <p>
      * NB: garbage free in the identical case, allocates otherwise.
      *
      * @param collection the other set to subtract
@@ -373,7 +373,7 @@ public final class IntHashSet implements Set<Integer>
 
         if (other instanceof IntHashSet)
         {
-            final IntHashSet otherSet = (IntHashSet) other;
+            final IntHashSet otherSet = (IntHashSet)other;
             return otherSet.missingValue == missingValue
                 && otherSet.size() == size()
                 && containsAll(otherSet);

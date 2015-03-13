@@ -25,14 +25,14 @@ import java.util.function.BiConsumer;
  */
 public class Long2LongHashMap implements Map<Long, Long>
 {
-
-    private final double loadFactor;
-    private final long missingValue;
     private final LongIterator keyIterator = new LongIterator(0);
     private final Set<Long> keySet;
     private final LongIterator valueIterator = new LongIterator(1);
     private final Collection<Long> values;
     private final Set<Entry<Long, Long>> entrySet;
+
+    private final double loadFactor;
+    private final long missingValue;
 
     private int capacity;
     private int mask;
@@ -57,8 +57,8 @@ public class Long2LongHashMap implements Map<Long, Long>
         values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
 
         final EntryIterator entryIterator = new EntryIterator();
-        entrySet = new MapDelegatingSet<>(this, entryIterator::reset,
-                                          e -> containsKey(((Entry<Long, Long>) e).getKey()));
+        entrySet = new MapDelegatingSet<>(
+            this, entryIterator::reset, (e) -> containsKey(((Entry<Long, Long>) e).getKey()));
     }
 
     /**
@@ -373,7 +373,6 @@ public class Long2LongHashMap implements Map<Long, Long>
 
     private abstract class AbstractIterator
     {
-
         protected final int startIndex;
 
         protected int index;
@@ -420,7 +419,7 @@ public class Long2LongHashMap implements Map<Long, Long>
 
         public Long next()
         {
-            return Long.valueOf(nextValue());
+            return nextValue();
         }
 
         public long nextValue()
@@ -484,5 +483,4 @@ public class Long2LongHashMap implements Map<Long, Long>
         entries = new long[newCapacity * 2];
         Arrays.fill(entries, missingValue);
     }
-
 }
