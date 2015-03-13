@@ -31,11 +31,11 @@ public final class PrimitiveExpander
     private static final String SUFFIX = ".java";
     private static final String GENERATED_DIRECTORY = "build/generated-src";
 
-    private static final List<Substitution> substitutions = Arrays.asList(
+    private static final List<Substitution> SUBSTITUTIONS = Arrays.asList(
         new Substitution("long", "Long")
     );
 
-    public static void main(String[] args) throws IOException
+    public static void main(final String[] args) throws IOException
     {
         expandPrimitiveSpecialisedClass("IntIterator");
     }
@@ -44,7 +44,7 @@ public final class PrimitiveExpander
     {
         final Path path = Paths.get(SOURCE_DIRECTORY, PACKAGE, className + SUFFIX);
         String contents = new String(Files.readAllBytes(path), UTF_8);
-        for (Substitution substitution : substitutions)
+        for (Substitution substitution : SUBSTITUTIONS)
         {
             contents = substitution.substitute(contents);
         }
@@ -62,7 +62,7 @@ public final class PrimitiveExpander
             this.boxedType = boxedType;
         }
 
-        public String substitute(String contents)
+        public String substitute(final String contents)
         {
             return contents;
         }
