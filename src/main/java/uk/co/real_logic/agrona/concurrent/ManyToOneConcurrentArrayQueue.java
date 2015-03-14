@@ -20,16 +20,15 @@ import java.util.function.Consumer;
 
 import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
-
 /**
- * One producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow
+ * Many producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow consumer
  * adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
-public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
+public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
-    public OneToOneConcurrentArrayQueue(final int requestedCapacity)
+    public ManyToOneConcurrentArrayQueue(final int requestedCapacity)
     {
         super(requestedCapacity);
     }
@@ -38,39 +37,42 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
     {
         if (null == e)
         {
-            throw new NullPointerException("Null is not a valid element");
+            throw new NullPointerException("element cannot be null");
         }
 
-        final Object[] buffer = this.buffer;
-        final long currentTail = tail;
-        final long offset = sequenceToOffset(currentTail, mask);
-
-        if (null == UNSAFE.getObjectVolatile(buffer, offset))
+        long currentTail;
+        final long bufferLimit = head + capacity;
+        do
         {
-            UNSAFE.putOrderedObject(buffer, offset, e);
-            UNSAFE.putOrderedLong(this, TAIL_OFFSET, currentTail + 1);
+            currentTail = tail;
 
-            return true;
+            if (currentTail >= bufferLimit)
+            {
+                return false;
+            }
         }
+        while (!UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1));
 
-        return false;
+        UNSAFE.putOrderedObject(buffer, sequenceToOffset(currentTail, mask), e);
+
+        return true;
     }
 
     @SuppressWarnings("unchecked")
     public E poll()
     {
-        final Object[] buffer = this.buffer;
         final long currentHead = head;
-        final long offset = sequenceToOffset(currentHead, mask);
+        final long elementOffset = sequenceToOffset(currentHead, mask);
+        final Object[] buffer = this.buffer;
+        final E item = (E)UNSAFE.getObjectVolatile(buffer, elementOffset);
 
-        final Object e = UNSAFE.getObjectVolatile(buffer, offset);
-        if (null != e)
+        if (null != item)
         {
-            UNSAFE.putOrderedObject(buffer, offset, null);
+            UNSAFE.putOrderedObject(buffer, elementOffset, null);
             UNSAFE.putOrderedLong(this, HEAD_OFFSET, currentHead + 1);
         }
 
-        return (E)e;
+        return item;
     }
 
     @SuppressWarnings("unchecked")
@@ -86,7 +88,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             do
             {
                 final long elementOffset = sequenceToOffset(nextSequence, mask);
-                final E item = (E)UNSAFE.getObjectVolatile(buffer, elementOffset);
+                final Object item = UNSAFE.getObjectVolatile(buffer, elementOffset);
                 if (null == item)
                 {
                     break;
@@ -94,7 +96,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
 
                 UNSAFE.putOrderedObject(buffer, elementOffset, null);
                 nextSequence++;
-                elementHandler.accept(item);
+                elementHandler.accept((E)item);
             }
             while (true);
         }
