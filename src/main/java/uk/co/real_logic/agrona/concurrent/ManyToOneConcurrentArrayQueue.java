@@ -68,7 +68,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
 
         if (null != item)
         {
-            UNSAFE.putOrderedObject(buffer, elementOffset, null);
+            UNSAFE.putObject(buffer, elementOffset, null);
             UNSAFE.putOrderedLong(this, HEAD_OFFSET, currentHead + 1);
         }
 
@@ -94,7 +94,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
                     break;
                 }
 
-                UNSAFE.putOrderedObject(buffer, elementOffset, null);
+                UNSAFE.putObject(buffer, elementOffset, null);
                 nextSequence++;
                 elementHandler.accept((E)item);
             }
@@ -125,7 +125,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
                 break;
             }
 
-            UNSAFE.putOrderedObject(buffer, elementOffset, null);
+            UNSAFE.putObject(buffer, elementOffset, null);
             nextSequence++;
             count++;
             target.add((E)item);
