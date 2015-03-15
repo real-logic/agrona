@@ -27,6 +27,7 @@ public class UnsafeAccess
 
     static
     {
+        Unsafe unsafe = null;
         try
         {
             final PrivilegedExceptionAction<Unsafe> action =
@@ -38,11 +39,13 @@ public class UnsafeAccess
                     return (Unsafe)f.get(null);
                 };
 
-            UNSAFE = AccessController.doPrivileged(action);
+            unsafe = AccessController.doPrivileged(action);
         }
         catch (final Exception ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        UNSAFE = unsafe;
     }
 }

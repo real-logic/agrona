@@ -53,9 +53,9 @@ public class Signal
                 wait(awaitTimeout - (System.currentTimeMillis() - beginTime));
             }
         }
-        catch (final InterruptedException ex)
+        catch (final InterruptedException ignore)
         {
-            throw new RuntimeException(ex);
+            Thread.interrupted();
         }
         finally
         {

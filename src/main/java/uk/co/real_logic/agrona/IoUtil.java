@@ -75,7 +75,7 @@ public class IoUtil
         }
         catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 
@@ -107,7 +107,7 @@ public class IoUtil
             }
             catch (final IOException ex)
             {
-                throw new RuntimeException(ex);
+                LangUtil.rethrowUnchecked(ex);
             }
         }
     }
@@ -168,7 +168,7 @@ public class IoUtil
             }
             catch (final IOException ex)
             {
-                throw new RuntimeException(ex);
+                LangUtil.rethrowUnchecked(ex);
             }
         }
     }
@@ -184,18 +184,19 @@ public class IoUtil
     {
         ensureDirectoryExists(file.getParentFile(), file.getParent());
 
+        FileChannel templateFile = null;
         try
         {
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-            final FileChannel templateFile = randomAccessFile.getChannel();
+            templateFile = randomAccessFile.getChannel();
             fill(templateFile, 0, size, (byte)0);
-
-            return templateFile;
         }
         catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return templateFile;
     }
 
     /**
@@ -210,15 +211,19 @@ public class IoUtil
     public static MappedByteBuffer mapExistingFile(final File location, final String descriptionLabel)
     {
         checkFileExists(location, descriptionLabel);
+
+        MappedByteBuffer mappedByteBuffer = null;
         try (final RandomAccessFile file = new RandomAccessFile(location, "rw"))
         {
             final FileChannel channel = file.getChannel();
-            return channel.map(READ_WRITE, 0, channel.size());
+            mappedByteBuffer = channel.map(READ_WRITE, 0, channel.size());
         }
         catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return mappedByteBuffer;
     }
 
     /**
@@ -237,15 +242,18 @@ public class IoUtil
     {
         checkFileExists(location, descriptionLabel);
 
+        MappedByteBuffer mappedByteBuffer = null;
         try (final RandomAccessFile file = new RandomAccessFile(location, "rw"))
         {
             final FileChannel channel = file.getChannel();
-            return channel.map(READ_WRITE, offset, size);
+            mappedByteBuffer = channel.map(READ_WRITE, offset, size);
         }
         catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return mappedByteBuffer;
     }
 
     /**
@@ -259,14 +267,17 @@ public class IoUtil
      */
     public static MappedByteBuffer mapNewFile(final File location, final long size)
     {
+        MappedByteBuffer mappedByteBuffer = null;
         try (final FileChannel channel = createEmptyFile(location, size))
         {
-            return channel.map(READ_WRITE, 0, size);
+            mappedByteBuffer = channel.map(READ_WRITE, 0, size);
         }
         catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return mappedByteBuffer;
     }
 
     /**
@@ -305,7 +316,7 @@ public class IoUtil
         }
         catch (final Exception ex)
         {
-            throw new RuntimeException(ex);
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 

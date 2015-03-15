@@ -36,7 +36,7 @@ public final class PrimitiveExpander
         new Substitution("long", "Long", "Long")
     );
 
-    public static void main(String[] args) throws IOException
+    public static void main(final String[] args) throws IOException
     {
         expandPrimitiveSpecialisedClass("IntIterator");
         expandPrimitiveSpecialisedClass("IntHashSet");
@@ -77,7 +77,7 @@ public final class PrimitiveExpander
             this.className = className;
         }
 
-        public String substitute(String contents)
+        public String substitute(final String contents)
         {
             return contents.replace("int", primitiveType)
                            .replace("Integer", boxedType)

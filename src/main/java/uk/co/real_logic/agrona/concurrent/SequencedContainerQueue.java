@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.collections;
+package uk.co.real_logic.agrona.concurrent;
+
+import java.util.Queue;
 
 /**
- * This is a (long,long) primitive specialisation of a BiConsumer
+ * Composed interface for concurrent queues and sequenced containers.
+ *
+ * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
-@FunctionalInterface
-public interface LongLongConsumer
+public interface SequencedContainerQueue<E> extends Queue<E>, SequencedContainer<E>
 {
-    /**
-     * Accept a key and value that comes as a tuple of longs.
-     *
-     * @param key   for the tuple.
-     * @param value for the tuple.
-     */
-    void accept(long key, long value);
 }

@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.collections;
+package uk.co.real_logic.agrona;
 
 /**
- * This is a (long,long) primitive specialisation of a BiConsumer
+ * Grouping of language level utilities to make programming in Java more convenient.
  */
-@FunctionalInterface
-public interface LongLongConsumer
+public class LangUtil
 {
     /**
-     * Accept a key and value that comes as a tuple of longs.
+     * Rethrow an {@link java.lang.Exception} preserving the stack trace but making it unchecked.
      *
-     * @param key   for the tuple.
-     * @param value for the tuple.
+     * @param ex to be rethrown and unchecked.
      */
-    void accept(long key, long value);
+    public static void rethrowUnchecked(final Exception ex)
+    {
+        LangUtil.<RuntimeException>rethrow(ex);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Exception> void rethrow(final Exception ex)
+        throws T
+    {
+        throw (T)ex;
+    }
 }

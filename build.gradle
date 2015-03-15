@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -77,7 +76,7 @@ checkstyle {
 javadoc {
     title = '<h1>Agrona</h1>'
 
-    options.bottom = '<i>Copyright &#169; 2014 Real Logic Ltd. All Rights Reserved.</i>'
+    options.bottom = '<i>Copyright &#169; 2014 - 2015 Real Logic Ltd. All Rights Reserved.</i>'
     options.addStringOption('XDignore.symbol.file', '-quiet')
 }
 
@@ -151,12 +150,6 @@ uploadArchives {
                         name = 'Richard Warburton'
                         email = 'richard.warburton@gmail.com'
                         url = 'https://github.com/RichardWarburton'
-                    }
-                    developer {
-                        id = 'SimulatedSimian'
-                        name = 'Lee Witek'
-                        email = 'leewitek@gmail.com'
-                        url = 'https://github.com/SimulatedSimian'
                     }
                 }
             }
