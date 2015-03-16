@@ -25,7 +25,6 @@ import java.util.function.BiConsumer;
  */
 public class Long2LongHashMap implements Map<Long, Long>
 {
-    private final LongIterator keyIterator = new LongIterator(0);
     private final Set<Long> keySet;
     private final LongIterator valueIterator = new LongIterator(1);
     private final Collection<Long> values;
@@ -34,15 +33,15 @@ public class Long2LongHashMap implements Map<Long, Long>
     private final double loadFactor;
     private final long missingValue;
 
+    private long[] entries;
     private int capacity;
     private int mask;
-    private long[] entries;
     private int resizeThreshold;
     private int size = 0;
 
     public Long2LongHashMap(final long missingValue)
     {
-        this(16, 0.8, missingValue);
+        this(16, 0.6, missingValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -53,6 +52,7 @@ public class Long2LongHashMap implements Map<Long, Long>
 
         capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
 
+        final LongIterator keyIterator = new LongIterator(0);
         keySet = new MapDelegatingSet<>(this, keyIterator::reset, this::containsValue);
         values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
 
@@ -366,6 +366,7 @@ public class Long2LongHashMap implements Map<Long, Long>
         {
             min = Math.min(min, iterator.nextValue());
         }
+
         return min;
     }
 
