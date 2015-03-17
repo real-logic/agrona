@@ -15,8 +15,10 @@
  */
 package uk.co.real_logic.agrona.collections;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 /**
  * Utility functions for collection objects in general.
@@ -43,5 +45,27 @@ public class CollectionUtil
         }
 
         return value;
+    }
+
+    /**
+     * Garbage Free sum function.
+     *
+     * @param values the list of input values
+     * @param function function that map each value to an int
+     * @param <V> the value to add up
+     * @return the sum of all the int values returned for each member of the list.
+     */
+    public static <V> int sum(final List<V> values, final ToIntFunction<V> function)
+    {
+        int total = 0;
+
+        final int size = values.size();
+        for (int i = 0; i < size; i++)
+        {
+            final V value = values.get(i);
+            total += function.applyAsInt(value);
+        }
+
+        return total;
     }
 }
