@@ -23,7 +23,7 @@ public interface Agent
      * The boolean return value is used for implementing a backoff strategy that can be employed when no work is
      * currently available for the agent to process.
      *
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception if an error has occurred
      * @return true if work has been done otherwise false to indicate no work was currently available.
      */
     int doWork() throws Exception;
