@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona;
 
-
 import uk.co.real_logic.agrona.concurrent.NanoClock;
 import uk.co.real_logic.agrona.concurrent.SystemNanoClock;
 
