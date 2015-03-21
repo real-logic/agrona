@@ -71,6 +71,16 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Add an increment to the counter that will not lose updates across threads.
+     *
+     * @param increment to be added.
+     */
+    public void add(final long increment)
+    {
+        buffer.getAndAddLong(offset, increment);
+    }
+
+    /**
      * Add an increment to the counter with ordered store semantics.
      *
      * @param increment to be added with ordered store semantics.
