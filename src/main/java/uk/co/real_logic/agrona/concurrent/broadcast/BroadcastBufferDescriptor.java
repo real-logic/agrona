@@ -35,18 +35,18 @@ public class BroadcastBufferDescriptor
     /** Total size of the trailer */
     public static final int TRAILER_LENGTH;
 
-    static {
+    static
+    {
         int offset = 0;
         TAIL_INTENT_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += BitUtil.SIZE_OF_LONG;
         TAIL_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += BitUtil.SIZE_OF_LONG;
         LATEST_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
-        TRAILER_LENGTH = offset;
+        TRAILER_LENGTH = BitUtil.CACHE_LINE_LENGTH;
     }
 
     /**
