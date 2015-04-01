@@ -30,7 +30,7 @@ public class RingBufferDescriptor
     /** Offset within the trailer for where the head value is stored. */
     public static final int HEAD_COUNTER_OFFSET;
 
-    /** Offset within the trailer for where the head value is stored. */
+    /** Offset within the trailer for where the correlation counter value is stored. */
     public static final int CORRELATION_COUNTER_OFFSET;
 
     /** Offset within the trailer for where the consumer heartbeat time value is stored. */
