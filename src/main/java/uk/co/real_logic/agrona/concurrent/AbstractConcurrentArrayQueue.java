@@ -24,7 +24,7 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 /**
  * Pad out a cacheline to the left of a tail to prevent false sharing.
  */
-class OneToOnePadding1
+class Padding1
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
 }
@@ -32,7 +32,7 @@ class OneToOnePadding1
 /**
  * Value for the tail that is expected to be padded.
  */
-class Tail extends OneToOnePadding1
+class Tail extends Padding1
 {
     protected volatile long tail;
 }
