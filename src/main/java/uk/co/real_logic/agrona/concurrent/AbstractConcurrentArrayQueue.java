@@ -26,6 +26,7 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
  */
 class Padding1
 {
+    @SuppressWarnings("unused")
     protected long p1, p2, p3, p4, p5, p6, p7;
 }
 
@@ -42,6 +43,7 @@ class Tail extends Padding1
  */
 class Padding2 extends Tail
 {
+    @SuppressWarnings("unused")
     protected long p8, p9, p10, p11, p12, p13, p14;
 }
 
@@ -80,6 +82,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
         }
     }
 
+    @SuppressWarnings("unused")
     protected long p15, p16, p17, p18, p19, p20, p21;
 
     protected final long mask;
