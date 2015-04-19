@@ -32,7 +32,7 @@ public class AtomicArray<T> implements Collection<T>
     private static final Object[] EMPTY_ARRAY = new Object[0];
 
     @SuppressWarnings("unchecked")
-    private final AtomicReference<T[]> arrayRef = new AtomicReference<>((T[]) EMPTY_ARRAY);
+    private final AtomicReference<T[]> arrayRef = new AtomicReference<>((T[])EMPTY_ARRAY);
 
     @FunctionalInterface
     public interface ToIntLimitedFunction<T>
@@ -254,8 +254,7 @@ public class AtomicArray<T> implements Collection<T>
             }
         }
 
-        int index = find(oldArray, predicate);
-
+        final int index = find(oldArray, predicate);
         if (-1 == index)
         {
             return null;

@@ -18,17 +18,32 @@ package uk.co.real_logic.agrona.generation;
 import javax.tools.*;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Utilities for compiling Java source files at runtime.
+ */
 public class CompilerUtil
 {
+    /**
+     * Temporary directory for files.
+     */
     private static final String TEMP_DIR_NAME = System.getProperty("java.io.tmpdir");
 
+    /**
+     * Compile a {@link Map} of source files in-memory resulting in a {@link Class} which is named.
+     *
+     * @param className to return after compilation.
+     * @param sources   to be compiled.
+     * @return the named class that is the result of the compilation.
+     * @throws ClassNotFoundException of the named class cannot be found.
+     */
     public static Class<?> compileInMemory(final String className, final Map<String, CharSequence> sources)
-        throws Exception
+        throws ClassNotFoundException
     {
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (null == compiler)
@@ -41,7 +56,7 @@ public class CompilerUtil
 
         final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, wrap(sources));
 
-        if (!task.call().booleanValue())
+        if (!task.call())
         {
             for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
             {
@@ -60,8 +75,17 @@ public class CompilerUtil
         return fileManager.getClassLoader(null).loadClass(className);
     }
 
+    /**
+     * Compile a {@link Map} of source files on disk resulting in a {@link Class} which is named.
+     *
+     * @param className to return after compilation.
+     * @param sources   to be compiled.
+     * @return the named class that is the result of the compilation.
+     * @throws ClassNotFoundException of the named class cannot be found.
+     * @throws IOException if an error occurs when writing to disk.
+     */
     public static Class<?> compileOnDisk(final String className, final Map<String, CharSequence> sources)
-        throws Exception
+        throws ClassNotFoundException, IOException
     {
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (null == compiler)
@@ -70,41 +94,38 @@ public class CompilerUtil
         }
 
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        final StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
-        List<String> options = new ArrayList<>();
-        options.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path") + File.pathSeparator + TEMP_DIR_NAME));
-
-        final Collection<File> files = persist(sources);
-        final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
-        final JavaCompiler.CompilationTask task = compiler.getTask(
-            null, fileManager, diagnostics, options, null, compilationUnits);
-
-        if (!task.call().booleanValue())
+        try (final StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null))
         {
-            for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
+            final ArrayList<String> options = new ArrayList<>();
+            options.addAll(Arrays.asList(
+                "-classpath", System.getProperty("java.class.path") + File.pathSeparator + TEMP_DIR_NAME));
+
+            final Collection<File> files = persist(sources);
+            final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
+            final JavaCompiler.CompilationTask task = compiler.getTask(
+                null, fileManager, diagnostics, options, null, compilationUnits);
+
+            if (!task.call())
             {
-                System.err.println(diagnostic.getCode());
-                System.err.println(diagnostic.getKind());
-                System.err.println(diagnostic.getPosition());
-                System.err.println(diagnostic.getStartPosition());
-                System.err.println(diagnostic.getEndPosition());
-                System.err.println(diagnostic.getSource());
-                System.err.println(diagnostic.getMessage(null));
+                for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
+                {
+                    System.err.println(diagnostic.getCode());
+                    System.err.println(diagnostic.getKind());
+                    System.err.println(diagnostic.getPosition());
+                    System.err.println(diagnostic.getStartPosition());
+                    System.err.println(diagnostic.getEndPosition());
+                    System.err.println(diagnostic.getSource());
+                    System.err.println(diagnostic.getMessage(null));
+                }
+
+                return null;
             }
 
-            return null;
+            return fileManager.getClassLoader(null).loadClass(className);
         }
-
-        final Class<?> clazz = fileManager.getClassLoader(null).loadClass(className);
-
-        fileManager.close();
-
-        return clazz;
     }
 
-    private static Collection<File> persist(final Map<String, CharSequence> sources)
-        throws Exception
+    private static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
     {
         final Collection<File> files = new ArrayList<>(sources.size());
         for (final Map.Entry<String, CharSequence> entry : sources.entrySet())

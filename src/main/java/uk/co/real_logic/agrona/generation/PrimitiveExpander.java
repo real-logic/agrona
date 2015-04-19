@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -32,7 +32,7 @@ public final class PrimitiveExpander
     private static final String SUFFIX = ".java";
     private static final String GENERATED_DIRECTORY = "build/generated-src";
 
-    private static final List<Substitution> SUBSTITUTIONS = Arrays.asList(
+    private static final List<Substitution> SUBSTITUTIONS = Collections.singletonList(
         new Substitution("long", "Long", "Long")
     );
 
@@ -46,7 +46,7 @@ public final class PrimitiveExpander
     {
         final Path inputPath = Paths.get(SOURCE_DIRECTORY, PACKAGE, className + SUFFIX);
 
-        Path outputDirectory = Paths.get(GENERATED_DIRECTORY, PACKAGE);
+        final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, PACKAGE);
         Files.createDirectories(outputDirectory);
 
         final List<String> contents = Files.readAllLines(inputPath, UTF_8);
@@ -54,11 +54,11 @@ public final class PrimitiveExpander
         {
             final String substitutedFileName = substitution.substitute(className);
             final List<String> substitutedContents = contents
-                    .stream()
-                    .map(substitution::checkedSubstitute)
-                    .collect(toList());
+                .stream()
+                .map(substitution::checkedSubstitute)
+                .collect(toList());
 
-            Path outputPath = Paths.get(GENERATED_DIRECTORY, PACKAGE, substitutedFileName + SUFFIX);
+            final Path outputPath = Paths.get(GENERATED_DIRECTORY, PACKAGE, substitutedFileName + SUFFIX);
             Files.write(outputPath, substitutedContents, UTF_8);
             System.out.println("Generated " + substitutedFileName);
         }
@@ -80,11 +80,11 @@ public final class PrimitiveExpander
         public String substitute(final String contents)
         {
             return contents.replace("int", primitiveType)
-                           .replace("Integer", boxedType)
-                           .replace("Int", className);
+                .replace("Integer", boxedType)
+                .replace("Int", className);
         }
 
-        public String checkedSubstitute(String contents)
+        public String checkedSubstitute(final String contents)
         {
             return contents.contains("@DoNotSub") ? contents : substitute(contents);
         }

@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 public class IntHashSetTest
 {
-    private IntHashSet obj = new IntHashSet(100, -1);
+    private final IntHashSet obj = new IntHashSet(100, -1);
 
     @Test
     public void initiallyContainsNoElements() throws Exception
@@ -146,7 +146,7 @@ public class IntHashSetTest
         obj.add(1);
         obj.add(2);
 
-        IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100, -1);
         other.add(1);
         other.add(2);
 
@@ -258,11 +258,11 @@ public class IntHashSetTest
     private void assertIteratorHasElements()
     {
         final Iterator<Integer> iter = obj.iterator();
+
         assertTrue(iter.hasNext());
         assertEquals(Integer.valueOf(1), iter.next());
         assertTrue(iter.hasNext());
         assertEquals(Integer.valueOf(2), iter.next());
         assertFalse(iter.hasNext());
     }
-
 }

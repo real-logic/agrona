@@ -286,7 +286,7 @@ public class QueueTest
 
         fillQueue(queue);
 
-        int elementsDrained = queue.drainTo(target, count);
+        final int elementsDrained = queue.drainTo(target, count);
 
         assertThat(elementsDrained, is(count));
         assertThat(target.size(), is(count));
