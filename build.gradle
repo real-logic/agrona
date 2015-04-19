@@ -65,12 +65,14 @@ task (generatePrimitiveExpansions, type: JavaExec) {
 }
 
 dependencies {
-    testCompile 'org.hamcrest:hamcrest-all:1.3', 'junit:junit:4.11', 'org.mockito:mockito-all:1.9.5'
+    testCompile 'org.hamcrest:hamcrest-all:1.3',
+            'junit:junit:4.12',
+            'org.mockito:mockito-all:1.10.19'
 }
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
-    toolVersion = 5.9
+    toolVersion = 6.5
 }
 
 javadoc {
@@ -158,5 +160,5 @@ uploadArchives {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.1'
+	gradleVersion = '2.3'
 }
