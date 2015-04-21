@@ -62,10 +62,10 @@ public abstract class AbstractConcurrentArrayQueue<E>
     extends Head
     implements SequencedContainerQueue<E>
 {
-    protected static final int ARRAY_BASE;
-    protected static final int SHIFT_FOR_SCALE;
     protected static final long TAIL_OFFSET;
     protected static final long HEAD_OFFSET;
+    protected static final int ARRAY_BASE;
+    protected static final int SHIFT_FOR_SCALE;
 
     static
     {
