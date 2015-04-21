@@ -28,13 +28,6 @@ public interface ReadOnlyPosition extends AutoCloseable
     int id();
 
     /**
-     * Get the current position of a component
-     *
-     * @return the current position of a component
-     */
-    long get();
-
-    /**
      * Get the current position of a component with volatile semantics
      *
      * @return the current position of a component with volatile semantics

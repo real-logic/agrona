@@ -23,6 +23,13 @@ package uk.co.real_logic.agrona.concurrent.status;
 public interface Position extends ReadOnlyPosition
 {
     /**
+     * Get the current position of a component without memory ordering semantics.
+     *
+     * @return the current position of a component
+     */
+    long get();
+
+    /**
      * Sets the current position of the component
      *
      * @param value the current position of the component.
