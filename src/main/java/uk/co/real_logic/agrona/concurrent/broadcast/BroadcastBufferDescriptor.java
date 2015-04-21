@@ -46,7 +46,7 @@ public class BroadcastBufferDescriptor
         offset += BitUtil.SIZE_OF_LONG;
         LATEST_COUNTER_OFFSET = offset;
 
-        TRAILER_LENGTH = BitUtil.CACHE_LINE_LENGTH;
+        TRAILER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
     }
 
     /**

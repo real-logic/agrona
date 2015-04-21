@@ -42,18 +42,19 @@ public class RingBufferDescriptor
     static
     {
         int offset = 0;
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         TAIL_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         HEAD_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         CORRELATION_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         CONSUMER_HEARTBEAT_OFFSET = offset;
 
-        offset += BitUtil.CACHE_LINE_LENGTH;
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         TRAILER_LENGTH = offset;
     }
 
