@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.status;
+package uk.co.real_logic.agrona.concurrent.status;
 
 /**
- * Indicates how far through a buffer some component has progressed..
- *
- * Threadsafe to read from.
+ * Indicates how far through an abstract task a component has progressed as a counter value.
  */
-public interface PositionIndicator extends AutoCloseable
+public interface ReadOnlyPosition extends AutoCloseable
 {
     /**
-     * Reads the current position of the component
+     * Identifier for this position.
      *
-     * @return the current position of the component
+     * @return the identifier for this position.
      */
-    long position();
+    int id();
+
+    /**
+     * Get the current position of a component
+     *
+     * @return the current position of a component
+     */
+    long get();
+
+    /**
+     * Get the current position of a component with volatile semantics
+     *
+     * @return the current position of a component with volatile semantics
+     */
+    long getVolatile();
 
     void close();
 }

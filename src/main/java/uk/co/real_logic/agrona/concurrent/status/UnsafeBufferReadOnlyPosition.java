@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.status;
+package uk.co.real_logic.agrona.concurrent.status;
 
 import uk.co.real_logic.agrona.concurrent.CountersManager;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
@@ -21,46 +21,59 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 /**
  * Indicates the position of some entity that stores its value in an buffer. The buffer is managed by a {@link CountersManager}.
  */
-public class BufferPositionIndicator implements PositionIndicator
+public final class UnsafeBufferReadOnlyPosition implements ReadOnlyPosition
 {
-    private final UnsafeBuffer buffer;
     private final int counterId;
-    private final CountersManager countersManager;
     private final int offset;
+    private final UnsafeBuffer buffer;
+    private final CountersManager countersManager;
 
     /**
-     * Map a position indicator over a buffer.
+     * Map a position over a buffer.
      *
-     * @param buffer containing the counter.
+     * @param buffer    containing the counter.
      * @param counterId identifier of the counter.
      */
-    public BufferPositionIndicator(final UnsafeBuffer buffer, final int counterId)
+    public UnsafeBufferReadOnlyPosition(final UnsafeBuffer buffer, final int counterId)
     {
         this(buffer, counterId, null);
     }
 
     /**
-     * Map a position indicator over a buffer and this indicator owns the counter for reclamation.
+     * Map a position over a buffer and this indicator owns the counter for reclamation.
      *
-     * @param buffer containing the counter.
-     * @param counterId identifier of the counter.
+     * @param buffer          containing the counter.
+     * @param counterId       identifier of the counter.
      * @param countersManager to be used for freeing the counter when this is closed.
      */
-    public BufferPositionIndicator(final UnsafeBuffer buffer, final int counterId, final CountersManager countersManager)
+    public UnsafeBufferReadOnlyPosition(final UnsafeBuffer buffer, final int counterId, final CountersManager countersManager)
     {
-        this.buffer = buffer;
         this.counterId = counterId;
-        this.countersManager = countersManager;
         this.offset = CountersManager.counterOffset(counterId);
+        this.buffer = buffer;
+        this.countersManager = countersManager;
     }
 
-    public long position()
+    public int id()
+    {
+        return counterId;
+    }
+
+    public long get()
+    {
+        return buffer.getLong(offset);
+    }
+
+    public long getVolatile()
     {
         return buffer.getLongVolatile(offset);
     }
 
     public void close()
     {
-        countersManager.free(counterId);
+        if (null != countersManager)
+        {
+            countersManager.free(counterId);
+        }
     }
 }

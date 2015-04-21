@@ -13,39 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.status;
+package uk.co.real_logic.agrona.concurrent.status;
 
 /**
  * Reports on how far through a buffer some component has progressed..
  *
  * Threadsafe to write to.
  */
-public interface PositionReporter extends AutoCloseable
+public interface Position extends ReadOnlyPosition
 {
     /**
      * Sets the current position of the component
      *
      * @param value the current position of the component.
      */
-    void position(long value);
+    void set(long value);
 
     /**
-     * Get the value of the current position of the component.
+     * Sets the current position of the component
      *
-     * @return the value of the current position of the component.
+     * @param value the current position of the component.
      */
-    long position();
-
+    void setOrdered(long value);
 
     /**
-     * Close down and free any underlying resources.
-     */
-    void close();
-
-    /**
-     * Identifier for this position counter.
+     * Set the position to the new proposedValue if it is greater than the current proposedValue.
      *
-     * @return the identifier for this position.
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
      */
-    int id();
+    boolean proposeMax(long proposedValue);
+
+    /**
+     * Set the position to the new proposedValue if it is greater than the current proposedValue.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     */
+    boolean proposeMaxOrdered(long proposedValue);
 }

@@ -18,8 +18,8 @@ package uk.co.real_logic.agrona.concurrent;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import uk.co.real_logic.agrona.status.BufferPositionIndicator;
-import uk.co.real_logic.agrona.status.BufferPositionReporter;
+import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferReadOnlyPosition;
+import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
 
 import java.util.function.BiConsumer;
 
@@ -101,9 +101,9 @@ public class CountersManagerTest
         manager.allocate("def");
 
         final int id = manager.allocate("abc");
-        final BufferPositionIndicator reader = new BufferPositionIndicator(counterBuffer, id);
-        final BufferPositionReporter writer = new BufferPositionReporter(counterBuffer, id);
-        writer.position(0xFFFFFFFFFL);
-        assertThat(reader.position(), is(0xFFFFFFFFFL));
+        final UnsafeBufferReadOnlyPosition reader = new UnsafeBufferReadOnlyPosition(counterBuffer, id);
+        final UnsafeBufferPosition writer = new UnsafeBufferPosition(counterBuffer, id);
+        writer.set(0xFFFFFFFFFL);
+        assertThat(reader.get(), is(0xFFFFFFFFFL));
     }
 }
