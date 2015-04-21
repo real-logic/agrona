@@ -365,7 +365,7 @@ public class AtomicArray<T> implements Collection<T>
 
     public <E> E[] toArray(final E[] a)
     {
-        return (E[]) toArray();
+        return (E[])toArray();
     }
 
     public boolean removeAll(final Collection<?> collection)
