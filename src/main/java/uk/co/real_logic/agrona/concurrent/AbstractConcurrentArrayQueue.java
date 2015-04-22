@@ -58,8 +58,18 @@ class Head extends Padding2
 /**
  * Pad out a cacheline between the tail and the head to prevent false sharing.
  */
+class Padding3 extends Head
+{
+    @SuppressWarnings("unused")
+    protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
+}
+
+
+/**
+ * Pad out a cacheline between the tail and the head to prevent false sharing.
+ */
 public abstract class AbstractConcurrentArrayQueue<E>
-    extends Head
+    extends Padding3
     implements SequencedContainerQueue<E>
 {
     protected static final long TAIL_OFFSET;
@@ -81,9 +91,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
             throw new RuntimeException(ex);
         }
     }
-
-    @SuppressWarnings("unused")
-    protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
 
     protected final long mask;
     protected final int capacity;
