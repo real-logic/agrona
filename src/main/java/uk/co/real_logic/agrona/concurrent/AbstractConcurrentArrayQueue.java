@@ -64,9 +64,8 @@ class Padding3 extends Head
     protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
 }
 
-
 /**
- * Pad out a cacheline between the tail and the head to prevent false sharing.
+ * Left over immutable queue fields.
  */
 public abstract class AbstractConcurrentArrayQueue<E>
     extends Padding3
