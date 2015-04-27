@@ -22,7 +22,7 @@ apply plugin: 'eclipse'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'uk.co.real-logic'
-version = '0.3.1-SNAPSHOT'
+version = '0.3.1'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 ext {
