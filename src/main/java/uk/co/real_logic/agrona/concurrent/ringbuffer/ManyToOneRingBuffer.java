@@ -21,6 +21,7 @@ import uk.co.real_logic.agrona.concurrent.MessageHandler;
 
 import static uk.co.real_logic.agrona.BitUtil.align;
 import static uk.co.real_logic.agrona.concurrent.ringbuffer.RecordDescriptor.*;
+import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.checkCapacity;
 
 /**
  * A ring-buffer that supports the exchange of messages from many producers to a single consumer.
@@ -60,7 +61,8 @@ public class ManyToOneRingBuffer implements RingBuffer
         this.buffer = buffer;
         capacity = buffer.capacity() - RingBufferDescriptor.TRAILER_LENGTH;
 
-        RingBufferDescriptor.checkCapacity(capacity);
+        checkCapacity(capacity);
+        buffer.verifyAlignment();
 
         mask = capacity - 1;
         maxMsgLength = capacity / 8;

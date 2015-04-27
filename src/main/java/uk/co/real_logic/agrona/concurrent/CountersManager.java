@@ -49,6 +49,7 @@ public class CountersManager
     {
         this.labelsBuffer = labelsBuffer;
         this.countersBuffer = countersBuffer;
+        countersBuffer.verifyAlignment();
     }
 
     /**

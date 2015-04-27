@@ -53,6 +53,7 @@ public class BroadcastTransmitter
         this.capacity = buffer.capacity() - TRAILER_LENGTH;
 
         checkCapacity(capacity);
+        buffer.verifyAlignment();
 
         this.mask = capacity - 1;
         this.maxMsgLength = calculateMaxMessageLength(capacity);

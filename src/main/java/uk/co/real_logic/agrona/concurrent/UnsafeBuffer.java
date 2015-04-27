@@ -292,7 +292,7 @@ public class UnsafeBuffer implements AtomicBuffer
         if (0 != (addressOffset & (ALIGNMENT - 1)))
         {
             throw new IllegalStateException(String.format(
-                "Buffer is not correctly aligned addressOffset=%d in not divisible by %d",
+                "AtomicBuffer is not correctly aligned: addressOffset=%d in not divisible by %d",
                 addressOffset,
                 ALIGNMENT));
         }
