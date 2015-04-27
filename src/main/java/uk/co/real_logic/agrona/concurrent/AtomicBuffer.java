@@ -23,6 +23,13 @@ import uk.co.real_logic.agrona.MutableDirectBuffer;
 public interface AtomicBuffer extends MutableDirectBuffer
 {
     /**
+     * Verify that the underlying buffer is correctly aligned to prevent word tearing another ordering issues.
+     *
+     * @throws IllegalStateException if the alignment is not correct.
+     */
+    void verifyAlignment();
+
+    /**
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.

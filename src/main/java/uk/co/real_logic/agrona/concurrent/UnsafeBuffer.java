@@ -32,6 +32,11 @@ import static uk.co.real_logic.agrona.BitUtil.*;
  */
 public class UnsafeBuffer implements AtomicBuffer
 {
+    /**
+     * Buffer alignment to ensure atomic word accesses.
+     */
+    public static final int ALIGNMENT = SIZE_OF_LONG;
+
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
 
@@ -279,6 +284,17 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             final String msg = String.format("limit=%d is beyond capacity=%d", limit, capacity);
             throw new IndexOutOfBoundsException(msg);
+        }
+    }
+
+    public void verifyAlignment()
+    {
+        if (0 != (addressOffset & (ALIGNMENT - 1)))
+        {
+            throw new IllegalStateException(String.format(
+                "Buffer is not correctly aligned addressOffset=%d in not divisible by %d",
+                addressOffset,
+                ALIGNMENT));
         }
     }
 

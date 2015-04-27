@@ -29,6 +29,7 @@ import java.nio.ByteOrder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(Theories.class)
 public class AtomicBufferTest
@@ -71,6 +72,29 @@ public class AtomicBufferTest
     {
         final int position = BUFFER_CAPACITY + 1;
         buffer.checkLimit(position);
+    }
+
+    @Theory
+    public void shouldVerifyBufferAlignment(final AtomicBuffer buffer)
+    {
+        try
+        {
+            buffer.verifyAlignment();
+        }
+        catch (final IllegalStateException ex)
+        {
+            fail("All buffers should be aligned " + ex);
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionWhenBufferNotAligned()
+    {
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
+        byteBuffer.position(1);
+        final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer.slice());
+
+        buffer.verifyAlignment();
     }
 
     @Theory
