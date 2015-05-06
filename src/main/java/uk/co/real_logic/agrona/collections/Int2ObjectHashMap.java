@@ -19,7 +19,7 @@ package uk.co.real_logic.agrona.collections;
 import uk.co.real_logic.agrona.BitUtil;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
@@ -199,21 +199,28 @@ public class Int2ObjectHashMap<V>
         return null;
     }
 
+
     /**
-     * Get a value for a given key, or if it does ot exist then default the value via a {@link Supplier}
+     * Get a value for a given key, or if it does ot exist then default the value via a {@link java.util.function.LongFunction}
      * and put it in the map.
      *
+     * Primitive specialized version of {@link java.util.Map#computeIfAbsent}.
+     *
      * @param key to search on.
-     * @param supplier to provide a default if the get returns null.
+     * @param mappingFunction to provide a value if the get returns null.
      * @return the value if found otherwise the default.
      */
-    public V getOrDefault(final int key, final Supplier<V> supplier)
+    public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
+        requireNonNull(mappingFunction, "mappingFunction cannot be null");
         V value = get(key);
         if (value == null)
         {
-            value = supplier.get();
-            put(key, value);
+            value = mappingFunction.apply(key);
+            if (value != null)
+            {
+                put(key, value);
+            }
         }
 
         return value;
