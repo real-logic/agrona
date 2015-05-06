@@ -24,7 +24,7 @@ import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
 
 import java.util.function.BiConsumer;
 
-import static java.nio.ByteBuffer.allocate;
+import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,8 +35,8 @@ public class CountersManagerTest
 {
     private static final int NUMBER_OF_COUNTERS = 4;
 
-    private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * CountersManager.LABEL_SIZE));
-    private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * CountersManager.COUNTER_SIZE));
+    private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * CountersManager.LABEL_SIZE));
+    private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * CountersManager.COUNTER_SIZE));
     private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer);
     private CountersManager otherManager = new CountersManager(labelsBuffer, counterBuffer);
 

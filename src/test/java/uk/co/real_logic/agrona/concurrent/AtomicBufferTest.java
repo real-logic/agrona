@@ -74,9 +74,10 @@ public class AtomicBufferTest
         buffer.checkLimit(position);
     }
 
-    @Theory
-    public void shouldVerifyBufferAlignment(final AtomicBuffer buffer)
+    @Test
+    public void shouldVerifyBufferAlignment()
     {
+        final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(1024));
         try
         {
             buffer.verifyAlignment();
