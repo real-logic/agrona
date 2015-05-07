@@ -58,6 +58,16 @@ public class AtomicArray<T> implements Collection<T>
     }
 
     /**
+     * Return the array reference to allow derived classes more flexibility when implementing methods that iterate.
+     *
+     * @return the array reference
+     */
+    protected T[] arrayRef()
+    {
+        return (T[])arrayRef;
+    }
+
+    /**
      * Find the first element that matches via a supplied {@link java.util.function.Predicate} function.
      *
      * @param function to match on.
