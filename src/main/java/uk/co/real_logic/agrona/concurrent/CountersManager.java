@@ -29,7 +29,7 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
  */
 public class CountersManager
 {
-    public static final int LABEL_SIZE = 1024;
+    public static final int LABEL_SIZE = 128;
     public static final int COUNTER_SIZE = BitUtil.CACHE_LINE_LENGTH * 2;
     public static final int UNREGISTERED_LABEL_SIZE = -1;
 
