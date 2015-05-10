@@ -33,8 +33,7 @@ public final class PrimitiveExpander
     private static final String GENERATED_DIRECTORY = "build/generated-src";
 
     private static final List<Substitution> SUBSTITUTIONS = Collections.singletonList(
-        new Substitution("long", "Long", "Long")
-    );
+        new Substitution("long", "Long", "Long"));
 
     public static void main(final String[] args) throws IOException
     {
@@ -50,7 +49,7 @@ public final class PrimitiveExpander
         Files.createDirectories(outputDirectory);
 
         final List<String> contents = Files.readAllLines(inputPath, UTF_8);
-        for (Substitution substitution : SUBSTITUTIONS)
+        for (final Substitution substitution : SUBSTITUTIONS)
         {
             final String substitutedFileName = substitution.substitute(className);
             final List<String> substitutedContents = contents
