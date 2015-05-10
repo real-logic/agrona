@@ -15,23 +15,27 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import uk.co.real_logic.agrona.Verify;
+
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
  * Base agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
+ *
+ * Note: An agent runner should only be once per instance.
  */
 public class AgentRunner implements Runnable, AutoCloseable
 {
-    private final IdleStrategy idleStrategy;
-    private final Consumer<Throwable> exceptionHandler;
-    private final AtomicCounter exceptionCounter;
-    private final Agent agent;
-    private volatile CountDownLatch latch;
-    private volatile Thread thread;
+    private static final Thread TOMBSTONE = new Thread();
 
-    private volatile boolean running;
+    private volatile boolean running = true;
+
+    private final AtomicCounter exceptionCounter;
+    private final Consumer<Throwable> exceptionHandler;
+    private final IdleStrategy idleStrategy;
+    private final Agent agent;
+    private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     /**
      * Create an agent passing in {@link IdleStrategy}
@@ -47,6 +51,10 @@ public class AgentRunner implements Runnable, AutoCloseable
         final AtomicCounter exceptionCounter,
         final Agent agent)
     {
+        Verify.notNull(idleStrategy, "idleStrategy");
+        Verify.notNull(exceptionHandler, "exceptionHandler");
+        Verify.notNull(agent, "agent");
+
         this.idleStrategy = idleStrategy;
         this.exceptionHandler = exceptionHandler;
         this.exceptionCounter = exceptionCounter;
@@ -70,9 +78,10 @@ public class AgentRunner implements Runnable, AutoCloseable
      */
     public void run()
     {
-        running = true;
-        latch = new CountDownLatch(1);
-        thread = Thread.currentThread();
+        if (!thread.compareAndSet(null, Thread.currentThread()))
+        {
+            return;
+        }
 
         final IdleStrategy idleStrategy = this.idleStrategy;
         final Agent agent = this.agent;
@@ -97,29 +106,29 @@ public class AgentRunner implements Runnable, AutoCloseable
                 exceptionHandler.accept(ex);
             }
         }
-
-        latch.countDown();
-        thread = null;
     }
 
     /**
-     * Stop the running Agent and cleanup. Not waiting for the agent run loop to stop before returning.
+     * Stop the running Agent and cleanup. This will wait for the work loop to exit and the {@link Agent} performing
+     * it {@link Agent#onClose()} logic.
+     *
+     * The clean up logic will only be performed once even if close is called from multiple concurrent threads.
      */
     public final void close()
     {
         running = false;
-        if (null != thread)
+
+        final Thread thread = this.thread.getAndSet(TOMBSTONE);
+        if (null != thread && TOMBSTONE != thread && thread.isAlive())
         {
             thread.interrupt();
-        }
 
-        if (null != latch)
-        {
             while (true)
             {
                 try
                 {
-                    if (latch.await(500, TimeUnit.MILLISECONDS))
+                    thread.join(1000);
+                    if (!thread.isAlive())
                     {
                         break;
                     }
@@ -131,8 +140,8 @@ public class AgentRunner implements Runnable, AutoCloseable
                     Thread.currentThread().interrupt();
                 }
             }
-        }
 
-        agent.onClose();
+            agent.onClose();
+        }
     }
 }
