@@ -90,7 +90,6 @@ public class CountersManager
     public void free(final int counterId)
     {
         labelsBuffer.putInt(labelOffset(counterId), UNREGISTERED_LABEL_SIZE);
-        countersBuffer.putLongOrdered(counterOffset(counterId), 0L);
         freeList.push(counterId);
     }
 
@@ -152,6 +151,9 @@ public class CountersManager
             return ++idHighWaterMark;
         }
 
-        return freeList.pop();
+        final int counterId = freeList.pop();
+        countersBuffer.putLongOrdered(counterOffset(counterId), 0L);
+
+        return counterId;
     }
 }
