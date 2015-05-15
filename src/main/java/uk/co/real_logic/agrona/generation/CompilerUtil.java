@@ -15,6 +15,8 @@
  */
 package uk.co.real_logic.agrona.generation;
 
+import uk.co.real_logic.agrona.LangUtil;
+
 import javax.tools.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -56,23 +58,7 @@ public class CompilerUtil
 
         final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, wrap(sources));
 
-        if (!task.call())
-        {
-            for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
-            {
-                System.err.println(diagnostic.getCode());
-                System.err.println(diagnostic.getKind());
-                System.err.println(diagnostic.getPosition());
-                System.err.println(diagnostic.getStartPosition());
-                System.err.println(diagnostic.getEndPosition());
-                System.err.println(diagnostic.getSource());
-                System.err.println(diagnostic.getMessage(null));
-            }
-
-            return null;
-        }
-
-        return fileManager.getClassLoader(null).loadClass(className);
+        return compile(className, diagnostics, fileManager, task);
     }
 
     /**
@@ -105,24 +91,44 @@ public class CompilerUtil
             final JavaCompiler.CompilationTask task = compiler.getTask(
                 null, fileManager, diagnostics, options, null, compilationUnits);
 
-            if (!task.call())
+            return compile(className, diagnostics, fileManager, task);
+        }
+    }
+
+    private static Class<?> compile(final String className,
+                                    final DiagnosticCollector<JavaFileObject> diagnostics,
+                                    final JavaFileManager fileManager,
+                                    final JavaCompiler.CompilationTask task) throws ClassNotFoundException
+    {
+        if (!task.call())
+        {
+            for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
             {
-                for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
+                System.err.println(diagnostic.getCode());
+                System.err.println(diagnostic.getKind());
+
+                final JavaFileObject source = diagnostic.getSource();
+                System.err.printf(
+                    "Line = %d, Col = %d, File = %s", diagnostic.getLineNumber(), diagnostic.getColumnNumber(), source);
+
+                try
                 {
-                    System.err.println(diagnostic.getCode());
-                    System.err.println(diagnostic.getKind());
-                    System.err.println(diagnostic.getPosition());
-                    System.err.println(diagnostic.getStartPosition());
-                    System.err.println(diagnostic.getEndPosition());
-                    System.err.println(diagnostic.getSource());
+                    final String content = source.getCharContent(true).toString();
+                    final int begin = content.lastIndexOf('\n', (int) diagnostic.getStartPosition());
+                    final int end = content.indexOf('\n', (int) diagnostic.getEndPosition());
+                    System.err.println(content.substring(begin, end));
                     System.err.println(diagnostic.getMessage(null));
                 }
-
-                return null;
+                catch (IOException e)
+                {
+                    LangUtil.rethrowUnchecked(e);
+                }
             }
 
-            return fileManager.getClassLoader(null).loadClass(className);
+            return null;
         }
+
+        return fileManager.getClassLoader(null).loadClass(className);
     }
 
     private static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
