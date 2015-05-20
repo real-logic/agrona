@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Utilities for compiling Java source files at runtime.
  */
@@ -55,7 +57,6 @@ public class CompilerUtil
 
         final JavaFileManager fileManager = new ClassFileManager<>(compiler.getStandardFileManager(null, null, null));
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-
         final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, wrap(sources));
 
         return compile(className, diagnostics, fileManager, task);
@@ -68,7 +69,7 @@ public class CompilerUtil
      * @param sources   to be compiled.
      * @return the named class that is the result of the compilation.
      * @throws ClassNotFoundException of the named class cannot be found.
-     * @throws IOException if an error occurs when writing to disk.
+     * @throws IOException            if an error occurs when writing to disk.
      */
     public static Class<?> compileOnDisk(final String className, final Map<String, CharSequence> sources)
         throws ClassNotFoundException, IOException
@@ -95,10 +96,11 @@ public class CompilerUtil
         }
     }
 
-    private static Class<?> compile(final String className,
-                                    final DiagnosticCollector<JavaFileObject> diagnostics,
-                                    final JavaFileManager fileManager,
-                                    final JavaCompiler.CompilationTask task) throws ClassNotFoundException
+    private static Class<?> compile(
+        final String className,
+        final DiagnosticCollector<JavaFileObject> diagnostics,
+        final JavaFileManager fileManager,
+        final JavaCompiler.CompilationTask task) throws ClassNotFoundException
     {
         if (!task.call())
         {
@@ -114,14 +116,14 @@ public class CompilerUtil
                 try
                 {
                     final String content = source.getCharContent(true).toString();
-                    final int begin = content.lastIndexOf('\n', (int) diagnostic.getStartPosition());
-                    final int end = content.indexOf('\n', (int) diagnostic.getEndPosition());
+                    final int begin = content.lastIndexOf('\n', (int)diagnostic.getStartPosition());
+                    final int end = content.indexOf('\n', (int)diagnostic.getEndPosition());
                     System.err.println(content.substring(begin, end));
                     System.err.println(diagnostic.getMessage(null));
                 }
-                catch (IOException e)
+                catch (final IOException ex)
                 {
-                    LangUtil.rethrowUnchecked(e);
+                    LangUtil.rethrowUnchecked(ex);
                 }
             }
 
@@ -146,7 +148,8 @@ public class CompilerUtil
                 className = fqClassName.substring(indexOfLastDot + 1, fqClassName.length());
 
                 path = Paths.get(
-                    TEMP_DIR_NAME + File.separatorChar +
+                    TEMP_DIR_NAME +
+                    File.separatorChar +
                     fqClassName.substring(0, indexOfLastDot).replace('.', File.separatorChar));
                 Files.createDirectories(path);
             }
@@ -166,12 +169,8 @@ public class CompilerUtil
 
     private static Collection<CharSequenceJavaFileObject> wrap(final Map<String, CharSequence> sources)
     {
-        final Collection<CharSequenceJavaFileObject> collection = new ArrayList<>(sources.size());
-        for (final Map.Entry<String, CharSequence> entry : sources.entrySet())
-        {
-            collection.add(new CharSequenceJavaFileObject(entry.getKey(), entry.getValue()));
-        }
-
-        return collection;
+        return sources.entrySet()
+            .stream()
+            .map((e) -> new CharSequenceJavaFileObject(e.getKey(), e.getValue())).collect(toList());
     }
 }
