@@ -29,9 +29,9 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
  */
 public class CountersManager
 {
-    public static final int LABEL_SIZE = 128;
-    public static final int COUNTER_SIZE = BitUtil.CACHE_LINE_LENGTH * 2;
-    public static final int UNREGISTERED_LABEL_SIZE = -1;
+    public static final int LABEL_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
+    public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
+    public static final int UNREGISTERED_LABEL_LENGTH = -1;
 
     private final AtomicBuffer labelsBuffer;
     private final AtomicBuffer countersBuffer;
@@ -62,17 +62,17 @@ public class CountersManager
     {
         final int counterId = counterId();
         final int labelsOffset = labelOffset(counterId);
-        if ((counterOffset(counterId) + COUNTER_SIZE) > countersBuffer.capacity())
+        if ((counterOffset(counterId) + COUNTER_LENGTH) > countersBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocated counter, counter buffer is full");
         }
 
-        if ((labelsOffset + LABEL_SIZE) > labelsBuffer.capacity())
+        if ((labelsOffset + LABEL_LENGTH) > labelsBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
         }
 
-        labelsBuffer.putStringUtf8(labelsOffset, label, nativeOrder(), LABEL_SIZE - SIZE_OF_INT);
+        labelsBuffer.putStringUtf8(labelsOffset, label, nativeOrder(), LABEL_LENGTH - SIZE_OF_INT);
 
         return counterId;
     }
@@ -89,7 +89,7 @@ public class CountersManager
      */
     public void free(final int counterId)
     {
-        labelsBuffer.putInt(labelOffset(counterId), UNREGISTERED_LABEL_SIZE);
+        labelsBuffer.putInt(labelOffset(counterId), UNREGISTERED_LABEL_LENGTH);
         freeList.push(counterId);
     }
 
@@ -101,7 +101,7 @@ public class CountersManager
      */
     public static int counterOffset(int id)
     {
-        return id * COUNTER_SIZE;
+        return id * COUNTER_LENGTH;
     }
 
     /**
@@ -117,13 +117,13 @@ public class CountersManager
 
         while ((size = labelsBuffer.getInt(labelsOffset)) != 0)
         {
-            if (size != UNREGISTERED_LABEL_SIZE)
+            if (size != UNREGISTERED_LABEL_LENGTH)
             {
                 final String label = labelsBuffer.getStringUtf8(labelsOffset, nativeOrder());
                 consumer.accept(id, label);
             }
 
-            labelsOffset += LABEL_SIZE;
+            labelsOffset += LABEL_LENGTH;
             id++;
         }
     }
@@ -141,7 +141,7 @@ public class CountersManager
 
     private int labelOffset(final int counterId)
     {
-        return counterId * LABEL_SIZE;
+        return counterId * LABEL_LENGTH;
     }
 
     private int counterId()
