@@ -26,5 +26,5 @@ public interface NanoClock
      *
      * @return number of ticks in nanoseconds the clock has advanced since starting.
      */
-    long time();
+    long nanoTime();
 }

@@ -88,7 +88,7 @@ public class TimerWheel
 
         this.mask = ticksPerWheel - 1;
         this.clock = clock;
-        this.startTime = clock.time();
+        this.startTime = clock.nanoTime();
         this.tickDurationInNs = timeUnit.toNanos(tickDuration);
 
         if (tickDurationInNs >= (Long.MAX_VALUE / ticksPerWheel))
@@ -124,7 +124,7 @@ public class TimerWheel
      */
     private long ticks()
     {
-        return clock.time() - startTime;
+        return clock.nanoTime() - startTime;
     }
 
     /**

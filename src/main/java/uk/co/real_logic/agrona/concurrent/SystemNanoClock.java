@@ -22,7 +22,7 @@ package uk.co.real_logic.agrona.concurrent;
  */
 public class SystemNanoClock implements NanoClock
 {
-    public long time()
+    public long nanoTime()
     {
         return System.nanoTime();
     }
