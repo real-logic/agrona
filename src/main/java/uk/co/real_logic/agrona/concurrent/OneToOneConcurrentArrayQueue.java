@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 
 import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
-
 /**
  * One producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow
  * adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
