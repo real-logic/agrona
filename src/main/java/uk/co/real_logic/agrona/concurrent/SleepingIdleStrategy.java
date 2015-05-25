@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona;
-
-import uk.co.real_logic.agrona.concurrent.IdleStrategy;
+package uk.co.real_logic.agrona.concurrent;
 
 import java.util.concurrent.locks.LockSupport;
 
