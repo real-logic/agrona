@@ -17,6 +17,7 @@ package uk.co.real_logic.agrona.concurrent;
 
 import uk.co.real_logic.agrona.Verify;
 
+import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -95,6 +96,10 @@ public class AgentRunner implements Runnable, AutoCloseable
             catch (final InterruptedException ignore)
             {
                 Thread.interrupted();
+            }
+            catch (final ClosedByInterruptException ignore)
+            {
+                // Deliberately blank, if this exception is thrown then your interrupted status will be set.
             }
             catch (final Throwable ex)
             {
