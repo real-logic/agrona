@@ -149,14 +149,14 @@ public class ManyToOneRingBuffer implements RingBuffer
 
                     bytesRead += align(recordLength, ALIGNMENT);
 
-                    final int msgTypeId = buffer.getInt(typeOffset(recordIndex));
-                    if (PADDING_MSG_TYPE_ID == msgTypeId)
+                    final int typeId = buffer.getInt(typeOffset(recordIndex));
+                    if (PADDING_MSG_TYPE_ID == typeId)
                     {
                         continue;
                     }
 
                     ++messagesRead;
-                    handler.onMessage(msgTypeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
+                    handler.onMessage(typeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
                 }
             }
             finally
