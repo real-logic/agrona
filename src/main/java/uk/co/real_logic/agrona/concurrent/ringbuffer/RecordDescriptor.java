@@ -23,16 +23,16 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 public class RecordDescriptor
 {
     /**
-     * Header length made up of fields for  message length, message type, and then the encoded message.
+     * Header length made up of fields for length, type, and then the encoded message.
      * <p>
-     * Writing of the record length signals the message recording is complete.
+     * Writing of a positive record length signals the message recording is complete.
      * <pre>
      *   0                   1                   2                   3
      *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *  |R|                      Message Length                         |
+     *  |R|                         Length                              |
      *  +-+-------------------------------------------------------------+
-     *  |                         Message Type                          |
+     *  |                            Type                               |
      *  +---------------------------------------------------------------+
      *  |                       Encoded Message                        ...
      * ...                                                              |
@@ -52,7 +52,7 @@ public class RecordDescriptor
      * @param recordOffset beginning index of the record.
      * @return offset from the beginning of a record at which the type field begins.
      */
-    public static int msgLengthOffset(final int recordOffset)
+    public static int lengthOffset(final int recordOffset)
     {
         return recordOffset;
     }
@@ -63,7 +63,7 @@ public class RecordDescriptor
      * @param recordOffset beginning index of the record.
      * @return offset from the beginning of a record at which the type field begins.
      */
-    public static int msgTypeOffset(final int recordOffset)
+    public static int typeOffset(final int recordOffset)
     {
         return recordOffset + SIZE_OF_INT;
     }
@@ -85,7 +85,7 @@ public class RecordDescriptor
      * @param msgTypeId to be checked.
      * @throws IllegalArgumentException if the id is not in the valid range.
      */
-    public static void checkMsgTypeId(final int msgTypeId)
+    public static void checkTypeId(final int msgTypeId)
     {
         if (msgTypeId < 1)
         {

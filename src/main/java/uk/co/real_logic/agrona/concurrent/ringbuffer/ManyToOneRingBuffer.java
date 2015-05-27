@@ -85,22 +85,23 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public boolean write(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        checkMsgTypeId(msgTypeId);
+        checkTypeId(msgTypeId);
         checkMsgLength(length);
 
         boolean isSuccessful = false;
 
         final AtomicBuffer buffer = this.buffer;
-        final int requiredCapacity = align(length + HEADER_LENGTH, ALIGNMENT);
+        final int recordLength = length + HEADER_LENGTH;
+        final int requiredCapacity = align(recordLength, ALIGNMENT);
         final int recordIndex = claimCapacity(buffer, requiredCapacity);
 
         if (INSUFFICIENT_CAPACITY != recordIndex)
         {
-            buffer.putIntOrdered(msgLengthOffset(recordIndex), -length);
+            buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
             buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
 
-            buffer.putInt(msgTypeOffset(recordIndex), msgTypeId);
-            buffer.putIntOrdered(msgLengthOffset(recordIndex), length);
+            buffer.putInt(typeOffset(recordIndex), msgTypeId);
+            buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
 
             isSuccessful = true;
         }
@@ -140,22 +141,22 @@ public class ManyToOneRingBuffer implements RingBuffer
                 while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
                 {
                     final int recordIndex = headIndex + bytesRead;
-                    final int msgLength = buffer.getIntVolatile(msgLengthOffset(recordIndex));
-                    if (msgLength <= 0)
+                    final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
+                    if (recordLength <= 0)
                     {
                         break;
                     }
 
-                    bytesRead += align(msgLength + HEADER_LENGTH, ALIGNMENT);
+                    bytesRead += align(recordLength, ALIGNMENT);
 
-                    final int msgTypeId = buffer.getInt(msgTypeOffset(recordIndex));
+                    final int msgTypeId = buffer.getInt(typeOffset(recordIndex));
                     if (PADDING_MSG_TYPE_ID == msgTypeId)
                     {
                         continue;
                     }
 
                     ++messagesRead;
-                    handler.onMessage(msgTypeId, buffer, encodedMsgOffset(recordIndex), msgLength);
+                    handler.onMessage(msgTypeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
                 }
             }
             finally
@@ -255,9 +256,9 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         if (0 != padding)
         {
-            buffer.putIntOrdered(msgLengthOffset(tailIndex), -padding);
-            buffer.putInt(msgTypeOffset(tailIndex), PADDING_MSG_TYPE_ID);
-            buffer.putIntOrdered(msgLengthOffset(tailIndex), padding);
+            buffer.putIntOrdered(lengthOffset(tailIndex), -padding);
+            buffer.putInt(typeOffset(tailIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(tailIndex), padding);
 
             tailIndex = 0;
         }
