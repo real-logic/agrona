@@ -101,7 +101,7 @@ public class BroadcastReceiver
      */
     public int typeId()
     {
-        return buffer.getInt(msgTypeOffset(recordOffset));
+        return buffer.getInt(typeOffset(recordOffset));
     }
 
     /**
@@ -121,7 +121,7 @@ public class BroadcastReceiver
      */
     public int length()
     {
-        return buffer.getInt(msgLengthOffset(recordOffset));
+        return buffer.getInt(lengthOffset(recordOffset)) - HEADER_LENGTH;
     }
 
     /**
@@ -162,13 +162,13 @@ public class BroadcastReceiver
             }
 
             this.cursor = cursor;
-            nextRecord = cursor + align(HEADER_LENGTH + buffer.getInt(msgLengthOffset(recordOffset)), RECORD_ALIGNMENT);
+            nextRecord = cursor + align(buffer.getInt(lengthOffset(recordOffset)), RECORD_ALIGNMENT);
 
-            if (PADDING_MSG_TYPE_ID == buffer.getInt(msgTypeOffset(recordOffset)))
+            if (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordOffset)))
             {
                 recordOffset = 0;
                 this.cursor = nextRecord;
-                nextRecord += align(HEADER_LENGTH + buffer.getInt(msgLengthOffset(recordOffset)), RECORD_ALIGNMENT);
+                nextRecord += align(buffer.getInt(lengthOffset(recordOffset)), RECORD_ALIGNMENT);
             }
 
             this.recordOffset = recordOffset;

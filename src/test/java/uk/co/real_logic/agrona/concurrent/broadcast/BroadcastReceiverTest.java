@@ -80,15 +80,16 @@ public class BroadcastReceiverTest
     public void shouldReceiveFirstMessageFromBuffer()
     {
         final int length = 8;
-        final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long tail = recordLength;
-        final long latestRecord = tail - recordLength;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
+        final long tail = recordLengthAligned;
+        final long latestRecord = tail - recordLengthAligned;
         final int recordOffset = (int)latestRecord;
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffset))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
         assertTrue(broadcastReceiver.receiveNext());
         assertThat(broadcastReceiver.typeId(), is(MSG_TYPE_ID));
@@ -107,20 +108,21 @@ public class BroadcastReceiverTest
     public void shouldReceiveTwoMessagesFromBuffer()
     {
         final int length = 8;
-        final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long tail = recordLength * 2;
-        final long latestRecord = tail - recordLength;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
+        final long tail = recordLengthAligned * 2;
+        final long latestRecord = tail - recordLengthAligned;
         final int recordOffsetOne = 0;
         final int recordOffsetTwo = (int)latestRecord;
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        when(buffer.getInt(msgLengthOffset(recordOffsetOne))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffsetOne))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffsetOne))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffsetOne))).thenReturn(MSG_TYPE_ID);
 
-        when(buffer.getInt(msgLengthOffset(recordOffsetTwo))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffsetTwo))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffsetTwo))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffsetTwo))).thenReturn(MSG_TYPE_ID);
 
         assertTrue(broadcastReceiver.receiveNext());
         assertThat(broadcastReceiver.typeId(), is(MSG_TYPE_ID));
@@ -151,17 +153,18 @@ public class BroadcastReceiverTest
     public void shouldLateJoinTransmission()
     {
         final int length = 8;
-        final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long tail = (CAPACITY * 3L) + HEADER_LENGTH + recordLength;
-        final long latestRecord = tail - recordLength;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
+        final long tail = (CAPACITY * 3L) + HEADER_LENGTH + recordLengthAligned;
+        final long latestRecord = tail - recordLengthAligned;
         final int recordOffset = (int)latestRecord & (CAPACITY - 1);
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
         when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
 
-        when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffset))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
         assertTrue(broadcastReceiver.receiveNext());
         assertThat(broadcastReceiver.typeId(), is(MSG_TYPE_ID));
@@ -177,10 +180,11 @@ public class BroadcastReceiverTest
     public void shouldCopeWithPaddingRecordAndWrapOfBufferForNextRecord()
     {
         final int length = 120;
-        final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
         final long catchupTail = (CAPACITY * 2L) - HEADER_LENGTH;
-        final long postPaddingTail = catchupTail + HEADER_LENGTH + recordLength;
-        final long latestRecord = catchupTail - recordLength;
+        final long postPaddingTail = catchupTail + HEADER_LENGTH + recordLengthAligned;
+        final long latestRecord = catchupTail - recordLengthAligned;
         final int catchupOffset = (int)latestRecord & (CAPACITY - 1);
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET))
@@ -190,15 +194,15 @@ public class BroadcastReceiverTest
             .thenReturn(catchupTail)
             .thenReturn(postPaddingTail);
         when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
-        when(buffer.getInt(msgLengthOffset(catchupOffset))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(catchupOffset))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(catchupOffset))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(catchupOffset))).thenReturn(MSG_TYPE_ID);
 
         final int paddingOffset = (int)catchupTail & (CAPACITY - 1);
-        final int recordOffset = (int)(postPaddingTail - recordLength) & (CAPACITY - 1);
-        when(buffer.getInt(msgTypeOffset(paddingOffset))).thenReturn(PADDING_MSG_TYPE_ID);
+        final int recordOffset = (int)(postPaddingTail - recordLengthAligned) & (CAPACITY - 1);
+        when(buffer.getInt(typeOffset(paddingOffset))).thenReturn(PADDING_MSG_TYPE_ID);
 
-        when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffset))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
         assertTrue(broadcastReceiver.receiveNext()); // To catch up to record before padding.
 
@@ -215,18 +219,19 @@ public class BroadcastReceiverTest
     public void shouldDealWithRecordBecomingInvalidDueToOverwrite()
     {
         final int length = 8;
-        final int recordLength = align(length + HEADER_LENGTH, RECORD_ALIGNMENT);
-        final long tail = recordLength;
-        final long latestRecord = tail - recordLength;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
+        final long tail = recordLengthAligned;
+        final long latestRecord = tail - recordLengthAligned;
         final int recordOffset = (int)latestRecord;
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET))
             .thenReturn(tail)
-            .thenReturn(tail + (CAPACITY - (recordLength)));
+            .thenReturn(tail + (CAPACITY - (recordLengthAligned)));
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        when(buffer.getInt(msgLengthOffset(recordOffset))).thenReturn(length);
-        when(buffer.getInt(msgTypeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getInt(lengthOffset(recordOffset))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
 
         assertTrue(broadcastReceiver.receiveNext());
         assertThat(broadcastReceiver.typeId(), is(MSG_TYPE_ID));

@@ -94,20 +94,21 @@ public class BroadcastTransmitter
      */
     public void transmit(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        checkMsgTypeId(msgTypeId);
+        checkTypeId(msgTypeId);
         checkMessageLength(length);
 
         final AtomicBuffer buffer = this.buffer;
         long currentTail = buffer.getLong(tailCounterIndex);
         int recordOffset = (int)currentTail & mask;
-        final int recordLength = BitUtil.align(HEADER_LENGTH + length, RECORD_ALIGNMENT);
-        final long newTail = currentTail + recordLength;
+        final int recordLength = HEADER_LENGTH + length;
+        final int recordLengthAligned = BitUtil.align(recordLength, RECORD_ALIGNMENT);
+        final long newTail = currentTail + recordLengthAligned;
 
         final int toEndOfBuffer = capacity - recordOffset;
-        if (toEndOfBuffer < recordLength)
+        if (toEndOfBuffer < recordLengthAligned)
         {
             signalTailIntent(buffer, newTail + toEndOfBuffer);
-            insertPaddingRecord(buffer, recordOffset, toEndOfBuffer - HEADER_LENGTH);
+            insertPaddingRecord(buffer, recordOffset, toEndOfBuffer);
 
             currentTail += toEndOfBuffer;
             recordOffset = 0;
@@ -117,13 +118,13 @@ public class BroadcastTransmitter
             signalTailIntent(buffer, newTail);
         }
 
-        buffer.putInt(msgLengthOffset(recordOffset), length);
-        buffer.putInt(msgTypeOffset(recordOffset), msgTypeId);
+        buffer.putInt(lengthOffset(recordOffset), recordLength);
+        buffer.putInt(typeOffset(recordOffset), msgTypeId);
 
         buffer.putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
         buffer.putLong(latestCounterIndex, currentTail);
-        buffer.putLongOrdered(tailCounterIndex, currentTail + recordLength);
+        buffer.putLongOrdered(tailCounterIndex, currentTail + recordLengthAligned);
     }
 
     private void signalTailIntent(final AtomicBuffer buffer, final long newTail)
@@ -134,8 +135,8 @@ public class BroadcastTransmitter
 
     private static void insertPaddingRecord(final AtomicBuffer buffer, final int recordOffset, final int length)
     {
-        buffer.putInt(msgLengthOffset(recordOffset), length);
-        buffer.putInt(msgTypeOffset(recordOffset), PADDING_MSG_TYPE_ID);
+        buffer.putInt(lengthOffset(recordOffset), length);
+        buffer.putInt(typeOffset(recordOffset), PADDING_MSG_TYPE_ID);
     }
 
     private void checkMessageLength(final int length)

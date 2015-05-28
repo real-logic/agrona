@@ -25,9 +25,9 @@ import uk.co.real_logic.agrona.BitUtil;
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |R|                      Message Length                         |
+ *  |R|                        Length                               |
  *  +-+-------------------------------------------------------------+
- *  |                         Message Type                          |
+ *  |                           Type                                |
  *  +---------------------------------------------------------------+
  *  |                       Encoded Message                        ...
  * ...                                                              |
@@ -41,11 +41,11 @@ public class RecordDescriptor
     /** Message type is padding to prevent fragmentation in the buffer. */
     public static final int PADDING_MSG_TYPE_ID = -1;
 
-    /** Offset within the record at which the message length field begins. */
-    public static final int MSG_LENGTH_OFFSET = 0;
+    /** Offset within the record at which the record length field begins. */
+    public static final int LENGTH_OFFSET = 0;
 
     /** Offset within the record at which the message type field begins. */
-    public static final int MSG_TYPE_OFFSET = MSG_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+    public static final int TYPE_OFFSET = LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
 
     /** Length of the record header in bytes. */
     public static final int HEADER_LENGTH = BitUtil.SIZE_OF_INT * 2;
@@ -70,9 +70,9 @@ public class RecordDescriptor
      * @param recordOffset at which the frame begins.
      * @return the offset at which the message length field begins.
      */
-    public static int msgLengthOffset(final int recordOffset)
+    public static int lengthOffset(final int recordOffset)
     {
-        return recordOffset + MSG_LENGTH_OFFSET;
+        return recordOffset + LENGTH_OFFSET;
     }
 
     /**
@@ -81,9 +81,9 @@ public class RecordDescriptor
      * @param recordOffset at which the frame begins.
      * @return the offset at which the message type field begins.
      */
-    public static int msgTypeOffset(final int recordOffset)
+    public static int typeOffset(final int recordOffset)
     {
-        return recordOffset + MSG_TYPE_OFFSET;
+        return recordOffset + TYPE_OFFSET;
     }
 
     /**
@@ -103,11 +103,11 @@ public class RecordDescriptor
      * @param msgTypeId to be checked.
      * @throws IllegalArgumentException if the id is not in the valid range.
      */
-    public static void checkMsgTypeId(final int msgTypeId)
+    public static void checkTypeId(final int msgTypeId)
     {
         if (msgTypeId < 1)
         {
-            final String msg = String.format("Message type id must be greater than zero, msgTypeId=%d", msgTypeId);
+            final String msg = String.format("Type id must be greater than zero, msgTypeId=%d", msgTypeId);
             throw new IllegalArgumentException(msg);
         }
     }
