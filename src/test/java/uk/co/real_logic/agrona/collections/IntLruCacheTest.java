@@ -97,6 +97,18 @@ public class IntLruCacheTest
         assertNotNull(lastValue);
     }
 
+    @Test
+    public void shouldCloseAllOpenResources() throws Exception
+    {
+        final AutoCloseable first = cache.lookup(1);
+        final AutoCloseable second = cache.lookup(2);
+
+        cache.close();
+
+        verify(first).close();
+        verify(second).close();
+    }
+
     private void verifyOneConstructed(final int numberOfInvocations)
     {
         verify(mockFactory, times(numberOfInvocations)).apply(1);

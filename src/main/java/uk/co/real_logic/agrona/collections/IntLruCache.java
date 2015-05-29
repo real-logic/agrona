@@ -20,12 +20,12 @@ import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.function.IntFunction;
 
-public final class IntLruCache<T extends AutoCloseable>
+public final class IntLruCache<T extends AutoCloseable> implements AutoCloseable
 {
     @DoNotSub private final int capacity;
     private final IntFunction<T> factory;
     private final int[] keys;
-    private final Object[] values;
+    private final AutoCloseable[] values;
 
     @DoNotSub private int size;
 
@@ -36,7 +36,7 @@ public final class IntLruCache<T extends AutoCloseable>
         this.capacity = capacity;
         this.factory = factory;
         keys = new int[capacity];
-        values = new Object[capacity];
+        values = new AutoCloseable[capacity];
 
         size = 0;
     }
@@ -46,7 +46,7 @@ public final class IntLruCache<T extends AutoCloseable>
     {
         @DoNotSub int size = this.size;
         final int[] keys = this.keys;
-        final Object[] values = this.values;
+        final AutoCloseable[] values = this.values;
 
         for (@DoNotSub int i = 0; i < size; i++)
         {
@@ -66,7 +66,7 @@ public final class IntLruCache<T extends AutoCloseable>
         {
             try
             {
-                ((AutoCloseable) values[size - 1]).close();
+                values[size - 1].close();
             }
             catch (Exception e)
             {
@@ -105,5 +105,20 @@ public final class IntLruCache<T extends AutoCloseable>
     @DoNotSub public int capacity()
     {
         return capacity;
+    }
+
+    public void close()
+    {
+        for (@DoNotSub int i = 0; i < size; i++)
+        {
+            try
+            {
+                values[i].close();
+            }
+            catch (Exception e)
+            {
+                LangUtil.rethrowUnchecked(e);
+            }
+        }
     }
 }
