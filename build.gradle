@@ -62,6 +62,7 @@ task (generatePrimitiveExpansions, type: JavaExec) {
     main = 'uk.co.real_logic.agrona.generation.PrimitiveExpander'
     classpath = sourceSets.main.runtimeClasspath
     outputs.dir generatedDir
+
 }
 
 dependencies {
@@ -90,6 +91,10 @@ task sourcesJar(type: Jar) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+jar {
+    from sourceSets.generated.output
 }
 
 signing {
