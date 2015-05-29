@@ -16,38 +16,39 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.LangUtil;
+import uk.co.real_logic.agrona.generation.DoNotSub;
 
-import java.util.function.LongFunction;
+import java.util.function.IntFunction;
 
-public final class LongLruCache<T extends AutoCloseable>
+public final class IntLruCache<T extends AutoCloseable>
 {
-    private static final int MISSING = -1;
-
-    private final int capacity;
-    private final LongFunction<T> factory;
-    private final long[] keys;
+    @DoNotSub private final int capacity;
+    private final IntFunction<T> factory;
+    private final int[] keys;
     private final Object[] values;
 
-    private int size;
+    @DoNotSub private int size;
 
-    public LongLruCache(final int capacity, final LongFunction<T> factory)
+    public IntLruCache(
+        @DoNotSub final int capacity,
+        final IntFunction<T> factory)
     {
         this.capacity = capacity;
         this.factory = factory;
-        keys = new long[capacity];
+        keys = new int[capacity];
         values = new Object[capacity];
 
         size = 0;
     }
 
     @SuppressWarnings("unchecked")
-    public T lookup(final long key)
+    public T lookup(final int key)
     {
-        int size = this.size;
-        final long[] keys = this.keys;
+        @DoNotSub int size = this.size;
+        final int[] keys = this.keys;
         final Object[] values = this.values;
 
-        for (int i = 0; i < size; i++)
+        for (@DoNotSub int i = 0; i < size; i++)
         {
             if (keys[i] == key)
             {
@@ -83,12 +84,15 @@ public final class LongLruCache<T extends AutoCloseable>
         return value;
     }
 
-    private void makeMostRecent(final long key, final Object value, final int fromIndex)
+    private void makeMostRecent(
+        final int key,
+        final Object value,
+        @DoNotSub final int fromIndex)
     {
-        final long[] keys = this.keys;
+        final int[] keys = this.keys;
         final Object[] values = this.values;
 
-        for (int i = fromIndex; i > 0; i--)
+        for (@DoNotSub int i = fromIndex; i > 0; i--)
         {
             keys[i] = keys[i - 1];
             values[i] = values[i - 1];
@@ -98,7 +102,7 @@ public final class LongLruCache<T extends AutoCloseable>
         values[0] = value;
     }
 
-    public int capacity()
+    @DoNotSub public int capacity()
     {
         return capacity;
     }

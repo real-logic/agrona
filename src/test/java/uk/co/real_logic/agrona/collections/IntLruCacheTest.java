@@ -18,26 +18,26 @@ package uk.co.real_logic.agrona.collections;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.function.LongFunction;
+import java.util.function.IntFunction;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
-public class LongLruCacheTest
+public class IntLruCacheTest
 {
     public static final int CAPACITY = 2;
 
-    private LongFunction<AutoCloseable> mockFactory = mock(LongFunction.class);
-    private LongLruCache<AutoCloseable> cache = new LongLruCache<>(CAPACITY, mockFactory);
+    @SuppressWarnings("unchecked")
+    private IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);
+    private IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory);
 
     private AutoCloseable lastValue;
 
     @Before
     public void setUp()
     {
-        when(mockFactory.apply(anyLong())).thenAnswer(inv ->
+        when(mockFactory.apply(anyInt())).thenAnswer(inv ->
         {
             lastValue = mock(AutoCloseable.class);
             return lastValue;
@@ -47,7 +47,7 @@ public class LongLruCacheTest
     @Test
     public void shouldUseFactoryToConstructValues()
     {
-        final AutoCloseable actual = cache.lookup(1L);
+        final AutoCloseable actual = cache.lookup(1);
 
         assertSame(lastValue, actual);
         assertNotNull(lastValue);
@@ -57,8 +57,8 @@ public class LongLruCacheTest
     @Test
     public void shouldCacheValues()
     {
-        final AutoCloseable first = cache.lookup(1L);
-        final AutoCloseable second = cache.lookup(1L);
+        final AutoCloseable first = cache.lookup(1);
+        final AutoCloseable second = cache.lookup(1);
 
         assertSame(lastValue, first);
         assertSame(lastValue, second);
@@ -69,9 +69,9 @@ public class LongLruCacheTest
     @Test
     public void shouldEvictLeastRecentlyUsedItem() throws Exception
     {
-        final AutoCloseable first = cache.lookup(1L);
-        cache.lookup(2L);
-        cache.lookup(3L);
+        final AutoCloseable first = cache.lookup(1);
+        cache.lookup(2);
+        cache.lookup(3);
 
         verify(first).close();
     }
@@ -79,18 +79,27 @@ public class LongLruCacheTest
     @Test
     public void shouldReconstructItemsAfterEviction() throws Exception
     {
-        cache.lookup(1L);
-        final AutoCloseable second = cache.lookup(2L);
-        cache.lookup(3L);
-        cache.lookup(1L);
+        cache.lookup(1);
+        final AutoCloseable second = cache.lookup(2);
+        cache.lookup(3);
+        cache.lookup(1);
 
         verify(second).close();
         verifyOneConstructed(2);
     }
 
+    @Test
+    public void shouldSupportKeyOfZero() throws Exception
+    {
+        final AutoCloseable actual = cache.lookup(0);
+
+        assertSame(lastValue, actual);
+        assertNotNull(lastValue);
+    }
+
     private void verifyOneConstructed(final int numberOfInvocations)
     {
-        verify(mockFactory, times(numberOfInvocations)).apply(1L);
+        verify(mockFactory, times(numberOfInvocations)).apply(1);
     }
 
 }

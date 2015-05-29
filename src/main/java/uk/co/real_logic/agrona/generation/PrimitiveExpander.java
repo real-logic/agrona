@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 public final class PrimitiveExpander
 {
     private static final String SOURCE_DIRECTORY = "src/main/java/";
-    private static final String PACKAGE = "uk/co/real_logic/agrona/collections";
+    private static final String COLLECTIONS = "uk/co/real_logic/agrona/collections";
     private static final String SUFFIX = ".java";
     private static final String GENERATED_DIRECTORY = "build/generated-src";
 
@@ -37,15 +37,16 @@ public final class PrimitiveExpander
 
     public static void main(final String[] args) throws IOException
     {
-        expandPrimitiveSpecialisedClass("IntIterator");
-        expandPrimitiveSpecialisedClass("IntHashSet");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIterator");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
     }
 
-    private static void expandPrimitiveSpecialisedClass(final String className) throws IOException
+    private static void expandPrimitiveSpecialisedClass(final String pakage, final String className) throws IOException
     {
-        final Path inputPath = Paths.get(SOURCE_DIRECTORY, PACKAGE, className + SUFFIX);
+        final Path inputPath = Paths.get(SOURCE_DIRECTORY, pakage, className + SUFFIX);
 
-        final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, PACKAGE);
+        final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, pakage);
         Files.createDirectories(outputDirectory);
 
         final List<String> contents = Files.readAllLines(inputPath, UTF_8);
@@ -57,7 +58,7 @@ public final class PrimitiveExpander
                 .map(substitution::checkedSubstitute)
                 .collect(toList());
 
-            final Path outputPath = Paths.get(GENERATED_DIRECTORY, PACKAGE, substitutedFileName + SUFFIX);
+            final Path outputPath = Paths.get(GENERATED_DIRECTORY, pakage, substitutedFileName + SUFFIX);
             Files.write(outputPath, substitutedContents, UTF_8);
             System.out.println("Generated " + substitutedFileName);
         }
