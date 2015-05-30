@@ -88,12 +88,12 @@ public interface RingBuffer
      *
      * @param time of the last consumer heartbeat.
      */
-    void consumerHeartbeatTimeNs(long time);
+    void consumerHeartbeatTime(long time);
 
     /**
      * The time of the last consumer heartbeat.
      *
      * @return the time of the last consumer heartbeat.
      */
-    long consumerHeartbeatTimeNs();
+    long consumerHeartbeatTime();
 }

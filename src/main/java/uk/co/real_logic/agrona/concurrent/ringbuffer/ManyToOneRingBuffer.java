@@ -196,7 +196,7 @@ public class ManyToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
-    public void consumerHeartbeatTimeNs(final long time)
+    public void consumerHeartbeatTime(final long time)
     {
         consumerHeartbeatOrdered(buffer, time);
     }
@@ -204,7 +204,7 @@ public class ManyToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
-    public long consumerHeartbeatTimeNs()
+    public long consumerHeartbeatTime()
     {
         return consumerHeartbeatVolatile(buffer);
     }
