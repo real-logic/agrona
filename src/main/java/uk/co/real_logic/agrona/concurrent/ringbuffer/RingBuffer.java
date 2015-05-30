@@ -86,6 +86,9 @@ public interface RingBuffer
     /**
      * Set the time of the last consumer heartbeat.
      *
+     * <b>Note:</b> The value for time must be valid across processes which means {@link System#nanoTime()}
+     * is not a valid option.
+     *
      * @param time of the last consumer heartbeat.
      */
     void consumerHeartbeatTime(long time);

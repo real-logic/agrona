@@ -198,7 +198,7 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public void consumerHeartbeatTime(final long time)
     {
-        consumerHeartbeatOrdered(buffer, time);
+        buffer.putLongOrdered(consumerHeartbeatIndex, time);
     }
 
     /**
@@ -206,7 +206,7 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public long consumerHeartbeatTime()
     {
-        return consumerHeartbeatVolatile(buffer);
+        return buffer.getLongVolatile(consumerHeartbeatIndex);
     }
 
     private void checkMsgLength(final int length)
@@ -264,15 +264,5 @@ public class ManyToOneRingBuffer implements RingBuffer
         }
 
         return tailIndex;
-    }
-
-    private long consumerHeartbeatVolatile(final AtomicBuffer buffer)
-    {
-        return buffer.getLongVolatile(consumerHeartbeatIndex);
-    }
-
-    private void consumerHeartbeatOrdered(final AtomicBuffer buffer, final long value)
-    {
-        buffer.putLongOrdered(consumerHeartbeatIndex, value);
     }
 }
