@@ -129,7 +129,7 @@ public class BroadcastTransmitter
 
     private void signalTailIntent(final AtomicBuffer buffer, final long newTail)
     {
-        buffer.putLongOrdered(tailIntentCountIndex, newTail);
+        buffer.putLong(tailIntentCountIndex, newTail);
         UnsafeAccess.UNSAFE.storeFence();
     }
 

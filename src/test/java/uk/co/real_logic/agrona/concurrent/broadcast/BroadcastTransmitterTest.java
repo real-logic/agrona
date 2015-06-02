@@ -96,7 +96,7 @@ public class BroadcastTransmitterTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLong(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -124,7 +124,7 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLong(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -153,7 +153,7 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAlgned);
+        inOrder.verify(buffer).putLong(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAlgned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
@@ -182,7 +182,7 @@ public class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned + toEndOfBuffer);
+        inOrder.verify(buffer).putLong(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned + toEndOfBuffer);
 
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), toEndOfBuffer);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), PADDING_MSG_TYPE_ID);
