@@ -58,11 +58,11 @@ public class AtomicArray<T> implements Collection<T>
     }
 
     /**
-     * Return the array reference to allow derived classes more flexibility when implementing methods that iterate.
+     * Return the array reference to allow direct iteration.
      *
      * @return the array reference
      */
-    protected T[] arrayRef()
+    public T[] array()
     {
         return (T[])arrayRef;
     }
@@ -397,5 +397,4 @@ public class AtomicArray<T> implements Collection<T>
     {
         throw new UnsupportedOperationException();
     }
-
 }
