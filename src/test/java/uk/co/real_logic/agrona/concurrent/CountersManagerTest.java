@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import uk.co.real_logic.agrona.concurrent.status.Position;
-import uk.co.real_logic.agrona.concurrent.status.ReadOnlyPosition;
+import uk.co.real_logic.agrona.concurrent.status.ReadablePosition;
 import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
 
 import java.util.function.BiConsumer;
@@ -102,7 +102,7 @@ public class CountersManagerTest
         manager.allocate("def");
 
         final int id = manager.allocate("abc");
-        final ReadOnlyPosition reader = new UnsafeBufferPosition(counterBuffer, id);
+        final ReadablePosition reader = new UnsafeBufferPosition(counterBuffer, id);
         final Position writer = new UnsafeBufferPosition(counterBuffer, id);
         writer.setOrdered(0xFFFFFFFFFL);
         assertThat(reader.getVolatile(), is(0xFFFFFFFFFL));

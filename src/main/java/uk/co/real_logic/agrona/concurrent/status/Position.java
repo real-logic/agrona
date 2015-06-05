@@ -18,9 +18,9 @@ package uk.co.real_logic.agrona.concurrent.status;
 /**
  * Reports on how far through a buffer some component has progressed..
  *
- * Threadsafe to write to.
+ * Threadsafe to write to from a single writer.
  */
-public interface Position extends ReadOnlyPosition
+public interface Position extends ReadablePosition
 {
     /**
      * Get the current position of a component without memory ordering semantics.

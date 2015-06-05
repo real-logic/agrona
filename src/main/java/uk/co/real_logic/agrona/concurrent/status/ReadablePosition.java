@@ -18,7 +18,7 @@ package uk.co.real_logic.agrona.concurrent.status;
 /**
  * Indicates how far through an abstract task a component has progressed as a counter value.
  */
-public interface ReadOnlyPosition extends AutoCloseable
+public interface ReadablePosition extends AutoCloseable
 {
     /**
      * Identifier for this position.
