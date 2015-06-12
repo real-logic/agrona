@@ -96,7 +96,7 @@ public class CompilerUtil
         }
     }
 
-    private static Class<?> compile(
+    public static Class<?> compile(
         final String className,
         final DiagnosticCollector<JavaFileObject> diagnostics,
         final JavaFileManager fileManager,
@@ -133,7 +133,7 @@ public class CompilerUtil
         return fileManager.getClassLoader(null).loadClass(className);
     }
 
-    private static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
+    public static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
     {
         final Collection<File> files = new ArrayList<>(sources.size());
         for (final Map.Entry<String, CharSequence> entry : sources.entrySet())
