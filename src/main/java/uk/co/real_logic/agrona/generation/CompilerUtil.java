@@ -59,7 +59,7 @@ public class CompilerUtil
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, wrap(sources));
 
-        return compile(className, diagnostics, fileManager, task);
+        return compileAndLoad(className, diagnostics, fileManager, task);
     }
 
     /**
@@ -92,17 +92,30 @@ public class CompilerUtil
             final JavaCompiler.CompilationTask task = compiler.getTask(
                 null, fileManager, diagnostics, options, null, compilationUnits);
 
-            return compile(className, diagnostics, fileManager, task);
+            return compileAndLoad(className, diagnostics, fileManager, task);
         }
     }
 
-    public static Class<?> compile(
+    public static Class<?> compileAndLoad(
         final String className,
         final DiagnosticCollector<JavaFileObject> diagnostics,
         final JavaFileManager fileManager,
         final JavaCompiler.CompilationTask task) throws ClassNotFoundException
     {
-        if (!task.call())
+        if (!compile(diagnostics, task))
+        {
+            return null;
+        }
+
+        return fileManager.getClassLoader(null).loadClass(className);
+    }
+
+    public static boolean compile(final DiagnosticCollector<JavaFileObject> diagnostics,
+                                   final JavaCompiler.CompilationTask task)
+    {
+        final Boolean succeeded = task.call();
+
+        if (!succeeded)
         {
             for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics())
             {
@@ -126,11 +139,9 @@ public class CompilerUtil
                     LangUtil.rethrowUnchecked(ex);
                 }
             }
-
-            return null;
         }
 
-        return fileManager.getClassLoader(null).loadClass(className);
+        return succeeded;
     }
 
     public static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
