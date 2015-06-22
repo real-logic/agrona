@@ -16,7 +16,9 @@
 package uk.co.real_logic.agrona.concurrent;
 
 import org.junit.Test;
+import uk.co.real_logic.agrona.LangUtil;
 
+import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -75,5 +77,46 @@ public class AgentRunnerTest
 
         runner.close();
     }
-}
 
+    @Test
+    public void shouldNotReportClosedByInterruptException() throws Exception
+    {
+        when(mockAgent.doWork()).thenThrow(new ClosedByInterruptException());
+
+        assertExceptionNotReported();
+    }
+
+    @Test
+    public void shouldNotReportRethrownClosedByInterruptException() throws Exception
+    {
+        when(mockAgent.doWork()).thenAnswer(inv ->
+        {
+            try
+            {
+                throw new ClosedByInterruptException();
+            }
+            catch (ClosedByInterruptException e)
+            {
+                LangUtil.rethrowUnchecked(e);
+                return null;
+            }
+        });
+
+        assertExceptionNotReported();
+    }
+
+    private void assertExceptionNotReported() throws InterruptedException
+    {
+        final Consumer<Throwable> exceptionHandler = mock(Consumer.class);
+
+        final AgentRunner runner = new AgentRunner(idleStrategy, exceptionHandler, null, mockAgent);
+        new Thread(runner).start();
+
+        Thread.sleep(100);
+
+        runner.close();
+
+        verify(exceptionHandler, never()).accept(any());
+    }
+
+}
