@@ -15,6 +15,8 @@
  */
 package uk.co.real_logic.agrona.generation;
 
+import uk.co.real_logic.agrona.LangUtil;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -32,4 +34,16 @@ public interface OutputManager
      * @throws IOException if an error occurs during output.
      */
     Writer createOutput(String name) throws IOException;
+
+    default void withOutput(final String name, final ResourceConsumer<Writer> resourceConsumer)
+    {
+        try (final Writer output = createOutput(name))
+        {
+            resourceConsumer.accept(output);
+        }
+        catch (IOException e)
+        {
+            LangUtil.rethrowUnchecked(e);
+        }
+    }
 }
