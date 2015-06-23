@@ -16,12 +16,12 @@
 package uk.co.real_logic.agrona.concurrent;
 
 import org.junit.Test;
+import uk.co.real_logic.agrona.ErrorHandler;
 import uk.co.real_logic.agrona.LangUtil;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -30,12 +30,10 @@ import static org.mockito.Mockito.*;
 
 public class AgentRunnerTest
 {
-    @SuppressWarnings("unchecked")
-    private final Consumer<Throwable> exceptionConsumer = mock(Consumer.class);
-
+    private final ErrorHandler errorHandler = mock(ErrorHandler.class);
     private final Agent mockAgent = mock(Agent.class);
     private final IdleStrategy idleStrategy = new NoOpIdleStrategy();
-    private final AgentRunner runner = new AgentRunner(idleStrategy, exceptionConsumer, null, mockAgent);
+    private final AgentRunner runner = new AgentRunner(idleStrategy, errorHandler, null, mockAgent);
 
     @Test
     public void shouldReturnAgent()
@@ -60,19 +58,19 @@ public class AgentRunnerTest
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
-        final Consumer<Throwable> exceptionHandler =
+        final ErrorHandler errorHandler =
             (ex) ->
             {
                 assertThat(ex, is(expectedException));
                 latch.countDown();
             };
 
-        final AgentRunner runner = new AgentRunner(idleStrategy, exceptionHandler, null, mockAgent);
+        final AgentRunner runner = new AgentRunner(idleStrategy, errorHandler, null, mockAgent);
         new Thread(runner).start();
 
         if (!latch.await(3, TimeUnit.SECONDS))
         {
-            fail("Should have called exception handler");
+            fail("Should have called error handler");
         }
 
         runner.close();
@@ -109,17 +107,16 @@ public class AgentRunnerTest
 
     private void assertExceptionNotReported() throws InterruptedException
     {
-        @SuppressWarnings("unchecked")
-        final Consumer<Throwable> exceptionHandler = mock(Consumer.class);
+        final ErrorHandler errorHandler = mock(ErrorHandler.class);
 
-        final AgentRunner runner = new AgentRunner(idleStrategy, exceptionHandler, null, mockAgent);
+        final AgentRunner runner = new AgentRunner(idleStrategy, errorHandler, null, mockAgent);
         new Thread(runner).start();
 
         Thread.sleep(100);
 
         runner.close();
 
-        verify(exceptionHandler, never()).accept(any());
+        verify(errorHandler, never()).onError(any());
     }
 
 }

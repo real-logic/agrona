@@ -15,11 +15,11 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
+import uk.co.real_logic.agrona.ErrorHandler;
 import uk.co.real_logic.agrona.Verify;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 /**
  * Base agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
@@ -32,8 +32,8 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     private volatile boolean running = true;
 
-    private final AtomicCounter exceptionCounter;
-    private final Consumer<Throwable> exceptionHandler;
+    private final AtomicCounter errorCounter;
+    private final ErrorHandler errorHandler;
     private final IdleStrategy idleStrategy;
     private final Agent agent;
     private final AtomicReference<Thread> thread = new AtomicReference<>();
@@ -41,24 +41,24 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Create an agent passing in {@link IdleStrategy}
      *
-     * @param idleStrategy     to use for Agent run loop
-     * @param exceptionHandler to be called if an {@link Exception} is encountered
-     * @param exceptionCounter for reporting how many exceptions have been seen.
-     * @param agent            to be run in this thread.
+     * @param idleStrategy to use for Agent run loop
+     * @param errorHandler to be called if an {@link Throwable} is encountered
+     * @param errorCounter for reporting how many exceptions have been seen.
+     * @param agent        to be run in this thread.
      */
     public AgentRunner(
         final IdleStrategy idleStrategy,
-        final Consumer<Throwable> exceptionHandler,
-        final AtomicCounter exceptionCounter,
+        final ErrorHandler errorHandler,
+        final AtomicCounter errorCounter,
         final Agent agent)
     {
         Verify.notNull(idleStrategy, "idleStrategy");
-        Verify.notNull(exceptionHandler, "exceptionHandler");
+        Verify.notNull(errorHandler, "errorHandler");
         Verify.notNull(agent, "agent");
 
         this.idleStrategy = idleStrategy;
-        this.exceptionHandler = exceptionHandler;
-        this.exceptionCounter = exceptionCounter;
+        this.errorHandler = errorHandler;
+        this.errorCounter = errorCounter;
         this.agent = agent;
     }
 
@@ -103,12 +103,12 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
             catch (final Throwable ex)
             {
-                if (null != exceptionCounter)
+                if (null != errorCounter)
                 {
-                    exceptionCounter.increment();
+                    errorCounter.increment();
                 }
 
-                exceptionHandler.accept(ex);
+                errorHandler.onError(ex);
             }
         }
     }
