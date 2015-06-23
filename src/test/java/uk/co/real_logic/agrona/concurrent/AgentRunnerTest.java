@@ -89,24 +89,27 @@ public class AgentRunnerTest
     @Test
     public void shouldNotReportRethrownClosedByInterruptException() throws Exception
     {
-        when(mockAgent.doWork()).thenAnswer(inv ->
-        {
-            try
+        when(mockAgent.doWork()).thenAnswer(
+            (inv) ->
             {
-                throw new ClosedByInterruptException();
-            }
-            catch (ClosedByInterruptException e)
-            {
-                LangUtil.rethrowUnchecked(e);
+                try
+                {
+                    throw new ClosedByInterruptException();
+                }
+                catch (final ClosedByInterruptException ex)
+                {
+                    LangUtil.rethrowUnchecked(ex);
+                }
+
                 return null;
-            }
-        });
+            });
 
         assertExceptionNotReported();
     }
 
     private void assertExceptionNotReported() throws InterruptedException
     {
+        @SuppressWarnings("unchecked")
         final Consumer<Throwable> exceptionHandler = mock(Consumer.class);
 
         final AgentRunner runner = new AgentRunner(idleStrategy, exceptionHandler, null, mockAgent);
