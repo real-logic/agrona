@@ -213,9 +213,9 @@ public class IoUtil
         checkFileExists(location, descriptionLabel);
 
         MappedByteBuffer mappedByteBuffer = null;
-        try (final RandomAccessFile file = new RandomAccessFile(location, "rw"))
+        try (final RandomAccessFile file = new RandomAccessFile(location, "rw");
+             final FileChannel channel = file.getChannel())
         {
-            final FileChannel channel = file.getChannel();
             mappedByteBuffer = channel.map(READ_WRITE, 0, channel.size());
         }
         catch (final IOException ex)
@@ -243,9 +243,9 @@ public class IoUtil
         checkFileExists(location, descriptionLabel);
 
         MappedByteBuffer mappedByteBuffer = null;
-        try (final RandomAccessFile file = new RandomAccessFile(location, "rw"))
+        try (final RandomAccessFile file = new RandomAccessFile(location, "rw");
+             final FileChannel channel = file.getChannel())
         {
-            final FileChannel channel = file.getChannel();
             mappedByteBuffer = channel.map(READ_WRITE, offset, size);
         }
         catch (final IOException ex)

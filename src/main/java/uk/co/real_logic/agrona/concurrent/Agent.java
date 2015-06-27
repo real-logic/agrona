@@ -30,6 +30,8 @@ public interface Agent
 
     /**
      * To be overridden by Agents that which to do resource cleanup on close.
+     *
+     * This method will be called after the agent thread has terminated. It will only be called once by a single thread.
      */
     default void onClose()
     {
