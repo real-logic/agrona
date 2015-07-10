@@ -255,6 +255,17 @@ public class IntHashSetTest
         assertEquals(obj.hashCode(), other.hashCode());
     }
 
+    @Test
+    public void reducesSizeWhenElementRemoved()
+    {
+        obj.add(1);
+        obj.add(1001);
+
+        obj.remove(1001);
+
+        assertEquals(1, obj.size());
+    }
+
     private void assertIteratorHasElements()
     {
         final Iterator<Integer> iter = obj.iterator();

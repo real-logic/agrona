@@ -113,6 +113,7 @@ public final class IntHashSet implements Set<Integer>
             {
                 values[index] = missingValue;
                 compactChain(index);
+                size--;
                 return true;
             }
 
