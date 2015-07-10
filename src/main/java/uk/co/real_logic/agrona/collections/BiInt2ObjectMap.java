@@ -15,6 +15,7 @@
  */
 package uk.co.real_logic.agrona.collections;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -41,6 +42,23 @@ public class BiInt2ObjectMap<V>
          * @param value for the entry
          */
         void accept(int keyPartA, int keyPartB, V value);
+    }
+
+    /**
+     * Creates new values based upon keys
+     *
+     * @param <V> type of the value
+     */
+    public interface EntryFunction<V>
+    {
+        /**
+         * A map entry
+         *
+         * @param keyPartA for the key
+         * @param keyPartB for the key
+         * @return value for the entry
+         */
+        V apply(int keyPartA, int keyPartB);
     }
 
     private final Long2ObjectHashMap<V> map;
@@ -125,6 +143,36 @@ public class BiInt2ObjectMap<V>
         final long key = compoundKey(keyPartA, keyPartB);
 
         return map.remove(key);
+    }
+
+    /**
+     * If the specified key is not already associated with a value (or is mapped
+     * to {@code null}), attempts to compute its value using the given mapping
+     * function and enters it into this map unless {@code null}.
+     *
+     * @param keyPartA for the key
+     * @param keyPartB for the key
+     * @param mappingFunction creates values based upon keys if the key pair is missing
+     * @return the newly created or stored value.
+     */
+    public V computeIfAbsent(
+        final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
+    {
+        Objects.requireNonNull(mappingFunction);
+
+        final long key = compoundKey(keyPartA, keyPartB);
+        final V value = map.get(key);
+        if (value == null)
+        {
+            final V newValue = mappingFunction.apply(keyPartA, keyPartB);
+            if (newValue != null)
+            {
+                map.put(key, newValue);
+                return newValue;
+            }
+        }
+
+        return value;
     }
 
     /**
