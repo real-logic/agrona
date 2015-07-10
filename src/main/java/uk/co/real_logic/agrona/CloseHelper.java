@@ -35,4 +35,25 @@ public class CloseHelper
         {
         }
     }
+
+    /**
+     * Close a {@link java.lang.AutoCloseable} dealing with nulls and exceptions.
+     * This version re-throws exceptions as runtime exceptions.
+     *
+     * @param closeable to be closed.
+     */
+    public static void close(final AutoCloseable closeable)
+    {
+        try
+        {
+            if (null != closeable)
+            {
+                closeable.close();
+            }
+        }
+        catch (final Exception e)
+        {
+            LangUtil.rethrowUnchecked(e);
+        }
+    }
 }

@@ -321,6 +321,19 @@ public class IoUtil
     }
 
     /**
+     * Unmap a {@link ByteBuffer} without waiting for the next GC cycle if its memory mapped.
+     *
+     * @param buffer to be unmapped.
+     */
+    public static void unmap(final ByteBuffer buffer)
+    {
+        if (buffer instanceof MappedByteBuffer)
+        {
+            unmap((MappedByteBuffer) buffer);
+        }
+    }
+
+    /**
      * Return the system property for java.io.tmpdir ensuring a {@link File#separator} is at the end.
      *
      * @return tmp directory for the runtime
