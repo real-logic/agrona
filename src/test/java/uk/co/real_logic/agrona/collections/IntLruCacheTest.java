@@ -18,19 +18,21 @@ package uk.co.real_logic.agrona.collections;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("unchecked")
 public class IntLruCacheTest
 {
     public static final int CAPACITY = 2;
 
-    @SuppressWarnings("unchecked")
     private IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);
-    private IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory);
+    private Consumer<AutoCloseable> mockCloser = mock(Consumer.class);
+    private IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory, mockCloser);
 
     private AutoCloseable lastValue;
 
@@ -73,7 +75,7 @@ public class IntLruCacheTest
         cache.lookup(2);
         cache.lookup(3);
 
-        verify(first).close();
+        verify(mockCloser).accept(first);
     }
 
     @Test
@@ -84,7 +86,7 @@ public class IntLruCacheTest
         cache.lookup(3);
         cache.lookup(1);
 
-        verify(second).close();
+        verify(mockCloser).accept(second);
         verifyOneConstructed(2);
     }
 
@@ -105,8 +107,8 @@ public class IntLruCacheTest
 
         cache.close();
 
-        verify(first).close();
-        verify(second).close();
+        verify(mockCloser).accept(first);
+        verify(mockCloser).accept(second);
     }
 
     private void verifyOneConstructed(final int numberOfInvocations)
