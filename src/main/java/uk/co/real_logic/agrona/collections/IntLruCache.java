@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona.collections;
 
-import uk.co.real_logic.agrona.LangUtil;
 import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.function.Consumer;
@@ -69,14 +68,7 @@ public final class IntLruCache<T> implements AutoCloseable
 
         if (size == capacity)
         {
-            try
-            {
-                closer.accept((T) values[size - 1]);
-            }
-            catch (Exception e)
-            {
-                LangUtil.rethrowUnchecked(e);
-            }
+            closer.accept((T) values[size - 1]);
         }
         else
         {
@@ -116,14 +108,7 @@ public final class IntLruCache<T> implements AutoCloseable
     {
         for (@DoNotSub int i = 0; i < size; i++)
         {
-            try
-            {
-                closer.accept((T)values[i]);
-            }
-            catch (Exception e)
-            {
-                LangUtil.rethrowUnchecked(e);
-            }
+            closer.accept((T)values[i]);
         }
     }
 }
