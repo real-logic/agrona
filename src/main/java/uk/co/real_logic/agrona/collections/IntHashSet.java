@@ -213,7 +213,7 @@ public final class IntHashSet implements Set<Integer>
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] ignore)
     {
-        return (T[])(Object)Arrays.copyOf(values, values.length);
+        throw new UnsupportedOperationException("Not Implemented");
     }
 
     /**
@@ -390,7 +390,7 @@ public final class IntHashSet implements Set<Integer>
         while (iterator.hasNext())
         {
             // Cast exists for substitutions
-            total += (int) iterator.nextValue();
+            total += iterator.nextValue();
         }
         return total;
     }
