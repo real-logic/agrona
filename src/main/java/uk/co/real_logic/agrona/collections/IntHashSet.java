@@ -16,8 +16,10 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.Verify;
 import uk.co.real_logic.agrona.generation.DoNotSub;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -210,15 +212,6 @@ public final class IntHashSet implements Set<Integer>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(final T[] ignore)
-    {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean addAll(final Collection<? extends Integer> coll)
     {
         return conjunction(coll, (x) -> add(x));
@@ -345,18 +338,44 @@ public final class IntHashSet implements Set<Integer>
             .collect(joining(",", "{", "}"));
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(final T[] into)
+    {
+        Verify.notNull(into, "into");
+
+        final Class<?> componentType = into.getClass().getComponentType();
+        if (!componentType.isAssignableFrom(Integer.class))
+        {
+            throw new ArrayStoreException("Cannot store Integers in array of type " + componentType);
+        }
+
+        @DoNotSub final int size = this.size;
+        final T[] arrayCopy = into.length >= size ? into : (T[]) Array.newInstance(componentType, size);
+        copyValues(arrayCopy);
+        return arrayCopy;
+    }
+
     /**
      * {@inheritDoc}
      */
     public Object[] toArray()
     {
-        final int[] values = this.values;
-        final Object[] array = new Object[values.length];
-        for (@DoNotSub int i = 0; i < values.length; i++)
+        final Object[] arrayCopy = new Object[size];
+        copyValues(arrayCopy);
+        return arrayCopy;
+    }
+
+    private void copyValues(final Object[] arrayCopy)
+    {
+        final IntIterator iterator = iterator();
+        for (@DoNotSub int i = 0; iterator.hasNext(); i++)
         {
-            array[i] = values[i];
+            arrayCopy[i] = iterator.next();
         }
-        return array;
     }
 
     /**

@@ -266,6 +266,48 @@ public class IntHashSetTest
         assertEquals(1, obj.size());
     }
 
+    @Test(expected = ArrayStoreException.class)
+    public void toArrayThrowsArrayStoreExceptionForWrongType()
+    {
+        obj.toArray(new String[1]);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toArrayThrowsNullPointerExceptionForNullArgument()
+    {
+        obj.toArray(null);
+    }
+
+    @Test
+    public void toArrayCopiesElementsIntoSufficientlySizedArray()
+    {
+        obj.add(1);
+        obj.add(1001);
+
+        final Integer[] result = obj.toArray(new Integer[obj.size()]);
+
+        assertArrayEquals(result, new Integer[]{1, 1001});
+    }
+
+    @Test
+    public void toArrayCopiesElementsIntoNewArray()
+    {
+        obj.add(1);
+        obj.add(1001);
+
+        final Integer[] result = obj.toArray(new Integer[0]);
+
+        assertArrayEquals(result, new Integer[] {1, 1001});
+    }
+
+    @Test
+    public void toArraySupportsEmptyCollection()
+    {
+        final Integer[] result = obj.toArray(new Integer[0]);
+
+        assertArrayEquals(result, new Integer[] {});
+    }
+
     private void assertIteratorHasElements()
     {
         final Iterator<Integer> iter = obj.iterator();
