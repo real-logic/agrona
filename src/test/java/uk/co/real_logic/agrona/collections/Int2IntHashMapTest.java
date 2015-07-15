@@ -22,17 +22,17 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
-import static java.lang.Long.MAX_VALUE;
+import static java.lang.Integer.MAX_VALUE;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
-public class Long2LongHashMapTest
+public class Int2IntHashMapTest
 {
-    public static final long MISSING_VALUE = -1L;
+    public static final int MISSING_VALUE = -1;
 
-    private Long2LongHashMap map = new Long2LongHashMap(MISSING_VALUE);
+    private Int2IntHashMap map = new Int2IntHashMap(MISSING_VALUE);
 
     @Test
     public void shouldInitiallyBeEmpty()
@@ -44,38 +44,38 @@ public class Long2LongHashMapTest
     @Test
     public void getShouldReturnMissingValueWhenEmpty()
     {
-        assertEquals(MISSING_VALUE, map.get(1L));
+        assertEquals(MISSING_VALUE, map.get(1));
     }
 
     @Test
     public void getShouldReturnMissingValueWhenThereIsNoElement()
     {
-        map.put(1L, 1L);
+        map.put(1, 1);
 
-        assertEquals(MISSING_VALUE, map.get(2L));
+        assertEquals(MISSING_VALUE, map.get(2));
     }
 
     @Test
     public void getShouldReturnPutValues()
     {
-        map.put(1L, 1L);
+        map.put(1, 1);
 
-        assertEquals(1L, map.get(1L));
+        assertEquals(1, map.get(1));
     }
 
     @Test
     public void putShouldReturnOldValue()
     {
-        map.put(1L, 1L);
+        map.put(1, 1);
 
-        assertEquals(1L, map.put(1L, 2L));
+        assertEquals(1, map.put(1, 2));
     }
 
     @Test
     public void clearShouldResetSize()
     {
-        map.put(1L, 1L);
-        map.put(100L, 100L);
+        map.put(1, 1);
+        map.put(100, 100);
 
         map.clear();
 
@@ -86,63 +86,63 @@ public class Long2LongHashMapTest
     @Test
     public void clearShouldRemoveValues()
     {
-        map.put(1L, 1L);
-        map.put(100L, 100L);
+        map.put(1, 1);
+        map.put(100, 100);
 
         map.clear();
 
-        assertEquals(MISSING_VALUE, map.get(1L));
-        assertEquals(MISSING_VALUE, map.get(100L));
+        assertEquals(MISSING_VALUE, map.get(1));
+        assertEquals(MISSING_VALUE, map.get(100));
     }
 
     @Test
     public void forEachShouldLoopOverEveryElement()
     {
-        map.put(1L, 1L);
-        map.put(100L, 100L);
+        map.put(1, 1);
+        map.put(100, 100);
 
-        final LongLongConsumer mockConsumer = mock(LongLongConsumer.class);
-        map.longForEach(mockConsumer);
+        final IntIntConsumer mockConsumer = mock(IntIntConsumer.class);
+        map.intForEach(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
-        inOrder.verify(mockConsumer).accept(1L, 1L);
-        inOrder.verify(mockConsumer).accept(100L, 100L);
+        inOrder.verify(mockConsumer).accept(1, 1);
+        inOrder.verify(mockConsumer).accept(100, 100);
         inOrder.verifyNoMoreInteractions();
     }
 
     @Test
     public void shouldNotContainKeyOfAMissingKey()
     {
-        assertFalse(map.containsKey(1L));
+        assertFalse(map.containsKey(1));
     }
 
     @Test
     public void shouldContainKeyOfAPresentKey()
     {
-        map.put(1L, 1L);
+        map.put(1, 1);
 
-        assertTrue(map.containsKey(1L));
+        assertTrue(map.containsKey(1));
     }
 
     @Test
     public void shouldNotContainValueForAMissingEntry()
     {
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
     }
 
     @Test
     public void shouldContainValueForAPresentEntry()
     {
-        map.put(1L, 1L);
+        map.put(1, 1);
 
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsValue(1));
     }
 
     @Test
     public void shouldExposeValidKeySet()
     {
-        map.put(1L, 1L);
-        map.put(2L, 2L);
+        map.put(1, 1);
+        map.put(2, 2);
 
         assertCollectionContainsElements(map.keySet());
     }
@@ -150,8 +150,8 @@ public class Long2LongHashMapTest
     @Test
     public void shouldExposeValidValueSet()
     {
-        map.put(1L, 1L);
-        map.put(2L, 2L);
+        map.put(1, 1);
+        map.put(2, 2);
 
         assertCollectionContainsElements(map.values());
     }
@@ -159,64 +159,64 @@ public class Long2LongHashMapTest
     @Test
     public void shouldPutAllMembersOfAnotherHashMap()
     {
-        map.put(1L, 1L);
-        map.put(2L, 3L);
+        map.put(1, 1);
+        map.put(2, 3);
 
-        final Map<Long, Long> other = new HashMap<>();
-        other.put(1L, 2L);
-        other.put(3L, 4L);
+        final Map<Integer, Integer> other = new HashMap<>();
+        other.put(1, 2);
+        other.put(3, 4);
 
         map.putAll(other);
 
         assertEquals(3, map.size());
 
-        assertEquals(2, map.get(1L));
-        assertEquals(3, map.get(2L));
-        assertEquals(4, map.get(3L));
+        assertEquals(2, map.get(1));
+        assertEquals(3, map.get(2));
+        assertEquals(4, map.get(3));
     }
 
     @Test
     public void entrySetShouldContainEntries()
     {
-        map.put(1L, 1L);
-        map.put(2L, 3L);
+        map.put(1, 1);
+        map.put(2, 3);
 
-        final Set<Entry<Long, Long>> entrySet = map.entrySet();
+        final Set<Entry<Integer, Integer>> entrySet = map.entrySet();
         assertEquals(2, entrySet.size());
         assertFalse(entrySet.isEmpty());
 
-        final Iterator<Entry<Long, Long>> it = entrySet.iterator();
+        final Iterator<Entry<Integer, Integer>> it = entrySet.iterator();
         assertTrue(it.hasNext());
-        assertEntryIs(it.next(), 1L, 1L);
+        assertEntryIs(it.next(), 1, 1);
         assertTrue(it.hasNext());
-        assertEntryIs(it.next(), 2L, 3L);
+        assertEntryIs(it.next(), 2, 3);
         assertFalse(it.hasNext());
     }
 
     @Test
     public void removeShouldReturnMissing()
     {
-        assertEquals(MISSING_VALUE, map.remove(1L));
+        assertEquals(MISSING_VALUE, map.remove(1));
     }
 
     @Test
     public void removeShouldReturnValueRemoved()
     {
-        map.put(1L, 2L);
+        map.put(1, 2);
 
-        assertEquals(2L, map.remove(1L));
+        assertEquals(2, map.remove(1));
     }
 
     @Test
     public void removeShouldRemoveEntry()
     {
-        map.put(1L, 2L);
+        map.put(1, 2);
 
-        map.remove(1L);
+        map.remove(1);
 
         assertTrue(map.isEmpty());
-        assertFalse(map.containsKey(1L));
-        assertFalse(map.containsValue(2L));
+        assertFalse(map.containsKey(1));
+        assertFalse(map.containsValue(2));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class Long2LongHashMapTest
     {
         IntStream.range(0, 8).forEach(i -> map.put(i, i * 2));
 
-        map.remove(5L);
+        map.remove(5);
 
         IntStream.range(0, 8)
                  .filter(i -> i != 5L)
@@ -263,22 +263,22 @@ public class Long2LongHashMapTest
         assertEquals(-5, map.minValue());
     }
 
-    private void assertEntryIs(final Entry<Long, Long> entry, final long expectedKey, final long expectedValue)
+    private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
-        assertEquals(expectedKey, entry.getKey().longValue());
-        assertEquals(expectedValue, entry.getValue().longValue());
+        assertEquals(expectedKey, entry.getKey().intValue());
+        assertEquals(expectedValue, entry.getValue().intValue());
     }
 
-    private void assertCollectionContainsElements(final Collection<Long> keys)
+    private void assertCollectionContainsElements(final Collection<Integer> keys)
     {
         assertEquals(2, keys.size());
         assertFalse(keys.isEmpty());
-        assertTrue(keys.contains(1L));
-        assertTrue(keys.contains(2L));
-        assertFalse(keys.contains(3L));
-        assertThat(keys, hasItems(1L, 2L));
+        assertTrue(keys.contains(1));
+        assertTrue(keys.contains(2));
+        assertFalse(keys.contains(3));
+        assertThat(keys, hasItems(1, 2));
 
-        assertThat("iterator has failed to be reset", keys, hasItems(1L, 2L));
+        assertThat("iterator has failed to be reset", keys, hasItems(1, 2));
     }
 
 }

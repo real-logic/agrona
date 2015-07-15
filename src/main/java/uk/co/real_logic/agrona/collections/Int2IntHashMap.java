@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -23,36 +24,40 @@ import java.util.function.BiConsumer;
 /**
  * A Probing hashmap specialised for long key and value pairs.
  */
-public class Long2LongHashMap implements Map<Long, Long>
+public class Int2IntHashMap implements Map<Integer, Integer>
 {
-    private final Set<Long> keySet;
-    private final LongIterator valueIterator = new LongIterator(1);
-    private final Collection<Long> values;
-    private final Set<Entry<Long, Long>> entrySet;
+    private final Set<Integer> keySet;
+    private final PrimitiveIterator valueIterator = new PrimitiveIterator(1);
+    private final Collection<Integer> values;
+    private final Set<Entry<Integer, Integer>> entrySet;
 
-    private final double loadFactor;
-    private final long missingValue;
+    @DoNotSub private final double loadFactor;
+    private final int missingValue;
 
-    private long[] entries;
-    private int capacity;
-    private int mask;
-    private int resizeThreshold;
-    private int size = 0;
+    private int[] entries;
 
-    public Long2LongHashMap(final long missingValue)
+    @DoNotSub private int capacity;
+    @DoNotSub private int mask;
+    @DoNotSub private int resizeThreshold;
+    @DoNotSub private int size = 0;
+
+    public Int2IntHashMap(final int missingValue)
     {
         this(16, 0.6, missingValue);
     }
 
     @SuppressWarnings("unchecked")
-    public Long2LongHashMap(final int initialCapacity, final double loadFactor, final long missingValue)
+    public Int2IntHashMap(
+        @DoNotSub final int initialCapacity,
+        @DoNotSub final double loadFactor,
+        final int missingValue)
     {
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
 
         capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
 
-        final LongIterator keyIterator = new LongIterator(0);
+        final PrimitiveIterator keyIterator = new PrimitiveIterator(0);
         keySet = new MapDelegatingSet<>(this, keyIterator::reset, this::containsValue);
         values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
 
@@ -64,7 +69,7 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -77,13 +82,13 @@ public class Long2LongHashMap implements Map<Long, Long>
         return size() == 0;
     }
 
-    public long get(final long key)
+    public int get(final int key)
     {
-        final long[] entries = this.entries;
+        final int[] entries = this.entries;
 
-        int index = hash(key);
+        @DoNotSub int index = hash(key);
 
-        long candidateKey;
+        int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
         {
             if (candidateKey == key)
@@ -97,12 +102,12 @@ public class Long2LongHashMap implements Map<Long, Long>
         return missingValue;
     }
 
-    public long put(final long key, final long value)
+    public int put(final int key, final int value)
     {
-        long oldValue = missingValue;
-        int index = hash(key);
+        int oldValue = missingValue;
+        @DoNotSub int index = hash(key);
 
-        long candidateKey;
+        int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
         {
             if (candidateKey == key)
@@ -131,7 +136,7 @@ public class Long2LongHashMap implements Map<Long, Long>
     {
         if (size > resizeThreshold)
         {
-            final int newCapacity = capacity << 1;
+            @DoNotSub final int newCapacity = capacity << 1;
             if (newCapacity < 0)
             {
                 throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -141,15 +146,15 @@ public class Long2LongHashMap implements Map<Long, Long>
         }
     }
 
-    private void rehash(final int newCapacity)
+    private void rehash(@DoNotSub final int newCapacity)
     {
-        final long[] oldEntries = entries;
+        final int[] oldEntries = entries;
 
         capacity(newCapacity);
 
-        for (int i = 0; i < oldEntries.length; i += 2)
+        for (@DoNotSub int i = 0; i < oldEntries.length; i += 2)
         {
-            final long key = oldEntries[i];
+            final int key = oldEntries[i];
             if (key != missingValue)
             {
                 put(key, oldEntries[i + 1]);
@@ -157,11 +162,10 @@ public class Long2LongHashMap implements Map<Long, Long>
         }
     }
 
-    private int hash(final long key)
+    @DoNotSub private int hash(
+        final long key)
     {
-        int hash = (int)key ^ (int)(key >>> 32);
-        hash = (hash << 1) - (hash << 8);
-        return hash & mask;
+        return Hashing.longHash(key, mask);
     }
 
     /**
@@ -172,12 +176,12 @@ public class Long2LongHashMap implements Map<Long, Long>
      *
      * @param consumer a callback called for each key/value pair in the map.
      */
-    public void longForEach(final LongLongConsumer consumer)
+    public void intForEach(final IntIntConsumer consumer)
     {
-        final long[] entries = this.entries;
-        for (int i = 0; i < entries.length; i += 2)
+        final int[] entries = this.entries;
+        for (@DoNotSub int i = 0; i < entries.length; i += 2)
         {
-            final long key = entries[i];
+            final int key = entries[i];
             if (key != missingValue)
             {
                 consumer.accept(entries[i], entries[i + 1]);
@@ -186,22 +190,22 @@ public class Long2LongHashMap implements Map<Long, Long>
     }
 
     /**
-     * Long primitive specialised containsKey.
+     * Int primitive specialised containsKey.
      *
      * @param key the key to check.
      * @return true if the map contains key as a key, false otherwise.
      */
-    public boolean containsKey(final long key)
+    public boolean containsKey(final int key)
     {
         return get(key) != missingValue;
     }
 
-    public boolean containsValue(final long value)
+    public boolean containsValue(final int value)
     {
-        final long[] entries = this.entries;
-        for (int i = 1; i < entries.length; i += 2)
+        final int[] entries = this.entries;
+        for (@DoNotSub int i = 1; i < entries.length; i += 2)
         {
-            final long entryValue = entries[i];
+            final int entryValue = entries[i];
             if (entryValue == value)
             {
                 return true;
@@ -224,25 +228,25 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public Long get(final Object key)
+    public Integer get(final Object key)
     {
-        return get((long)key);
+        return get((int)key);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Long put(final Long key, final Long value)
+    public Integer put(final Integer key, final Integer value)
     {
-        return put(key.longValue(), value.longValue());
+        return put((int) key, (int) value);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void forEach(final BiConsumer<? super Long, ? super Long> action)
+    public void forEach(final BiConsumer<? super Integer, ? super Integer> action)
     {
-        longForEach(action::accept);
+        intForEach(action::accept);
     }
 
     /**
@@ -250,7 +254,7 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public boolean containsKey(final Object key)
     {
-        return containsKey((long)key);
+        return containsKey((int)key);
     }
 
     /**
@@ -258,13 +262,13 @@ public class Long2LongHashMap implements Map<Long, Long>
      */
     public boolean containsValue(final Object value)
     {
-        return containsValue((long)value);
+        return containsValue((int)value);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void putAll(final Map<? extends Long, ? extends Long> map)
+    public void putAll(final Map<? extends Integer, ? extends Integer> map)
     {
         map.forEach(this::put);
     }
@@ -272,7 +276,7 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public Set<Long> keySet()
+    public Set<Integer> keySet()
     {
         return keySet;
     }
@@ -280,7 +284,7 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public Collection<Long> values()
+    public Collection<Integer> values()
     {
         return values;
     }
@@ -288,7 +292,7 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<Long, Long>> entrySet()
+    public Set<Entry<Integer, Integer>> entrySet()
     {
         return entrySet;
     }
@@ -296,24 +300,24 @@ public class Long2LongHashMap implements Map<Long, Long>
     /**
      * {@inheritDoc}
      */
-    public Long remove(final Object key)
+    public Integer remove(final Object key)
     {
-        return remove((long)key);
+        return remove((int)key);
     }
 
-    public long remove(final long key)
+    public int remove(final int key)
     {
-        final long[] entries = this.entries;
+        final int[] entries = this.entries;
 
-        int index = hash(key);
+        @DoNotSub int index = hash(key);
 
-        long candidateKey;
+        int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
         {
             if (candidateKey == key)
             {
-                final int valueIndex = index + 1;
-                final long oldValue = entries[valueIndex];
+                @DoNotSub final int valueIndex = index + 1;
+                final int oldValue = entries[valueIndex];
                 entries[index] = missingValue;
                 entries[valueIndex] = missingValue;
                 size--;
@@ -329,11 +333,11 @@ public class Long2LongHashMap implements Map<Long, Long>
         return missingValue;
     }
 
-    private void compactChain(int deleteIndex)
+    private void compactChain(@DoNotSub int deleteIndex)
     {
-        final long[] entries = this.entries;
+        final int[] entries = this.entries;
 
-        int index = deleteIndex;
+        @DoNotSub int index = deleteIndex;
         while (true)
         {
             index = next(index);
@@ -342,7 +346,7 @@ public class Long2LongHashMap implements Map<Long, Long>
                 return;
             }
 
-            final int hash = hash(entries[index]);
+            @DoNotSub final int hash = hash(entries[index]);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -357,11 +361,11 @@ public class Long2LongHashMap implements Map<Long, Long>
         }
     }
 
-    public long minValue()
+    public int minValue()
     {
-        long min = Long.MAX_VALUE;
+        int min = Integer.MAX_VALUE;
 
-        final LongIterator iterator = valueIterator.reset();
+        final PrimitiveIterator iterator = valueIterator.reset();
         while (iterator.hasNext())
         {
             min = Math.min(min, iterator.nextValue());
@@ -374,11 +378,11 @@ public class Long2LongHashMap implements Map<Long, Long>
 
     private abstract class AbstractIterator
     {
-        protected final int startIndex;
+        @DoNotSub protected final int startIndex;
 
-        protected int index;
+        @DoNotSub protected int index;
 
-        protected AbstractIterator(final int startIndex)
+        protected AbstractIterator(@DoNotSub final int startIndex)
         {
             this.startIndex = startIndex;
             index = startIndex;
@@ -405,36 +409,38 @@ public class Long2LongHashMap implements Map<Long, Long>
 
     }
 
-    private final class LongIterator extends AbstractIterator implements Iterator<Long>
+    private final class PrimitiveIterator extends AbstractIterator implements Iterator<Integer>
     {
-        private LongIterator(final int startIndex)
+        private PrimitiveIterator(@DoNotSub final int startIndex)
         {
             super(startIndex);
         }
 
-        private LongIterator reset()
+        private PrimitiveIterator reset()
         {
             index = startIndex;
             return this;
         }
 
-        public Long next()
+        public Integer next()
         {
             return nextValue();
         }
 
-        public long nextValue()
+        public int nextValue()
         {
-            final long entry = entries[index];
+            final int entry = entries[index];
             nextIndex();
             return entry;
         }
     }
 
-    private final class EntryIterator extends AbstractIterator implements Iterator<Entry<Long, Long>>, Entry<Long, Long>
+    private final class EntryIterator
+        extends AbstractIterator
+        implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
     {
-        private long key;
-        private long value;
+        private int key;
+        private int value;
 
         private EntryIterator()
         {
@@ -447,22 +453,22 @@ public class Long2LongHashMap implements Map<Long, Long>
             return this;
         }
 
-        public Long getKey()
+        public Integer getKey()
         {
             return key;
         }
 
-        public Long getValue()
+        public Integer getValue()
         {
             return value;
         }
 
-        public Long setValue(final Long value)
+        public Integer setValue(final Integer value)
         {
             throw new UnsupportedOperationException();
         }
 
-        public Entry<Long, Long> next()
+        public Entry<Integer, Integer> next()
         {
             key = entries[index];
             value = entries[index + 1];
@@ -471,17 +477,17 @@ public class Long2LongHashMap implements Map<Long, Long>
         }
     }
 
-    private int next(final int index)
+    @DoNotSub private int next(final int index)
     {
         return (index + 2) & mask;
     }
 
-    private void capacity(final int newCapacity)
+    private void capacity(@DoNotSub final int newCapacity)
     {
         capacity = newCapacity;
-        resizeThreshold = (int)(newCapacity * loadFactor);
+        /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         mask = (newCapacity * 2) - 1;
-        entries = new long[newCapacity * 2];
+        entries = new int[newCapacity * 2];
         Arrays.fill(entries, missingValue);
     }
 }

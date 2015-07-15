@@ -38,8 +38,10 @@ public final class PrimitiveExpander
     public static void main(final String[] args) throws IOException
     {
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIterator");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntHashMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
     }
 
     private static void expandPrimitiveSpecialisedClass(final String pakage, final String className) throws IOException
@@ -86,7 +88,9 @@ public final class PrimitiveExpander
 
         public String checkedSubstitute(final String contents)
         {
-            return contents.contains("@DoNotSub") ? contents : substitute(contents);
+            return contents.contains("@DoNotSub") || contents.contains("interface")  || contents.contains("Interface")
+                 ? contents
+                 : substitute(contents);
         }
     }
 }

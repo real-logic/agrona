@@ -16,10 +16,11 @@
 package uk.co.real_logic.agrona.collections;
 
 /**
- * This is a (long,long) primitive specialisation of a BiConsumer
+ * This is an (int,int) primitive specialisation of a BiConsumer
  */
 @FunctionalInterface
-public interface LongLongConsumer
+public interface
+    IntIntConsumer
 {
     /**
      * Accept a key and value that comes as a tuple of longs.
@@ -27,5 +28,5 @@ public interface LongLongConsumer
      * @param key   for the tuple.
      * @param value for the tuple.
      */
-    void accept(long key, long value);
+    void accept(int key, int value);
 }
