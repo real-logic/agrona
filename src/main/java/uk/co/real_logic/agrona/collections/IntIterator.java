@@ -18,6 +18,7 @@ package uk.co.real_logic.agrona.collections;
 import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An iterator for a sequence of primitive integers.
@@ -25,9 +26,13 @@ import java.util.Iterator;
 public class IntIterator implements Iterator<Integer>
 {
     private final int missingValue;
-    private final int[] values;
 
-    @DoNotSub private int position = 0;
+    private int[] values;
+    @DoNotSub private int capacity;
+    @DoNotSub private int mask;
+    @DoNotSub private int positionCounter;
+    @DoNotSub private int stopCounter;
+    private boolean isPositionValid = false;
 
     /**
      * Construct an {@link Iterator} over an array of primitives ints.
@@ -38,23 +43,80 @@ public class IntIterator implements Iterator<Integer>
     public IntIterator(final int missingValue, final int[] values)
     {
         this.missingValue = missingValue;
+        reset(values);
+    }
+
+    /**
+     * Reset methods for fixed size collections.
+     */
+    void reset()
+    {
+        reset(values);
+    }
+
+    /**
+     * Reset method for expandable collections.
+     *
+     * @param values
+     */
+    void reset(final int[] values)
+    {
         this.values = values;
+        capacity = values.length;
+        mask = capacity - 1;
+
+        @DoNotSub int i = capacity;
+        if (values[capacity - 1] != missingValue)
+        {
+            i = 0;
+            for (@DoNotSub int size = capacity; i < size; i++)
+            {
+                if (values[i] == missingValue)
+                {
+                    break;
+                }
+            }
+        }
+
+        stopCounter = i;
+        positionCounter = i + capacity;
+    }
+
+    @DoNotSub protected int getPosition()
+    {
+        return positionCounter & mask;
     }
 
     public boolean hasNext()
     {
-        final int[] values = this.values;
-        while (position < values.length)
+        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
-            if (values[position] != missingValue)
+            @DoNotSub final int index = i & mask;
+            if (values[index] != missingValue)
             {
                 return true;
             }
-
-            position++;
         }
 
         return false;
+    }
+
+    protected void findNext()
+    {
+        isPositionValid = false;
+
+        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
+        {
+            @DoNotSub final int index = i & mask;
+            if (values[index] != missingValue)
+            {
+                positionCounter = i;
+                isPositionValid = true;
+                return;
+            }
+        }
+
+        throw new NoSuchElementException();
     }
 
     public Integer next()
@@ -69,13 +131,9 @@ public class IntIterator implements Iterator<Integer>
      */
     public int nextValue()
     {
-        final int value = values[position];
-        position++;
-        return value;
+        findNext();
+
+        return values[getPosition()];
     }
 
-    void reset()
-    {
-        position = 0;
-    }
 }
