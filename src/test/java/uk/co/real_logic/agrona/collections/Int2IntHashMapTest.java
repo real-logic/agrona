@@ -159,8 +159,7 @@ public class Int2IntHashMapTest
     @Test
     public void shouldPutAllMembersOfAnotherHashMap()
     {
-        map.put(1, 1);
-        map.put(2, 3);
+        addTwoElements();
 
         final Map<Integer, Integer> other = new HashMap<>();
         other.put(1, 2);
@@ -176,10 +175,74 @@ public class Int2IntHashMapTest
     }
 
     @Test
+    public void shouldIterateKeys()
+    {
+        addTwoElements();
+
+        assertIteratesKeys();
+    }
+
+    @Test
+    public void shouldIterateKeysFromBeginningEveryTime()
+    {
+        shouldIterateKeys();
+
+        assertIteratesKeys();
+    }
+
+    @Test
+    public void shouldIterateKeysWithoutHasNext()
+    {
+        addTwoElements();
+
+        assertIterateKeysWithoutHasNext();
+    }
+
+    @Test
+    public void shouldIterateKeysWithoutHasNextFromBeginningEveryTime()
+    {
+        shouldIterateKeysWithoutHasNext();
+
+        assertIterateKeysWithoutHasNext();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void shouldExceptionForEmptyIteration()
+    {
+        keyIterator().next();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void shouldExceptionWhenRunningOutOfElements()
+    {
+        addTwoElements();
+
+        final Iterator<Integer> iterator = keyIterator();
+        iterator.next();
+        iterator.next();
+        iterator.next();
+    }
+
+    @Test
+    public void shouldIterateValues()
+    {
+        addTwoElements();
+
+        assertIteratesValues();
+    }
+
+    @Test
+    public void shouldIterateValuesFromBeginningEveryTime()
+    {
+        shouldIterateValues();
+
+        assertIteratesValues();
+    }
+
+    @Test
     public void entrySetShouldContainEntries()
     {
-        map.put(1, 1);
-        map.put(2, 3);
+        addTwoElements();
 
         final Set<Entry<Integer, Integer>> entrySet = map.entrySet();
         assertEquals(2, entrySet.size());
@@ -187,9 +250,9 @@ public class Int2IntHashMapTest
 
         final Iterator<Entry<Integer, Integer>> it = entrySet.iterator();
         assertTrue(it.hasNext());
-        assertEntryIs(it.next(), 1, 1);
-        assertTrue(it.hasNext());
         assertEntryIs(it.next(), 2, 3);
+        assertTrue(it.hasNext());
+        assertEntryIs(it.next(), 1, 1);
         assertFalse(it.hasNext());
     }
 
@@ -280,5 +343,45 @@ public class Int2IntHashMapTest
 
         assertThat("iterator has failed to be reset", keys, hasItems(1, 2));
     }
+
+    private void assertIteratesKeys()
+    {
+        final Iterator<Integer> it = keyIterator();
+        assertContains(it, 2, 1);
+    }
+
+    private void assertIteratesValues()
+    {
+        final Iterator<Integer> it = map.values().iterator();
+        assertContains(it, 3, 1);
+    }
+
+    private void assertContains(final Iterator<Integer> it, final int first, final int second)
+    {
+        assertTrue(it.hasNext());
+        assertEquals(Integer.valueOf(first), it.next());
+        assertTrue(it.hasNext());
+        assertEquals(Integer.valueOf(second), it.next());
+        assertFalse(it.hasNext());
+    }
+
+    private void addTwoElements()
+    {
+        map.put(1, 1);
+        map.put(2, 3);
+    }
+
+    private void assertIterateKeysWithoutHasNext()
+    {
+        final Iterator<Integer> it = keyIterator();
+        assertEquals(Integer.valueOf(2), it.next());
+        assertEquals(Integer.valueOf(1), it.next());
+    }
+
+    private Iterator<Integer> keyIterator()
+    {
+        return map.keySet().iterator();
+    }
+
 
 }

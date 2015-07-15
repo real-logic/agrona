@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
     private final Set<Integer> keySet;
-    private final PrimitiveIterator valueIterator = new PrimitiveIterator(1);
+    private final PrimitiveIterator valueIterator;
     private final Collection<Integer> values;
     private final Set<Entry<Integer, Integer>> entrySet;
 
@@ -58,6 +58,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
 
         final PrimitiveIterator keyIterator = new PrimitiveIterator(0);
+        valueIterator = new PrimitiveIterator(1);
         keySet = new MapDelegatingSet<>(this, keyIterator::reset, this::containsValue);
         values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
 
@@ -378,48 +379,87 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     private abstract class AbstractIterator
     {
-        @DoNotSub protected final int startIndex;
+        @DoNotSub private int capacity;
+        @DoNotSub private int mask;
+        @DoNotSub private int positionCounter;
+        @DoNotSub private int stopCounter;
+        private boolean isPositionValid = false;
 
-        @DoNotSub protected int index;
-
-        protected AbstractIterator(@DoNotSub final int startIndex)
+        public AbstractIterator()
         {
-            this.startIndex = startIndex;
-            index = startIndex;
+            reset();
+        }
+
+        private void reset()
+        {
+            final int[] entries = Int2IntHashMap.this.entries;
+            capacity = entries.length;
+            mask = capacity - 1;
+
+            @DoNotSub int i = capacity;
+            if (entries[capacity - 2] != missingValue)
+            {
+                i = 0;
+                for (@DoNotSub int size = capacity; i < size; i += 2)
+                {
+                    if (entries[i] == missingValue)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            stopCounter = i;
+            positionCounter = i + capacity;
+        }
+
+        @DoNotSub protected int getKeyPosition()
+        {
+            return positionCounter & mask;
         }
 
         public boolean hasNext()
         {
-            while (entries[index] == missingValue)
+            final int[] entries = Int2IntHashMap.this.entries;
+            for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
             {
-                nextIndex();
-                if (index == startIndex)
+                @DoNotSub final int index = i & mask;
+                if (entries[index] != missingValue)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
-        protected void nextIndex()
+        protected void findNext()
         {
-            index = next(index);
-        }
+            final int[] entries = Int2IntHashMap.this.entries;
+            isPositionValid = false;
 
+            for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
+            {
+                @DoNotSub final int index = i & mask;
+                if (entries[index] != missingValue)
+                {
+                    positionCounter = i;
+                    isPositionValid = true;
+                    return;
+                }
+            }
+
+            throw new NoSuchElementException();
+        }
     }
 
     private final class PrimitiveIterator extends AbstractIterator implements Iterator<Integer>
     {
-        private PrimitiveIterator(@DoNotSub final int startIndex)
-        {
-            super(startIndex);
-        }
+        @DoNotSub private final int offset;
 
-        private PrimitiveIterator reset()
+        private PrimitiveIterator(@DoNotSub final int offset)
         {
-            index = startIndex;
-            return this;
+            this.offset = offset;
         }
 
         public Integer next()
@@ -429,9 +469,16 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         public int nextValue()
         {
-            final int entry = entries[index];
-            nextIndex();
-            return entry;
+            findNext();
+
+            return entries[getKeyPosition() + offset];
+        }
+
+        public PrimitiveIterator reset()
+        {
+            super.reset();
+
+            return this;
         }
     }
 
@@ -444,13 +491,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         private EntryIterator()
         {
-            super(0);
-        }
-
-        private EntryIterator reset()
-        {
-            index = startIndex;
-            return this;
+            super();
         }
 
         public Integer getKey()
@@ -470,9 +511,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         public Entry<Integer, Integer> next()
         {
-            key = entries[index];
-            value = entries[index + 1];
-            nextIndex();
+            findNext();
+
+            @DoNotSub final int keyPosition = getKeyPosition();
+            key = entries[keyPosition];
+            value = entries[keyPosition + 1];
+            return this;
+        }
+
+        public EntryIterator reset()
+        {
+            super.reset();
+            key = missingValue;
+            value = missingValue;
+
             return this;
         }
     }
