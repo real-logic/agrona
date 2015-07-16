@@ -346,6 +346,24 @@ public class IntHashSetTest
         assertArrayEquals(result, new Integer[]{});
     }
 
+    // Testcase from usage bug.
+    @Test
+    public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
+    {
+        final IntHashSet requiredFields = new IntHashSet(14, -1);
+
+        requiredFields.add(8);
+        requiredFields.add(9);
+        requiredFields.add(35);
+        requiredFields.add(49);
+        requiredFields.add(56);
+
+        assertTrue("Failed to remove 8", requiredFields.remove(8));
+        assertTrue("Failed to remove 9", requiredFields.remove(9));
+
+        assertThat(requiredFields, containsInAnyOrder(35, 49, 56));
+    }
+
     private void addTwoElements(final IntHashSet obj)
     {
         obj.add(1);

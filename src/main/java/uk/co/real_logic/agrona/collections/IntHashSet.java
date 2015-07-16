@@ -109,6 +109,8 @@ public final class IntHashSet implements Set<Integer>
         @DoNotSub int index =
             Hashing.intHash(value, mask);
 
+        final int[] values = this.values;
+
         while (values[index] != missingValue)
         {
             if (values[index] == value)
@@ -131,22 +133,30 @@ public final class IntHashSet implements Set<Integer>
         return index;
     }
 
-    @DoNotSub private void compactChain(final int deleteIndex)
+    @DoNotSub private void compactChain(int deleteIndex)
     {
         final int[] values = this.values;
 
         @DoNotSub int index = deleteIndex;
         while (true)
         {
-            @DoNotSub final int previousIndex = index;
             index = next(index);
             if (values[index] == missingValue)
             {
                 return;
             }
 
-            values[previousIndex] = values[index];
-            values[index] = missingValue;
+            @DoNotSub final int hash =
+                Hashing.intHash(values[index], mask);
+
+            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+                (hash <= deleteIndex && deleteIndex <= index))
+            {
+                values[deleteIndex] = values[index];
+
+                values[index] = missingValue;
+                deleteIndex = index;
+            }
         }
     }
 
