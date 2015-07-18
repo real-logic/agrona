@@ -22,7 +22,6 @@ import java.util.function.IntFunction;
 
 public final class IntLruCache<T> implements AutoCloseable
 {
-
     @DoNotSub private final int capacity;
     private final IntFunction<T> factory;
     private final Consumer<T> closer;
@@ -56,7 +55,7 @@ public final class IntLruCache<T> implements AutoCloseable
         {
             if (keys[i] == key)
             {
-                final T value = (T) values[i];
+                final T value = (T)values[i];
 
                 makeMostRecent(key, value, i);
 
@@ -68,7 +67,7 @@ public final class IntLruCache<T> implements AutoCloseable
 
         if (size == capacity)
         {
-            closer.accept((T) values[size - 1]);
+            closer.accept((T)values[size - 1]);
         }
         else
         {
@@ -104,6 +103,7 @@ public final class IntLruCache<T> implements AutoCloseable
         return capacity;
     }
 
+    @SuppressWarnings("unchecked")
     public void close()
     {
         for (@DoNotSub int i = 0; i < size; i++)

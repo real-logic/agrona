@@ -25,13 +25,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("unchecked")
 public class IntLruCacheTest
 {
     public static final int CAPACITY = 2;
 
+    @SuppressWarnings("unchecked")
     private IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);
+    @SuppressWarnings("unchecked")
     private Consumer<AutoCloseable> mockCloser = mock(Consumer.class);
+
     private IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory, mockCloser);
 
     private AutoCloseable lastValue;
@@ -39,11 +41,12 @@ public class IntLruCacheTest
     @Before
     public void setUp()
     {
-        when(mockFactory.apply(anyInt())).thenAnswer(inv ->
-        {
-            lastValue = mock(AutoCloseable.class);
-            return lastValue;
-        });
+        when(mockFactory.apply(anyInt())).thenAnswer(
+            (inv) ->
+            {
+                lastValue = mock(AutoCloseable.class);
+                return lastValue;
+            });
     }
 
     @Test
