@@ -150,7 +150,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     private void rehash(@DoNotSub final int newCapacity)
     {
         final int[] oldEntries = entries;
-        final int length = entries.length;
+        @DoNotSub final int length = entries.length;
 
         capacity(newCapacity);
 
@@ -181,7 +181,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public void intForEach(final IntIntConsumer consumer)
     {
         final int[] entries = this.entries;
-        final int length = entries.length;
+        @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 0; i < length; i += 2)
         {
@@ -207,7 +207,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public boolean containsValue(final int value)
     {
         final int[] entries = this.entries;
-        final int length = entries.length;
+        @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
         {

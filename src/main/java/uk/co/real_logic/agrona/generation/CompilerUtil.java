@@ -126,6 +126,10 @@ public class CompilerUtil
                 System.err.printf(
                     "Line = %d, Col = %d, File = %s", diagnostic.getLineNumber(), diagnostic.getColumnNumber(), source);
 
+                System.out.println("Start: " + diagnostic.getStartPosition());
+                System.out.println("End: " + diagnostic.getEndPosition());
+                System.out.println("Pos: " + diagnostic.getPosition());
+
                 try
                 {
                     final String content = source.getCharContent(true).toString();
