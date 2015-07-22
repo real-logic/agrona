@@ -20,20 +20,36 @@ import uk.co.real_logic.agrona.generation.DoNotSub;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
-public final class IntLruCache<T> implements AutoCloseable
+/**
+ * A fixed capacity cache of int keyed values that evicts the least-recently-used element when it runs out of space.
+ *
+ * When an element is evicted it is closed by calling the closer function with the element as an argument.
+ *
+ * WHen a new key arrives the factory function is called in order to create the new element associated with that key.
+ *
+ * @param <E> the type of element that this cache holds.
+ */
+public final class IntLruCache<E> implements AutoCloseable
 {
     @DoNotSub private final int capacity;
-    private final IntFunction<T> factory;
-    private final Consumer<T> closer;
+    private final IntFunction<E> factory;
+    private final Consumer<E> closer;
     private final int[] keys;
     private final Object[] values;
 
     @DoNotSub private int size;
 
+    /**
+     * Constructor.
+     *
+     * @param capacity this is the fixed capacity of the cache.
+     * @param factory a function for constructing new elements based upon keys.
+     * @param closer a function for cleaning up resources associated with elements.
+     */
     public IntLruCache(
         @DoNotSub final int capacity,
-        final IntFunction<T> factory,
-        final Consumer<T> closer)
+        final IntFunction<E> factory,
+        final Consumer<E> closer)
     {
         this.capacity = capacity;
         this.factory = factory;
@@ -44,8 +60,15 @@ public final class IntLruCache<T> implements AutoCloseable
         size = 0;
     }
 
+    /**
+     * Looks up an element in the cache, creating a new element if it doesn't exist and evicting the least recently used
+     * element if there's no space left in the cache.
+     *
+     * @param key the key to lookup the element by.
+     * @return the element associated with this key.
+     */
     @SuppressWarnings("unchecked")
-    public T lookup(final int key)
+    public E lookup(final int key)
     {
         @DoNotSub int size = this.size;
         final int[] keys = this.keys;
@@ -55,7 +78,7 @@ public final class IntLruCache<T> implements AutoCloseable
         {
             if (keys[i] == key)
             {
-                final T value = (T)values[i];
+                final E value = (E)values[i];
 
                 makeMostRecent(key, value, i);
 
@@ -63,11 +86,11 @@ public final class IntLruCache<T> implements AutoCloseable
             }
         }
 
-        final T value = factory.apply(key);
+        final E value = factory.apply(key);
 
         if (size == capacity)
         {
-            closer.accept((T)values[size - 1]);
+            closer.accept((E)values[size - 1]);
         }
         else
         {
@@ -108,7 +131,7 @@ public final class IntLruCache<T> implements AutoCloseable
     {
         for (@DoNotSub int i = 0; i < size; i++)
         {
-            closer.accept((T)values[i]);
+            closer.accept((E)values[i]);
         }
     }
 }
