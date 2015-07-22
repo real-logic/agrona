@@ -29,7 +29,18 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.joining;
 
 /**
- * Simple fixed-size int hashset for validating tags.
+ * Fixed-size, garbage and allocation free int element specific hashset.
+ * <p>
+ * By storing elements as int primitives this significantly reduces memoery consumption compared with Java's builtin
+ * <code>HashSet&lt;Integer&gt;</code>. It implements <code>Set&lt;Integer&gt;</code> for convenience, but calling
+ * functionality via those methods can add boxing overhead to your usage.
+ * <p>
+ * Not Threadsafe.
+ * <p>
+ * This HashSet caches its iterator object, so nested iteration is not supported.
+ *
+ * @see IntIterator
+ * @see Set
  */
 public final class IntHashSet implements Set<Integer>
 {
