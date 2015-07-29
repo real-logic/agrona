@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 /**
  * A container for items processed in sequence
  */
-public interface SequencedContainer<E>
+public interface Pipe<E>
 {
     /**
      * The number of items added to this container since creation.

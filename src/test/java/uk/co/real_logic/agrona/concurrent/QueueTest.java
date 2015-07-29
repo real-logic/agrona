@@ -39,7 +39,7 @@ public class QueueTest
 
     interface Fixture
     {
-        SequencedContainerQueue<Integer> newInstance();
+        QueuedPipe<Integer> newInstance();
     }
 
     @DataPoint
@@ -107,7 +107,7 @@ public class QueueTest
     @Theory
     public void shouldFailToOfferToFullQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -119,7 +119,7 @@ public class QueueTest
     @Theory
     public void shouldPollSingleElementFromFullQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
         fillQueue(queue);
 
         final Integer polledValue = queue.poll();
@@ -139,7 +139,7 @@ public class QueueTest
     @Theory
     public void shouldPeakQueueHead(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -151,7 +151,7 @@ public class QueueTest
     @Theory
     public void shouldReturnNullForPeekOnEmptyQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         final Integer value = queue.peek();
         Assert.assertNull(value);
@@ -160,7 +160,7 @@ public class QueueTest
     @Theory
     public void shouldReturnElementQueueHead(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -181,7 +181,7 @@ public class QueueTest
     @Theory
     public void shouldRemoveSingleElementFromFullQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -202,7 +202,7 @@ public class QueueTest
     @Theory
     public void shouldClearFullQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -213,7 +213,7 @@ public class QueueTest
     @Theory
     public void shouldDrainFullQueue(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -231,7 +231,7 @@ public class QueueTest
     public void shouldHandleExceptionWhenDraining(final Fixture fixture)
     {
         final String testMessage = "Test Exception";
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
 
         fillQueue(queue);
 
@@ -265,7 +265,7 @@ public class QueueTest
     @Theory
     public void shouldDrainFullQueueToCollection(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
         final Collection<Integer> target = new ArrayList<>();
 
         fillQueue(queue);
@@ -280,7 +280,7 @@ public class QueueTest
     @Theory
     public void shouldDrainQueueWithCountToCollection(final Fixture fixture)
     {
-        final SequencedContainerQueue<Integer> queue = fixture.newInstance();
+        final QueuedPipe<Integer> queue = fixture.newInstance();
         final Collection<Integer> target = new ArrayList<>();
         final int count = 3;
 
@@ -293,7 +293,7 @@ public class QueueTest
         assertThat(queue.size(), is(queue.capacity() - count));
     }
 
-    private void fillQueue(final SequencedContainerQueue<Integer> queue)
+    private void fillQueue(final QueuedPipe<Integer> queue)
     {
         for (int i = 0, size = queue.capacity(); i < size; i++)
         {

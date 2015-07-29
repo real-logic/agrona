@@ -22,6 +22,6 @@ import java.util.Queue;
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
-public interface SequencedContainerQueue<E> extends Queue<E>, SequencedContainer<E>
+public interface QueuedPipe<E> extends Queue<E>, Pipe<E>
 {
 }

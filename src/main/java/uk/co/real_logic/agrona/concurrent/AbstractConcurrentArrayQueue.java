@@ -69,7 +69,7 @@ class Padding3 extends Head
  */
 public abstract class AbstractConcurrentArrayQueue<E>
     extends Padding3
-    implements SequencedContainerQueue<E>
+    implements QueuedPipe<E>
 {
     protected static final long TAIL_OFFSET;
     protected static final long HEAD_OFFSET;
