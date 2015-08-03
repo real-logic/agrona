@@ -59,23 +59,33 @@ public final class ArrayUtil
     public static <T> T[] remove(final T[] oldElements, final T elementToRemove)
     {
         final int oldLength = oldElements.length;
-        final int newLength = oldLength - 1;
-        final T[] newElements = newArray(oldElements, newLength);
-        boolean containsElement = false;
-        for (int i = 0, j = 0; i < newLength; i++)
+        int index = -1;
+
+        for (int i = 0; i < oldLength; i++)
         {
-            final T element = oldElements[i];
-            if (element != elementToRemove)
+            if (oldElements[i] == elementToRemove)
             {
-                newElements[j++] = element;
-            }
-            else
-            {
-                containsElement = true;
+                index = i;
             }
         }
 
-        return containsElement ? newElements : oldElements;
+        if (index == -1)
+        {
+            return oldElements;
+        }
+
+        final int newLength = oldLength - 1;
+        final T[] newElements = newArray(oldElements, newLength);
+
+        for (int i = 0, j = 0; i < oldLength; i++)
+        {
+            if (index != i)
+            {
+                newElements[j++] = oldElements[i];
+            }
+        }
+
+        return newElements;
     }
 
     /**
