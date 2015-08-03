@@ -33,7 +33,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
-public class QueueTest
+public class QueuedPipeTest
 {
     private static final int QUEUE_CAPACITY = 8;
 
