@@ -99,6 +99,6 @@ public final class ArrayUtil
     @SuppressWarnings("unchecked")
     public static <T> T[] newArray(final T[] oldElements, final int length)
     {
-        return (T[]) Array.newInstance(oldElements.getClass().getComponentType(), length);
+        return (T[])Array.newInstance(oldElements.getClass().getComponentType(), length);
     }
 }
