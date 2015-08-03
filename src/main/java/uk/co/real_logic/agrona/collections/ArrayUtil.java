@@ -29,6 +29,9 @@ import java.util.Arrays;
  */
 public final class ArrayUtil
 {
+
+    public static final int UNKNOWN_INDEX = -1;
+
     /**
      * Add an element to an array resulting in a new array.
      *
@@ -58,10 +61,10 @@ public final class ArrayUtil
      */
     public static <T> T[] remove(final T[] oldElements, final T elementToRemove)
     {
-        final int oldLength = oldElements.length;
-        int index = -1;
+        final int length = oldElements.length;
+        int index = UNKNOWN_INDEX;
 
-        for (int i = 0; i < oldLength; i++)
+        for (int i = 0; i < length; i++)
         {
             if (oldElements[i] == elementToRemove)
             {
@@ -69,11 +72,17 @@ public final class ArrayUtil
             }
         }
 
-        if (index == -1)
+        return remove(oldElements, index);
+    }
+
+    public static <T> T[] remove(final T[] oldElements, final int index)
+    {
+        if (index == UNKNOWN_INDEX)
         {
             return oldElements;
         }
 
+        final int oldLength = oldElements.length;
         final int newLength = oldLength - 1;
         final T[] newElements = newArray(oldElements, newLength);
 
