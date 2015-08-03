@@ -24,6 +24,8 @@ import java.util.Arrays;
  * is common and checkcast comparatively expensive.
  *
  * In all cases the array being mutated is assumed to be full.
+ *
+ * In all cases reference equality is used.
  */
 public final class ArrayUtil
 {
@@ -36,29 +38,50 @@ public final class ArrayUtil
         return newElements;
     }
 
+    /**
+     * Creates a new array from an old array with an element removed.
+     *
+     * Returns its input parameter if the element to remove isn't a member.
+     *
+     * @param oldElements the input array
+     * @param elementToRemove the element to remove from oldElements
+     * @param <T> the type of elements in the array
+     * @return oldElements without elementToRemove
+     */
     public static <T> T[] remove(final T[] oldElements, final T elementToRemove)
     {
-        final int length = oldElements.length;
-        final T[] newElements = newArray(oldElements, length);
-        for (int i = 0, j = 0; i < length; i++)
+        final int oldLength = oldElements.length;
+        final int newLength = oldLength - 1;
+        final T[] newElements = newArray(oldElements, newLength);
+        boolean containsElement = false;
+        for (int i = 0, j = 0; i < newLength; i++)
         {
             final T element = oldElements[i];
             if (element != elementToRemove)
             {
                 newElements[j++] = element;
             }
+            else
+            {
+                containsElement = true;
+            }
         }
 
-        return newElements;
+        return containsElement ? newElements : oldElements;
     }
 
     /**
-     * Allocate a new array of the same type as the old array
+     * Allocate a new array of the same type as another array.
+     *
+     * @param oldElements the old array.
+     * @param length the length of the new array
+     * @param <T> the type of element in the new array
+     * @return the new array
      */
     @SuppressWarnings("unchecked")
     public static <T> T[] newArray(final T[] oldElements, final int length)
     {
-        return (T[]) Array.newInstance(oldElements.getClass().getComponentType(), length - 1);
+        return (T[]) Array.newInstance(oldElements.getClass().getComponentType(), length);
     }
 
 }
