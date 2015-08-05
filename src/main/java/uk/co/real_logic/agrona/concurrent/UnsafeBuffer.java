@@ -634,6 +634,20 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
+    public byte getByteVolatile(final int index)
+    {
+        boundsCheck(index, SIZE_OF_BYTE);
+
+        return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
+    }
+
+    public void putByteVolatile(final int index, final byte value)
+    {
+        boundsCheck(index, SIZE_OF_BYTE);
+
+        UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
 
     public byte getByte(final int index)

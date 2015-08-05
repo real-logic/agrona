@@ -166,4 +166,21 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param value for at a given index
      */
     void putShortVolatile(int index, short value);
+
+
+    /**
+     * Get the value at a given index with volatile semantics.
+     *
+     * @param index in bytes from which to get.
+     * @return the value for at a given index
+     */
+    byte getByteVolatile(int index);
+
+    /**
+     * Put a value to a given index with volatile semantics.
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index
+     */
+    void putByteVolatile(int index, byte value);
 }
