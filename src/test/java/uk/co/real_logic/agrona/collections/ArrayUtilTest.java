@@ -53,4 +53,12 @@ public class ArrayUtilTest
         assertArrayEquals(new Integer[]{TWO}, result);
     }
 
+    @Test
+    public void shouldRemoveByIndex()
+    {
+        final Integer[] result = ArrayUtil.remove(values, 0);
+
+        assertArrayEquals(new Integer[]{TWO}, result);
+    }
+
 }
