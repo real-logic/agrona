@@ -546,6 +546,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         mask = (newCapacity * 2) - 1;
         entries = new int[newCapacity * 2];
+        size = 0;
         Arrays.fill(entries, missingValue);
     }
 }
