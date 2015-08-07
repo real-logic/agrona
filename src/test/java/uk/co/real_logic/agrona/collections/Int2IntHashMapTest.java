@@ -326,6 +326,18 @@ public class Int2IntHashMapTest
         assertEquals(-5, map.minValue());
     }
 
+    @Test
+    public void sizeShouldReturnNumberOfEntries()
+    {
+        final int count = 100;
+        for (int key = 0; key < count; key++)
+        {
+            map.put(key, 1);
+        }
+
+        assertEquals(count, map.size());
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());
