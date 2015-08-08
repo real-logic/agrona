@@ -302,21 +302,19 @@ public class IoUtil
      */
     public static void unmap(final MappedByteBuffer buffer)
     {
-        if (null == buffer)
+        if (null != buffer)
         {
-            return;
-        }
+            try
+            {
+                final Method method = FileChannelImpl.class.getDeclaredMethod("unmap", MappedByteBuffer.class);
 
-        try
-        {
-            final Method method = FileChannelImpl.class.getDeclaredMethod("unmap", MappedByteBuffer.class);
-
-            method.setAccessible(true);
-            method.invoke(null, buffer);
-        }
-        catch (final Exception ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
+                method.setAccessible(true);
+                method.invoke(null, buffer);
+            }
+            catch (final Exception ex)
+            {
+                LangUtil.rethrowUnchecked(ex);
+            }
         }
     }
 
@@ -329,7 +327,7 @@ public class IoUtil
     {
         if (buffer instanceof MappedByteBuffer)
         {
-            unmap((MappedByteBuffer) buffer);
+            unmap((MappedByteBuffer)buffer);
         }
     }
 
