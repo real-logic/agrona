@@ -24,7 +24,7 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 /**
  * Pad out a cacheline to the left of a tail to prevent false sharing.
  */
-class Padding1
+class AbstractConcurrentArrayQueuePadding1
 {
     @SuppressWarnings("unused")
     protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
@@ -33,7 +33,7 @@ class Padding1
 /**
  * Value for the tail that is expected to be padded.
  */
-class Tail extends Padding1
+class AbstractConcurrentArrayQueueTail extends AbstractConcurrentArrayQueuePadding1
 {
     protected volatile long tail;
 }
@@ -41,7 +41,7 @@ class Tail extends Padding1
 /**
  * Pad out a cacheline between the tail and the head to prevent false sharing.
  */
-class Padding2 extends Tail
+class AbstractConcurrentArrayQueuePadding2 extends AbstractConcurrentArrayQueueTail
 {
     @SuppressWarnings("unused")
     protected long p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30;
@@ -50,7 +50,7 @@ class Padding2 extends Tail
 /**
  * Value for the head that is expected to be padded.
  */
-class Head extends Padding2
+class AbstractConcurrentArrayQueueHead extends AbstractConcurrentArrayQueuePadding2
 {
     protected volatile long head;
 }
@@ -58,7 +58,7 @@ class Head extends Padding2
 /**
  * Pad out a cacheline between the tail and the head to prevent false sharing.
  */
-class Padding3 extends Head
+class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentArrayQueueHead
 {
     @SuppressWarnings("unused")
     protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
@@ -68,7 +68,7 @@ class Padding3 extends Head
  * Left over immutable queue fields.
  */
 public abstract class AbstractConcurrentArrayQueue<E>
-    extends Padding3
+    extends AbstractConcurrentArrayQueuePadding3
     implements QueuedPipe<E>
 {
     protected static final long TAIL_OFFSET;
@@ -82,8 +82,8 @@ public abstract class AbstractConcurrentArrayQueue<E>
         {
             ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class);
             SHIFT_FOR_SCALE = BitUtil.calculateShiftForScale(UNSAFE.arrayIndexScale(Object[].class));
-            TAIL_OFFSET = UNSAFE.objectFieldOffset(Tail.class.getDeclaredField("tail"));
-            HEAD_OFFSET = UNSAFE.objectFieldOffset(Head.class.getDeclaredField("head"));
+            TAIL_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueTail.class.getDeclaredField("tail"));
+            HEAD_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueHead.class.getDeclaredField("head"));
         }
         catch (final Exception ex)
         {
