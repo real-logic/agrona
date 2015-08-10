@@ -28,6 +28,10 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
  * This is a Java port of the
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">MPSC queue</a>
  * by Dmitry Vyukov.
+ *
+ * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
+ * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
+ * {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
  */
 class ManyToOneConcurrentLinkedQueuePadding1
 {
@@ -164,12 +168,20 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     public int size()
     {
-        int size = 0;
+        final Node<E> tail = this.tail;
+        Node<E> head = this.head;
 
-        Node<E> node = head.next;
-        while (null != node)
+        int size = 0;
+        while (head != tail && size < Integer.MAX_VALUE)
         {
-            node = node.next;
+            Node<E> next = head.next;
+
+            while (null == next)
+            {
+                next = head.next;
+            }
+
+            head = next;
             ++size;
         }
 
