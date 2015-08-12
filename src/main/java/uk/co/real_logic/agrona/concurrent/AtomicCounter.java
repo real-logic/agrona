@@ -36,18 +36,22 @@ public class AtomicCounter implements AutoCloseable
 
     /**
      * Perform an atomic increment that will not lose updates across threads.
+     *
+     * @return the previous value of the counter
      */
-    public void increment()
+    public long increment()
     {
-        buffer.getAndAddLong(offset, 1);
+        return buffer.getAndAddLong(offset, 1);
     }
 
     /**
      * Perform an atomic increment that is not safe across threads.
+     *
+     * @return the previous value of the counter
      */
-    public void orderedIncrement()
+    public long orderedIncrement()
     {
-        buffer.addLongOrdered(offset, 1);
+        return buffer.addLongOrdered(offset, 1);
     }
 
     /**
@@ -74,20 +78,22 @@ public class AtomicCounter implements AutoCloseable
      * Add an increment to the counter that will not lose updates across threads.
      *
      * @param increment to be added.
+     * @return the previous value of the counter
      */
-    public void add(final long increment)
+    public long add(final long increment)
     {
-        buffer.getAndAddLong(offset, increment);
+        return buffer.getAndAddLong(offset, increment);
     }
 
     /**
      * Add an increment to the counter with ordered store semantics.
      *
      * @param increment to be added with ordered store semantics.
+     * @return the previous value of the counter
      */
-    public void addOrdered(final long increment)
+    public long addOrdered(final long increment)
     {
-        buffer.addLongOrdered(offset, increment);
+        return buffer.addLongOrdered(offset, increment);
     }
 
     /**

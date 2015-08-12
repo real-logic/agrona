@@ -55,11 +55,11 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
-     *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index
      */
-    void addLongOrdered(int index, long increment);
+    long addLongOrdered(int index, long increment);
 
     /**
      * Atomic compare and set of a long given an expected value.
@@ -76,7 +76,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @param value for at a given index
-     * @return previous value
+     * @return previous value at the index
      */
     long getAndSetLong(int index, long value);
 
@@ -116,11 +116,11 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
-     *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index
      */
-    void addIntOrdered(int index, int increment);
+    int addIntOrdered(int index, int increment);
 
     /**
      * Atomic compare and set of a int given an expected value.

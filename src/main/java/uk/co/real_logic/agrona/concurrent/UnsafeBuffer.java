@@ -361,7 +361,7 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
     }
 
-    public void addLongOrdered(final int index, final long increment)
+    public long addLongOrdered(final int index, final long increment)
     {
         boundsCheck(index, SIZE_OF_LONG);
 
@@ -369,6 +369,8 @@ public class UnsafeBuffer implements AtomicBuffer
         final byte[] byteArray = this.byteArray;
         final long value = UNSAFE.getLong(byteArray, offset);
         UNSAFE.putOrderedLong(byteArray, offset, value + increment);
+
+        return value;
     }
 
     public boolean compareAndSetLong(final int index, final long expectedValue, final long updateValue)
@@ -455,7 +457,7 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putOrderedInt(byteArray, addressOffset + index, value);
     }
 
-    public void addIntOrdered(final int index, final int increment)
+    public int addIntOrdered(final int index, final int increment)
     {
         boundsCheck(index, SIZE_OF_INT);
 
@@ -463,6 +465,8 @@ public class UnsafeBuffer implements AtomicBuffer
         final byte[] byteArray = this.byteArray;
         final int value = UNSAFE.getInt(byteArray, offset);
         UNSAFE.putOrderedInt(byteArray, offset, value + increment);
+
+        return value;
     }
 
     public boolean compareAndSetInt(final int index, final int expectedValue, final int updateValue)
