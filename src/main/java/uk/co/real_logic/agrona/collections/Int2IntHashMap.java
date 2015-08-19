@@ -54,7 +54,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         if (loadFactor >= 1.0)
         {
-            throw new IllegalArgumentException("Load factors must be <= 1.0");
+            throw new IllegalArgumentException("Load factor must be <= 1.0");
         }
 
         this.loadFactor = loadFactor;

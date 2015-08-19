@@ -61,7 +61,7 @@ public class Int2ObjectHashMap<V>
     {
         if (loadFactor >= 1.0)
         {
-            throw new IllegalArgumentException("Load factors must be <= 1.0");
+            throw new IllegalArgumentException("Load factor must be <= 1.0");
         }
 
         this.loadFactor = loadFactor;
