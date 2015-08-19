@@ -16,12 +16,11 @@
 package uk.co.real_logic.agrona.concurrent;
 
 /**
- * .
+ * {@link IdleStrategy} that will call {@link Thread#yield()} when the work count is zero.
  */
 public class YieldingIdleStrategy implements IdleStrategy
 {
-    @Override
-    public void idle(int workCount)
+    public void idle(final int workCount)
     {
         if (workCount == 0)
         {
