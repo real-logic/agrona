@@ -58,6 +58,11 @@ public class Long2ObjectHashMap<V>
      */
     public Long2ObjectHashMap(final int initialCapacity, final double loadFactor)
     {
+        if (loadFactor >= 1.0)
+        {
+            throw new IllegalArgumentException("Load factors must be <= 1.0");
+        }
+
         this.loadFactor = loadFactor;
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         mask = capacity - 1;
