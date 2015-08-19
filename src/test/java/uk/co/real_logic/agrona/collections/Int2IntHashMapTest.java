@@ -338,6 +338,18 @@ public class Int2IntHashMapTest
         assertEquals(count, map.size());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotSupportLoadFactorOfGreaterThanOne()
+    {
+        new Int2IntHashMap(4, 2, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotSupportLoadFactorOfOne()
+    {
+        new Int2IntHashMap(4, 1, 0);
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());

@@ -52,6 +52,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         @DoNotSub final double loadFactor,
         final int missingValue)
     {
+        if (loadFactor >= 1.0)
+        {
+            throw new IllegalArgumentException("Load factors must be <= 1.0");
+        }
+
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
 
