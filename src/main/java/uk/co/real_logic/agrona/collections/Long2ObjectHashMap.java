@@ -58,9 +58,9 @@ public class Long2ObjectHashMap<V>
      */
     public Long2ObjectHashMap(final int initialCapacity, final double loadFactor)
     {
-        if (loadFactor >= 1.0)
+        if (loadFactor <= 0 || loadFactor >= 1.0)
         {
-            throw new IllegalArgumentException("Load factor must be <= 1.0");
+            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
         }
 
         this.loadFactor = loadFactor;
