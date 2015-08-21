@@ -83,7 +83,7 @@ public class RecordBuffer
      *
      * @see RecordBuffer#forEach(RecordHandler)
      */
-    interface RecordHandler
+    public interface RecordHandler
     {
         /**
          * Called once for each committed record in the buffer.
@@ -99,7 +99,7 @@ public class RecordBuffer
      *
      * @see RecordBuffer#withRecord(int, RecordWriter)
      */
-    interface RecordWriter
+    public interface RecordWriter
     {
         /**
          * Write an updated record within this callback.
