@@ -177,10 +177,10 @@ public class IoUtil
      * Create an empty file, fill with 0s, and return the {@link FileChannel}
      *
      * @param file to create
-     * @param size of the file to create
+     * @param length of the file to create
      * @return {@link java.nio.channels.FileChannel} for the file
      */
-    public static FileChannel createEmptyFile(final File file, final long size)
+    public static FileChannel createEmptyFile(final File file, final long length)
     {
         ensureDirectoryExists(file.getParentFile(), file.getParent());
 
@@ -188,8 +188,9 @@ public class IoUtil
         try
         {
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+            randomAccessFile.setLength(length);
             templateFile = randomAccessFile.getChannel();
-            fill(templateFile, 0, size, (byte)0);
+            fill(templateFile, 0, length, (byte)0);
         }
         catch (final IOException ex)
         {
