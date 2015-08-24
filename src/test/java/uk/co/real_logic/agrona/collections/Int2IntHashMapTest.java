@@ -350,6 +350,20 @@ public class Int2IntHashMapTest
         new Int2IntHashMap(4, 1, 0);
     }
 
+    @Test
+    public void correctSizeAfterRehash() throws Exception
+    {
+        final Int2IntHashMap map = new Int2IntHashMap(16, 0.6D, -1);
+
+        IntStream.range(1, 17).forEach(i -> map.put(i, i));
+        assertEquals("Map has correct size", 16, map.size());
+
+        final List<Integer> keys = new ArrayList<>(map.keySet());
+        keys.forEach(map::remove);
+
+        assertTrue("Map isn't empty", map.isEmpty());
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());
