@@ -73,14 +73,14 @@ public abstract class AbstractConcurrentArrayQueue<E>
 {
     protected static final long TAIL_OFFSET;
     protected static final long HEAD_OFFSET;
-    protected static final int ARRAY_BASE;
+    protected static final int BUFFER_ARRAY_BASE;
     protected static final int SHIFT_FOR_SCALE;
 
     static
     {
         try
         {
-            ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class);
+            BUFFER_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class);
             SHIFT_FOR_SCALE = BitUtil.calculateShiftForScale(UNSAFE.arrayIndexScale(Object[].class));
             TAIL_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueTail.class.getDeclaredField("tail"));
             HEAD_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueHead.class.getDeclaredField("head"));
@@ -270,6 +270,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
 
     public static long sequenceToOffset(final long sequence, final long mask)
     {
-        return ARRAY_BASE + ((sequence & mask) << SHIFT_FOR_SCALE);
+        return BUFFER_ARRAY_BASE + ((sequence & mask) << SHIFT_FOR_SCALE);
     }
 }
