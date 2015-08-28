@@ -42,7 +42,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
 
         final Object[] buffer = this.buffer;
         final long currentTail = tail;
-        final long elementOffset = sequenceToOffset(currentTail, mask);
+        final long elementOffset = sequenceToBufferOffset(currentTail, mask);
 
         if (null == UNSAFE.getObjectVolatile(buffer, elementOffset))
         {
@@ -60,7 +60,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
     {
         final Object[] buffer = this.buffer;
         final long currentHead = head;
-        final long elementOffset = sequenceToOffset(currentHead, mask);
+        final long elementOffset = sequenceToBufferOffset(currentHead, mask);
 
         final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
         if (null != e)
@@ -84,7 +84,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
         {
             do
             {
-                final long elementOffset = sequenceToOffset(nextSequence, mask);
+                final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
                 final E item = (E)UNSAFE.getObjectVolatile(buffer, elementOffset);
                 if (null == item)
                 {
@@ -115,7 +115,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
 
         while (count < limit)
         {
-            final long elementOffset = sequenceToOffset(nextSequence, mask);
+            final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
             final Object item = UNSAFE.getObjectVolatile(buffer, elementOffset);
             if (null == item)
             {

@@ -81,18 +81,18 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             final long currentTail = tail;
             final long sequenceOffset = sequenceArrayOffset(currentTail, mask);
             final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
-            final long distance = sequence - currentTail;
 
-            if (0 == distance && UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1L))
+            if (sequence != currentTail)
             {
-                UNSAFE.putObject(buffer, sequenceToOffset(currentTail, mask), e);
+                return false;
+            }
+
+            if (UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1L))
+            {
+                UNSAFE.putObject(buffer, sequenceToBufferOffset(currentTail, mask), e);
                 UNSAFE.putOrderedLong(sequences, sequenceOffset, currentTail + 1L);
 
                 return true;
-            }
-            else if (distance < 0)
-            {
-                return false;
             }
         }
         while (true);
@@ -109,21 +109,21 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             final long currentHead = head;
             final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
             final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
-            final long distance = sequence - (currentHead + 1L);
 
-            if (0 == distance && UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, currentHead, currentHead + 1L))
+            if (sequence != (currentHead + 1L))
             {
-                final long elementOffset = sequenceToOffset(currentHead, mask);
+                return null;
+            }
+
+            if (UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, currentHead, currentHead + 1L))
+            {
+                final long elementOffset = sequenceToBufferOffset(currentHead, mask);
 
                 final Object e = UNSAFE.getObject(buffer, elementOffset);
                 UNSAFE.putObject(buffer, elementOffset, null);
                 UNSAFE.putOrderedLong(sequences, sequenceOffset, currentHead + capacity);
 
                 return (E)e;
-            }
-            else if (distance < 0)
-            {
-                return null;
             }
         }
         while (true);
