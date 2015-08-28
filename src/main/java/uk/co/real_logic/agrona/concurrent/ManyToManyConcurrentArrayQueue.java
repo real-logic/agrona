@@ -109,19 +109,20 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             final long currentHead = head;
             final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
             final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
+            final long attemptedHead = currentHead + 1L;
 
-            if (sequence != (currentHead + 1L))
+            if (sequence != attemptedHead)
             {
                 return null;
             }
 
-            if (UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, currentHead, currentHead + 1L))
+            if (UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, currentHead, attemptedHead))
             {
                 final long elementOffset = sequenceToBufferOffset(currentHead, mask);
 
                 final Object e = UNSAFE.getObject(buffer, elementOffset);
                 UNSAFE.putObject(buffer, elementOffset, null);
-                UNSAFE.putOrderedLong(sequences, sequenceOffset, currentHead + capacity);
+                UNSAFE.putOrderedLong(sequences, sequenceOffset, attemptedHead + mask);
 
                 return (E)e;
             }
