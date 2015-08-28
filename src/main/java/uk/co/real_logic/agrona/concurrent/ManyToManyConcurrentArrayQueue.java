@@ -82,7 +82,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             final long sequenceOffset = sequenceArrayOffset(currentTail, mask);
             final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
 
-            if (sequence != currentTail)
+            if (sequence < currentTail)
             {
                 return false;
             }
@@ -111,7 +111,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
             final long attemptedHead = currentHead + 1L;
 
-            if (sequence != attemptedHead)
+            if (sequence < attemptedHead)
             {
                 return null;
             }
