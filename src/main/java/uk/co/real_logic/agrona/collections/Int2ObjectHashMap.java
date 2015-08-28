@@ -41,10 +41,9 @@ public class Int2ObjectHashMap<V>
     private int[] keys;
     private Object[] values;
 
-    // Cached to avoid allocation.
-    private final ValueCollection<V> valueCollection = new ValueCollection<>();
-    private final KeySet keySet = new KeySet();
-    private final EntrySet<V> entrySet = new EntrySet<>();
+    private final ValueCollection<V> valueCollection;
+    private final KeySet keySet;
+    private final EntrySet<V> entrySet;
 
     public Int2ObjectHashMap()
     {
@@ -71,6 +70,11 @@ public class Int2ObjectHashMap<V>
 
         keys = new int[capacity];
         values = new Object[capacity];
+
+        // Cached to avoid allocation.
+        valueCollection = new ValueCollection<>();
+        keySet = new KeySet();
+        entrySet = new EntrySet<>();
     }
 
     /**
@@ -482,14 +486,11 @@ public class Int2ObjectHashMap<V>
 
     public class KeySet extends AbstractSet<Integer>
     {
+        private final KeyIterator iterator = new KeyIterator();
+
         public int size()
         {
             return Int2ObjectHashMap.this.size();
-        }
-
-        public boolean isEmpty()
-        {
-            return Int2ObjectHashMap.this.isEmpty();
         }
 
         public boolean contains(final Object o)
@@ -504,7 +505,8 @@ public class Int2ObjectHashMap<V>
 
         public KeyIterator iterator()
         {
-            return new KeyIterator();
+            iterator.reset();
+            return iterator;
         }
 
         public boolean remove(final Object o)
@@ -525,14 +527,11 @@ public class Int2ObjectHashMap<V>
 
     private class ValueCollection<V> extends AbstractCollection<V>
     {
+        private final ValueIterator<V> iterator = new ValueIterator<V>();
+
         public int size()
         {
             return Int2ObjectHashMap.this.size();
-        }
-
-        public boolean isEmpty()
-        {
-            return Int2ObjectHashMap.this.isEmpty();
         }
 
         public boolean contains(final Object o)
@@ -542,7 +541,8 @@ public class Int2ObjectHashMap<V>
 
         public ValueIterator<V> iterator()
         {
-            return new ValueIterator<>();
+            iterator.reset();
+            return iterator;
         }
 
         public void clear()
@@ -553,19 +553,17 @@ public class Int2ObjectHashMap<V>
 
     private class EntrySet<V> extends AbstractSet<Entry<Integer, V>>
     {
+        private final EntryIterator<V> iterator = new EntryIterator<V>();
+
         public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
 
-        public boolean isEmpty()
-        {
-            return Int2ObjectHashMap.this.isEmpty();
-        }
-
         public Iterator<Entry<Integer, V>> iterator()
         {
-            return new EntryIterator<>();
+            iterator.reset();
+            return iterator;
         }
 
         public void clear()
@@ -583,26 +581,12 @@ public class Int2ObjectHashMap<V>
         private int posCounter;
         private int stopCounter;
         private boolean isPositionValid = false;
-        protected final int[] keys = Int2ObjectHashMap.this.keys;
-        protected final Object[] values = Int2ObjectHashMap.this.values;
+        protected int[] keys;
+        protected Object[] values;
 
         protected AbstractIterator()
         {
-            int i = capacity;
-            if (null != values[capacity - 1])
-            {
-                i = 0;
-                for (int size = capacity; i < size; i++)
-                {
-                    if (null == values[i])
-                    {
-                        break;
-                    }
-                }
-            }
-
-            stopCounter = i;
-            posCounter = i + capacity;
+            reset();
         }
 
         protected int getPosition()
@@ -660,6 +644,28 @@ public class Int2ObjectHashMap<V>
             {
                 throw new IllegalStateException();
             }
+        }
+
+        void reset()
+        {
+            keys = Int2ObjectHashMap.this.keys;
+            values = Int2ObjectHashMap.this.values;
+
+            int i = capacity;
+            if (null != values[capacity - 1])
+            {
+                i = 0;
+                for (int size = capacity; i < size; i++)
+                {
+                    if (null == values[i])
+                    {
+                        break;
+                    }
+                }
+            }
+
+            stopCounter = i;
+            posCounter = i + capacity;
         }
     }
 

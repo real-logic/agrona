@@ -250,13 +250,18 @@ public class Int2ObjectHashMapTest
             initialSet.add(valueOf(i));
         }
 
-        final Collection<Integer> copyToSet = new HashSet<>();
+        assertIterateKeys(initialSet);
+        assertIterateKeys(initialSet);
+        assertIterateKeys(initialSet);
+    }
 
+    private void assertIterateKeys(final Collection<Integer> initialSet)
+    {
+        final Collection<Integer> copyToSet = new HashSet<>();
         for (final Integer aInteger : intToObjectMap.keySet())
         {
             copyToSet.add(aInteger);
         }
-
         assertThat(copyToSet, is(initialSet));
     }
 
@@ -305,18 +310,30 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(i, value);
         }
 
-        final String testValue = "Wibble";
-        for (final Map.Entry<Integer, String> entry : intToObjectMap.entrySet())
-        {
-            assertThat(entry.getKey(), equalTo(valueOf(entry.getValue())));
+        iterateEntries();
+        iterateEntries();
+        iterateEntries();
 
-            if (entry.getKey() == 7)
+        final String testValue = "Wibble";
+        for (final Map.Entry<Integer, String> entry2 : intToObjectMap.entrySet())
+        {
+            assertThat(entry2.getKey(), equalTo(valueOf(entry2.getValue())));
+
+            if (entry2.getKey() == 7)
             {
-                entry.setValue(testValue);
+                entry2.setValue(testValue);
             }
         }
 
         assertThat(intToObjectMap.get(7), equalTo(testValue));
+    }
+
+    private void iterateEntries()
+    {
+        for (final Map.Entry<Integer, String> entry : intToObjectMap.entrySet())
+        {
+            assertThat(entry.getKey(), equalTo(valueOf(entry.getValue())));
+        }
     }
 
     @Test
@@ -332,5 +349,7 @@ public class Int2ObjectHashMapTest
         final String mapAsAString = "{7=7, 12=12, 19=19, 3=3, 11=11, 1=1}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
+
+
 }
 
