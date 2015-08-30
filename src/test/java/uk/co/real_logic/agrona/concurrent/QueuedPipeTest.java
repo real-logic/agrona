@@ -48,6 +48,9 @@ public class QueuedPipeTest
     @DataPoint
     public static final Fixture MANY_TO_ONE_QUEUE = () -> new ManyToOneConcurrentArrayQueue<>(QUEUE_CAPACITY);
 
+    @DataPoint
+    public static final Fixture MANY_TO_MANY_QUEUE = () -> new ManyToManyConcurrentArrayQueue<>(QUEUE_CAPACITY);
+
     @Theory
     public void shouldGetSizeWhenEmpty(final Fixture fixture)
     {

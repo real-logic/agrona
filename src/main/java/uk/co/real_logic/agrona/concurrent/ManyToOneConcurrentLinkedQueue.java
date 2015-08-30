@@ -24,14 +24,6 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * Pad out a cacheline to the left of a tail to prevent false sharing.
- *
- * This is a Java port of the
- * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">MPSC queue</a>
- * by Dmitry Vyukov.
- *
- * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
- * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
- * {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
  */
 class ManyToOneConcurrentLinkedQueuePadding1
 {
@@ -91,6 +83,14 @@ class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinke
 
 /**
  * Concurrent linked {@link Queue} that can be used from many producers and a single consumer.
+ *
+ * This is a Java port of the
+ * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">MPSC queue</a>
+ * by Dmitry Vyukov.
+ *
+ * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
+ * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
+ * {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
  *
  * @param <E> element type in the queue.
  */

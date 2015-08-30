@@ -53,7 +53,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         }
         while (!UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1));
 
-        UNSAFE.putOrderedObject(buffer, sequenceToOffset(currentTail, mask), e);
+        UNSAFE.putOrderedObject(buffer, sequenceToBufferOffset(currentTail, mask), e);
 
         return true;
     }
@@ -62,17 +62,17 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
     public E poll()
     {
         final long currentHead = head;
-        final long elementOffset = sequenceToOffset(currentHead, mask);
+        final long elementOffset = sequenceToBufferOffset(currentHead, mask);
         final Object[] buffer = this.buffer;
-        final E item = (E)UNSAFE.getObjectVolatile(buffer, elementOffset);
+        final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
 
-        if (null != item)
+        if (null != e)
         {
             UNSAFE.putObject(buffer, elementOffset, null);
             UNSAFE.putOrderedLong(this, HEAD_OFFSET, currentHead + 1);
         }
 
-        return item;
+        return (E)e;
     }
 
     @SuppressWarnings("unchecked")
@@ -87,16 +87,16 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         {
             do
             {
-                final long elementOffset = sequenceToOffset(nextSequence, mask);
-                final Object item = UNSAFE.getObjectVolatile(buffer, elementOffset);
-                if (null == item)
+                final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
+                final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
+                if (null == e)
                 {
                     break;
                 }
 
                 UNSAFE.putObject(buffer, elementOffset, null);
                 nextSequence++;
-                elementHandler.accept((E)item);
+                elementHandler.accept((E)e);
             }
             while (true);
         }
@@ -118,9 +118,9 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
 
         while (count < limit)
         {
-            final long elementOffset = sequenceToOffset(nextSequence, mask);
-            final Object item = UNSAFE.getObjectVolatile(buffer, elementOffset);
-            if (null == item)
+            final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
+            final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
+            if (null == e)
             {
                 break;
             }
@@ -128,7 +128,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
             UNSAFE.putObject(buffer, elementOffset, null);
             nextSequence++;
             count++;
-            target.add((E)item);
+            target.add((E)e);
         }
 
         UNSAFE.putOrderedLong(this, HEAD_OFFSET, nextSequence);
