@@ -15,12 +15,15 @@
  */
 package uk.co.real_logic.agrona.collections;
 
+import uk.co.real_logic.agrona.BitUtil;
+
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
  * Map that takes two part int key and associates with an object.
- *
+ * <p>
  * The underlying implementation use as {@link Long2ObjectHashMap} and combines both int keys into a long key.
  *
  * @param <V> type of the object stored in the map.
@@ -39,7 +42,7 @@ public class BiInt2ObjectMap<V>
          *
          * @param keyPartA for the key
          * @param keyPartB for the key
-         * @param value for the entry
+         * @param value    for the entry
          */
         void accept(int keyPartA, int keyPartB, V value);
     }
@@ -61,25 +64,43 @@ public class BiInt2ObjectMap<V>
         V apply(int keyPartA, int keyPartB);
     }
 
-    private final Long2ObjectHashMap<V> map;
+    private final double loadFactor;
+    private int resizeThreshold;
+    private int capacity;
+    private int mask;
+    private int size;
+
+    private long[] keys;
+    private Object[] values;
 
     /**
      * Construct an empty map
      */
     public BiInt2ObjectMap()
     {
-        map = new Long2ObjectHashMap<>();
+        this(8, 0.6);
     }
 
     /**
      * See {@link Long2ObjectHashMap#Long2ObjectHashMap(int, double)}.
      *
      * @param initialCapacity for the underlying hash map
-     * @param loadFactor for the underlying hash map
+     * @param loadFactor      for the underlying hash map
      */
     public BiInt2ObjectMap(final int initialCapacity, final double loadFactor)
     {
-        map = new Long2ObjectHashMap<>(initialCapacity, loadFactor);
+        if (loadFactor <= 0 || loadFactor >= 1.0)
+        {
+            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
+        }
+
+        this.loadFactor = loadFactor;
+        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
+        mask = capacity - 1;
+        resizeThreshold = (int)(capacity * loadFactor);
+
+        keys = new long[capacity];
+        values = new Object[capacity];
     }
 
     /**
@@ -89,7 +110,7 @@ public class BiInt2ObjectMap<V>
      */
     public int capacity()
     {
-        return map.capacity();
+        return capacity;
     }
 
     /**
@@ -99,7 +120,26 @@ public class BiInt2ObjectMap<V>
      */
     public double loadFactor()
     {
-        return map.loadFactor();
+        return loadFactor;
+    }
+
+    /**
+     * Clear out the map of all entries.
+     */
+    public void clear()
+    {
+        size = 0;
+        Arrays.fill(values, null);
+    }
+
+    /**
+     * Compact the backing arrays by rehashing with a capacity just larger than current size
+     * and giving consideration to the load factor.
+     */
+    public void compact()
+    {
+        final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
     /**
@@ -107,14 +147,42 @@ public class BiInt2ObjectMap<V>
      *
      * @param keyPartA for the key
      * @param keyPartB for the key
-     * @param value to put into the map
+     * @param value    to put into the map
      * @return the previous value if found otherwise null
      */
+    @SuppressWarnings("unchecked")
     public V put(final int keyPartA, final int keyPartB, final V value)
     {
         final long key = compoundKey(keyPartA, keyPartB);
 
-        return map.put(key, value);
+        V oldValue = null;
+        int index = hash(keyPartA, keyPartB);
+
+        while (null != values[index])
+        {
+            if (key == keys[index])
+            {
+                oldValue = (V)values[index];
+                break;
+            }
+
+            index = ++index & mask;
+        }
+
+        if (null == oldValue)
+        {
+            ++size;
+            keys[index] = key;
+        }
+
+        values[index] = value;
+
+        if (size > resizeThreshold)
+        {
+            increaseCapacity();
+        }
+
+        return oldValue;
     }
 
     /**
@@ -124,11 +192,24 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB for the key
      * @return value matching the key if found or null if not found.
      */
+    @SuppressWarnings("unchecked")
     public V get(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
+        int index = hash(keyPartA, keyPartB);
 
-        return map.get(key);
+        Object value;
+        while (null != (value = values[index]))
+        {
+            if (key == keys[index])
+            {
+                return (V)value;
+            }
+
+            index = ++index & mask;
+        }
+
+        return null;
     }
 
     /**
@@ -138,11 +219,30 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB for the key
      * @return the previous value if found otherwise null
      */
+    @SuppressWarnings("unchecked")
     public V remove(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
 
-        return map.remove(key);
+        int index = hash(keyPartA, keyPartB);
+
+        Object value;
+        while (null != (value = values[index]))
+        {
+            if (key == keys[index])
+            {
+                values[index] = null;
+                --size;
+
+                compactChain(index);
+
+                return (V)value;
+            }
+
+            index = ++index & mask;
+        }
+
+        return null;
     }
 
     /**
@@ -150,24 +250,22 @@ public class BiInt2ObjectMap<V>
      * to {@code null}), attempts to compute its value using the given mapping
      * function and enters it into this map unless {@code null}.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
+     * @param keyPartA        for the key
+     * @param keyPartB        for the key
      * @param mappingFunction creates values based upon keys if the key pair is missing
      * @return the newly created or stored value.
      */
-    public V computeIfAbsent(
-        final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
+    public V computeIfAbsent(final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
     {
         Objects.requireNonNull(mappingFunction);
 
-        final long key = compoundKey(keyPartA, keyPartB);
-        final V value = map.get(key);
+        final V value = get(keyPartA, keyPartB);
         if (value == null)
         {
             final V newValue = mappingFunction.apply(keyPartA, keyPartB);
             if (newValue != null)
             {
-                map.put(key, newValue);
+                put(keyPartA, keyPartB, newValue);
                 return newValue;
             }
         }
@@ -180,9 +278,16 @@ public class BiInt2ObjectMap<V>
      *
      * @param consumer to apply to each value in the map
      */
+    @SuppressWarnings("unchecked")
     public void forEach(final Consumer<V> consumer)
     {
-        map.forEach((k, v) -> consumer.accept(v));
+        for (final Object value : values)
+        {
+            if (null != value)
+            {
+                consumer.accept((V)value);
+            }
+        }
     }
 
     /**
@@ -190,16 +295,21 @@ public class BiInt2ObjectMap<V>
      *
      * @param consumer to apply to each value in the map
      */
+    @SuppressWarnings("unchecked")
     public void forEach(final EntryConsumer<V> consumer)
     {
-        map.forEach(
-            (compoundKey, value) ->
+        for (int i = 0, size = values.length; i < size; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
             {
+                final long compoundKey = keys[i];
                 final int keyPartA = (int)(compoundKey >>> 32);
                 final int keyPartB = (int)(compoundKey & 0xFFFFFFFFL);
 
-                consumer.accept(keyPartA, keyPartB, value);
-            });
+                consumer.accept(keyPartA, keyPartB, (V)value);
+            }
+        }
     }
 
     /**
@@ -209,7 +319,7 @@ public class BiInt2ObjectMap<V>
      */
     public int size()
     {
-        return map.size();
+        return size;
     }
 
     /**
@@ -219,11 +329,100 @@ public class BiInt2ObjectMap<V>
      */
     public boolean isEmpty()
     {
-        return map.isEmpty();
+        return 0 == size;
     }
 
     private static long compoundKey(final int keyPartA, final int keyPartB)
     {
         return ((long)keyPartA << 32) | keyPartB;
+    }
+
+    private int hash(final int keyPartA, final int keyPartB)
+    {
+        int hash = keyPartA ^ keyPartB;
+        hash = (hash << 1) - (hash << 8);
+
+        return hash & mask;
+    }
+
+    private int hash(final long key)
+    {
+        int hash = (int)key ^ (int)(key >>> 32);
+        hash = (hash << 1) - (hash << 8);
+
+        return hash & mask;
+    }
+
+    private void rehash(final int newCapacity)
+    {
+        if (1 != Integer.bitCount(newCapacity))
+        {
+            throw new IllegalStateException("New capacity must be a power of two");
+        }
+
+        capacity = newCapacity;
+        mask = newCapacity - 1;
+        resizeThreshold = (int)(newCapacity * loadFactor);
+
+        final long[] tempKeys = new long[capacity];
+        final Object[] tempValues = new Object[capacity];
+
+        for (int i = 0, size = values.length; i < size; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
+            {
+                final long key = keys[i];
+                int newHash = hash(key);
+
+                while (null != tempValues[newHash])
+                {
+                    newHash = ++newHash & mask;
+                }
+
+                tempKeys[newHash] = key;
+                tempValues[newHash] = value;
+            }
+        }
+
+        keys = tempKeys;
+        values = tempValues;
+    }
+
+    private void compactChain(int deleteIndex)
+    {
+        int index = deleteIndex;
+        while (true)
+        {
+            index = ++index & mask;
+            if (null == values[index])
+            {
+                return;
+            }
+
+            final long key = keys[index];
+            final int hash = hash(key);
+
+            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+                (hash <= deleteIndex && deleteIndex <= index))
+            {
+                keys[deleteIndex] = key;
+                values[deleteIndex] = values[index];
+
+                values[index] = null;
+                deleteIndex = index;
+            }
+        }
+    }
+
+    private void increaseCapacity()
+    {
+        final int newCapacity = capacity << 1;
+        if (newCapacity < 0)
+        {
+            throw new IllegalStateException("Max capacity reached at size=" + size);
+        }
+
+        rehash(newCapacity);
     }
 }
