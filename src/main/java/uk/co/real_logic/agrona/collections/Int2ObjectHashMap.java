@@ -215,7 +215,7 @@ public class Int2ObjectHashMap<V>
      *
      * Primitive specialized version of {@link java.util.Map#computeIfAbsent}.
      *
-     * @param key to search on.
+     * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns null.
      * @return the value if found otherwise the default.
      */
@@ -506,6 +506,7 @@ public class Int2ObjectHashMap<V>
         public KeyIterator iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 
@@ -542,6 +543,7 @@ public class Int2ObjectHashMap<V>
         public ValueIterator<V> iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 
@@ -563,6 +565,7 @@ public class Int2ObjectHashMap<V>
         public Iterator<Entry<Integer, V>> iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 

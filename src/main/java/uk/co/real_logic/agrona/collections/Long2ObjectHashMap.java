@@ -504,6 +504,7 @@ public class Long2ObjectHashMap<V>
         public KeyIterator iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 
@@ -540,6 +541,7 @@ public class Long2ObjectHashMap<V>
         public ValueIterator<V> iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 
@@ -551,7 +553,7 @@ public class Long2ObjectHashMap<V>
 
     private class EntrySet<V> extends AbstractSet<Map.Entry<Long, V>>
     {
-        private EntryIterator iterator = new EntryIterator<>();
+        private EntryIterator<V> iterator = new EntryIterator<>();
 
         public int size()
         {
@@ -561,6 +563,7 @@ public class Long2ObjectHashMap<V>
         public Iterator<Map.Entry<Long, V>> iterator()
         {
             iterator.reset();
+
             return iterator;
         }
 
