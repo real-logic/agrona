@@ -42,13 +42,13 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldNotDoWorkOnClosedRunner() throws Exception
+    public void shouldNotDoWorkOnClosedRunnerButCallOnClose() throws Exception
     {
         runner.close();
         runner.run();
 
         verify(mockAgent, never()).doWork();
-        verify(mockAgent, never()).onClose();
+        verify(mockAgent).onClose();
     }
 
     @Test
@@ -118,5 +118,4 @@ public class AgentRunnerTest
 
         verify(errorHandler, never()).onError(any());
     }
-
 }
