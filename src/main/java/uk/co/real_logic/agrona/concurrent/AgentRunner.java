@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
- *
+ * <p>
  * Note: An agent runner should only be once per instance.
  */
 public class AgentRunner implements Runnable, AutoCloseable
@@ -128,7 +128,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Stop the running Agent and cleanup. This will wait for the work loop to exit and the {@link Agent} performing
      * it {@link Agent#onClose()} logic.
-     *
+     * <p>
      * The clean up logic will only be performed once even if close is called from multiple concurrent threads.
      */
     public final void close()
@@ -140,21 +140,25 @@ public class AgentRunner implements Runnable, AutoCloseable
         {
             if (null != thread)
             {
-                thread.interrupt();
-
-                while (thread.isAlive())
+                while (true)
                 {
                     try
                     {
                         thread.join(1000);
-                        if (thread.isAlive())
+
+                        if (!thread.isAlive())
                         {
-                            System.err.println("timeout await for agent. Retrying...");
+                            break;
                         }
+
+                        System.err.println("timeout await for agent. Retrying...");
+
+                        thread.interrupt();
                     }
                     catch (final InterruptedException ignore)
                     {
                         Thread.currentThread().interrupt();
+                        return;
                     }
                 }
             }
