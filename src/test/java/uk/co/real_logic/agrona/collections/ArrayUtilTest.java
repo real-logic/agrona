@@ -60,5 +60,4 @@ public class ArrayUtilTest
 
         assertArrayEquals(new Integer[]{TWO}, result);
     }
-
 }
