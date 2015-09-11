@@ -23,8 +23,6 @@ import java.util.function.Consumer;
 
 /**
  * Map that takes two part int key and associates with an object.
- * <p>
- * The underlying implementation use as {@link Long2ObjectHashMap} and combines both int keys into a long key.
  *
  * @param <V> type of the object stored in the map.
  */
