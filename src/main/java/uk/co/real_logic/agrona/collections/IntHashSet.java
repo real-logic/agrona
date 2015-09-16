@@ -67,6 +67,16 @@ public final class IntHashSet implements Set<Integer>
     }
 
     /**
+     * The value to be used as a null marker in the set.
+     *
+     * @return value to be used as a null marker in the set.
+     */
+    public int missingValue()
+    {
+        return missingValue;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean add(final Integer value)
