@@ -28,11 +28,9 @@ public class IntIterator implements Iterator<Integer>
     private final int missingValue;
 
     private int[] values;
-    @DoNotSub private int capacity;
     @DoNotSub private int mask;
     @DoNotSub private int positionCounter;
     @DoNotSub private int stopCounter;
-    private boolean isPositionValid = false;
 
     /**
      * Construct an {@link Iterator} over an array of primitives ints.
@@ -57,19 +55,19 @@ public class IntIterator implements Iterator<Integer>
     /**
      * Reset method for expandable collections.
      *
-     * @param values
+     * @param values to be iterated over
      */
     void reset(final int[] values)
     {
         this.values = values;
-        capacity = values.length;
-        mask = capacity - 1;
+        @DoNotSub final int length = values.length;
+        mask = length - 1;
 
-        @DoNotSub int i = capacity;
-        if (values[capacity - 1] != missingValue)
+        @DoNotSub int i = length;
+        if (values[length - 1] != missingValue)
         {
             i = 0;
-            for (@DoNotSub int size = capacity; i < size; i++)
+            for (@DoNotSub int size = length; i < size; i++)
             {
                 if (values[i] == missingValue)
                 {
@@ -79,7 +77,7 @@ public class IntIterator implements Iterator<Integer>
         }
 
         stopCounter = i;
-        positionCounter = i + capacity;
+        positionCounter = i + length;
     }
 
     @DoNotSub protected int getPosition()
@@ -103,15 +101,12 @@ public class IntIterator implements Iterator<Integer>
 
     protected void findNext()
     {
-        isPositionValid = false;
-
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
             if (values[index] != missingValue)
             {
                 positionCounter = i;
-                isPositionValid = true;
                 return;
             }
         }
@@ -135,5 +130,4 @@ public class IntIterator implements Iterator<Integer>
 
         return values[getPosition()];
     }
-
 }
