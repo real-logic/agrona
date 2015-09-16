@@ -273,21 +273,18 @@ public final class IntHashSet implements Set<Integer>
      * <p>
      * NB: garbage free in the identical case, allocates otherwise.
      *
-     * @param collection the other set to subtract
+     * @param other the other set to subtract
      * @return null if identical, otherwise the set of differences
      */
-    public IntHashSet difference(final IntHashSet collection)
+    public IntHashSet difference(final IntHashSet other)
     {
-        Objects.requireNonNull(collection);
+        Objects.requireNonNull(other);
 
         IntHashSet difference = null;
 
-        final IntIterator it = iterator();
-
-        while (it.hasNext())
+        for (final int value : values)
         {
-            final int value = it.nextValue();
-            if (!collection.contains(value))
+            if (value != missingValue && !other.contains(value))
             {
                 if (difference == null)
                 {
@@ -364,7 +361,6 @@ public final class IntHashSet implements Set<Integer>
             .collect(joining(",", "{", "}"));
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -380,7 +376,7 @@ public final class IntHashSet implements Set<Integer>
         }
 
         @DoNotSub final int size = this.size;
-        final T[] arrayCopy = into.length >= size ? into : (T[]) Array.newInstance(componentType, size);
+        final T[] arrayCopy = into.length >= size ? into : (T[])Array.newInstance(componentType, size);
         copyValues(arrayCopy);
 
         return arrayCopy;
@@ -419,8 +415,9 @@ public final class IntHashSet implements Set<Integer>
         if (other instanceof IntHashSet)
         {
             final IntHashSet otherSet = (IntHashSet)other;
+
             return otherSet.missingValue == missingValue
-                && otherSet.size() == size()
+                && otherSet.size == size
                 && containsAll(otherSet);
         }
 
@@ -433,10 +430,10 @@ public final class IntHashSet implements Set<Integer>
     @DoNotSub public int hashCode()
     {
         @DoNotSub int total = 0;
-        final IntIterator iterator = iterator();
-        while (iterator.hasNext())
+
+        for (final int value : values)
         {
-            total += iterator.nextValue();
+            total += value;
         }
 
         return total;
