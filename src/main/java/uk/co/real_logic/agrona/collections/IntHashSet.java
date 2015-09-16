@@ -82,8 +82,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean add(final int value)
     {
-        @DoNotSub int index =
-            Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -117,8 +116,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean remove(final int value)
     {
-        @DoNotSub int index =
-            Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.hash(value, mask);
 
         final int[] values = this.values;
 
@@ -157,8 +155,7 @@ public final class IntHashSet implements Set<Integer>
                 return;
             }
 
-            @DoNotSub final int hash =
-                Hashing.hash(values[index], mask);
+            @DoNotSub final int hash = Hashing.hash(values[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -184,8 +181,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean contains(final int value)
     {
-        @DoNotSub int index =
-            Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -227,6 +223,7 @@ public final class IntHashSet implements Set<Integer>
         {
             values[i] = missingValue;
         }
+
         size = 0;
     }
 
@@ -262,6 +259,7 @@ public final class IntHashSet implements Set<Integer>
                 return false;
             }
         }
+
         return true;
     }
 
@@ -326,6 +324,7 @@ public final class IntHashSet implements Set<Integer>
     public IntIterator iterator()
     {
         iterator.reset();
+
         return iterator;
     }
 
@@ -354,7 +353,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public String toString()
     {
-        return stream()
+        return
+            stream()
             .map((x) -> Integer.toString(x))
             .collect(joining(",", "{", "}"));
     }
@@ -377,6 +377,7 @@ public final class IntHashSet implements Set<Integer>
         @DoNotSub final int size = this.size;
         final T[] arrayCopy = into.length >= size ? into : (T[]) Array.newInstance(componentType, size);
         copyValues(arrayCopy);
+
         return arrayCopy;
     }
 
@@ -387,6 +388,7 @@ public final class IntHashSet implements Set<Integer>
     {
         final Object[] arrayCopy = new Object[size];
         copyValues(arrayCopy);
+
         return arrayCopy;
     }
 
@@ -432,6 +434,7 @@ public final class IntHashSet implements Set<Integer>
             // Cast exists for substitutions
             total += iterator.nextValue();
         }
+
         return total;
     }
 

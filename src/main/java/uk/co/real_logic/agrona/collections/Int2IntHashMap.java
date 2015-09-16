@@ -92,7 +92,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         final int[] entries = this.entries;
 
-        @DoNotSub int index = hash(key);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -111,7 +111,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int put(final int key, final int value)
     {
         int oldValue = missingValue;
-        @DoNotSub int index = hash(key);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -167,12 +167,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 put(key, oldEntries[i + 1]);
             }
         }
-    }
-
-    @DoNotSub private int hash(
-        final long key)
-    {
-        return Hashing.hash(key, mask);
     }
 
     /**
@@ -321,7 +315,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         final int[] entries = this.entries;
 
-        @DoNotSub int index = hash(key);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -358,7 +352,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 return;
             }
 
-            @DoNotSub final int hash = hash(entries[index]);
+            @DoNotSub final int hash = Hashing.hash(entries[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -524,6 +518,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             @DoNotSub final int keyPosition = getKeyPosition();
             key = entries[keyPosition];
             value = entries[keyPosition + 1];
+
             return this;
         }
 
