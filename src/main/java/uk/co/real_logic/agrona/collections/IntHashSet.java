@@ -136,10 +136,9 @@ public final class IntHashSet implements Set<Integer>
         return false;
     }
 
-    @DoNotSub private int next(int index)
+    @DoNotSub private int next(final int index)
     {
-        index = ++index & mask;
-        return index;
+        return (index + 1) & mask;
     }
 
     @DoNotSub private void compactChain(int deleteIndex)
@@ -209,7 +208,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean isEmpty()
     {
-        return size() == 0;
+        return size == 0;
     }
 
     /**
@@ -217,13 +216,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public void clear()
     {
-        final int[] values = this.values;
-        @DoNotSub final int length = values.length;
-        for (@DoNotSub int i = 0; i < length; i++)
-        {
-            values[i] = missingValue;
-        }
-
+        Arrays.fill(values, missingValue);
         size = 0;
     }
 
@@ -246,21 +239,23 @@ public final class IntHashSet implements Set<Integer>
     /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
-     * @param other the int hashset to compare against.
+     * @param other int hashset to compare against.
      * @return true if every element in other is in this.
      */
     public boolean containsAll(final IntHashSet other)
     {
-        final IntIterator iterator = other.iterator();
-        while (iterator.hasNext())
+        boolean containsAll = true;
+
+        for (final int value : values)
         {
-            if (!contains(iterator.nextValue()))
+            if (value != missingValue && !other.contains(value))
             {
-                return false;
+                containsAll = false;
+                break;
             }
         }
 
-        return true;
+        return containsAll;
     }
 
     /**
@@ -427,11 +422,10 @@ public final class IntHashSet implements Set<Integer>
      */
     @DoNotSub public int hashCode()
     {
-        final IntIterator iterator = iterator();
         @DoNotSub int total = 0;
+        final IntIterator iterator = iterator();
         while (iterator.hasNext())
         {
-            // Cast exists for substitutions
             total += iterator.nextValue();
         }
 

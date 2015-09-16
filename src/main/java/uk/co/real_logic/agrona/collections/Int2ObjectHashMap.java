@@ -47,7 +47,7 @@ public class Int2ObjectHashMap<V>
 
     public Int2ObjectHashMap()
     {
-        this(8, 0.6);
+        this(8, 0.67);
     }
 
     /**

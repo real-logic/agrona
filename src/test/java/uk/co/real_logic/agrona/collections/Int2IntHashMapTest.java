@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
-import static java.lang.Integer.MAX_VALUE;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.inOrder;
@@ -285,35 +284,39 @@ public class Int2IntHashMapTest
     @Test
     public void shouldOnlyRemoveTheSpecifiedEntry()
     {
-        IntStream.range(0, 8).forEach(i -> map.put(i, i * 2));
+        IntStream.range(0, 8).forEach((i) -> map.put(i, i * 2));
 
         map.remove(5);
 
-        IntStream.range(0, 8)
-                 .filter(i -> i != 5L)
-                 .forEach(i ->
-                 {
-                     assertTrue(map.containsKey(i));
-                     assertTrue(map.containsValue(2 * i));
-                 });
+        IntStream
+            .range(0, 8)
+            .filter((i) -> i != 5L)
+            .forEach(
+                (i) ->
+                {
+                    assertTrue(map.containsKey(i));
+                    assertTrue(map.containsValue(2 * i));
+                });
     }
 
     @Test
     public void shouldResizeWhenMoreElementsAreAdded()
     {
-        IntStream.range(0, 100)
-                 .forEach(key ->
-                 {
-                     final int value = key * 2;
-                     assertEquals(MISSING_VALUE, map.put(key, value));
-                     assertEquals(value, map.get(key));
-                 });
+        IntStream
+            .range(0, 100)
+            .forEach(
+                (key) ->
+                {
+                    final int value = key * 2;
+                    assertEquals(MISSING_VALUE, map.put(key, value));
+                    assertEquals(value, map.get(key));
+                });
     }
 
     @Test
     public void shouldHaveNoMinValueForEmptyCollection()
     {
-        assertEquals(MAX_VALUE, map.minValue());
+        assertEquals(MISSING_VALUE, map.minValue());
     }
 
     @Test
@@ -324,6 +327,22 @@ public class Int2IntHashMapTest
         map.put(3, -5);
 
         assertEquals(-5, map.minValue());
+    }
+
+    @Test
+    public void shouldHaveNoMaxValueForEmptyCollection()
+    {
+        assertEquals(MISSING_VALUE, map.maxValue());
+    }
+
+    @Test
+    public void shouldFindMaxValue()
+    {
+        map.put(1, 2);
+        map.put(2, 10);
+        map.put(3, -5);
+
+        assertEquals(10, map.maxValue());
     }
 
     @Test
@@ -420,6 +439,4 @@ public class Int2IntHashMapTest
     {
         return map.keySet().iterator();
     }
-
-
 }

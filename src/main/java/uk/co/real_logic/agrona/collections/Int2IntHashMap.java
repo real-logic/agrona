@@ -27,7 +27,6 @@ import java.util.function.BiConsumer;
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
     private final Set<Integer> keySet;
-    private final PrimitiveIterator valueIterator;
     private final Collection<Integer> values;
     private final Set<Entry<Integer, Integer>> entrySet;
 
@@ -43,7 +42,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     public Int2IntHashMap(final int missingValue)
     {
-        this(16, 0.6, missingValue);
+        this(16, 0.67, missingValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -63,13 +62,22 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
 
         final PrimitiveIterator keyIterator = new PrimitiveIterator(0);
-        valueIterator = new PrimitiveIterator(1);
+        final PrimitiveIterator valueIterator = new PrimitiveIterator(1);
         keySet = new MapDelegatingSet<>(this, keyIterator::reset, this::containsValue);
         values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
 
         final EntryIterator entryIterator = new EntryIterator();
-        entrySet = new MapDelegatingSet<>(
-            this, entryIterator::reset, (e) -> containsKey(((Entry<Long, Long>)e).getKey()));
+        entrySet = new MapDelegatingSet<>(this, entryIterator::reset, (e) -> containsKey(((Entry)e).getKey()));
+    }
+
+    /**
+     * The value to be used as a null marker in the map.
+     *
+     * @return value to be used as a null marker in the map.
+     */
+    public int missingValue()
+    {
+        return missingValue;
     }
 
     /**
@@ -244,7 +252,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer put(final Integer key, final Integer value)
     {
-        return put((int) key, (int) value);
+        return put((int)key, (int)value);
     }
 
     /**
@@ -367,17 +375,44 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
     }
 
+    /**
+     * Get the minimum value stored in the map. If the map is empty then it will return {@link #missingValue()}
+     *
+     * @return the minimum value stored in the map.
+     */
     public int minValue()
     {
-        int min = Integer.MAX_VALUE;
+        int min = size == 0 ? missingValue : Integer.MAX_VALUE;
 
-        final PrimitiveIterator iterator = valueIterator.reset();
-        while (iterator.hasNext())
+        for (final int value : values)
         {
-            min = Math.min(min, iterator.nextValue());
+            if (value != missingValue)
+            {
+                min = Math.min(min, value);
+            }
         }
 
         return min;
+    }
+
+    /**
+     * Get the maximum value stored in the map. If the map is empty then it will return {@link #missingValue()}
+     *
+     * @return the maximum value stored in the map.
+     */
+    public int maxValue()
+    {
+        int max = size == 0 ? missingValue : Integer.MIN_VALUE;
+
+        for (final int value : values)
+        {
+            if (value != missingValue)
+            {
+                max = Math.max(max, value);
+            }
+        }
+
+        return max;
     }
 
     // ---------------- Utility Classes ----------------
