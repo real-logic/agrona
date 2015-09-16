@@ -384,8 +384,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         int min = size == 0 ? missingValue : Integer.MAX_VALUE;
 
-        for (final int value : values)
+        final int[] entries = this.entries;
+        @DoNotSub final int length = entries.length;
+
+        for (@DoNotSub int i = 1; i < length; i += 2)
         {
+            final int value = entries[i];
             if (value != missingValue)
             {
                 min = Math.min(min, value);
@@ -404,8 +408,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         int max = size == 0 ? missingValue : Integer.MIN_VALUE;
 
-        for (final int value : values)
+        final int[] entries = this.entries;
+        @DoNotSub final int length = entries.length;
+
+        for (@DoNotSub int i = 1; i < length; i += 2)
         {
+            final int value = entries[i];
             if (value != missingValue)
             {
                 max = Math.max(max, value);
