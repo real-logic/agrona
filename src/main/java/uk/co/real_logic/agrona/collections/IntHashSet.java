@@ -249,7 +249,7 @@ public final class IntHashSet implements Set<Integer>
     /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
-     * @param other int hashset to compare against.
+     * @param other int hash set to compare against.
      * @return true if every element in other is in this.
      */
     public boolean containsAll(final IntHashSet other)
