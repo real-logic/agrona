@@ -93,7 +93,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public boolean isEmpty()
     {
-        return size() == 0;
+        return size == 0;
     }
 
     public int get(final int key)
