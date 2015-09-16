@@ -315,13 +315,13 @@ public class Int2ObjectHashMapTest
         iterateEntries();
 
         final String testValue = "Wibble";
-        for (final Map.Entry<Integer, String> entry2 : intToObjectMap.entrySet())
+        for (final Map.Entry<Integer, String> entry : intToObjectMap.entrySet())
         {
-            assertThat(entry2.getKey(), equalTo(valueOf(entry2.getValue())));
+            assertThat(entry.getKey(), equalTo(valueOf(entry.getValue())));
 
-            if (entry2.getKey() == 7)
+            if (entry.getKey() == 7)
             {
-                entry2.setValue(testValue);
+                entry.setValue(testValue);
             }
         }
 
