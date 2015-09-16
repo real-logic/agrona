@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.joining;
 /**
  * Fixed-size, garbage and allocation free int element specific hashset.
  * <p>
- * By storing elements as int primitives this significantly reduces memoery consumption compared with Java's builtin
+ * By storing elements as int primitives this significantly reduces memory consumption compared with Java's builtin
  * <code>HashSet&lt;Integer&gt;</code>. It implements <code>Set&lt;Integer&gt;</code> for convenience, but calling
  * functionality via those methods can add boxing overhead to your usage.
  * <p>
@@ -83,7 +83,7 @@ public final class IntHashSet implements Set<Integer>
     public boolean add(final int value)
     {
         @DoNotSub int index =
-            Hashing.intHash(value, mask);
+            Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -118,7 +118,7 @@ public final class IntHashSet implements Set<Integer>
     public boolean remove(final int value)
     {
         @DoNotSub int index =
-            Hashing.intHash(value, mask);
+            Hashing.hash(value, mask);
 
         final int[] values = this.values;
 
@@ -158,7 +158,7 @@ public final class IntHashSet implements Set<Integer>
             }
 
             @DoNotSub final int hash =
-                Hashing.intHash(values[index], mask);
+                Hashing.hash(values[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -185,7 +185,7 @@ public final class IntHashSet implements Set<Integer>
     public boolean contains(final int value)
     {
         @DoNotSub int index =
-            Hashing.intHash(value, mask);
+            Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
         {

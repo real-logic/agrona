@@ -346,10 +346,8 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{7=7, 12=12, 19=19, 3=3, 11=11, 1=1}";
+        final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
-
-
 }
 

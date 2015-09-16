@@ -473,7 +473,7 @@ public class Long2ObjectHashMap<V>
     private int hash(final long key)
     {
         int hash = (int)key ^ (int)(key >>> 32);
-        hash = (hash << 1) - (hash << 8);
+        hash = hash ^ (hash >>> 16);
 
         return hash & mask;
     }

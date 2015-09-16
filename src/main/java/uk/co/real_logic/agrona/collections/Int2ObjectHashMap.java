@@ -476,7 +476,8 @@ public class Int2ObjectHashMap<V>
 
     private int hash(final int key)
     {
-        final int hash = (key << 1) - (key << 8);
+        final int hash = key ^ (key >>> 16);
+
         return hash & mask;
     }
 

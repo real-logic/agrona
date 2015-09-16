@@ -172,7 +172,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     @DoNotSub private int hash(
         final long key)
     {
-        return Hashing.longHash(key, mask);
+        return Hashing.hash(key, mask);
     }
 
     /**
@@ -394,7 +394,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         @DoNotSub private int mask;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
-        private boolean isPositionValid = false;
 
         public AbstractIterator()
         {
@@ -447,7 +446,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         protected void findNext()
         {
             final int[] entries = Int2IntHashMap.this.entries;
-            isPositionValid = false;
 
             for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
             {
@@ -455,7 +453,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 if (entries[index] != missingValue)
                 {
                     positionCounter = i;
-                    isPositionValid = true;
                     return;
                 }
             }

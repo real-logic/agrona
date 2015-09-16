@@ -15,20 +15,24 @@
  */
 package uk.co.real_logic.agrona.collections;
 
+/**
+ * Hashing functions that return an even value hash so that tables of keys and values can co-exist for
+ * cache friendliness.
+ */
 public class Hashing
 {
-
-    public static int intHash(final int value, final int mask)
+    public static int hash(final int value, final int mask)
     {
         final int hash = (value << 1) - (value << 8);
+
         return hash & mask;
     }
 
-    public static int longHash(final long value, final int mask)
+    public static int hash(final long value, final int mask)
     {
         int hash = (int)value ^ (int)(value >>> 32);
         hash = (hash << 1) - (hash << 8);
+
         return hash & mask;
     }
-
 }
