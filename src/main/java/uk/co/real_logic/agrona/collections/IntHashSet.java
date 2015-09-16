@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.joining;
 
 /**
- * Fixed-size, garbage and allocation free int element specific hashset.
+ * Fixed-size, garbage and allocation free int element specific hash set.
  * <p>
  * By storing elements as int primitives this significantly reduces memory consumption compared with Java's builtin
  * <code>HashSet&lt;Integer&gt;</code>. It implements <code>Set&lt;Integer&gt;</code> for convenience, but calling

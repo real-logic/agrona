@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
- * A Probing hashmap specialised for long key and value pairs.
+ * A open addressing with linear probing hash map specialised for primitive key and value pairs.
  */
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
