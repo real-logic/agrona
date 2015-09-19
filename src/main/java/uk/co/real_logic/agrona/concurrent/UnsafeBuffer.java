@@ -638,20 +638,6 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
-    public byte getByteVolatile(final int index)
-    {
-        boundsCheck(index, SIZE_OF_BYTE);
-
-        return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
-    }
-
-    public void putByteVolatile(final int index, final byte value)
-    {
-        boundsCheck(index, SIZE_OF_BYTE);
-
-        UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
-    }
-
     ///////////////////////////////////////////////////////////////////////////
 
     public byte getByte(final int index)
@@ -666,6 +652,20 @@ public class UnsafeBuffer implements AtomicBuffer
         boundsCheck(index, SIZE_OF_BYTE);
 
         UNSAFE.putByte(byteArray, addressOffset + index, value);
+    }
+
+    public byte getByteVolatile(final int index)
+    {
+        boundsCheck(index, SIZE_OF_BYTE);
+
+        return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
+    }
+
+    public void putByteVolatile(final int index, final byte value)
+    {
+        boundsCheck(index, SIZE_OF_BYTE);
+
+        UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
     }
 
     public void getBytes(final int index, final byte[] dst)
@@ -764,6 +764,62 @@ public class UnsafeBuffer implements AtomicBuffer
             byteArray,
             addressOffset + index,
             length);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public char getChar(final int index, final ByteOrder byteOrder)
+    {
+        boundsCheck(index, SIZE_OF_SHORT);
+
+        char bits = UNSAFE.getChar(byteArray, addressOffset + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = (char)Short.reverseBytes((short)bits);
+        }
+
+        return bits;
+    }
+
+    public void putChar(final int index, final char value, final ByteOrder byteOrder)
+    {
+        boundsCheck(index, SIZE_OF_SHORT);
+
+        char bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = (char)Short.reverseBytes((short)bits);
+        }
+
+        UNSAFE.putChar(byteArray, addressOffset + index, bits);
+    }
+
+    public char getChar(final int index)
+    {
+        boundsCheck(index, SIZE_OF_CHAR);
+
+        return UNSAFE.getChar(byteArray, addressOffset + index);
+    }
+
+    public void putChar(final int index, final char value)
+    {
+        boundsCheck(index, SIZE_OF_CHAR);
+
+        UNSAFE.putChar(byteArray, addressOffset + index, value);
+    }
+
+    public char getCharVolatile(final int index)
+    {
+        boundsCheck(index, SIZE_OF_CHAR);
+
+        return UNSAFE.getCharVolatile(byteArray, addressOffset + index);
+    }
+
+    public void putCharVolatile(final int index, final char value)
+    {
+        boundsCheck(index, SIZE_OF_CHAR);
+
+        UNSAFE.putCharVolatile(byteArray, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -206,6 +206,23 @@ public interface DirectBuffer
     /**
      * Get the value at a given index.
      *
+     * @param index     in bytes from which to get.
+     * @param byteOrder of the value to be read.
+     * @return the value at a given index.
+     */
+    char getChar(int index, ByteOrder byteOrder);
+
+    /**
+     * Get the value at a given index.
+     *
+     * @param index in bytes from which to get.
+     * @return the value at a given index.
+     */
+    char getChar(int index);
+
+    /**
+     * Get the value at a given index.
+     *
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */

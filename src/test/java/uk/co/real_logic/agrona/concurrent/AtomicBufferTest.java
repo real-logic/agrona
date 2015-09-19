@@ -40,6 +40,7 @@ public class AtomicBufferTest
 
     private static final byte BYTE_VALUE = 1;
     private static final short SHORT_VALUE = Byte.MAX_VALUE + 2;
+    private static final char CHAR_VALUE = '8';
     private static final int INT_VALUE = Short.MAX_VALUE + 3;
     private static final float FLOAT_VALUE = Short.MAX_VALUE + 4.0f;
     private static final long LONG_VALUE = Integer.MAX_VALUE + 5L;
@@ -441,6 +442,70 @@ public class AtomicBufferTest
     }
 
     @Theory
+    public void shouldGetCharFromBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+
+        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+
+        assertThat(buffer.getChar(INDEX, BYTE_ORDER), is(CHAR_VALUE));
+    }
+
+    @Theory
+    public void shouldPutCharToBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+
+        buffer.putChar(INDEX, CHAR_VALUE, BYTE_ORDER);
+
+        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+    }
+
+    @Theory
+    public void shouldGetCharFromNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+
+        assertThat(buffer.getChar(INDEX), is(CHAR_VALUE));
+    }
+
+    @Theory
+    public void shouldPutCharToNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
+
+        buffer.putChar(INDEX, CHAR_VALUE);
+
+        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+    }
+
+    @Theory
+    public void shouldGetCharVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+
+        assertThat(buffer.getCharVolatile(INDEX), is(CHAR_VALUE));
+    }
+
+    @Theory
+    public void shouldPutCharVolatileToNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
+
+        buffer.putCharVolatile(INDEX, CHAR_VALUE);
+
+        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+    }
+
+    @Theory
     public void shouldGetDoubleFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
@@ -506,6 +571,7 @@ public class AtomicBufferTest
     public void shouldGetFloatFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         duplicateBuffer.putFloat(INDEX, FLOAT_VALUE);
 
@@ -516,6 +582,7 @@ public class AtomicBufferTest
     public void shouldPutFloatToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        duplicateBuffer.order(ByteOrder.nativeOrder());
 
         buffer.putFloat(INDEX, FLOAT_VALUE);
 
@@ -538,6 +605,26 @@ public class AtomicBufferTest
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
         buffer.putByte(INDEX, BYTE_VALUE);
+
+        assertThat(duplicateBuffer.get(INDEX), is(BYTE_VALUE));
+    }
+
+    @Theory
+    public void shouldGetByteVolatileFromBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+
+        duplicateBuffer.put(INDEX, BYTE_VALUE);
+
+        assertThat(buffer.getByteVolatile(INDEX), is(BYTE_VALUE));
+    }
+
+    @Theory
+    public void shouldPutByteVolatileToBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+
+        buffer.putByteVolatile(INDEX, BYTE_VALUE);
 
         assertThat(duplicateBuffer.get(INDEX), is(BYTE_VALUE));
     }

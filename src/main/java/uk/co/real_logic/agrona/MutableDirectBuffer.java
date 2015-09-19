@@ -120,6 +120,23 @@ public interface MutableDirectBuffer extends DirectBuffer
     /**
      * Put a value to a given index.
      *
+     * @param index     in bytes for where to put.
+     * @param value     to be written
+     * @param byteOrder of the value when written.
+     */
+    void putChar(int index, char value, ByteOrder byteOrder);
+
+    /**
+     * Put a value to a given index.
+     *
+     * @param index in bytes for where to put.
+     * @param value to be written
+     */
+    void putChar(int index, char value);
+
+    /**
+     * Put a value to a given index.
+     *
      * @param index in bytes for where to put.
      * @param value to be written
      */
