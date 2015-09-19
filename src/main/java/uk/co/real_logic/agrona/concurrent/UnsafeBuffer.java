@@ -880,7 +880,8 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            if (index < 0 || length < 0 || (index + length) > capacity)
+            final int resultingPosition = index + length;
+            if (index < 0 || length < 0 || resultingPosition > capacity || resultingPosition < 0)
             {
                 throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
             }
@@ -892,7 +893,8 @@ public class UnsafeBuffer implements AtomicBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             final int capacity = buffer.length;
-            if (index < 0 || length < 0 || (index + length) > capacity)
+            final int resultingPosition = index + length;
+            if (index < 0 || length < 0 || resultingPosition > capacity || resultingPosition < 0)
             {
                 throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
             }
@@ -904,7 +906,8 @@ public class UnsafeBuffer implements AtomicBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             final int capacity = buffer.capacity();
-            if (index < 0 || length < 0 || (index + length) > capacity)
+            final int resultingPosition = index + length;
+            if (index < 0 || length < 0 || resultingPosition > capacity || resultingPosition < 0)
             {
                 throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
             }
