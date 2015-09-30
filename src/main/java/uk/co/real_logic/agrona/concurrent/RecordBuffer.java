@@ -127,6 +127,16 @@ public class RecordBuffer
     }
 
     /**
+     * Check if the buffer has been initialised.
+     *
+     * @return true if the buffer has been initialised.
+     */
+    public boolean isInitialised()
+    {
+        return position() != 0;
+    }
+
+    /**
      * Read each record out of the buffer in turn.
      *
      * @param handler the handler is called once for each record in the buffer.
@@ -145,6 +155,30 @@ public class RecordBuffer
             }
             offset += slotSize;
         }
+    }
+
+    /**
+     * Search for the first record with the specified key.
+     *
+     * @param key the key to search for.
+     * @return the offset of the start of the record within the buffer or {@code DID_NOT_CLAIM_RECORD} if no record with
+     * the specified key.
+     */
+    public int get(final int key)
+    {
+        int offset = endOfPositionField;
+
+        final int position = position();
+        while (offset < position)
+        {
+            if (statusVolatile(offset) == COMMITTED && key == key(offset))
+            {
+                return offset + SIZE_OF_RECORD_FRAME;
+            }
+            offset += slotSize;
+        }
+
+        return DID_NOT_CLAIM_RECORD;
     }
 
     /**
