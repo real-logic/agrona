@@ -268,7 +268,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void setMemory(final int index, final int length, final byte value)
     {
-        boundsCheck(index, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck(index, length);
+        }
 
         UNSAFE.setMemory(byteArray, addressOffset + index, length, value);
     }
