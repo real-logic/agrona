@@ -22,7 +22,7 @@ import java.util.*;
 import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
 /**
- * Pad out a cacheline to the left of a tail to prevent false sharing.
+ * Pad out a cacheline to the left of a producer fields to prevent false sharing.
  */
 class AbstractConcurrentArrayQueuePadding1
 {
@@ -31,34 +31,35 @@ class AbstractConcurrentArrayQueuePadding1
 }
 
 /**
- * Value for the tail that is expected to be padded.
+ * Value for the producer that are expected to be padded.
  */
-class AbstractConcurrentArrayQueueTail extends AbstractConcurrentArrayQueuePadding1
+class AbstractConcurrentArrayQueueProducer extends AbstractConcurrentArrayQueuePadding1
 {
     protected volatile long tail;
+    protected volatile long headCache;
 }
 
 /**
- * Pad out a cacheline between the tail and the head to prevent false sharing.
+ * Pad out a cacheline between the producer and consumer fields to prevent false sharing.
  */
-class AbstractConcurrentArrayQueuePadding2 extends AbstractConcurrentArrayQueueTail
+class AbstractConcurrentArrayQueuePadding2 extends AbstractConcurrentArrayQueueProducer
 {
     @SuppressWarnings("unused")
     protected long p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30;
 }
 
 /**
- * Value for the head that is expected to be padded.
+ * Values for the consumer that are expected to be padded.
  */
-class AbstractConcurrentArrayQueueHead extends AbstractConcurrentArrayQueuePadding2
+class AbstractConcurrentArrayQueueConsumer extends AbstractConcurrentArrayQueuePadding2
 {
     protected volatile long head;
 }
 
 /**
- * Pad out a cacheline between the tail and the head to prevent false sharing.
+ * Pad out a cacheline between the producer and consumer fields to prevent false sharing.
  */
-class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentArrayQueueHead
+class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentArrayQueueConsumer
 {
     @SuppressWarnings("unused")
     protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
@@ -72,6 +73,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
     implements QueuedPipe<E>
 {
     protected static final long TAIL_OFFSET;
+    protected static final long HEAD_CACHE_OFFSET;
     protected static final long HEAD_OFFSET;
     protected static final int BUFFER_ARRAY_BASE;
     protected static final int SHIFT_FOR_SCALE;
@@ -82,8 +84,10 @@ public abstract class AbstractConcurrentArrayQueue<E>
         {
             BUFFER_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class);
             SHIFT_FOR_SCALE = BitUtil.calculateShiftForScale(UNSAFE.arrayIndexScale(Object[].class));
-            TAIL_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueTail.class.getDeclaredField("tail"));
-            HEAD_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueHead.class.getDeclaredField("head"));
+            TAIL_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueProducer.class.getDeclaredField("tail"));
+            HEAD_CACHE_OFFSET = UNSAFE.objectFieldOffset(
+                AbstractConcurrentArrayQueueProducer.class.getDeclaredField("headCache"));
+            HEAD_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueConsumer.class.getDeclaredField("head"));
         }
         catch (final Exception ex)
         {
