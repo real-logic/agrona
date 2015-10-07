@@ -40,19 +40,27 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             throw new NullPointerException("Null is not a valid element");
         }
 
-        final Object[] buffer = this.buffer;
+        long currentHead = headCache;
+        long bufferLimit = currentHead + capacity;
         final long currentTail = tail;
-        final long elementOffset = sequenceToBufferOffset(currentTail, mask);
-
-        if (null == UNSAFE.getObjectVolatile(buffer, elementOffset))
+        if (currentTail >= bufferLimit)
         {
-            UNSAFE.putOrderedObject(buffer, elementOffset, e);
-            UNSAFE.putOrderedLong(this, TAIL_OFFSET, currentTail + 1);
+            currentHead = head;
+            bufferLimit = currentHead + capacity;
+            if (currentTail >= bufferLimit)
+            {
+                return false;
+            }
 
-            return true;
+            UNSAFE.putLong(this, HEAD_CACHE_OFFSET, currentHead);
         }
 
-        return false;
+        final long elementOffset = sequenceToBufferOffset(currentTail, mask);
+
+        UNSAFE.putOrderedObject(buffer, elementOffset, e);
+        UNSAFE.putOrderedLong(this, TAIL_OFFSET, currentTail + 1);
+
+        return true;
     }
 
     @SuppressWarnings("unchecked")
