@@ -41,7 +41,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         }
 
         long currentTail;
-        long currentHead = headCache;
+        long currentHead = sharedHeadCache;
         long bufferLimit = currentHead + capacity;
         do
         {
@@ -55,7 +55,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
                     return false;
                 }
 
-                UNSAFE.putOrderedLong(this, HEAD_CACHE_OFFSET, currentHead);
+                UNSAFE.putOrderedLong(this, SHARED_HEAD_CACHE_OFFSET, currentHead);
             }
         }
         while (!UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1));

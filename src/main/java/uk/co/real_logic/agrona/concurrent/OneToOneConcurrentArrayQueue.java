@@ -52,7 +52,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
                 return false;
             }
 
-            UNSAFE.putLong(this, HEAD_CACHE_OFFSET, currentHead);
+            headCache = currentHead;
         }
 
         final long elementOffset = sequenceToBufferOffset(currentTail, mask);

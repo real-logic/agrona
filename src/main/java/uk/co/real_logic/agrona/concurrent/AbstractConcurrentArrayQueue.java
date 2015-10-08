@@ -36,7 +36,8 @@ class AbstractConcurrentArrayQueuePadding1
 class AbstractConcurrentArrayQueueProducer extends AbstractConcurrentArrayQueuePadding1
 {
     protected volatile long tail;
-    protected volatile long headCache;
+    protected long headCache;
+    protected volatile long sharedHeadCache;
 }
 
 /**
@@ -73,7 +74,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
     implements QueuedPipe<E>
 {
     protected static final long TAIL_OFFSET;
-    protected static final long HEAD_CACHE_OFFSET;
+    protected static final long SHARED_HEAD_CACHE_OFFSET;
     protected static final long HEAD_OFFSET;
     protected static final int BUFFER_ARRAY_BASE;
     protected static final int SHIFT_FOR_SCALE;
@@ -85,8 +86,8 @@ public abstract class AbstractConcurrentArrayQueue<E>
             BUFFER_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class);
             SHIFT_FOR_SCALE = BitUtil.calculateShiftForScale(UNSAFE.arrayIndexScale(Object[].class));
             TAIL_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueProducer.class.getDeclaredField("tail"));
-            HEAD_CACHE_OFFSET = UNSAFE.objectFieldOffset(
-                AbstractConcurrentArrayQueueProducer.class.getDeclaredField("headCache"));
+            SHARED_HEAD_CACHE_OFFSET = UNSAFE.objectFieldOffset(
+                AbstractConcurrentArrayQueueProducer.class.getDeclaredField("sharedHeadCache"));
             HEAD_OFFSET = UNSAFE.objectFieldOffset(AbstractConcurrentArrayQueueConsumer.class.getDeclaredField("head"));
         }
         catch (final Exception ex)
