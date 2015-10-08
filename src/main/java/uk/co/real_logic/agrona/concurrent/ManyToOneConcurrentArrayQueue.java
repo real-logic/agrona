@@ -24,6 +24,10 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
  * Many producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow consumer
  * adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
  *
+ * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
+ * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
+ * {@link ManyToOneConcurrentArrayQueue#isEmpty()}.
+ *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
 public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
@@ -123,7 +127,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         long nextSequence = head;
         int count = 0;
 
-        while (count < limit)
+        for (; count < limit; count++)
         {
             final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
             final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
@@ -134,7 +138,6 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
 
             UNSAFE.putObject(buffer, elementOffset, null);
             nextSequence++;
-            count++;
             target.add((E)e);
         }
 
