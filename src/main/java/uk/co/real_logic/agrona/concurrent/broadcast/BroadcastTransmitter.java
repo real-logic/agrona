@@ -26,7 +26,7 @@ import static uk.co.real_logic.agrona.concurrent.broadcast.RecordDescriptor.*;
 /**
  * Transmit messages via an underlying broadcast buffer to zero or more {@link BroadcastReceiver}s.
  *
- * <b>Note:</b> This class is not threadsafe. Only one transmitter is allow per broadcast buffer.
+ * <b>Note:</b> This class is not threadsafe. Only one transmitter is allowed per broadcast buffer.
  */
 public class BroadcastTransmitter
 {
