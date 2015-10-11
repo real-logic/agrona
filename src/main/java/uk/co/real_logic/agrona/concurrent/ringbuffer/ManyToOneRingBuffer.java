@@ -239,16 +239,16 @@ public class ManyToOneRingBuffer implements RingBuffer
 
             padding = 0;
             tailIndex = (int)tail & mask;
-            final int bufferEndLength = capacity - tailIndex;
+            final int toBufferEndLength = capacity - tailIndex;
 
-            if (requiredCapacity > bufferEndLength)
+            if (requiredCapacity > toBufferEndLength)
             {
                 if (requiredCapacity > headIndex)
                 {
                     return INSUFFICIENT_CAPACITY;
                 }
 
-                padding = bufferEndLength;
+                padding = toBufferEndLength;
             }
         }
         while (!buffer.compareAndSetLong(tailCounterIndex, tail, tail + requiredCapacity + padding));
