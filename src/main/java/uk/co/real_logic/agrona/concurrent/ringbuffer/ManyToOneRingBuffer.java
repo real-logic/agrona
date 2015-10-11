@@ -128,45 +128,41 @@ public class ManyToOneRingBuffer implements RingBuffer
         int messagesRead = 0;
 
         final AtomicBuffer buffer = this.buffer;
-        final long tail = buffer.getLongVolatile(tailCounterIndex);
         final long head = buffer.getLongVolatile(headCounterIndex);
-        final int available = (int)(tail - head);
 
-        if (available > 0)
+        int bytesRead = 0;
+
+        final int headIndex = (int)head & mask;
+        final int contiguousBlockLength = capacity - headIndex;
+
+        try
         {
-            int bytesRead = 0;
-
-            final int headIndex = (int)head & mask;
-            final int contiguousBlockLength = Math.min(available, capacity - headIndex);
-
-            try
+            while ((bytesRead < contiguousBlockLength) &&
+                   (messagesRead < messageCountLimit))
             {
-                while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
+                final int recordIndex = headIndex + bytesRead;
+                final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
+                if (recordLength <= 0)
                 {
-                    final int recordIndex = headIndex + bytesRead;
-                    final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
-                    if (recordLength <= 0)
-                    {
-                        break;
-                    }
-
-                    bytesRead += align(recordLength, ALIGNMENT);
-
-                    final int typeId = buffer.getInt(typeOffset(recordIndex));
-                    if (PADDING_MSG_TYPE_ID == typeId)
-                    {
-                        continue;
-                    }
-
-                    ++messagesRead;
-                    handler.onMessage(typeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
+                    break;
                 }
+
+                bytesRead += align(recordLength, ALIGNMENT);
+
+                final int typeId = buffer.getInt(typeOffset(recordIndex));
+                if (PADDING_MSG_TYPE_ID == typeId)
+                {
+                    continue;
+                }
+
+                ++messagesRead;
+                handler.onMessage(typeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
             }
-            finally
-            {
-                buffer.setMemory(headIndex, bytesRead, (byte)0);
-                buffer.putLongOrdered(headCounterIndex, head + bytesRead);
-            }
+        }
+        finally
+        {
+            buffer.setMemory(headIndex, bytesRead, (byte)0);
+            buffer.putLongOrdered(headCounterIndex, head + bytesRead);
         }
 
         return messagesRead;
