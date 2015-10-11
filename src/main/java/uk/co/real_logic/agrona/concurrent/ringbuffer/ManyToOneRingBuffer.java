@@ -23,7 +23,6 @@ import uk.co.real_logic.agrona.concurrent.MessageHandler;
 import static uk.co.real_logic.agrona.BitUtil.align;
 import static uk.co.real_logic.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.checkCapacity;
-import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * A ring-buffer that supports the exchange of messages from many producers to a single consumer.
@@ -40,25 +39,11 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public static final int INSUFFICIENT_CAPACITY = -2;
 
-    private static final long HEAD_CACHE_OFFSET;
-
-    static
-    {
-        try
-        {
-            HEAD_CACHE_OFFSET = UNSAFE.objectFieldOffset(ManyToOneRingBuffer.class.getDeclaredField("headCache"));
-        }
-        catch (final Exception ex)
-        {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private volatile long headCache;
     private final int capacity;
     private final int mask;
     private final int maxMsgLength;
     private final int tailCounterIndex;
+    private final int headCacheCounterIndex;
     private final int headCounterIndex;
     private final int correlationIdCounterIndex;
     private final int consumerHeartbeatIndex;
@@ -84,6 +69,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         mask = capacity - 1;
         maxMsgLength = capacity / 8;
         tailCounterIndex = capacity + RingBufferDescriptor.TAIL_COUNTER_OFFSET;
+        headCacheCounterIndex = capacity + RingBufferDescriptor.HEAD_CACHE_COUNTER_OFFSET;
         headCounterIndex = capacity + RingBufferDescriptor.HEAD_COUNTER_OFFSET;
         correlationIdCounterIndex = capacity + RingBufferDescriptor.CORRELATION_COUNTER_OFFSET;
         consumerHeartbeatIndex = capacity + RingBufferDescriptor.CONSUMER_HEARTBEAT_OFFSET;
@@ -236,7 +222,7 @@ public class ManyToOneRingBuffer implements RingBuffer
     private int claimCapacity(final AtomicBuffer buffer, final int requiredCapacity)
     {
         final int capacity = this.capacity;
-        long head = headCache;
+        long head = buffer.getLongVolatile(headCacheCounterIndex);
 
         long tail;
         int tailIndex;
@@ -255,7 +241,7 @@ public class ManyToOneRingBuffer implements RingBuffer
                     return INSUFFICIENT_CAPACITY;
                 }
 
-                UNSAFE.putOrderedLong(this, HEAD_CACHE_OFFSET, head);
+                buffer.putLongOrdered(headCacheCounterIndex, head);
             }
 
             padding = 0;

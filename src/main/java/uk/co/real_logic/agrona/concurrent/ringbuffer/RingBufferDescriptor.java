@@ -27,6 +27,9 @@ public class RingBufferDescriptor
     /** Offset within the trailer for where the tail value is stored. */
     public static final int TAIL_COUNTER_OFFSET;
 
+    /** Offset within the trailer for where the head cache value is stored. */
+    public static final int HEAD_CACHE_COUNTER_OFFSET;
+
     /** Offset within the trailer for where the head value is stored. */
     public static final int HEAD_COUNTER_OFFSET;
 
@@ -44,6 +47,9 @@ public class RingBufferDescriptor
         int offset = 0;
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         TAIL_COUNTER_OFFSET = offset;
+
+        offset += (BitUtil.CACHE_LINE_LENGTH * 2);
+        HEAD_CACHE_COUNTER_OFFSET = offset;
 
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         HEAD_COUNTER_OFFSET = offset;
