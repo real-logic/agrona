@@ -29,8 +29,7 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
  *
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
  * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
- * {@link ManyToManyConcurrentArrayQueue#isEmpty()}. Similarly the contract on offer is broken such that returning false does not
- * indicate the queue is full.
+ * {@link ManyToManyConcurrentArrayQueue#isEmpty()}.
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
