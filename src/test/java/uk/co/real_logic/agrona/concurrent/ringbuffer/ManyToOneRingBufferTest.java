@@ -200,11 +200,9 @@ public class ManyToOneRingBufferTest
     @Test
     public void shouldReadNothingFromEmptyBuffer()
     {
-        final long tail = 0L;
         final long head = 0L;
 
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+        when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
 
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> fail("should not be called");
         final int messagesRead = ringBuffer.read(handler);
@@ -215,13 +213,10 @@ public class ManyToOneRingBufferTest
     @Test
     public void shouldNotReadSingleMessagePartWayThroughWriting()
     {
-        final int msgLength = 16;
-        final long tail = align(HEADER_LENGTH + msgLength, ALIGNMENT);
         final long head = 0L;
         final int headIndex = (int)head;
 
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+        when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(0);
 
         final int[] times = new int[1];
@@ -247,8 +242,7 @@ public class ManyToOneRingBufferTest
         final long head = 0L;
         final int headIndex = (int)head;
 
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+        when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
         when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
         when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
@@ -272,12 +266,10 @@ public class ManyToOneRingBufferTest
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
-        final long tail = alignedRecordLength * 2;
         final long head = 0L;
         final int headIndex = (int)head;
 
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+        when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
         when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
 
@@ -304,8 +296,7 @@ public class ManyToOneRingBufferTest
         final long head = 0L;
         final int headIndex = (int)head;
 
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+        when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
         when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);

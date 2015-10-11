@@ -128,7 +128,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         int messagesRead = 0;
 
         final AtomicBuffer buffer = this.buffer;
-        final long head = buffer.getLongVolatile(headCounterIndex);
+        final long head = buffer.getLong(headCounterIndex);
 
         int bytesRead = 0;
 
