@@ -80,6 +80,18 @@ public class RecordDescriptor
     }
 
     /**
+     * Make a 64-bit header from the length and message type id.
+     *
+     * @param length    length of the record
+     * @param msgTypeId of the message stored in the record
+     * @return the fields combined into a long.
+     */
+    public static long makeHeader(final int length, final int msgTypeId)
+    {
+        return ((msgTypeId & 0xFFFF_FFFFL) << 32) | (length & 0xFFFF_FFFFL);
+    }
+
+    /**
      * Check that and message id is in the valid range.
      *
      * @param msgTypeId to be checked.
