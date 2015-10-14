@@ -92,6 +92,22 @@ public class RecordDescriptor
     }
 
     /**
+     * Extract the record length field from a word representing the header.
+     *
+     * @param header containing both fields.
+     * @return the length field from the header.
+     */
+    public static int recordLength(final long header)
+    {
+        return (int)header;
+    }
+
+    public static int messageTypeId(final long header)
+    {
+        return (int)(header >>> 32);
+    }
+
+    /**
      * Check that and message id is in the valid range.
      *
      * @param msgTypeId to be checked.

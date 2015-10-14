@@ -220,7 +220,7 @@ public class ManyToOneRingBufferTest
         assertThat(times[0], is(0));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer, times(1)).getIntVolatile(lengthOffset(headIndex));
+        inOrder.verify(buffer, times(1)).getLongVolatile(headIndex);
         inOrder.verify(buffer, times(1)).setMemory(headIndex, 0, (byte)0);
         inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, headIndex);
     }
@@ -236,10 +236,8 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
-        when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
-        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
-        when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -263,8 +261,7 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
-        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -290,10 +287,8 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
-        when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
-        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
-        when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
+        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler =

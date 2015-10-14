@@ -137,7 +137,9 @@ public class ManyToOneRingBuffer implements RingBuffer
             while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
-                final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
+                final long header = buffer.getLongVolatile(recordIndex);
+
+                final int recordLength = recordLength(header);
                 if (recordLength <= 0)
                 {
                     break;
@@ -145,14 +147,14 @@ public class ManyToOneRingBuffer implements RingBuffer
 
                 bytesRead += align(recordLength, ALIGNMENT);
 
-                final int typeId = buffer.getInt(typeOffset(recordIndex));
-                if (PADDING_MSG_TYPE_ID == typeId)
+                final int messageTypeId = messageTypeId(header);
+                if (PADDING_MSG_TYPE_ID == messageTypeId)
                 {
                     continue;
                 }
 
                 ++messagesRead;
-                handler.onMessage(typeId, buffer, encodedMsgOffset(recordIndex), recordLength - HEADER_LENGTH);
+                handler.onMessage(messageTypeId, buffer, recordIndex + HEADER_LENGTH, recordLength - HEADER_LENGTH);
             }
         }
         finally
