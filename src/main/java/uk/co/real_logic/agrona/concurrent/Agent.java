@@ -20,16 +20,16 @@ public interface Agent
     /**
      * An agent should implement this method to do its work.
      *
-     * The boolean return value is used for implementing a backoff strategy that can be employed when no work is
+     * The return value is used for implementing a backoff strategy that can be employed when no work is
      * currently available for the agent to process.
      *
      * @throws java.lang.Exception if an error has occurred
-     * @return true if work has been done otherwise false to indicate no work was currently available.
+     * @return 0 to indicate no work was currently available, a positive value otherwise.
      */
     int doWork() throws Exception;
 
     /**
-     * To be overridden by Agents that which to do resource cleanup on close.
+     * To be overridden by Agents that need to do resource cleanup on close.
      *
      * This method will be called after the agent thread has terminated. It will only be called once by a single thread.
      *
