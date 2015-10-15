@@ -15,33 +15,70 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
+import java.util.Arrays;
+
 /**
- * Compose two agents into one so a thread can be shared.
+ * Compose several agents into one so a thread can be shared.
  */
 public class CompositeAgent implements Agent
 {
-    private final Agent firstAgent;
-    private final Agent secondAgent;
+    private final Agent[] agents;
+    private String roleName;
 
-    public CompositeAgent(final Agent firstAgent, final Agent secondAgent)
+    /**
+     * @param agents to parts of this composite, at least one agent and no null agents allowed
+     * @throws IllegalArgumentException if an empty array of agents is provided
+     * @throws NullPointerException if the array or any element is null
+     */
+    public CompositeAgent(Agent... agents)
     {
-        this.firstAgent = firstAgent;
-        this.secondAgent = secondAgent;
+        if (agents == null)
+        {
+            throw new NullPointerException("Expecting at least one agent");
+        }
+        if (agents.length == 0)
+        {
+            throw new IllegalArgumentException("Expecting at least one agent");
+        }
+
+        StringBuffer buff = new StringBuffer(agents.length * 16);
+        buff.append('[');
+        for (Agent smith: agents)
+        {
+            if (smith == null)
+            {
+                throw new NullPointerException("Agents list contains a null");
+            }
+            buff.append(smith.roleName());
+            buff.append(',');
+        }
+        buff.setCharAt(buff.length()-1, ']'); // overwrite the last ','
+        roleName = buff.toString();
+
+        this.agents = Arrays.copyOf(agents, agents.length);
     }
 
     public int doWork() throws Exception
     {
-        return firstAgent.doWork() + secondAgent.doWork();
+        int sum = 0;
+        for (Agent smith: agents)
+        {
+            sum += smith.doWork();
+        }
+
+        return sum;
     }
 
     public void onClose()
     {
-        firstAgent.onClose();
-        secondAgent.onClose();
+        for (Agent smith: agents)
+        {
+            smith.onClose();
+        }
     }
 
     public String roleName()
     {
-        return firstAgent.roleName() + "+" + secondAgent.roleName();
+        return roleName;
     }
 }
