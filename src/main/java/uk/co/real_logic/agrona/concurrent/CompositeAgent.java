@@ -23,10 +23,10 @@ import java.util.Arrays;
 public class CompositeAgent implements Agent
 {
     private final Agent[] agents;
-    private String roleName;
+    private final String roleName;
 
     /**
-     * @param agents to parts of this composite, at least one agent and no null agents allowed
+     * @param agents the parts of this composite, at least one agent and no null agents allowed
      * @throws IllegalArgumentException if an empty array of agents is provided
      * @throws NullPointerException if the array or any element is null
      */
