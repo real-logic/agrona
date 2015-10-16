@@ -41,7 +41,7 @@ public class CompositeAgent implements Agent
             throw new IllegalArgumentException("Expecting at least one agent");
         }
 
-        StringBuffer buff = new StringBuffer(agents.length * 16);
+        final StringBuffer buff = new StringBuffer(agents.length * 16);
         buff.append('[');
         for (Agent smith: agents)
         {
@@ -52,7 +52,7 @@ public class CompositeAgent implements Agent
             buff.append(smith.roleName());
             buff.append(',');
         }
-        buff.setCharAt(buff.length()-1, ']'); // overwrite the last ','
+        buff.setCharAt(buff.length() - 1, ']'); // overwrite the last ','
         roleName = buff.toString();
 
         this.agents = Arrays.copyOf(agents, agents.length);
