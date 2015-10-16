@@ -102,7 +102,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             UNSAFE.putOrderedObject(buffer, elementOffset, null);
             nextSequence++;
             UNSAFE.putOrderedLong(this, HEAD_OFFSET, nextSequence);
-            elementHandler.accept((E) item);
+            elementHandler.accept((E)item);
         }
 
         return (int)(nextSequence - currentHead);
@@ -131,8 +131,6 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             count++;
             target.add((E)item);
         }
-
-
 
         return count;
     }
