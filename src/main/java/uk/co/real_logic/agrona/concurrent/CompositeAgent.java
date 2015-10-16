@@ -53,7 +53,7 @@ public class CompositeAgent implements Agent
             buff.append(agent.roleName());
             buff.append(',');
         }
-        
+
         buff.setCharAt(buff.length() - 1, ']'); // overwrite the last ','
         roleName = buff.toString();
 
