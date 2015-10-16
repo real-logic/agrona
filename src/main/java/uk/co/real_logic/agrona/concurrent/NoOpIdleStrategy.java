@@ -21,6 +21,13 @@ package uk.co.real_logic.agrona.concurrent;
  */
 public class NoOpIdleStrategy implements IdleStrategy
 {
+    /**
+     * If the caller of this {@link IdleStrategy} spins in a 'counted' loop this may cause a TTSP problem. If this is the case
+     * for a particular application you can solve it by preventing this method from getting inlined (using a compiler oracle,
+     * e.g. -XX:CompileCommand=dontinline,uk.co.real_logic.agrona.concurrent.NoOpIdleStrategy::idle)
+     *
+     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy#idle(int)
+     */
     public void idle(final int workCount)
     {
     }
