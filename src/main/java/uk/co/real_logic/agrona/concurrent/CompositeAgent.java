@@ -28,30 +28,32 @@ public class CompositeAgent implements Agent
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
      * @throws IllegalArgumentException if an empty array of agents is provided
-     * @throws NullPointerException if the array or any element is null
+     * @throws NullPointerException     if the array or any element is null
      */
-    public CompositeAgent(Agent... agents)
+    public CompositeAgent(final Agent... agents)
     {
         if (agents == null)
         {
-            throw new NullPointerException("Expecting at least one agent");
+            throw new NullPointerException("Expecting at least one Agent");
         }
         if (agents.length == 0)
         {
-            throw new IllegalArgumentException("Expecting at least one agent");
+            throw new IllegalArgumentException("Expecting at least one Agent");
         }
 
-        final StringBuffer buff = new StringBuffer(agents.length * 16);
+        final StringBuilder buff = new StringBuilder(agents.length * 16);
         buff.append('[');
-        for (Agent smith: agents)
+        for (final Agent agent : agents)
         {
-            if (smith == null)
+            if (agent == null)
             {
                 throw new NullPointerException("Agents list contains a null");
             }
-            buff.append(smith.roleName());
+
+            buff.append(agent.roleName());
             buff.append(',');
         }
+        
         buff.setCharAt(buff.length() - 1, ']'); // overwrite the last ','
         roleName = buff.toString();
 
@@ -61,9 +63,9 @@ public class CompositeAgent implements Agent
     public int doWork() throws Exception
     {
         int sum = 0;
-        for (Agent a : agents)
+        for (final Agent agent : agents)
         {
-            sum += a.doWork();
+            sum += agent.doWork();
         }
 
         return sum;
@@ -71,9 +73,9 @@ public class CompositeAgent implements Agent
 
     public void onClose()
     {
-        for (Agent a : agents)
+        for (final Agent agent : agents)
         {
-            a.onClose();
+            agent.onClose();
         }
     }
 
