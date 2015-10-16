@@ -61,9 +61,9 @@ public class CompositeAgent implements Agent
     public int doWork() throws Exception
     {
         int sum = 0;
-        for (Agent smith: agents)
+        for (Agent a : agents)
         {
-            sum += smith.doWork();
+            sum += a.doWork();
         }
 
         return sum;
@@ -71,9 +71,9 @@ public class CompositeAgent implements Agent
 
     public void onClose()
     {
-        for (Agent smith: agents)
+        for (Agent a : agents)
         {
-            smith.onClose();
+            a.onClose();
         }
     }
 
