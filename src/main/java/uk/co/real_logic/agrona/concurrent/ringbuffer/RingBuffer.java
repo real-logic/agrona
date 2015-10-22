@@ -101,22 +101,22 @@ public interface RingBuffer
     long consumerHeartbeatTime();
 
     /**
-     * The count in bytes from start up of the producers. This is the range they are working with but could still
-     * be in the act of working with.
+     * The count in bytes from start up of the producers.  The figure includes the headers.
+     * This is the range they are working with but could still be in the act of working with.
      *
      * @return number of bytes produced by the producers in claimed space.
      */
     long producerCount();
 
     /**
-     * The count in bytes from start up for the consumers.
+     * The count in bytes from start up for the consumers.  The figure includes the headers.
      *
      * @return the count of bytes consumed by the consumers.
      */
     long consumerCount();
 
     /**
-     * Size of the backlog of bytes in the buffer between producers and consumers.
+     * Size of the backlog of bytes in the buffer between producers and consumers. The figure includes the size of headers.
      *
      * @return size of the backlog of bytes in the buffer between producers and consumers.
      */
