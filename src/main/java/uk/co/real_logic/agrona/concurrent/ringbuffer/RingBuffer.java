@@ -99,4 +99,26 @@ public interface RingBuffer
      * @return the time of the last consumer heartbeat.
      */
     long consumerHeartbeatTime();
+
+    /**
+     * The count in bytes from start up of the producers. This is the range they are working with but could still
+     * be in the act of working with.
+     *
+     * @return number of bytes produced by the producers in claimed space.
+     */
+    long producerCount();
+
+    /**
+     * The count in bytes from start up for the consumers.
+     *
+     * @return the count of bytes consumed by the consumers.
+     */
+    long consumerCount();
+
+    /**
+     * Size of the backlog of bytes in the buffer between producers and consumers.
+     *
+     * @return size of the backlog of bytes in the buffer between producers and consumers.
+     */
+    int size();
 }

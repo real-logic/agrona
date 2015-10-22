@@ -206,6 +206,43 @@ public class ManyToOneRingBuffer implements RingBuffer
         return buffer.getLongVolatile(consumerHeartbeatIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long producerCount()
+    {
+        return buffer.getLongVolatile(tailCounterIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long consumerCount()
+    {
+        return buffer.getLongVolatile(headCounterIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int size()
+    {
+        long currentHeadBefore;
+        long currentTail;
+        long currentHeadAfter = buffer.getLongVolatile(headCounterIndex);
+
+        do
+        {
+            currentHeadBefore = currentHeadAfter;
+            currentTail = buffer.getLongVolatile(tailCounterIndex);
+            currentHeadAfter = buffer.getLongVolatile(headCounterIndex);
+
+        }
+        while (currentHeadAfter != currentHeadBefore);
+
+        return (int)(currentTail - currentHeadAfter);
+    }
+
     private void checkMsgLength(final int length)
     {
         if (length > maxMsgLength)
