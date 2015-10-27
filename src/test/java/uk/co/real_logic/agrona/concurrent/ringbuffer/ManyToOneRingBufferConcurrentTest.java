@@ -114,13 +114,13 @@ public class ManyToOneRingBufferConcurrentTest
         assertThat(msgCount, is(reps * numProducers));
     }
 
-    private class Producer implements Runnable
+    class Producer implements Runnable
     {
         private final int producerId;
         private final CyclicBarrier barrier;
         private final int reps;
 
-        public Producer(final int producerId, final CyclicBarrier barrier, final int reps)
+        Producer(final int producerId, final CyclicBarrier barrier, final int reps)
         {
             this.producerId = producerId;
             this.barrier = barrier;

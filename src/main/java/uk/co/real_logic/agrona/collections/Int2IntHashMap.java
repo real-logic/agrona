@@ -425,14 +425,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     // ---------------- Utility Classes ----------------
 
-    private abstract class AbstractIterator
+    abstract class AbstractIterator
     {
         @DoNotSub private int capacity;
         @DoNotSub private int mask;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
-        public AbstractIterator()
+        AbstractIterator()
         {
             reset();
         }
@@ -498,7 +498,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
     }
 
-    private final class PrimitiveIterator extends AbstractIterator implements Iterator<Integer>
+    final class PrimitiveIterator extends AbstractIterator implements Iterator<Integer>
     {
         @DoNotSub private final int offset;
 
@@ -527,7 +527,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
     }
 
-    private final class EntryIterator
+    final class EntryIterator
         extends AbstractIterator
         implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
     {
