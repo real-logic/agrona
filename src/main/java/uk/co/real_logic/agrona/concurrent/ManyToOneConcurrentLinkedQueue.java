@@ -35,12 +35,12 @@ class ManyToOneConcurrentLinkedQueuePadding1
         E value;
         volatile Node<E> next;
 
-        public Node(final E value)
+        Node(final E value)
         {
             this.value = value;
         }
 
-        public void setNextOrdered(final Node<E> nextNode)
+        void setNextOrdered(final Node<E> nextNode)
         {
             UNSAFE.putOrderedObject(this, NODE_NEXT_OFFSET, nextNode);
         }

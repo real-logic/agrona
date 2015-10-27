@@ -4,6 +4,8 @@ Agrona
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
 applications in Java and C++.
 
+For the latest version information and changes see the [Change Log](https://github.com/real-logic/Agrona/wiki/Change-Log). 
+
 License (See LICENSE file for full license)
 -------------------------------------------
 Copyright 2014 - 2015 Real Logic Limited

@@ -99,4 +99,36 @@ public interface RingBuffer
      * @return the time of the last consumer heartbeat.
      */
     long consumerHeartbeatTime();
+
+    /**
+     * The count in bytes from start up of the producers.  The figure includes the headers.
+     * This is the range they are working with but could still be in the act of working with.
+     *
+     * @return number of bytes produced by the producers in claimed space.
+     */
+    long producerCount();
+
+    /**
+     * The count in bytes from start up for the consumers.  The figure includes the headers.
+     *
+     * @return the count of bytes consumed by the consumers.
+     */
+    long consumerCount();
+
+    /**
+     * Size of the backlog of bytes in the buffer between producers and consumers. The figure includes the size of headers.
+     *
+     * @return size of the backlog of bytes in the buffer between producers and consumers.
+     */
+    int size();
+
+    /**
+     * Unblock a multi-producer ring buffer where a producer has died during the act of offering. The operation will scan from
+     * the consumer position up to the producer position.
+     *
+     * If no action is required at the position then none will be taken.
+     *
+     * @return true of an unblocking action was taken otherwise false.
+     */
+    boolean unblock();
 }
