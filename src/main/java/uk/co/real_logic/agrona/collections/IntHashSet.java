@@ -53,7 +53,7 @@ public final class IntHashSet implements Set<Integer>
     /**
      * The initial capacity used when none is specified in the constructor.
      */
-    public static @DoNotSub final int DEFAULT_INITIAL_CAPACITY = 8;
+    @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     private int[] values;
     private final IntIterator iterator;
@@ -89,7 +89,7 @@ public final class IntHashSet implements Set<Integer>
         this.missingValue = missingValue;
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         mask = capacity - 1;
-        resizeThreshold = (int)(capacity * loadFactor);
+        resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
         Arrays.fill(values, missingValue);
 
@@ -163,9 +163,9 @@ public final class IntHashSet implements Set<Integer>
 
         capacity = newCapacity;
         mask = newCapacity - 1;
-        resizeThreshold = (int)(newCapacity * loadFactor);
+        resizeThreshold = (int)(newCapacity * loadFactor); // @DoNotSub
 
-        @DoNotSub final int[] tempValues = new int[capacity];
+        final int[] tempValues = new int[capacity];
         Arrays.fill(tempValues, missingValue);
 
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
