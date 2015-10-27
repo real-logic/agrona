@@ -68,4 +68,20 @@ public class CollectionUtil
 
         return total;
     }
+
+    static void validateLoadFactor(final double loadFactor)
+    {
+        if (loadFactor <= 0 || loadFactor >= 1.0)
+        {
+            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
+        }
+    }
+
+    static void validatePowerOfTwo(final int newCapacity)
+    {
+        if (1 != Integer.bitCount(newCapacity))
+        {
+            throw new IllegalStateException("New capacity must be a power of two");
+        }
+    }
 }

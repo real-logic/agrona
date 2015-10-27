@@ -28,7 +28,9 @@ import static org.junit.Assert.*;
 
 public class IntHashSetTest
 {
-    private final IntHashSet obj = new IntHashSet(100, -1);
+    private static final int INITIAL_CAPACITY = 100;
+
+    private final IntHashSet obj = new IntHashSet(INITIAL_CAPACITY, -1);
 
     @Test
     public void initiallyContainsNoElements() throws Exception
@@ -362,6 +364,20 @@ public class IntHashSetTest
         assertTrue("Failed to remove 9", requiredFields.remove(9));
 
         assertThat(requiredFields, containsInAnyOrder(35, 49, 56));
+    }
+
+    @Test
+    public void shouldResizeWhenItHitsCapacity()
+    {
+        for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
+        {
+            assertTrue(obj.add(i));
+        }
+
+        for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
+        {
+            assertTrue(obj.contains(i));
+        }
     }
 
     private void addTwoElements(final IntHashSet obj)

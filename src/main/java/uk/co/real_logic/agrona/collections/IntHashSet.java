@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.joining;
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
  * Fixed-size, garbage and allocation free int element specific hash set.
@@ -44,21 +45,51 @@ import static java.util.stream.Collectors.joining;
  */
 public final class IntHashSet implements Set<Integer>
 {
-    private final int[] values;
-    private final IntIterator iterator;
-    @DoNotSub private final int mask;
-    private final int missingValue;
+    /**
+     * The load factor used when none is specified in the constructor.
+     */
+    public static final double DEFAULT_LOAD_FACTOR = 0.67f;
 
+    /**
+     * The initial capacity used when none is specified in the constructor.
+     */
+    public static @DoNotSub final int DEFAULT_INITIAL_CAPACITY = 8;
+
+    private int[] values;
+    private final IntIterator iterator;
+    private final int missingValue;
+    private final double loadFactor;
+
+    @DoNotSub private int mask;
+    @DoNotSub private int resizeThreshold;
+    @DoNotSub private int capacity;
     @DoNotSub private int size;
+
+    public IntHashSet(final int missingValue)
+    {
+        this(DEFAULT_INITIAL_CAPACITY, missingValue);
+    }
 
     public IntHashSet(
         @DoNotSub final int proposedCapacity,
         final int missingValue)
     {
+        this(proposedCapacity, missingValue, DEFAULT_LOAD_FACTOR);
+    }
+
+    public IntHashSet(
+        @DoNotSub final int initialCapacity,
+        final int missingValue,
+        final double loadFactor)
+    {
+        validateLoadFactor(loadFactor);
+
+        this.loadFactor = loadFactor;
         size = 0;
         this.missingValue = missingValue;
-        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(proposedCapacity);
+        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         mask = capacity - 1;
+        resizeThreshold = (int)(capacity * loadFactor);
         values = new int[capacity];
         Arrays.fill(values, missingValue);
 
@@ -107,7 +138,52 @@ public final class IntHashSet implements Set<Integer>
         values[index] = value;
         size++;
 
+        if (size > resizeThreshold)
+        {
+            increaseCapacity();
+        }
+
         return true;
+    }
+
+    private void increaseCapacity()
+    {
+        @DoNotSub final int newCapacity = capacity << 1;
+        if (newCapacity < 0)
+        {
+            throw new IllegalStateException("Max capacity reached at size=" + size);
+        }
+
+        rehash(newCapacity);
+    }
+
+    private void rehash(@DoNotSub final int newCapacity)
+    {
+        CollectionUtil.validatePowerOfTwo(newCapacity);
+
+        capacity = newCapacity;
+        mask = newCapacity - 1;
+        resizeThreshold = (int)(newCapacity * loadFactor);
+
+        @DoNotSub final int[] tempValues = new int[capacity];
+        Arrays.fill(tempValues, missingValue);
+
+        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
+        {
+            final int value = values[i];
+            if (value != missingValue)
+            {
+                @DoNotSub int newHash = Hashing.hash(value, mask);
+                while (tempValues[newHash] != missingValue)
+                {
+                    newHash = ++newHash & mask;
+                }
+
+                tempValues[newHash] = value;
+            }
+        }
+
+        values = tempValues;
     }
 
     /**
@@ -219,6 +295,26 @@ public final class IntHashSet implements Set<Integer>
     public boolean isEmpty()
     {
         return size == 0;
+    }
+
+    /**
+     * Get the load factor beyond which the set will increase size.
+     *
+     * @return load factor for when the set should increase size.
+     */
+    public double loadFactor()
+    {
+        return loadFactor;
+    }
+
+    /**
+     * Get the total capacity for the set to which the load factor with be a fraction of.
+     *
+     * @return the total capacity for the set.
+     */
+    public int capacity()
+    {
+        return capacity;
     }
 
     /**

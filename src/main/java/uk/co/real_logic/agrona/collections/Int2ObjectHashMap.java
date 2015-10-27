@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOfTwo;
 
 /**
  * {@link java.util.Map} implementation specialised for int keys using open addressing and
@@ -58,10 +60,7 @@ public class Int2ObjectHashMap<V>
      */
     public Int2ObjectHashMap(final int initialCapacity, final double loadFactor)
     {
-        if (loadFactor <= 0 || loadFactor >= 1.0)
-        {
-            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
-        }
+        validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
@@ -416,10 +415,7 @@ public class Int2ObjectHashMap<V>
 
     private void rehash(final int newCapacity)
     {
-        if (1 != Integer.bitCount(newCapacity))
-        {
-            throw new IllegalStateException("New capacity must be a power of two");
-        }
+        validatePowerOfTwo(newCapacity);
 
         capacity = newCapacity;
         mask = newCapacity - 1;
