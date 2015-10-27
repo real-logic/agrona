@@ -38,7 +38,7 @@ public class ManyToOneRingBufferTest
     private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_COUNTER_OFFSET;
 
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
-    private RingBuffer ringBuffer;
+    private ManyToOneRingBuffer ringBuffer;
 
     @Before
     public void setUp()
@@ -317,5 +317,28 @@ public class ManyToOneRingBufferTest
         }
 
         fail("Should have thrown exception");
+    }
+
+    @Test
+    public void shouldNotUnblockWhenEmpty()
+    {
+        final long position = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(position);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(position);
+
+        assertFalse(ringBuffer.unblock());
+    }
+
+    @Test
+    public void shouldUnblockMessageWithHeader()
+    {
+        final long position = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(position);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(position + position);
+        when(buffer.getIntVolatile((int)position)).thenReturn(-((int)position));
+
+        assertTrue(ringBuffer.unblock());
+
+        verify(buffer).putLongOrdered((int)position, makeHeader((int)position, PADDING_MSG_TYPE_ID));
     }
 }

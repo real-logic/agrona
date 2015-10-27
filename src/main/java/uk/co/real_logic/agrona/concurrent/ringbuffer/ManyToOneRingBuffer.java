@@ -243,6 +243,54 @@ public class ManyToOneRingBuffer implements RingBuffer
         return (int)(currentTail - currentHeadAfter);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean unblock()
+    {
+        final AtomicBuffer buffer = this.buffer;
+        final int consumerIndex = (int)(buffer.getLongVolatile(headCounterIndex) & mask);
+        final int producerIndex = (int)(buffer.getLongVolatile(tailCounterIndex) & mask);
+
+        if (producerIndex == consumerIndex)
+        {
+            return false;
+        }
+
+        boolean unblocked = false;
+        int length = buffer.getIntVolatile(consumerIndex);
+        if (length < 0)
+        {
+            buffer.putLongOrdered(consumerIndex, makeHeader(-length, PADDING_MSG_TYPE_ID));
+            unblocked = true;
+        }
+        else if (0 == length)
+        {
+            final int limit = producerIndex > consumerIndex ? producerIndex : buffer.capacity();
+            int index = consumerIndex + ALIGNMENT;
+
+            do
+            {
+                length = buffer.getIntVolatile(index);
+                if (0 != length)
+                {
+                    if (0 == buffer.getIntVolatile(consumerIndex))
+                    {
+                        buffer.putLongOrdered(consumerIndex, makeHeader(index - consumerIndex, PADDING_MSG_TYPE_ID));
+                        unblocked = true;
+                    }
+
+                    break;
+                }
+
+                index += ALIGNMENT;
+            }
+            while (index < limit);
+        }
+
+        return unblocked;
+    }
+
     private void checkMsgLength(final int length)
     {
         if (length > maxMsgLength)

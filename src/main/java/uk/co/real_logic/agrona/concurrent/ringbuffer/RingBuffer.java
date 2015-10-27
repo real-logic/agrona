@@ -121,4 +121,14 @@ public interface RingBuffer
      * @return size of the backlog of bytes in the buffer between producers and consumers.
      */
     int size();
+
+    /**
+     * Unblock a multi-producer ring buffer where a producer has died during the act of offering. The operation will scan from
+     * the consumer position up to the producer position.
+     *
+     * If no action is required at the position then none will be taken.
+     *
+     * @return true of an unblocking action was taken otherwise false.
+     */
+    boolean unblock();
 }
