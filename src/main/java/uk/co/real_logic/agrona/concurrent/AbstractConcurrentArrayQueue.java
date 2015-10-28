@@ -266,7 +266,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
             currentHeadBefore = currentHeadAfter;
             currentTail = tail;
             currentHeadAfter = head;
-
         }
         while (currentHeadAfter != currentHeadBefore);
 

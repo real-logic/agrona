@@ -236,7 +236,6 @@ public class ManyToOneRingBuffer implements RingBuffer
             currentHeadBefore = currentHeadAfter;
             currentTail = buffer.getLongVolatile(tailCounterIndex);
             currentHeadAfter = buffer.getLongVolatile(headCounterIndex);
-
         }
         while (currentHeadAfter != currentHeadBefore);
 
