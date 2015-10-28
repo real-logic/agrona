@@ -332,13 +332,51 @@ public class ManyToOneRingBufferTest
     @Test
     public void shouldUnblockMessageWithHeader()
     {
-        final long position = ALIGNMENT * 4;
-        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(position);
-        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(position + position);
-        when(buffer.getIntVolatile((int)position)).thenReturn(-((int)position));
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength * 2);
+        when(buffer.getIntVolatile(messageLength)).thenReturn(-messageLength);
 
         assertTrue(ringBuffer.unblock());
 
-        verify(buffer).putLongOrdered((int)position, makeHeader((int)position, PADDING_MSG_TYPE_ID));
+        verify(buffer).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+    }
+
+    @Test
+    public void shouldUnblockGapWithZeros()
+    {
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength * 3);
+        when(buffer.getIntVolatile(messageLength * 2)).thenReturn(messageLength);
+
+        assertTrue(ringBuffer.unblock());
+
+        verify(buffer).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+    }
+
+    @Test
+    public void shouldNotUnblockGapWithMessageRaceOnSecondMessageIncreasingTailThenInterrupting()
+    {
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength * 3);
+        when(buffer.getIntVolatile(messageLength * 2)).thenReturn(0).thenReturn(messageLength);
+
+        assertFalse(ringBuffer.unblock());
+        verify(buffer, never()).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+    }
+
+    @Test
+    public void shouldNotUnblockGapWithMessageRaceWhenScanForwardTakesAnInterrupt()
+    {
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength * 3);
+        when(buffer.getIntVolatile(messageLength * 2)).thenReturn(0).thenReturn(messageLength);
+        when(buffer.getIntVolatile(messageLength * 2  + ALIGNMENT)).thenReturn(7);
+
+        assertFalse(ringBuffer.unblock());
+        verify(buffer, never()).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
     }
 }
