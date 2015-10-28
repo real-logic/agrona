@@ -20,10 +20,7 @@ import uk.co.real_logic.agrona.Verify;
 import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.joining;
@@ -168,9 +165,8 @@ public final class IntHashSet implements Set<Integer>
         final int[] tempValues = new int[capacity];
         Arrays.fill(tempValues, missingValue);
 
-        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
+        for (final int value : values)
         {
-            final int value = values[i];
             if (value != missingValue)
             {
                 @DoNotSub int newHash = Hashing.hash(value, mask);
@@ -251,6 +247,16 @@ public final class IntHashSet implements Set<Integer>
                 deleteIndex = index;
             }
         }
+    }
+
+    /**
+     * Compact the backing arrays by rehashing with a capacity just larger than current size
+     * and giving consideration to the load factor.
+     */
+    public void compact()
+    {
+        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
     /**
