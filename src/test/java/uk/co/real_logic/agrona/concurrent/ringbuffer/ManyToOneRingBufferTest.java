@@ -374,7 +374,7 @@ public class ManyToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength * 3);
         when(buffer.getIntVolatile(messageLength * 2)).thenReturn(0).thenReturn(messageLength);
-        when(buffer.getIntVolatile(messageLength * 2  + ALIGNMENT)).thenReturn(7);
+        when(buffer.getIntVolatile(messageLength * 2 + ALIGNMENT)).thenReturn(7);
 
         assertFalse(ringBuffer.unblock());
         verify(buffer, never()).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
