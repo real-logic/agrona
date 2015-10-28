@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.concurrent;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Compose several agents into one so a thread can be shared.
@@ -24,6 +25,16 @@ public class CompositeAgent implements Agent
 {
     private final Agent[] agents;
     private final String roleName;
+
+    /**
+     * @param agents the parts of this composite, at least one agent and no null agents allowed
+     * @throws IllegalArgumentException if an empty array of agents is provided
+     * @throws NullPointerException     if the array or any element is null
+     */
+    public CompositeAgent(final List<? extends Agent> agents)
+    {
+        this(agents.toArray(new Agent[0]));
+    }
 
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
