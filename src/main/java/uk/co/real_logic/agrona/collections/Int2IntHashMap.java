@@ -237,6 +237,16 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         size = 0;
     }
 
+    /**
+     * Compact the backing arrays by rehashing with a capacity just larger than current size
+     * and giving consideration to the load factor.
+     */
+    public void compact()
+    {
+        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
+    }
+
     // ---------------- Boxed Versions Below ----------------
 
     /**
