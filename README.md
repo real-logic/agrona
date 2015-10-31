@@ -8,7 +8,7 @@ For the latest version information and changes see the [Change Log](https://gith
 
 Utilities Included:
 
-* Thread safe direct buffers for working with on and off heap memory with memory ordering semantics.
+* Thread safe direct and atomic buffers for working with on and off heap memory with memory ordering semantics.
 * Open addressing Maps with int/long primitive keys to object reference values.
 * Open addressing Maps with int/long primitive keys to int/long values.
 * Open addressing Sets for int and long primitives.
