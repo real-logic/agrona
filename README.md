@@ -19,7 +19,7 @@ Utilities Included:
 * Scalable Timer Wheel.
 * Basic code generation from annotated implementations that can vary on primitive types.
 * Off-heap counters implementation for application telemetry.
-* Implementations of InputStream and OutputStream that can wrap Direct buffers.
+* Implementations of InputStream and OutputStream that can wrap direct buffers.
 
 Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
 efficient reliable unicast and multicast message transport .
