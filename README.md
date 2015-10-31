@@ -6,6 +6,23 @@ applications in Java and C++.
 
 For the latest version information and changes see the [Change Log](https://github.com/real-logic/Agrona/wiki/Change-Log). 
 
+Utilities Included:
+
+* Buffers for working with on and off heap memory with memory ordering semantics.
+* Open addressing Maps with int/long primitive keys to object reference values.
+* Open addressing Maps with int/long primitive keys to int/long values.
+* Open addressing Sets for int and long primitives.
+* Lockless Queue implementations for low-latency applications.
+* Off-heap ring and broadcast buffers for IPC communication.
+* Basic Agent framework.
+* Signal handling to support "Ctrl + c" in a server application.
+* Scalable Timer Wheel.
+* Basic code generation from annotated implementations that can vary on primitive types.
+* Off-heap counters implementation for application telemetry.
+
+Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
+efficient reliable unicast and multicast message transport .
+
 License (See LICENSE file for full license)
 -------------------------------------------
 Copyright 2014 - 2015 Real Logic Limited
