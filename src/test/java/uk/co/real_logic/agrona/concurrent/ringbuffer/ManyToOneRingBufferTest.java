@@ -34,8 +34,8 @@ public class ManyToOneRingBufferTest
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 4096;
     private static final int TOTAL_BUFFER_LENGTH = CAPACITY + RingBufferDescriptor.TRAILER_LENGTH;
-    private static final int TAIL_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.TAIL_COUNTER_OFFSET;
-    private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_COUNTER_OFFSET;
+    private static final int TAIL_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.TAIL_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_POSITION_OFFSET;
 
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private ManyToOneRingBuffer ringBuffer;

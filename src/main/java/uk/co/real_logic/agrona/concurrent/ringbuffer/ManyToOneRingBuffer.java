@@ -41,9 +41,9 @@ public class ManyToOneRingBuffer implements RingBuffer
     private final int capacity;
     private final int mask;
     private final int maxMsgLength;
-    private final int tailCounterIndex;
-    private final int headCacheCounterIndex;
-    private final int headCounterIndex;
+    private final int tailPositionIndex;
+    private final int headCachePositionIndex;
+    private final int headPositionIndex;
     private final int correlationIdCounterIndex;
     private final int consumerHeartbeatIndex;
     private final AtomicBuffer buffer;
@@ -67,9 +67,9 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         mask = capacity - 1;
         maxMsgLength = capacity / 8;
-        tailCounterIndex = capacity + RingBufferDescriptor.TAIL_COUNTER_OFFSET;
-        headCacheCounterIndex = capacity + RingBufferDescriptor.HEAD_CACHE_COUNTER_OFFSET;
-        headCounterIndex = capacity + RingBufferDescriptor.HEAD_COUNTER_OFFSET;
+        tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
+        headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
+        headPositionIndex = capacity + RingBufferDescriptor.HEAD_POSITION_OFFSET;
         correlationIdCounterIndex = capacity + RingBufferDescriptor.CORRELATION_COUNTER_OFFSET;
         consumerHeartbeatIndex = capacity + RingBufferDescriptor.CONSUMER_HEARTBEAT_OFFSET;
     }
@@ -125,7 +125,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         int messagesRead = 0;
 
         final AtomicBuffer buffer = this.buffer;
-        final long head = buffer.getLong(headCounterIndex);
+        final long head = buffer.getLong(headPositionIndex);
 
         int bytesRead = 0;
 
@@ -160,7 +160,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         finally
         {
             buffer.setMemory(headIndex, bytesRead, (byte)0);
-            buffer.putLongOrdered(headCounterIndex, head + bytesRead);
+            buffer.putLongOrdered(headPositionIndex, head + bytesRead);
         }
 
         return messagesRead;
@@ -209,17 +209,17 @@ public class ManyToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
-    public long producerCount()
+    public long producerPosition()
     {
-        return buffer.getLongVolatile(tailCounterIndex);
+        return buffer.getLongVolatile(tailPositionIndex);
     }
 
     /**
      * {@inheritDoc}
      */
-    public long consumerCount()
+    public long consumerPosition()
     {
-        return buffer.getLongVolatile(headCounterIndex);
+        return buffer.getLongVolatile(headPositionIndex);
     }
 
     /**
@@ -227,19 +227,19 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public int size()
     {
-        long currentHeadBefore;
-        long currentTail;
-        long currentHeadAfter = buffer.getLongVolatile(headCounterIndex);
+        long headBefore;
+        long tail;
+        long headAfter = buffer.getLongVolatile(headPositionIndex);
 
         do
         {
-            currentHeadBefore = currentHeadAfter;
-            currentTail = buffer.getLongVolatile(tailCounterIndex);
-            currentHeadAfter = buffer.getLongVolatile(headCounterIndex);
+            headBefore = headAfter;
+            tail = buffer.getLongVolatile(tailPositionIndex);
+            headAfter = buffer.getLongVolatile(headPositionIndex);
         }
-        while (currentHeadAfter != currentHeadBefore);
+        while (headAfter != headBefore);
 
-        return (int)(currentTail - currentHeadAfter);
+        return (int)(tail - headAfter);
     }
 
     /**
@@ -248,8 +248,8 @@ public class ManyToOneRingBuffer implements RingBuffer
     public boolean unblock()
     {
         final AtomicBuffer buffer = this.buffer;
-        final int consumerIndex = (int)(buffer.getLongVolatile(headCounterIndex) & mask);
-        final int producerIndex = (int)(buffer.getLongVolatile(tailCounterIndex) & mask);
+        final int consumerIndex = (int)(buffer.getLongVolatile(headPositionIndex) & mask);
+        final int producerIndex = (int)(buffer.getLongVolatile(tailPositionIndex) & mask);
 
         if (producerIndex == consumerIndex)
         {
@@ -321,26 +321,26 @@ public class ManyToOneRingBuffer implements RingBuffer
     private int claimCapacity(final AtomicBuffer buffer, final int requiredCapacity)
     {
         final int capacity = this.capacity;
-        long head = buffer.getLongVolatile(headCacheCounterIndex);
+        long head = buffer.getLongVolatile(headCachePositionIndex);
 
         long tail;
         int tailIndex;
         int padding;
         do
         {
-            tail = buffer.getLongVolatile(tailCounterIndex);
+            tail = buffer.getLongVolatile(tailPositionIndex);
             final int availableCapacity = capacity - (int)(tail - head);
 
             if (requiredCapacity > availableCapacity)
             {
-                head = buffer.getLongVolatile(headCounterIndex);
+                head = buffer.getLongVolatile(headPositionIndex);
 
                 if (requiredCapacity > (capacity - (int)(tail - head)))
                 {
                     return INSUFFICIENT_CAPACITY;
                 }
 
-                buffer.putLongOrdered(headCacheCounterIndex, head);
+                buffer.putLongOrdered(headCachePositionIndex, head);
             }
 
             padding = 0;
@@ -358,7 +358,7 @@ public class ManyToOneRingBuffer implements RingBuffer
                 padding = toBufferEndLength;
             }
         }
-        while (!buffer.compareAndSetLong(tailCounterIndex, tail, tail + requiredCapacity + padding));
+        while (!buffer.compareAndSetLong(tailPositionIndex, tail, tail + requiredCapacity + padding));
 
         if (0 != padding)
         {

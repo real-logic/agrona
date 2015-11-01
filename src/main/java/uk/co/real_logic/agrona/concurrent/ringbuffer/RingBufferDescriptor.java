@@ -25,13 +25,13 @@ import uk.co.real_logic.agrona.BitUtil;
 public class RingBufferDescriptor
 {
     /** Offset within the trailer for where the tail value is stored. */
-    public static final int TAIL_COUNTER_OFFSET;
+    public static final int TAIL_POSITION_OFFSET;
 
     /** Offset within the trailer for where the head cache value is stored. */
-    public static final int HEAD_CACHE_COUNTER_OFFSET;
+    public static final int HEAD_CACHE_POSITION_OFFSET;
 
     /** Offset within the trailer for where the head value is stored. */
-    public static final int HEAD_COUNTER_OFFSET;
+    public static final int HEAD_POSITION_OFFSET;
 
     /** Offset within the trailer for where the correlation counter value is stored. */
     public static final int CORRELATION_COUNTER_OFFSET;
@@ -46,13 +46,13 @@ public class RingBufferDescriptor
     {
         int offset = 0;
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
-        TAIL_COUNTER_OFFSET = offset;
+        TAIL_POSITION_OFFSET = offset;
 
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
-        HEAD_CACHE_COUNTER_OFFSET = offset;
+        HEAD_CACHE_POSITION_OFFSET = offset;
 
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
-        HEAD_COUNTER_OFFSET = offset;
+        HEAD_POSITION_OFFSET = offset;
 
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         CORRELATION_COUNTER_OFFSET = offset;
