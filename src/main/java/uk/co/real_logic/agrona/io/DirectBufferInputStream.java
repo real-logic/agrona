@@ -129,8 +129,7 @@ public class DirectBufferInputStream extends InputStream
         if (position < this.length)
         {
             bytesRead = Math.min(length, available());
-            buffer.getBytes(this.offset + position + bytesRead, dstBytes, dstOffset, bytesRead);
-
+            buffer.getBytes(offset + position, dstBytes, dstOffset, bytesRead);
             position += bytesRead;
         }
 
