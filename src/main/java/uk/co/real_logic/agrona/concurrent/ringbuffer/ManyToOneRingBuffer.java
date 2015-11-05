@@ -159,8 +159,11 @@ public class ManyToOneRingBuffer implements RingBuffer
         }
         finally
         {
-            buffer.setMemory(headIndex, bytesRead, (byte)0);
-            buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+            if (bytesRead != 0)
+            {
+                buffer.setMemory(headIndex, bytesRead, (byte)0);
+                buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+            }
         }
 
         return messagesRead;
@@ -265,15 +268,17 @@ public class ManyToOneRingBuffer implements RingBuffer
         }
         else if (0 == length)
         {
+            // go from (consumerIndex to producerIndex) or (consumerIndex to capacity)
             final int limit = producerIndex > consumerIndex ? producerIndex : buffer.capacity();
             int i = consumerIndex + ALIGNMENT;
 
             do
             {
+                // read the top int of every long (looking for length aligned to 8=ALIGNMENT)
                 length = buffer.getIntVolatile(i);
                 if (0 != length)
                 {
-                    if (scanBackToConfirmZeroed(buffer, i, consumerIndex))
+                    if (scanBackToConfirmStillZeroed(buffer, i, consumerIndex))
                     {
                         buffer.putLongOrdered(consumerIndex, makeHeader(i - consumerIndex, PADDING_MSG_TYPE_ID));
                         unblocked = true;
@@ -290,7 +295,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         return unblocked;
     }
 
-    private static boolean scanBackToConfirmZeroed(final AtomicBuffer buffer, final int from, final int limit)
+    private static boolean scanBackToConfirmStillZeroed(final AtomicBuffer buffer, final int from, final int limit)
     {
         int i = from - ALIGNMENT;
         boolean allZeros = true;
