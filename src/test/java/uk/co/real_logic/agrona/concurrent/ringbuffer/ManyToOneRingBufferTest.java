@@ -300,7 +300,6 @@ public class ManyToOneRingBufferTest
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long endTail = startTail + alignedRecordLength;
 
-        final int headIndex = (int)head;
         // simulate half written message
         buffer.putLongOrdered(TAIL_COUNTER_INDEX, endTail); // producer successfully moved tail
         buffer.putLongOrdered(0, makeHeader(-recordLength, MSG_TYPE_ID));
@@ -330,8 +329,6 @@ public class ManyToOneRingBufferTest
         final int recordLength = msgLength + HEADER_LENGTH;
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long endTail = startTail + 2 * alignedRecordLength;
-
-        final int headIndex = (int)head;
 
         // simulate 2 written messages state
         buffer.putLongOrdered(TAIL_COUNTER_INDEX, endTail);
@@ -376,8 +373,6 @@ public class ManyToOneRingBufferTest
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long endTail = startTail + 2 * alignedRecordLength;
 
-        final int headIndex = (int)head;
-
         // simulate 2 written messages state
         buffer.putLongOrdered(TAIL_COUNTER_INDEX, endTail);
         buffer.putLongOrdered((int) startTail, makeHeader(recordLength, MSG_TYPE_ID));
@@ -419,8 +414,6 @@ public class ManyToOneRingBufferTest
         final int recordLength = msgLength + HEADER_LENGTH;
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long endTail = startTail + 2 * alignedRecordLength;
-
-        final int headIndex = (int)head;
 
         // simulate 2 written messages state
         buffer.putLongOrdered(TAIL_COUNTER_INDEX, endTail);
