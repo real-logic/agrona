@@ -88,17 +88,20 @@ public final class IntLruCache<E> implements AutoCloseable
 
         final E value = factory.apply(key);
 
-        if (size == capacity)
+        if (value != null)
         {
-            closer.accept((E)values[size - 1]);
-        }
-        else
-        {
-            size++;
-            this.size = size;
-        }
+            if (size == capacity)
+            {
+                closer.accept((E)values[size - 1]);
+            }
+            else
+            {
+                size++;
+                this.size = size;
+            }
 
-        makeMostRecent(key, value, size - 1);
+            makeMostRecent(key, value, size - 1);
+        }
 
         return value;
     }
