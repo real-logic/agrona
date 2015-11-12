@@ -326,6 +326,10 @@ public class ManyToOneRingBuffer implements RingBuffer
     private int claimCapacity(final AtomicBuffer buffer, final int requiredCapacity)
     {
         final int capacity = this.capacity;
+        final int tailPositionIndex = this.tailPositionIndex;
+        final int headCachePositionIndex = this.headCachePositionIndex;
+        final int mask = this.mask;
+
         long head = buffer.getLongVolatile(headCachePositionIndex);
 
         long tail;
@@ -354,10 +358,18 @@ public class ManyToOneRingBuffer implements RingBuffer
 
             if (requiredCapacity > toBufferEndLength)
             {
-                final int headIndex = (int)head & mask;
+                int headIndex = (int)head & mask;
+
                 if (requiredCapacity > headIndex)
                 {
-                    return INSUFFICIENT_CAPACITY;
+                    head = buffer.getLongVolatile(headPositionIndex);
+                    headIndex = (int)head & mask;
+                    if (requiredCapacity > headIndex)
+                    {
+                        return INSUFFICIENT_CAPACITY;
+                    }
+
+                    buffer.putLongOrdered(headCachePositionIndex, head);
                 }
 
                 padding = toBufferEndLength;

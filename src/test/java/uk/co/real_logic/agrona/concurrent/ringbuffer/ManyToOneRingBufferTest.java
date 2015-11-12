@@ -82,6 +82,28 @@ public class ManyToOneRingBufferTest
     }
 
     @Test
+    public void shouldInsertPaddingAndWriteToBuffer()
+    {
+        final int padding = 200;
+        final int messageLength = 400;
+
+        // buffer is free
+        final long tail = 2 * CAPACITY - padding;
+        final long head = tail;
+
+        // free space is (200 + 300) more than message length (400) but contiguous space (300) is less than message length (400)
+        final long headCache = CAPACITY + 300;
+
+        buffer.putLong(TAIL_COUNTER_INDEX, tail);
+        buffer.putLong(HEAD_COUNTER_INDEX, head);
+        buffer.putLong(HEAD_COUNTER_CACHE_INDEX, headCache);
+
+        // all subsequent calls cant write message
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[messageLength]);
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, messageLength));
+    }
+
+    @Test
     public void shouldCalculateCapacityForBuffer()
     {
         assertThat(ringBuffer.capacity(), is(CAPACITY));
