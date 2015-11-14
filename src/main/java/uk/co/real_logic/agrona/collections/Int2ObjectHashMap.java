@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona.collections;
 
-
 import uk.co.real_logic.agrona.BitUtil;
 
 import java.util.*;
@@ -206,7 +205,6 @@ public class Int2ObjectHashMap<V>
 
         return null;
     }
-
 
     /**
      * Get a value for a given key, or if it does ot exist then default the value via a {@link java.util.function.LongFunction}
