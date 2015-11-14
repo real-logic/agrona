@@ -207,7 +207,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Get a value for a given key, or if it does ot exist then default the value via a {@link java.util.function.LongFunction}
+     * Get a value for a given key, or if it does ot exist then default the value via a {@link java.util.function.IntFunction}
      * and put it in the map.
      *
      * Primitive specialized version of {@link java.util.Map#computeIfAbsent}.
