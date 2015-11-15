@@ -65,6 +65,9 @@ public class Int2ObjectCache<V>
                 "maxSize must be greater than 0 and less than limit : maxSize=%d limit=%d", maxSize, capacity));
         }
 
+
+        requireNonNull(evictionHandler, "Null values are not permitted");
+
         this.capacity = BitUtil.findNextPositivePowerOfTwo((int)(maxSize * (1 / LOAD_FACTOR)));
         this.maxSize = maxSize;
         mask = this.capacity - 1;
