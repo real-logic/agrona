@@ -27,6 +27,8 @@ import static java.util.Objects.requireNonNull;
  * A cache implementation specialised for int keys using open addressing and
  * linear probing for efficient access. The cache can only grow to the maxSize which is less than capacity.
  *
+ * The eviction strategy approximates to LRU using a victim replacement policy.
+ *
  * @param <V> values stored in the {@link Map}
  */
 public class Int2ObjectCache<V>
