@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import static java.lang.Integer.valueOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
@@ -55,7 +54,7 @@ public class Int2ObjectHashMapTest
 
         assertThat(intToObjectMap.get(key), is(newValue));
         assertThat(oldValue, is(value));
-        assertThat(valueOf(intToObjectMap.size()), is(valueOf(1)));
+        assertThat(intToObjectMap.size(), is(1));
     }
 
     @Test
@@ -68,15 +67,15 @@ public class Int2ObjectHashMapTest
             map.put(i, Integer.toString(i));
         }
 
-        assertThat(valueOf(map.resizeThreshold()), is(valueOf(16)));
-        assertThat(valueOf(map.capacity()), is(valueOf(32)));
-        assertThat(valueOf(map.size()), is(valueOf(16)));
+        assertThat(map.resizeThreshold(), is(16));
+        assertThat(map.capacity(), is(32));
+        assertThat(map.size(), is(16));
 
         map.put(16, "16");
 
-        assertThat(valueOf(map.resizeThreshold()), is(valueOf(32)));
-        assertThat(valueOf(map.capacity()), is(valueOf(64)));
-        assertThat(valueOf(map.size()), is(valueOf(17)));
+        assertThat(map.resizeThreshold(), is(32));
+        assertThat(map.capacity(), is(64));
+        assertThat(map.size(), is(17));
 
         assertThat(map.get(16), equalTo("16"));
         assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
@@ -108,12 +107,12 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(i, Integer.toString(i));
         }
 
-        assertThat(valueOf(intToObjectMap.size()), is(valueOf(15)));
+        assertThat(intToObjectMap.size(), is(15));
         assertThat(intToObjectMap.get(1), is("1"));
 
         intToObjectMap.clear();
 
-        assertThat(valueOf(intToObjectMap.size()), is(valueOf(0)));
+        assertThat(intToObjectMap.size(), is(0));
         Assert.assertNull(intToObjectMap.get(1));
     }
 
@@ -134,7 +133,7 @@ public class Int2ObjectHashMapTest
         final int capacityBeforeCompaction = intToObjectMap.capacity();
         intToObjectMap.compact();
 
-        assertThat(valueOf(intToObjectMap.capacity()), lessThan(valueOf(capacityBeforeCompaction)));
+        assertThat(intToObjectMap.capacity(), lessThan(capacityBeforeCompaction));
     }
 
     @Test
@@ -225,14 +224,14 @@ public class Int2ObjectHashMapTest
         {
             final String value = Integer.toString(i);
             intToObjectMap.put(i, value);
-            initialSet.add(valueOf(i));
+            initialSet.add(i);
         }
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
         for (final Int2ObjectHashMap.KeyIterator iter = intToObjectMap.keySet().iterator(); iter.hasNext();)
         {
-            copyToSet.add(valueOf(iter.nextInt()));
+            copyToSet.add(iter.nextInt());
         }
 
         assertThat(copyToSet, is(initialSet));
@@ -247,7 +246,7 @@ public class Int2ObjectHashMapTest
         {
             final String value = Integer.toString(i);
             intToObjectMap.put(i, value);
-            initialSet.add(valueOf(i));
+            initialSet.add(i);
         }
 
         assertIterateKeys(initialSet);
@@ -275,7 +274,7 @@ public class Int2ObjectHashMapTest
         {
             final String value = Integer.toString(i);
             intToObjectMap.put(i, value);
-            initialSet.add(valueOf(i));
+            initialSet.add(i);
         }
 
         final Collection<Integer> copyOfSet = new HashSet<>();
@@ -295,9 +294,9 @@ public class Int2ObjectHashMapTest
         }
 
         final int reducedSetSize = count - 1;
-        assertThat(valueOf(initialSet.size()), is(valueOf(count)));
-        assertThat(valueOf(intToObjectMap.size()), is(valueOf(reducedSetSize)));
-        assertThat(valueOf(copyOfSet.size()), is(valueOf(reducedSetSize)));
+        assertThat(initialSet.size(), is(count));
+        assertThat(intToObjectMap.size(), is(reducedSetSize));
+        assertThat(copyOfSet.size(), is(reducedSetSize));
     }
 
     @Test
@@ -317,7 +316,7 @@ public class Int2ObjectHashMapTest
         final String testValue = "Wibble";
         for (final Map.Entry<Integer, String> entry : intToObjectMap.entrySet())
         {
-            assertThat(entry.getKey(), equalTo(valueOf(entry.getValue())));
+            assertThat(String.valueOf(entry.getKey()), equalTo(entry.getValue()));
 
             if (entry.getKey() == 7)
             {
@@ -332,7 +331,7 @@ public class Int2ObjectHashMapTest
     {
         for (final Map.Entry<Integer, String> entry : intToObjectMap.entrySet())
         {
-            assertThat(entry.getKey(), equalTo(valueOf(entry.getValue())));
+            assertThat(String.valueOf(entry.getKey()), equalTo(entry.getValue()));
         }
     }
 
