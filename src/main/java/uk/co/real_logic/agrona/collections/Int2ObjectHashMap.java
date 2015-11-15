@@ -28,7 +28,7 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOf
  * {@link java.util.Map} implementation specialised for int keys using open addressing and
  * linear probing for cache efficient access.
  *
- * @param <V> values stored in the {@link java.util.Map}
+ * @param <V> type of values stored in the {@link java.util.Map}
  */
 public class Int2ObjectHashMap<V>
     implements Map<Integer, V>
@@ -219,6 +219,7 @@ public class Int2ObjectHashMap<V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         requireNonNull(mappingFunction, "mappingFunction cannot be null");
+
         V value = get(key);
         if (value == null)
         {

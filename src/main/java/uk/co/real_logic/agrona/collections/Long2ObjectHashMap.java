@@ -28,7 +28,7 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOf
  * {@link java.util.Map} implementation specialised for long keys using open addressing and
  * linear probing for cache efficient access.
  *
- * @param <V> values stored in the {@link java.util.Map}
+ * @param <V> type of values stored in the {@link java.util.Map}
  */
 public class Long2ObjectHashMap<V>
     implements Map<Long, V>
@@ -48,7 +48,7 @@ public class Long2ObjectHashMap<V>
 
     public Long2ObjectHashMap()
     {
-        this(8, 0.6);
+        this(8, 0.67);
     }
 
     /**
@@ -219,6 +219,7 @@ public class Long2ObjectHashMap<V>
     public V computeIfAbsent(final long key, final LongFunction<? extends V> mappingFunction)
     {
         requireNonNull(mappingFunction, "mappingFunction cannot be null");
+
         V value = get(key);
         if (value == null)
         {

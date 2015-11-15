@@ -24,12 +24,12 @@ import java.util.function.IntFunction;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A cache implementation specialised for int keys using open addressing and
- * linear probing for efficient access. The cache can only grow to the maxSize which is less than capacity.
+ * A cache implementation specialised for int keys using open addressing and linear probing for efficient access.
+ * The cache can only grow to the maxSize which is less than capacity.
  *
  * The eviction strategy approximates to LRU using a victim replacement policy.
  *
- * @param <V> values stored in the {@link Map}
+ * @param <V> type of values stored in the {@link Map}
  */
 public class Int2ObjectCache<V>
     implements Map<Integer, V>
@@ -66,7 +66,6 @@ public class Int2ObjectCache<V>
             throw new IllegalArgumentException(String.format(
                 "maxSize must be greater than 0 and less than limit : maxSize=%d limit=%d", maxSize, capacity));
         }
-
 
         requireNonNull(evictionHandler, "Null values are not permitted");
 
