@@ -31,10 +31,9 @@ import static org.junit.Assert.assertTrue;
 public class Int2ObjectCacheTest
 {
     public static final int MAX_SIZE = 10;
+    public static final Consumer<String> EVICTION_CONSUMER = (s) -> { };
 
-    public static final Consumer<String> EVICTION_HANDLER = (s) -> { };
-
-    private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(MAX_SIZE, EVICTION_HANDLER);
+    private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(MAX_SIZE, EVICTION_CONSUMER);
 
     @Test
     public void shouldDoPutAndThenGet()
@@ -218,25 +217,13 @@ public class Int2ObjectCacheTest
     @Test
     public void shouldIterateEntries()
     {
-        final int count = 11;
+        final int count = MAX_SIZE - 1;
         for (int i = 0; i < count; i++)
         {
             final String value = Integer.toString(i);
             int2ObjectCache.put(i, value);
         }
 
-        iterateEntries();
-        iterateEntries();
-        iterateEntries();
-
-        for (final Map.Entry<Integer, String> entry : int2ObjectCache.entrySet())
-        {
-            assertThat(String.valueOf(entry.getKey()), equalTo(entry.getValue()));
-        }
-    }
-
-    private void iterateEntries()
-    {
         for (final Map.Entry<Integer, String> entry : int2ObjectCache.entrySet())
         {
             assertThat(String.valueOf(entry.getKey()), equalTo(entry.getValue()));
@@ -255,6 +242,23 @@ public class Int2ObjectCacheTest
 
         final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
         assertThat(int2ObjectCache.toString(), equalTo(mapAsAString));
+    }
+
+    @Test
+    public void shouldEvictAsMaxSizeIsExceeded()
+    {
+        final HashSet<String> evictedItems = new HashSet<>();
+        final Consumer<String> evictionConsumer = evictedItems::add;
+        final Int2ObjectCache<String> cache = new Int2ObjectCache<>(MAX_SIZE, evictionConsumer);
+
+        final int count = MAX_SIZE * 2;
+        for (int i = 0; i < count; i++)
+        {
+            final String value = Integer.toString(i);
+            cache.put(i, value);
+        }
+
+        assertThat(cache.size() + evictedItems.size(), is(count));
     }
 }
 
