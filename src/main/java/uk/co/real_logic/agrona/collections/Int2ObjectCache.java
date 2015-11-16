@@ -104,6 +104,15 @@ public class Int2ObjectCache<V>
     }
 
     /**
+     * Reset the cache statistics counters to zero.
+     */
+    public void resetCounters()
+    {
+        cacheHits = 0;
+        cacheMisses = 0;
+    }
+
+    /**
      * Get the maximum size the cache of values can grow to.
      *
      * @return the maximum size the cache of values can grow to.
@@ -403,12 +412,24 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * {@inheritDoc}
+     * Clear down all items in the cache.
+     *
+     * If an exception occurs during the eviction handler callback then clear may need to be called again to complete.
      */
+    @SuppressWarnings("unchecked")
     public void clear()
     {
-        size = 0;
-        Arrays.fill(values, null);
+        for (int i = 0, size = values.length; i < size; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
+            {
+                values[i] = null;
+                this.size--;
+
+                evictionHandler.accept((V)value);
+            }
+        }
     }
 
     /**
