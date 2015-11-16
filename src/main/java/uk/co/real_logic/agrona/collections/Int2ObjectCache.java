@@ -415,6 +415,7 @@ public class Int2ObjectCache<V>
      * Clear down all items in the cache.
      *
      * If an exception occurs during the eviction handler callback then clear may need to be called again to complete.
+     * If an exception occurs the cache should only be used when {@link #size()} reports zero.
      */
     @SuppressWarnings("unchecked")
     public void clear()
