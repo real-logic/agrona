@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.concurrent.ringbuffer;
 
 import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.UnsafeAccess;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 import uk.co.real_logic.agrona.concurrent.MessageHandler;
 
@@ -100,6 +101,8 @@ public class ManyToOneRingBuffer implements RingBuffer
         if (INSUFFICIENT_CAPACITY != recordIndex)
         {
             buffer.putLongOrdered(recordIndex, makeHeader(-recordLength, msgTypeId));
+            UnsafeAccess.UNSAFE.storeFence();
+
             buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
             buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
 
