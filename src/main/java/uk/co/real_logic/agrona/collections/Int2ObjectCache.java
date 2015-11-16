@@ -47,7 +47,7 @@ public class Int2ObjectCache<V>
 
     private final int[] keys;
     private final Object[] values;
-    private final Consumer<V> evictionHandler;
+    private final Consumer<V> evictionFunc;
 
     private final ValueCollection<V> valueCollection;
     private final KeySet keySet;
@@ -57,9 +57,9 @@ public class Int2ObjectCache<V>
      * Construct a new cache with a maximum size.
      *
      * @param maxSize         beyond which slots are reused.
-     * @param evictionHandler to be called when a value is evicted from the cache.
+     * @param evictionFunc to be called when a value is evicted from the cache.
      */
-    public Int2ObjectCache(final int maxSize, final Consumer<V> evictionHandler)
+    public Int2ObjectCache(final int maxSize, final Consumer<V> evictionFunc)
     {
         if (maxSize <= 0 || maxSize >= SIZE_LIMIT)
         {
@@ -67,7 +67,7 @@ public class Int2ObjectCache<V>
                 "maxSize must be greater than 0 and less than limit : maxSize=%d limit=%d", maxSize, capacity));
         }
 
-        requireNonNull(evictionHandler, "Null values are not permitted");
+        requireNonNull(evictionFunc, "Null values are not permitted");
 
         this.capacity = BitUtil.findNextPositivePowerOfTwo((int)(maxSize * (1 / LOAD_FACTOR)));
         this.maxSize = maxSize;
@@ -75,7 +75,7 @@ public class Int2ObjectCache<V>
 
         keys = new int[this.capacity];
         values = new Object[this.capacity];
-        this.evictionHandler = evictionHandler;
+        this.evictionFunc = evictionFunc;
 
         // Cached to avoid allocation.
         valueCollection = new ValueCollection<>();
@@ -319,7 +319,7 @@ public class Int2ObjectCache<V>
         }
         else
         {
-            evictionHandler.accept(oldValue);
+            evictionFunc.accept(oldValue);
         }
     }
 
@@ -369,7 +369,7 @@ public class Int2ObjectCache<V>
         keys[index] = key;
         values[index] = value;
 
-        evictionHandler.accept(oldValue);
+        evictionFunc.accept(oldValue);
     }
 
     /**
@@ -401,7 +401,7 @@ public class Int2ObjectCache<V>
 
                 compactChain(index);
 
-                evictionHandler.accept((V)value);
+                evictionFunc.accept((V)value);
                 return (V)value;
             }
 
@@ -414,7 +414,7 @@ public class Int2ObjectCache<V>
     /**
      * Clear down all items in the cache.
      *
-     * If an exception occurs during the eviction handler callback then clear may need to be called again to complete.
+     * If an exception occurs during the eviction function callback then clear may need to be called again to complete.
      * If an exception occurs the cache should only be used when {@link #size()} reports zero.
      */
     @SuppressWarnings("unchecked")
@@ -428,7 +428,7 @@ public class Int2ObjectCache<V>
                 values[i] = null;
                 this.size--;
 
-                evictionHandler.accept((V)value);
+                evictionFunc.accept((V)value);
             }
         }
     }
