@@ -42,12 +42,12 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
     }
 
     private static void expandPrimitiveSpecialisedClass(final String pakage, final String className) throws IOException
     {
         final Path inputPath = Paths.get(SOURCE_DIRECTORY, pakage, className + SUFFIX);
-
         final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, pakage);
         Files.createDirectories(outputDirectory);
 
@@ -81,7 +81,8 @@ public final class PrimitiveExpander
 
         public String substitute(final String contents)
         {
-            return contents.replace("int", primitiveType)
+            return contents
+                .replace("int", primitiveType)
                 .replace("Integer", boxedType)
                 .replace("Int", className);
         }

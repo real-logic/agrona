@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -35,15 +36,15 @@ public class Int2ObjectCache<V>
     implements Map<Integer, V>
 {
     public static final double LOAD_FACTOR = 0.67d;
-    public static final int SIZE_LIMIT = (int)((1 << 30) * LOAD_FACTOR);
+    @DoNotSub public static final int SIZE_LIMIT = (int)((1 << 30) * LOAD_FACTOR);
 
     private long cacheHits = 0;
     private long cacheMisses = 0;
 
-    private int maxSize;
-    private int capacity;
-    private int mask;
-    private int size;
+    @DoNotSub private int maxSize;
+    @DoNotSub private int capacity;
+    @DoNotSub private int mask;
+    @DoNotSub private int size;
 
     private final int[] keys;
     private final Object[] values;
@@ -59,7 +60,9 @@ public class Int2ObjectCache<V>
      * @param maxSize          beyond which slots are reused.
      * @param evictionConsumer to be called when a value is evicted from the cache.
      */
-    public Int2ObjectCache(final int maxSize, final Consumer<V> evictionConsumer)
+    public Int2ObjectCache(
+        @DoNotSub final int maxSize,
+        final Consumer<V> evictionConsumer)
     {
         if (maxSize <= 0 || maxSize >= SIZE_LIMIT)
         {
@@ -69,7 +72,7 @@ public class Int2ObjectCache<V>
 
         requireNonNull(evictionConsumer, "Null values are not permitted");
 
-        this.capacity = BitUtil.findNextPositivePowerOfTwo((int)(maxSize * (1 / LOAD_FACTOR)));
+        /*@DoNotSub*/ this.capacity = BitUtil.findNextPositivePowerOfTwo((int)(maxSize * (1 / LOAD_FACTOR)));
         this.maxSize = maxSize;
         mask = this.capacity - 1;
 
@@ -117,7 +120,7 @@ public class Int2ObjectCache<V>
      *
      * @return the maximum size the cache of values can grow to.
      */
-    public int maxSize()
+    @DoNotSub public int maxSize()
     {
         return maxSize;
     }
@@ -127,7 +130,7 @@ public class Int2ObjectCache<V>
      *
      * @return the total capacity for the map.
      */
-    public int capacity()
+    @DoNotSub public int capacity()
     {
         return capacity;
     }
@@ -136,7 +139,7 @@ public class Int2ObjectCache<V>
     /**
      * {@inheritDoc}
      */
-    public int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -167,7 +170,7 @@ public class Int2ObjectCache<V>
      */
     public boolean containsKey(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -217,7 +220,7 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -298,7 +301,7 @@ public class Int2ObjectCache<V>
     private void normalInsert(final int key, final V value)
     {
         V oldValue = null;
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -328,8 +331,8 @@ public class Int2ObjectCache<V>
     private void evictingInsert(final int key, final V value)
     {
         V oldValue = null;
-        int index = Hashing.hash(key, mask);
-        final int startingIndex = index;
+        @DoNotSub int index = Hashing.hash(key, mask);
+        @DoNotSub final int startingIndex = index;
 
         while (null != values[index])
         {
@@ -352,9 +355,9 @@ public class Int2ObjectCache<V>
             }
             else
             {
-                for (int i = 0; i < values.length; i++)
+                for (@DoNotSub int i = 0; i < values.length; i++)
                 {
-                    final int p = (index + i) & mask;
+                    @DoNotSub final int p = (index + i) & mask;
 
                     if (null != values[p])
                     {
@@ -390,7 +393,7 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -421,7 +424,7 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public void clear()
     {
-        for (int i = 0, size = values.length; i < size; i++)
+        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
             if (null != value)
@@ -495,9 +498,9 @@ public class Int2ObjectCache<V>
         return sb.toString();
     }
 
-    private void compactChain(int deleteIndex)
+    @DoNotSub private void compactChain(int deleteIndex)
     {
-        int index = deleteIndex;
+        @DoNotSub int index = deleteIndex;
         while (true)
         {
             index = ++index & mask;
@@ -506,7 +509,7 @@ public class Int2ObjectCache<V>
                 return;
             }
 
-            final int hash = Hashing.hash(keys[index], mask);
+            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -528,7 +531,7 @@ public class Int2ObjectCache<V>
     {
         private final KeyIterator iterator = new KeyIterator();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
@@ -570,7 +573,7 @@ public class Int2ObjectCache<V>
     {
         private final ValueIterator<V> iterator = new ValueIterator<V>();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
@@ -597,7 +600,7 @@ public class Int2ObjectCache<V>
     {
         private final EntryIterator<V> iterator = new EntryIterator<V>();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
@@ -621,8 +624,8 @@ public class Int2ObjectCache<V>
 
     abstract class AbstractIterator<T> implements Iterator<T>
     {
-        private int posCounter;
-        private int stopCounter;
+        @DoNotSub private int posCounter;
+        @DoNotSub private int stopCounter;
         protected int[] keys;
         protected Object[] values;
 
@@ -631,16 +634,16 @@ public class Int2ObjectCache<V>
             reset();
         }
 
-        protected int getPosition()
+        @DoNotSub protected int getPosition()
         {
             return posCounter & mask;
         }
 
         public boolean hasNext()
         {
-            for (int i = posCounter - 1; i >= stopCounter; i--)
+            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
-                final int index = i & mask;
+                @DoNotSub final int index = i & mask;
                 if (null != values[index])
                 {
                     return true;
@@ -652,9 +655,9 @@ public class Int2ObjectCache<V>
 
         protected void findNext()
         {
-            for (int i = posCounter - 1; i >= stopCounter; i--)
+            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
-                final int index = i & mask;
+                @DoNotSub final int index = i & mask;
                 if (null != values[index])
                 {
                     posCounter = i;
@@ -677,11 +680,11 @@ public class Int2ObjectCache<V>
             keys = Int2ObjectCache.this.keys;
             values = Int2ObjectCache.this.values;
 
-            int i = capacity;
+            @DoNotSub int i = capacity;
             if (null != values[capacity - 1])
             {
                 i = 0;
-                for (int size = capacity; i < size; i++)
+                for (@DoNotSub int size = capacity; i < size; i++)
                 {
                     if (null == values[i])
                     {
