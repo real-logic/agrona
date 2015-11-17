@@ -21,11 +21,11 @@ package uk.co.real_logic.agrona.collections;
 public class Hashing
 {
     /**
-     * Generate an even evenHash for a int value.
+     * Generate an even hash for a int value.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
-     * @return the evenHash of the value which is always even.
+     * @return the hash of the value which is always even.
      */
     public static int evenHash(final int value, final int mask)
     {
@@ -35,11 +35,11 @@ public class Hashing
     }
 
     /**
-     * Generate an even evenHash for a long value.
+     * Generate an even hash for a long value.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
-     * @return the evenHash of the value which is always even.
+     * @return the hash of the value which is always even.
      */
     public static int evenHash(final long value, final int mask)
     {
