@@ -140,7 +140,7 @@ public class Int2ObjectHashMap<V>
      */
     public boolean containsKey(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -190,7 +190,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -254,7 +254,7 @@ public class Int2ObjectHashMap<V>
         requireNonNull(value, "Value cannot be null");
 
         V oldValue = null;
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -300,7 +300,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -429,7 +429,7 @@ public class Int2ObjectHashMap<V>
             if (null != value)
             {
                 final int key = keys[i];
-                int newHash = hash(key);
+                int newHash = Hashing.hash(key, mask);
                 while (null != tempValues[newHash])
                 {
                     newHash = ++newHash & mask;
@@ -455,7 +455,7 @@ public class Int2ObjectHashMap<V>
                 return;
             }
 
-            final int hash = hash(keys[index]);
+            final int hash = Hashing.hash(keys[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -467,13 +467,6 @@ public class Int2ObjectHashMap<V>
                 deleteIndex = index;
             }
         }
-    }
-
-    private int hash(final int key)
-    {
-        final int hash = key ^ (key >>> 16);
-
-        return hash & mask;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

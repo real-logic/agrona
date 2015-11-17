@@ -167,7 +167,7 @@ public class Int2ObjectCache<V>
      */
     public boolean containsKey(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -217,7 +217,7 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -249,6 +249,7 @@ public class Int2ObjectCache<V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         requireNonNull(mappingFunction, "mappingFunction cannot be null");
+
         V value = get(key);
         if (value == null)
         {
@@ -297,7 +298,7 @@ public class Int2ObjectCache<V>
     private void normalInsert(final int key, final V value)
     {
         V oldValue = null;
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -327,7 +328,7 @@ public class Int2ObjectCache<V>
     private void evictingInsert(final int key, final V value)
     {
         V oldValue = null;
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
         final int startingIndex = index;
 
         while (null != values[index])
@@ -389,7 +390,7 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -505,7 +506,7 @@ public class Int2ObjectCache<V>
                 return;
             }
 
-            final int hash = hash(keys[index]);
+            final int hash = Hashing.hash(keys[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -517,13 +518,6 @@ public class Int2ObjectCache<V>
                 deleteIndex = index;
             }
         }
-    }
-
-    private int hash(final int key)
-    {
-        final int hash = key ^ (key >>> 16);
-
-        return hash & mask;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

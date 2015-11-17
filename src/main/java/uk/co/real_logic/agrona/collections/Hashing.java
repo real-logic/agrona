@@ -21,6 +21,51 @@ package uk.co.real_logic.agrona.collections;
 public class Hashing
 {
     /**
+     * Generate a hash for a int value.
+     *
+     * @param value to be hashed.
+     * @param mask  mask to be applied that must be a power of 2 - 1.
+     * @return the hash of the value.
+     */
+    public static int hash(final int value, final int mask)
+    {
+        final int hash = value ^ (value >>> 16);
+
+        return hash & mask;
+    }
+
+    /**
+     * Generate a hash for a long value.
+     *
+     * @param value to be hashed.
+     * @param mask  mask to be applied that must be a power of 2 - 1.
+     * @return the hash of the value.
+     */
+    public static int hash(final long value, final int mask)
+    {
+        int hash = (int)value ^ (int)(value >>> 32);
+        hash = hash ^ (hash >>> 16);
+
+        return hash & mask;
+    }
+
+    /**
+     * Generate a hash for two ints.
+     *
+     * @param valueOne to be hashed.
+     * @param valueTwo to be hashed.
+     * @param mask     mask to be applied that must be a power of 2 - 1.
+     * @return a hash of the values.
+     */
+    public static int hash(final int valueOne, final int valueTwo, final int mask)
+    {
+        int hash = valueOne ^ valueTwo;
+        hash = hash ^ (hash >>> 16);
+
+        return hash & mask;
+    }
+
+    /**
      * Generate an even hash for a int value.
      *
      * @param value to be hashed.

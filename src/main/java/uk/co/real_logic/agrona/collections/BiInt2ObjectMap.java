@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
+
 /**
  * Map that takes two part int key and associates with an object.
  *
@@ -87,10 +89,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap(final int initialCapacity, final double loadFactor)
     {
-        if (loadFactor <= 0 || loadFactor >= 1.0)
-        {
-            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
-        }
+        validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
@@ -154,7 +153,7 @@ public class BiInt2ObjectMap<V>
         final long key = compoundKey(keyPartA, keyPartB);
 
         V oldValue = null;
-        int index = hash(keyPartA, keyPartB);
+        int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         while (null != values[index])
         {
@@ -194,7 +193,7 @@ public class BiInt2ObjectMap<V>
     public V get(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
-        int index = hash(keyPartA, keyPartB);
+        int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -222,7 +221,7 @@ public class BiInt2ObjectMap<V>
     {
         final long key = compoundKey(keyPartA, keyPartB);
 
-        int index = hash(keyPartA, keyPartB);
+        int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -303,7 +302,7 @@ public class BiInt2ObjectMap<V>
             {
                 final long compoundKey = keys[i];
                 final int keyPartA = (int)(compoundKey >>> 32);
-                final int keyPartB = (int)(compoundKey & 0xFFFFFFFFL);
+                final int keyPartB = (int)(compoundKey & 0xFFFF_FFFFL);
 
                 consumer.accept(keyPartA, keyPartB, (V)value);
             }
@@ -335,22 +334,6 @@ public class BiInt2ObjectMap<V>
         return ((long)keyPartA << 32) | keyPartB;
     }
 
-    private int hash(final int keyPartA, final int keyPartB)
-    {
-        int hash = keyPartA ^ keyPartB;
-        hash = hash ^ (hash >>> 16);
-
-        return hash & mask;
-    }
-
-    private int hash(final long key)
-    {
-        int hash = (int)key ^ (int)(key >>> 32);
-        hash = hash ^ (hash >>> 16);
-
-        return hash & mask;
-    }
-
     private void rehash(final int newCapacity)
     {
         if (1 != Integer.bitCount(newCapacity))
@@ -371,7 +354,7 @@ public class BiInt2ObjectMap<V>
             if (null != value)
             {
                 final long key = keys[i];
-                int newHash = hash(key);
+                int newHash = Hashing.hash(key, mask);
 
                 while (null != tempValues[newHash])
                 {
@@ -399,7 +382,7 @@ public class BiInt2ObjectMap<V>
             }
 
             final long key = keys[index];
-            final int hash = hash(key);
+            final int hash = Hashing.hash(key, mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))

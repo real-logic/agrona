@@ -140,7 +140,7 @@ public class Long2ObjectHashMap<V>
      */
     public boolean containsKey(final long key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -190,7 +190,7 @@ public class Long2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V get(final long key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -254,7 +254,7 @@ public class Long2ObjectHashMap<V>
         requireNonNull(value, "Value cannot be null");
 
         V oldValue = null;
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -300,7 +300,7 @@ public class Long2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V remove(final long key)
     {
-        int index = hash(key);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -426,7 +426,7 @@ public class Long2ObjectHashMap<V>
             if (null != value)
             {
                 final long key = keys[i];
-                int newHash = hash(key);
+                int newHash = Hashing.hash(key, mask);
 
                 while (null != tempValues[newHash])
                 {
@@ -453,7 +453,7 @@ public class Long2ObjectHashMap<V>
                 return;
             }
 
-            final int hash = hash(keys[index]);
+            final int hash = Hashing.hash(keys[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -465,14 +465,6 @@ public class Long2ObjectHashMap<V>
                 deleteIndex = index;
             }
         }
-    }
-
-    private int hash(final long key)
-    {
-        int hash = (int)key ^ (int)(key >>> 32);
-        hash = hash ^ (hash >>> 16);
-
-        return hash & mask;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
