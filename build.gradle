@@ -65,7 +65,6 @@ task (generatePrimitiveExpansions, type: JavaExec) {
     main = 'uk.co.real_logic.agrona.generation.PrimitiveExpander'
     classpath = sourceSets.main.runtimeClasspath
     outputs.dir generatedDir
-
 }
 
 dependencies {
@@ -76,7 +75,6 @@ dependencies {
             'org.mockito:mockito-all:1.10.19',
             'org.powermock:powermock-module-junit4:1.6.3',
             'org.powermock:powermock-api-mockito:1.6.3'
-
 }
 
 checkstyle {
