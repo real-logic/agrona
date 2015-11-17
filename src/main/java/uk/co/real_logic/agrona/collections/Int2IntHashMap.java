@@ -292,7 +292,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public void putAll(final Map<? extends Integer, ? extends Integer> map)
     {
-        map.forEach(this::put);
+        for (final Map.Entry<? extends Integer, ? extends Integer> entry : map.entrySet())
+        {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
