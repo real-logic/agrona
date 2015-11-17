@@ -21,7 +21,7 @@ import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 /**
- * Utility functions for collection objects in general.
+ * Utility functions for collection objects.
  */
 public class CollectionUtil
 {
@@ -48,7 +48,7 @@ public class CollectionUtil
     }
 
     /**
-     * Garbage Free sum function.
+     * Garbage free sum function.
      *
      * @param values the list of input values
      * @param function function that map each value to an int
@@ -69,7 +69,12 @@ public class CollectionUtil
         return total;
     }
 
-    static void validateLoadFactor(final double loadFactor)
+    /**
+     * Validate that a load factor is greater than 0 and less than 1.0.
+     *
+     * @param loadFactor to be validated.
+     */
+    public static void validateLoadFactor(final double loadFactor)
     {
         if (loadFactor <= 0 || loadFactor >= 1.0)
         {
@@ -77,11 +82,16 @@ public class CollectionUtil
         }
     }
 
-    static void validatePowerOfTwo(final int newCapacity)
+    /**
+     * Validate that a number is a power of two.
+     *
+     * @param value to be validated.
+     */
+    public static void validatePowerOfTwo(final int value)
     {
-        if (1 != Integer.bitCount(newCapacity))
+        if (1 != Integer.bitCount(value))
         {
-            throw new IllegalStateException("New capacity must be a power of two");
+            throw new IllegalStateException("Value must be a power of two");
         }
     }
 }

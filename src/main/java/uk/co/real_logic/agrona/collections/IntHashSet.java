@@ -120,7 +120,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean add(final int value)
     {
-        @DoNotSub int index = Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.evenHash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -169,7 +169,7 @@ public final class IntHashSet implements Set<Integer>
         {
             if (value != missingValue)
             {
-                @DoNotSub int newHash = Hashing.hash(value, mask);
+                @DoNotSub int newHash = Hashing.evenHash(value, mask);
                 while (tempValues[newHash] != missingValue)
                 {
                     newHash = ++newHash & mask;
@@ -198,7 +198,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean remove(final int value)
     {
-        @DoNotSub int index = Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.evenHash(value, mask);
 
         final int[] values = this.values;
 
@@ -236,7 +236,7 @@ public final class IntHashSet implements Set<Integer>
                 return;
             }
 
-            @DoNotSub final int hash = Hashing.hash(values[index], mask);
+            @DoNotSub final int hash = Hashing.evenHash(values[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -272,7 +272,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean contains(final int value)
     {
-        @DoNotSub int index = Hashing.hash(value, mask);
+        @DoNotSub int index = Hashing.evenHash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -351,7 +351,7 @@ public final class IntHashSet implements Set<Integer>
     /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
-     * @param other int hash set to compare against.
+     * @param other int evenHash set to compare against.
      * @return true if every element in other is in this.
      */
     public boolean containsAll(final IntHashSet other)

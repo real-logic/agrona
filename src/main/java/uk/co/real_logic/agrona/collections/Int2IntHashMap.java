@@ -21,6 +21,8 @@ import uk.co.real_logic.agrona.generation.DoNotSub;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
+
 /**
  * A open addressing with linear probing hash map specialised for primitive key and value pairs.
  */
@@ -51,10 +53,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         @DoNotSub final double loadFactor,
         final int missingValue)
     {
-        if (loadFactor <= 0 || loadFactor >= 1.0)
-        {
-            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
-        }
+        validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
@@ -99,8 +98,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int get(final int key)
     {
         final int[] entries = this.entries;
-
-        @DoNotSub int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -119,7 +117,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int put(final int key, final int value)
     {
         int oldValue = missingValue;
-        @DoNotSub int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -333,7 +331,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         final int[] entries = this.entries;
 
-        @DoNotSub int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
@@ -370,7 +368,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 return;
             }
 
-            @DoNotSub final int hash = Hashing.hash(entries[index], mask);
+            @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
