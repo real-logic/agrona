@@ -82,7 +82,7 @@ public class BiInt2ObjectMap<V>
     }
 
     /**
-     * See {@link Long2ObjectHashMap#Long2ObjectHashMap(int, double)}.
+     * Construct a map that sets it initial capacity and load factor.
      *
      * @param initialCapacity for the underlying hash map
      * @param loadFactor      for the underlying hash map

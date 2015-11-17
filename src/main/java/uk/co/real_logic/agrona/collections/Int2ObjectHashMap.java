@@ -16,6 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.IntFunction;
@@ -34,10 +35,10 @@ public class Int2ObjectHashMap<V>
     implements Map<Integer, V>
 {
     private final double loadFactor;
-    private int resizeThreshold;
-    private int capacity;
-    private int mask;
-    private int size;
+    @DoNotSub  private int resizeThreshold;
+    @DoNotSub private int capacity;
+    @DoNotSub private int mask;
+    @DoNotSub private int size;
 
     private int[] keys;
     private Object[] values;
@@ -57,14 +58,16 @@ public class Int2ObjectHashMap<V>
      * @param initialCapacity for the backing array
      * @param loadFactor      limit for resizing on puts
      */
-    public Int2ObjectHashMap(final int initialCapacity, final double loadFactor)
+    public Int2ObjectHashMap(
+        @DoNotSub final int initialCapacity,
+        final double loadFactor)
     {
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         mask = capacity - 1;
-        resizeThreshold = (int)(capacity * loadFactor);
+        /* @DoNotSub */ resizeThreshold = (int)(capacity * loadFactor);
 
         keys = new int[capacity];
         values = new Object[capacity];
@@ -90,7 +93,7 @@ public class Int2ObjectHashMap<V>
      *
      * @return the total capacity for the map.
      */
-    public int capacity()
+    @DoNotSub public int capacity()
     {
         return capacity;
     }
@@ -101,7 +104,7 @@ public class Int2ObjectHashMap<V>
      *
      * @return the threshold when the map will resize.
      */
-    public int resizeThreshold()
+    @DoNotSub public int resizeThreshold()
     {
         return resizeThreshold;
     }
@@ -109,7 +112,7 @@ public class Int2ObjectHashMap<V>
     /**
      * {@inheritDoc}
      */
-    public int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -140,7 +143,7 @@ public class Int2ObjectHashMap<V>
      */
     public boolean containsKey(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -190,7 +193,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -254,7 +257,7 @@ public class Int2ObjectHashMap<V>
         requireNonNull(value, "Value cannot be null");
 
         V oldValue = null;
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -300,7 +303,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        int index = Hashing.hash(key, mask);
+        @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -336,7 +339,7 @@ public class Int2ObjectHashMap<V>
      */
     public void compact()
     {
-        final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
         rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
@@ -403,7 +406,7 @@ public class Int2ObjectHashMap<V>
 
     private void increaseCapacity()
     {
-        final int newCapacity = capacity << 1;
+        @DoNotSub final int newCapacity = capacity << 1;
         if (newCapacity < 0)
         {
             throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -412,24 +415,24 @@ public class Int2ObjectHashMap<V>
         rehash(newCapacity);
     }
 
-    private void rehash(final int newCapacity)
+    private void rehash(@DoNotSub final int newCapacity)
     {
         validatePowerOfTwo(newCapacity);
 
         capacity = newCapacity;
         mask = newCapacity - 1;
-        resizeThreshold = (int)(newCapacity * loadFactor);
+        /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
         final int[] tempKeys = new int[capacity];
         final Object[] tempValues = new Object[capacity];
 
-        for (int i = 0, size = values.length; i < size; i++)
+        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
             if (null != value)
             {
                 final int key = keys[i];
-                int newHash = Hashing.hash(key, mask);
+                @DoNotSub int newHash = Hashing.hash(key, mask);
                 while (null != tempValues[newHash])
                 {
                     newHash = ++newHash & mask;
@@ -444,9 +447,9 @@ public class Int2ObjectHashMap<V>
         values = tempValues;
     }
 
-    private void compactChain(int deleteIndex)
+    private void compactChain(@DoNotSub int deleteIndex)
     {
-        int index = deleteIndex;
+        @DoNotSub int index = deleteIndex;
         while (true)
         {
             index = ++index & mask;
@@ -455,7 +458,7 @@ public class Int2ObjectHashMap<V>
                 return;
             }
 
-            final int hash = Hashing.hash(keys[index], mask);
+            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -477,7 +480,7 @@ public class Int2ObjectHashMap<V>
     {
         private final KeyIterator iterator = new KeyIterator();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
@@ -519,7 +522,7 @@ public class Int2ObjectHashMap<V>
     {
         private final ValueIterator<V> iterator = new ValueIterator<V>();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
@@ -546,7 +549,7 @@ public class Int2ObjectHashMap<V>
     {
         private final EntryIterator<V> iterator = new EntryIterator<V>();
 
-        public int size()
+        @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
@@ -570,8 +573,8 @@ public class Int2ObjectHashMap<V>
 
     private abstract class AbstractIterator<T> implements Iterator<T>
     {
-        private int posCounter;
-        private int stopCounter;
+        @DoNotSub private int posCounter;
+        @DoNotSub private int stopCounter;
         private boolean isPositionValid = false;
         protected int[] keys;
         protected Object[] values;
@@ -581,16 +584,16 @@ public class Int2ObjectHashMap<V>
             reset();
         }
 
-        protected int getPosition()
+        @DoNotSub protected int getPosition()
         {
             return posCounter & mask;
         }
 
         public boolean hasNext()
         {
-            for (int i = posCounter - 1; i >= stopCounter; i--)
+            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
-                final int index = i & mask;
+                @DoNotSub final int index = i & mask;
                 if (null != values[index])
                 {
                     return true;
@@ -604,9 +607,9 @@ public class Int2ObjectHashMap<V>
         {
             isPositionValid = false;
 
-            for (int i = posCounter - 1; i >= stopCounter; i--)
+            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
-                final int index = i & mask;
+                @DoNotSub final int index = i & mask;
                 if (null != values[index])
                 {
                     posCounter = i;
@@ -624,7 +627,7 @@ public class Int2ObjectHashMap<V>
         {
             if (isPositionValid)
             {
-                final int position = getPosition();
+                @DoNotSub final int position = getPosition();
                 values[position] = null;
                 --size;
 
@@ -643,11 +646,11 @@ public class Int2ObjectHashMap<V>
             keys = Int2ObjectHashMap.this.keys;
             values = Int2ObjectHashMap.this.values;
 
-            int i = capacity;
+            @DoNotSub int i = capacity;
             if (null != values[capacity - 1])
             {
                 i = 0;
-                for (int size = capacity; i < size; i++)
+                for (@DoNotSub int size = capacity; i < size; i++)
                 {
                     if (null == values[i])
                     {
@@ -713,7 +716,7 @@ public class Int2ObjectHashMap<V>
         {
             requireNonNull(value);
 
-            final int pos = getPosition();
+            @DoNotSub final int pos = getPosition();
             final Object oldValue = values[pos];
             values[pos] = value;
 

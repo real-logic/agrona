@@ -28,8 +28,8 @@ import static java.util.Objects.requireNonNull;
  * A cache implementation specialised for int keys using open addressing and linear probing for efficient access.
  * The cache can only grow to the maxSize which is less than capacity.
  * <p>
- * The eviction strategy approximates to LRU using a victim replacement policy that suits monotonic sequences like
- * order numbers. When cluster chains form it evicts the oldest in the chain. If no item is present at the hashcode
+ * The eviction strategy uses a victim replacement policy that suits monotonic sequences like order numbers.
+ * When cluster chains form it evicts the oldest in the chain. If no item is present at the hashcode
  * it then evicts the oldest at the beginning of the next cluster chain.
  *
  * @param <V> type of values stored in the {@link Map}

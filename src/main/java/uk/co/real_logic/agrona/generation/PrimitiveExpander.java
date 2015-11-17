@@ -43,12 +43,14 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectHashMap");
     }
 
-    private static void expandPrimitiveSpecialisedClass(final String pakage, final String className) throws IOException
+    private static void expandPrimitiveSpecialisedClass(final String packageName, final String className)
+        throws IOException
     {
-        final Path inputPath = Paths.get(SOURCE_DIRECTORY, pakage, className + SUFFIX);
-        final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, pakage);
+        final Path inputPath = Paths.get(SOURCE_DIRECTORY, packageName, className + SUFFIX);
+        final Path outputDirectory = Paths.get(GENERATED_DIRECTORY, packageName);
         Files.createDirectories(outputDirectory);
 
         final List<String> contents = Files.readAllLines(inputPath, UTF_8);
@@ -60,7 +62,7 @@ public final class PrimitiveExpander
                 .map(substitution::checkedSubstitute)
                 .collect(toList());
 
-            final Path outputPath = Paths.get(GENERATED_DIRECTORY, pakage, substitutedFileName + SUFFIX);
+            final Path outputPath = Paths.get(GENERATED_DIRECTORY, packageName, substitutedFileName + SUFFIX);
             Files.write(outputPath, substitutedContents, UTF_8);
             System.out.println("Generated " + substitutedFileName);
         }
