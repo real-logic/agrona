@@ -40,9 +40,9 @@ public class Int2ObjectCache<V>
     public static final double LOAD_FACTOR = 0.67d;
     @DoNotSub public static final int SIZE_LIMIT = (int)((1 << 30) * LOAD_FACTOR);
 
+    private long cachePuts = 0;
     private long cacheHits = 0;
     private long cacheMisses = 0;
-    private long cachePuts = 0;
 
     @DoNotSub private int maxSize;
     @DoNotSub private int capacity;
@@ -570,12 +570,7 @@ public class Int2ObjectCache<V>
 
         public boolean remove(final Object o)
         {
-            return null != Int2ObjectCache.this.remove(o);
-        }
-
-        public boolean remove(final int key)
-        {
-            return null != Int2ObjectCache.this.remove(key);
+            throw new UnsupportedOperationException("Cannot remove on iterator");
         }
 
         public void clear()
