@@ -42,6 +42,7 @@ public class Int2ObjectCache<V>
 
     private long cacheHits = 0;
     private long cacheMisses = 0;
+    private long cachePuts = 0;
 
     @DoNotSub private int maxSize;
     @DoNotSub private int capacity;
@@ -109,12 +110,23 @@ public class Int2ObjectCache<V>
     }
 
     /**
+     * The number of items that have been put in the cache.
+     *
+     * @return number of items that have been put in the cache.
+     */
+    public long cachePuts()
+    {
+        return cachePuts;
+    }
+
+    /**
      * Reset the cache statistics counters to zero.
      */
     public void resetCounters()
     {
         cacheHits = 0;
         cacheMisses = 0;
+        cachePuts = 0;
     }
 
     /**
@@ -136,7 +148,6 @@ public class Int2ObjectCache<V>
     {
         return capacity;
     }
-
 
     /**
      * {@inheritDoc}
@@ -295,6 +306,8 @@ public class Int2ObjectCache<V>
         {
             evictingInsert(key, value);
         }
+
+        cachePuts++;
 
         return null;
     }
