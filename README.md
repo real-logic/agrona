@@ -22,7 +22,7 @@ Utilities Included:
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
 
 Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
-efficient reliable unicast and multicast message transport .
+efficient reliable UDP unicast, multicast, and IPC message transport.
 
 License (See LICENSE file for full license)
 -------------------------------------------
