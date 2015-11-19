@@ -68,7 +68,7 @@ task (generatePrimitiveExpansions, type: JavaExec) {
 }
 
 dependencies {
-    checkstyle "com.github.sevntu.checkstyle:sevntu-checks:1.16.0"
+    checkstyle "com.github.sevntu.checkstyle:sevntu-checks:1.17.0"
 
     testCompile 'org.hamcrest:hamcrest-all:1.3',
             'junit:junit:4.12',
@@ -79,7 +79,7 @@ dependencies {
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
-    toolVersion = "6.11.2"
+    toolVersion = "6.12.1"
 }
 
 javadoc {
