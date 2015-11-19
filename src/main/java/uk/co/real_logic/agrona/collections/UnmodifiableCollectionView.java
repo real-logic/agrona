@@ -72,6 +72,7 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
         private ReusableIterator reset()
         {
             delegate = elements.iterator();
+
             return this;
         }
     }

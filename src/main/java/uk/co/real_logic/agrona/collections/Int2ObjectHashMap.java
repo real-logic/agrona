@@ -23,7 +23,6 @@ import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
-import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOfTwo;
 
 /**
  * {@link java.util.Map} implementation specialised for int keys using open addressing and
@@ -417,8 +416,6 @@ public class Int2ObjectHashMap<V>
 
     private void rehash(@DoNotSub final int newCapacity)
     {
-        validatePowerOfTwo(newCapacity);
-
         capacity = newCapacity;
         mask = newCapacity - 1;
         /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
@@ -571,7 +568,7 @@ public class Int2ObjectHashMap<V>
     // Iterators
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private abstract class AbstractIterator<T> implements Iterator<T>
+    abstract class AbstractIterator<T> implements Iterator<T>
     {
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
@@ -584,7 +581,7 @@ public class Int2ObjectHashMap<V>
             reset();
         }
 
-        @DoNotSub protected int getPosition()
+        @DoNotSub protected int position()
         {
             return posCounter & mask;
         }
@@ -627,7 +624,7 @@ public class Int2ObjectHashMap<V>
         {
             if (isPositionValid)
             {
-                @DoNotSub final int position = getPosition();
+                @DoNotSub final int position = position();
                 values[position] = null;
                 --size;
 
@@ -671,7 +668,7 @@ public class Int2ObjectHashMap<V>
         {
             findNext();
 
-            return (T)values[getPosition()];
+            return (T)values[position()];
         }
     }
 
@@ -686,7 +683,7 @@ public class Int2ObjectHashMap<V>
         {
             findNext();
 
-            return keys[getPosition()];
+            return keys[position()];
         }
     }
 
@@ -704,19 +701,19 @@ public class Int2ObjectHashMap<V>
 
         public Integer getKey()
         {
-            return keys[getPosition()];
+            return keys[position()];
         }
 
         public V getValue()
         {
-            return (V)values[getPosition()];
+            return (V)values[position()];
         }
 
         public V setValue(final V value)
         {
             requireNonNull(value);
 
-            @DoNotSub final int pos = getPosition();
+            @DoNotSub final int pos = position();
             final Object oldValue = values[pos];
             values[pos] = value;
 

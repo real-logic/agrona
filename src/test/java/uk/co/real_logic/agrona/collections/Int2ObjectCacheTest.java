@@ -30,10 +30,12 @@ import static org.junit.Assert.assertTrue;
 
 public class Int2ObjectCacheTest
 {
-    public static final int MAX_SIZE = 10;
+    public static final int NUM_SETS = 16;
+    public static final int SET_SIZE = 4;
+    public static final int CAPACITY = NUM_SETS * SET_SIZE;
     public static final Consumer<String> EVICTION_CONSUMER = (s) -> { };
 
-    private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(MAX_SIZE, EVICTION_CONSUMER);
+    private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 
     @Test
     public void shouldDoPutAndThenGet()
@@ -61,19 +63,19 @@ public class Int2ObjectCacheTest
     @Test
     public void shouldLimitSizeToMaxSize()
     {
-        for (int i = 0; i < (MAX_SIZE * 2); i++)
+        for (int i = 0; i < (CAPACITY * 2); i++)
         {
             int2ObjectCache.put(i, Integer.toString(i));
         }
 
         assertThat(int2ObjectCache.size(), greaterThan(0));
-        assertThat(int2ObjectCache.size(), lessThanOrEqualTo(MAX_SIZE));
+        assertThat(int2ObjectCache.size(), lessThanOrEqualTo(CAPACITY));
     }
 
     @Test
     public void shouldClearCollection()
     {
-        for (int i = 0; i < MAX_SIZE; i++)
+        for (int i = 0; i < CAPACITY; i++)
         {
             int2ObjectCache.put(i, Integer.toString(i));
         }
@@ -147,7 +149,7 @@ public class Int2ObjectCacheTest
     {
         final Collection<String> initialSet = new HashSet<>();
 
-        for (int i = 0; i < (MAX_SIZE - 1); i++)
+        for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
             int2ObjectCache.put(i, value);
@@ -169,7 +171,7 @@ public class Int2ObjectCacheTest
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
-        for (int i = 0; i < (MAX_SIZE - 1); i++)
+        for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
             int2ObjectCache.put(i, value);
@@ -191,7 +193,7 @@ public class Int2ObjectCacheTest
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
-        for (int i = 0; i < (MAX_SIZE - 1); i++)
+        for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
             int2ObjectCache.put(i, value);
@@ -217,7 +219,7 @@ public class Int2ObjectCacheTest
     @Test
     public void shouldIterateEntries()
     {
-        final int count = MAX_SIZE - 1;
+        final int count = CAPACITY - 1;
         for (int i = 0; i < count; i++)
         {
             final String value = Integer.toString(i);
@@ -240,7 +242,7 @@ public class Int2ObjectCacheTest
             int2ObjectCache.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
+        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
         assertThat(int2ObjectCache.toString(), equalTo(mapAsAString));
     }
 
@@ -249,9 +251,9 @@ public class Int2ObjectCacheTest
     {
         final HashSet<String> evictedItems = new HashSet<>();
         final Consumer<String> evictionConsumer = evictedItems::add;
-        final Int2ObjectCache<String> cache = new Int2ObjectCache<>(MAX_SIZE, evictionConsumer);
+        final Int2ObjectCache<String> cache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, evictionConsumer);
 
-        final int count = MAX_SIZE * 2;
+        final int count = CAPACITY * 2;
         for (int i = 0; i < count; i++)
         {
             final String value = Integer.toString(i);

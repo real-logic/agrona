@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona.collections;
 
-import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.generation.DoNotSub;
 
 import java.util.*;
@@ -23,31 +22,31 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOfTwo;
 
 /**
- * A cache implementation specialised for int keys using open addressing and linear probing for efficient access.
- * The cache can only grow to the maxSize which is less than capacity.
+ * A cache implementation specialised for int keys using open addressing to probe a set of fixed size.
  * <p>
- * The eviction strategy uses a victim replacement policy that suits monotonic sequences like order numbers.
- * When cluster chains form it evicts the oldest in the chain. If no item is present at the hashcode
- * it then evicts the oldest at the beginning of the next cluster chain.
+ * The eviction strategy is to remove the oldest in a set if the key is not found, or if found then that item.
+ * The newly put item becomes the youngest in the set. Sets are evicted on a first in, first out, manner unless
+ * replacing a matching key.
+ * <p>
+ * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line. A linear
+ * search within a cache line is much less costly than a cache miss to another line.
  *
  * @param <V> type of values stored in the {@link Map}
  */
 public class Int2ObjectCache<V>
     implements Map<Integer, V>
 {
-    public static final double LOAD_FACTOR = 0.67d;
-    @DoNotSub public static final int SIZE_LIMIT = (int)((1 << 30) * LOAD_FACTOR);
-
     private long cachePuts = 0;
     private long cacheHits = 0;
     private long cacheMisses = 0;
 
-    @DoNotSub private int maxSize;
-    @DoNotSub private int capacity;
-    @DoNotSub private int mask;
     @DoNotSub private int size;
+    @DoNotSub private final int capacity;
+    @DoNotSub private final int setSize;
+    @DoNotSub private final int mask;
 
     private final int[] keys;
     private final Object[] values;
@@ -57,30 +56,25 @@ public class Int2ObjectCache<V>
     private final KeySet keySet;
     private final EntrySet<V> entrySet;
 
-    /**
-     * Construct a new cache with a maximum size.
-     *
-     * @param maxSize          beyond which slots are reused.
-     * @param evictionConsumer to be called when a value is evicted from the cache.
-     */
     public Int2ObjectCache(
-        @DoNotSub final int maxSize,
+        @DoNotSub final int numSets,
+        @DoNotSub final int setSize,
         final Consumer<V> evictionConsumer)
     {
-        if (maxSize <= 0 || maxSize >= SIZE_LIMIT)
+        validatePowerOfTwo(numSets);
+        requireNonNull(evictionConsumer, "Null values are not permitted");
+        if (((long)numSets) * setSize > Integer.MAX_VALUE)
         {
             throw new IllegalArgumentException(String.format(
-                "maxSize must be greater than 0 and less than limit : maxSize=%d limit=%d", maxSize, capacity));
+                "Total capacity must be <= Integer.MAX_VALUE: numSets=%d setSize=%d", numSets, setSize));
         }
 
-        requireNonNull(evictionConsumer, "Null values are not permitted");
+        this.setSize = setSize;
+        capacity = numSets * setSize;
+        mask = numSets - 1;
 
-        /*@DoNotSub*/ this.capacity = BitUtil.findNextPositivePowerOfTwo((int)(maxSize * (1 / LOAD_FACTOR)));
-        this.maxSize = maxSize;
-        mask = this.capacity - 1;
-
-        keys = new int[this.capacity];
-        values = new Object[this.capacity];
+        keys = new int[capacity];
+        values = new Object[capacity];
         this.evictionConsumer = evictionConsumer;
 
         // Cached to avoid allocation.
@@ -130,16 +124,6 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * Get the maximum size the cache of values can grow to.
-     *
-     * @return the maximum size the cache of values can grow to.
-     */
-    @DoNotSub public int maxSize()
-    {
-        return maxSize;
-    }
-
-    /**
      * Get the total capacity for the map to which the load factor with be a fraction of.
      *
      * @return the total capacity for the map.
@@ -170,8 +154,6 @@ public class Int2ObjectCache<V>
      */
     public boolean containsKey(final Object key)
     {
-        requireNonNull(key, "Null keys are not permitted");
-
         return containsKey(((Integer)key).intValue());
     }
 
@@ -183,19 +165,25 @@ public class Int2ObjectCache<V>
      */
     public boolean containsKey(final int key)
     {
-        @DoNotSub int index = Hashing.hash(key, mask);
+        boolean found = false;
+        @DoNotSub final int setNumber = Hashing.hash(key, mask);
+        @DoNotSub final int setBeginIndex = setNumber * setSize;
 
-        while (null != values[index])
+        for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
-            if (key == keys[index])
+            if (null == values[i])
             {
-                return true;
+                break;
             }
 
-            index = ++index & mask;
+            if (key == keys[i])
+            {
+                found = true;
+                break;
+            }
         }
 
-        return false;
+        return found;
     }
 
     /**
@@ -203,8 +191,6 @@ public class Int2ObjectCache<V>
      */
     public boolean containsValue(final Object value)
     {
-        requireNonNull(value, "Null values are not permitted");
-
         for (final Object v : values)
         {
             if (null != v && value.equals(v))
@@ -233,23 +219,34 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        @DoNotSub int index = Hashing.hash(key, mask);
+        V value = null;
+        @DoNotSub final int setNumber = Hashing.hash(key, mask);
+        @DoNotSub final int setBeginIndex = setNumber * setSize;
 
-        Object value;
-        while (null != (value = values[index]))
+        for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
-            if (key == keys[index])
+            if (null == values[i])
             {
-                ++cacheHits;
-                return (V)value;
+                break;
             }
 
-            index = ++index & mask;
+            if (key == keys[i])
+            {
+                value = (V)values[i];
+                break;
+            }
         }
 
-        ++cacheMisses;
+        if (null == value)
+        {
+            cacheMisses++;
+        }
+        else
+        {
+            cacheHits++;
+        }
 
-        return null;
+        return value;
     }
 
     /**
@@ -294,101 +291,52 @@ public class Int2ObjectCache<V>
      * @param value to be inserted in the {@link Map}
      * @return always null
      */
+    @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
     {
-        requireNonNull(value, "Value cannot be null");
+        V evictedValue = null;
+        @DoNotSub final int setNumber = Hashing.hash(key, mask);
+        @DoNotSub final int setBeginIndex = setNumber * setSize;
+        @DoNotSub int i = setBeginIndex;
 
-        if ((size + 1) <= maxSize)
+        for (@DoNotSub int nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
         {
-            normalInsert(key, value);
+            if (null == values[i])
+            {
+                break;
+            }
+
+            if (key == keys[i])
+            {
+                evictedValue = (V)values[i];
+                shuffleUp(i, nextSetIndex - 1);
+
+                break;
+            }
         }
-        else
+
+        if (null == evictedValue)
         {
-            evictingInsert(key, value);
+            evictedValue = (V)values[setBeginIndex + (setSize - 1)];
         }
+
+        shuffleDown(setBeginIndex);
+
+        keys[setBeginIndex] = key;
+        values[setBeginIndex] = value;
 
         cachePuts++;
 
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void normalInsert(final int key, final V value)
-    {
-        V oldValue = null;
-        @DoNotSub int index = Hashing.hash(key, mask);
-
-        while (null != values[index])
+        if (null != evictedValue)
         {
-            if (key == keys[index])
-            {
-                oldValue = (V)values[index];
-                break;
-            }
-
-            index = ++index & mask;
-        }
-
-        keys[index] = key;
-        values[index] = value;
-
-        if (null == oldValue)
-        {
-            ++size;
+            evictionConsumer.accept(evictedValue);
         }
         else
         {
-            evictionConsumer.accept(oldValue);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void evictingInsert(final int key, final V value)
-    {
-        V oldValue = null;
-        @DoNotSub int index = Hashing.hash(key, mask);
-        @DoNotSub final int startingIndex = index;
-
-        while (null != values[index])
-        {
-            if (key == keys[index])
-            {
-                oldValue = (V)values[index];
-                break;
-            }
-
-            index = ++index & mask;
+            ++size;
         }
 
-        if (null == oldValue)
-        {
-            if (startingIndex != index)
-            {
-                oldValue = (V)values[startingIndex];
-                values[startingIndex] = null;
-                compactChain(startingIndex);
-            }
-            else
-            {
-                for (@DoNotSub int i = 0; i < values.length; i++)
-                {
-                    @DoNotSub final int p = (index + i) & mask;
-
-                    if (null != values[p])
-                    {
-                        oldValue = (V)values[p];
-                        values[p] = null;
-                        compactChain(p);
-                        break;
-                    }
-                }
-            }
-        }
-
-        keys[index] = key;
-        values[index] = value;
-
-        evictionConsumer.accept(oldValue);
+        return null;
     }
 
     /**
@@ -408,26 +356,51 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        @DoNotSub int index = Hashing.hash(key, mask);
+        V value = null;
+        @DoNotSub final int setNumber = Hashing.hash(key, mask);
+        @DoNotSub final int setBeginIndex = setNumber * setSize;
 
-        Object value;
-        while (null != (value = values[index]))
+        for (@DoNotSub int i = setBeginIndex, nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
         {
-            if (key == keys[index])
+            if (null == values[i])
             {
-                values[index] = null;
-                --size;
-
-                compactChain(index);
-
-                evictionConsumer.accept((V)value);
-                return (V)value;
+                break;
             }
 
-            index = ++index & mask;
+            if (key == keys[i])
+            {
+                value = (V)values[i];
+                shuffleUp(i, nextSetIndex - 1);
+                --size;
+
+                evictionConsumer.accept(value);
+                break;
+            }
         }
 
-        return null;
+        return value;
+    }
+
+    @DoNotSub private void shuffleUp(final int fromIndex, final int toIndex)
+    {
+        values[toIndex] = null;
+
+        for (@DoNotSub int i = fromIndex; i < toIndex; i++)
+        {
+            values[i] = values[i + 1];
+            keys[i] = keys[i + 1];
+        }
+    }
+
+    @DoNotSub private void shuffleDown(final int setBeginIndex)
+    {
+        for (@DoNotSub int i = setBeginIndex + (setSize - 1); i > setBeginIndex; i--)
+        {
+            values[i] = values[i - 1];
+            keys[i] = keys[i - 1];
+        }
+
+        values[setBeginIndex] = null;
     }
 
     /**
@@ -511,31 +484,6 @@ public class Int2ObjectCache<V>
         sb.append('}');
 
         return sb.toString();
-    }
-
-    @DoNotSub private void compactChain(int deleteIndex)
-    {
-        @DoNotSub int index = deleteIndex;
-        while (true)
-        {
-            index = ++index & mask;
-            if (null == values[index])
-            {
-                return;
-            }
-
-            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
-
-            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
-                (hash <= deleteIndex && deleteIndex <= index))
-            {
-                keys[deleteIndex] = keys[index];
-                values[deleteIndex] = values[index];
-
-                values[index] = null;
-                deleteIndex = index;
-            }
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -634,77 +582,62 @@ public class Int2ObjectCache<V>
 
     abstract class AbstractIterator<T> implements Iterator<T>
     {
-        @DoNotSub private int posCounter;
-        @DoNotSub private int stopCounter;
-        protected int[] keys;
-        protected Object[] values;
+        @DoNotSub private int position = -1;
 
         protected AbstractIterator()
         {
             reset();
         }
 
-        @DoNotSub protected int getPosition()
+        @DoNotSub protected int position()
         {
-            return posCounter & mask;
+            return position;
         }
 
         public boolean hasNext()
         {
-            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
+            boolean found = false;
+            for (@DoNotSub int i = position + 1; i < capacity; i++)
             {
-                @DoNotSub final int index = i & mask;
-                if (null != values[index])
+                if (null != values[i])
                 {
-                    return true;
+                    found = true;
+                    break;
                 }
             }
 
-            return false;
+            return found;
         }
 
         protected void findNext()
         {
-            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
+            boolean found = false;
+            for (@DoNotSub int i = position + 1; i < capacity; i++)
             {
-                @DoNotSub final int index = i & mask;
-                if (null != values[index])
+                if (null != values[i])
                 {
-                    posCounter = i;
-                    return;
+                    found = true;
+                    position = i;
+                    break;
                 }
             }
 
-            throw new NoSuchElementException();
+            if (!found)
+            {
+                throw new NoSuchElementException();
+            }
         }
 
         public abstract T next();
 
         public void remove()
         {
-            throw new UnsupportedOperationException("Cannot remove on iterator");
+            throw new UnsupportedOperationException("Remove not supported on Iterator");
         }
 
         void reset()
         {
-            keys = Int2ObjectCache.this.keys;
-            values = Int2ObjectCache.this.values;
-
-            @DoNotSub int i = capacity;
-            if (null != values[capacity - 1])
-            {
-                i = 0;
-                for (@DoNotSub int size = capacity; i < size; i++)
-                {
-                    if (null == values[i])
-                    {
-                        break;
-                    }
-                }
-            }
-
-            stopCounter = i;
-            posCounter = i + capacity;
+            position = -1;
         }
     }
 
@@ -715,7 +648,7 @@ public class Int2ObjectCache<V>
         {
             findNext();
 
-            return (T)values[getPosition()];
+            return (T)values[position()];
         }
     }
 
@@ -730,7 +663,7 @@ public class Int2ObjectCache<V>
         {
             findNext();
 
-            return keys[getPosition()];
+            return keys[position()];
         }
     }
 
@@ -748,12 +681,12 @@ public class Int2ObjectCache<V>
 
         public Integer getKey()
         {
-            return keys[getPosition()];
+            return keys[position()];
         }
 
         public V getValue()
         {
-            return (V)values[getPosition()];
+            return (V)values[position()];
         }
 
         public V setValue(final V value)

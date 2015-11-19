@@ -164,7 +164,7 @@ public class IntHashSetTest
         {
             exhaustIterator();
         }
-        catch (NoSuchElementException ignore)
+        catch (final NoSuchElementException ignore)
         {
         }
 
@@ -335,7 +335,7 @@ public class IntHashSetTest
     {
         addTwoElements(obj);
 
-        final Integer[] result = obj.toArray(new Integer[0]);
+        final Integer[] result = obj.toArray(new Integer[obj.size()]);
 
         assertArrayContainingElements(result);
     }
@@ -343,12 +343,12 @@ public class IntHashSetTest
     @Test
     public void toArraySupportsEmptyCollection()
     {
-        final Integer[] result = obj.toArray(new Integer[0]);
+        final Integer[] result = obj.toArray(new Integer[obj.size()]);
 
         assertArrayEquals(result, new Integer[]{});
     }
 
-    // Testcase from usage bug.
+    // Test case from usage bug.
     @Test
     public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {

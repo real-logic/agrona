@@ -471,7 +471,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             positionCounter = i + capacity;
         }
 
-        @DoNotSub protected int getKeyPosition()
+        @DoNotSub protected int keyPosition()
         {
             return positionCounter & mask;
         }
@@ -527,7 +527,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             findNext();
 
-            return entries[getKeyPosition() + offset];
+            return entries[keyPosition() + offset];
         }
 
         public PrimitiveIterator reset()
@@ -569,7 +569,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             findNext();
 
-            @DoNotSub final int keyPosition = getKeyPosition();
+            @DoNotSub final int keyPosition = keyPosition();
             key = entries[keyPosition];
             value = entries[keyPosition + 1];
 

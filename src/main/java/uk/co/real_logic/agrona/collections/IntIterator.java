@@ -80,7 +80,7 @@ public class IntIterator implements Iterator<Integer>
         positionCounter = i + length;
     }
 
-    @DoNotSub protected int getPosition()
+    @DoNotSub protected int position()
     {
         return positionCounter & mask;
     }
@@ -128,6 +128,6 @@ public class IntIterator implements Iterator<Integer>
     {
         findNext();
 
-        return values[getPosition()];
+        return values[position()];
     }
 }

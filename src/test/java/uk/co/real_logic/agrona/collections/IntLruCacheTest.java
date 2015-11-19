@@ -118,5 +118,4 @@ public class IntLruCacheTest
     {
         verify(mockFactory, times(numberOfInvocations)).apply(1);
     }
-
 }
