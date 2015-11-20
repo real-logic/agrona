@@ -32,7 +32,7 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOf
  * replacing a matching key.
  * <p>
  * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line. A linear
- * search within a cache line is much less costly than a cache miss to another line.
+ * search within a cache line is much much less costly than a cache-miss to another line.
  *
  * @param <V> type of values stored in the {@link Map}
  */

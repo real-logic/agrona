@@ -19,14 +19,13 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class Int2ObjectCacheTest
 {
@@ -127,24 +126,6 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldRemoveEntryAndCompactCollisionChain()
-    {
-        final int key = 12;
-        final String value = "12";
-
-        int2ObjectCache.put(key, value);
-        int2ObjectCache.put(13, "13");
-
-        final int collisionKey = key + int2ObjectCache.capacity();
-        final String collisionValue = Integer.toString(collisionKey);
-
-        int2ObjectCache.put(collisionKey, collisionValue);
-        int2ObjectCache.put(14, "14");
-
-        assertThat(int2ObjectCache.remove(key), is(value));
-    }
-
-    @Test
     public void shouldIterateValues()
     {
         final Collection<String> initialSet = new HashSet<>();
@@ -180,7 +161,7 @@ public class Int2ObjectCacheTest
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Int2ObjectCache.KeyIterator iter = int2ObjectCache.keySet().iterator(); iter.hasNext();)
+        for (final Int2ObjectCache.KeyIterator iter = int2ObjectCache.keySet().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }
@@ -261,6 +242,48 @@ public class Int2ObjectCacheTest
         }
 
         assertThat(cache.size() + evictedItems.size(), is(count));
+    }
+
+    @Test
+    public void shouldComputeIfAbsent()
+    {
+        final int testKey = 7;
+        final String testValue = "7";
+
+        final IntFunction<String> function = (i) -> testValue;
+
+        assertNull(int2ObjectCache.get(testKey));
+
+        assertThat(int2ObjectCache.computeIfAbsent(testKey, function), is(testValue));
+        assertThat(int2ObjectCache.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldTestStats()
+    {
+        assertThat(int2ObjectCache.cachePuts(), is(0L));
+        assertThat(int2ObjectCache.cacheMisses(), is(0L));
+        assertThat(int2ObjectCache.cacheHits(), is(0L));
+
+        int2ObjectCache.get(7);
+        assertThat(int2ObjectCache.cacheMisses(), is(1L));
+        assertThat(int2ObjectCache.cacheHits(), is(0L));
+        assertThat(int2ObjectCache.cachePuts(), is(0L));
+
+        int2ObjectCache.put(7, "Seven");
+        assertThat(int2ObjectCache.cacheMisses(), is(1L));
+        assertThat(int2ObjectCache.cacheHits(), is(0L));
+        assertThat(int2ObjectCache.cachePuts(), is(1L));
+
+        int2ObjectCache.get(7);
+        assertThat(int2ObjectCache.cacheMisses(), is(1L));
+        assertThat(int2ObjectCache.cacheHits(), is(1L));
+        assertThat(int2ObjectCache.cachePuts(), is(1L));
+
+        int2ObjectCache.resetCounters();
+        assertThat(int2ObjectCache.cachePuts(), is(0L));
+        assertThat(int2ObjectCache.cacheMisses(), is(0L));
+        assertThat(int2ObjectCache.cacheHits(), is(0L));
     }
 }
 
