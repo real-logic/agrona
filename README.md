@@ -8,13 +8,13 @@ For the latest version information and changes see the [Change Log](https://gith
 
 Utilities Included:
 
-* Thread safe direct and atomic buffers for working with on and off heap memory with memory ordering semantics.
-* Open addressing Maps with int/long primitive keys to object reference values.
-* Open addressing Maps with int/long primitive keys to int/long values.
-* Open addressing Sets for int and long primitives.
-* Set Associative compact memory Cache with int/long primitive keys to object reference values.
-* Lock-less Queue implementations for low-latency applications.
-* Off-heap ring and broadcast buffers for IPC communication.
+* Buffers - Thread safe direct and atomic for working with on and off heap memory with memory ordering semantics.
+* Maps - Open addressing and linear probing with int/long primitive keys to object reference values.
+* Maps - Open addressing and linear probing with int/long primitive keys to int/long values.
+* Sets - Open addressing and linear probing for int/long primitives.
+* Cache - Set Associative compact memory with int/long primitive keys to object reference values.
+* Queues - Lock-less implementations for low-latency applications.
+* Ring/Broadcast Buffers - implemented off-heap for IPC communication.
 * Basic Agent framework.
 * Signal handling to support "Ctrl + c" in a server application.
 * Scalable Timer Wheel.
