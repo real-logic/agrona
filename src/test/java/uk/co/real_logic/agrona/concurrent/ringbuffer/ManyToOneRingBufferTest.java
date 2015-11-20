@@ -213,7 +213,6 @@ public class ManyToOneRingBufferTest
         assertEquals(head, buffer.getLongVolatile(HEAD_COUNTER_INDEX));
     }
 
-
     @Test
     public void shouldInsertPaddingRecordPlusMessageOnBufferWrap()
     {
@@ -247,9 +246,7 @@ public class ManyToOneRingBufferTest
         // verify post operation counter state
         assertEquals(endTail, buffer.getLongVolatile(TAIL_COUNTER_INDEX));
         assertEquals(head, buffer.getLongVolatile(HEAD_COUNTER_INDEX));
-
     }
-
 
     @Test
     public void shouldInsertPaddingRecordPlusMessageOnBufferWrapWithHeadEqualToTail()
@@ -270,7 +267,6 @@ public class ManyToOneRingBufferTest
 
         final int srcIndex = 0;
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
-
 
         final InOrder inOrder = inOrder(memory);
 
@@ -531,8 +527,8 @@ public class ManyToOneRingBufferTest
         inOrder.verify(memory).getIntVolatile(rbBytesRef, rbBytesOffset + lengthOffset(messageLength));
 
         // convert blocked message to padding
-        inOrder.verify(memory).putOrderedLong(rbBytesRef, rbBytesOffset + messageLength,
-                                              makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        inOrder.verify(memory).putOrderedLong(
+            rbBytesRef, rbBytesOffset + messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
 
         verifyNoMoreInteractions(memory);
 
@@ -560,8 +556,8 @@ public class ManyToOneRingBufferTest
         final long rbBytesOffset = buffer.addressOffset();
         inOrder.verify(memory).getLongVolatile(rbBytesRef, rbBytesOffset + HEAD_COUNTER_INDEX);
         inOrder.verify(memory).getLongVolatile(rbBytesRef, rbBytesOffset + TAIL_COUNTER_INDEX);
-        inOrder.verify(memory).putOrderedLong(rbBytesRef, rbBytesOffset + messageLength,
-                makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        inOrder.verify(memory).putOrderedLong(
+            rbBytesRef, rbBytesOffset + messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
 
         // verify post operation counter state
         assertEquals(messageLength, buffer.getLongVolatile(HEAD_COUNTER_INDEX));
@@ -576,14 +572,10 @@ public class ManyToOneRingBufferTest
         buffer.putLong(TAIL_COUNTER_INDEX, messageLength * 3);
         reset(memory);
 
-        when(memory.getIntVolatile(buffer.byteArray(), buffer.addressOffset() + messageLength * 2)).
-            thenReturn(0).
-            thenReturn(messageLength);
-
         assertFalse(ringBuffer.unblock());
 
-        verify(memory, never()).putOrderedLong(buffer.byteArray(), buffer.addressOffset() + messageLength,
-                makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        verify(memory, never()).putOrderedLong(
+            buffer.byteArray(), buffer.addressOffset() + messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
     }
 
     @Test
@@ -602,10 +594,9 @@ public class ManyToOneRingBufferTest
 
         assertFalse(ringBuffer.unblock());
 
-        verify(memory, never()).putOrderedLong(buffer.byteArray(), buffer.addressOffset() + messageLength,
-                makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        verify(memory, never()).putOrderedLong(
+            buffer.byteArray(), buffer.addressOffset() + messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
     }
-
 
     /** verifiers **/
     private void verifyMessageWrite(final InOrder inOrder, final long tail, final int recordLength, final UnsafeBuffer srcBuffer,
@@ -616,9 +607,12 @@ public class ManyToOneRingBufferTest
 
         final long tailOffset = tail % CAPACITY;
         inOrder.verify(memory).putOrderedLong(rbBytesRef, rbBytesBase + tailOffset, makeHeader(-recordLength, MSG_TYPE_ID));
-        inOrder.verify(memory).copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex,
-                rbBytesRef, rbBytesBase + encodedMsgOffset((int) tailOffset),
-                srcLength);
+        inOrder.verify(memory).copyMemory(
+            srcBuffer.byteArray(),
+            srcBuffer.addressOffset() + srcIndex,
+            rbBytesRef,
+            rbBytesBase + encodedMsgOffset((int) tailOffset),
+            srcLength);
         inOrder.verify(memory).putOrderedInt(rbBytesRef, rbBytesBase + lengthOffset((int) tailOffset), recordLength);
     }
 
@@ -626,8 +620,8 @@ public class ManyToOneRingBufferTest
     {
         final byte[] rbBytesRef = buffer.byteArray();
         final long rbBytesBase = buffer.addressOffset();
-        inOrder.verify(memory).putOrderedLong(rbBytesRef, rbBytesBase + (index % CAPACITY),
-                makeHeader(paddingLength, PADDING_MSG_TYPE_ID));
+        inOrder.verify(memory).putOrderedLong(
+            rbBytesRef, rbBytesBase + (index % CAPACITY), makeHeader(paddingLength, PADDING_MSG_TYPE_ID));
     }
 
     private void verifyTailIncrementFastPath(final InOrder inOrder, final long startTail, final long endTail)
@@ -649,8 +643,8 @@ public class ManyToOneRingBufferTest
         inOrder.verify(memory).getLongVolatile(rbBytesRef, rbBytesBase + HEAD_COUNTER_INDEX);
     }
 
-    private void verifyTailIncrementAndHeadCacheUpdate(final InOrder inOrder, final long startTail, final long head,
-            final long endTail)
+    private void verifyTailIncrementAndHeadCacheUpdate(
+        final InOrder inOrder, final long startTail, final long head, final long endTail)
     {
         final byte[] rbBytesRef = buffer.byteArray();
         final long rbBytesBase = buffer.addressOffset();
