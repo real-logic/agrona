@@ -6,6 +6,8 @@ applications in Java and C++.
 
 For the latest version information and changes see the [Change Log](https://github.com/real-logic/Agrona/wiki/Change-Log). 
 
+The latest release can be found in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7CAgrona).
+
 Utilities Included:
 
 * Buffers - Thread safe direct and atomic for working with on and off heap memory with memory ordering semantics.
