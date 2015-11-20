@@ -12,6 +12,7 @@ Utilities Included:
 * Open addressing Maps with int/long primitive keys to object reference values.
 * Open addressing Maps with int/long primitive keys to int/long values.
 * Open addressing Sets for int and long primitives.
+* Set Associative compact memory Cache with int/long primitive keys to object reference values.
 * Lock-less Queue implementations for low-latency applications.
 * Off-heap ring and broadcast buffers for IPC communication.
 * Basic Agent framework.
