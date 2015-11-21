@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for a sequence of primitive integers.
+ * An iterator for a sequence of primitive values.
  */
 public class IntIterator implements Iterator<Integer>
 {

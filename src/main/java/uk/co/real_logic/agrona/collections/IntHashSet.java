@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.joining;
 import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
- * Fixed-size, garbage and allocation free int element specific hash set.
+ * Open-addressing with linear-probing expandable hash set. Allocation free in steady state use when expanded.
  * <p>
  * By storing elements as int primitives this significantly reduces memory consumption compared with Java's builtin
  * <code>HashSet&lt;Integer&gt;</code>. It implements <code>Set&lt;Integer&gt;</code> for convenience, but calling
