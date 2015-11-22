@@ -144,17 +144,19 @@ public class Int2ObjectHashMap<V>
     {
         @DoNotSub int index = Hashing.hash(key, mask);
 
+        boolean found = false;
         while (null != values[index])
         {
             if (key == keys[index])
             {
-                return true;
+                found = true;
+                break;
             }
 
             index = ++index & mask;
         }
 
-        return false;
+        return found;
     }
 
     /**
@@ -164,15 +166,17 @@ public class Int2ObjectHashMap<V>
     {
         requireNonNull(value, "Null values are not permitted");
 
+        boolean found = false;
         for (final Object v : values)
         {
             if (null != v && value.equals(v))
             {
-                return true;
+                found = true;
+                break;
             }
         }
 
-        return false;
+        return found;
     }
 
     /**
@@ -199,13 +203,13 @@ public class Int2ObjectHashMap<V>
         {
             if (key == keys[index])
             {
-                return (V)value;
+                break;
             }
 
             index = ++index & mask;
         }
 
-        return null;
+        return (V)value;
     }
 
     /**
@@ -313,14 +317,13 @@ public class Int2ObjectHashMap<V>
                 --size;
 
                 compactChain(index);
-
-                return (V)value;
+                break;
             }
 
             index = ++index & mask;
         }
 
-        return null;
+        return (V)value;
     }
 
     /**
@@ -452,7 +455,7 @@ public class Int2ObjectHashMap<V>
             index = ++index & mask;
             if (null == values[index])
             {
-                return;
+                break;
             }
 
             @DoNotSub final int hash = Hashing.hash(keys[index], mask);
@@ -588,16 +591,18 @@ public class Int2ObjectHashMap<V>
 
         public boolean hasNext()
         {
+            boolean hasNext = false;
             for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
                 @DoNotSub final int index = i & mask;
                 if (null != values[index])
                 {
-                    return true;
+                    hasNext = true;
+                    break;
                 }
             }
 
-            return false;
+            return hasNext;
         }
 
         protected void findNext()
