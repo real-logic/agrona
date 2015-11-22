@@ -16,10 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 import java.util.AbstractSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * Read-only collection which delegates its operations to an underlying map and a couple of functions. Designed
@@ -27,17 +24,13 @@ import java.util.function.Supplier;
  *
  * @param <V> The generic type of the set.
  */
-public final class MapDelegatingSet<V> extends AbstractSet<V>
+abstract class MapDelegatingSet<V> extends AbstractSet<V>
 {
     private final Map<?, ?> delegate;
-    private final Supplier<Iterator<V>> iterator;
-    private final Predicate contains;
 
-    public MapDelegatingSet(final Map<?, ?> delegate, final Supplier<Iterator<V>> iterator, final Predicate contains)
+    protected MapDelegatingSet(final Map<?, ?> delegate)
     {
         this.delegate = delegate;
-        this.iterator = iterator;
-        this.contains = contains;
     }
 
     /**
@@ -59,25 +52,13 @@ public final class MapDelegatingSet<V> extends AbstractSet<V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public boolean contains(final Object o)
-    {
-        return contains.test(o);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<V> iterator()
-    {
-        return iterator.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void clear()
     {
         delegate.clear();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract boolean contains(final Object o);
 }

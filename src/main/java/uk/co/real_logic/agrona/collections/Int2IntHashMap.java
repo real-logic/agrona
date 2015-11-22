@@ -28,8 +28,8 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFac
  */
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
-    private final Set<Integer> keySet;
-    private final Collection<Integer> values;
+    private final KeySet keySet;
+    private final Values values;
     private final Set<Entry<Integer, Integer>> entrySet;
 
     @DoNotSub private final double loadFactor;
@@ -60,13 +60,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
 
-        final PrimitiveIterator keyIterator = new PrimitiveIterator(0);
-        final PrimitiveIterator valueIterator = new PrimitiveIterator(1);
-        keySet = new MapDelegatingSet<>(this, keyIterator::reset, this::containsValue);
-        values = new MapDelegatingSet<>(this, valueIterator::reset, this::containsKey);
+        keySet = new KeySet();
+        values = new Values();
 
-        final EntryIterator entryIterator = new EntryIterator();
-        entrySet = new MapDelegatingSet<>(this, entryIterator::reset, (e) -> containsKey(((Entry)e).getKey()));
+
+        entrySet = new EntrySet();
     }
 
     /**
@@ -509,18 +507,19 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
     }
 
-    final class PrimitiveIterator extends AbstractIterator implements Iterator<Integer>
+    public final class IntIterator extends AbstractIterator implements Iterator<Integer>
     {
         @DoNotSub private final int offset;
 
-        private PrimitiveIterator(@DoNotSub final int offset)
+        private IntIterator(
+            @DoNotSub final int offset)
         {
             this.offset = offset;
         }
 
         public Integer next()
         {
-            return nextValue();
+            return Integer.valueOf(nextValue());
         }
 
         public int nextValue()
@@ -530,7 +529,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             return entries[keyPosition() + offset];
         }
 
-        public PrimitiveIterator reset()
+        public IntIterator reset()
         {
             super.reset();
 
@@ -599,5 +598,100 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         entries = new int[newCapacity * 2];
         size = 0;
         Arrays.fill(entries, missingValue);
+    }
+
+    public final class KeySet extends MapDelegatingSet<Integer>
+    {
+        private final IntIterator keyIterator = new IntIterator(0);
+
+        private KeySet()
+        {
+            super(Int2IntHashMap.this);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public IntIterator iterator()
+        {
+            return keyIterator.reset();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean contains(final Object o)
+        {
+            return contains((int)o);
+        }
+
+        public boolean contains(final int key)
+        {
+            return containsKey(key);
+        }
+    }
+
+    public final class Values extends AbstractCollection<Integer>
+    {
+        private final IntIterator valueIterator = new IntIterator(1);
+
+        private Values()
+        {
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public IntIterator iterator()
+        {
+            return valueIterator.reset();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @DoNotSub public int size()
+        {
+            return Int2IntHashMap.this.size();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean contains(final Object o)
+        {
+            return contains((int)o);
+        }
+
+        public boolean contains(final int key)
+        {
+            return containsValue(key);
+        }
+    }
+
+    private final class EntrySet extends MapDelegatingSet<Entry<Integer, Integer>>
+    {
+        private final EntryIterator entryIterator = new EntryIterator();
+
+        private EntrySet()
+        {
+            super(Int2IntHashMap.this);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Iterator<Entry<Integer, Integer>> iterator()
+        {
+            return entryIterator;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean contains(final Object o)
+        {
+            return containsKey(((Entry)o).getKey());
+        }
     }
 }
