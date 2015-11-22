@@ -62,8 +62,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         keySet = new KeySet();
         values = new Values();
-
-
         entrySet = new EntrySet();
     }
 
@@ -98,18 +96,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final int[] entries = this.entries;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
+        int value = missingValue;
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
         {
             if (candidateKey == key)
             {
-                return entries[index + 1];
+                value = entries[index + 1];
+                break;
             }
 
             index = next(index);
         }
 
-        return missingValue;
+        return value;
     }
 
     public int put(final int key, final int value)
@@ -212,16 +212,17 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
+        boolean found = false;
         for (@DoNotSub int i = 1; i < length; i += 2)
         {
-            final int entryValue = entries[i];
-            if (entryValue == value)
+            if (value == entries[i])
             {
-                return true;
+                found = true;
+                break;
             }
         }
 
-        return false;
+        return found;
     }
 
     /**
@@ -334,26 +335,27 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
+        int oldValue = missingValue;
         int candidateKey;
         while ((candidateKey = entries[index]) != missingValue)
         {
             if (candidateKey == key)
             {
                 @DoNotSub final int valueIndex = index + 1;
-                final int oldValue = entries[valueIndex];
+                oldValue = entries[valueIndex];
                 entries[index] = missingValue;
                 entries[valueIndex] = missingValue;
                 size--;
 
                 compactChain(index);
 
-                return oldValue;
+                break;
             }
 
             index = next(index);
         }
 
-        return missingValue;
+        return oldValue;
     }
 
     private void compactChain(@DoNotSub int deleteIndex)
@@ -366,7 +368,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             index = next(index);
             if (entries[index] == missingValue)
             {
-                return;
+                break;
             }
 
             @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
@@ -477,16 +479,18 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         public boolean hasNext()
         {
             final int[] entries = Int2IntHashMap.this.entries;
+            boolean hasNext = false;
             for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
             {
                 @DoNotSub final int index = i & mask;
                 if (entries[index] != missingValue)
                 {
-                    return true;
+                    hasNext = true;
+                    break;
                 }
             }
 
-            return false;
+            return hasNext;
         }
 
         protected void findNext()
@@ -519,7 +523,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         public Integer next()
         {
-            return Integer.valueOf(nextValue());
+            return nextValue();
         }
 
         public int nextValue()
