@@ -200,13 +200,13 @@ public class BiInt2ObjectMap<V>
         {
             if (key == keys[index])
             {
-                return (V)value;
+                break;
             }
 
             index = ++index & mask;
         }
 
-        return null;
+        return (V)value;
     }
 
     /**
@@ -232,14 +232,13 @@ public class BiInt2ObjectMap<V>
                 --size;
 
                 compactChain(index);
-
-                return (V)value;
+                break;
             }
 
             index = ++index & mask;
         }
 
-        return null;
+        return (V)value;
     }
 
     /**
@@ -256,14 +255,13 @@ public class BiInt2ObjectMap<V>
     {
         Objects.requireNonNull(mappingFunction);
 
-        final V value = get(keyPartA, keyPartB);
+        V value = get(keyPartA, keyPartB);
         if (value == null)
         {
-            final V newValue = mappingFunction.apply(keyPartA, keyPartB);
-            if (newValue != null)
+            value = mappingFunction.apply(keyPartA, keyPartB);
+            if (value != null)
             {
-                put(keyPartA, keyPartB, newValue);
-                return newValue;
+                put(keyPartA, keyPartB, value);
             }
         }
 
@@ -378,7 +376,7 @@ public class BiInt2ObjectMap<V>
             index = ++index & mask;
             if (null == values[index])
             {
-                return;
+                break;
             }
 
             final long key = keys[index];
