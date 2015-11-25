@@ -2,8 +2,10 @@ package uk.co.real_logic.agrona.concurrent;
 
 import static java.nio.ByteOrder.nativeOrder;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.nio.ByteOrder;
 
@@ -34,15 +36,15 @@ public class UnsafeBufferTest
         byte b = buffer.getByte(0);
         Assert.assertEquals(0, b);
         final long baseOffset = buffer.addressOffset();
-        Mockito.verify(spy).getByte(byteArray, baseOffset);
+        verify(spy).getByte(byteArray, baseOffset);
 
         buffer.putByte(1, value);
         b = buffer.getByte(1);
-        final InOrder inOrder = Mockito.inOrder(spy);
+        final InOrder inOrder = inOrder(spy);
         inOrder.verify(spy).putByte(byteArray, baseOffset + 1, value);
         inOrder.verify(spy).getByte(byteArray, baseOffset + 1);
 
-        Assert.assertEquals(value, b);
+        assertEquals(value, b);
     }
 
     @Test
@@ -54,8 +56,8 @@ public class UnsafeBufferTest
         final long baseOffset = buffer.addressOffset();
 
         final int v = buffer.addIntOrdered(0, 1);
-        Assert.assertEquals(0, v);
-        final InOrder inOrder = Mockito.inOrder(spy);
+        assertEquals(0, v);
+        final InOrder inOrder = inOrder(spy);
         inOrder.verify(spy).getInt(byteArray, baseOffset + 0);
         inOrder.verify(spy).putOrderedInt(byteArray, baseOffset + 0, 1);
     }
@@ -82,7 +84,7 @@ public class UnsafeBufferTest
         PowerMockito.mockStatic(MemoryAccess.class);
         PowerMockito.when(MemoryAccess.memory()).thenReturn(spy);
 
-        Assert.assertEquals(spy, MemoryAccess.memory());
+        assertEquals(spy, MemoryAccess.memory());
         return spy;
     }
 
@@ -102,7 +104,7 @@ public class UnsafeBufferTest
         catch (IndexOutOfBoundsException ioobe)
         {
         }
-        Mockito.verifyNoMoreInteractions(spy);
+        verifyNoMoreInteractions(spy);
         try
         {
             buffer.putByte(16, value);
@@ -111,14 +113,14 @@ public class UnsafeBufferTest
         catch (IndexOutOfBoundsException ioobe)
         {
         }
-        Mockito.verifyNoMoreInteractions(spy);
+        verifyNoMoreInteractions(spy);
     }
 
     @Test
     public void demonstrateRecording()
     {
         final byte value = 1;
-        final MemoryAccess spy = Mockito.mock(MemoryAccess.class, new Answer()
+        final MemoryAccess spy = Mockito.mock(MemoryAccess.class, new Answer<Object>()
         {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable
@@ -135,13 +137,12 @@ public class UnsafeBufferTest
         final byte[] byteArray = new byte[16];
         final UnsafeBuffer buffer = new UnsafeBuffer(byteArray);
         byte b = buffer.getByte(0);
-        Assert.assertEquals(0, b);
-        final long baseOffset = buffer.addressOffset();
+        assertEquals(0, b);
 
         buffer.putByte(1, value);
         b = buffer.getByte(1);
 
-        Assert.assertEquals(value, b);
+        assertEquals(value, b);
     }
 
     public static void record(String name, Object result, Object[] params)
