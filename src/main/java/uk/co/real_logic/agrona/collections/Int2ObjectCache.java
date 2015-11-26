@@ -28,11 +28,14 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOf
  * A cache implementation specialised for int keys using open addressing to probe a set of fixed size.
  * <p>
  * The eviction strategy is to remove the oldest in a set if the key is not found, or if found then that item.
- * The newly put item becomes the youngest in the set. Sets are evicted on a first in, first out, manner unless
+ * The newly inserted item becomes the youngest in the set. Sets are evicted on a first in, first out, manner unless
  * replacing a matching key.
  * <p>
- * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line. A linear
- * search within a cache line is much much less costly than a cache-miss to another line.
+ * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line (assuming references are
+ * 32 bit references and 64 byte cache lines, YMMV). A linear search within a cache line is much much less costly than a
+ * cache-miss to another line.
+ * <p>
+ * Null values are not supported by this cache.
  *
  * @param <V> type of values stored in the {@link Map}
  */
@@ -191,9 +194,15 @@ public class Int2ObjectCache<V>
      */
     public boolean containsValue(final Object value)
     {
+        // This map doesn't support null values
+        if (value == null)
+        {
+            return false;
+        }
         for (final Object v : values)
         {
-            if (null != v && value.equals(v))
+            // reference equality on value is deemed sufficient indicator (as per Map javadoc)
+            if (null != v && (value == v || value.equals(v)))
             {
                 return true;
             }
@@ -294,6 +303,10 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
     {
+        if (value == null)
+        {
+            throw new IllegalArgumentException("Null values are not supported");
+        }
         V evictedValue = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber * setSize;
