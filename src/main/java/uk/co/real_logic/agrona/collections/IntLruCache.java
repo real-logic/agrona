@@ -25,7 +25,7 @@ import java.util.function.IntFunction;
  *
  * When an element is evicted it is closed by calling the closer function with the element as an argument.
  *
- * WHen a new key arrives the factory function is called in order to create the new element associated with that key.
+ * When a new key arrives the factory function is called in order to create the new element associated with that key.
  *
  * @param <E> the type of element that this cache holds.
  */
