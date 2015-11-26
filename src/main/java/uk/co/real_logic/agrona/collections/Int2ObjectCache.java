@@ -293,7 +293,7 @@ public class Int2ObjectCache<V>
      *
      * @param key   for indexing the {@link Map}
      * @param value to be inserted in the {@link Map}
-     * @return always null
+     * @return always null (as per JCache API, as opposed to {@link Map}})
      */
     @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
