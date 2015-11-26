@@ -194,15 +194,10 @@ public class Int2ObjectCache<V>
      */
     public boolean containsValue(final Object value)
     {
-        // This map doesn't support null values
-        if (value == null)
-        {
-            return false;
-        }
         for (final Object v : values)
         {
             // reference equality on value is deemed sufficient indicator (as per Map javadoc)
-            if (null != v && (value == v || value.equals(v)))
+            if (null != v && (value == v || v.equals(value)))
             {
                 return true;
             }
@@ -303,10 +298,8 @@ public class Int2ObjectCache<V>
     @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
     {
-        if (value == null)
-        {
-            throw new IllegalArgumentException("Null values are not supported");
-        }
+        requireNonNull(value, "null values are not supported");
+
         V evictedValue = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber * setSize;
