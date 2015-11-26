@@ -196,7 +196,6 @@ public class Int2ObjectCache<V>
     {
         for (final Object v : values)
         {
-            // reference equality on value is deemed sufficient indicator (as per Map javadoc)
             if (null != v && (value == v || v.equals(value)))
             {
                 return true;
