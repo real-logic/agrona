@@ -196,7 +196,7 @@ public class Int2ObjectCache<V>
     {
         for (final Object v : values)
         {
-            if (null != v && (value == v || v.equals(value)))
+            if (null != v && v.equals(value))
             {
                 return true;
             }
