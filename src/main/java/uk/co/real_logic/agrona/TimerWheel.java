@@ -202,8 +202,7 @@ public class TimerWheel
     {
         final long deadline = tickDurationInNs * (currentTick + 1);
 
-//        return ((deadline - ticks()) + 999999) / 1000000;
-        return ((deadline - ticks()) + 1048575) / 1048576;  // TODO: temporary attempt...
+        return ((deadline - ticks()) + 999999) / 1000000;
     }
 
     /**
