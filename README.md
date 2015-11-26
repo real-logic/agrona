@@ -14,7 +14,7 @@ Utilities Included:
 * Maps - Open addressing and linear probing with int/long primitive keys to object reference values.
 * Maps - Open addressing and linear probing with int/long primitive keys to int/long values.
 * Sets - Open addressing and linear probing for int/long primitives.
-* Cache - Set Associative compact memory with int/long primitive keys to object reference values.
+* Cache - Set Associative with int/long primitive keys to object reference values.
 * Queues - Lock-less implementations for low-latency applications.
 * Ring/Broadcast Buffers - implemented off-heap for IPC communication.
 * Basic Agent framework.
