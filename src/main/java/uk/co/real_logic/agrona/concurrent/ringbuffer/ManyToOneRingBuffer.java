@@ -61,9 +61,9 @@ public class ManyToOneRingBuffer implements RingBuffer
     public ManyToOneRingBuffer(final AtomicBuffer buffer)
     {
         this.buffer = buffer;
+        checkCapacity(buffer.capacity());
         capacity = buffer.capacity() - RingBufferDescriptor.TRAILER_LENGTH;
 
-        checkCapacity(capacity);
         buffer.verifyAlignment();
 
         mask = capacity - 1;

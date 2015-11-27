@@ -65,14 +65,14 @@ public class RingBufferDescriptor
     }
 
     /**
-     * Check the the buffer capacity is the correct size.
+     * Check the the buffer capacity is the correct size (a power of 2 + {@link RingBufferDescriptor#TRAILER_LENGTH}).
      *
      * @param capacity to be checked.
-     * @throws IllegalStateException if the buffer capacity is not a power of 2.
+     * @throws IllegalStateException if the buffer capacity is incorrect.
      */
     public static void checkCapacity(final int capacity)
     {
-        if (!BitUtil.isPowerOfTwo(capacity))
+        if (!BitUtil.isPowerOfTwo(capacity - TRAILER_LENGTH))
         {
             final String msg = "Capacity must be a positive power of 2 + TRAILER_LENGTH: capacity=" + capacity;
             throw new IllegalStateException(msg);
