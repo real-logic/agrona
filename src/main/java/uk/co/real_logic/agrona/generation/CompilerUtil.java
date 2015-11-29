@@ -110,8 +110,8 @@ public class CompilerUtil
         return fileManager.getClassLoader(null).loadClass(className);
     }
 
-    public static boolean compile(final DiagnosticCollector<JavaFileObject> diagnostics,
-                                   final JavaCompiler.CompilationTask task)
+    public static boolean compile(
+        final DiagnosticCollector<JavaFileObject> diagnostics, final JavaCompiler.CompilationTask task)
     {
         final Boolean succeeded = task.call();
 
@@ -123,8 +123,8 @@ public class CompilerUtil
                 System.err.println(diagnostic.getKind());
 
                 final JavaFileObject source = diagnostic.getSource();
-                System.err.printf(
-                    "Line = %d, Col = %d, File = %s", diagnostic.getLineNumber(), diagnostic.getColumnNumber(), source);
+                System.err.printf("Line = %d, Col = %d, File = %s",
+                    diagnostic.getLineNumber(), diagnostic.getColumnNumber(), source);
 
                 System.out.println("Start: " + diagnostic.getStartPosition());
                 System.out.println("End: " + diagnostic.getEndPosition());
@@ -184,8 +184,10 @@ public class CompilerUtil
 
     private static Collection<CharSequenceJavaFileObject> wrap(final Map<String, CharSequence> sources)
     {
-        return sources.entrySet()
+        return sources
+            .entrySet()
             .stream()
-            .map((e) -> new CharSequenceJavaFileObject(e.getKey(), e.getValue())).collect(toList());
+            .map((e) -> new CharSequenceJavaFileObject(e.getKey(), e.getValue()))
+            .collect(toList());
     }
 }
