@@ -129,8 +129,6 @@ public class Int2ObjectHashMap<V>
      */
     public boolean containsKey(final Object key)
     {
-        requireNonNull(key, "Null keys are not permitted");
-
         return containsKey(((Integer)key).intValue());
     }
 
@@ -164,12 +162,10 @@ public class Int2ObjectHashMap<V>
      */
     public boolean containsValue(final Object value)
     {
-        requireNonNull(value, "Null values are not permitted");
-
         boolean found = false;
         for (final Object v : values)
         {
-            if (null != v && value.equals(v))
+            if (null != v && v.equals(value))
             {
                 found = true;
                 break;
