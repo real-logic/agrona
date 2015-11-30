@@ -34,7 +34,7 @@ public class Int2ObjectHashMap<V>
     implements Map<Integer, V>
 {
     private final double loadFactor;
-    @DoNotSub  private int resizeThreshold;
+    @DoNotSub private int resizeThreshold;
     @DoNotSub private int capacity;
     @DoNotSub private int mask;
     @DoNotSub private int size;
