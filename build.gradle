@@ -22,15 +22,17 @@ apply plugin: 'eclipse'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'uk.co.real-logic'
-version = '0.4.8-SNAPSHOT'
+version = '0.4.9-SNAPSHOT'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 ext {
-    if (!project.hasProperty('ossrhUsername'))
+    if (!project.hasProperty('ossrhUsername')) {
         ossrhUsername = ''
+    }
 
-    if (!project.hasProperty('ossrhPassword'))
+    if (!project.hasProperty('ossrhPassword')) {
         ossrhPassword = ''
+    }
 }
 
 repositories {
@@ -52,7 +54,7 @@ compileJava {
     targetCompatibility = 1.8
 }
 
-def generatedDir = file("$buildDir/generated-src")
+def generatedDir = file("${buildDir}/generated-src")
 sourceSets {
     generated.java.srcDir generatedDir
 }
@@ -61,7 +63,7 @@ sourceSets {
 compileGeneratedJava.dependsOn 'generatePrimitiveExpansions'
 compileGeneratedJava.classpath += sourceSets.main.runtimeClasspath
 
-task (generatePrimitiveExpansions, type: JavaExec) {
+task(generatePrimitiveExpansions, type: JavaExec) {
     main = 'uk.co.real_logic.agrona.generation.PrimitiveExpander'
     classpath = sourceSets.main.runtimeClasspath
     outputs.dir generatedDir
@@ -70,11 +72,12 @@ task (generatePrimitiveExpansions, type: JavaExec) {
 dependencies {
     checkstyle "com.github.sevntu.checkstyle:sevntu-checks:1.17.0"
 
-    testCompile 'org.hamcrest:hamcrest-all:1.3',
-            'junit:junit:4.12',
-            'org.mockito:mockito-all:1.10.19',
-            'org.powermock:powermock-module-junit4:1.6.3',
-            'org.powermock:powermock-api-mockito:1.6.3'
+    testCompile(
+        'org.hamcrest:hamcrest-all:1.3',
+        'junit:junit:4.12',
+        'org.mockito:mockito-all:1.10.19',
+        'org.powermock:powermock-module-junit4:1.6.3',
+        'org.powermock:powermock-api-mockito:1.6.3')
 }
 
 checkstyle {
@@ -109,13 +112,16 @@ signing {
 }
 
 artifacts {
-    archives sourcesJar, javadocJar
+    archives sourcesJar
+    archives javadocJar
 }
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            beforeDeployment {
+                MavenDeployment deployment -> signing.signPom(deployment)
+            }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
                 authentication(userName: ossrhUsername, password: ossrhPassword)
@@ -171,5 +177,5 @@ uploadArchives {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.9'
+    gradleVersion = '2.9'
 }

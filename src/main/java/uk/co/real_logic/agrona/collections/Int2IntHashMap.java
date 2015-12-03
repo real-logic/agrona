@@ -300,7 +300,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     /**
      * {@inheritDoc}
      */
-    public Set<Integer> keySet()
+    public KeySet keySet()
     {
         return keySet;
     }
@@ -308,7 +308,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     /**
      * {@inheritDoc}
      */
-    public Collection<Integer> values()
+    public Values values()
     {
         return values;
     }
