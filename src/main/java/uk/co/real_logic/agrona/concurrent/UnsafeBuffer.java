@@ -35,6 +35,10 @@ import uk.co.real_logic.agrona.UnsafeAccess;
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
  * The buffer can be a byte[] or one of the various {@link ByteBuffer} implementations.
+ *
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
+ * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
+ * with the {@link ByteOrder} overload.
  */
 public class UnsafeBuffer implements AtomicBuffer
 {
