@@ -45,14 +45,6 @@ public class TimerWheelTest
     }
 
     @Test
-    public void shouldBeAbleToCalculateDelayWithRealTime()
-    {
-        final TimerWheel wheel = new TimerWheel(100, TimeUnit.MILLISECONDS, 512);
-
-        assertThat(wheel.computeDelayInMs(), allOf(greaterThanOrEqualTo(90L), lessThanOrEqualTo(110L)));
-    }
-
-    @Test
     public void shouldBeAbleToCalculateDelay()
     {
         controlTimestamp = 0;
