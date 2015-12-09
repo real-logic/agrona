@@ -95,6 +95,7 @@ javadoc {
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
+    from sourceSets.generated.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
