@@ -51,9 +51,22 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
     private final long[] sequences;
 
+    /**
+     * Create a new queue with a bounded capacity. The requested capacity will be rounded up to the next positive
+     * power of two in size. That is if you request a capacity of 1000 then you will get 1024. If you request 1024
+     * then that is what you will get.
+     *
+     * @param requestedCapacity of the queue which must be &gt;= 2.
+     * @throws IllegalArgumentException if the requestedCapacity &lt; 2.
+     */
     public ManyToManyConcurrentArrayQueue(final int requestedCapacity)
     {
         super(requestedCapacity);
+
+        if (requestedCapacity < 2)
+        {
+            throw new IllegalArgumentException("requestCapacity must be >= 2: requestedCapacity=" + requestedCapacity);
+        }
 
         final long[] sequences = new long[capacity];
 
