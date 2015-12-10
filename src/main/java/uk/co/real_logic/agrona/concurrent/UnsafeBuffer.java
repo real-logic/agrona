@@ -71,7 +71,7 @@ public class UnsafeBuffer implements AtomicBuffer
      * @param offset within the buffer to begin.
      * @param length of the buffer to be included.
      */
-    public UnsafeBuffer(final byte[] buffer, final long offset, final int length)
+    public UnsafeBuffer(final byte[] buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
     }
@@ -95,7 +95,7 @@ public class UnsafeBuffer implements AtomicBuffer
      * @param offset within the buffer to begin.
      * @param length of the buffer to be included.
      */
-    public UnsafeBuffer(final ByteBuffer buffer, final long offset, final int length)
+    public UnsafeBuffer(final ByteBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
     }
@@ -141,7 +141,7 @@ public class UnsafeBuffer implements AtomicBuffer
         byteBuffer = null;
     }
 
-    public void wrap(final byte[] buffer, final long offset, final int length)
+    public void wrap(final byte[] buffer, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
@@ -182,7 +182,7 @@ public class UnsafeBuffer implements AtomicBuffer
         capacity = buffer.capacity();
     }
 
-    public void wrap(final ByteBuffer buffer, final long offset, final int length)
+    public void wrap(final ByteBuffer buffer, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {

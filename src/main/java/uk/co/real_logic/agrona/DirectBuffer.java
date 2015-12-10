@@ -37,7 +37,7 @@ public interface DirectBuffer
      * @param offset at which the view begins.
      * @param length of the buffer included in the view
      */
-    void wrap(byte[] buffer, long offset, int length);
+    void wrap(byte[] buffer, int offset, int length);
 
     /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
@@ -54,7 +54,7 @@ public interface DirectBuffer
      * @param offset at which the view begins.
      * @param length of the buffer included in the view
      */
-    void wrap(ByteBuffer buffer, long offset, int length);
+    void wrap(ByteBuffer buffer, int offset, int length);
 
     /**
      * Attach a view to an existing {@link DirectBuffer}

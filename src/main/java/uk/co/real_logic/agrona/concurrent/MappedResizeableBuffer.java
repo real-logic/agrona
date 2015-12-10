@@ -80,7 +80,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         throw new UnsupportedOperationException();
     }
 
-    public void wrap(final byte[] buffer, final long offset, final int length)
+    public void wrap(final byte[] buffer, final int offset, final int length)
     {
         throw new UnsupportedOperationException();
     }
@@ -90,7 +90,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         throw new UnsupportedOperationException();
     }
 
-    public void wrap(final ByteBuffer buffer, final long offset, final int length)
+    public void wrap(final ByteBuffer buffer, final int offset, final int length)
     {
         throw new UnsupportedOperationException();
     }
