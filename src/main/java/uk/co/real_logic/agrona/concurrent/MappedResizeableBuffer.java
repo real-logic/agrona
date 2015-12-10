@@ -16,242 +16,98 @@
 package uk.co.real_logic.agrona.concurrent;
 
 import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.IoUtil;
 import uk.co.real_logic.agrona.MutableDirectBuffer;
-import uk.co.real_logic.agrona.UnsafeAccess;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 import static uk.co.real_logic.agrona.BitUtil.*;
 import static uk.co.real_logic.agrona.concurrent.MemoryAccess.memory;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
- * The buffer can be a byte[] or one of the various {@link ByteBuffer} implementations.
  *
- * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
- * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
- * with the {@link ByteOrder} overload.
+ * This buffer is resizable and based upon an underlying
  */
-public class UnsafeBuffer implements AtomicBuffer
+public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
 {
-    /**
-     * Buffer alignment to ensure atomic word accesses.
-     */
-    public static final int ALIGNMENT = SIZE_OF_LONG;
 
-    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
-    public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
+    private final FileChannel fileChannel;
 
-    static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
-    static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-    static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
-
-    private byte[] byteArray;
-    private ByteBuffer byteBuffer;
     private long addressOffset;
-
-    private int capacity;
-
-    /**
-     * Attach a view to a byte[] for providing direct access.
-     *
-     * @param buffer to which the view is attached.
-     */
-    public UnsafeBuffer(final byte[] buffer)
-    {
-        wrap(buffer);
-    }
-
-    /**
-     * Attach a view to a byte[] for providing direct access.
-     *
-     * @param buffer to which the view is attached.
-     * @param offset within the buffer to begin.
-     * @param length of the buffer to be included.
-     */
-    public UnsafeBuffer(final byte[] buffer, final long offset, final int length)
-    {
-        wrap(buffer, offset, length);
-    }
-
-    /**
-     * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
-     * heap based or direct.
-     *
-     * @param buffer to which the view is attached.
-     */
-    public UnsafeBuffer(final ByteBuffer buffer)
-    {
-        wrap(buffer);
-    }
-
-    /**
-     * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
-     * heap based or direct.
-     *
-     * @param buffer to which the view is attached.
-     * @param offset within the buffer to begin.
-     * @param length of the buffer to be included.
-     */
-    public UnsafeBuffer(final ByteBuffer buffer, final long offset, final int length)
-    {
-        wrap(buffer, offset, length);
-    }
-
-    /**
-     * Attach a view to an existing {@link DirectBuffer}
-     *
-     * @param buffer to which the view is attached.
-     */
-    public UnsafeBuffer(final DirectBuffer buffer)
-    {
-        wrap(buffer);
-    }
-
-    /**
-     * Attach a view to an existing {@link DirectBuffer}
-     *
-     * @param buffer to which the view is attached.
-     * @param offset within the buffer to begin.
-     * @param length of the buffer to be included.
-     */
-    public UnsafeBuffer(final DirectBuffer buffer, final long offset, final int length)
-    {
-        wrap(buffer, offset, length);
-    }
+    private long capacity;
 
     /**
      * Attach a view to an off-heap memory region by address.
      *
-     * @param address where the memory begins off-heap
-     * @param length  of the buffer from the given address
+     * @param fileChannel the file to map
+     * @param initialLength  of the buffer from the given address
      */
-    public UnsafeBuffer(final long address, final int length)
+    public MappedResizeableBuffer(final FileChannel fileChannel, final long initialLength)
     {
-        wrap(address, length);
+        this.fileChannel = fileChannel;
+        map(initialLength);
+    }
+
+    private void map(final long initialLength)
+    {
+        capacity = initialLength;
+        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, 0, initialLength);
+    }
+
+    private void unmap()
+    {
+        IoUtil.unmap(fileChannel, addressOffset, capacity);
+    }
+
+    public void resize(final long newLength)
+    {
+        if (newLength <= 0)
+        {
+            throw new IllegalArgumentException("Length must be a positive long, but is: " + newLength);
+        }
+
+        unmap();
+        map(newLength);
     }
 
     public void wrap(final byte[] buffer)
     {
-        addressOffset = ARRAY_BASE_OFFSET;
-        capacity = buffer.length;
-        byteArray = buffer;
-        byteBuffer = null;
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final byte[] buffer, final long offset, final int length)
     {
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            final int bufferLength = buffer.length;
-            if (offset != 0 && (offset < 0 || offset > bufferLength - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.length=" + bufferLength);
-            }
-
-            if (length < 0 || length > bufferLength - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.length=" + bufferLength);
-            }
-        }
-
-        addressOffset = ARRAY_BASE_OFFSET + offset;
-        capacity = length;
-        byteArray = buffer;
-        byteBuffer = null;
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final ByteBuffer buffer)
     {
-        byteBuffer = buffer;
-
-        if (buffer.hasArray())
-        {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
-        }
-        else
-        {
-            byteArray = null;
-            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address();
-        }
-
-        capacity = buffer.capacity();
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final ByteBuffer buffer, final long offset, final int length)
     {
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            final int bufferCapacity = buffer.capacity();
-            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
-            }
-
-            if (length < 0 || length > bufferCapacity - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
-            }
-        }
-
-        byteBuffer = buffer;
-
-        if (buffer.hasArray())
-        {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset() + offset;
-        }
-        else
-        {
-            byteArray = null;
-            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address() + offset;
-        }
-
-        capacity = length;
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final DirectBuffer buffer)
     {
-        addressOffset = buffer.addressOffset();
-        capacity = buffer.capacity();
-        byteArray = buffer.byteArray();
-        byteBuffer = buffer.byteBuffer();
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final DirectBuffer buffer, final long offset, final int length)
     {
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            final int bufferCapacity = buffer.capacity();
-            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
-            }
-
-            if (length < 0 || length > bufferCapacity - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
-            }
-        }
-
-        addressOffset = buffer.addressOffset() + offset;
-        capacity = length;
-        byteArray = buffer.byteArray();
-        byteBuffer = buffer.byteBuffer();
+        throw new UnsupportedOperationException();
     }
 
     public void wrap(final long address, final int length)
     {
-        addressOffset = address;
-        capacity = length;
-        byteArray = null;
-        byteBuffer = null;
+        throw new UnsupportedOperationException();
     }
 
     public long addressOffset()
@@ -261,12 +117,12 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public byte[] byteArray()
     {
-        return byteArray;
+        throw new UnsupportedOperationException();
     }
 
     public ByteBuffer byteBuffer()
     {
-        return byteBuffer;
+        throw new UnsupportedOperationException();
     }
 
     public void setMemory(final long index, final int length, final byte value)
@@ -276,12 +132,12 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, length);
         }
 
-        memory().setMemory(byteArray, addressOffset + index, length, value);
+        memory().setMemory(null, addressOffset + index, length, value);
     }
 
     public int capacity()
     {
-        return capacity;
+        return (int) capacity;
     }
 
     public void checkLimit(final long limit)
@@ -313,7 +169,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        long bits = memory().getLong(byteArray, addressOffset + index);
+        long bits = memory().getLong(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Long.reverseBytes(bits);
@@ -335,7 +191,7 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Long.reverseBytes(bits);
         }
 
-        memory().putLong(byteArray, addressOffset + index, bits);
+        memory().putLong(null, addressOffset + index, bits);
     }
 
     public long getLong(final long index)
@@ -345,7 +201,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getLong(byteArray, addressOffset + index);
+        return memory().getLong(null, addressOffset + index);
     }
 
     public void putLong(final long index, final long value)
@@ -355,7 +211,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putLong(byteArray, addressOffset + index, value);
+        memory().putLong(null, addressOffset + index, value);
     }
 
     public long getLongVolatile(final long index)
@@ -365,7 +221,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getLongVolatile(byteArray, addressOffset + index);
+        return memory().getLongVolatile(null, addressOffset + index);
     }
 
     public void putLongVolatile(final long index, final long value)
@@ -375,7 +231,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putLongVolatile(byteArray, addressOffset + index, value);
+        memory().putLongVolatile(null, addressOffset + index, value);
     }
 
     public void putLongOrdered(final long index, final long value)
@@ -385,7 +241,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putOrderedLong(byteArray, addressOffset + index, value);
+        memory().putOrderedLong(null, addressOffset + index, value);
     }
 
     public long addLongOrdered(final long index, final long increment)
@@ -396,9 +252,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         final long offset = addressOffset + index;
-        final byte[] byteArray = this.byteArray;
-        final long value = memory().getLong(byteArray, offset);
-        memory().putOrderedLong(byteArray, offset, value + increment);
+        final long value = memory().getLong(null, offset);
+        memory().putOrderedLong(null, offset, value + increment);
 
         return value;
     }
@@ -410,7 +265,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().compareAndSwapLong(byteArray, addressOffset + index, expectedValue, updateValue);
+        return memory().compareAndSwapLong(null, addressOffset + index, expectedValue, updateValue);
     }
 
     public long getAndSetLong(final long index, final long value)
@@ -420,7 +275,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getAndSetLong(byteArray, addressOffset + index, value);
+        return memory().getAndSetLong(null, addressOffset + index, value);
     }
 
     public long getAndAddLong(final long index, final long delta)
@@ -430,7 +285,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getAndAddLong(byteArray, addressOffset + index, delta);
+        return memory().getAndAddLong(null, addressOffset + index, delta);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -442,7 +297,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        int bits = memory().getInt(byteArray, addressOffset + index);
+        int bits = memory().getInt(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -464,7 +319,7 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Integer.reverseBytes(bits);
         }
 
-        memory().putInt(byteArray, addressOffset + index, bits);
+        memory().putInt(null, addressOffset + index, bits);
     }
 
     public int getInt(final long index)
@@ -474,7 +329,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getInt(byteArray, addressOffset + index);
+        return memory().getInt(null, addressOffset + index);
     }
 
     public void putInt(final long index, final int value)
@@ -484,7 +339,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putInt(byteArray, addressOffset + index, value);
+        memory().putInt(null, addressOffset + index, value);
     }
 
     public int getIntVolatile(final long index)
@@ -494,7 +349,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getIntVolatile(byteArray, addressOffset + index);
+        return memory().getIntVolatile(null, addressOffset + index);
     }
 
     public void putIntVolatile(final long index, final int value)
@@ -504,7 +359,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putIntVolatile(byteArray, addressOffset + index, value);
+        memory().putIntVolatile(null, addressOffset + index, value);
     }
 
     public void putIntOrdered(final long index, final int value)
@@ -514,7 +369,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putOrderedInt(byteArray, addressOffset + index, value);
+        memory().putOrderedInt(null, addressOffset + index, value);
     }
 
     public int addIntOrdered(final long index, final int increment)
@@ -525,9 +380,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         final long offset = addressOffset + index;
-        final byte[] byteArray = this.byteArray;
-        final int value = memory().getInt(byteArray, offset);
-        memory().putOrderedInt(byteArray, offset, value + increment);
+        final int value = memory().getInt(null, offset);
+        memory().putOrderedInt(null, offset, value + increment);
 
         return value;
     }
@@ -539,7 +393,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().compareAndSwapInt(byteArray, addressOffset + index, expectedValue, updateValue);
+        return memory().compareAndSwapInt(null, addressOffset + index, expectedValue, updateValue);
     }
 
     public int getAndSetInt(final long index, final int value)
@@ -549,7 +403,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getAndSetInt(byteArray, addressOffset + index, value);
+        return memory().getAndSetInt(null, addressOffset + index, value);
     }
 
     public int getAndAddInt(final long index, final int delta)
@@ -559,7 +413,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getAndAddInt(byteArray, addressOffset + index, delta);
+        return memory().getAndAddInt(null, addressOffset + index, delta);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -573,12 +427,12 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final long bits = memory().getLong(byteArray, addressOffset + index);
+            final long bits = memory().getLong(null, addressOffset + index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         }
         else
         {
-            return memory().getDouble(byteArray, addressOffset + index);
+            return memory().getDouble(null, addressOffset + index);
         }
     }
 
@@ -592,11 +446,11 @@ public class UnsafeBuffer implements AtomicBuffer
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            memory().putLong(byteArray, addressOffset + index, bits);
+            memory().putLong(null, addressOffset + index, bits);
         }
         else
         {
-            memory().putDouble(byteArray, addressOffset + index, value);
+            memory().putDouble(null, addressOffset + index, value);
         }
     }
 
@@ -607,7 +461,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_DOUBLE);
         }
 
-        return memory().getDouble(byteArray, addressOffset + index);
+        return memory().getDouble(null, addressOffset + index);
     }
 
     public void putDouble(final long index, final double value)
@@ -617,7 +471,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_DOUBLE);
         }
 
-        memory().putDouble(byteArray, addressOffset + index, value);
+        memory().putDouble(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -631,12 +485,12 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final int bits = memory().getInt(byteArray, addressOffset + index);
+            final int bits = memory().getInt(null, addressOffset + index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         }
         else
         {
-            return memory().getFloat(byteArray, addressOffset + index);
+            return memory().getFloat(null, addressOffset + index);
         }
     }
 
@@ -650,11 +504,11 @@ public class UnsafeBuffer implements AtomicBuffer
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            memory().putInt(byteArray, addressOffset + index, bits);
+            memory().putInt(null, addressOffset + index, bits);
         }
         else
         {
-            memory().putFloat(byteArray, addressOffset + index, value);
+            memory().putFloat(null, addressOffset + index, value);
         }
     }
 
@@ -665,7 +519,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_FLOAT);
         }
 
-        return memory().getFloat(byteArray, addressOffset + index);
+        return memory().getFloat(null, addressOffset + index);
     }
 
     public void putFloat(final long index, final float value)
@@ -675,7 +529,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_FLOAT);
         }
 
-        memory().putFloat(byteArray, addressOffset + index, value);
+        memory().putFloat(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -687,7 +541,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        short bits = memory().getShort(byteArray, addressOffset + index);
+        short bits = memory().getShort(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Short.reverseBytes(bits);
@@ -709,7 +563,7 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Short.reverseBytes(bits);
         }
 
-        memory().putShort(byteArray, addressOffset + index, bits);
+        memory().putShort(null, addressOffset + index, bits);
     }
 
     public short getShort(final long index)
@@ -719,7 +573,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        return memory().getShort(byteArray, addressOffset + index);
+        return memory().getShort(null, addressOffset + index);
     }
 
     public void putShort(final long index, final short value)
@@ -729,7 +583,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        memory().putShort(byteArray, addressOffset + index, value);
+        memory().putShort(null, addressOffset + index, value);
     }
 
     public short getShortVolatile(final long index)
@@ -739,7 +593,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        return memory().getShortVolatile(byteArray, addressOffset + index);
+        return memory().getShortVolatile(null, addressOffset + index);
     }
 
     public void putShortVolatile(final long index, final short value)
@@ -749,7 +603,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        memory().putShortVolatile(byteArray, addressOffset + index, value);
+        memory().putShortVolatile(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -761,7 +615,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        return memory().getByte(byteArray, addressOffset + index);
+        return memory().getByte(null, addressOffset + index);
     }
 
     public void putByte(final long index, final byte value)
@@ -771,7 +625,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        memory().putByte(byteArray, addressOffset + index, value);
+        memory().putByte(null, addressOffset + index, value);
     }
 
     public byte getByteVolatile(final long index)
@@ -781,7 +635,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        return memory().getByteVolatile(byteArray, addressOffset + index);
+        return memory().getByteVolatile(null, addressOffset + index);
     }
 
     public void putByteVolatile(final long index, final byte value)
@@ -791,7 +645,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        memory().putByteVolatile(byteArray, addressOffset + index, value);
+        memory().putByteVolatile(null, addressOffset + index, value);
     }
 
     public void getBytes(final long index, final byte[] dst)
@@ -807,7 +661,7 @@ public class UnsafeBuffer implements AtomicBuffer
             BufferUtil.boundsCheck(dst, offset, length);
         }
 
-        memory().copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
+        memory().copyMemory(null, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final long dstIndex, final int length)
@@ -824,20 +678,20 @@ public class UnsafeBuffer implements AtomicBuffer
             BufferUtil.boundsCheck(dstBuffer, (long) dstOffset, length);
         }
 
-        final byte[] dstByteArray;
+        final byte[] dstnull;
         final long dstBaseOffset;
         if (dstBuffer.hasArray())
         {
-            dstByteArray = dstBuffer.array();
+            dstnull = dstBuffer.array();
             dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
         }
         else
         {
-            dstByteArray = null;
+            dstnull = null;
             dstBaseOffset = ((sun.nio.ch.DirectBuffer)dstBuffer).address();
         }
 
-        memory().copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        memory().copyMemory(null, addressOffset + index, dstnull, dstBaseOffset + dstOffset, length);
         dstBuffer.position(dstBuffer.position() + length);
     }
 
@@ -854,7 +708,7 @@ public class UnsafeBuffer implements AtomicBuffer
             BufferUtil.boundsCheck(src, offset, length);
         }
 
-        memory().copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
+        memory().copyMemory(src, ARRAY_BASE_OFFSET + offset, null, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final ByteBuffer srcBuffer, final int length)
@@ -878,20 +732,20 @@ public class UnsafeBuffer implements AtomicBuffer
             BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
         }
 
-        final byte[] srcByteArray;
+        final byte[] srcnull;
         final long srcBaseOffset;
         if (srcBuffer.hasArray())
         {
-            srcByteArray = srcBuffer.array();
+            srcnull = srcBuffer.array();
             srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
         }
         else
         {
-            srcByteArray = null;
+            srcnull = null;
             srcBaseOffset = ((sun.nio.ch.DirectBuffer)srcBuffer).address();
         }
 
-        memory().copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
+        memory().copyMemory(srcnull, srcBaseOffset + srcIndex, null, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final DirectBuffer srcBuffer, final long srcIndex, final int length)
@@ -903,9 +757,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         memory().copyMemory(
-            srcBuffer.byteArray(),
+            null,
             srcBuffer.addressOffset() + srcIndex,
-            byteArray,
+            null,
             addressOffset + index,
             length);
     }
@@ -919,7 +773,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        char bits = memory().getChar(byteArray, addressOffset + index);
+        char bits = memory().getChar(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = (char)Short.reverseBytes((short)bits);
@@ -941,7 +795,7 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = (char)Short.reverseBytes((short)bits);
         }
 
-        memory().putChar(byteArray, addressOffset + index, bits);
+        memory().putChar(null, addressOffset + index, bits);
     }
 
     public char getChar(final long index)
@@ -951,7 +805,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        return memory().getChar(byteArray, addressOffset + index);
+        return memory().getChar(null, addressOffset + index);
     }
 
     public void putChar(final long index, final char value)
@@ -961,7 +815,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        memory().putChar(byteArray, addressOffset + index, value);
+        memory().putChar(null, addressOffset + index, value);
     }
 
     public char getCharVolatile(final long index)
@@ -971,7 +825,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        return memory().getCharVolatile(byteArray, addressOffset + index);
+        return memory().getCharVolatile(null, addressOffset + index);
     }
 
     public void putCharVolatile(final long index, final char value)
@@ -981,7 +835,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        memory().putCharVolatile(byteArray, addressOffset + index, value);
+        memory().putCharVolatile(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1047,4 +901,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    public void close()
+    {
+        unmap();
+    }
 }

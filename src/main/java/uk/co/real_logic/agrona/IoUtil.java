@@ -20,6 +20,7 @@ import sun.nio.ch.FileChannelImpl;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -28,6 +29,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
+import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 
 /**
@@ -39,6 +41,36 @@ public class IoUtil
      * Size in bytes of a file page.
      */
     public static final int BLOCK_SIZE = 4 * 1024;
+
+    private static final int MAP_READ_ONLY = 0;
+    private static final int MAP_READ_WRITE = 1;
+    private static final int MAP_PRIVATE = 2;
+
+    private static final Method MAP_ADDRESS;
+    private static final Method UNMAP_ADDRESS;
+    private static final Method UNMAP_BUFFER;
+
+    static
+    {
+        MAP_ADDRESS = getFileChannelMethod("map0", int.class, long.class, long.class);
+        UNMAP_ADDRESS = getFileChannelMethod("unmap0", long.class, long.class);
+        UNMAP_BUFFER = getFileChannelMethod("unmap", MappedByteBuffer.class);
+    }
+
+    private static Method getFileChannelMethod(final String name, final Class<?> ... parameterTypes)
+    {
+        try
+        {
+            Method method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
+            method.setAccessible(true);
+            return method;
+        }
+        catch (NoSuchMethodException e)
+        {
+            LangUtil.rethrowUnchecked(e);
+            return null;
+        }
+    }
 
     /**
      * Fill a region of a file with a given byte value.
@@ -307,15 +339,60 @@ public class IoUtil
         {
             try
             {
-                final Method method = FileChannelImpl.class.getDeclaredMethod("unmap", MappedByteBuffer.class);
-
-                method.setAccessible(true);
-                method.invoke(null, buffer);
+                UNMAP_BUFFER.invoke(null, buffer);
             }
             catch (final Exception ex)
             {
                 LangUtil.rethrowUnchecked(ex);
             }
+        }
+    }
+
+    public static long map(
+        final FileChannel fileChannel,
+        final FileChannel.MapMode mode,
+        final long offset,
+        final long length)
+    {
+        try
+        {
+            return (long) MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            LangUtil.rethrowUnchecked(e);
+            return 0;
+        }
+    }
+
+    public static void unmap(
+        final FileChannel fileChannel,
+        final long address,
+        final long length)
+    {
+        try
+        {
+            UNMAP_ADDRESS.invoke(fileChannel, address, length);
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            LangUtil.rethrowUnchecked(e);
+        }
+    }
+
+    private static int getMode(final FileChannel.MapMode mode)
+    {
+        if (mode == READ_ONLY)
+        {
+            return MAP_READ_ONLY;
+        }
+        else if (mode == READ_WRITE)
+        {
+            return MAP_READ_WRITE;
+        }
+        else
+        {
+            return MAP_PRIVATE;
         }
     }
 
