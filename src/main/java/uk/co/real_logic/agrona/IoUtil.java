@@ -61,7 +61,7 @@ public class IoUtil
     {
         try
         {
-            Method method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
+            final Method method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
             method.setAccessible(true);
             return method;
         }
