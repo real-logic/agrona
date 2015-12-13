@@ -35,7 +35,6 @@ public class MappedResizeableBufferTest
     private static final String PATH = IoUtil.tmpDirName() +  "/eg-buffer";
     public static final int VALUE = 4;
 
-    private static RandomAccessFile file;
     private static FileChannel channel;
 
     private MappedResizeableBuffer buffer;
@@ -43,7 +42,7 @@ public class MappedResizeableBufferTest
     @BeforeClass
     public static void setUp() throws IOException
     {
-        file = new RandomAccessFile(PATH, "rw");
+        final RandomAccessFile file = new RandomAccessFile(PATH, "rw");
         file.setLength(SIZE);
         channel = file.getChannel();
     }
@@ -51,7 +50,7 @@ public class MappedResizeableBufferTest
     @Test
     public void shouldWriteDataToBuffer() throws IOException
     {
-        buffer = new MappedResizeableBuffer(channel, 100);
+        buffer = new MappedResizeableBuffer(channel, 0, 100);
 
         exchangeDataAt(50L);
     }
@@ -59,7 +58,7 @@ public class MappedResizeableBufferTest
     @Test
     public void shouldResizeBufferToOver2GB() throws IOException
     {
-        buffer = new MappedResizeableBuffer(channel, 100);
+        buffer = new MappedResizeableBuffer(channel, 0, 100);
 
         buffer.resize(SIZE);
 
@@ -69,7 +68,7 @@ public class MappedResizeableBufferTest
     @Test
     public void shouldReadPreviousWrites() throws IOException
     {
-        buffer = new MappedResizeableBuffer(channel, 100);
+        buffer = new MappedResizeableBuffer(channel, 0, 100);
 
         exchangeDataAt(50L);
 
@@ -81,13 +80,13 @@ public class MappedResizeableBufferTest
     @Test
     public void shouldReadBytesFromOtherBuffer() throws IOException
     {
-        buffer = new MappedResizeableBuffer(channel, SIZE);
+        buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
         exchangeDataAt(SIZE - 4);
 
         buffer.close();
 
-        buffer = new MappedResizeableBuffer(channel, SIZE);
+        buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
         assertEquals(VALUE, buffer.getInt(SIZE - 4));
     }
