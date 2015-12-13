@@ -36,8 +36,7 @@ import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
 public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
 {
 
-    private final FileChannel fileChannel;
-
+    private FileChannel fileChannel;
     private long addressOffset;
     private long capacity;
 
@@ -45,18 +44,19 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
      * Attach a view to an off-heap memory region by address.
      *
      * @param fileChannel the file to map
+     * @param offset the offset of the file to start the mapping
      * @param initialLength  of the buffer from the given address
      */
-    public MappedResizeableBuffer(final FileChannel fileChannel, final long initialLength)
+    public MappedResizeableBuffer(final FileChannel fileChannel, final long offset, final long initialLength)
     {
         this.fileChannel = fileChannel;
-        map(initialLength);
+        map(offset, initialLength);
     }
 
-    private void map(final long initialLength)
+    private void map(final long offset, final long length)
     {
-        capacity = initialLength;
-        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, 0, initialLength);
+        capacity = length;
+        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, offset, length);
     }
 
     private void unmap()
@@ -72,7 +72,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         }
 
         unmap();
-        map(newLength);
+        map(0, newLength);
     }
 
     public void wrap(final byte[] buffer)
@@ -108,6 +108,36 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
     public void wrap(final long address, final int length)
     {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Remap the buffer using the existing file based on a new offset and length
+     *
+     * @param offset the offset of the file to start the mapping
+     * @param length  of the buffer from the given address
+     */
+    public void wrap(final long offset, final long length)
+    {
+        if (offset == this.addressOffset && length == this.capacity)
+        {
+            return;
+        }
+
+        wrap(fileChannel, offset, length);
+    }
+
+    /**
+     * Remap the buffer based on a new file, offset and a length
+     *
+     * @param fileChannel the file to map
+     * @param offset the offset of the file to start the mapping
+     * @param length  of the buffer from the given address
+     */
+    public void wrap(final FileChannel fileChannel, final long offset, final long length)
+    {
+        unmap();
+        this.fileChannel = fileChannel;
+        map(offset, length);
     }
 
     public long addressOffset()
