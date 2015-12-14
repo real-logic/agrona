@@ -15,18 +15,28 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
-import uk.co.real_logic.agrona.DirectBuffer;
-import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.MutableDirectBuffer;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_BYTE;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_CHAR;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_DOUBLE;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_FLOAT;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_LONG;
+import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_SHORT;
+import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.ALIGNMENT;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.ARRAY_BASE_OFFSET;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.NATIVE_BYTE_ORDER;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.NULL_BYTES;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.SHOULD_BOUNDS_CHECK;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
-import static uk.co.real_logic.agrona.BitUtil.*;
-import static uk.co.real_logic.agrona.concurrent.MemoryAccess.memory;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.IoUtil;
+import uk.co.real_logic.agrona.MutableDirectBuffer;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
@@ -162,7 +172,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, length);
         }
 
-        memory().setMemory(null, addressOffset + index, length, value);
+        UNSAFE.setMemory(null, addressOffset + index, length, value);
     }
 
     public int capacity()
@@ -199,7 +209,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        long bits = memory().getLong(null, addressOffset + index);
+        long bits = UNSAFE.getLong(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Long.reverseBytes(bits);
@@ -221,7 +231,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             bits = Long.reverseBytes(bits);
         }
 
-        memory().putLong(null, addressOffset + index, bits);
+        UNSAFE.putLong(null, addressOffset + index, bits);
     }
 
     public long getLong(final long index)
@@ -231,7 +241,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getLong(null, addressOffset + index);
+        return UNSAFE.getLong(null, addressOffset + index);
     }
 
     public void putLong(final long index, final long value)
@@ -241,7 +251,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putLong(null, addressOffset + index, value);
+        UNSAFE.putLong(null, addressOffset + index, value);
     }
 
     public long getLongVolatile(final long index)
@@ -251,7 +261,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getLongVolatile(null, addressOffset + index);
+        return UNSAFE.getLongVolatile(null, addressOffset + index);
     }
 
     public void putLongVolatile(final long index, final long value)
@@ -261,7 +271,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putLongVolatile(null, addressOffset + index, value);
+        UNSAFE.putLongVolatile(null, addressOffset + index, value);
     }
 
     public void putLongOrdered(final long index, final long value)
@@ -271,7 +281,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        memory().putOrderedLong(null, addressOffset + index, value);
+        UNSAFE.putOrderedLong(null, addressOffset + index, value);
     }
 
     public long addLongOrdered(final long index, final long increment)
@@ -282,8 +292,8 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         }
 
         final long offset = addressOffset + index;
-        final long value = memory().getLong(null, offset);
-        memory().putOrderedLong(null, offset, value + increment);
+        final long value = UNSAFE.getLong(null, offset);
+        UNSAFE.putOrderedLong(null, offset, value + increment);
 
         return value;
     }
@@ -295,7 +305,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().compareAndSwapLong(null, addressOffset + index, expectedValue, updateValue);
+        return UNSAFE.compareAndSwapLong(null, addressOffset + index, expectedValue, updateValue);
     }
 
     public long getAndSetLong(final long index, final long value)
@@ -305,7 +315,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getAndSetLong(null, addressOffset + index, value);
+        return UNSAFE.getAndSetLong(null, addressOffset + index, value);
     }
 
     public long getAndAddLong(final long index, final long delta)
@@ -315,7 +325,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_LONG);
         }
 
-        return memory().getAndAddLong(null, addressOffset + index, delta);
+        return UNSAFE.getAndAddLong(null, addressOffset + index, delta);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -327,7 +337,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        int bits = memory().getInt(null, addressOffset + index);
+        int bits = UNSAFE.getInt(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -349,7 +359,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             bits = Integer.reverseBytes(bits);
         }
 
-        memory().putInt(null, addressOffset + index, bits);
+        UNSAFE.putInt(null, addressOffset + index, bits);
     }
 
     public int getInt(final long index)
@@ -359,7 +369,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getInt(null, addressOffset + index);
+        return UNSAFE.getInt(null, addressOffset + index);
     }
 
     public void putInt(final long index, final int value)
@@ -369,7 +379,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putInt(null, addressOffset + index, value);
+        UNSAFE.putInt(null, addressOffset + index, value);
     }
 
     public int getIntVolatile(final long index)
@@ -379,7 +389,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getIntVolatile(null, addressOffset + index);
+        return UNSAFE.getIntVolatile(null, addressOffset + index);
     }
 
     public void putIntVolatile(final long index, final int value)
@@ -389,7 +399,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putIntVolatile(null, addressOffset + index, value);
+        UNSAFE.putIntVolatile(null, addressOffset + index, value);
     }
 
     public void putIntOrdered(final long index, final int value)
@@ -399,7 +409,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        memory().putOrderedInt(null, addressOffset + index, value);
+        UNSAFE.putOrderedInt(null, addressOffset + index, value);
     }
 
     public int addIntOrdered(final long index, final int increment)
@@ -410,8 +420,8 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         }
 
         final long offset = addressOffset + index;
-        final int value = memory().getInt(null, offset);
-        memory().putOrderedInt(null, offset, value + increment);
+        final int value = UNSAFE.getInt(null, offset);
+        UNSAFE.putOrderedInt(null, offset, value + increment);
 
         return value;
     }
@@ -423,7 +433,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().compareAndSwapInt(null, addressOffset + index, expectedValue, updateValue);
+        return UNSAFE.compareAndSwapInt(null, addressOffset + index, expectedValue, updateValue);
     }
 
     public int getAndSetInt(final long index, final int value)
@@ -433,7 +443,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getAndSetInt(null, addressOffset + index, value);
+        return UNSAFE.getAndSetInt(null, addressOffset + index, value);
     }
 
     public int getAndAddInt(final long index, final int delta)
@@ -443,7 +453,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_INT);
         }
 
-        return memory().getAndAddInt(null, addressOffset + index, delta);
+        return UNSAFE.getAndAddInt(null, addressOffset + index, delta);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -457,12 +467,12 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final long bits = memory().getLong(null, addressOffset + index);
+            final long bits = UNSAFE.getLong(null, addressOffset + index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         }
         else
         {
-            return memory().getDouble(null, addressOffset + index);
+            return UNSAFE.getDouble(null, addressOffset + index);
         }
     }
 
@@ -476,11 +486,11 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            memory().putLong(null, addressOffset + index, bits);
+            UNSAFE.putLong(null, addressOffset + index, bits);
         }
         else
         {
-            memory().putDouble(null, addressOffset + index, value);
+            UNSAFE.putDouble(null, addressOffset + index, value);
         }
     }
 
@@ -491,7 +501,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_DOUBLE);
         }
 
-        return memory().getDouble(null, addressOffset + index);
+        return UNSAFE.getDouble(null, addressOffset + index);
     }
 
     public void putDouble(final long index, final double value)
@@ -501,7 +511,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_DOUBLE);
         }
 
-        memory().putDouble(null, addressOffset + index, value);
+        UNSAFE.putDouble(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -515,12 +525,12 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final int bits = memory().getInt(null, addressOffset + index);
+            final int bits = UNSAFE.getInt(null, addressOffset + index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         }
         else
         {
-            return memory().getFloat(null, addressOffset + index);
+            return UNSAFE.getFloat(null, addressOffset + index);
         }
     }
 
@@ -534,11 +544,11 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            memory().putInt(null, addressOffset + index, bits);
+            UNSAFE.putInt(null, addressOffset + index, bits);
         }
         else
         {
-            memory().putFloat(null, addressOffset + index, value);
+            UNSAFE.putFloat(null, addressOffset + index, value);
         }
     }
 
@@ -549,7 +559,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_FLOAT);
         }
 
-        return memory().getFloat(null, addressOffset + index);
+        return UNSAFE.getFloat(null, addressOffset + index);
     }
 
     public void putFloat(final long index, final float value)
@@ -559,7 +569,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_FLOAT);
         }
 
-        memory().putFloat(null, addressOffset + index, value);
+        UNSAFE.putFloat(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -571,7 +581,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        short bits = memory().getShort(null, addressOffset + index);
+        short bits = UNSAFE.getShort(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Short.reverseBytes(bits);
@@ -593,7 +603,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             bits = Short.reverseBytes(bits);
         }
 
-        memory().putShort(null, addressOffset + index, bits);
+        UNSAFE.putShort(null, addressOffset + index, bits);
     }
 
     public short getShort(final long index)
@@ -603,7 +613,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        return memory().getShort(null, addressOffset + index);
+        return UNSAFE.getShort(null, addressOffset + index);
     }
 
     public void putShort(final long index, final short value)
@@ -613,7 +623,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        memory().putShort(null, addressOffset + index, value);
+        UNSAFE.putShort(null, addressOffset + index, value);
     }
 
     public short getShortVolatile(final long index)
@@ -623,7 +633,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        return memory().getShortVolatile(null, addressOffset + index);
+        return UNSAFE.getShortVolatile(null, addressOffset + index);
     }
 
     public void putShortVolatile(final long index, final short value)
@@ -633,7 +643,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        memory().putShortVolatile(null, addressOffset + index, value);
+        UNSAFE.putShortVolatile(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -645,7 +655,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        return memory().getByte(null, addressOffset + index);
+        return UNSAFE.getByte(null, addressOffset + index);
     }
 
     public void putByte(final long index, final byte value)
@@ -655,7 +665,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        memory().putByte(null, addressOffset + index, value);
+        UNSAFE.putByte(null, addressOffset + index, value);
     }
 
     public byte getByteVolatile(final long index)
@@ -665,7 +675,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        return memory().getByteVolatile(null, addressOffset + index);
+        return UNSAFE.getByteVolatile(null, addressOffset + index);
     }
 
     public void putByteVolatile(final long index, final byte value)
@@ -675,7 +685,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_BYTE);
         }
 
-        memory().putByteVolatile(null, addressOffset + index, value);
+        UNSAFE.putByteVolatile(null, addressOffset + index, value);
     }
 
     public void getBytes(final long index, final byte[] dst)
@@ -691,7 +701,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             BufferUtil.boundsCheck(dst, offset, length);
         }
 
-        memory().copyMemory(null, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
+        UNSAFE.copyMemory(null, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final long dstIndex, final int length)
@@ -721,7 +731,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             dstBaseOffset = ((sun.nio.ch.DirectBuffer)dstBuffer).address();
         }
 
-        memory().copyMemory(null, addressOffset + index, dstnull, dstBaseOffset + dstOffset, length);
+        UNSAFE.copyMemory(null, addressOffset + index, dstnull, dstBaseOffset + dstOffset, length);
         dstBuffer.position(dstBuffer.position() + length);
     }
 
@@ -738,7 +748,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             BufferUtil.boundsCheck(src, offset, length);
         }
 
-        memory().copyMemory(src, ARRAY_BASE_OFFSET + offset, null, addressOffset + index, length);
+        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, null, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final ByteBuffer srcBuffer, final int length)
@@ -775,7 +785,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             srcBaseOffset = ((sun.nio.ch.DirectBuffer)srcBuffer).address();
         }
 
-        memory().copyMemory(srcnull, srcBaseOffset + srcIndex, null, addressOffset + index, length);
+        UNSAFE.copyMemory(srcnull, srcBaseOffset + srcIndex, null, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final DirectBuffer srcBuffer, final long srcIndex, final int length)
@@ -786,7 +796,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        memory().copyMemory(
+        UNSAFE.copyMemory(
             null,
             srcBuffer.addressOffset() + srcIndex,
             null,
@@ -803,7 +813,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_SHORT);
         }
 
-        char bits = memory().getChar(null, addressOffset + index);
+        char bits = UNSAFE.getChar(null, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = (char)Short.reverseBytes((short)bits);
@@ -825,7 +835,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             bits = (char)Short.reverseBytes((short)bits);
         }
 
-        memory().putChar(null, addressOffset + index, bits);
+        UNSAFE.putChar(null, addressOffset + index, bits);
     }
 
     public char getChar(final long index)
@@ -835,7 +845,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        return memory().getChar(null, addressOffset + index);
+        return UNSAFE.getChar(null, addressOffset + index);
     }
 
     public void putChar(final long index, final char value)
@@ -845,7 +855,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        memory().putChar(null, addressOffset + index, value);
+        UNSAFE.putChar(null, addressOffset + index, value);
     }
 
     public char getCharVolatile(final long index)
@@ -855,7 +865,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        return memory().getCharVolatile(null, addressOffset + index);
+        return UNSAFE.getCharVolatile(null, addressOffset + index);
     }
 
     public void putCharVolatile(final long index, final char value)
@@ -865,7 +875,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
             boundsCheck(index, SIZE_OF_CHAR);
         }
 
-        memory().putCharVolatile(null, addressOffset + index, value);
+        UNSAFE.putCharVolatile(null, addressOffset + index, value);
     }
 
     ///////////////////////////////////////////////////////////////////////////
