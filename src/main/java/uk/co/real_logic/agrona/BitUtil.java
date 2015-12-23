@@ -23,27 +23,49 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class BitUtil
 {
-    /** Size of a byte in bytes */
+    /**
+     * Size of a byte in bytes
+     */
     public static final int SIZE_OF_BYTE = 1;
-    /** Size of a boolean in bytes */
+
+    /**
+     * Size of a boolean in bytes
+     */
     public static final int SIZE_OF_BOOLEAN = 1;
 
-    /** Size of a char in bytes */
+    /**
+     * Size of a char in bytes
+     */
     public static final int SIZE_OF_CHAR = 2;
-    /** Size of a short in bytes */
+
+    /**
+     * Size of a short in bytes
+     */
     public static final int SIZE_OF_SHORT = 2;
 
-    /** Size of an int in bytes */
+    /**
+     * Size of an int in bytes
+     */
     public static final int SIZE_OF_INT = 4;
-    /** Size of a a float in bytes */
+
+    /**
+     * Size of a a float in bytes
+     */
     public static final int SIZE_OF_FLOAT = 4;
 
-    /** Size of a long in bytes */
+    /**
+     * Size of a long in bytes
+     */
     public static final int SIZE_OF_LONG = 8;
-    /** Size of a double in bytes */
+
+    /**
+     * Size of a double in bytes
+     */
     public static final int SIZE_OF_DOUBLE = 8;
 
-    /** Length of the data blocks used by the CPU cache sub-system in bytes. */
+    /**
+     * Length of the data blocks used by the CPU cache sub-system in bytes.
+     */
     public static final int CACHE_LINE_LENGTH = 64;
 
     private static final byte[] HEX_DIGIT_TABLE =
@@ -104,9 +126,10 @@ public class BitUtil
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
      * <p>
-     * This method executes without branching.
+     * This method executes without branching. This code is designed to be use in the fast path and should not
+     * be used with negative numbers. Negative numbers will result in undefined behaviour.
      *
-     * @param value to be aligned up.
+     * @param value     to be aligned up.
      * @param alignment to be used.
      * @return the value aligned to the next boundary.
      */
@@ -128,7 +151,7 @@ public class BitUtil
         for (int i = 0; i < buffer.length; i += 2)
         {
             outputBuffer[i >> 1] =
-                (byte) ((FROM_HEX_DIGIT_TABLE[buffer[i]] << 4) | FROM_HEX_DIGIT_TABLE[buffer[i + 1]]);
+                (byte)((FROM_HEX_DIGIT_TABLE[buffer[i]] << 4) | FROM_HEX_DIGIT_TABLE[buffer[i + 1]]);
         }
 
         return outputBuffer;
@@ -229,7 +252,7 @@ public class BitUtil
      * Cycles indices of an array one at a time in a forward fashion
      *
      * @param current value to be incremented.
-     * @param max value for the cycle.
+     * @param max     value for the cycle.
      * @return the next value, or zero if max is reached.
      */
     public static int next(final int current, final int max)
@@ -247,7 +270,7 @@ public class BitUtil
      * Cycles indices of an array one at a time in a backwards fashion
      *
      * @param current value to be decremented.
-     * @param max value of the cycle.
+     * @param max     value of the cycle.
      * @return the next value, or max - 1 if current is zero
      */
     public static int previous(final int current, final int max)
