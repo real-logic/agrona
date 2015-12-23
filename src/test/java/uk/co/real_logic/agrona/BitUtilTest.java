@@ -17,7 +17,6 @@ package uk.co.real_logic.agrona;
 
 import org.junit.Test;
 
-import static java.lang.Integer.valueOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static uk.co.real_logic.agrona.BitUtil.*;
@@ -27,18 +26,18 @@ public class BitUtilTest
     @Test
     public void shouldReturnNextPositivePowerOfTwo()
     {
-        assertThat(valueOf(findNextPositivePowerOfTwo(Integer.MIN_VALUE)), is(valueOf(Integer.MIN_VALUE)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(Integer.MIN_VALUE + 1)), is(valueOf(1)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(-1)), is(valueOf(1)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(0)), is(valueOf(1)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(1)), is(valueOf(1)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(2)), is(valueOf(2)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(3)), is(valueOf(4)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(4)), is(valueOf(4)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(31)), is(valueOf(32)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(32)), is(valueOf(32)));
-        assertThat(valueOf(findNextPositivePowerOfTwo(1 << 30)), is(valueOf(1 << 30)));
-        assertThat(valueOf(findNextPositivePowerOfTwo((1 << 30) + 1)), is(valueOf(Integer.MIN_VALUE)));
+        assertThat(findNextPositivePowerOfTwo(Integer.MIN_VALUE), is(Integer.MIN_VALUE));
+        assertThat(findNextPositivePowerOfTwo(Integer.MIN_VALUE + 1), is(1));
+        assertThat(findNextPositivePowerOfTwo(-1), is(1));
+        assertThat(findNextPositivePowerOfTwo(0), is(1));
+        assertThat(findNextPositivePowerOfTwo(1), is(1));
+        assertThat(findNextPositivePowerOfTwo(2), is(2));
+        assertThat(findNextPositivePowerOfTwo(3), is(4));
+        assertThat(findNextPositivePowerOfTwo(4), is(4));
+        assertThat(findNextPositivePowerOfTwo(31), is(32));
+        assertThat(findNextPositivePowerOfTwo(32), is(32));
+        assertThat(findNextPositivePowerOfTwo(1 << 30), is(1 << 30));
+        assertThat(findNextPositivePowerOfTwo((1 << 30) + 1), is(Integer.MIN_VALUE));
     }
 
     @Test
@@ -46,16 +45,16 @@ public class BitUtilTest
     {
         final int alignment = BitUtil.CACHE_LINE_LENGTH;
 
-        assertThat(valueOf(align(0, alignment)), is(valueOf(0)));
-        assertThat(valueOf(align(1, alignment)), is(valueOf(alignment)));
-        assertThat(valueOf(align(alignment, alignment)), is(valueOf(alignment)));
-        assertThat(valueOf(align(alignment + 1, alignment)), is(valueOf(alignment * 2)));
+        assertThat(align(0, alignment), is(0));
+        assertThat(align(1, alignment), is(alignment));
+        assertThat(align(alignment, alignment), is(alignment));
+        assertThat(align(alignment + 1, alignment), is(alignment * 2));
 
-        final int reminder = Integer.MAX_VALUE % alignment;
-        final int maxMultiple = Integer.MAX_VALUE - reminder;
+        final int remainder = Integer.MAX_VALUE % alignment;
+        final int maxMultiple = Integer.MAX_VALUE - remainder;
 
-        assertThat(valueOf(align(maxMultiple, alignment)), is(valueOf(maxMultiple)));
-        assertThat(valueOf(align(Integer.MAX_VALUE, alignment)), is(valueOf(Integer.MIN_VALUE)));
+        assertThat(align(maxMultiple, alignment), is(maxMultiple));
+        assertThat(align(Integer.MAX_VALUE, alignment), is(Integer.MIN_VALUE));
     }
 
     @Test
@@ -65,10 +64,10 @@ public class BitUtilTest
         final byte[] converted = toHexByteArray(buffer);
         final String hexStr = toHex(buffer);
 
-        assertThat(valueOf(converted[0]), is(valueOf('0')));
-        assertThat(valueOf(converted[1]), is(valueOf('1')));
-        assertThat(valueOf(converted[2]), is(valueOf('2')));
-        assertThat(valueOf(converted[3]), is(valueOf('3')));
+        assertThat(converted[0], is((byte)'0'));
+        assertThat(converted[1], is((byte)'1'));
+        assertThat(converted[2], is((byte)'2'));
+        assertThat(converted[3], is((byte)'3'));
         assertThat(hexStr, is("0123456978bcdaef5f"));
     }
 
