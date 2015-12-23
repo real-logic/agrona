@@ -51,13 +51,34 @@ public class BitUtilTest
         assertThat(valueOf(align(alignment, alignment)), is(valueOf(alignment)));
         assertThat(valueOf(align(alignment + 1, alignment)), is(valueOf(alignment * 2)));
 
-        final int reminder = Integer.MAX_VALUE % alignment;
-        final int maxMultiple = Integer.MAX_VALUE - reminder;
+        final int remainder = Integer.MAX_VALUE % alignment;
+        final int maxMultiple = Integer.MAX_VALUE - remainder;
 
         assertThat(valueOf(align(maxMultiple, alignment)), is(valueOf(maxMultiple)));
         assertThat(valueOf(align(Integer.MAX_VALUE, alignment)), is(valueOf(Integer.MIN_VALUE)));
     }
 
+    @Test
+    public void shouldAlignWhenAlignmentIsPositiveAndValueIsNegative() {
+        final int alignment = BitUtil.CACHE_LINE_LENGTH;
+        assertThat(valueOf(align(-1, alignment)), is(valueOf(0)));
+        assertThat(valueOf(align(-alignment, alignment)), is(valueOf(-alignment)));
+        assertThat(valueOf(align(-alignment - 1, alignment)), is(valueOf(-alignment)));
+    }
+    
+    @Test
+    public void shouldAlignWhenAlignmentIsNegativeAndValueIsPositive() {
+        final int alignment = BitUtil.CACHE_LINE_LENGTH;
+        assertThat(valueOf(align(alignment + 1, -alignment)), is(valueOf(2 * alignment)));//FAILS
+    }
+
+    @Test
+    public void shouldAlignWhenAlignmentIsNegativeAndValueIsNegative() {
+        final int alignment = BitUtil.CACHE_LINE_LENGTH;
+        assertThat(valueOf(align(-alignment + 1, -alignment)), is(valueOf(0)));
+        assertThat(valueOf(align(-alignment - 1, -alignment)), is(valueOf(-alignment)));// FAILS
+    }
+    
     @Test
     public void shouldConvertToHexCorrectly()
     {
