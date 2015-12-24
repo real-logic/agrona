@@ -19,17 +19,30 @@ package uk.co.real_logic.agrona.concurrent;
  * Low-latency idle strategy to be employed in loops that do significant work on each iteration such that any work in the
  * idle strategy would be wasteful.
  */
-public class NoOpIdleStrategy implements IdleStrategy
+public final class NoOpIdleStrategy implements IdleStrategy
 {
+
     /**
-     * If the caller of this {@link IdleStrategy} spins in a 'counted' loop this may cause a TTSP (Time To SafePoint) problem.
-     * If this is the case for a particular application you can solve it by preventing this method from being inlined
-     * by using a Hotspot compiler command,
-     * -XX:CompileCommand=dontinline,uk.co.real_logic.agrona.concurrent.NoOpIdleStrategy::idle
+     * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy#idle(int)
+     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy
      */
     public void idle(final int workCount)
+    {
+    }
+
+    /**
+     * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
+     *
+     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy
+     */
+    @Override
+    public void idle()
+    {
+    }
+
+    @Override
+    public void reset()
     {
     }
 }

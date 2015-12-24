@@ -22,17 +22,35 @@ import java.util.concurrent.ThreadLocalRandom;
  * possible latency. Useful for creating bubbles in the execution pipeline of tight busy spin loops with no other logic than
  * status checks on progress.
  */
-public class BusySpinIdleStrategy implements IdleStrategy
+abstract class BusySpinIdleStrategyPrePad
 {
-    private int dummyCounter;
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
+}
+abstract class BusySpinIdleStrategyData extends BusySpinIdleStrategyPrePad
+{
+    protected int dummyCounter;
+}
+public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData implements IdleStrategy
+{
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
 
+    /**
+     * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
+     *
+     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy#idle(int)
+     */
     public void idle(final int workCount)
     {
         if (workCount > 0)
         {
             return;
         }
+        idle();
+    }
 
+    @Override
+    public void idle()
+    {
         // Trick speculative execution into not progressing
         if (dummyCounter > 0)
         {
@@ -45,5 +63,10 @@ public class BusySpinIdleStrategy implements IdleStrategy
         {
             dummyCounter = 64;
         }
+    }
+
+    @Override
+    public void reset()
+    {
     }
 }

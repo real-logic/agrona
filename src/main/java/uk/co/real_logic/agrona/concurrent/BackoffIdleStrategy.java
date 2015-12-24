@@ -25,23 +25,39 @@ import java.util.concurrent.locks.LockSupport;
  * {@link Thread#yield()} for maxYields, then
  * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs
  */
-public class BackoffIdleStrategy implements IdleStrategy
+abstract class BackoffIdleStrategyPrePad
 {
-    public enum State
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
+}
+abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
+{
+    enum State
     {
         NOT_IDLE, SPINNING, YIELDING, PARKING
     }
 
-    private final long maxSpins;
-    private final long maxYields;
-    private final long minParkPeriodNs;
-    private final long maxParkPeriodNs;
+    protected final long maxSpins;
+    protected final long maxYields;
+    protected final long minParkPeriodNs;
+    protected final long maxParkPeriodNs;
 
-    private State state;
+    BackoffIdleStrategyData(final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
+    {
+        this.maxSpins = maxSpins;
+        this.maxYields = maxYields;
+        this.minParkPeriodNs = minParkPeriodNs;
+        this.maxParkPeriodNs = maxParkPeriodNs;
+    }
+    protected State state;
 
-    private long spins;
-    private long yields;
-    private long parkPeriodNs;
+    protected long spins;
+    protected long yields;
+    protected long parkPeriodNs;
+}
+
+public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
+{
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
 
     /**
      * Create a set of state tracking idle behavior
@@ -53,11 +69,7 @@ public class BackoffIdleStrategy implements IdleStrategy
      */
     public BackoffIdleStrategy(final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
     {
-        this.maxSpins = maxSpins;
-        this.maxYields = maxYields;
-        this.minParkPeriodNs = minParkPeriodNs;
-        this.maxParkPeriodNs = maxParkPeriodNs;
-
+        super(maxSpins, maxYields, minParkPeriodNs, maxParkPeriodNs);
         this.state = State.NOT_IDLE;
     }
 
@@ -66,12 +78,15 @@ public class BackoffIdleStrategy implements IdleStrategy
     {
         if (workCount > 0)
         {
-            spins = 0;
-            yields = 0;
-            state = State.NOT_IDLE;
+            reset();
             return;
         }
+        idle();
+    }
 
+    @Override
+    public void idle()
+    {
         switch (state)
         {
             case NOT_IDLE:
@@ -104,6 +119,14 @@ public class BackoffIdleStrategy implements IdleStrategy
                 parkPeriodNs = Math.min(parkPeriodNs << 1, maxParkPeriodNs);
                 break;
         }
+    }
+
+    @Override
+    public void reset()
+    {
+        spins = 0;
+        yields = 0;
+        state = State.NOT_IDLE;
     }
 }
 

@@ -20,9 +20,9 @@ import java.util.concurrent.locks.LockSupport;
 /**
  * When idle this strategy is to sleep for a specified period.
  */
-public class SleepingIdleStrategy implements IdleStrategy
+public final class SleepingIdleStrategy implements IdleStrategy
 {
-    final long sleepPeriodNs;
+    private final long sleepPeriodNs;
 
     /**
      * Constructed a new strategy that will sleep for a given period when idle.
@@ -31,14 +31,27 @@ public class SleepingIdleStrategy implements IdleStrategy
      */
     public SleepingIdleStrategy(final long sleepPeriodNs)
     {
+
         this.sleepPeriodNs = sleepPeriodNs;
     }
 
     public void idle(final int workCount)
     {
-        if (0 == workCount)
+        if (workCount > 0)
         {
-            LockSupport.parkNanos(sleepPeriodNs);
+            return;
         }
+        LockSupport.parkNanos(sleepPeriodNs);
+    }
+
+    @Override
+    public void idle()
+    {
+        LockSupport.parkNanos(sleepPeriodNs);
+    }
+
+    @Override
+    public void reset()
+    {
     }
 }

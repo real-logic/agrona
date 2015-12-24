@@ -102,8 +102,7 @@ public class AgentRunner implements Runnable, AutoCloseable
         {
             try
             {
-                final int workCount = agent.doWork();
-                idleStrategy.idle(workCount);
+                idleStrategy.idle(agent.doWork());
             }
             catch (final InterruptedException ignore)
             {
