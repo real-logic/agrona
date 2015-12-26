@@ -16,14 +16,18 @@
 package uk.co.real_logic.agrona.concurrent;
 
 /**
- * Idle strategy for use by threads when then do not have work to do.
- * <h3>Note regarding implementor state</h3><br>
- * Some implementors are known to be statefull, please note that you cannot safely assume implementors to be stateless. Where
- * implementors are statefull it is recommended that implementor state is padded to avoid false sharing.
- * <h3>Note regarding potential for TTSP(Time To Safe Point) issues</h3><br>
- * If the caller spins in a 'counted' loop, and the implementation does not include a a safepoint poll this may cause a TTSP (Time
- * To SafePoint) problem. If this is the case for your application you can solve it by preventing the idle method from being
- * inlined by using a Hotspot compiler command as a JVM argument e.g:
+ * Idle strategy for use by threads when they do not have work to do.
+ *
+ * <h3>Note regarding implementor state</h3>
+ *
+ * Some implementations are known to be stateful, please note that you cannot safely assume implementations to be stateless.
+ * Where implementations are stateful it is recommended that implementation state is padded to avoid false sharing.
+ *
+ * <h3>Note regarding potential for TTSP(Time To Safe Point) issues</h3>
+ *
+ * If the caller spins in a 'counted' loop, and the implementation does not include a a safepoint poll this may cause a TTSP
+ * (Time To SafePoint) problem. If this is the case for your application you can solve it by preventing the idle method from
+ * being inlined by using a Hotspot compiler command as a JVM argument e.g:
  * <code>-XX:CompileCommand=dontinline,uk.co.real_logic.agrona.concurrent.NoOpIdleStrategy::idle</code>
  */
 public interface IdleStrategy
@@ -42,30 +46,32 @@ public interface IdleStrategy
      *
      * <pre>
      * <code>
-     * while(isRunning)
+     * while (isRunning)
      * {
      *     idleStrategy.idle(doWork());
      * }
      * </code>
      * </pre>
      *
-     * @param workCount
-     *            performed in last duty cycle.
+     * @param workCount performed in last duty cycle.
      */
     void idle(int workCount);
 
     /**
-     * Perform current idle action (e.g. nothing/yield/sleep). To be used in conjuction with {@link IdleStrategy#reset()} to clear
-     * internal state when idle period is over (or before it begins). Callers are expected to follow this pattern:
+     * Perform current idle action (e.g. nothing/yield/sleep). To be used in conjunction with {@link IdleStrategy#reset()}
+     * to clear internal state when idle period is over (or before it begins). Callers are expected to follow this pattern:
      *
      * <pre>
      * <code>
-     * while(isRunning)
+     * while (isRunning)
      * {
-     *   if (!hasWork()) {
+     *   if (!hasWork())
+     *   {
      *     idleStrategy.reset();
-     *     while (!hasWork()) {
-     *       if (!isRunning) {
+     *     while (!hasWork())
+     *     {
+     *       if (!isRunning)
+     *       {
      *         return;
      *       }
      *       idleStrategy.idle();
@@ -78,6 +84,8 @@ public interface IdleStrategy
      */
     void idle();
 
+    /**
+     * Reset the internal state in preparation for entering an idle state again.
+     */
     void reset();
-
 }

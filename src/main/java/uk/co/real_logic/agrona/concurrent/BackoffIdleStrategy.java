@@ -25,10 +25,12 @@ import java.util.concurrent.locks.LockSupport;
  * {@link Thread#yield()} for maxYields, then
  * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs
  */
+@SuppressWarnings("unused")
 abstract class BackoffIdleStrategyPrePad
 {
     long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
 }
+
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
 {
     enum State
@@ -55,6 +57,7 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     protected long parkPeriodNs;
 }
 
+@SuppressWarnings("unused")
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
     long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
@@ -84,7 +87,6 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         idle();
     }
 
-    @Override
     public void idle()
     {
         switch (state)
@@ -121,7 +123,6 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         }
     }
 
-    @Override
     public void reset()
     {
         spins = 0;

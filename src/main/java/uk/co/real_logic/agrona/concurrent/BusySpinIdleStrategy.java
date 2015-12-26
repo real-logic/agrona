@@ -22,14 +22,18 @@ import java.util.concurrent.ThreadLocalRandom;
  * possible latency. Useful for creating bubbles in the execution pipeline of tight busy spin loops with no other logic than
  * status checks on progress.
  */
+@SuppressWarnings("unused")
 abstract class BusySpinIdleStrategyPrePad
 {
     long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
 }
+
 abstract class BusySpinIdleStrategyData extends BusySpinIdleStrategyPrePad
 {
     protected int dummyCounter;
 }
+
+@SuppressWarnings("unused")
 public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData implements IdleStrategy
 {
     long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
@@ -48,7 +52,6 @@ public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData impleme
         idle();
     }
 
-    @Override
     public void idle()
     {
         // Trick speculative execution into not progressing
@@ -65,7 +68,6 @@ public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData impleme
         }
     }
 
-    @Override
     public void reset()
     {
     }

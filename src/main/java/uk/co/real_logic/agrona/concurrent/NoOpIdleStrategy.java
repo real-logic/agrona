@@ -21,11 +21,10 @@ package uk.co.real_logic.agrona.concurrent;
  */
 public final class NoOpIdleStrategy implements IdleStrategy
 {
-
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy
+     * @see IdleStrategy
      */
     public void idle(final int workCount)
     {
@@ -34,14 +33,12 @@ public final class NoOpIdleStrategy implements IdleStrategy
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     * @see uk.co.real_logic.agrona.concurrent.IdleStrategy
+     * @see IdleStrategy
      */
-    @Override
     public void idle()
     {
     }
 
-    @Override
     public void reset()
     {
     }

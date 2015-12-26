@@ -31,7 +31,6 @@ public final class SleepingIdleStrategy implements IdleStrategy
      */
     public SleepingIdleStrategy(final long sleepPeriodNs)
     {
-
         this.sleepPeriodNs = sleepPeriodNs;
     }
 
@@ -44,13 +43,11 @@ public final class SleepingIdleStrategy implements IdleStrategy
         LockSupport.parkNanos(sleepPeriodNs);
     }
 
-    @Override
     public void idle()
     {
         LockSupport.parkNanos(sleepPeriodNs);
     }
 
-    @Override
     public void reset()
     {
     }

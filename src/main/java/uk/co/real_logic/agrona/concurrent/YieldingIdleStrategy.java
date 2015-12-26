@@ -26,16 +26,15 @@ public final class YieldingIdleStrategy implements IdleStrategy
         {
             return;
         }
+
         Thread.yield();
     }
 
-    @Override
     public void idle()
     {
         Thread.yield();
     }
 
-    @Override
     public void reset()
     {
     }
