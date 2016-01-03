@@ -25,19 +25,14 @@ import static uk.co.real_logic.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.checkCapacity;
 
 /**
- * A ring-buffer that supports the exchange of messages from many producers to a single consumer.
+ * A ring-buffer that supports the exchange of messages from a single producer to a single consumer.
  */
-public class ManyToOneRingBuffer implements RingBuffer
+public class OneToOneRingBuffer implements RingBuffer
 {
     /**
      * Record type is padding to prevent fragmentation in the buffer.
      */
     public static final int PADDING_MSG_TYPE_ID = -1;
-
-    /**
-     * Buffer has insufficient capacity to record a message.
-     */
-    private static final int INSUFFICIENT_CAPACITY = -2;
 
     private final int capacity;
     private final int mask;
@@ -58,7 +53,7 @@ public class ManyToOneRingBuffer implements RingBuffer
      * @throws IllegalStateException if the buffer capacity is not a power of 2
      *                               plus {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
-    public ManyToOneRingBuffer(final AtomicBuffer buffer)
+    public OneToOneRingBuffer(final AtomicBuffer buffer)
     {
         this.buffer = buffer;
         checkCapacity(buffer.capacity());
@@ -91,25 +86,68 @@ public class ManyToOneRingBuffer implements RingBuffer
         checkTypeId(msgTypeId);
         checkMsgLength(length);
 
-        boolean isSuccessful = false;
-
         final AtomicBuffer buffer = this.buffer;
         final int recordLength = length + HEADER_LENGTH;
         final int requiredCapacity = align(recordLength, ALIGNMENT);
-        final int recordIndex = claimCapacity(buffer, requiredCapacity);
+        final int capacity = this.capacity;
+        final int tailPositionIndex = this.tailPositionIndex;
+        final int headCachePositionIndex = this.headCachePositionIndex;
+        final int mask = this.mask;
 
-        if (INSUFFICIENT_CAPACITY != recordIndex)
+        long head = buffer.getLong(headCachePositionIndex);
+        final long tail = buffer.getLong(tailPositionIndex);
+        final int availableCapacity = capacity - (int)(tail - head);
+
+        if (requiredCapacity > availableCapacity)
         {
-            buffer.putLongOrdered(recordIndex, makeHeader(-recordLength, msgTypeId));
-            UnsafeAccess.UNSAFE.storeFence();
+            head = buffer.getLongVolatile(headPositionIndex);
 
-            buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
-            buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+            if (requiredCapacity > (capacity - (int)(tail - head)))
+            {
+                return false;
+            }
 
-            isSuccessful = true;
+            buffer.putLong(headCachePositionIndex, head);
         }
 
-        return isSuccessful;
+        int padding = 0;
+        int recordIndex = (int)tail & mask;
+        final int toBufferEndLength = capacity - recordIndex;
+
+        if (requiredCapacity > toBufferEndLength)
+        {
+            int headIndex = (int)head & mask;
+
+            if (requiredCapacity > headIndex)
+            {
+                head = buffer.getLongVolatile(headPositionIndex);
+                headIndex = (int)head & mask;
+                if (requiredCapacity > headIndex)
+                {
+                    return false;
+                }
+
+                buffer.putLong(headCachePositionIndex, head);
+            }
+
+            padding = toBufferEndLength;
+        }
+
+        if (0 != padding)
+        {
+            buffer.putLongOrdered(recordIndex, makeHeader(padding, PADDING_MSG_TYPE_ID));
+            recordIndex = 0;
+        }
+
+        buffer.putLongOrdered(recordIndex, makeHeader(-recordLength, msgTypeId));
+        UnsafeAccess.UNSAFE.storeFence();
+
+        buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
+        buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+
+        buffer.putLongOrdered(tailPositionIndex, tail + requiredCapacity + padding);
+
+        return true;
     }
 
     /**
@@ -253,67 +291,7 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public boolean unblock()
     {
-        final AtomicBuffer buffer = this.buffer;
-        final int consumerIndex = (int)(buffer.getLongVolatile(headPositionIndex) & mask);
-        final int producerIndex = (int)(buffer.getLongVolatile(tailPositionIndex) & mask);
-
-        if (producerIndex == consumerIndex)
-        {
-            return false;
-        }
-
-        boolean unblocked = false;
-        int length = buffer.getIntVolatile(consumerIndex);
-        if (length < 0)
-        {
-            buffer.putLongOrdered(consumerIndex, makeHeader(-length, PADDING_MSG_TYPE_ID));
-            unblocked = true;
-        }
-        else if (0 == length)
-        {
-            // go from (consumerIndex to producerIndex) or (consumerIndex to capacity)
-            final int limit = producerIndex > consumerIndex ? producerIndex : buffer.capacity();
-            int i = consumerIndex + ALIGNMENT;
-
-            do
-            {
-                // read the top int of every long (looking for length aligned to 8=ALIGNMENT)
-                length = buffer.getIntVolatile(i);
-                if (0 != length)
-                {
-                    if (scanBackToConfirmStillZeroed(buffer, i, consumerIndex))
-                    {
-                        buffer.putLongOrdered(consumerIndex, makeHeader(i - consumerIndex, PADDING_MSG_TYPE_ID));
-                        unblocked = true;
-                    }
-
-                    break;
-                }
-
-                i += ALIGNMENT;
-            }
-            while (i < limit);
-        }
-
-        return unblocked;
-    }
-
-    private static boolean scanBackToConfirmStillZeroed(final AtomicBuffer buffer, final int from, final int limit)
-    {
-        int i = from - ALIGNMENT;
-        boolean allZeros = true;
-        while (i >= limit)
-        {
-            if (0 != buffer.getIntVolatile(i))
-            {
-                allZeros = false;
-                break;
-            }
-
-            i -= ALIGNMENT;
-        }
-
-        return allZeros;
+        return false;
     }
 
     private void checkMsgLength(final int length)
@@ -324,68 +302,5 @@ public class ManyToOneRingBuffer implements RingBuffer
 
             throw new IllegalArgumentException(msg);
         }
-    }
-
-    private int claimCapacity(final AtomicBuffer buffer, final int requiredCapacity)
-    {
-        final int capacity = this.capacity;
-        final int tailPositionIndex = this.tailPositionIndex;
-        final int headCachePositionIndex = this.headCachePositionIndex;
-        final int mask = this.mask;
-
-        long head = buffer.getLongVolatile(headCachePositionIndex);
-
-        long tail;
-        int tailIndex;
-        int padding;
-        do
-        {
-            tail = buffer.getLongVolatile(tailPositionIndex);
-            final int availableCapacity = capacity - (int)(tail - head);
-
-            if (requiredCapacity > availableCapacity)
-            {
-                head = buffer.getLongVolatile(headPositionIndex);
-
-                if (requiredCapacity > (capacity - (int)(tail - head)))
-                {
-                    return INSUFFICIENT_CAPACITY;
-                }
-
-                buffer.putLongOrdered(headCachePositionIndex, head);
-            }
-
-            padding = 0;
-            tailIndex = (int)tail & mask;
-            final int toBufferEndLength = capacity - tailIndex;
-
-            if (requiredCapacity > toBufferEndLength)
-            {
-                int headIndex = (int)head & mask;
-
-                if (requiredCapacity > headIndex)
-                {
-                    head = buffer.getLongVolatile(headPositionIndex);
-                    headIndex = (int)head & mask;
-                    if (requiredCapacity > headIndex)
-                    {
-                        return INSUFFICIENT_CAPACITY;
-                    }
-
-                    buffer.putLongOrdered(headCachePositionIndex, head);
-                }
-
-                padding = toBufferEndLength;
-            }
-        }
-        while (!buffer.compareAndSetLong(tailPositionIndex, tail, tail + requiredCapacity + padding));
-
-        if (0 != padding)
-        {
-            buffer.putLongOrdered(tailIndex, makeHeader(padding, PADDING_MSG_TYPE_ID));
-            tailIndex = 0;
-        }
-
-        return tailIndex;
     }
 }
