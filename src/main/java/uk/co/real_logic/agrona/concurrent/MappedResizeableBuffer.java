@@ -15,35 +15,25 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_BYTE;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_CHAR;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_DOUBLE;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_FLOAT;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_LONG;
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_SHORT;
-import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.ALIGNMENT;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.ARRAY_BASE_OFFSET;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.NATIVE_BYTE_ORDER;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.NULL_BYTES;
-import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.SHOULD_BOUNDS_CHECK;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.IoUtil;
+import uk.co.real_logic.agrona.MutableDirectBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
-import uk.co.real_logic.agrona.DirectBuffer;
-import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.MutableDirectBuffer;
+import static uk.co.real_logic.agrona.BitUtil.*;
+import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
+import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
  *
  * This buffer is resizable and based upon an underlying
  */
-public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
+public class MappedResizeableBuffer implements AutoCloseable
 {
 
     private FileChannel fileChannel;
@@ -706,7 +696,7 @@ public class MappedResizeableBuffer implements AtomicBuffer, AutoCloseable
 
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final long dstIndex, final int length)
     {
-        dstBuffer.putBytes(dstIndex, this, index, length);
+        // TODO: dstBuffer.putBytes(dstIndex, this, index, length);
     }
 
     public void getBytes(final long index, final ByteBuffer dstBuffer, final int length)
