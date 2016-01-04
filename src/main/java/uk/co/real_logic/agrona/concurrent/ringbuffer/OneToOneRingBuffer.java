@@ -16,7 +16,6 @@
 package uk.co.real_logic.agrona.concurrent.ringbuffer;
 
 import uk.co.real_logic.agrona.DirectBuffer;
-import uk.co.real_logic.agrona.UnsafeAccess;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 import uk.co.real_logic.agrona.concurrent.MessageHandler;
 
@@ -139,11 +138,8 @@ public class OneToOneRingBuffer implements RingBuffer
             recordIndex = 0;
         }
 
-        buffer.putLongOrdered(recordIndex, makeHeader(-recordLength, msgTypeId));
-        UnsafeAccess.UNSAFE.storeFence();
-
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
-        buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+        buffer.putLongOrdered(recordIndex, makeHeader(recordLength, msgTypeId));
 
         buffer.putLongOrdered(tailPositionIndex, tail + requiredCapacity + padding);
 
