@@ -31,7 +31,8 @@ import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
  *
- * This buffer is resizable and based upon an underlying
+ * This buffer is resizable and based upon an underlying FileChannel.
+ * The channel is <b>not</b> closed when the buffer is closed.
  */
 public class MappedResizeableBuffer implements AutoCloseable
 {
