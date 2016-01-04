@@ -30,7 +30,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param length of the run of bytes to set.
      * @param value  the memory will be set to.
      */
-    void setMemory(long index, int length, byte value);
+    void setMemory(int index, int length, byte value);
 
     /**
      * Put a value to a given index.
@@ -39,7 +39,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     for at a given index
      * @param byteOrder of the value when written
      */
-    void putLong(long index, long value, ByteOrder byteOrder);
+    void putLong(int index, long value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -47,7 +47,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value for at a given index
      */
-    void putLong(long index, long value);
+    void putLong(int index, long value);
 
     /**
      * Put a value to a given index.
@@ -56,7 +56,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     to be written
      * @param byteOrder of the value when written
      */
-    void putInt(long index, int value, ByteOrder byteOrder);
+    void putInt(int index, int value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -64,7 +64,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value for at a given index
      */
-    void putInt(long index, int value);
+    void putInt(int index, int value);
 
     /**
      * Put a value to a given index.
@@ -73,7 +73,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     to be written
      * @param byteOrder of the value when written.
      */
-    void putDouble(long index, double value, ByteOrder byteOrder);
+    void putDouble(int index, double value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -81,7 +81,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value to be written
      */
-    void putDouble(long index, double value);
+    void putDouble(int index, double value);
 
     /**
      * Put a value to a given index.
@@ -90,7 +90,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     to be written
      * @param byteOrder of the value when written.
      */
-    void putFloat(long index, float value, ByteOrder byteOrder);
+    void putFloat(int index, float value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -98,7 +98,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value to be written
      */
-    void putFloat(long index, float value);
+    void putFloat(int index, float value);
 
     /**
      * Put a value to a given index.
@@ -107,7 +107,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     to be written
      * @param byteOrder of the value when written.
      */
-    void putShort(long index, short value, ByteOrder byteOrder);
+    void putShort(int index, short value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -115,7 +115,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value to be written
      */
-    void putShort(long index, short value);
+    void putShort(int index, short value);
 
     /**
      * Put a value to a given index.
@@ -124,7 +124,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value     to be written
      * @param byteOrder of the value when written.
      */
-    void putChar(long index, char value, ByteOrder byteOrder);
+    void putChar(int index, char value, ByteOrder byteOrder);
 
     /**
      * Put a value to a given index.
@@ -132,7 +132,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value to be written
      */
-    void putChar(long index, char value);
+    void putChar(int index, char value);
 
     /**
      * Put a value to a given index.
@@ -140,7 +140,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in bytes for where to put.
      * @param value to be written
      */
-    void putByte(long index, byte value);
+    void putByte(int index, byte value);
 
     /**
      * Put an array of src into the underlying buffer.
@@ -148,7 +148,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param index in the underlying buffer to start from.
      * @param src   to be copied to the underlying buffer.
      */
-    void putBytes(long index, byte[] src);
+    void putBytes(int index, byte[] src);
 
     /**
      * Put an array into the underlying buffer.
@@ -158,7 +158,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param offset in the supplied buffer to begin the copy.
      * @param length of the supplied buffer to copy.
      */
-    void putBytes(long index, byte[] src, long offset, int length);
+    void putBytes(int index, byte[] src, int offset, int length);
 
     /**
      * Put bytes into the underlying buffer for the view.  Bytes will be copied from current
@@ -168,7 +168,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param srcBuffer to copy the bytes from.
      * @param length    of the supplied buffer to copy.
      */
-    void putBytes(long index, ByteBuffer srcBuffer, int length);
+    void putBytes(int index, ByteBuffer srcBuffer, int length);
 
     /**
      * Put bytes into the underlying buffer for the view. Bytes will be copied from the buffer index to
@@ -179,7 +179,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param srcIndex  in the source buffer from which the copy will begin.
      * @param length    of the bytes to be copied.
      */
-    void putBytes(long index, ByteBuffer srcBuffer, long srcIndex, int length);
+    void putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
 
     /**
      * Put bytes from a source {@link DirectBuffer} into this {@link MutableDirectBuffer} at given indices.
@@ -188,7 +188,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param srcIndex  in the source buffer from which the byte copy will begin.
      * @param length    of the bytes to be copied.
      */
-    void putBytes(long index, DirectBuffer srcBuffer, long srcIndex, int length);
+    void putBytes(int index, DirectBuffer srcBuffer, int srcIndex, int length);
 
     /**
      * Encode a String as UTF-8 bytes to the buffer with a length prefix.
@@ -198,7 +198,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param byteOrder for the length prefix.
      * @return the number of bytes put to the buffer.
      */
-    int putStringUtf8(long offset, String value, ByteOrder byteOrder);
+    int putStringUtf8(int offset, String value, ByteOrder byteOrder);
 
     /**
      * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
@@ -210,7 +210,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @return the number of bytes put to the buffer.
      * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedSize.
      */
-    int putStringUtf8(long offset, String value, ByteOrder byteOrder, int maxEncodedSize);
+    int putStringUtf8(int offset, String value, ByteOrder byteOrder, int maxEncodedSize);
 
     /**
      * Encode a String as UTF-8 bytes in the buffer without a length prefix.
@@ -219,5 +219,5 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @param value  of the String to be encoded.
      * @return the number of bytes encoded.
      */
-    int putStringWithoutLengthUtf8(long offset, String value);
+    int putStringWithoutLengthUtf8(int offset, String value);
 }

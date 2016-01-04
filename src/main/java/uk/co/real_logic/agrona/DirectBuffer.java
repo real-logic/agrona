@@ -70,7 +70,7 @@ public interface DirectBuffer
      * @param offset at which the view begins.
      * @param length of the buffer included in the view
      */
-    void wrap(DirectBuffer buffer, long offset, int length);
+    void wrap(DirectBuffer buffer, int offset, int length);
 
     /**
      * Attach a view to an off-heap memory region by address.
@@ -116,7 +116,7 @@ public interface DirectBuffer
      * @param limit up to which access is required.
      * @throws IndexOutOfBoundsException if limit is beyond buffer capacity.
      */
-    void checkLimit(long limit);
+    void checkLimit(int limit);
 
     /**
      * Get the value at a given index.
@@ -125,7 +125,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value for at a given index
      */
-    long getLong(long index, ByteOrder byteOrder);
+    long getLong(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -133,7 +133,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value for at a given index
      */
-    long getLong(long index);
+    long getLong(int index);
 
     /**
      * Get the value at a given index.
@@ -142,7 +142,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value at a given index.
      */
-    int getInt(long index, ByteOrder byteOrder);
+    int getInt(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -150,7 +150,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value for at a given index
      */
-    int getInt(long index);
+    int getInt(int index);
 
     /**
      * Get the value at a given index.
@@ -159,7 +159,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value at a given index.
      */
-    double getDouble(long index, ByteOrder byteOrder);
+    double getDouble(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -167,7 +167,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */
-    double getDouble(long index);
+    double getDouble(int index);
 
     /**
      * Get the value at a given index.
@@ -176,7 +176,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value at a given index.
      */
-    float getFloat(long index, ByteOrder byteOrder);
+    float getFloat(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -184,7 +184,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */
-    float getFloat(long index);
+    float getFloat(int index);
 
     /**
      * Get the value at a given index.
@@ -193,7 +193,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value at a given index.
      */
-    short getShort(long index, ByteOrder byteOrder);
+    short getShort(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -201,7 +201,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */
-    short getShort(long index);
+    short getShort(int index);
 
     /**
      * Get the value at a given index.
@@ -210,7 +210,7 @@ public interface DirectBuffer
      * @param byteOrder of the value to be read.
      * @return the value at a given index.
      */
-    char getChar(long index, ByteOrder byteOrder);
+    char getChar(int index, ByteOrder byteOrder);
 
     /**
      * Get the value at a given index.
@@ -218,7 +218,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */
-    char getChar(long index);
+    char getChar(int index);
 
     /**
      * Get the value at a given index.
@@ -226,7 +226,7 @@ public interface DirectBuffer
      * @param index in bytes from which to get.
      * @return the value at a given index.
      */
-    byte getByte(long index);
+    byte getByte(int index);
 
     /**
      * Get from the underlying buffer into a supplied byte array.
@@ -235,7 +235,7 @@ public interface DirectBuffer
      * @param index in the underlying buffer to start from.
      * @param dst   into which the dst will be copied.
      */
-    void getBytes(long index, byte[] dst);
+    void getBytes(int index, byte[] dst);
 
     /**
      * Get bytes from the underlying buffer into a supplied byte array.
@@ -245,7 +245,7 @@ public interface DirectBuffer
      * @param offset in the supplied buffer to start the copy
      * @param length of the supplied buffer to use.
      */
-    void getBytes(long index, byte[] dst, long offset, int length);
+    void getBytes(int index, byte[] dst, int offset, int length);
 
     /**
      * Get bytes from this {@link DirectBuffer} into the provided {@link MutableDirectBuffer} at given indices.
@@ -254,7 +254,7 @@ public interface DirectBuffer
      * @param dstIndex  in the channel buffer to which the byte copy will begin.
      * @param length    of the bytes to be copied.
      */
-    void getBytes(long index, MutableDirectBuffer dstBuffer, long dstIndex, int length);
+    void getBytes(int index, MutableDirectBuffer dstBuffer, int dstIndex, int length);
 
     /**
      * Get from the underlying buffer into a supplied {@link ByteBuffer}.
@@ -263,7 +263,7 @@ public interface DirectBuffer
      * @param dstBuffer into which the bytes will be copied.
      * @param length    of the supplied buffer to use.
      */
-    void getBytes(long index, ByteBuffer dstBuffer, int length);
+    void getBytes(int index, ByteBuffer dstBuffer, int length);
 
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
@@ -272,7 +272,7 @@ public interface DirectBuffer
      * @param byteOrder for the length at the beginning of the String.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
-    String getStringUtf8(long offset, ByteOrder byteOrder);
+    String getStringUtf8(int offset, ByteOrder byteOrder);
 
     /**
      * Get part of String from bytes encoded in UTF-8 format that is length prefixed.
@@ -281,7 +281,7 @@ public interface DirectBuffer
      * @param length of the String in bytes to decode.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
-    String getStringUtf8(long offset, int length);
+    String getStringUtf8(int offset, int length);
 
     /**
      * Get an encoded UTF-8 String from the buffer that does not have a length prefix.
@@ -290,7 +290,7 @@ public interface DirectBuffer
      * @param length of the String in bytes to decode.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
-    String getStringWithoutLengthUtf8(long offset, int length);
+    String getStringWithoutLengthUtf8(int offset, int length);
 
     /**
      * Check that a given length of bytes is within the bounds from a given index.
@@ -299,5 +299,5 @@ public interface DirectBuffer
      * @param length in bytes of the range to check.
      * @throws java.lang.IndexOutOfBoundsException if the length goes outside of the capacity range.
      */
-    void boundsCheck(long index, int length);
+    void boundsCheck(int index, int length);
 }
