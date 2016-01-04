@@ -31,10 +31,9 @@ import static org.junit.Assert.assertTrue;
 
 public class MappedResizeableBufferTest
 {
-
     private static final long SIZE = 2 * (long) Integer.MAX_VALUE;
     private static final String PATH = IoUtil.tmpDirName() +  "/eg-buffer";
-    public static final int VALUE = 4;
+    private static final int VALUE = 4;
 
     private static FileChannel channel;
 
@@ -93,12 +92,13 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldNotCloseChannelUponBufferClose() throws Exception {
+    public void shouldNotCloseChannelUponBufferClose() throws Exception
+    {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
-
         buffer.close();
 
         assertTrue(channel.isOpen());
+        buffer = null;
     }
 
     private void exchangeDataAt(final long index) throws IOException
@@ -110,7 +110,10 @@ public class MappedResizeableBufferTest
     @After
     public void close()
     {
-        buffer.close();
+        if (null != buffer)
+        {
+            buffer.close();
+        }
     }
 
     @AfterClass
@@ -119,5 +122,4 @@ public class MappedResizeableBufferTest
         channel.close();
         IoUtil.deleteIfExists(new File(PATH));
     }
-
 }

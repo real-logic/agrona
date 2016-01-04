@@ -36,7 +36,6 @@ import static uk.co.real_logic.agrona.concurrent.UnsafeBuffer.*;
  */
 public class MappedResizeableBuffer implements AutoCloseable
 {
-
     private FileChannel fileChannel;
     private long addressOffset;
     private long capacity;
