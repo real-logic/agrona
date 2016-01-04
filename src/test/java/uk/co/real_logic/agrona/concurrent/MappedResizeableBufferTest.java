@@ -27,6 +27,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MappedResizeableBufferTest
 {
@@ -89,6 +90,15 @@ public class MappedResizeableBufferTest
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
         assertEquals(VALUE, buffer.getInt(SIZE - 4));
+    }
+
+    @Test
+    public void shouldNotCloseChannelUponBufferClose() throws Exception {
+        buffer = new MappedResizeableBuffer(channel, 0, SIZE);
+
+        buffer.close();
+
+        assertTrue(channel.isOpen());
     }
 
     private void exchangeDataAt(final long index) throws IOException
