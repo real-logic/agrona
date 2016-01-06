@@ -93,7 +93,8 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldNotCloseChannelUponBufferClose() throws Exception {
+    public void shouldNotCloseChannelUponBufferClose() throws Exception
+    {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
         buffer.close();
