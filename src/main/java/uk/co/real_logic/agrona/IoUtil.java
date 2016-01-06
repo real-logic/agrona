@@ -57,19 +57,20 @@ public class IoUtil
         UNMAP_BUFFER = getFileChannelMethod("unmap", MappedByteBuffer.class);
     }
 
-    private static Method getFileChannelMethod(final String name, final Class<?> ... parameterTypes)
+    private static Method getFileChannelMethod(final String name, final Class<?>... parameterTypes)
     {
+        Method method = null;
         try
         {
-            final Method method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
+            method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
             method.setAccessible(true);
-            return method;
         }
-        catch (NoSuchMethodException e)
+        catch (final NoSuchMethodException ex)
         {
-            LangUtil.rethrowUnchecked(e);
-            return null;
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return method;
     }
 
     /**
@@ -208,7 +209,7 @@ public class IoUtil
     /**
      * Create an empty file, fill with 0s, and return the {@link FileChannel}
      *
-     * @param file to create
+     * @param file   to create
      * @param length of the file to create
      * @return {@link java.nio.channels.FileChannel} for the file
      */
@@ -348,35 +349,46 @@ public class IoUtil
         }
     }
 
+    /**
+     * Map a range of a file and return the address at which the range begins.
+     *
+     * @param fileChannel to be mapped.
+     * @param mode        for the mapped region.
+     * @param offset      within the file the mapped region should start.
+     * @param length      of the mapped region.
+     * @return the address at which the mapping starts.
+     */
     public static long map(
-        final FileChannel fileChannel,
-        final FileChannel.MapMode mode,
-        final long offset,
-        final long length)
+        final FileChannel fileChannel, final FileChannel.MapMode mode, final long offset, final long length)
     {
         try
         {
-            return (long) MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
+            return (long)MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
         }
-        catch (IllegalAccessException | InvocationTargetException e)
+        catch (final IllegalAccessException | InvocationTargetException ex)
         {
-            LangUtil.rethrowUnchecked(e);
-            return 0;
+            LangUtil.rethrowUnchecked(ex);
         }
+
+        return 0;
     }
 
-    public static void unmap(
-        final FileChannel fileChannel,
-        final long address,
-        final long length)
+    /**
+     * Unmap a region of a file.
+     *
+     * @param fileChannel which has been mapped.
+     * @param address     at which the mapping begins.
+     * @param length      of the mapped region.
+     */
+    public static void unmap(final FileChannel fileChannel, final long address, final long length)
     {
         try
         {
             UNMAP_ADDRESS.invoke(fileChannel, address, length);
         }
-        catch (IllegalAccessException | InvocationTargetException e)
+        catch (final IllegalAccessException | InvocationTargetException ex)
         {
-            LangUtil.rethrowUnchecked(e);
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 
