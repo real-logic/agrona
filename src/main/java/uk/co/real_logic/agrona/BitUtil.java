@@ -69,10 +69,9 @@ public class BitUtil
     public static final int CACHE_LINE_LENGTH = 64;
 
     private static final byte[] HEX_DIGIT_TABLE =
-        {
-            '0', '1', '2', '3', '4', '5', '6', '7',
-            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-        };
+    {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
     private static final byte[] FROM_HEX_DIGIT_TABLE;
 
