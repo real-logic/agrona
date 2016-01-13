@@ -96,7 +96,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
         }
     }
 
-    protected final long mask;
     protected final int capacity;
     protected final E[] buffer;
 
@@ -104,7 +103,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
     public AbstractConcurrentArrayQueue(final int requestedCapacity)
     {
         capacity = BitUtil.findNextPositivePowerOfTwo(requestedCapacity);
-        mask = capacity - 1;
         buffer = (E[])new Object[capacity];
     }
 
@@ -131,7 +129,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
     @SuppressWarnings("unchecked")
     public E peek()
     {
-        return (E)UNSAFE.getObjectVolatile(buffer, sequenceToBufferOffset(head, mask));
+        return (E)UNSAFE.getObjectVolatile(buffer, sequenceToBufferOffset(head, capacity - 1));
     }
 
     public boolean add(final E e)
@@ -179,6 +177,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
         }
 
         final Object[] buffer = this.buffer;
+        final int mask = this.capacity - 1;
 
         for (long i = head, limit = tail; i < limit; i++)
         {

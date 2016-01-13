@@ -40,6 +40,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             throw new NullPointerException("Null is not a valid element");
         }
 
+        final int capacity = this.capacity;
         long currentHead = headCache;
         long bufferLimit = currentHead + capacity;
         final long currentTail = tail;
@@ -55,7 +56,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
             headCache = currentHead;
         }
 
-        final long elementOffset = sequenceToBufferOffset(currentTail, mask);
+        final long elementOffset = sequenceToBufferOffset(currentTail, capacity - 1);
 
         UNSAFE.putOrderedObject(buffer, elementOffset, e);
         UNSAFE.putOrderedLong(this, TAIL_OFFSET, currentTail + 1);
@@ -68,7 +69,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
     {
         final Object[] buffer = this.buffer;
         final long currentHead = head;
-        final long elementOffset = sequenceToBufferOffset(currentHead, mask);
+        final long elementOffset = sequenceToBufferOffset(currentHead, capacity - 1);
 
         final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
         if (null != e)
@@ -84,7 +85,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
     public int drain(final Consumer<E> elementHandler)
     {
         final Object[] buffer = this.buffer;
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
         final long currentHead = head;
         long nextSequence = currentHead;
         final long limit = nextSequence + mask + 1;
@@ -112,7 +113,7 @@ public class OneToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueu
     public int drainTo(final Collection<? super E> target, final int limit)
     {
         final Object[] buffer = this.buffer;
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
         long nextSequence = head;
         int count = 0;
 
