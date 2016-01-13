@@ -128,7 +128,7 @@ public class UnsafeBuffer implements AtomicBuffer
      * @param address where the memory begins off-heap
      * @param length  of the buffer from the given address
      */
-    public UnsafeBuffer(final int address, final int length)
+    public UnsafeBuffer(final long address, final int length)
     {
         wrap(address, length);
     }
