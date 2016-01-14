@@ -32,7 +32,6 @@ public class BroadcastTransmitter
 {
     private final AtomicBuffer buffer;
     private final int capacity;
-    private final int mask;
     private final int maxMsgLength;
     private final int tailIntentCountIndex;
     private final int tailCounterIndex;
@@ -55,7 +54,6 @@ public class BroadcastTransmitter
         checkCapacity(capacity);
         buffer.verifyAlignment();
 
-        this.mask = capacity - 1;
         this.maxMsgLength = calculateMaxMessageLength(capacity);
         this.tailIntentCountIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
         this.tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
@@ -99,7 +97,7 @@ public class BroadcastTransmitter
 
         final AtomicBuffer buffer = this.buffer;
         long currentTail = buffer.getLong(tailCounterIndex);
-        int recordOffset = (int)currentTail & mask;
+        int recordOffset = (int)currentTail & (capacity - 1);
         final int recordLength = HEADER_LENGTH + length;
         final int recordLengthAligned = BitUtil.align(recordLength, RECORD_ALIGNMENT);
         final long newTail = currentTail + recordLengthAligned;

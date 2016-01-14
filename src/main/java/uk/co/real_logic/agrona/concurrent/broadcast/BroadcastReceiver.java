@@ -36,16 +36,16 @@ import static uk.co.real_logic.agrona.concurrent.broadcast.RecordDescriptor.*;
  */
 public class BroadcastReceiver
 {
-    private final AtomicBuffer buffer;
-    private final int capacity;
-    private final int mask;
-    private final int tailIntentCounterIndex;
-    private final int tailCounterIndex;
-    private final int latestCounterIndex;
-
-    private int recordOffset = 0;
     private long cursor = 0;
     private long nextRecord = 0;
+    private int recordOffset = 0;
+
+    private final int capacity;
+    private final int tailIntentCounterIndex;
+    private final int tailCounterIndex;
+
+    private final int latestCounterIndex;
+    private final AtomicBuffer buffer;
     private final AtomicLong lappedCount = new AtomicLong();
 
     /**
@@ -65,7 +65,6 @@ public class BroadcastReceiver
         checkCapacity(capacity);
         buffer.verifyAlignment();
 
-        this.mask = capacity - 1;
         this.tailIntentCounterIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
         this.tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
         this.latestCounterIndex = capacity + LATEST_COUNTER_OFFSET;
@@ -151,14 +150,14 @@ public class BroadcastReceiver
 
         if (tail > cursor)
         {
-            int recordOffset = (int)cursor & mask;
+            int recordOffset = (int)cursor & (capacity - 1);
 
             if (!validate(cursor))
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
 
                 cursor = buffer.getLong(latestCounterIndex);
-                recordOffset = (int)cursor & mask;
+                recordOffset = (int)cursor & (capacity - 1);
             }
 
             this.cursor = cursor;
