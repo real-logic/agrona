@@ -35,8 +35,6 @@ public class Int2ObjectHashMap<V>
 {
     private final double loadFactor;
     @DoNotSub private int resizeThreshold;
-    @DoNotSub private int capacity;
-    @DoNotSub private int mask;
     @DoNotSub private int size;
 
     private int[] keys;
@@ -64,8 +62,7 @@ public class Int2ObjectHashMap<V>
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
-        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
-        mask = capacity - 1;
+        /* @DoNotSub */ final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         /* @DoNotSub */ resizeThreshold = (int)(capacity * loadFactor);
 
         keys = new int[capacity];
@@ -94,7 +91,7 @@ public class Int2ObjectHashMap<V>
      */
     @DoNotSub public int capacity()
     {
-        return capacity;
+        return values.length;
     }
 
     /**
@@ -140,6 +137,7 @@ public class Int2ObjectHashMap<V>
      */
     public boolean containsKey(final int key)
     {
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         boolean found = false;
@@ -192,6 +190,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
@@ -256,6 +255,7 @@ public class Int2ObjectHashMap<V>
         requireNonNull(value, "Value cannot be null");
 
         V oldValue = null;
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         while (null != values[index])
@@ -302,6 +302,7 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         Object value;
@@ -404,7 +405,7 @@ public class Int2ObjectHashMap<V>
 
     private void increaseCapacity()
     {
-        @DoNotSub final int newCapacity = capacity << 1;
+        @DoNotSub final int newCapacity = values.length << 1;
         if (newCapacity < 0)
         {
             throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -415,12 +416,11 @@ public class Int2ObjectHashMap<V>
 
     private void rehash(@DoNotSub final int newCapacity)
     {
-        capacity = newCapacity;
-        mask = newCapacity - 1;
+        @DoNotSub final int mask = newCapacity - 1;
         /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
-        final int[] tempKeys = new int[capacity];
-        final Object[] tempValues = new Object[capacity];
+        final int[] tempKeys = new int[newCapacity];
+        final Object[] tempValues = new Object[newCapacity];
 
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
@@ -445,6 +445,7 @@ public class Int2ObjectHashMap<V>
 
     private void compactChain(@DoNotSub int deleteIndex)
     {
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = deleteIndex;
         while (true)
         {
@@ -582,11 +583,12 @@ public class Int2ObjectHashMap<V>
 
         @DoNotSub protected int position()
         {
-            return posCounter & mask;
+            return posCounter & values.length - 1;
         }
 
         public boolean hasNext()
         {
+            @DoNotSub final int mask = values.length - 1;
             boolean hasNext = false;
             for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
@@ -603,6 +605,7 @@ public class Int2ObjectHashMap<V>
 
         protected void findNext()
         {
+            @DoNotSub final int mask = values.length - 1;
             isPositionValid = false;
 
             for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
@@ -643,6 +646,7 @@ public class Int2ObjectHashMap<V>
         {
             keys = Int2ObjectHashMap.this.keys;
             values = Int2ObjectHashMap.this.values;
+            @DoNotSub final int capacity = values.length;
 
             @DoNotSub int i = capacity;
             if (null != values[capacity - 1])
