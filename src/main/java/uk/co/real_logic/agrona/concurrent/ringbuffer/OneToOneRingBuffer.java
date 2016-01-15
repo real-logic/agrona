@@ -34,7 +34,6 @@ public class OneToOneRingBuffer implements RingBuffer
     public static final int PADDING_MSG_TYPE_ID = -1;
 
     private final int capacity;
-    private final int mask;
     private final int maxMsgLength;
     private final int tailPositionIndex;
     private final int headCachePositionIndex;
@@ -60,7 +59,6 @@ public class OneToOneRingBuffer implements RingBuffer
 
         buffer.verifyAlignment();
 
-        mask = capacity - 1;
         maxMsgLength = capacity / 8;
         tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
         headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
@@ -91,7 +89,7 @@ public class OneToOneRingBuffer implements RingBuffer
         final int capacity = this.capacity;
         final int tailPositionIndex = this.tailPositionIndex;
         final int headCachePositionIndex = this.headCachePositionIndex;
-        final int mask = this.mask;
+        final int mask = capacity - 1;
 
         long head = buffer.getLong(headCachePositionIndex);
         final long tail = buffer.getLong(tailPositionIndex);
@@ -166,7 +164,8 @@ public class OneToOneRingBuffer implements RingBuffer
 
         int bytesRead = 0;
 
-        final int headIndex = (int)head & mask;
+        final int capacity = this.capacity;
+        final int headIndex = (int)head & (capacity - 1);
         final int contiguousBlockLength = capacity - headIndex;
 
         try

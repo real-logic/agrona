@@ -66,8 +66,6 @@ public class BiInt2ObjectMap<V>
 
     private final double loadFactor;
     private int resizeThreshold;
-    private int capacity;
-    private int mask;
     private int size;
 
     private long[] keys;
@@ -92,8 +90,7 @@ public class BiInt2ObjectMap<V>
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
-        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
-        mask = capacity - 1;
+        final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         resizeThreshold = (int)(capacity * loadFactor);
 
         keys = new long[capacity];
@@ -107,7 +104,7 @@ public class BiInt2ObjectMap<V>
      */
     public int capacity()
     {
-        return capacity;
+        return values.length;
     }
 
     /**
@@ -153,6 +150,7 @@ public class BiInt2ObjectMap<V>
         final long key = compoundKey(keyPartA, keyPartB);
 
         V oldValue = null;
+        final int mask = values.length - 1;
         int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         while (null != values[index])
@@ -193,6 +191,7 @@ public class BiInt2ObjectMap<V>
     public V get(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
+        final int mask = values.length - 1;
         int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         Object value;
@@ -221,6 +220,7 @@ public class BiInt2ObjectMap<V>
     {
         final long key = compoundKey(keyPartA, keyPartB);
 
+        final int mask = values.length - 1;
         int index = Hashing.hash(keyPartA, keyPartB, mask);
 
         Object value;
@@ -339,12 +339,11 @@ public class BiInt2ObjectMap<V>
             throw new IllegalStateException("New capacity must be a power of two");
         }
 
-        capacity = newCapacity;
-        mask = newCapacity - 1;
+        final int mask = newCapacity - 1;
         resizeThreshold = (int)(newCapacity * loadFactor);
 
-        final long[] tempKeys = new long[capacity];
-        final Object[] tempValues = new Object[capacity];
+        final long[] tempKeys = new long[newCapacity];
+        final Object[] tempValues = new Object[newCapacity];
 
         for (int i = 0, size = values.length; i < size; i++)
         {
@@ -370,6 +369,7 @@ public class BiInt2ObjectMap<V>
 
     private void compactChain(int deleteIndex)
     {
+        final int mask = values.length - 1;
         int index = deleteIndex;
         while (true)
         {
@@ -396,7 +396,7 @@ public class BiInt2ObjectMap<V>
 
     private void increaseCapacity()
     {
-        final int newCapacity = capacity << 1;
+        final int newCapacity = values.length << 1;
         if (newCapacity < 0)
         {
             throw new IllegalStateException("Max capacity reached at size=" + size);

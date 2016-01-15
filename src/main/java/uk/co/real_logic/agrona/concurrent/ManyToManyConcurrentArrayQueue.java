@@ -72,7 +72,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
         for (int i = 0, size = capacity; i < size; i++)
         {
-            final long sequenceOffset = sequenceArrayOffset(i, mask);
+            final long sequenceOffset = sequenceArrayOffset(i, capacity - 1);
             UNSAFE.putOrderedLong(sequences, sequenceOffset, i);
         }
 
@@ -86,7 +86,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             throw new NullPointerException("element cannot be null");
         }
 
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
         final long[] sequences = this.sequences;
 
         do
@@ -115,7 +115,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     public E poll()
     {
         final long[] sequences = this.sequences;
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
 
         do
         {

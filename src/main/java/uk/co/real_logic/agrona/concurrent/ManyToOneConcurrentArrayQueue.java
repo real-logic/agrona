@@ -40,9 +40,10 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
             throw new NullPointerException("element cannot be null");
         }
 
-        long currentTail;
+        final int capacity = this.capacity;
         long currentHead = sharedHeadCache;
         long bufferLimit = currentHead + capacity;
+        long currentTail;
         do
         {
             currentTail = tail;
@@ -60,7 +61,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         }
         while (!UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1));
 
-        UNSAFE.putOrderedObject(buffer, sequenceToBufferOffset(currentTail, mask), e);
+        UNSAFE.putOrderedObject(buffer, sequenceToBufferOffset(currentTail, capacity - 1), e);
 
         return true;
     }
@@ -69,7 +70,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
     public E poll()
     {
         final long currentHead = head;
-        final long elementOffset = sequenceToBufferOffset(currentHead, mask);
+        final long elementOffset = sequenceToBufferOffset(currentHead, capacity - 1);
         final Object[] buffer = this.buffer;
         final Object e = UNSAFE.getObjectVolatile(buffer, elementOffset);
 
@@ -86,7 +87,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
     public int drain(final Consumer<E> elementHandler)
     {
         final Object[] buffer = this.buffer;
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
         final long currentHead = head;
         long nextSequence = currentHead;
         final long limit = nextSequence + mask + 1;
@@ -114,7 +115,7 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
     public int drainTo(final Collection<? super E> target, final int limit)
     {
         final Object[] buffer = this.buffer;
-        final long mask = this.mask;
+        final long mask = this.capacity - 1;
         long nextSequence = head;
         int count = 0;
 

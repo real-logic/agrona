@@ -2,7 +2,8 @@ Agrona
 ======
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
-applications in Java and C++.
+applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
+efficient reliable UDP unicast, multicast, and IPC message transport.
 
 For the latest version information and changes see the [Change Log](https://github.com/real-logic/Agrona/wiki/Change-Log). 
 
@@ -23,9 +24,6 @@ Utilities Included:
 * Basic code generation from annotated implementations that can vary on primitive types.
 * Off-heap counters implementation for application telemetry.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
-
-Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
-efficient reliable UDP unicast, multicast, and IPC message transport.
 
 License (See LICENSE file for full license)
 -------------------------------------------

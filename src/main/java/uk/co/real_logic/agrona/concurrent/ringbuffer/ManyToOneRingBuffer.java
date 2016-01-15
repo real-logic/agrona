@@ -40,7 +40,6 @@ public class ManyToOneRingBuffer implements RingBuffer
     private static final int INSUFFICIENT_CAPACITY = -2;
 
     private final int capacity;
-    private final int mask;
     private final int maxMsgLength;
     private final int tailPositionIndex;
     private final int headCachePositionIndex;
@@ -66,7 +65,6 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         buffer.verifyAlignment();
 
-        mask = capacity - 1;
         maxMsgLength = capacity / 8;
         tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
         headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
@@ -132,7 +130,8 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         int bytesRead = 0;
 
-        final int headIndex = (int)head & mask;
+        final int capacity = this.capacity;
+        final int headIndex = (int)head & (capacity - 1);
         final int contiguousBlockLength = capacity - headIndex;
 
         try
@@ -254,6 +253,7 @@ public class ManyToOneRingBuffer implements RingBuffer
     public boolean unblock()
     {
         final AtomicBuffer buffer = this.buffer;
+        final int mask = capacity - 1;
         final int consumerIndex = (int)(buffer.getLongVolatile(headPositionIndex) & mask);
         final int producerIndex = (int)(buffer.getLongVolatile(tailPositionIndex) & mask);
 
@@ -331,7 +331,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         final int capacity = this.capacity;
         final int tailPositionIndex = this.tailPositionIndex;
         final int headCachePositionIndex = this.headCachePositionIndex;
-        final int mask = this.mask;
+        final int mask = capacity - 1;
 
         long head = buffer.getLongVolatile(headCachePositionIndex);
 
