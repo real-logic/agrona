@@ -161,12 +161,15 @@ public class Int2ObjectHashMap<V>
     public boolean containsValue(final Object value)
     {
         boolean found = false;
-        for (final Object v : values)
+        if (null != value)
         {
-            if (null != v && v.equals(value))
+            for (final Object v : values)
             {
-                found = true;
-                break;
+                if (value.equals(v))
+                {
+                    found = true;
+                    break;
+                }
             }
         }
 
