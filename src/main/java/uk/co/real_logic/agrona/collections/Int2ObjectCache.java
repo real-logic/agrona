@@ -194,15 +194,20 @@ public class Int2ObjectCache<V>
      */
     public boolean containsValue(final Object value)
     {
-        for (final Object v : values)
+        boolean found = false;
+        if (null != value)
         {
-            if (null != v && v.equals(value))
+            for (final Object v : values)
             {
-                return true;
+                if (value.equals(v))
+                {
+                    found = true;
+                    break;
+                }
             }
         }
 
-        return false;
+        return found;
     }
 
     /**
