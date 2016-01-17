@@ -434,6 +434,32 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return max;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        for (final Entry<Integer, Integer> entry : entrySet())
+        {
+            sb.append(entry.getKey().intValue());
+            sb.append('=');
+            sb.append(entry.getValue().intValue());
+            sb.append(", ");
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
     // ---------------- Utility Classes ----------------
 
     abstract class AbstractIterator
