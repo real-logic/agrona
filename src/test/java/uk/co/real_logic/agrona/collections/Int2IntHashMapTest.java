@@ -243,6 +243,21 @@ public class Int2IntHashMapTest
     {
         addTwoElements();
 
+        entrySetContainsTwoElements();
+    }
+
+    @Test
+    public void entrySetIteratorShouldContainEntriesEveryIteration()
+    {
+        addTwoElements();
+
+        entrySetContainsTwoElements();
+
+        entrySetContainsTwoElements();
+    }
+
+    private void entrySetContainsTwoElements()
+    {
         final Set<Entry<Integer, Integer>> entrySet = map.entrySet();
         assertEquals(2, entrySet.size());
         assertFalse(entrySet.isEmpty());

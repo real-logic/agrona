@@ -713,7 +713,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
          */
         public Iterator<Entry<Integer, Integer>> iterator()
         {
-            return entryIterator;
+            return entryIterator.reset();
         }
 
         /**
