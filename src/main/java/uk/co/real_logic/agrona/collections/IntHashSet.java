@@ -52,15 +52,13 @@ public final class IntHashSet implements Set<Integer>
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
+    private final double loadFactor;
+    private final int missingValue;
+    @DoNotSub private int resizeThreshold;
+    @DoNotSub private int size;
+
     private int[] values;
     private final IntIterator iterator;
-    private final int missingValue;
-    private final double loadFactor;
-
-    @DoNotSub private int mask;
-    @DoNotSub private int resizeThreshold;
-    @DoNotSub private int capacity;
-    @DoNotSub private int size;
 
     public IntHashSet(final int missingValue)
     {
@@ -84,8 +82,7 @@ public final class IntHashSet implements Set<Integer>
         this.loadFactor = loadFactor;
         size = 0;
         this.missingValue = missingValue;
-        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
-        mask = capacity - 1;
+        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
         Arrays.fill(values, missingValue);
@@ -120,6 +117,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean add(final int value)
     {
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
@@ -129,7 +128,7 @@ public final class IntHashSet implements Set<Integer>
                 return false;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         values[index] = value;
@@ -145,7 +144,7 @@ public final class IntHashSet implements Set<Integer>
 
     private void increaseCapacity()
     {
-        @DoNotSub final int newCapacity = capacity << 1;
+        @DoNotSub final int newCapacity = values.length * 2;
         if (newCapacity < 0)
         {
             throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -156,13 +155,12 @@ public final class IntHashSet implements Set<Integer>
 
     private void rehash(@DoNotSub final int newCapacity)
     {
-        CollectionUtil.validatePositivePowerOfTwo(newCapacity);
-
-        capacity = newCapacity;
-        mask = newCapacity - 1;
+        @DoNotSub final int capacity = newCapacity;
+        @DoNotSub final int mask = newCapacity - 1;
         resizeThreshold = (int)(newCapacity * loadFactor); // @DoNotSub
 
         final int[] tempValues = new int[capacity];
+        final int missingValue = this.missingValue;
         Arrays.fill(tempValues, missingValue);
 
         for (final int value : values)
@@ -198,9 +196,9 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean remove(final int value)
     {
-        @DoNotSub int index = Hashing.hash(value, mask);
-
         final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
         {
@@ -212,13 +210,13 @@ public final class IntHashSet implements Set<Integer>
                 return true;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         return false;
     }
 
-    @DoNotSub private int next(final int index)
+    @DoNotSub private static int next(final int index, final int mask)
     {
         return (index + 1) & mask;
     }
@@ -226,11 +224,12 @@ public final class IntHashSet implements Set<Integer>
     @DoNotSub private void compactChain(int deleteIndex)
     {
         final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
 
         @DoNotSub int index = deleteIndex;
         while (true)
         {
-            index = next(index);
+            index = next(index, mask);
             if (values[index] == missingValue)
             {
                 return;
@@ -272,6 +271,8 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean contains(final int value)
     {
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
 
         while (values[index] != missingValue)
@@ -281,7 +282,7 @@ public final class IntHashSet implements Set<Integer>
                 return true;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         return false;
@@ -320,7 +321,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public int capacity()
     {
-        return capacity;
+        return values.length;
     }
 
     /**
@@ -358,6 +359,7 @@ public final class IntHashSet implements Set<Integer>
     {
         boolean containsAll = true;
 
+        final int missingValue = this.missingValue;
         for (final int value : values)
         {
             if (value != missingValue && !other.contains(value))
@@ -384,6 +386,7 @@ public final class IntHashSet implements Set<Integer>
 
         IntHashSet difference = null;
 
+        final int missingValue = this.missingValue;
         for (final int value : values)
         {
             if (value != missingValue && !other.contains(value))
@@ -435,21 +438,21 @@ public final class IntHashSet implements Set<Integer>
     /**
      * {@inheritDoc}
      */
-    public void copy(final IntHashSet obj)
+    public void copy(final IntHashSet that)
     {
         // NB: mask also implies the length is the same
-        if (this.mask != obj.mask)
+        if (this.values.length != that.values.length)
         {
             throw new IllegalArgumentException("Cannot copy object: masks not equal");
         }
 
-        if (this.missingValue != obj.missingValue)
+        if (this.missingValue != that.missingValue)
         {
             throw new IllegalArgumentException("Cannot copy object: missingValues not equal");
         }
 
-        System.arraycopy(obj.values, 0, this.values, 0, this.values.length);
-        this.size = obj.size;
+        System.arraycopy(that.values, 0, this.values, 0, this.values.length);
+        this.size = that.size;
     }
 
     /**
