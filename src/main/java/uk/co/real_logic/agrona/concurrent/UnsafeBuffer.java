@@ -1085,7 +1085,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
         for (int i = 0, length = capacity; i < length; i++)
         {
-            hashCode = 31 * hashCode + UNSAFE.getByte(byteArray, addressOffset + i);
+            hashCode += UNSAFE.getByte(byteArray, addressOffset + i);
         }
 
         return hashCode;
