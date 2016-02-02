@@ -28,17 +28,15 @@ import static uk.co.real_logic.agrona.collections.CollectionUtil.validateLoadFac
  */
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
+    @DoNotSub private final double loadFactor;
+    private final int missingValue;
+    @DoNotSub private int resizeThreshold;
+    @DoNotSub private int size = 0;
+
+    private int[] entries;
     private final KeySet keySet;
     private final Values values;
     private final Set<Entry<Integer, Integer>> entrySet;
-
-    @DoNotSub private final double loadFactor;
-    private final int missingValue;
-
-    private int[] entries;
-
-    @DoNotSub private int resizeThreshold;
-    @DoNotSub private int size = 0;
 
     public Int2IntHashMap(final int missingValue)
     {
@@ -463,11 +461,23 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return sb.toString();
     }
 
+    @DoNotSub private static int next(final int index, final int mask)
+    {
+        return (index + 2) & mask;
+    }
+
+    private void capacity(@DoNotSub final int newCapacity)
+    {
+        /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
+        entries = new int[newCapacity * 2];
+        size = 0;
+        Arrays.fill(entries, missingValue);
+    }
+
     // ---------------- Utility Classes ----------------
 
     abstract class AbstractIterator
     {
-        @DoNotSub private int capacity;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
@@ -479,7 +489,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         private void reset()
         {
             final int[] entries = Int2IntHashMap.this.entries;
-            capacity = entries.length;
+            @DoNotSub final int capacity = entries.length;
 
             @DoNotSub int i = capacity;
             if (entries[capacity - 2] != missingValue)
@@ -616,19 +626,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             return this;
         }
-    }
-
-    @DoNotSub private int next(final int index, final int mask)
-    {
-        return (index + 2) & mask;
-    }
-
-    private void capacity(@DoNotSub final int newCapacity)
-    {
-        /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
-        entries = new int[newCapacity * 2];
-        size = 0;
-        Arrays.fill(entries, missingValue);
     }
 
     public final class KeySet extends MapDelegatingSet<Integer>
