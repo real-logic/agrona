@@ -34,7 +34,7 @@ import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
  * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
  * with the {@link ByteOrder} overload.
  */
-public class UnsafeBuffer implements AtomicBuffer
+public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 {
     /**
      * Buffer alignment to ensure atomic word accesses.
@@ -1047,4 +1047,68 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass())
+        {
+            return false;
+        }
+
+        final UnsafeBuffer that = (UnsafeBuffer)obj;
+
+        if (capacity != that.capacity)
+        {
+            return false;
+        }
+
+        for (int i = 0, length = capacity; i < length; i++)
+        {
+            if (UNSAFE.getByte(byteArray, addressOffset + i) != UNSAFE.getByte(that.byteArray, that.addressOffset + i))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        int hashCode = 0;
+
+        for (int i = 0, length = capacity; i < length; i++)
+        {
+            hashCode = 31 * hashCode + UNSAFE.getByte(byteArray, addressOffset + i);
+        }
+
+        return hashCode;
+    }
+
+    public int compareTo(final UnsafeBuffer that)
+    {
+        if (this.capacity != that.capacity)
+        {
+            return this.capacity - that.capacity;
+        }
+
+        for (int i = 0, length = capacity; i < length; i++)
+        {
+            final int cmp = Byte.compare(
+                UNSAFE.getByte(byteArray, addressOffset + i), UNSAFE.getByte(that.byteArray, that.addressOffset + i));
+
+            if (0 != cmp)
+            {
+                return cmp;
+            }
+        }
+
+        return 0;
+    }
 }
