@@ -37,8 +37,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     private int[] entries;
 
-    @DoNotSub private int capacity;
-    @DoNotSub private int mask;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size = 0;
 
@@ -94,6 +92,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int get(final int key)
     {
         final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int value = missingValue;
@@ -106,7 +105,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 break;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         return value;
@@ -115,6 +114,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int put(final int key, final int value)
     {
         int oldValue = missingValue;
+        @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int candidateKey;
@@ -126,7 +126,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 break;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         if (oldValue == missingValue)
@@ -137,16 +137,17 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         entries[index + 1] = value;
 
-        checkResize();
+        increaseCapacity();
 
         return oldValue;
     }
 
-    private void checkResize()
+    private void increaseCapacity()
     {
         if (size > resizeThreshold)
         {
-            @DoNotSub final int newCapacity = capacity << 1;
+            // entries.length = 2 * capacity
+            @DoNotSub final int newCapacity = entries.length;
             if (newCapacity < 0)
             {
                 throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -333,6 +334,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         final int[] entries = this.entries;
 
+        @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
         int oldValue = missingValue;
@@ -352,7 +354,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 break;
             }
 
-            index = next(index);
+            index = next(index, mask);
         }
 
         return oldValue;
@@ -362,10 +364,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     {
         final int[] entries = this.entries;
 
+        @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = deleteIndex;
         while (true)
         {
-            index = next(index);
+            index = next(index, mask);
             if (entries[index] == missingValue)
             {
                 break;
@@ -465,7 +468,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     abstract class AbstractIterator
     {
         @DoNotSub private int capacity;
-        @DoNotSub private int mask;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
@@ -478,7 +480,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             final int[] entries = Int2IntHashMap.this.entries;
             capacity = entries.length;
-            mask = capacity - 1;
 
             @DoNotSub int i = capacity;
             if (entries[capacity - 2] != missingValue)
@@ -499,12 +500,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         @DoNotSub protected int keyPosition()
         {
-            return positionCounter & mask;
+            return positionCounter & entries.length - 1;
         }
 
         public boolean hasNext()
         {
             final int[] entries = Int2IntHashMap.this.entries;
+            @DoNotSub final int mask = entries.length - 1;
             boolean hasNext = false;
             for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
             {
@@ -522,6 +524,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         protected void findNext()
         {
             final int[] entries = Int2IntHashMap.this.entries;
+            @DoNotSub final int mask = entries.length - 1;
 
             for (@DoNotSub int i = positionCounter - 2; i >= stopCounter; i -= 2)
             {
@@ -615,16 +618,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
     }
 
-    @DoNotSub private int next(final int index)
+    @DoNotSub private int next(final int index, final int mask)
     {
         return (index + 2) & mask;
     }
 
     private void capacity(@DoNotSub final int newCapacity)
     {
-        capacity = newCapacity;
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
-        mask = (newCapacity * 2) - 1;
         entries = new int[newCapacity * 2];
         size = 0;
         Arrays.fill(entries, missingValue);
