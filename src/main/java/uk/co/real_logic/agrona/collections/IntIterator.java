@@ -26,11 +26,9 @@ import java.util.NoSuchElementException;
 public class IntIterator implements Iterator<Integer>
 {
     private final int missingValue;
-
-    private int[] values;
-    @DoNotSub private int mask;
     @DoNotSub private int positionCounter;
     @DoNotSub private int stopCounter;
+    private int[] values;
 
     /**
      * Construct an {@link Iterator} over an array of primitives ints.
@@ -61,7 +59,7 @@ public class IntIterator implements Iterator<Integer>
     {
         this.values = values;
         @DoNotSub final int length = values.length;
-        mask = length - 1;
+
 
         @DoNotSub int i = length;
         if (values[length - 1] != missingValue)
@@ -82,11 +80,14 @@ public class IntIterator implements Iterator<Integer>
 
     @DoNotSub protected int position()
     {
-        return positionCounter & mask;
+        return positionCounter & (values.length - 1);
     }
 
     public boolean hasNext()
     {
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
@@ -101,6 +102,9 @@ public class IntIterator implements Iterator<Integer>
 
     protected void findNext()
     {
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
