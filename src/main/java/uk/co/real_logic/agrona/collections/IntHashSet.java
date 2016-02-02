@@ -45,7 +45,7 @@ public final class IntHashSet implements Set<Integer>
     /**
      * The load factor used when none is specified in the constructor.
      */
-    public static final double DEFAULT_LOAD_FACTOR = 0.67F;
+    public static final double DEFAULT_LOAD_FACTOR = 0.67;
 
     /**
      * The initial capacity used when none is specified in the constructor.
