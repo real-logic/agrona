@@ -87,11 +87,11 @@ public class CollectionUtil
      *
      * @param value to be validated.
      */
-    public static void validatePowerOfTwo(final int value)
+    public static void validatePositivePowerOfTwo(final int value)
     {
-        if (1 != Integer.bitCount(value))
+        if (value > 0 && 1 == (value & (value - 1)))
         {
-            throw new IllegalStateException("Value must be a power of two");
+            throw new IllegalStateException("Value must be a positive power of two");
         }
     }
 }

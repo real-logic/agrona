@@ -156,7 +156,7 @@ public final class IntHashSet implements Set<Integer>
 
     private void rehash(@DoNotSub final int newCapacity)
     {
-        CollectionUtil.validatePowerOfTwo(newCapacity);
+        CollectionUtil.validatePositivePowerOfTwo(newCapacity);
 
         capacity = newCapacity;
         mask = newCapacity - 1;

@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
-import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePowerOfTwo;
+import static uk.co.real_logic.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
 
 /**
  * A cache implementation specialised for int keys using open addressing to probe a set of fixed size.
@@ -64,7 +64,7 @@ public class Int2ObjectCache<V>
         @DoNotSub final int setSize,
         final Consumer<V> evictionConsumer)
     {
-        validatePowerOfTwo(numSets);
+        validatePositivePowerOfTwo(numSets);
         requireNonNull(evictionConsumer, "Null values are not permitted");
         if (((long)numSets) * setSize > Integer.MAX_VALUE)
         {
