@@ -1068,9 +1068,14 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
             return false;
         }
 
+        final byte[] thisByteArray = this.byteArray;
+        final byte[] thatByteArray = that.byteArray;
+        final long thisOffset = this.addressOffset;
+        final long thatOffset = that.addressOffset;
+
         for (int i = 0, length = capacity; i < length; i++)
         {
-            if (UNSAFE.getByte(byteArray, addressOffset + i) != UNSAFE.getByte(that.byteArray, that.addressOffset + i))
+            if (UNSAFE.getByte(thisByteArray, thisOffset + i) != UNSAFE.getByte(thatByteArray, thatOffset + i))
             {
                 return false;
             }
@@ -1083,6 +1088,8 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         int hashCode = 0;
 
+        final byte[] byteArray = this.byteArray;
+        final long addressOffset = this.addressOffset;
         for (int i = 0, length = capacity; i < length; i++)
         {
             hashCode += UNSAFE.getByte(byteArray, addressOffset + i);
@@ -1093,20 +1100,28 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public int compareTo(final UnsafeBuffer that)
     {
-        if (this.capacity != that.capacity)
-        {
-            return this.capacity - that.capacity;
-        }
+        final int thisCapacity = this.capacity;
+        final int thatCapacity = that.capacity;
+        final byte[] thisByteArray = this.byteArray;
+        final byte[] thatByteArray = that.byteArray;
+        final long thisOffset = this.addressOffset;
+        final long thatOffset = that.addressOffset;
 
-        for (int i = 0, length = capacity; i < length; i++)
+        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++)
         {
             final int cmp = Byte.compare(
-                UNSAFE.getByte(byteArray, addressOffset + i), UNSAFE.getByte(that.byteArray, that.addressOffset + i));
+                UNSAFE.getByte(thisByteArray, thisOffset + i),
+                UNSAFE.getByte(thatByteArray, thatOffset + i));
 
             if (0 != cmp)
             {
                 return cmp;
             }
+        }
+
+        if (thisCapacity != thatCapacity)
+        {
+            return thisCapacity - thatCapacity;
         }
 
         return 0;

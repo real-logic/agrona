@@ -29,6 +29,7 @@ public class UnsafeBufferTest
 {
     public byte[] wibbleBytes = "Wibble".getBytes(StandardCharsets.US_ASCII);
     public byte[] wobbleBytes = "Wobble".getBytes(StandardCharsets.US_ASCII);
+    public byte[] wibbleBytes2 = "Wibble2".getBytes(StandardCharsets.US_ASCII);
 
     @Test
     public void shouldEqualOnInstance()
@@ -90,5 +91,14 @@ public class UnsafeBufferTest
         final UnsafeBuffer wobbleBuffer = new UnsafeBuffer(wobbleBytes);
 
         assertThat(wobbleBuffer.compareTo(wibbleBuffer), is(greaterThan(0)));
+    }
+
+    @Test
+    public void shouldCompareLessThanOnContentsOfDifferingCapacity()
+    {
+        final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
+        final UnsafeBuffer wibbleBuffer2 = new UnsafeBuffer(wibbleBytes2);
+
+        assertThat(wibbleBuffer.compareTo(wibbleBuffer2), is(lessThan(0)));
     }
 }
