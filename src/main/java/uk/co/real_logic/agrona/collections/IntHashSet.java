@@ -440,7 +440,6 @@ public final class IntHashSet implements Set<Integer>
      */
     public void copy(final IntHashSet that)
     {
-        // NB: mask also implies the length is the same
         if (this.values.length != that.values.length)
         {
             throw new IllegalArgumentException("Cannot copy object: masks not equal");
