@@ -76,7 +76,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap()
     {
-        this(8, 0.6);
+        this(16, 0.67);
     }
 
     /**
@@ -132,7 +132,7 @@ public class BiInt2ObjectMap<V>
      */
     public void compact()
     {
-        final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
         rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
@@ -334,11 +334,6 @@ public class BiInt2ObjectMap<V>
 
     private void rehash(final int newCapacity)
     {
-        if (1 != Integer.bitCount(newCapacity))
-        {
-            throw new IllegalStateException("New capacity must be a power of two");
-        }
-
         final int mask = newCapacity - 1;
         resizeThreshold = (int)(newCapacity * loadFactor);
 
