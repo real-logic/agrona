@@ -537,7 +537,7 @@ public final class IntHashSet implements Set<Integer>
 
         for (final int value : values)
         {
-            total += (31 * value);
+            total += value;
         }
 
         return total;
