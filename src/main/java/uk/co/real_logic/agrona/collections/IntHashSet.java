@@ -533,11 +533,11 @@ public final class IntHashSet implements Set<Integer>
      */
     @DoNotSub public int hashCode()
     {
-        @DoNotSub int total = 0;
+        @DoNotSub int total = 1;
 
         for (final int value : values)
         {
-            total += value;
+            total += (31 * value);
         }
 
         return total;
