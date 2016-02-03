@@ -1040,7 +1040,6 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public void boundsCheck(final int index)
     {
-
         if (index < 0 || index >= capacity)
         {
             throw new IndexOutOfBoundsException(String.format("index=%d, capacity=%d", index, capacity));
