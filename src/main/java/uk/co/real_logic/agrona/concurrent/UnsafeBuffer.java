@@ -758,7 +758,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         return UNSAFE.getByte(byteArray, addressOffset + index);
@@ -768,7 +768,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         UNSAFE.putByte(byteArray, addressOffset + index, value);
@@ -778,7 +778,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
@@ -788,7 +788,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
@@ -1037,6 +1037,15 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     }
 
     ///////////////////////////////////////////////////////////////////////////
+
+    public void boundsCheck(final int index)
+    {
+
+        if (index < 0 || index >= capacity)
+        {
+            throw new IndexOutOfBoundsException(String.format("index=%d, capacity=%d", index, capacity));
+        }
+    }
 
     public void boundsCheck(final int index, final int length)
     {
