@@ -272,7 +272,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         else if (0 == length)
         {
             // go from (consumerIndex to producerIndex) or (consumerIndex to capacity)
-            final int limit = producerIndex > consumerIndex ? producerIndex : buffer.capacity();
+            final int limit = producerIndex > consumerIndex ? producerIndex : capacity;
             int i = consumerIndex + ALIGNMENT;
 
             do
