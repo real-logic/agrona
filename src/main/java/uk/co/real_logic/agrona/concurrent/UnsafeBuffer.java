@@ -1094,7 +1094,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public int hashCode()
     {
-        int hashCode = 0;
+        int hashCode = 1;
 
         final byte[] byteArray = this.byteArray;
         final long addressOffset = this.addressOffset;
