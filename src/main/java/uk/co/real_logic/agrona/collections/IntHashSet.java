@@ -533,14 +533,7 @@ public final class IntHashSet implements Set<Integer>
      */
     @DoNotSub public int hashCode()
     {
-        @DoNotSub int total = 1;
-
-        for (final int value : values)
-        {
-            total += value;
-        }
-
-        return total;
+        return Arrays.hashCode(values);
     }
 
     // --- Unimplemented below here
