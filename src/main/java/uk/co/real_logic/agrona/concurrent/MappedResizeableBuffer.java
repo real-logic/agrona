@@ -596,7 +596,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         return UNSAFE.getByte(null, addressOffset + index);
@@ -606,7 +606,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         UNSAFE.putByte(null, addressOffset + index, value);
@@ -616,7 +616,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         return UNSAFE.getByteVolatile(null, addressOffset + index);
@@ -626,7 +626,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck(index, SIZE_OF_BYTE);
+            boundsCheck(index);
         }
 
         UNSAFE.putByteVolatile(null, addressOffset + index, value);
@@ -872,6 +872,19 @@ public class MappedResizeableBuffer implements AutoCloseable
     ///////////////////////////////////////////////////////////////////////////
 
     public void boundsCheck(final long index, final int length)
+    {
+        boundsCheck0(index, length);
+    }
+
+    private void boundsCheck(final long index)
+    {
+        if (index < 0 || index >= capacity)
+        {
+            throw new IndexOutOfBoundsException(String.format("index=%d, capacity=%d", index, capacity));
+        }
+    }
+
+    private void boundsCheck0(final long index, final int length)
     {
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > capacity)
