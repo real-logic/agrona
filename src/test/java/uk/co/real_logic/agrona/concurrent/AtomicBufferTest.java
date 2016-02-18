@@ -69,10 +69,18 @@ public class AtomicBufferTest
 
     @Theory
     @Test(expected = IndexOutOfBoundsException.class)
-    public void shouldThrowExceptionForLimitAboveCapacity(final AtomicBuffer buffer)
+    public void shouldThrowExceptionForAboveCapacity(final AtomicBuffer buffer)
     {
-        final int position = BUFFER_CAPACITY + 1;
-        buffer.checkLimit(position);
+        final int index = BUFFER_CAPACITY + 1;
+        buffer.checkLimit(index);
+    }
+
+    @Theory
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void shouldThrowExceptionWhenOutOfBounds(final AtomicBuffer buffer)
+    {
+        final int index = BUFFER_CAPACITY;
+        buffer.getByte(index);
     }
 
     @Test
