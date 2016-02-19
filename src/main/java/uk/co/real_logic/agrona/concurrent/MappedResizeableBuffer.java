@@ -913,7 +913,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     private void boundsCheck0(final long index, final int length)
     {
         final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > capacity)
+        if (index < 0 || resultingPosition > capacity || resultingPosition < index)
         {
             throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
         }
