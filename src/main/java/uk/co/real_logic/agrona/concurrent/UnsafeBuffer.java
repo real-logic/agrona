@@ -821,7 +821,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
-            BufferUtil.boundsCheck(dstBuffer, (long) dstOffset, length);
+            BufferUtil.boundsCheck(dstBuffer, (long)dstOffset, length);
         }
 
         final byte[] dstByteArray;
@@ -863,7 +863,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
-            BufferUtil.boundsCheck(srcBuffer, (long) srcIndex, length);
+            BufferUtil.boundsCheck(srcBuffer, (long)srcIndex, length);
         }
 
         putBytes(index, srcBuffer, srcIndex, length);
@@ -986,27 +986,39 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     ///////////////////////////////////////////////////////////////////////////
 
-    public String getStringUtf8(final int offset, final ByteOrder byteOrder)
+    public String getStringUtf8(final int index)
     {
-        final int length = getInt(offset, byteOrder);
+        final int length = getInt(index);
 
-        return getStringUtf8(offset, length);
+        return getStringUtf8(index, length);
     }
 
-    public String getStringUtf8(final int offset, final int length)
+    public String getStringUtf8(final int index, final ByteOrder byteOrder)
+    {
+        final int length = getInt(index, byteOrder);
+
+        return getStringUtf8(index, length);
+    }
+
+    public String getStringUtf8(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(offset + SIZE_OF_INT, stringInBytes);
+        getBytes(index + SIZE_OF_INT, stringInBytes);
 
         return new String(stringInBytes, StandardCharsets.UTF_8);
     }
 
-    public int putStringUtf8(final int offset, final String value, final ByteOrder byteOrder)
+    public int putStringUtf8(final int index, final String value)
     {
-        return putStringUtf8(offset, value, byteOrder, Integer.MAX_VALUE);
+        return putStringUtf8(index, value, Integer.MAX_VALUE);
     }
 
-    public int putStringUtf8(final int offset, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
+    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder)
+    {
+        return putStringUtf8(index, value, byteOrder, Integer.MAX_VALUE);
+    }
+
+    public int putStringUtf8(final int index, final String value, final int maxEncodedSize)
     {
         final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedSize)
@@ -1014,24 +1026,38 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
         }
 
-        putInt(offset, bytes.length, byteOrder);
-        putBytes(offset + SIZE_OF_INT, bytes);
+        putInt(index, bytes.length);
+        putBytes(index + SIZE_OF_INT, bytes);
 
         return SIZE_OF_INT + bytes.length;
     }
 
-    public String getStringWithoutLengthUtf8(final int offset, final int length)
+    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
+    {
+        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        if (bytes.length > maxEncodedSize)
+        {
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+        }
+
+        putInt(index, bytes.length, byteOrder);
+        putBytes(index + SIZE_OF_INT, bytes);
+
+        return SIZE_OF_INT + bytes.length;
+    }
+
+    public String getStringWithoutLengthUtf8(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(offset, stringInBytes);
+        getBytes(index, stringInBytes);
 
         return new String(stringInBytes, StandardCharsets.UTF_8);
     }
 
-    public int putStringWithoutLengthUtf8(final int offset, final String value)
+    public int putStringWithoutLengthUtf8(final int index, final String value)
     {
         final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
-        putBytes(offset, bytes);
+        putBytes(index, bytes);
 
         return bytes.length;
     }

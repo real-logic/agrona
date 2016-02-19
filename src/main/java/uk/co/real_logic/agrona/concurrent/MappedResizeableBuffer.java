@@ -819,6 +819,13 @@ public class MappedResizeableBuffer implements AutoCloseable
 
     ///////////////////////////////////////////////////////////////////////////
 
+    public String getStringUtf8(final long offset)
+    {
+        final int length = getInt(offset);
+
+        return getStringUtf8(offset, length);
+    }
+
     public String getStringUtf8(final long offset, final ByteOrder byteOrder)
     {
         final int length = getInt(offset, byteOrder);
@@ -834,9 +841,28 @@ public class MappedResizeableBuffer implements AutoCloseable
         return new String(stringInBytes, StandardCharsets.UTF_8);
     }
 
+    public int putStringUtf8(final long offset, final String value)
+    {
+        return putStringUtf8(offset, value, Integer.MAX_VALUE);
+    }
+
     public int putStringUtf8(final long offset, final String value, final ByteOrder byteOrder)
     {
         return putStringUtf8(offset, value, byteOrder, Integer.MAX_VALUE);
+    }
+
+    public int putStringUtf8(final long offset, final String value, final int maxEncodedSize)
+    {
+        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        if (bytes.length > maxEncodedSize)
+        {
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+        }
+
+        putInt(offset, bytes.length);
+        putBytes(offset + SIZE_OF_INT, bytes);
+
+        return SIZE_OF_INT + bytes.length;
     }
 
     public int putStringUtf8(final long offset, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
