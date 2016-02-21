@@ -29,8 +29,7 @@ import static org.mockito.Mockito.*;
 
 public class ExceptionLogReaderTest
 {
-    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
-    private final AtomicBuffer buffer = spy(unsafeBuffer);
+    private final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
     private final EpochClock clock = mock(EpochClock.class);
     private final DistinctExceptionLog log = new DistinctExceptionLog(buffer, clock);
 
