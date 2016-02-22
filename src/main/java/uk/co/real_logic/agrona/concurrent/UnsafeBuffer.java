@@ -41,6 +41,9 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
      */
     public static final int ALIGNMENT = SIZE_OF_LONG;
 
+    private static final String OFFSET = "offset=";
+    private static final String NOT_VALID_FOR_BUFFER_CAPACITY = " not valid for buffer.capacity()=";
+    private static final String LENGTH = " length=";
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
 
@@ -148,13 +151,13 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
             final int bufferLength = buffer.length;
             if (offset != 0 && (offset < 0 || offset > bufferLength - 1))
             {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.length=" + bufferLength);
+                throw new IllegalArgumentException(OFFSET + offset + " not valid for buffer.length=" + bufferLength);
             }
 
             if (length < 0 || length > bufferLength - offset)
             {
                 throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.length=" + bufferLength);
+                    OFFSET + offset + LENGTH + length + " not valid for buffer.length=" + bufferLength);
             }
         }
 
@@ -189,13 +192,13 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
             final int bufferCapacity = buffer.capacity();
             if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
             {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
+                throw new IllegalArgumentException(OFFSET + offset + NOT_VALID_FOR_BUFFER_CAPACITY + bufferCapacity);
             }
 
             if (length < 0 || length > bufferCapacity - offset)
             {
                 throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
+                    OFFSET + offset + LENGTH + length + NOT_VALID_FOR_BUFFER_CAPACITY + bufferCapacity);
             }
         }
 
@@ -230,13 +233,13 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
             final int bufferCapacity = buffer.capacity();
             if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
             {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.capacity()=" + bufferCapacity);
+                throw new IllegalArgumentException(OFFSET + offset + NOT_VALID_FOR_BUFFER_CAPACITY + bufferCapacity);
             }
 
             if (length < 0 || length > bufferCapacity - offset)
             {
                 throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.capacity()=" + bufferCapacity);
+                    OFFSET + offset + LENGTH + length + NOT_VALID_FOR_BUFFER_CAPACITY + bufferCapacity);
             }
         }
 
