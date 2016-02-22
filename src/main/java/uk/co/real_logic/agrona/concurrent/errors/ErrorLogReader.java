@@ -15,9 +15,9 @@
  */
 package uk.co.real_logic.agrona.concurrent.errors;
 
-import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
+import static uk.co.real_logic.agrona.BitUtil.align;
 import static uk.co.real_logic.agrona.concurrent.errors.DistinctErrorLog.*;
 
 /**
@@ -73,7 +73,7 @@ public class ErrorLogReader
                     buffer.getStringUtf8(offset + ENCODED_ERROR_OFFSET, length - ENCODED_ERROR_OFFSET));
             }
 
-            offset += BitUtil.align(length, RECORD_ALIGNMENT);
+            offset += align(length, RECORD_ALIGNMENT);
         }
 
         return entries;

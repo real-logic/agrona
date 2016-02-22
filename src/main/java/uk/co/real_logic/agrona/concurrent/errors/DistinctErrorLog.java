@@ -21,11 +21,11 @@ import uk.co.real_logic.agrona.concurrent.EpochClock;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_LONG;
 import static uk.co.real_logic.agrona.BitUtil.align;
@@ -231,9 +231,9 @@ public class DistinctErrorLog
         {
             final StringWriter stringWriter = new StringWriter();
             observation.printStackTrace(new PrintWriter(stringWriter));
-            final byte[] encodedException = stringWriter.toString().getBytes(StandardCharsets.UTF_8);
+            final byte[] encodedError = stringWriter.toString().getBytes(UTF_8);
 
-            final int length = ENCODED_ERROR_OFFSET + encodedException.length;
+            final int length = ENCODED_ERROR_OFFSET + encodedError.length;
             final int offset = nextOffset;
 
             if ((offset + length) > buffer.capacity())
@@ -241,7 +241,7 @@ public class DistinctErrorLog
                 return INSUFFICIENT_SPACE;
             }
 
-            buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedException);
+            buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedError);
             buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
             nextOffset = align(offset + length, RECORD_ALIGNMENT);
 
