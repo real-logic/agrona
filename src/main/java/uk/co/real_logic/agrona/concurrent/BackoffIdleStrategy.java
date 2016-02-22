@@ -66,18 +66,21 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     /**
      * Create a set of state tracking idle behavior
      *
-     * @param maxSpins to perform before moving to {@link Thread#yield()}
-     * @param maxYields to perform before moving to {@link java.util.concurrent.locks.LockSupport#parkNanos(long)}
+     * @param maxSpins        to perform before moving to {@link Thread#yield()}
+     * @param maxYields       to perform before moving to {@link java.util.concurrent.locks.LockSupport#parkNanos(long)}
      * @param minParkPeriodNs to use when initiating parking
      * @param maxParkPeriodNs to use when parking
      */
-    public BackoffIdleStrategy(final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
+    public BackoffIdleStrategy(
+        final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
     {
         super(maxSpins, maxYields, minParkPeriodNs, maxParkPeriodNs);
         this.state = State.NOT_IDLE;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void idle(final int workCount)
     {
         if (workCount > 0)
