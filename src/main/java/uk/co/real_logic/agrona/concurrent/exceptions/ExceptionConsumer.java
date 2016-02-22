@@ -16,16 +16,15 @@
 package uk.co.real_logic.agrona.concurrent.exceptions;
 
 @FunctionalInterface
-public interface ExceptionHandler
+public interface ExceptionConsumer
 {
     /**
-     * Callback for exceptions encountered in the log.
+     * Callback for accepting exceptions encountered in the log.
      *
      * @param observationCount          the number of times this distinct exception has been recorded.
      * @param firstObservationTimestamp time the first observation was recorded.
      * @param lastObservationTimestamp  time the last observation was recorded.
      * @param encodedException          String encoding of the exception and stack trace in UTF-8 format.
      */
-    void onException(
-        int observationCount, long firstObservationTimestamp, long lastObservationTimestamp, String encodedException);
+    void accept(int observationCount, long firstObservationTimestamp, long lastObservationTimestamp, String encodedException);
 }

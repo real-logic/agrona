@@ -36,17 +36,17 @@ public class ExceptionLogReaderTest
     @Test
     public void shouldReadNoExceptionsFromEmptyLog()
     {
-        final ExceptionHandler handler = mock(ExceptionHandler.class);
+        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
 
-        assertThat(ExceptionLogReader.read(buffer, handler), is(0));
+        assertThat(ExceptionLogReader.read(buffer, consumer), is(0));
 
-        verifyZeroInteractions(handler);
+        verifyZeroInteractions(consumer);
     }
 
     @Test
     public void shouldReadFirstObservation()
     {
-        final ExceptionHandler handler = mock(ExceptionHandler.class);
+        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
 
         final long timestamp = 7;
         final RuntimeException ex = new RuntimeException("Test Exception");
@@ -55,15 +55,15 @@ public class ExceptionLogReaderTest
 
         log.record(ex);
 
-        assertThat(ExceptionLogReader.read(buffer, handler), is(1));
+        assertThat(ExceptionLogReader.read(buffer, consumer), is(1));
 
-        verify(handler).onException(eq(1), eq(timestamp), eq(timestamp), any(String.class));
+        verify(consumer).accept(eq(1), eq(timestamp), eq(timestamp), any(String.class));
     }
 
     @Test
     public void shouldReadSummarisedObservation()
     {
-        final ExceptionHandler handler = mock(ExceptionHandler.class);
+        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -74,15 +74,15 @@ public class ExceptionLogReaderTest
         log.record(ex);
         log.record(ex);
 
-        assertThat(ExceptionLogReader.read(buffer, handler), is(1));
+        assertThat(ExceptionLogReader.read(buffer, consumer), is(1));
 
-        verify(handler).onException(eq(2), eq(timestampOne), eq(timestampTwo), any(String.class));
+        verify(consumer).accept(eq(2), eq(timestampOne), eq(timestampTwo), any(String.class));
     }
 
     @Test
     public void shouldReadTwoDistinctObservations()
     {
-        final ExceptionHandler handler = mock(ExceptionHandler.class);
+        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -94,17 +94,17 @@ public class ExceptionLogReaderTest
         log.record(exOne);
         log.record(exTwo);
 
-        assertThat(ExceptionLogReader.read(buffer, handler), is(2));
+        assertThat(ExceptionLogReader.read(buffer, consumer), is(2));
 
-        final InOrder inOrder = inOrder(handler);
-        inOrder.verify(handler).onException(eq(1), eq(timestampOne), eq(timestampOne), any(String.class));
-        inOrder.verify(handler).onException(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
+        final InOrder inOrder = inOrder(consumer);
+        inOrder.verify(consumer).accept(eq(1), eq(timestampOne), eq(timestampOne), any(String.class));
+        inOrder.verify(consumer).accept(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
     }
 
     @Test
     public void shouldReadOneObservationSinceTimestamp()
     {
-        final ExceptionHandler handler = mock(ExceptionHandler.class);
+        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -116,9 +116,9 @@ public class ExceptionLogReaderTest
         log.record(exOne);
         log.record(exTwo);
 
-        assertThat(ExceptionLogReader.read(buffer, handler, timestampTwo), is(1));
+        assertThat(ExceptionLogReader.read(buffer, consumer, timestampTwo), is(1));
 
-        verify(handler).onException(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
-        verifyNoMoreInteractions(handler);
+        verify(consumer).accept(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
+        verifyNoMoreInteractions(consumer);
     }
 }

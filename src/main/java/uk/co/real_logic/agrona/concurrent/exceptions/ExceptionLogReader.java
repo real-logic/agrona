@@ -30,24 +30,24 @@ public class ExceptionLogReader
     /**
      * Read all the exceptions in a log since the creation of the log.
      *
-     * @param buffer  containing the {@link DistinctExceptionLog}.
-     * @param handler to be called for each exception encountered.
+     * @param buffer   containing the {@link DistinctExceptionLog}.
+     * @param consumer to be called for each exception encountered.
      * @return the number of entries that has been read.
      */
-    public static int read(final AtomicBuffer buffer, final ExceptionHandler handler)
+    public static int read(final AtomicBuffer buffer, final ExceptionConsumer consumer)
     {
-        return read(buffer, handler, 0);
+        return read(buffer, consumer, 0);
     }
 
     /**
      * Read all the exceptions in a log since a timestamp.
      *
      * @param buffer         containing the {@link DistinctExceptionLog}.
-     * @param handler        to be called for each exception encountered.
+     * @param consumer       to be called for each exception encountered.
      * @param sinceTimestamp for filtering exceptions that have been recorded since this time.
      * @return the number of entries that has been read.
      */
-    public static int read(final AtomicBuffer buffer, final ExceptionHandler handler, final long sinceTimestamp)
+    public static int read(final AtomicBuffer buffer, final ExceptionConsumer consumer, final long sinceTimestamp)
     {
         int entries = 0;
         int offset = 0;
@@ -66,7 +66,7 @@ public class ExceptionLogReader
             {
                 ++entries;
 
-                handler.onException(
+                consumer.accept(
                     buffer.getInt(offset + OBSERVATION_COUNT_OFFSET),
                     buffer.getLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET),
                     lastObservationTimestamp,
