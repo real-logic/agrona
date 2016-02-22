@@ -139,7 +139,7 @@ public class CountersManager
         countersBuffer.putLongOrdered(counterOffset(counterId), value);
     }
 
-    private int labelOffset(final int counterId)
+    private static int labelOffset(final int counterId)
     {
         return counterId * LABEL_LENGTH;
     }

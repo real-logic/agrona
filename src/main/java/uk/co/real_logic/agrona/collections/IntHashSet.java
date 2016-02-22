@@ -411,7 +411,7 @@ public final class IntHashSet implements Set<Integer>
         return conjunction(coll, this::remove);
     }
 
-    private <T> boolean conjunction(final Collection<T> collection, final Predicate<T> predicate)
+    private static <T> boolean conjunction(final Collection<T> collection, final Predicate<T> predicate)
     {
         Objects.requireNonNull(collection);
 
