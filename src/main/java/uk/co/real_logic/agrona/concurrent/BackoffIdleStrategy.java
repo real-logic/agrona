@@ -43,6 +43,12 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     protected final long minParkPeriodNs;
     protected final long maxParkPeriodNs;
 
+    protected State state;
+
+    protected long spins;
+    protected long yields;
+    protected long parkPeriodNs;
+
     BackoffIdleStrategyData(final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
     {
         this.maxSpins = maxSpins;
@@ -50,11 +56,6 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
         this.minParkPeriodNs = minParkPeriodNs;
         this.maxParkPeriodNs = maxParkPeriodNs;
     }
-    protected State state;
-
-    protected long spins;
-    protected long yields;
-    protected long parkPeriodNs;
 }
 
 @SuppressWarnings("unused")
