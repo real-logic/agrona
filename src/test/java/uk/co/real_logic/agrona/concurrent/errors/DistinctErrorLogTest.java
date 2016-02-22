@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent.exceptions;
+package uk.co.real_logic.agrona.concurrent.errors;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,28 +30,28 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static uk.co.real_logic.agrona.concurrent.exceptions.DistinctExceptionLog.*;
+import static uk.co.real_logic.agrona.concurrent.errors.DistinctErrorLog.*;
 
-public class DistinctExceptionLogTest
+public class DistinctErrorLogTest
 {
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
     private final AtomicBuffer buffer = spy(unsafeBuffer);
     private final EpochClock clock = mock(EpochClock.class);
-    private final DistinctExceptionLog log = new DistinctExceptionLog(buffer, clock);
+    private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);
 
     @Test
     public void shouldRecordFirstObservation()
     {
         final long timestamp = 7;
         final int offset = 0;
-        final RuntimeException ex = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Exception");
 
         when(clock.time()).thenReturn(timestamp);
 
-        assertTrue(log.record(ex));
+        assertTrue(log.record(error));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
         inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
@@ -64,15 +64,15 @@ public class DistinctExceptionLogTest
         final long timestampOne = 7;
         final long timestampTwo = 10;
         final int offset = 0;
-        final RuntimeException ex = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Exception");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
-        assertTrue(log.record(ex));
-        assertTrue(log.record(ex));
+        assertTrue(log.record(error));
+        assertTrue(log.record(error));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
         inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
@@ -88,18 +88,18 @@ public class DistinctExceptionLogTest
         final long timestampOne = 7;
         final long timestampTwo = 10;
         final int offset = 0;
-        final RuntimeException exOne = new RuntimeException("Test Exception One");
-        final IllegalStateException exTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Exception One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
-        assertTrue(log.record(exOne));
-        assertTrue(log.record(exTwo));
+        assertTrue(log.record(errorOne));
+        assertTrue(log.record(errorTwo));
 
         final ArgumentCaptor<Integer> lengthArg = ArgumentCaptor.forClass(Integer.class);
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
         inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
@@ -107,7 +107,7 @@ public class DistinctExceptionLogTest
 
         final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
 
-        inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
         inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
@@ -131,7 +131,7 @@ public class DistinctExceptionLogTest
         final ArgumentCaptor<Integer> lengthArg = ArgumentCaptor.forClass(Integer.class);
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
         inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
@@ -139,7 +139,7 @@ public class DistinctExceptionLogTest
 
         final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
 
-        inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_EXCEPTION_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
         inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
@@ -150,11 +150,11 @@ public class DistinctExceptionLogTest
     public void shouldFailToRecordWhenInsufficientSpace()
     {
         final long timestamp = 7;
-        final RuntimeException ex = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Exception");
 
         when(clock.time()).thenReturn(timestamp);
         when(buffer.capacity()).thenReturn(32);
 
-        assertFalse(log.record(ex));
+        assertFalse(log.record(error));
     }
 }

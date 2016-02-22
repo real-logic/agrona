@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent.exceptions;
+package uk.co.real_logic.agrona.concurrent.errors;
 
 @FunctionalInterface
-public interface ExceptionConsumer
+public interface ErrorConsumer
 {
     /**
-     * Callback for accepting exceptions encountered in the log.
+     * Callback for accepting errors encountered in the log.
      *
      * @param observationCount          the number of times this distinct exception has been recorded.
      * @param firstObservationTimestamp time the first observation was recorded.

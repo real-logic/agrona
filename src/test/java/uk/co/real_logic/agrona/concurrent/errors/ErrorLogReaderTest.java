@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent.exceptions;
+package uk.co.real_logic.agrona.concurrent.errors;
 
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -27,18 +27,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ExceptionLogReaderTest
+public class ErrorLogReaderTest
 {
     private final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
     private final EpochClock clock = mock(EpochClock.class);
-    private final DistinctExceptionLog log = new DistinctExceptionLog(buffer, clock);
+    private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);
 
     @Test
     public void shouldReadNoExceptionsFromEmptyLog()
     {
-        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
+        final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
-        assertThat(ExceptionLogReader.read(buffer, consumer), is(0));
+        assertThat(ErrorLogReader.read(buffer, consumer), is(0));
 
         verifyZeroInteractions(consumer);
     }
@@ -46,16 +46,16 @@ public class ExceptionLogReaderTest
     @Test
     public void shouldReadFirstObservation()
     {
-        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
+        final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
         final long timestamp = 7;
-        final RuntimeException ex = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Exception");
 
         when(clock.time()).thenReturn(timestamp);
 
-        log.record(ex);
+        log.record(error);
 
-        assertThat(ExceptionLogReader.read(buffer, consumer), is(1));
+        assertThat(ErrorLogReader.read(buffer, consumer), is(1));
 
         verify(consumer).accept(eq(1), eq(timestamp), eq(timestamp), any(String.class));
     }
@@ -63,18 +63,18 @@ public class ExceptionLogReaderTest
     @Test
     public void shouldReadSummarisedObservation()
     {
-        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
+        final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException ex = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Exception");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
-        log.record(ex);
-        log.record(ex);
+        log.record(error);
+        log.record(error);
 
-        assertThat(ExceptionLogReader.read(buffer, consumer), is(1));
+        assertThat(ErrorLogReader.read(buffer, consumer), is(1));
 
         verify(consumer).accept(eq(2), eq(timestampOne), eq(timestampTwo), any(String.class));
     }
@@ -82,19 +82,19 @@ public class ExceptionLogReaderTest
     @Test
     public void shouldReadTwoDistinctObservations()
     {
-        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
+        final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException exOne = new RuntimeException("Test Exception One");
-        final IllegalStateException exTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Exception One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
-        log.record(exOne);
-        log.record(exTwo);
+        log.record(errorOne);
+        log.record(errorTwo);
 
-        assertThat(ExceptionLogReader.read(buffer, consumer), is(2));
+        assertThat(ErrorLogReader.read(buffer, consumer), is(2));
 
         final InOrder inOrder = inOrder(consumer);
         inOrder.verify(consumer).accept(eq(1), eq(timestampOne), eq(timestampOne), any(String.class));
@@ -104,19 +104,19 @@ public class ExceptionLogReaderTest
     @Test
     public void shouldReadOneObservationSinceTimestamp()
     {
-        final ExceptionConsumer consumer = mock(ExceptionConsumer.class);
+        final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException exOne = new RuntimeException("Test Exception One");
-        final IllegalStateException exTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Exception One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
-        log.record(exOne);
-        log.record(exTwo);
+        log.record(errorOne);
+        log.record(errorTwo);
 
-        assertThat(ExceptionLogReader.read(buffer, consumer, timestampTwo), is(1));
+        assertThat(ErrorLogReader.read(buffer, consumer, timestampTwo), is(1));
 
         verify(consumer).accept(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
         verifyNoMoreInteractions(consumer);

@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent.exceptions;
+package uk.co.real_logic.agrona.concurrent.errors;
 
 import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 
-import static uk.co.real_logic.agrona.concurrent.exceptions.DistinctExceptionLog.*;
+import static uk.co.real_logic.agrona.concurrent.errors.DistinctErrorLog.*;
 
 /**
- * Reader for the log created by the {@link DistinctExceptionLog}.
+ * Reader for the log created by a {@link DistinctErrorLog}.
  *
  * The read methods are thread safe.
  */
-public class ExceptionLogReader
+public class ErrorLogReader
 {
     /**
-     * Read all the exceptions in a log since the creation of the log.
+     * Read all the errors in a log since the creation of the log.
      *
-     * @param buffer   containing the {@link DistinctExceptionLog}.
+     * @param buffer   containing the {@link DistinctErrorLog}.
      * @param consumer to be called for each exception encountered.
      * @return the number of entries that has been read.
      */
-    public static int read(final AtomicBuffer buffer, final ExceptionConsumer consumer)
+    public static int read(final AtomicBuffer buffer, final ErrorConsumer consumer)
     {
         return read(buffer, consumer, 0);
     }
 
     /**
-     * Read all the exceptions in a log since a timestamp.
+     * Read all the errors in a log since a given timestamp.
      *
-     * @param buffer         containing the {@link DistinctExceptionLog}.
+     * @param buffer         containing the {@link DistinctErrorLog}.
      * @param consumer       to be called for each exception encountered.
-     * @param sinceTimestamp for filtering exceptions that have been recorded since this time.
+     * @param sinceTimestamp for filtering errors that have been recorded since this time.
      * @return the number of entries that has been read.
      */
-    public static int read(final AtomicBuffer buffer, final ExceptionConsumer consumer, final long sinceTimestamp)
+    public static int read(final AtomicBuffer buffer, final ErrorConsumer consumer, final long sinceTimestamp)
     {
         int entries = 0;
         int offset = 0;
@@ -70,7 +70,7 @@ public class ExceptionLogReader
                     buffer.getInt(offset + OBSERVATION_COUNT_OFFSET),
                     buffer.getLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET),
                     lastObservationTimestamp,
-                    buffer.getStringUtf8(offset + ENCODED_EXCEPTION_OFFSET, length - ENCODED_EXCEPTION_OFFSET));
+                    buffer.getStringUtf8(offset + ENCODED_ERROR_OFFSET, length - ENCODED_ERROR_OFFSET));
             }
 
             offset += BitUtil.align(length, RECORD_ALIGNMENT);

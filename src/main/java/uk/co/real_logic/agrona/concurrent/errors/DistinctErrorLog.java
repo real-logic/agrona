@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent.exceptions;
+package uk.co.real_logic.agrona.concurrent.errors;
 
 import uk.co.real_logic.agrona.collections.ArrayUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
@@ -31,8 +31,8 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_LONG;
 import static uk.co.real_logic.agrona.BitUtil.align;
 
 /**
- * Distinct record of exception observations. Rather than grow a record indefinitely when many exceptions of the same type
- * are logged, this record takes the approach of only recording distinct exceptions of the same type type and stack trace
+ * Distinct record of error observations. Rather than grow a record indefinitely when many errors of the same type
+ * are logged, this log takes the approach of only recording distinct errors of the same type type and stack trace
  * and keeping a count and time of observation so that the record only grows with new distinct observations.
  *
  * This class is threadsafe to be used from multiple logging threads.
@@ -53,12 +53,12 @@ import static uk.co.real_logic.agrona.BitUtil.align;
  *  |R|               First Observation Timestamp                   |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                   UTF-8 Encoded Exception                    ...
+ *  |                     UTF-8 Encoded Error                      ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  * </pre>
  */
-public class DistinctExceptionLog
+public class DistinctErrorLog
 {
     /**
      * Offset within a record at which the length field begins.
@@ -83,7 +83,7 @@ public class DistinctExceptionLog
     /**
      * Offset within a record at which the encoded exception field begins.
      */
-    public static final int ENCODED_EXCEPTION_OFFSET = FIRST_OBSERVATION_TIMESTAMP_OFFSET + SIZE_OF_LONG;
+    public static final int ENCODED_ERROR_OFFSET = FIRST_OBSERVATION_TIMESTAMP_OFFSET + SIZE_OF_LONG;
 
     /**
      * Alignment to be applied for record beginning.
@@ -99,12 +99,12 @@ public class DistinctExceptionLog
     private final Lock lock = new ReentrantLock();
 
     /**
-     * Create a new exception record that will be written to provided {@link AtomicBuffer}.
+     * Create a new error log that will be written to a provided {@link AtomicBuffer}.
      *
-     * @param buffer into which the record is recorded.
+     * @param buffer into which the observation records are recorded.
      * @param clock  to be used for time stamping records.
      */
-    public DistinctExceptionLog(final AtomicBuffer buffer, final EpochClock clock)
+    public DistinctErrorLog(final AtomicBuffer buffer, final EpochClock clock)
     {
         buffer.verifyAlignment();
         this.clock = clock;
@@ -112,11 +112,11 @@ public class DistinctExceptionLog
     }
 
     /**
-     * Record an observation of an exception. If it is the first observation of this exception type for a stack trace
-     * then a new entry will be created. For subsequent observations of the same type and stack trace a counter and
-     * time of last observation will be updated.
+     * Record an observation of an error. If it is the first observation of this error type for a stack trace
+     * then a new entry will be created. For subsequent observations of the same error type and stack trace a
+     * counter and time of last observation will be updated.
      *
-     * @param observation to be logged as an observation.
+     * @param observation to be logged as an error observation.
      * @return true if successfully logged otherwise false if insufficient space remaining in the log.
      */
     public boolean record(final Throwable observation)
@@ -233,7 +233,7 @@ public class DistinctExceptionLog
             observation.printStackTrace(new PrintWriter(stringWriter));
             final byte[] encodedException = stringWriter.toString().getBytes(StandardCharsets.UTF_8);
 
-            final int length = ENCODED_EXCEPTION_OFFSET + encodedException.length;
+            final int length = ENCODED_ERROR_OFFSET + encodedException.length;
             final int offset = nextOffset;
 
             if ((offset + length) > buffer.capacity())
@@ -241,7 +241,7 @@ public class DistinctExceptionLog
                 return INSUFFICIENT_SPACE;
             }
 
-            buffer.putBytes(offset + ENCODED_EXCEPTION_OFFSET, encodedException);
+            buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedException);
             buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
             nextOffset = align(offset + length, RECORD_ALIGNMENT);
 
