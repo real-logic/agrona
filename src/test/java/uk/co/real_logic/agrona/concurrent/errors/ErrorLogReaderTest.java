@@ -49,7 +49,7 @@ public class ErrorLogReaderTest
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
         final long timestamp = 7;
-        final RuntimeException error = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Error");
 
         when(clock.time()).thenReturn(timestamp);
 
@@ -67,7 +67,7 @@ public class ErrorLogReaderTest
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException error = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Error");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
@@ -86,8 +86,8 @@ public class ErrorLogReaderTest
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException errorOne = new RuntimeException("Test Exception One");
-        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Error One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Error Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
@@ -108,8 +108,8 @@ public class ErrorLogReaderTest
 
         final long timestampOne = 7;
         final long timestampTwo = 10;
-        final RuntimeException errorOne = new RuntimeException("Test Exception One");
-        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Error One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Error Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 

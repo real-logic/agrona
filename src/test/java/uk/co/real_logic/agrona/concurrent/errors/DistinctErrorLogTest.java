@@ -44,7 +44,7 @@ public class DistinctErrorLogTest
     {
         final long timestamp = 7;
         final int offset = 0;
-        final RuntimeException error = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Error");
 
         when(clock.time()).thenReturn(timestamp);
 
@@ -64,7 +64,7 @@ public class DistinctErrorLogTest
         final long timestampOne = 7;
         final long timestampTwo = 10;
         final int offset = 0;
-        final RuntimeException error = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Error");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
@@ -88,8 +88,8 @@ public class DistinctErrorLogTest
         final long timestampOne = 7;
         final long timestampTwo = 10;
         final int offset = 0;
-        final RuntimeException errorOne = new RuntimeException("Test Exception One");
-        final IllegalStateException errorTwo = new IllegalStateException("Test Exception Two");
+        final RuntimeException errorOne = new RuntimeException("Test Error One");
+        final IllegalStateException errorTwo = new IllegalStateException("Test Error Two");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
@@ -150,7 +150,7 @@ public class DistinctErrorLogTest
     public void shouldFailToRecordWhenInsufficientSpace()
     {
         final long timestamp = 7;
-        final RuntimeException error = new RuntimeException("Test Exception");
+        final RuntimeException error = new RuntimeException("Test Error");
 
         when(clock.time()).thenReturn(timestamp);
         when(buffer.capacity()).thenReturn(32);
