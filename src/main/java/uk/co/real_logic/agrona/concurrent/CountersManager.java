@@ -21,7 +21,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.function.BiConsumer;
 
-import static java.nio.ByteOrder.nativeOrder;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 
 /**
@@ -72,7 +71,7 @@ public class CountersManager
             throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
         }
 
-        labelsBuffer.putStringUtf8(labelsOffset, label, nativeOrder(), LABEL_LENGTH - SIZE_OF_INT);
+        labelsBuffer.putStringUtf8(labelsOffset, label, LABEL_LENGTH - SIZE_OF_INT);
 
         return counterId;
     }
@@ -119,7 +118,7 @@ public class CountersManager
         {
             if (size != UNREGISTERED_LABEL_LENGTH)
             {
-                final String label = labelsBuffer.getStringUtf8(labelsOffset, nativeOrder());
+                final String label = labelsBuffer.getStringUtf8(labelsOffset);
                 consumer.accept(id, label);
             }
 
