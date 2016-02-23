@@ -33,7 +33,7 @@ public class CountersManager
     public static final int UNREGISTERED_LABEL_LENGTH = -1;
 
     private final AtomicBuffer labelsBuffer;
-    private final AtomicBuffer countersBuffer;
+    private final AtomicBuffer valuesBuffer;
     private final Deque<Integer> freeList = new LinkedList<>();
 
     private int idHighWaterMark = -1;
@@ -42,13 +42,13 @@ public class CountersManager
      * Create a new counter buffer manager over two buffers.
      *
      * @param labelsBuffer containing the human readable labels for the counters.
-     * @param countersBuffer containing the values of the counters themselves.
+     * @param valuesBuffer containing the values of the counters themselves.
      */
-    public CountersManager(final AtomicBuffer labelsBuffer, final AtomicBuffer countersBuffer)
+    public CountersManager(final AtomicBuffer labelsBuffer, final AtomicBuffer valuesBuffer)
     {
         this.labelsBuffer = labelsBuffer;
-        this.countersBuffer = countersBuffer;
-        countersBuffer.verifyAlignment();
+        this.valuesBuffer = valuesBuffer;
+        valuesBuffer.verifyAlignment();
     }
 
     /**
@@ -59,9 +59,9 @@ public class CountersManager
      */
     public int allocate(final String label)
     {
-        final int counterId = counterId();
+        final int counterId = nextCounterId();
         final int labelsOffset = labelOffset(counterId);
-        if ((counterOffset(counterId) + COUNTER_LENGTH) > countersBuffer.capacity())
+        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocated counter, counter buffer is full");
         }
@@ -78,7 +78,7 @@ public class CountersManager
 
     public AtomicCounter newCounter(final String label)
     {
-        return new AtomicCounter(countersBuffer, allocate(label), this);
+        return new AtomicCounter(valuesBuffer, allocate(label), this);
     }
 
     /**
@@ -135,7 +135,7 @@ public class CountersManager
      */
     public void setCounterValue(final int counterId, final long value)
     {
-        countersBuffer.putLongOrdered(counterOffset(counterId), value);
+        valuesBuffer.putLongOrdered(counterOffset(counterId), value);
     }
 
     private static int labelOffset(final int counterId)
@@ -143,7 +143,7 @@ public class CountersManager
         return counterId * LABEL_LENGTH;
     }
 
-    private int counterId()
+    private int nextCounterId()
     {
         if (freeList.isEmpty())
         {
@@ -151,7 +151,7 @@ public class CountersManager
         }
 
         final int counterId = freeList.pop();
-        countersBuffer.putLongOrdered(counterOffset(counterId), 0L);
+        valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
 
         return counterId;
     }
