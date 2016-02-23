@@ -63,7 +63,7 @@ public class CountersManager
         final int labelsOffset = labelOffset(counterId);
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalArgumentException("Unable to allocated counter, counter buffer is full");
+            throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
         }
 
         if ((labelsOffset + LABEL_LENGTH) > labelsBuffer.capacity())
