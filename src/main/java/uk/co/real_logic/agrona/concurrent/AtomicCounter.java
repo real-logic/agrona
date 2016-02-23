@@ -20,10 +20,10 @@ package uk.co.real_logic.agrona.concurrent;
  */
 public class AtomicCounter implements AutoCloseable
 {
-    private final AtomicBuffer buffer;
     private final int counterId;
-    private final CountersManager countersManager;
     private final int offset;
+    private final AtomicBuffer buffer;
+    private final CountersManager countersManager;
 
     AtomicCounter(final AtomicBuffer buffer, final int counterId, final CountersManager countersManager)
     {
