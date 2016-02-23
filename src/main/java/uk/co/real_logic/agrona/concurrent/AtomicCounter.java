@@ -107,6 +107,16 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Get the value of the counter using weak ordering semantics. This is the same a standard read of a field.
+     *
+     * @return the  value for the counter.
+     */
+    public long getWeak()
+    {
+        return buffer.getLong(offset);
+    }
+
+    /**
      * Free the counter slot for reuse.
      */
     public void close()
