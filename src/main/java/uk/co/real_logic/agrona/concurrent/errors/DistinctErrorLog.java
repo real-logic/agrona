@@ -40,7 +40,7 @@ import static uk.co.real_logic.agrona.BitUtil.align;
  *
  * This class is threadsafe to be used from multiple logging threads.
  *
- * The record is recorded to memory mapped buffer in the following format.
+ * The error records are recorded to the memory mapped buffer in the following format.
  *
  * <pre>
  *   0                   1                   2                   3
