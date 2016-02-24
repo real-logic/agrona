@@ -35,6 +35,9 @@ import static uk.co.real_logic.agrona.BitUtil.align;
  * are logged, this log takes the approach of only recording distinct errors of the same type type and stack trace
  * and keeping a count and time of observation so that the record only grows with new distinct observations.
  *
+ * The provided {@link AtomicBuffer} can wrap a memory-mapped file so logging can be out of process. This provides
+ * the benefit that if a crash or lockup occurs then the log can be read externally without loss of data.
+ *
  * This class is threadsafe to be used from multiple logging threads.
  *
  * The record is recorded to memory mapped buffer in the following format.
