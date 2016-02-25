@@ -15,40 +15,85 @@
  */
 package uk.co.real_logic.agrona.concurrent;
 
-import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.MutableDirectBuffer;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 
 /**
- * Manages the allocation and freeing of counters.
+ * Manages the allocation and freeing of counters that are normally stored in a memory-mapped file.
+ *
+ * <b>Values Buffer</b>
+ * <pre>
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |                        Counter Value                          |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                     120 bytes of padding                     ...
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ *  |                   Repeats to end of buffer                   ...
+ *  |                                                               |
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ * </pre>
+ *
+ * <b>Metadata Buffer</b>
+ * <pre>
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |R|                      Label Length                           |
+ *  +---------------------------------------------------------------+
+ *  |                  124 bytes of Label in UTF-8                 ...
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ *  |                          Type Id                              |
+ *  +---------------------------------------------------------------+
+ *  |                      124 bytes for key                       ...
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ *  |                   Repeats to end of buffer                   ...
+ *  |                                                               |
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ * </pre>
  */
-public class CountersManager
+public class CountersManager extends CountersReader
 {
-    public static final int LABEL_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
-    public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
-    public static final int UNREGISTERED_LABEL_LENGTH = -1;
+    /**
+     * Default type id of a counter when none is supplied.
+     */
+    public static final int DEFAULT_TYPE_ID = 0;
 
-    private final AtomicBuffer labelsBuffer;
-    private final AtomicBuffer valuesBuffer;
-    private final Deque<Integer> freeList = new LinkedList<>();
+    /**
+     * Default function to set a key when none is supplied.
+     */
+    public static final Consumer<MutableDirectBuffer> DEFAULT_KEY_FUNC = (ignore) -> { };
 
     private int idHighWaterMark = -1;
+    private final Deque<Integer> freeList = new LinkedList<>();
 
     /**
      * Create a new counter buffer manager over two buffers.
      *
-     * @param labelsBuffer containing the human readable labels for the counters.
-     * @param valuesBuffer containing the values of the counters themselves.
+     * @param metadataBuffer containing the types, keys, and labels for the counters.
+     * @param valuesBuffer   containing the values of the counters themselves.
      */
-    public CountersManager(final AtomicBuffer labelsBuffer, final AtomicBuffer valuesBuffer)
+    public CountersManager(final AtomicBuffer metadataBuffer, final AtomicBuffer valuesBuffer)
     {
-        this.labelsBuffer = labelsBuffer;
-        this.valuesBuffer = valuesBuffer;
+        super(valuesBuffer, metadataBuffer);
         valuesBuffer.verifyAlignment();
+
+        if (metadataBuffer.capacity() < (valuesBuffer.capacity() * 2))
+        {
+            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
+        }
     }
 
     /**
@@ -59,19 +104,36 @@ public class CountersManager
      */
     public int allocate(final String label)
     {
+        return allocate(label, DEFAULT_TYPE_ID, DEFAULT_KEY_FUNC);
+    }
+
+    /**
+     * Allocate a new counter with a given label.
+     *
+     * @param label   to describe the counter.
+     * @param typeId  for the type of counter.
+     * @param keyFunc for setting the key value for the counter.
+     * @return the id allocated for the counter.
+     */
+    public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
+    {
         final int counterId = nextCounterId();
-        final int labelsOffset = labelOffset(counterId);
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
         }
 
-        if ((labelsOffset + LABEL_LENGTH) > labelsBuffer.capacity())
+        final int recordOffset = metadataOffset(counterId);
+        if ((recordOffset + METADATA_LENGTH) > metadataBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
         }
 
-        labelsBuffer.putStringUtf8(labelsOffset, label, LABEL_LENGTH - SIZE_OF_INT);
+        metadataBuffer.putInt(recordOffset + FULL_LABEL_LENGTH, typeId);
+        final int keyOffset = FULL_LABEL_LENGTH + SIZE_OF_INT;
+        keyFunc.accept(new UnsafeBuffer(metadataBuffer, recordOffset + keyOffset, METADATA_LENGTH - keyOffset));
+
+        metadataBuffer.putStringUtf8(recordOffset, label, MAX_LABEL_LENGTH);
 
         return counterId;
     }
@@ -88,59 +150,19 @@ public class CountersManager
      */
     public void free(final int counterId)
     {
-        labelsBuffer.putInt(labelOffset(counterId), UNREGISTERED_LABEL_LENGTH);
+        metadataBuffer.putInt(metadataOffset(counterId), UNREGISTERED_LABEL_LENGTH);
         freeList.push(counterId);
-    }
-
-    /**
-     * The offset in the counter buffer for a given id.
-     *
-     * @param id for which the offset should be provided.
-     * @return the offset in the counter buffer.
-     */
-    public static int counterOffset(int id)
-    {
-        return id * COUNTER_LENGTH;
-    }
-
-    /**
-     * Iterate over all labels in the label buffer.
-     *
-     * @param consumer function to be called for each label.
-     */
-    public void forEach(final BiConsumer<Integer, String> consumer)
-    {
-        int labelsOffset = 0;
-        int size;
-        int id = 0;
-
-        while ((size = labelsBuffer.getInt(labelsOffset)) != 0)
-        {
-            if (size != UNREGISTERED_LABEL_LENGTH)
-            {
-                final String label = labelsBuffer.getStringUtf8(labelsOffset);
-                consumer.accept(id, label);
-            }
-
-            labelsOffset += LABEL_LENGTH;
-            id++;
-        }
     }
 
     /**
      * Set an {@link AtomicCounter} value based on counterId.
      *
      * @param counterId to be set.
-     * @param value to set for the counter.
+     * @param value     to set for the counter.
      */
     public void setCounterValue(final int counterId, final long value)
     {
         valuesBuffer.putLongOrdered(counterOffset(counterId), value);
-    }
-
-    private static int labelOffset(final int counterId)
-    {
-        return counterId * LABEL_LENGTH;
     }
 
     private int nextCounterId()

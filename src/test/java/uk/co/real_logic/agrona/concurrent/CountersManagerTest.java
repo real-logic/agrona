@@ -16,8 +16,10 @@
 package uk.co.real_logic.agrona.concurrent;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.status.Position;
 import uk.co.real_logic.agrona.concurrent.status.ReadablePosition;
 import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
@@ -27,24 +29,29 @@ import java.util.function.BiConsumer;
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.co.real_logic.agrona.concurrent.CountersReader.COUNTER_LENGTH;
+import static uk.co.real_logic.agrona.concurrent.CountersReader.METADATA_LENGTH;
 
-@SuppressWarnings("unchecked")
 public class CountersManagerTest
 {
     private static final int NUMBER_OF_COUNTERS = 4;
 
-    private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * CountersManager.LABEL_LENGTH));
-    private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * CountersManager.COUNTER_LENGTH));
+    private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
+    private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
     private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer);
-    private CountersManager otherManager = new CountersManager(labelsBuffer, counterBuffer);
+    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer);
+
+    @SuppressWarnings("unchecked")
+    private final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
+    private final CountersReader.MetadataConsumer metadataConsumer = mock(CountersReader.MetadataConsumer.class);
 
     @Test
     public void managerShouldStoreLabels()
     {
         final int counterId = manager.allocate("abc");
-        final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
         otherManager.forEach(consumer);
         verify(consumer).accept(counterId, "abc");
     }
@@ -56,7 +63,6 @@ public class CountersManagerTest
         final int def = manager.allocate("def");
         final int ghi = manager.allocate("ghi");
 
-        final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
         otherManager.forEach(consumer);
 
         final InOrder inOrder = Mockito.inOrder(consumer);
@@ -75,7 +81,6 @@ public class CountersManagerTest
 
         manager.free(def);
 
-        final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
         otherManager.forEach(consumer);
 
         final InOrder inOrder = Mockito.inOrder(consumer);
@@ -104,7 +109,50 @@ public class CountersManagerTest
         final int id = manager.allocate("abc");
         final ReadablePosition reader = new UnsafeBufferPosition(counterBuffer, id);
         final Position writer = new UnsafeBufferPosition(counterBuffer, id);
-        writer.setOrdered(0xFFFFFFFFFL);
-        assertThat(reader.getVolatile(), is(0xFFFFFFFFFL));
+        final long expectedValue = 0xF_FFFF_FFFFL;
+
+        writer.setOrdered(expectedValue);
+
+        assertThat(reader.getVolatile(), is(expectedValue));
+    }
+
+    @Test
+    public void shouldStoreMetaData()
+    {
+        final int typeIdOne = 333;
+        final long keyOne = 777L;
+
+        final int typeIdTwo = 222;
+        final long keyTwo = 444;
+
+        final int counterIdOne = manager.allocate("Test Label One", typeIdOne, (buffer) -> buffer.putLong(0, keyOne));
+        final int counterIdTwo = manager.allocate("Test Label Two", typeIdTwo, (buffer) -> buffer.putLong(0, keyTwo));
+
+        manager.forEach(metadataConsumer);
+
+        final ArgumentCaptor<DirectBuffer> argCaptorOne = ArgumentCaptor.forClass(DirectBuffer.class);
+        final ArgumentCaptor<DirectBuffer> argCaptorTwo = ArgumentCaptor.forClass(DirectBuffer.class);
+
+        final InOrder inOrder = Mockito.inOrder(metadataConsumer);
+        inOrder.verify(metadataConsumer).accept(eq(counterIdOne), eq(typeIdOne), argCaptorOne.capture(), eq("Test Label One"));
+        inOrder.verify(metadataConsumer).accept(eq(counterIdTwo), eq(typeIdTwo), argCaptorTwo.capture(), eq("Test Label Two"));
+        inOrder.verifyNoMoreInteractions();
+
+        final DirectBuffer keyOneBuffer = argCaptorOne.getValue();
+        assertThat(keyOneBuffer.getLong(0), is(keyOne));
+
+        final DirectBuffer keyTwoBuffer = argCaptorTwo.getValue();
+        assertThat(keyTwoBuffer.getLong(0), is(keyTwo));
+    }
+
+    @Test
+    public void shouldStoreAndLoadValue()
+    {
+        final int counterId = manager.allocate("Test Counter");
+
+        final long value = 7L;
+        manager.setCounterValue(counterId, value);
+
+        assertThat(manager.getCounterValue(counterId), is(value));
     }
 }
