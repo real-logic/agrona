@@ -156,7 +156,7 @@ public class CountersManager extends CountersReader
      */
     public void free(final int counterId)
     {
-        metaDataBuffer.putInt(metaDataOffset(counterId), RECORD_RECLAIMED);
+        metaDataBuffer.putIntOrdered(metaDataOffset(counterId), RECORD_RECLAIMED);
         freeList.push(counterId);
     }
 
