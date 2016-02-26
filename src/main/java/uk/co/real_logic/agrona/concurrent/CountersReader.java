@@ -169,19 +169,21 @@ public class CountersReader
      */
     public void forEach(final BiConsumer<Integer, String> consumer)
     {
-        int recordOffset = 0;
         int counterId = 0;
-        int recordStatus;
 
-        while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
+        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
-            if (RECORD_ALLOCATED == recordStatus)
+            final int recordStatus = metaDataBuffer.getIntVolatile(i);
+            if (RECORD_UNUSED == recordStatus)
             {
-                final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
+                break;
+            }
+            else if (RECORD_ALLOCATED == recordStatus)
+            {
+                final String label = metaDataBuffer.getStringUtf8(i + LABEL_OFFSET);
                 consumer.accept(counterId, label);
             }
 
-            recordOffset += METADATA_LENGTH;
             counterId++;
         }
     }
@@ -193,22 +195,24 @@ public class CountersReader
      */
     public void forEach(final MetaData metaData)
     {
-        int recordOffset = 0;
         int counterId = 0;
-        int recordStatus;
 
-        while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
+        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
-            if (RECORD_ALLOCATED == recordStatus)
+            final int recordStatus = metaDataBuffer.getIntVolatile(i);
+            if (RECORD_UNUSED == recordStatus)
             {
-                final int typeId = metaDataBuffer.getInt(recordOffset + TYPE_ID_OFFSET);
-                final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
-                final DirectBuffer key = new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH);
+                break;
+            }
+            else if (RECORD_ALLOCATED == recordStatus)
+            {
+                final int typeId = metaDataBuffer.getInt(i + TYPE_ID_OFFSET);
+                final String label = metaDataBuffer.getStringUtf8(i + LABEL_OFFSET);
+                final DirectBuffer key = new UnsafeBuffer(metaDataBuffer, i + KEY_OFFSET, MAX_KEY_LENGTH);
 
                 metaData.accept(counterId, typeId, key, label);
             }
 
-            recordOffset += METADATA_LENGTH;
             counterId++;
         }
     }
