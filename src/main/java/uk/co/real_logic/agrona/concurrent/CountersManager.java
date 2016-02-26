@@ -21,8 +21,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
-
 /**
  * Manages the allocation and freeing of counters that are normally stored in a memory-mapped file.
  *
@@ -43,19 +41,21 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  * </pre>
  *
- * <b>Metadata Buffer</b>
+ * <b>Meta Data Buffer</b>
  * <pre>
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |R|                      Label Length                           |
- *  +---------------------------------------------------------------+
- *  |                  124 bytes of Label in UTF-8                 ...
- * ...                                                              |
+ *  |                        Record State                           |
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                      124 bytes for key                       ...
+ *  |                      120 bytes for key                       ...
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ *  |R|                      Label Length                           |
+ *  +---------------------------------------------------------------+
+ *  |                  124 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -82,15 +82,16 @@ public class CountersManager extends CountersReader
     /**
      * Create a new counter buffer manager over two buffers.
      *
-     * @param metadataBuffer containing the types, keys, and labels for the counters.
+     * @param metaDataBuffer containing the types, keys, and labels for the counters.
      * @param valuesBuffer   containing the values of the counters themselves.
      */
-    public CountersManager(final AtomicBuffer metadataBuffer, final AtomicBuffer valuesBuffer)
+    public CountersManager(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
     {
-        super(valuesBuffer, metadataBuffer);
+        super(metaDataBuffer, valuesBuffer);
+
         valuesBuffer.verifyAlignment();
 
-        if (metadataBuffer.capacity() < (valuesBuffer.capacity() * 2))
+        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
             throw new IllegalArgumentException("Meta data buffer not sufficiently large");
         }
@@ -110,6 +111,9 @@ public class CountersManager extends CountersReader
     /**
      * Allocate a new counter with a given label.
      *
+     * The key function will be called with a buffer with the exact length of available key space
+     * in the record for the user to store what they want for the key. No offset is required.
+     *
      * @param label   to describe the counter.
      * @param typeId  for the type of counter.
      * @param keyFunc for setting the key value for the counter.
@@ -123,17 +127,17 @@ public class CountersManager extends CountersReader
             throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
         }
 
-        final int recordOffset = metadataOffset(counterId);
-        if ((recordOffset + METADATA_LENGTH) > metadataBuffer.capacity())
+        final int recordOffset = metaDataOffset(counterId);
+        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
         {
             throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
         }
 
-        metadataBuffer.putInt(recordOffset + FULL_LABEL_LENGTH, typeId);
-        final int keyOffset = FULL_LABEL_LENGTH + SIZE_OF_INT;
-        keyFunc.accept(new UnsafeBuffer(metadataBuffer, recordOffset + keyOffset, METADATA_LENGTH - keyOffset));
+        metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
+        keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
+        metaDataBuffer.putStringUtf8(recordOffset + LABEL_OFFSET, label, MAX_LABEL_LENGTH);
 
-        metadataBuffer.putStringUtf8(recordOffset, label, MAX_LABEL_LENGTH);
+        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ACTIVE);
 
         return counterId;
     }
@@ -150,7 +154,7 @@ public class CountersManager extends CountersReader
      */
     public void free(final int counterId)
     {
-        metadataBuffer.putInt(metadataOffset(counterId), UNREGISTERED_LABEL_LENGTH);
+        metaDataBuffer.putInt(metaDataOffset(counterId), RECORD_RECLAIMED);
         freeList.push(counterId);
     }
 

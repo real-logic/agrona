@@ -20,6 +20,7 @@ import uk.co.real_logic.agrona.DirectBuffer;
 
 import java.util.function.BiConsumer;
 
+import static uk.co.real_logic.agrona.BitUtil.CACHE_LINE_LENGTH;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 
 /**
@@ -42,19 +43,21 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  * </pre>
  *
- * <b>Metadata Buffer</b>
+ * <b>Meta Data Buffer</b>
  * <pre>
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |R|                      Label Length                           |
- *  +---------------------------------------------------------------+
- *  |                  124 bytes of Label in UTF-8                 ...
- * ...                                                              |
+ *  |                        Record State                           |
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                      124 bytes for key                       ...
+ *  |                      120 bytes for key                       ...
+ * ...                                                              |
+ *  +---------------------------------------------------------------+
+ *  |R|                      Label Length                           |
+ *  +---------------------------------------------------------------+
+ *  |                  124 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -66,14 +69,44 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 public class CountersReader
 {
     /**
+     * Record has not been used.
+     */
+    public static final int RECORD_UNUSED = 0;
+
+    /**
+     * Record currently in active use.
+     */
+    public static final int RECORD_ACTIVE = 1;
+
+    /**
+     * Record was active and now has been reclaimed.
+     */
+    public static final int RECORD_RECLAIMED = -1;
+
+    /**
      * Length of a meta data record in bytes.
      */
     public static final int METADATA_LENGTH = BitUtil.CACHE_LINE_LENGTH * 4;
 
     /**
+     * Offset in the record at which the type id field is stored.
+     */
+    public static final int TYPE_ID_OFFSET = SIZE_OF_INT;
+
+    /**
+     * Offset in the record at which the key is stored.
+     */
+    public static final int KEY_OFFSET = TYPE_ID_OFFSET + SIZE_OF_INT;
+
+    /**
+     * Offset in the record at which the label is stored.
+     */
+    public static final int LABEL_OFFSET = BitUtil.CACHE_LINE_LENGTH * 2;
+
+    /**
      * Length of a counter label length including length prefix.
      */
-    public static final int FULL_LABEL_LENGTH = METADATA_LENGTH / 2;
+    public static final int FULL_LABEL_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
     /**
      * Maximum length of a label not including its length prefix.
@@ -83,31 +116,26 @@ public class CountersReader
     /**
      * Maximum length a key can be.
      */
-    public static final int MAX_KEY_LENGTH = METADATA_LENGTH - FULL_LABEL_LENGTH - SIZE_OF_INT;
+    public static final int MAX_KEY_LENGTH = (CACHE_LINE_LENGTH * 2) - (SIZE_OF_INT * 2);
 
     /**
      * Length of the space allocated to a counter that includes padding to avoid false sharing.
      */
     public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
-    /**
-     * The length value set for a label when it is not used.
-     */
-    public static final int UNREGISTERED_LABEL_LENGTH = -1;
-
-    protected final AtomicBuffer metadataBuffer;
+    protected final AtomicBuffer metaDataBuffer;
     protected final AtomicBuffer valuesBuffer;
 
     /**
      * Construct a reader over buffers containing the values and associated metadata.
      *
+     * @param metaDataBuffer containing the counter metadata.
      * @param valuesBuffer   containing the counter values.
-     * @param metadataBuffer containing the counter metadata.
      */
-    public CountersReader(final AtomicBuffer valuesBuffer, final AtomicBuffer metadataBuffer)
+    public CountersReader(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
     {
         this.valuesBuffer = valuesBuffer;
-        this.metadataBuffer = metadataBuffer;
+        this.metaDataBuffer = metaDataBuffer;
     }
 
     /**
@@ -127,7 +155,7 @@ public class CountersReader
      * @param counterId for the record.
      * @return the offset at which the metadata record begins.
      */
-    public static int metadataOffset(final int counterId)
+    public static int metaDataOffset(final int counterId)
     {
         return counterId * METADATA_LENGTH;
     }
@@ -141,13 +169,13 @@ public class CountersReader
     {
         int recordOffset = 0;
         int id = 0;
-        int labelLength;
+        int recordStatus;
 
-        while ((labelLength = metadataBuffer.getInt(recordOffset)) != 0)
+        while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
         {
-            if (labelLength != UNREGISTERED_LABEL_LENGTH)
+            if (RECORD_ACTIVE == recordStatus)
             {
-                final String label = metadataBuffer.getStringUtf8(recordOffset, labelLength);
+                final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
                 consumer.accept(id, label);
             }
 
@@ -165,16 +193,15 @@ public class CountersReader
     {
         int recordOffset = 0;
         int id = 0;
-        int labelLength;
+        int recordStatus;
 
-        while ((labelLength = metadataBuffer.getInt(recordOffset)) != 0)
+        while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
         {
-            if (labelLength != UNREGISTERED_LABEL_LENGTH)
+            if (RECORD_ACTIVE == recordStatus)
             {
-                final String label = metadataBuffer.getStringUtf8(recordOffset, labelLength);
-                final int typeOffset = recordOffset + FULL_LABEL_LENGTH;
-                final int typeId = metadataBuffer.getInt(typeOffset);
-                final DirectBuffer key = new UnsafeBuffer(metadataBuffer, typeOffset + SIZE_OF_INT, MAX_KEY_LENGTH);
+                final int typeId = metaDataBuffer.getInt(recordOffset + TYPE_ID_OFFSET);
+                final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
+                final DirectBuffer key = new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH);
 
                 metadataConsumer.accept(id, typeId, key, label);
             }
