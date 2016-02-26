@@ -26,6 +26,8 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
 /**
  * Reads the counters metadata and values buffers.
  *
+ * This class is threadsafe and can be used across threads.
+ *
  * <b>Values Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -54,9 +56,9 @@ import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  *  |                      120 bytes for key                       ...
  * ...                                                              |
- *  +---------------------------------------------------------------+
+ *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
- *  +---------------------------------------------------------------+
+ *  +-+-------------------------------------------------------------+
  *  |                  124 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+

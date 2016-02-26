@@ -24,6 +24,8 @@ import java.util.function.Consumer;
 /**
  * Manages the allocation and freeing of counters that are normally stored in a memory-mapped file.
  *
+ * This class in not threadsafe. Counters should be centrally managed.
+ *
  * <b>Values Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -52,9 +54,9 @@ import java.util.function.Consumer;
  *  +---------------------------------------------------------------+
  *  |                      120 bytes for key                       ...
  * ...                                                              |
- *  +---------------------------------------------------------------+
+ *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
- *  +---------------------------------------------------------------+
+ *  +-+-------------------------------------------------------------+
  *  |                  124 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
