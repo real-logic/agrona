@@ -46,7 +46,7 @@ public class CountersManagerTest
 
     @SuppressWarnings("unchecked")
     private final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
-    private final CountersReader.MetadataConsumer metadataConsumer = mock(CountersReader.MetadataConsumer.class);
+    private final CountersReader.MetaData metaData = mock(CountersReader.MetaData.class);
 
     @Test
     public void managerShouldStoreLabels()
@@ -128,14 +128,14 @@ public class CountersManagerTest
         final int counterIdOne = manager.allocate("Test Label One", typeIdOne, (buffer) -> buffer.putLong(0, keyOne));
         final int counterIdTwo = manager.allocate("Test Label Two", typeIdTwo, (buffer) -> buffer.putLong(0, keyTwo));
 
-        manager.forEach(metadataConsumer);
+        manager.forEach(metaData);
 
         final ArgumentCaptor<DirectBuffer> argCaptorOne = ArgumentCaptor.forClass(DirectBuffer.class);
         final ArgumentCaptor<DirectBuffer> argCaptorTwo = ArgumentCaptor.forClass(DirectBuffer.class);
 
-        final InOrder inOrder = Mockito.inOrder(metadataConsumer);
-        inOrder.verify(metadataConsumer).accept(eq(counterIdOne), eq(typeIdOne), argCaptorOne.capture(), eq("Test Label One"));
-        inOrder.verify(metadataConsumer).accept(eq(counterIdTwo), eq(typeIdTwo), argCaptorTwo.capture(), eq("Test Label Two"));
+        final InOrder inOrder = Mockito.inOrder(metaData);
+        inOrder.verify(metaData).accept(eq(counterIdOne), eq(typeIdOne), argCaptorOne.capture(), eq("Test Label One"));
+        inOrder.verify(metaData).accept(eq(counterIdTwo), eq(typeIdTwo), argCaptorTwo.capture(), eq("Test Label Two"));
         inOrder.verifyNoMoreInteractions();
 
         final DirectBuffer keyOneBuffer = argCaptorOne.getValue();

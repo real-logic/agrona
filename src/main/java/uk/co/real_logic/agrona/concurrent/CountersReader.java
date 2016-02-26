@@ -170,7 +170,7 @@ public class CountersReader
     public void forEach(final BiConsumer<Integer, String> consumer)
     {
         int recordOffset = 0;
-        int id = 0;
+        int counterId = 0;
         int recordStatus;
 
         while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
@@ -178,23 +178,23 @@ public class CountersReader
             if (RECORD_ALLOCATED == recordStatus)
             {
                 final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
-                consumer.accept(id, label);
+                consumer.accept(counterId, label);
             }
 
             recordOffset += METADATA_LENGTH;
-            id++;
+            counterId++;
         }
     }
 
     /**
      * Iterate over all the metadata in the buffer.
      *
-     * @param metadataConsumer function to be called for each metadata record.
+     * @param metaData function to be called for each metadata record.
      */
-    public void forEach(final MetadataConsumer metadataConsumer)
+    public void forEach(final MetaData metaData)
     {
         int recordOffset = 0;
-        int id = 0;
+        int counterId = 0;
         int recordStatus;
 
         while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
@@ -205,11 +205,11 @@ public class CountersReader
                 final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
                 final DirectBuffer key = new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH);
 
-                metadataConsumer.accept(id, typeId, key, label);
+                metaData.accept(counterId, typeId, key, label);
             }
 
             recordOffset += METADATA_LENGTH;
-            id++;
+            counterId++;
         }
     }
 
@@ -228,16 +228,16 @@ public class CountersReader
      * Callback function for consuming metadata records of counters.
      */
     @FunctionalInterface
-    public interface MetadataConsumer
+    public interface MetaData
     {
         /**
          * Accept a metadata record.
          *
-         * @param id    of the counter.
-         * @param type  of the counter.
-         * @param key   for the counter.
-         * @param label for the counter.
+         * @param counterId of the counter.
+         * @param typeId    of the counter.
+         * @param key       for the counter.
+         * @param label     for the counter.
          */
-        void accept(int id, int type, DirectBuffer key, String label);
+        void accept(int counterId, int typeId, DirectBuffer key, String label);
     }
 }
