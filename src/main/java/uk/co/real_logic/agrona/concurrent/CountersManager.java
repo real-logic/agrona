@@ -139,7 +139,7 @@ public class CountersManager extends CountersReader
         keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
         metaDataBuffer.putStringUtf8(recordOffset + LABEL_OFFSET, label, MAX_LABEL_LENGTH);
 
-        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ACTIVE);
+        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
 
         return counterId;
     }

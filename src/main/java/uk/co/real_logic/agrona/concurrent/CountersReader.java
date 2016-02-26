@@ -76,9 +76,9 @@ public class CountersReader
     public static final int RECORD_UNUSED = 0;
 
     /**
-     * Record currently in active use.
+     * Record currently allocated for use..
      */
-    public static final int RECORD_ACTIVE = 1;
+    public static final int RECORD_ALLOCATED = 1;
 
     /**
      * Record was active and now has been reclaimed.
@@ -175,7 +175,7 @@ public class CountersReader
 
         while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
         {
-            if (RECORD_ACTIVE == recordStatus)
+            if (RECORD_ALLOCATED == recordStatus)
             {
                 final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
                 consumer.accept(id, label);
@@ -199,7 +199,7 @@ public class CountersReader
 
         while ((recordStatus = metaDataBuffer.getIntVolatile(recordOffset)) != RECORD_UNUSED)
         {
-            if (RECORD_ACTIVE == recordStatus)
+            if (RECORD_ALLOCATED == recordStatus)
             {
                 final int typeId = metaDataBuffer.getInt(recordOffset + TYPE_ID_OFFSET);
                 final String label = metaDataBuffer.getStringUtf8(recordOffset + LABEL_OFFSET);
