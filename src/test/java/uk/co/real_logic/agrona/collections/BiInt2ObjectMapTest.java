@@ -131,6 +131,43 @@ public class BiInt2ObjectMapTest
         assertThat(actualSet, equalTo(expectedSet));
     }
 
+    @Test
+    public void shouldPutAndGetKeysOfNegativeValue() throws Exception
+    {
+        map.put(721632679, 333118496, "a");
+        assertThat(map.get(721632679, 333118496), is("a"));
+
+        map.put(721632719, -659033725, "b");
+        assertThat(map.get(721632719, -659033725), is("b"));
+
+        map.put(721632767, -235401032, "c");
+        assertThat(map.get(721632767, -235401032), is("c"));
+
+        map.put(721632839, 1791470537, "d");
+        assertThat(map.get(721632839, 1791470537), is("d"));
+
+        map.put(721633069, -939458690, "e");
+        assertThat(map.get(721633069, -939458690), is("e"));
+
+        map.put(721633127, 1620485039, "f");
+        assertThat(map.get(721633127, 1620485039), is("f"));
+
+        map.put(721633163, -1503337805, "g");
+        assertThat(map.get(721633163, -1503337805), is("g"));
+
+        map.put(721633229, -2073657736, "h");
+        assertThat(map.get(721633229, -2073657736), is("h"));
+
+        map.put(721633255, -1278969172, "i");
+        assertThat(map.get(721633255, -1278969172), is("i"));
+
+        map.put(721633257, -1230662585, "j");
+        assertThat(map.get(721633257, -1230662585), is("j"));
+
+        map.put(721633319, -532637417, "k");
+        assertThat(map.get(721633319, -532637417), is("k"));
+    }
+
     public static class EntryCapture<V>
     {
         public final int keyPartA;

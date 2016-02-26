@@ -329,7 +329,7 @@ public class BiInt2ObjectMap<V>
 
     private static long compoundKey(final int keyPartA, final int keyPartB)
     {
-        return ((long)keyPartA << 32) | keyPartB;
+        return ((long)keyPartA << 32) | (keyPartB & 0xFFFFFFFFL);
     }
 
     private void rehash(final int newCapacity)
