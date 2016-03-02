@@ -375,7 +375,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
 
-            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+            if ((index < hash && compareHashAndIndex(deleteIndex, index, hash)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 entries[deleteIndex] = entries[index];
@@ -386,6 +386,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 deleteIndex = index;
             }
         }
+    }
+
+    private boolean compareHashAndIndex(@DoNotSub int deleteIndex, int index, int hash)
+    {
+        return hash <= deleteIndex || deleteIndex <= index;
     }
 
     /**

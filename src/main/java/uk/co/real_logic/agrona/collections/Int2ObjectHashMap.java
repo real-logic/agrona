@@ -460,7 +460,7 @@ public class Int2ObjectHashMap<V>
 
             @DoNotSub final int hash = Hashing.hash(keys[index], mask);
 
-            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+            if ((index < hash && compareHashAndIndex(deleteIndex, index, hash)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 keys[deleteIndex] = keys[index];
@@ -470,6 +470,11 @@ public class Int2ObjectHashMap<V>
                 deleteIndex = index;
             }
         }
+    }
+
+    private boolean compareHashAndIndex(@DoNotSub int deleteIndex, int index, int hash)
+    {
+        return hash <= deleteIndex || deleteIndex <= index;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
