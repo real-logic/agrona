@@ -237,7 +237,7 @@ public final class IntHashSet implements Set<Integer>
 
             @DoNotSub final int hash = Hashing.hash(values[index], mask);
 
-            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+            if ((index < hash && compareHashAndIndex(deleteIndex, index, hash)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 values[deleteIndex] = values[index];
@@ -246,6 +246,11 @@ public final class IntHashSet implements Set<Integer>
                 deleteIndex = index;
             }
         }
+    }
+
+    private boolean compareHashAndIndex(int deleteIndex, int index, int hash)
+    {
+        return hash <= deleteIndex || deleteIndex <= index;
     }
 
     /**

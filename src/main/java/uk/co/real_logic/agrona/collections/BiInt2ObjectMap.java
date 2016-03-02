@@ -377,7 +377,7 @@ public class BiInt2ObjectMap<V>
             final long key = keys[index];
             final int hash = Hashing.hash(key, mask);
 
-            if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+            if ((index < hash && compareHashAndIndex(deleteIndex, index, hash)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 keys[deleteIndex] = key;
@@ -387,6 +387,11 @@ public class BiInt2ObjectMap<V>
                 deleteIndex = index;
             }
         }
+    }
+
+    private boolean compareHashAndIndex(int deleteIndex, int index, int hash)
+    {
+        return hash <= deleteIndex || deleteIndex <= index;
     }
 
     private void increaseCapacity()
