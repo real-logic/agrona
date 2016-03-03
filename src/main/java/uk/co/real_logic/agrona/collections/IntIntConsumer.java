@@ -23,7 +23,7 @@ public interface
     IntIntConsumer
 {
     /**
-     * Accept a key and value that comes as a tuple of longs.
+     * Accept a key and value that comes as a tuple of ints.
      *
      * @param key   for the tuple.
      * @param value for the tuple.

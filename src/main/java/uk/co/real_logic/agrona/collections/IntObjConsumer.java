@@ -23,10 +23,8 @@ public interface
 IntObjConsumer<T>
 {
     /**
-     * Accept a key and value that comes as a tuple of longs.
-     *
-     * @param key   for the tuple.
-     * @param value for the tuple.
+     * @param i for the tuple.
+     * @param v for the tuple.
      */
-    void accept(int key, T value);
+    void accept(int i, T v);
 }
