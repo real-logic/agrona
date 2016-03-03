@@ -17,8 +17,7 @@ package uk.co.real_logic.agrona.concurrent;
 
 import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.DirectBuffer;
-
-import java.util.function.BiConsumer;
+import uk.co.real_logic.agrona.collections.IntObjConsumer;
 
 import static uk.co.real_logic.agrona.BitUtil.CACHE_LINE_LENGTH;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;
@@ -167,7 +166,7 @@ public class CountersReader
      *
      * @param consumer function to be called for each label.
      */
-    public void forEach(final BiConsumer<Integer, String> consumer)
+    public void forEach(final IntObjConsumer<String> consumer)
     {
         int counterId = 0;
 
