@@ -16,7 +16,7 @@
 package uk.co.real_logic.agrona.collections;
 
 /**
- * This is an (int,int) primitive specialisation of a BiConsumer
+ * This is an (int, int) primitive specialisation of a BiConsumer
  */
 @FunctionalInterface
 public interface
