@@ -16,11 +16,10 @@
 package uk.co.real_logic.agrona.collections;
 
 /**
- * This is an (int,Object) primitive specialisation of a BiConsumer.
+ * This is an (int, Object) primitive specialisation of a BiConsumer.
  */
 @FunctionalInterface
-public interface
-IntObjConsumer<T>
+public interface IntObjConsumer<T>
 {
     /**
      * @param i for the tuple.
