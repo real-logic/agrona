@@ -37,6 +37,20 @@ public class Verify
     }
 
     /**
+     * Verify that a referenc is null.
+     *
+     * @param ref to be verified as null.
+     * @param name of the reference to be verified.
+     */
+    public static void verifyNull(final Object ref, final String name)
+    {
+        if (null != ref)
+        {
+            throw new NullPointerException(name + " must be null");
+        }
+    }
+
+    /**
      * Verify that a map contains and entry for a given key.
      *
      * @param map to be checked.
