@@ -16,17 +16,15 @@
 package uk.co.real_logic.agrona.collections;
 
 /**
- * This is an (int,int) primitive specialisation of a BiConsumer
+ * This is an (int,Object) primitive specialisation of a BiConsumer.
  */
 @FunctionalInterface
 public interface
-    IntIntConsumer
+IntObjConsumer<T>
 {
     /**
-     * Accept a key and value that comes as a tuple of ints.
-     *
-     * @param key   for the tuple.
-     * @param value for the tuple.
+     * @param i for the tuple.
+     * @param v for the tuple.
      */
-    void accept(int key, int value);
+    void accept(int i, T v);
 }

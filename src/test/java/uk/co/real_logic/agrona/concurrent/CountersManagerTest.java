@@ -20,11 +20,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.collections.IntObjConsumer;
 import uk.co.real_logic.agrona.concurrent.status.Position;
 import uk.co.real_logic.agrona.concurrent.status.ReadablePosition;
 import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
-
-import java.util.function.BiConsumer;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;
@@ -45,7 +44,7 @@ public class CountersManagerTest
     private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer);
 
     @SuppressWarnings("unchecked")
-    private final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
+    private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
     private final CountersReader.MetaData metaData = mock(CountersReader.MetaData.class);
 
     @Test
