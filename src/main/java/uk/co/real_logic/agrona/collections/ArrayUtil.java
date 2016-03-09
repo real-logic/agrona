@@ -110,4 +110,24 @@ public final class ArrayUtil
     {
         return (T[])Array.newInstance(oldElements.getClass().getComponentType(), length);
     }
+
+    /**
+     * Ensure an array has the required capacity. Resizing only if needed.
+     *
+     * @param oldElements    to ensure that are long enough.
+     * @param requiredLength to ensure.
+     * @param <T>            type of the array.
+     * @return               an array of the required length.
+     */
+    public static <T> T[] ensureCapacity(final T[] oldElements, final int requiredLength)
+    {
+        T[] result = oldElements;
+
+        if (oldElements.length < requiredLength)
+        {
+            result = Arrays.copyOf(oldElements, requiredLength);
+        }
+
+        return result;
+    }
 }
