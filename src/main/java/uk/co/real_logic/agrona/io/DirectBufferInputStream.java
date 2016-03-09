@@ -79,7 +79,7 @@ public class DirectBufferInputStream extends InputStream
      */
     public int length()
     {
-        return offset;
+        return length;
     }
 
     /**
