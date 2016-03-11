@@ -99,7 +99,7 @@ public class MutableDirectBufferOutputStream extends OutputStream
      */
     public int length()
     {
-        return offset;
+        return length;
     }
 
     /**
