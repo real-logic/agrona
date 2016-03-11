@@ -68,4 +68,17 @@ public class ManyToOneConcurrentLinkedQueueTest
 
         assertThat(queue.size(), is(0));
     }
+
+    @Test
+    public void shouldToString()
+    {
+        assertThat(queue.toString(), is("{}"));
+
+        for (int i = 0; i < 5; i++)
+        {
+            queue.offer(i);
+        }
+
+        assertThat(queue.toString(), is("{0, 1, 2, 3, 4}"));
+    }
 }
