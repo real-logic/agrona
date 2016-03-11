@@ -23,10 +23,11 @@ import java.util.Queue;
 import static uk.co.real_logic.agrona.UnsafeAccess.UNSAFE;
 
 /**
- * Pad out a cacheline to the left of a tail to prevent false sharing.
+ * Pad out a cache line to the left of a tail to prevent false sharing.
  */
 class ManyToOneConcurrentLinkedQueuePadding1
 {
+    protected static final long HEAD_OFFSET;
     protected static final long TAIL_OFFSET;
     protected static final long NODE_NEXT_OFFSET;
 
@@ -50,6 +51,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
     {
         try
         {
+            HEAD_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueue.class.getDeclaredField("head"));
             TAIL_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
             NODE_NEXT_OFFSET = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
         }
@@ -58,7 +60,6 @@ class ManyToOneConcurrentLinkedQueuePadding1
             throw new RuntimeException(ex);
         }
     }
-
 
     @SuppressWarnings("unused")
     protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
@@ -73,7 +74,7 @@ class ManyToOneConcurrentLinkedQueueTail<E> extends ManyToOneConcurrentLinkedQue
 }
 
 /**
- * Pad out a cacheline between the tail and the head to prevent false sharing.
+ * Pad out a cache line between the tail and the head to prevent false sharing.
  */
 class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinkedQueueTail<E>
 {
@@ -88,20 +89,21 @@ class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinke
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">MPSC queue</a>
  * by Dmitry Vyukov.
  *
- * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
- * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
- * {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
+ * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node
+ * available but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for
+ * empty then call {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
  *
  * @param <E> element type in the queue.
  */
 public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinkedQueuePadding2<E> implements Queue<E>
 {
-    private Node<E> head;
+    protected volatile Node<E> head;
 
     public ManyToOneConcurrentLinkedQueue()
     {
-        head = new Node<>(null);
-        UNSAFE.putOrderedObject(this, TAIL_OFFSET, head);
+        final Node<E> emptyNode = new Node<>(null);
+        headOrdered(emptyNode);
+        UNSAFE.putOrderedObject(this, TAIL_OFFSET, emptyNode);
     }
 
     public boolean add(final E e)
@@ -116,9 +118,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
             throw new NullPointerException("element cannot be null");
         }
 
-        final Node<E> newTail = new Node<>(e);
-        final Node<E> prevTail = swapTail(newTail);
-        prevTail.setNextOrdered(newTail);
+        final Node<E> nextTail = new Node<>(e);
+        final Node<E> prevTail = swapTail(nextTail);
+        prevTail.setNextOrdered(nextTail);
 
         return true;
     }
@@ -143,7 +145,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         {
             value = node.value;
             node.value = null;
-            head = node;
+            headOrdered(node);
         }
 
         return value;
@@ -168,14 +170,13 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     public int size()
     {
-        final Node<E> tail = this.tail;
         Node<E> head = this.head;
+        final Node<E> tail = this.tail;
 
         int size = 0;
-        while (head != tail && size < Integer.MAX_VALUE)
+        while (tail != head && size < Integer.MAX_VALUE)
         {
             Node<E> next = head.next;
-
             while (null == next)
             {
                 next = head.next;
@@ -241,6 +242,11 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     public void clear()
     {
         throw new UnsupportedOperationException();
+    }
+
+    private void headOrdered(final Node<E> head)
+    {
+        UNSAFE.putOrderedObject(this, HEAD_OFFSET, head);
     }
 
     @SuppressWarnings("unchecked")
