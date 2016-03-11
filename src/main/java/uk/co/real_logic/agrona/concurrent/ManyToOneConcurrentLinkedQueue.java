@@ -244,6 +244,38 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         throw new UnsupportedOperationException();
     }
 
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        Node<E> head = this.head;
+        final Node<E> tail = this.tail;
+
+        while (head != tail)
+        {
+            Node<E> next = head.next;
+            while (null == next)
+            {
+                next = head.next;
+            }
+
+            head = next;
+
+            sb.append(head.value);
+            sb.append(", ");
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
     private void headOrdered(final Node<E> head)
     {
         UNSAFE.putOrderedObject(this, HEAD_OFFSET, head);
