@@ -99,7 +99,7 @@ public class DistinctErrorLog
     private final EpochClock clock;
     private final AtomicBuffer buffer;
     private volatile DistinctObservation[] distinctObservations = new DistinctObservation[0];
-    private final Lock lock = new ReentrantLock();
+    private final Lock newObservationLock = new ReentrantLock();
 
     /**
      * Create a new error log that will be written to a provided {@link AtomicBuffer}.
@@ -130,7 +130,7 @@ public class DistinctErrorLog
 
         if (null == existingObservation)
         {
-            lock.lock();
+            newObservationLock.lock();
             try
             {
                 existingObservation = newObservation(timestamp, existingObservations, observation);
@@ -141,7 +141,7 @@ public class DistinctErrorLog
             }
             finally
             {
-                lock.unlock();
+                newObservationLock.unlock();
             }
         }
 
