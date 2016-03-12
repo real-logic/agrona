@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona.concurrent.errors;
 
-import uk.co.real_logic.agrona.collections.ArrayUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 import uk.co.real_logic.agrona.concurrent.EpochClock;
 
@@ -249,12 +248,24 @@ public class DistinctErrorLog
             nextOffset = align(offset + length, RECORD_ALIGNMENT);
 
             existingObservation = new DistinctObservation(observation, offset);
-            distinctObservations = ArrayUtil.add(distinctObservations, existingObservation);
+            distinctObservations = prepend(distinctObservations, existingObservation);
 
             buffer.putIntOrdered(offset + LENGTH_OFFSET, length);
         }
 
         return existingObservation;
+    }
+
+    private static DistinctObservation[] prepend(
+        final DistinctObservation[] observations, final DistinctObservation observation)
+    {
+        final int length = observations.length;
+        final DistinctObservation[] newObservations = new DistinctObservation[length + 1];
+
+        newObservations[0] = observation;
+        System.arraycopy(observations, 0, newObservations, 1, length);
+
+        return newObservations;
     }
 
     public static final class DistinctObservation
