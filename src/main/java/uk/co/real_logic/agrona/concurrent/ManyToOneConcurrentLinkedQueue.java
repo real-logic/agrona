@@ -139,13 +139,15 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     public E poll()
     {
         E value = null;
-        final Node<E> node = head.next;
+        final Node<E> head = this.head;
+        final Node<E> nextNode = head.next;
 
-        if (null != node)
+        if (null != nextNode)
         {
-            value = node.value;
-            node.value = null;
-            headOrdered(node);
+            value = nextNode.value;
+            nextNode.value = null;
+            head.setNextOrdered(null);
+            headOrdered(nextNode);
         }
 
         return value;
@@ -168,18 +170,26 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return null != node ? node.value : null;
     }
 
+    /**
+     * Size can be considered an approximation on a moving list.
+     * It is only really stable when the consumer is inactive.
+     *
+     * This operation is O(n) on the length of the linked chain.
+     *
+     * @return an approximation for the size of the list.
+     */
     public int size()
     {
-        Node<E> head = this.head;
         final Node<E> tail = this.tail;
-
+        Node<E> head = this.head;
         int size = 0;
+
         while (tail != head && size < Integer.MAX_VALUE)
         {
-            Node<E> next = head.next;
-            while (null == next)
+            final Node<E> next = head.next;
+            if (null == next)
             {
-                next = head.next;
+                break;
             }
 
             head = next;
@@ -249,15 +259,15 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        Node<E> head = this.head;
         final Node<E> tail = this.tail;
+        Node<E> head = this.head;
 
         while (head != tail)
         {
-            Node<E> next = head.next;
-            while (null == next)
+            final Node<E> next = head.next;
+            if (null == next)
             {
-                next = head.next;
+                break;
             }
 
             head = next;
