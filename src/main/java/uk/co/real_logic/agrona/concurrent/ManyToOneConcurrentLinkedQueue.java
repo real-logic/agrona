@@ -51,7 +51,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
     {
         try
         {
-            HEAD_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueue.class.getDeclaredField("head"));
+            HEAD_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
             TAIL_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
             NODE_NEXT_OFFSET = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
         }
@@ -83,6 +83,14 @@ class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinke
 }
 
 /**
+ * Value for the head that is expected to be padded.
+ */
+class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQueuePadding2<E>
+{
+    protected volatile ManyToOneConcurrentLinkedQueue.Node<E> head;
+}
+
+/**
  * Concurrent linked {@link Queue} that can be used from many producers and a single consumer.
  *
  * This is a Java port of the
@@ -95,9 +103,10 @@ class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinke
  *
  * @param <E> element type in the queue.
  */
-public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinkedQueuePadding2<E> implements Queue<E>
+public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinkedQueueHead<E> implements Queue<E>
 {
-    protected volatile Node<E> head;
+    @SuppressWarnings("unused")
+    protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
 
     public ManyToOneConcurrentLinkedQueue()
     {
