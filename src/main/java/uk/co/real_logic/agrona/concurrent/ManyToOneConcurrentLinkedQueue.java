@@ -190,8 +190,8 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
      */
     public int size()
     {
-        final Node<E> tail = this.tail;
         Node<E> head = this.head;
+        final Node<E> tail = this.tail;
         int size = 0;
 
         while (tail != head && size < Integer.MAX_VALUE)
@@ -269,8 +269,8 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        final Node<E> tail = this.tail;
         Node<E> head = this.head;
+        final Node<E> tail = this.tail;
 
         while (head != tail)
         {
