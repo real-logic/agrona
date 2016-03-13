@@ -69,6 +69,22 @@ public class ManyToOneConcurrentLinkedQueueTest
         }
 
         assertThat(queue.size(), is(0));
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    public void shouldExchangeInFifoOrderInterleaved()
+    {
+        final int numItems = 7;
+
+        for (int i = 0; i < numItems; i++)
+        {
+            queue.offer(i);
+            assertThat(queue.poll(), is(i));
+        }
+
+        assertThat(queue.size(), is(0));
+        assertTrue(queue.isEmpty());
     }
 
     @Test
@@ -87,7 +103,7 @@ public class ManyToOneConcurrentLinkedQueueTest
     @Test(timeout = 10000)
     public void shouldTransferConcurrently()
     {
-        final int count = 10_000_000;
+        final int count = 1_000_000;
         final int numThreads = 2;
         final Executor executor = Executors.newFixedThreadPool(numThreads);
         final Runnable producer =

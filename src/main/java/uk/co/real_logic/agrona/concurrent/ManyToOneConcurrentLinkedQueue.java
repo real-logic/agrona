@@ -108,9 +108,10 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     @SuppressWarnings("unused")
     protected long p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45;
 
+    private final Node<E> empty = new Node<>(null);
+
     public ManyToOneConcurrentLinkedQueue()
     {
-        final Node<E> empty = new Node<>(null);
         headOrdered(empty);
         UNSAFE.putOrderedObject(this, TAIL_OFFSET, empty);
     }
@@ -149,13 +150,23 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     {
         E value = null;
         final Node<E> head = this.head;
-        final Node<E> next = head.next;
+        Node<E> next = head.next;
 
         if (null != next)
         {
             value = next.value;
             next.value = null;
             head.nextOrdered(null);
+
+            if (null == next.next)
+            {
+                final Node<E> tail = this.tail;
+                if (tail == next && casTail(tail, empty))
+                {
+                    next = empty;
+                }
+            }
+
             headOrdered(next);
         }
 
@@ -305,5 +316,10 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     private Node<E> swapTail(final Node<E> newTail)
     {
         return (Node<E>)UNSAFE.getAndSetObject(this, TAIL_OFFSET, newTail);
+    }
+
+    private boolean casTail(final Node<E> expectedNode, final Node<E> updateNode)
+    {
+        return UNSAFE.compareAndSwapObject(this, TAIL_OFFSET, expectedNode, updateNode);
     }
 }
