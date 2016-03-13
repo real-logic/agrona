@@ -29,7 +29,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
 {
     protected static final long HEAD_OFFSET;
     protected static final long TAIL_OFFSET;
-    protected static final long NODE_NEXT_OFFSET;
+    protected static final long NEXT_OFFSET;
 
     static final class Node<E>
     {
@@ -43,7 +43,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
 
         void nextOrdered(final Node<E> next)
         {
-            UNSAFE.putOrderedObject(this, NODE_NEXT_OFFSET, next);
+            UNSAFE.putOrderedObject(this, NEXT_OFFSET, next);
         }
     }
 
@@ -53,7 +53,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
         {
             HEAD_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
             TAIL_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
-            NODE_NEXT_OFFSET = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
+            NEXT_OFFSET = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
         }
         catch (final Exception ex)
         {
