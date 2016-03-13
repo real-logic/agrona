@@ -41,9 +41,9 @@ class ManyToOneConcurrentLinkedQueuePadding1
             this.value = value;
         }
 
-        void setNextOrdered(final Node<E> nextNode)
+        void nextOrdered(final Node<E> next)
         {
-            UNSAFE.putOrderedObject(this, NODE_NEXT_OFFSET, nextNode);
+            UNSAFE.putOrderedObject(this, NODE_NEXT_OFFSET, next);
         }
     }
 
@@ -110,9 +110,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     public ManyToOneConcurrentLinkedQueue()
     {
-        final Node<E> emptyNode = new Node<>(null);
-        headOrdered(emptyNode);
-        UNSAFE.putOrderedObject(this, TAIL_OFFSET, emptyNode);
+        final Node<E> empty = new Node<>(null);
+        headOrdered(empty);
+        UNSAFE.putOrderedObject(this, TAIL_OFFSET, empty);
     }
 
     public boolean add(final E e)
@@ -127,9 +127,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
             throw new NullPointerException("element cannot be null");
         }
 
-        final Node<E> nextTail = new Node<>(e);
-        final Node<E> prevTail = swapTail(nextTail);
-        prevTail.setNextOrdered(nextTail);
+        final Node<E> tail = new Node<>(e);
+        final Node<E> previousTail = swapTail(tail);
+        previousTail.nextOrdered(tail);
 
         return true;
     }
@@ -149,14 +149,14 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     {
         E value = null;
         final Node<E> head = this.head;
-        final Node<E> nextNode = head.next;
+        final Node<E> next = head.next;
 
-        if (null != nextNode)
+        if (null != next)
         {
-            value = nextNode.value;
-            nextNode.value = null;
-            head.setNextOrdered(null);
-            headOrdered(nextNode);
+            value = next.value;
+            next.value = null;
+            head.nextOrdered(null);
+            headOrdered(next);
         }
 
         return value;
@@ -175,8 +175,8 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     public E peek()
     {
-        final Node<E> node = head.next;
-        return null != node ? node.value : null;
+        final Node<E> next = head.next;
+        return null != next ? next.value : null;
     }
 
     /**
