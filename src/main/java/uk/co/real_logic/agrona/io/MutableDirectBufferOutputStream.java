@@ -112,7 +112,7 @@ public class MutableDirectBufferOutputStream extends OutputStream
     {
         if (position == length)
         {
-            throw new IllegalStateException("insufficient capacity in the buffer");
+            throw new IllegalStateException("position has reached the end of underlying buffer");
         }
 
         buffer.putByte(offset + position, (byte)b);
@@ -129,7 +129,8 @@ public class MutableDirectBufferOutputStream extends OutputStream
      */
     public void write(final byte[] srcBytes, final int srcOffset, final int length) throws IOException
     {
-        if (position + length >= this.length)
+        final long resultingOffset = position + ((long)length);
+        if (resultingOffset >= this.length)
         {
             throw new IllegalStateException("insufficient capacity in the buffer");
         }
