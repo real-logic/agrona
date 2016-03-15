@@ -140,6 +140,26 @@ public class CountersReader
     }
 
     /**
+     * Get the buffer containing the metadata for the counters.
+     *
+     * @return the buffer containing the metadata for the counters.
+     */
+    public AtomicBuffer metaDataBuffer()
+    {
+        return metaDataBuffer;
+    }
+
+    /**
+     * Get the buffer containing the values for the counters.
+     *
+     * @return the buffer containing the values for the counters.
+     */
+    public AtomicBuffer valuesBuffer()
+    {
+        return valuesBuffer;
+    }
+
+    /**
      * The offset in the counter buffer for a given counterId.
      *
      * @param counterId for which the offset should be provided.
