@@ -16,7 +16,7 @@
 package uk.co.real_logic.agrona.concurrent.status;
 
 /**
- * Reports on how far through a buffer some component has progressed..
+ * Reports on how far through a buffer some component has progressed.
  *
  * Threadsafe to write to from a single writer.
  */
