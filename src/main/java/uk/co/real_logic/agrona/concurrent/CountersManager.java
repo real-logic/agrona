@@ -144,9 +144,29 @@ public class CountersManager extends CountersReader
         return counterId;
     }
 
+    /**
+     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use.
+     *
+     * @param label to describe the counter.
+     * @return a newly allocated {@link AtomicCounter}
+     */
     public AtomicCounter newCounter(final String label)
     {
         return new AtomicCounter(valuesBuffer, allocate(label), this);
+    }
+
+    /**
+     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use.
+     *
+     * @param label   to describe the counter.
+     * @param typeId  for the type of counter.
+     * @param keyFunc for setting the key value for the counter.
+     *
+     * @return a newly allocated {@link AtomicCounter}
+     */
+    public AtomicCounter newCounter(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
+    {
+        return new AtomicCounter(valuesBuffer, allocate(label, typeId, keyFunc), this);
     }
 
     /**
