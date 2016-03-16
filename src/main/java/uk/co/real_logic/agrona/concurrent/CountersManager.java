@@ -180,7 +180,7 @@ public class CountersManager extends CountersReader
     public void free(final int counterId)
     {
         metaDataBuffer.putIntOrdered(metaDataOffset(counterId), RECORD_RECLAIMED);
-        freeList.push(counterId);
+        freeList.add(counterId);
     }
 
     /**
@@ -201,7 +201,7 @@ public class CountersManager extends CountersReader
             return ++idHighWaterMark;
         }
 
-        final int counterId = freeList.pop();
+        final int counterId = freeList.remove();
         valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
 
         return counterId;
