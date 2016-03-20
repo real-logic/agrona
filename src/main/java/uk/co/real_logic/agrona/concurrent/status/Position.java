@@ -30,21 +30,21 @@ public interface Position extends ReadablePosition
     long get();
 
     /**
-     * Sets the current position of the component
+     * Sets the current position of the component without memory ordering semantics.
      *
      * @param value the current position of the component.
      */
     void set(long value);
 
     /**
-     * Sets the current position of the component
+     * Sets the current position of the component with ordered atomic memory semantics.
      *
      * @param value the current position of the component.
      */
     void setOrdered(long value);
 
     /**
-     * Set the position to the new proposedValue if it is greater than the current proposedValue.
+     * Set the position to the new proposedValue if it is greater than the current proposedValue memory ordering semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
@@ -52,7 +52,8 @@ public interface Position extends ReadablePosition
     boolean proposeMax(long proposedValue);
 
     /**
-     * Set the position to the new proposedValue if it is greater than the current proposedValue.
+     * Set the position to the new proposedValue if it is greater than the current proposedValue with ordered atomic
+     * memory semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
