@@ -229,9 +229,9 @@ public class CountersReader
             {
                 final int typeId = metaDataBuffer.getInt(i + TYPE_ID_OFFSET);
                 final String label = metaDataBuffer.getStringUtf8(i + LABEL_OFFSET);
-                final DirectBuffer key = new UnsafeBuffer(metaDataBuffer, i + KEY_OFFSET, MAX_KEY_LENGTH);
+                final DirectBuffer keyBuffer = new UnsafeBuffer(metaDataBuffer, i + KEY_OFFSET, MAX_KEY_LENGTH);
 
-                metaData.accept(counterId, typeId, key, label);
+                metaData.accept(counterId, typeId, keyBuffer, label);
             }
 
             counterId++;
