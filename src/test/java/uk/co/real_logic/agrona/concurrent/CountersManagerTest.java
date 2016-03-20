@@ -21,9 +21,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.collections.IntObjConsumer;
-import uk.co.real_logic.agrona.concurrent.status.Position;
-import uk.co.real_logic.agrona.concurrent.status.ReadablePosition;
-import uk.co.real_logic.agrona.concurrent.status.UnsafeBufferPosition;
+import uk.co.real_logic.agrona.concurrent.status.*;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;
@@ -31,8 +29,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.co.real_logic.agrona.concurrent.CountersReader.COUNTER_LENGTH;
-import static uk.co.real_logic.agrona.concurrent.CountersReader.METADATA_LENGTH;
+import static uk.co.real_logic.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
+import static uk.co.real_logic.agrona.concurrent.status.CountersReader.METADATA_LENGTH;
 
 public class CountersManagerTest
 {

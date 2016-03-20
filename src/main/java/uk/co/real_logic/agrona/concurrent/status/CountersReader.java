@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.agrona.concurrent;
+package uk.co.real_logic.agrona.concurrent.status;
 
 import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.collections.IntObjConsumer;
+import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 import static uk.co.real_logic.agrona.BitUtil.CACHE_LINE_LENGTH;
 import static uk.co.real_logic.agrona.BitUtil.SIZE_OF_INT;

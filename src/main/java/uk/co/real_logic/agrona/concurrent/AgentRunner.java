@@ -17,6 +17,7 @@ package uk.co.real_logic.agrona.concurrent;
 
 import uk.co.real_logic.agrona.ErrorHandler;
 import uk.co.real_logic.agrona.Verify;
+import uk.co.real_logic.agrona.concurrent.status.AtomicCounter;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.atomic.AtomicReference;

@@ -15,7 +15,6 @@
  */
 package uk.co.real_logic.agrona.concurrent.status;
 
-import uk.co.real_logic.agrona.concurrent.CountersManager;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
