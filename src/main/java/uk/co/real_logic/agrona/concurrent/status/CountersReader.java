@@ -260,9 +260,9 @@ public class CountersReader
          *
          * @param counterId of the counter.
          * @param typeId    of the counter.
-         * @param key       for the counter.
+         * @param keyBuffer for the counter.
          * @param label     for the counter.
          */
-        void accept(int counterId, int typeId, DirectBuffer key, String label);
+        void accept(int counterId, int typeId, DirectBuffer keyBuffer, String label);
     }
 }
