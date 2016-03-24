@@ -21,7 +21,7 @@ apply plugin: 'eclipse'
 
 defaultTasks 'clean', 'build', 'install'
 
-group = 'uk.co.real-logic'
+group = 'org.agrona'
 version = '0.4.13-SNAPSHOT'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
