@@ -51,6 +51,6 @@ You require the following to build Agrona:
 
 * Latest stable [Oracle JDK 8](http://www.oracle.com/technetwork/java/)
 
-Full clean and build and install into local maven repository
+Full clean, build, and install into local maven repository
 
     $ ./gradlew
