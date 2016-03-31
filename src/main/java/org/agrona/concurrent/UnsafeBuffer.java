@@ -1201,5 +1201,4 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
         return address;
     }
-
 }
