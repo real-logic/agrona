@@ -19,6 +19,10 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.UnsafeAccess;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -47,6 +51,22 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
     static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
     static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
+
+    private static final MethodHandle GET_BUFFER_ADDRESS;
+
+    static
+    {
+        try
+        {
+            final Field field = Buffer.class.getDeclaredField("address");
+            field.setAccessible(true);
+            GET_BUFFER_ADDRESS = MethodHandles.lookup().unreflectGetter(field);
+        }
+        catch (NoSuchFieldException | IllegalAccessException e1)
+        {
+            throw new IllegalStateException("Can not access java.nio.Buffer.address", e1);
+        }
+    }
 
     private byte[] byteArray;
     private ByteBuffer byteBuffer;
@@ -176,7 +196,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             byteArray = null;
-            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address();
+            addressOffset = getBufferAddress(buffer);
         }
 
         capacity = buffer.capacity();
@@ -209,7 +229,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             byteArray = null;
-            addressOffset = ((sun.nio.ch.DirectBuffer)buffer).address() + offset;
+            addressOffset = getBufferAddress(buffer);
         }
 
         capacity = length;
@@ -834,7 +854,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             dstByteArray = null;
-            dstBaseOffset = ((sun.nio.ch.DirectBuffer)dstBuffer).address();
+            dstBaseOffset = getBufferAddress(dstBuffer);
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
@@ -888,7 +908,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             srcByteArray = null;
-            srcBaseOffset = ((sun.nio.ch.DirectBuffer)srcBuffer).address();
+            srcBaseOffset = getBufferAddress(srcBuffer);
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
@@ -1165,4 +1185,17 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
         return 0;
     }
+
+    private static long getBufferAddress(ByteBuffer dstBuffer)
+    {
+        try
+        {
+            return (long) GET_BUFFER_ADDRESS.invoke(dstBuffer);
+        }
+        catch (Throwable throwable)
+        {
+            throw new IllegalStateException(throwable);
+        }
+    }
+
 }
