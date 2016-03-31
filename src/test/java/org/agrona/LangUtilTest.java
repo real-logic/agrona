@@ -15,24 +15,28 @@
  */
 package org.agrona;
 
-/**
- * Grouping of language level utilities to make programming in Java more convenient.
- */
-public class LangUtil
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class LangUtilTest
 {
-    /**
-     * Rethrow an {@link java.lang.Throwable} preserving the stack trace but making it unchecked.
-     *
-     * @param ex to be rethrown and unchecked.
-     */
-    public static void rethrowUnchecked(final Throwable ex)
+    @Test(expected = Throwable.class)
+    public void shouldCatchCheckedException()
     {
-        LangUtil.<RuntimeException>rethrow(ex);
+        throwHiddenCheckedException();
+        fail("Should have had an exception");
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void rethrow(final Throwable t) throws T
+    private static void throwHiddenCheckedException()
     {
-        throw (T)t;
+        try
+        {
+            throw new Throwable("Test Exception");
+        }
+        catch (final Throwable t)
+        {
+            LangUtil.rethrowUnchecked(t);
+        }
     }
 }
