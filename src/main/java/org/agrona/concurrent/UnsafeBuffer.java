@@ -1139,11 +1139,11 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
 
     public int compareTo(final DirectBuffer that)
     {
-        final int thisCapacity = this.capacity();
+        final int thisCapacity = this.capacity;
         final int thatCapacity = that.capacity();
         final byte[] thisByteArray = this.byteArray;
         final byte[] thatByteArray = that.byteArray();
-        final long thisOffset = this.addressOffset();
+        final long thisOffset = this.addressOffset;
         final long thatOffset = that.addressOffset();
 
         for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++)
