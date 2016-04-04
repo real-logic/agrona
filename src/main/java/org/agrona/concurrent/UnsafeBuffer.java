@@ -49,11 +49,10 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
 
+    private long addressOffset;
+    private int capacity;
     private byte[] byteArray;
     private ByteBuffer byteBuffer;
-    private long addressOffset;
-
-    private int capacity;
 
     /**
      * Attach a view to a byte[] for providing direct access.
