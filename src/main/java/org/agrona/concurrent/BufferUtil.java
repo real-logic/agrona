@@ -15,11 +15,40 @@
  */
 package org.agrona.concurrent;
 
-import java.nio.ByteBuffer;
+import org.agrona.LangUtil;
+import org.agrona.UnsafeAccess;
 
-class BufferUtil
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+
+public class BufferUtil
 {
-    static void boundsCheck(final byte[] buffer, final long index, final int length)
+    static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
+    static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+    static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
+
+    private static final MethodHandle BUFFER_ADDRESS;
+
+    static
+    {
+        try
+        {
+            final Field field = Buffer.class.getDeclaredField("address");
+            field.setAccessible(true);
+            BUFFER_ADDRESS = MethodHandles.lookup().unreflectGetter(field);
+        }
+        catch (final NoSuchFieldException | IllegalAccessException ex)
+        {
+            throw new IllegalStateException("Can not access java.nio.Buffer.address", ex);
+        }
+    }
+
+    public static void boundsCheck(final byte[] buffer, final long index, final int length)
     {
         final int capacity = buffer.length;
         final long resultingPosition = index + (long)length;
@@ -29,7 +58,7 @@ class BufferUtil
         }
     }
 
-    static void boundsCheck(final ByteBuffer buffer, final long index, final int length)
+    public static void boundsCheck(final ByteBuffer buffer, final long index, final int length)
     {
         final int capacity = buffer.capacity();
         final long resultingPosition = index + (long)length;
@@ -37,5 +66,20 @@ class BufferUtil
         {
             throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
         }
+    }
+
+    public static long address(final ByteBuffer buffer)
+    {
+        long address = 0;
+        try
+        {
+            address = (long)BUFFER_ADDRESS.invoke(buffer);
+        }
+        catch (final Throwable t)
+        {
+            LangUtil.rethrowUnchecked(t);
+        }
+
+        return address;
     }
 }

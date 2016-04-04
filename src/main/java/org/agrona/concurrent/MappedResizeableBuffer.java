@@ -21,10 +21,13 @@ import org.agrona.IoUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.concurrent.BufferUtil.ARRAY_BASE_OFFSET;
+import static org.agrona.concurrent.BufferUtil.NATIVE_BYTE_ORDER;
+import static org.agrona.concurrent.BufferUtil.NULL_BYTES;
 import static org.agrona.concurrent.UnsafeBuffer.*;
 
 /**
@@ -749,7 +752,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_SHORT);
+            boundsCheck0(index, SIZE_OF_CHAR);
         }
 
         char bits = UNSAFE.getChar(null, addressOffset + index);
@@ -765,7 +768,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_SHORT);
+            boundsCheck0(index, SIZE_OF_CHAR);
         }
 
         char bits = value;
@@ -838,7 +841,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         final byte[] stringInBytes = new byte[length];
         getBytes(offset + SIZE_OF_INT, stringInBytes);
 
-        return new String(stringInBytes, StandardCharsets.UTF_8);
+        return new String(stringInBytes, UTF_8);
     }
 
     public int putStringUtf8(final long offset, final String value)
@@ -853,7 +856,7 @@ public class MappedResizeableBuffer implements AutoCloseable
 
     public int putStringUtf8(final long offset, final String value, final int maxEncodedSize)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedSize)
         {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
@@ -867,7 +870,7 @@ public class MappedResizeableBuffer implements AutoCloseable
 
     public int putStringUtf8(final long offset, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedSize)
         {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
@@ -884,12 +887,12 @@ public class MappedResizeableBuffer implements AutoCloseable
         final byte[] stringInBytes = new byte[length];
         getBytes(offset, stringInBytes);
 
-        return new String(stringInBytes, StandardCharsets.UTF_8);
+        return new String(stringInBytes, UTF_8);
     }
 
     public int putStringWithoutLengthUtf8(final long offset, final String value)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         putBytes(offset, bytes);
 
         return bytes.length;

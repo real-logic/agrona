@@ -16,20 +16,17 @@
 package org.agrona.concurrent;
 
 import org.agrona.DirectBuffer;
-import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.UnsafeAccess;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.concurrent.BufferUtil.ARRAY_BASE_OFFSET;
+import static org.agrona.concurrent.BufferUtil.NATIVE_BYTE_ORDER;
+import static org.agrona.concurrent.BufferUtil.NULL_BYTES;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
@@ -38,8 +35,11 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
  * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
  * with the {@link ByteOrder} overload.
+ *
+ * Note: this class has a natural ordering that is inconsistent with equals.
+ * Types my be different but equal on buffer contents.
  */
-public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
+public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
 {
     /**
      * Buffer alignment to ensure atomic word accesses.
@@ -48,26 +48,6 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
-
-    static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
-    static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-    static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
-
-    private static final MethodHandle BUFFER_ADDRESS;
-
-    static
-    {
-        try
-        {
-            final Field field = Buffer.class.getDeclaredField("address");
-            field.setAccessible(true);
-            BUFFER_ADDRESS = MethodHandles.lookup().unreflectGetter(field);
-        }
-        catch (final NoSuchFieldException | IllegalAccessException ex)
-        {
-            throw new IllegalStateException("Can not access java.nio.Buffer.address", ex);
-        }
-    }
 
     private byte[] byteArray;
     private ByteBuffer byteBuffer;
@@ -197,7 +177,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             byteArray = null;
-            addressOffset = address(buffer);
+            addressOffset = BufferUtil.address(buffer);
         }
 
         capacity = buffer.capacity();
@@ -230,7 +210,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             byteArray = null;
-            addressOffset = address(buffer);
+            addressOffset = BufferUtil.address(buffer);
         }
 
         capacity = length;
@@ -855,7 +835,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             dstByteArray = null;
-            dstBaseOffset = address(dstBuffer);
+            dstBaseOffset = BufferUtil.address(dstBuffer);
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
@@ -909,7 +889,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         else
         {
             srcByteArray = null;
-            srcBaseOffset = address(srcBuffer);
+            srcBaseOffset = BufferUtil.address(srcBuffer);
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
@@ -937,7 +917,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_SHORT);
+            boundsCheck0(index, SIZE_OF_CHAR);
         }
 
         char bits = UNSAFE.getChar(byteArray, addressOffset + index);
@@ -953,7 +933,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_SHORT);
+            boundsCheck0(index, SIZE_OF_CHAR);
         }
 
         char bits = value;
@@ -1026,7 +1006,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         final byte[] stringInBytes = new byte[length];
         getBytes(index + SIZE_OF_INT, stringInBytes);
 
-        return new String(stringInBytes, StandardCharsets.UTF_8);
+        return new String(stringInBytes, UTF_8);
     }
 
     public int putStringUtf8(final int index, final String value)
@@ -1041,7 +1021,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public int putStringUtf8(final int index, final String value, final int maxEncodedSize)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedSize)
         {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
@@ -1055,7 +1035,7 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
 
     public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedSize)
         {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
@@ -1072,12 +1052,12 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         final byte[] stringInBytes = new byte[length];
         getBytes(index, stringInBytes);
 
-        return new String(stringInBytes, StandardCharsets.UTF_8);
+        return new String(stringInBytes, UTF_8);
     }
 
     public int putStringWithoutLengthUtf8(final int index, final String value)
     {
-        final byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : NULL_BYTES;
+        final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         putBytes(index, bytes);
 
         return bytes.length;
@@ -1158,14 +1138,14 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         return hashCode;
     }
 
-    public int compareTo(final UnsafeBuffer that)
+    public int compareTo(final DirectBuffer that)
     {
-        final int thisCapacity = this.capacity;
-        final int thatCapacity = that.capacity;
+        final int thisCapacity = this.capacity();
+        final int thatCapacity = that.capacity();
         final byte[] thisByteArray = this.byteArray;
-        final byte[] thatByteArray = that.byteArray;
-        final long thisOffset = this.addressOffset;
-        final long thatOffset = that.addressOffset;
+        final byte[] thatByteArray = that.byteArray();
+        final long thisOffset = this.addressOffset();
+        final long thatOffset = that.addressOffset();
 
         for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++)
         {
@@ -1185,20 +1165,5 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<UnsafeBuffer>
         }
 
         return 0;
-    }
-
-    private static long address(final ByteBuffer buffer)
-    {
-        long address = 0;
-        try
-        {
-            address = (long)BUFFER_ADDRESS.invoke(buffer);
-        }
-        catch (final Throwable t)
-        {
-            LangUtil.rethrowUnchecked(t);
-        }
-
-        return address;
     }
 }
