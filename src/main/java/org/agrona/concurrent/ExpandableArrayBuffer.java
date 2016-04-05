@@ -31,6 +31,9 @@ import static org.agrona.concurrent.BufferUtil.*;
  * Expandable {@link MutableDirectBuffer} that is backed by an array. When values are put into the buffer beyond its
  * current length, then it will be expanded to accommodate the resulting position for the end of the value.
  *
+ * Put operations will expand the capacity as necessary up to {@link #MAX_ARRAY_LENGTH}. Get operations will throw
+ * a {@link IndexOutOfBoundsException} if past current capacity.
+ *
  * Note: this class has a natural ordering that is inconsistent with equals.
  * Types my be different but equal on buffer contents.
  */
@@ -147,7 +150,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putLong(final int index, final long value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_LONG);
+        ensureCapacity(index, SIZE_OF_LONG);
 
         long bits = value;
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -167,7 +170,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putLong(final int index, final long value)
     {
-        checkForExpansion(index, SIZE_OF_LONG);
+        ensureCapacity(index, SIZE_OF_LONG);
 
         UNSAFE.putLong(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -189,7 +192,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putInt(final int index, final int value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_INT);
+        ensureCapacity(index, SIZE_OF_INT);
 
         int bits = value;
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -209,7 +212,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putInt(final int index, final int value)
     {
-        checkForExpansion(index, SIZE_OF_INT);
+        ensureCapacity(index, SIZE_OF_INT);
 
         UNSAFE.putInt(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -233,7 +236,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putDouble(final int index, final double value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_DOUBLE);
+        ensureCapacity(index, SIZE_OF_DOUBLE);
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
@@ -255,7 +258,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putDouble(final int index, final double value)
     {
-        checkForExpansion(index, SIZE_OF_DOUBLE);
+        ensureCapacity(index, SIZE_OF_DOUBLE);
 
         UNSAFE.putDouble(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -279,7 +282,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putFloat(final int index, final float value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_FLOAT);
+        ensureCapacity(index, SIZE_OF_FLOAT);
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
@@ -301,7 +304,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putFloat(final int index, final float value)
     {
-        checkForExpansion(index, SIZE_OF_FLOAT);
+        ensureCapacity(index, SIZE_OF_FLOAT);
 
         UNSAFE.putFloat(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -323,7 +326,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putShort(final int index, final short value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_SHORT);
+        ensureCapacity(index, SIZE_OF_SHORT);
 
         short bits = value;
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -343,7 +346,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putShort(final int index, final short value)
     {
-        checkForExpansion(index, SIZE_OF_SHORT);
+        ensureCapacity(index, SIZE_OF_SHORT);
 
         UNSAFE.putShort(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -357,7 +360,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putByte(final int index, final byte value)
     {
-        checkForExpansion(index, SIZE_OF_BYTE);
+        ensureCapacity(index, SIZE_OF_BYTE);
 
         byteArray[index] = value;
     }
@@ -407,13 +410,13 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putBytes(final int index, final byte[] src, final int offset, final int length)
     {
-        checkForExpansion(index, length);
+        ensureCapacity(index, length);
         System.arraycopy(src, offset, byteArray, index, length);
     }
 
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int length)
     {
-        checkForExpansion(index, length);
+        ensureCapacity(index, length);
         final int srcIndex = srcBuffer.position();
         BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
 
@@ -423,7 +426,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length)
     {
-        checkForExpansion(index, length);
+        ensureCapacity(index, length);
         BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
 
         final byte[] srcByteArray;
@@ -444,7 +447,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
-        checkForExpansion(index, length);
+        ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
         UNSAFE.copyMemory(
@@ -472,7 +475,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putChar(final int index, final char value, final ByteOrder byteOrder)
     {
-        checkForExpansion(index, SIZE_OF_CHAR);
+        ensureCapacity(index, SIZE_OF_CHAR);
 
         char bits = value;
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -492,7 +495,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putChar(final int index, final char value)
     {
-        checkForExpansion(index, SIZE_OF_CHAR);
+        ensureCapacity(index, SIZE_OF_CHAR);
 
         UNSAFE.putChar(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
@@ -577,8 +580,13 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     ///////////////////////////////////////////////////////////////////////////
 
-    private void checkForExpansion(final int index, final int length)
+    private void ensureCapacity(final int index, final int length)
     {
+        if (index < 0)
+        {
+            throw new IndexOutOfBoundsException("index cannot be negative: index=" + index);
+        }
+
         final long resultingPosition = index + (long)length;
         final int currentArrayLength = byteArray.length;
         if (resultingPosition > currentArrayLength)
@@ -586,7 +594,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
             if (currentArrayLength >= MAX_ARRAY_LENGTH)
             {
                 throw new IndexOutOfBoundsException(String.format(
-                    "index=%d, length=%d, max capacity=%d", index, length, MAX_ARRAY_LENGTH));
+                    "index=%d, length=%d, maxCapacity=%d", index, length, MAX_ARRAY_LENGTH));
             }
 
             byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, (int)resultingPosition));
@@ -612,10 +620,12 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     private void boundsCheck0(final int index, final int length)
     {
+        final int currentArrayLength = byteArray.length;
         final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > capacity())
+        if (index < 0 || resultingPosition > currentArrayLength)
         {
-            throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity()));
+            throw new IndexOutOfBoundsException(String.format(
+                "index=%d, length=%d, capacity=%d", index, length, currentArrayLength));
         }
     }
 
