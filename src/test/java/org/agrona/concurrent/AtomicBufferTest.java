@@ -84,6 +84,18 @@ public class AtomicBufferTest
     }
 
     @Test
+    public void sharedBuffer()
+    {
+        final ByteBuffer bb = ByteBuffer.allocateDirect(1024);
+        final UnsafeBuffer ub1 = new UnsafeBuffer(bb, 0, 512);
+        final UnsafeBuffer ub2 = new UnsafeBuffer(bb, 512, 512);
+        ub1.putLong(INDEX, LONG_VALUE);
+        ub2.putLong(INDEX, 9876543210L);
+
+        assertThat(ub1.getLong(INDEX), is(LONG_VALUE));
+    }
+
+    @Test
     public void shouldVerifyBufferAlignment()
     {
         final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(1024));

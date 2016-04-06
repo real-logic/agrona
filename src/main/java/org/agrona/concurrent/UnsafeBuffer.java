@@ -24,10 +24,8 @@ import java.nio.ByteOrder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
+import static org.agrona.BufferUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
-import static org.agrona.BufferUtil.ARRAY_BASE_OFFSET;
-import static org.agrona.BufferUtil.NATIVE_BYTE_ORDER;
-import static org.agrona.BufferUtil.NULL_BYTES;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
@@ -179,7 +177,7 @@ public class UnsafeBuffer implements AtomicBuffer
         else
         {
             byteArray = null;
-            addressOffset = BufferUtil.address(buffer);
+            addressOffset = address(buffer);
         }
 
         capacity = buffer.capacity();
@@ -212,7 +210,7 @@ public class UnsafeBuffer implements AtomicBuffer
         else
         {
             byteArray = null;
-            addressOffset = BufferUtil.address(buffer);
+            addressOffset = address(buffer) + offset;
         }
 
         capacity = length;
@@ -843,7 +841,7 @@ public class UnsafeBuffer implements AtomicBuffer
         else
         {
             dstByteArray = null;
-            dstBaseOffset = BufferUtil.address(dstBuffer);
+            dstBaseOffset = address(dstBuffer);
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
@@ -890,7 +888,7 @@ public class UnsafeBuffer implements AtomicBuffer
         else
         {
             srcByteArray = null;
-            srcBaseOffset = BufferUtil.address(srcBuffer);
+            srcBaseOffset = address(srcBuffer);
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
