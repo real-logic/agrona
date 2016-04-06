@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 /**
  * Abstraction over a range of buffer types that allows fields to be read in native typed fashion.
  */
-public interface DirectBuffer
+public interface DirectBuffer extends Comparable<DirectBuffer>
 {
     /**
      * Attach a view to a byte[] for providing direct access.
@@ -257,13 +257,27 @@ public interface DirectBuffer
     void getBytes(int index, MutableDirectBuffer dstBuffer, int dstIndex, int length);
 
     /**
-     * Get from the underlying buffer into a supplied {@link ByteBuffer}.
+     * Get from the underlying buffer into a supplied {@link ByteBuffer} current {@link ByteBuffer#position()}.
+     *
+     * The destination buffer will have its {@link ByteBuffer#position()} advanced as a result.
      *
      * @param index     in the underlying buffer to start from.
      * @param dstBuffer into which the bytes will be copied.
      * @param length    of the supplied buffer to use.
      */
     void getBytes(int index, ByteBuffer dstBuffer, int length);
+
+    /**
+     * Get from the underlying buffer into a supplied {@link ByteBuffer} at a offset.
+     *
+     * The destination buffer will not have its {@link ByteBuffer#position()} advanced as a result.
+     *
+     * @param index     in the underlying buffer to start from.
+     * @param dstBuffer into which the bytes will be copied.
+     * @param dstOffset in the target buffer.
+     * @param length    of the supplied buffer to use.
+     */
+    void getBytes(int index, ByteBuffer dstBuffer, int dstOffset, int length);
 
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.

@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.agrona.concurrent;
-
-import org.agrona.DirectBuffer;
-import org.agrona.MutableDirectBuffer;
+package org.agrona;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -25,7 +22,7 @@ import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
-import static org.agrona.concurrent.BufferUtil.*;
+import static org.agrona.BufferUtil.*;
 
 /**
  * Expandable {@link MutableDirectBuffer} that is backed by an array. When values are put into the buffer beyond its
@@ -37,7 +34,7 @@ import static org.agrona.concurrent.BufferUtil.*;
  * Note: this class has a natural ordering that is inconsistent with equals.
  * Types my be different but equal on buffer contents.
  */
-public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<DirectBuffer>
+public class ExpandableArrayBuffer implements MutableDirectBuffer
 {
     /**
      * Maximum length to which the underlying array can grow. Some JVMs set bits in the last few bytes.
@@ -47,7 +44,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
     /**
      * Initial capacity of the array from which it will double in size on each expansion.
      */
-    public static final int INITIAL_CAPACITY = 120;
+    public static final int INITIAL_CAPACITY = 128;
 
     private byte[] byteArray;
 
@@ -131,6 +128,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void checkLimit(final int limit)
     {
+        ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -383,6 +381,12 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int length)
     {
         final int dstOffset = dstBuffer.position();
+        getBytes(index, dstBuffer, dstOffset, length);
+        dstBuffer.position(dstOffset + length);
+    }
+
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length)
+    {
         boundsCheck0(index, length);
         BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
 
@@ -400,7 +404,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
         }
 
         UNSAFE.copyMemory(byteArray, ARRAY_BASE_OFFSET + index, dstByteArray, dstBaseOffset + dstOffset, length);
-        dstBuffer.position(dstBuffer.position() + length);
     }
 
     public void putBytes(final int index, final byte[] src)
@@ -416,10 +419,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer, Comparable<Di
 
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int length)
     {
-        ensureCapacity(index, length);
         final int srcIndex = srcBuffer.position();
-        BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
-
         putBytes(index, srcBuffer, srcIndex, length);
         srcBuffer.position(srcIndex + length);
     }

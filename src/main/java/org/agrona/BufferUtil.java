@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.agrona.concurrent;
-
-import org.agrona.LangUtil;
-import org.agrona.UnsafeAccess;
+package org.agrona;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -26,11 +23,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Common functions for usages across buffer implementations.
+ */
 public class BufferUtil
 {
-    static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
-    static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-    static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
+    public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
+    public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+    public static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
 
     private static final MethodHandle BUFFER_ADDRESS;
 
@@ -48,6 +48,13 @@ public class BufferUtil
         }
     }
 
+    /**
+     * Bounds check the access range and throw a {@link IndexOutOfBoundsException} if exceeded.
+     *
+     * @param buffer to be checked.
+     * @param index  at which the access will begin.
+     * @param length of the range accessed.
+     */
     public static void boundsCheck(final byte[] buffer, final long index, final int length)
     {
         final int capacity = buffer.length;
@@ -58,6 +65,13 @@ public class BufferUtil
         }
     }
 
+    /**
+     * Bounds check the access range and throw a {@link IndexOutOfBoundsException} if exceeded.
+     *
+     * @param buffer to be checked.
+     * @param index  at which the access will begin.
+     * @param length of the range accessed.
+     */
     public static void boundsCheck(final ByteBuffer buffer, final long index, final int length)
     {
         final int capacity = buffer.capacity();
@@ -68,6 +82,12 @@ public class BufferUtil
         }
     }
 
+    /**
+     * Get the address at which the underlying buffer storage begins.
+     *
+     * @param buffer that wraps the underlying storage.
+     * @return the memory address at which the buffer storage begins.
+     */
     public static long address(final ByteBuffer buffer)
     {
         long address = 0;

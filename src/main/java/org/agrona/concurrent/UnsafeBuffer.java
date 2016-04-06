@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
@@ -24,9 +25,9 @@ import java.nio.ByteOrder;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
-import static org.agrona.concurrent.BufferUtil.ARRAY_BASE_OFFSET;
-import static org.agrona.concurrent.BufferUtil.NATIVE_BYTE_ORDER;
-import static org.agrona.concurrent.BufferUtil.NULL_BYTES;
+import static org.agrona.BufferUtil.ARRAY_BASE_OFFSET;
+import static org.agrona.BufferUtil.NATIVE_BYTE_ORDER;
+import static org.agrona.BufferUtil.NULL_BYTES;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
@@ -36,10 +37,12 @@ import static org.agrona.concurrent.BufferUtil.NULL_BYTES;
  * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
  * with the {@link ByteOrder} overload.
  *
- * Note: this class has a natural ordering that is inconsistent with equals.
+ * Note: This class has a natural ordering that is inconsistent with equals.
  * Types my be different but equal on buffer contents.
+ *
+ * Note: The wrap methods on this class are not thread safe. Concurrent access should only happen after a successful wrap.
  */
-public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
+public class UnsafeBuffer implements AtomicBuffer
 {
     /**
      * Buffer alignment to ensure atomic word accesses.
@@ -818,6 +821,12 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int length)
     {
         final int dstOffset = dstBuffer.position();
+        getBytes(index, dstBuffer, dstOffset, length);
+        dstBuffer.position(dstOffset + length);
+    }
+
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length)
+    {
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
@@ -838,7 +847,6 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
-        dstBuffer.position(dstBuffer.position() + length);
     }
 
     public void putBytes(final int index, final byte[] src)
@@ -860,12 +868,6 @@ public class UnsafeBuffer implements AtomicBuffer, Comparable<DirectBuffer>
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int length)
     {
         final int srcIndex = srcBuffer.position();
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            boundsCheck0(index, length);
-            BufferUtil.boundsCheck(srcBuffer, (long)srcIndex, length);
-        }
-
         putBytes(index, srcBuffer, srcIndex, length);
         srcBuffer.position(srcIndex + length);
     }

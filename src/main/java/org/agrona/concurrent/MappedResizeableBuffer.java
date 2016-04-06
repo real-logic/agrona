@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.IoUtil;
 
@@ -25,9 +26,9 @@ import java.nio.channels.FileChannel;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
-import static org.agrona.concurrent.BufferUtil.ARRAY_BASE_OFFSET;
-import static org.agrona.concurrent.BufferUtil.NATIVE_BYTE_ORDER;
-import static org.agrona.concurrent.BufferUtil.NULL_BYTES;
+import static org.agrona.BufferUtil.ARRAY_BASE_OFFSET;
+import static org.agrona.BufferUtil.NATIVE_BYTE_ORDER;
+import static org.agrona.BufferUtil.NULL_BYTES;
 import static org.agrona.concurrent.UnsafeBuffer.*;
 
 /**
@@ -35,12 +36,14 @@ import static org.agrona.concurrent.UnsafeBuffer.*;
  *
  * This buffer is resizable and based upon an underlying FileChannel.
  * The channel is <b>not</b> closed when the buffer is closed.
+ *
+ * Note: The resize method is not threadsafe. Concurrent access should only occur after a successful resize.
  */
 public class MappedResizeableBuffer implements AutoCloseable
 {
-    private FileChannel fileChannel;
     private long addressOffset;
     private long capacity;
+    private FileChannel fileChannel;
 
     /**
      * Attach a view to an off-heap memory region by address.
@@ -53,6 +56,11 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         this.fileChannel = fileChannel;
         map(offset, initialLength);
+    }
+
+    public void close()
+    {
+        unmap();
     }
 
     private void map(final long offset, final long length)
@@ -85,7 +93,7 @@ public class MappedResizeableBuffer implements AutoCloseable
      */
     public void wrap(final long offset, final long length)
     {
-        if (offset == this.addressOffset && length == this.capacity)
+        if (offset == addressOffset && length == capacity)
         {
             return;
         }
@@ -122,9 +130,9 @@ public class MappedResizeableBuffer implements AutoCloseable
         UNSAFE.setMemory(null, addressOffset + index, length, value);
     }
 
-    public int capacity()
+    public long capacity()
     {
-        return (int)capacity;
+        return capacity;
     }
 
     public void checkLimit(final long limit)
@@ -920,10 +928,5 @@ public class MappedResizeableBuffer implements AutoCloseable
         {
             throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
         }
-    }
-
-    public void close()
-    {
-        unmap();
     }
 }

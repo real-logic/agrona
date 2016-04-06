@@ -162,7 +162,9 @@ public interface MutableDirectBuffer extends DirectBuffer
 
     /**
      * Put bytes into the underlying buffer for the view.  Bytes will be copied from current
-     * {@link ByteBuffer#position()} to {@link ByteBuffer#limit()}.
+     * {@link ByteBuffer#position()} for a given length.
+     *
+     * The source buffer will have its {@link ByteBuffer#position()} advanced as a result.
      *
      * @param index     in the underlying buffer to start from.
      * @param srcBuffer to copy the bytes from.
@@ -173,6 +175,8 @@ public interface MutableDirectBuffer extends DirectBuffer
     /**
      * Put bytes into the underlying buffer for the view. Bytes will be copied from the buffer index to
      * the buffer index + length.
+     *
+     * The source buffer will not have its {@link ByteBuffer#position()} advanced as a result.
      *
      * @param index     in the underlying buffer to start from.
      * @param srcBuffer to copy the bytes from (does not change position).
