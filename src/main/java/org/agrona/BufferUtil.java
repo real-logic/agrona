@@ -15,38 +15,18 @@
  */
 package org.agrona;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Common functions for usages across buffer implementations.
+ * Common functions across buffer implementations.
  */
 public class BufferUtil
 {
     public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
     public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
     public static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
-
-    private static final MethodHandle BUFFER_ADDRESS;
-
-    static
-    {
-        try
-        {
-            final Field field = Buffer.class.getDeclaredField("address");
-            field.setAccessible(true);
-            BUFFER_ADDRESS = MethodHandles.lookup().unreflectGetter(field);
-        }
-        catch (final NoSuchFieldException | IllegalAccessException ex)
-        {
-            throw new IllegalStateException("Can not access java.nio.Buffer.address", ex);
-        }
-    }
 
     /**
      * Bounds check the access range and throw a {@link IndexOutOfBoundsException} if exceeded.
@@ -90,16 +70,6 @@ public class BufferUtil
      */
     public static long address(final ByteBuffer buffer)
     {
-        long address = 0;
-        try
-        {
-            address = (long)BUFFER_ADDRESS.invoke(buffer);
-        }
-        catch (final Throwable t)
-        {
-            LangUtil.rethrowUnchecked(t);
-        }
-
-        return address;
+        return ((sun.nio.ch.DirectBuffer)buffer).address();
     }
 }
