@@ -56,8 +56,8 @@
  * implementations for versions prior to and following Java SE 9. The mechanism
  * used to conditionally make this call was specifically designed and tested for
  * efficient inlining and by common JVMs, such that there is no extra no overhead
- * associated with making the hint call: in JIT'ted code it beocmes either an nop
- * or an afficient, inlined intrinsic.
+ * associated with making the hint call: in JIT'ted code it becomes either an nop
+ * or an efficient, inlined intrinsic.
  * </p>
  * <p>
  * In addition, JDKs that wish to introduce support for newer hinting capabilities
@@ -67,7 +67,6 @@
  * performance improvements even on prior java SE versions. E.g. the
  * example onSpinWait capability discussed above can be added in such a way to
  * Java SE 6, 7, 8 by JDKs who wish to do so.
- *
  */
 
 package org.agrona.hints;
