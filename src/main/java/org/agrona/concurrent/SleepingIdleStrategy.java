@@ -40,6 +40,7 @@ public final class SleepingIdleStrategy implements IdleStrategy
         {
             return;
         }
+
         LockSupport.parkNanos(sleepPeriodNs);
     }
 

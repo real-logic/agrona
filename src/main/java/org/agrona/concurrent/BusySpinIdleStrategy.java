@@ -15,29 +15,15 @@
  */
 package org.agrona.concurrent;
 
-import java.util.concurrent.ThreadLocalRandom;
+import org.agrona.hints.ThreadHints;
 
 /**
  * Busy spin strategy targeted at lowest possible latency. This strategy will monopolise a thread to achieve the lowest
  * possible latency. Useful for creating bubbles in the execution pipeline of tight busy spin loops with no other logic than
  * status checks on progress.
  */
-@SuppressWarnings("unused")
-abstract class BusySpinIdleStrategyPrePad
+public final class BusySpinIdleStrategy implements IdleStrategy
 {
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
-}
-
-abstract class BusySpinIdleStrategyData extends BusySpinIdleStrategyPrePad
-{
-    protected int dummyCounter;
-}
-
-@SuppressWarnings("unused")
-public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData implements IdleStrategy
-{
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
-
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
@@ -49,23 +35,13 @@ public final class BusySpinIdleStrategy extends BusySpinIdleStrategyData impleme
         {
             return;
         }
+
         idle();
     }
 
     public void idle()
     {
-        // Trick speculative execution into not progressing
-        if (dummyCounter > 0)
-        {
-            if (ThreadLocalRandom.current().nextInt() > 0)
-            {
-                --dummyCounter;
-            }
-        }
-        else
-        {
-            dummyCounter = 64;
-        }
+        ThreadHints.onSpinWait();
     }
 
     public void reset()

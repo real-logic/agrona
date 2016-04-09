@@ -16,6 +16,8 @@
 package org.agrona.concurrent;
 
 
+import org.agrona.hints.ThreadHints;
+
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -101,6 +103,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
                 break;
 
             case SPINNING:
+                ThreadHints.onSpinWait();
                 if (++spins > maxSpins)
                 {
                     state = State.YIELDING;
