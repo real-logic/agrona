@@ -294,6 +294,11 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    public boolean isExpandable()
+    {
+        return false;
+    }
+
     public void verifyAlignment()
     {
         if (0 != (addressOffset & (ALIGNMENT - 1)))

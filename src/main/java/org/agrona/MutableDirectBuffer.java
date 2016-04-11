@@ -24,6 +24,13 @@ import java.nio.ByteOrder;
 public interface MutableDirectBuffer extends DirectBuffer
 {
     /**
+     * Is this buffer expandable to accommodate putting data into it beyond the current capacity?
+     *
+     * @return true is the underlying storage can expand otherwise false.
+     */
+    boolean isExpandable();
+
+    /**
      * Set a region of memory to a given byte value.
      *
      * @param index  at which to start.

@@ -53,7 +53,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public ExpandableArrayBuffer()
     {
-        byteArray = new byte[INITIAL_CAPACITY];
+        this(INITIAL_CAPACITY);
     }
 
     /**
@@ -124,6 +124,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public int capacity()
     {
         return byteArray.length;
+    }
+
+    public boolean isExpandable()
+    {
+        return true;
     }
 
     public void checkLimit(final int limit)
