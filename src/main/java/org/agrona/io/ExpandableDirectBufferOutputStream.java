@@ -24,22 +24,22 @@ import java.util.Objects;
 /**
  * {@link OutputStream} that wraps an underlying expandable version of a {@link MutableDirectBuffer}.
  */
-public class ExpandableMutableDirectBufferOutputStream extends OutputStream
+public class ExpandableDirectBufferOutputStream extends OutputStream
 {
     private MutableDirectBuffer buffer;
     private int offset;
     private int position;
 
-    public ExpandableMutableDirectBufferOutputStream()
+    public ExpandableDirectBufferOutputStream()
     {
     }
 
-    public ExpandableMutableDirectBufferOutputStream(final MutableDirectBuffer buffer)
+    public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0);
     }
 
-    public ExpandableMutableDirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset)
+    public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset)
     {
         wrap(buffer, offset);
     }

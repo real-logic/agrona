@@ -23,23 +23,23 @@ import java.io.OutputStream;
 /**
  * {@link OutputStream} that wraps an underlying {@link MutableDirectBuffer}.
  */
-public class MutableDirectBufferOutputStream extends OutputStream
+public class DirectBufferOutputStream extends OutputStream
 {
     private MutableDirectBuffer buffer;
     private int offset;
     private int length;
     private int position;
 
-    public MutableDirectBufferOutputStream()
+    public DirectBufferOutputStream()
     {
     }
 
-    public MutableDirectBufferOutputStream(final MutableDirectBuffer buffer)
+    public DirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
     }
 
-    public MutableDirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset, final int length)
+    public DirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
     }
