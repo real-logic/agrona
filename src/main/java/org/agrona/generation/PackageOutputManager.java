@@ -18,6 +18,8 @@ package org.agrona.generation;
 import java.io.*;
 import java.util.Objects;
 
+import static java.io.File.separatorChar;
+
 /**
  * {@link OutputManager} for managing the creation of Java source files as the target of code generation.
  * The character encoding for the {@link java.io.Writer} is UTF-8.
@@ -29,19 +31,18 @@ public class PackageOutputManager implements OutputManager
     /**
      * Create a new {@link OutputManager} for generating Java source files into a given package.
      *
-     * @param baseDirectoryName for the generated source code.
-     * @param packageName       for the generated source code relative to the baseDirectoryName.
+     * @param baseDirName for the generated source code.
+     * @param packageName for the generated source code relative to the baseDirName.
      * @throws java.io.IOException if an error occurs during output.
      */
-    public PackageOutputManager(final String baseDirectoryName, final String packageName) throws IOException
+    public PackageOutputManager(final String baseDirName, final String packageName) throws IOException
     {
-        Objects.requireNonNull(baseDirectoryName, "baseDirectoryName");
+        Objects.requireNonNull(baseDirName, "baseDirName");
         Objects.requireNonNull(packageName, "packageName");
 
         final String dirName =
-            (baseDirectoryName.endsWith("" + File.separatorChar) ?
-                baseDirectoryName : baseDirectoryName + File.separatorChar) +
-                packageName.replace('.', File.separatorChar);
+            (baseDirName.endsWith("" + separatorChar) ? baseDirName : (baseDirName + separatorChar)) +
+                packageName.replace('.', separatorChar);
 
         outputDir = new File(dirName);
         if (!outputDir.exists())
