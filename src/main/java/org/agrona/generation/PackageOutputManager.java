@@ -15,9 +15,8 @@
  */
 package org.agrona.generation;
 
-import org.agrona.Verify;
-
 import java.io.*;
+import java.util.Objects;
 
 /**
  * {@link OutputManager} for managing the creation of Java source files as the target of code generation.
@@ -36,8 +35,8 @@ public class PackageOutputManager implements OutputManager
      */
     public PackageOutputManager(final String baseDirectoryName, final String packageName) throws IOException
     {
-        Verify.notNull(baseDirectoryName, "baseDirectoryName");
-        Verify.notNull(packageName, "packageName");
+        Objects.requireNonNull(baseDirectoryName, "baseDirectoryName");
+        Objects.requireNonNull(packageName, "packageName");
 
         final String dirName =
             (baseDirectoryName.endsWith("" + File.separatorChar) ?

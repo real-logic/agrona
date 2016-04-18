@@ -16,7 +16,6 @@
 package org.agrona.collections;
 
 import org.agrona.BitUtil;
-import org.agrona.Verify;
 import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
@@ -471,7 +470,7 @@ public final class IntHashSet implements Set<Integer>
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] into)
     {
-        Verify.notNull(into, "into");
+        Objects.requireNonNull(into, "into");
 
         final Class<?> componentType = into.getClass().getComponentType();
         if (!componentType.isAssignableFrom(Integer.class))

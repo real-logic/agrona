@@ -16,10 +16,10 @@
 package org.agrona.concurrent;
 
 import org.agrona.ErrorHandler;
-import org.agrona.Verify;
 import org.agrona.concurrent.status.AtomicCounter;
 
 import java.nio.channels.ClosedByInterruptException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -53,9 +53,9 @@ public class AgentRunner implements Runnable, AutoCloseable
         final AtomicCounter errorCounter,
         final Agent agent)
     {
-        Verify.notNull(idleStrategy, "idleStrategy");
-        Verify.notNull(errorHandler, "errorHandler");
-        Verify.notNull(agent, "agent");
+        Objects.requireNonNull(idleStrategy, "idleStrategy");
+        Objects.requireNonNull(errorHandler, "errorHandler");
+        Objects.requireNonNull(agent, "agent");
 
         this.idleStrategy = idleStrategy;
         this.errorHandler = errorHandler;
