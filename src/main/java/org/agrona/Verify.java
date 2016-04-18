@@ -37,7 +37,7 @@ public class Verify
     }
 
     /**
-     * Verify that a referenc is null.
+     * Verify that a reference is null.
      *
      * @param ref to be verified as null.
      * @param name of the reference to be verified.
