@@ -406,6 +406,43 @@ public class Int2ObjectHashMap<V>
         return sb.toString();
     }
 
+    /**
+     * Primitive specialised version of {@link #replace(Object, Object)}
+     *
+     * @param key key with which the specified value is associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with the specified key, or
+     *         {@code null} if there was no mapping for the key.
+     */
+    public V replace(final int key, final V value)
+    {
+        V curValue = get(key);
+        if (curValue != null)
+        {
+            curValue = put(key, value);
+        }
+        return curValue;
+    }
+
+    /**
+     * Primitive specialised version of {@link #replace(Object, Object, Object)}
+     *
+     * @param key key with which the specified value is associated
+     * @param oldValue value expected to be associated with the specified key
+     * @param newValue value to be associated with the specified key
+     * @return {@code true} if the value was replaced
+     */
+    public boolean replace(final int key, V oldValue, V newValue)
+    {
+        final Object curValue = get(key);
+        if (curValue == null || !Objects.equals(curValue, oldValue))
+        {
+            return false;
+        }
+        put(key, newValue);
+        return true;
+    }
+
     private void increaseCapacity()
     {
         @DoNotSub final int newCapacity = values.length << 1;

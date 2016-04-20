@@ -464,6 +464,43 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return sb.toString();
     }
 
+    /**
+     * Primitive specialised version of {@link #replace(Object, Object)}
+     *
+     * @param key key with which the specified value is associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with the specified key, or
+     *         {@link #missingValue()} if there was no mapping for the key.
+     */
+    public int replace(final int key, final int value)
+    {
+        int curValue = get(key);
+        if (curValue != missingValue)
+        {
+            curValue = put(key, value);
+        }
+        return curValue;
+    }
+
+    /**
+     * Primitive specialised version of {@link #replace(Object, Object, Object)}
+     *
+     * @param key key with which the specified value is associated
+     * @param oldValue value expected to be associated with the specified key
+     * @param newValue value to be associated with the specified key
+     * @return {@code true} if the value was replaced
+     */
+    public boolean replace(final int key, int oldValue, int newValue)
+    {
+        final int curValue = get(key);
+        if (curValue != oldValue || curValue == missingValue)
+        {
+            return false;
+        }
+        put(key, newValue);
+        return true;
+    }
+
     @DoNotSub private static int next(final int index, final int mask)
     {
         return (index + 2) & mask;
