@@ -48,6 +48,8 @@ Build
 
 ### Java Build
 
+The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/Agrona/blob/master/build.gradle) file.
+
 You require the following to build Agrona:
 
 * Latest stable [Oracle JDK 8](http://www.oracle.com/technetwork/java/)
