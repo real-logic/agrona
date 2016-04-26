@@ -25,6 +25,7 @@ Utilities Included:
 * Basic code generation from annotated implementations that can vary on primitive types.
 * Off-heap counters implementation for application telemetry.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
+* DistinctErrorLog: A log of distinct errors to avoid filling disks with existing logging approaches.
 
 License (See LICENSE file for full license)
 -------------------------------------------
