@@ -17,6 +17,10 @@ package org.agrona;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.MIN_VALUE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.agrona.BitUtil.*;
@@ -26,8 +30,8 @@ public class BitUtilTest
     @Test
     public void shouldReturnNextPositivePowerOfTwo()
     {
-        assertThat(findNextPositivePowerOfTwo(Integer.MIN_VALUE), is(Integer.MIN_VALUE));
-        assertThat(findNextPositivePowerOfTwo(Integer.MIN_VALUE + 1), is(1));
+        assertThat(findNextPositivePowerOfTwo(MIN_VALUE), is(MIN_VALUE));
+        assertThat(findNextPositivePowerOfTwo(MIN_VALUE + 1), is(1));
         assertThat(findNextPositivePowerOfTwo(-1), is(1));
         assertThat(findNextPositivePowerOfTwo(0), is(1));
         assertThat(findNextPositivePowerOfTwo(1), is(1));
@@ -37,24 +41,24 @@ public class BitUtilTest
         assertThat(findNextPositivePowerOfTwo(31), is(32));
         assertThat(findNextPositivePowerOfTwo(32), is(32));
         assertThat(findNextPositivePowerOfTwo(1 << 30), is(1 << 30));
-        assertThat(findNextPositivePowerOfTwo((1 << 30) + 1), is(Integer.MIN_VALUE));
+        assertThat(findNextPositivePowerOfTwo((1 << 30) + 1), is(MIN_VALUE));
     }
 
     @Test
     public void shouldAlignValueToNextMultipleOfAlignment()
     {
-        final int alignment = BitUtil.CACHE_LINE_LENGTH;
+        final int alignment = CACHE_LINE_LENGTH;
 
         assertThat(align(0, alignment), is(0));
         assertThat(align(1, alignment), is(alignment));
         assertThat(align(alignment, alignment), is(alignment));
         assertThat(align(alignment + 1, alignment), is(alignment * 2));
 
-        final int remainder = Integer.MAX_VALUE % alignment;
-        final int maxMultiple = Integer.MAX_VALUE - remainder;
+        final int remainder = MAX_VALUE % alignment;
+        final int maxMultiple = MAX_VALUE - remainder;
 
         assertThat(align(maxMultiple, alignment), is(maxMultiple));
-        assertThat(align(Integer.MAX_VALUE, alignment), is(Integer.MIN_VALUE));
+        assertThat(align(MAX_VALUE, alignment), is(MIN_VALUE));
     }
 
     @Test
@@ -76,10 +80,38 @@ public class BitUtilTest
     {
         assertTrue(BitUtil.isEven(0));
         assertTrue(BitUtil.isEven(2));
-        assertTrue(BitUtil.isEven(Integer.MIN_VALUE));
+        assertTrue(BitUtil.isEven(MIN_VALUE));
 
         assertFalse(BitUtil.isEven(1));
         assertFalse(BitUtil.isEven(-1));
-        assertFalse(BitUtil.isEven(Integer.MAX_VALUE));
+        assertFalse(BitUtil.isEven(MAX_VALUE));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldDetectNonPowerOfTwoAlignment()
+    {
+        BufferUtil.allocateDirectAligned(1, 3);
+    }
+
+    @Test
+    public void shouldAlignTooWordBoundary()
+    {
+        final int capacity = 128;
+        final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, SIZE_OF_LONG);
+
+        final long address = BufferUtil.address(byteBuffer);
+        assertTrue(isAligned(address, SIZE_OF_LONG));
+        assertThat(byteBuffer.capacity(), is(capacity));
+    }
+
+    @Test
+    public void shouldAlignTooCacheLineBoundary()
+    {
+        final int capacity = 128;
+        final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, CACHE_LINE_LENGTH);
+
+        final long address = BufferUtil.address(byteBuffer);
+        assertTrue(isAligned(address, CACHE_LINE_LENGTH));
+        assertThat(byteBuffer.capacity(), is(capacity));
     }
 }

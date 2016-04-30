@@ -19,8 +19,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
+import static org.agrona.BitUtil.isPowerOfTwo;
+
 /**
- * Common functions across buffer implementations.
+ * Common functions for buffer implementations.
  */
 public class BufferUtil
 {
@@ -71,5 +73,32 @@ public class BufferUtil
     public static long address(final ByteBuffer buffer)
     {
         return ((sun.nio.ch.DirectBuffer)buffer).address();
+    }
+
+    /**
+     * Allocate a new direct {@link ByteBuffer} that is aligned on a given alignment boundary.
+     *
+     * @param capacity  required for the buffer.
+     * @param alignment boundary at which the buffer should begin.
+     * @return a new {@link ByteBuffer} with the required alignment.
+     * @throws IllegalArgumentException if the alignment is not a power of 2.
+     */
+    public static ByteBuffer allocateDirectAligned(final int capacity, final int alignment)
+    {
+        if (!isPowerOfTwo(alignment))
+        {
+            throw new IllegalArgumentException("Must be a power of 2: alignment=" + alignment);
+        }
+
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(capacity + alignment);
+
+        final long address = address(buffer);
+        final int remainder = (int)(address & (alignment - 1));
+        final int offset = alignment - remainder;
+
+        buffer.limit(capacity + offset);
+        buffer.position(offset);
+
+        return buffer.slice();
     }
 }

@@ -314,4 +314,22 @@ public class BitUtil
     {
         return ThreadLocalRandom.current().nextInt();
     }
+
+    /**
+     * Is an address aligned on a boundary.
+     *
+     * @param address   to be tested.
+     * @param alignment boundary the address is tested against.
+     * @return true if the address is on the aligned boundary otherwise false.
+     * @throws IllegalArgumentException if the alignment is not a power of 2`
+     */
+    public static boolean isAligned(final long address, final int alignment)
+    {
+        if (!BitUtil.isPowerOfTwo(alignment))
+        {
+            throw new IllegalArgumentException("Alignment must be a power of 2: alignment=" + alignment);
+        }
+
+        return (address & (alignment - 1)) == 0;
+    }
 }
