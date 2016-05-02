@@ -17,8 +17,6 @@ package org.agrona;
 
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
-
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import static org.hamcrest.CoreMatchers.is;
@@ -85,33 +83,5 @@ public class BitUtilTest
         assertFalse(BitUtil.isEven(1));
         assertFalse(BitUtil.isEven(-1));
         assertFalse(BitUtil.isEven(MAX_VALUE));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldDetectNonPowerOfTwoAlignment()
-    {
-        BufferUtil.allocateDirectAligned(1, 3);
-    }
-
-    @Test
-    public void shouldAlignTooWordBoundary()
-    {
-        final int capacity = 128;
-        final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, SIZE_OF_LONG);
-
-        final long address = BufferUtil.address(byteBuffer);
-        assertTrue(isAligned(address, SIZE_OF_LONG));
-        assertThat(byteBuffer.capacity(), is(capacity));
-    }
-
-    @Test
-    public void shouldAlignTooCacheLineBoundary()
-    {
-        final int capacity = 128;
-        final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, CACHE_LINE_LENGTH);
-
-        final long address = BufferUtil.address(byteBuffer);
-        assertTrue(isAligned(address, CACHE_LINE_LENGTH));
-        assertThat(byteBuffer.capacity(), is(capacity));
     }
 }
