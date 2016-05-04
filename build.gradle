@@ -80,7 +80,7 @@ dependencies {
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
-    toolVersion = "6.17"
+    toolVersion = "6.18"
 }
 
 javadoc {
