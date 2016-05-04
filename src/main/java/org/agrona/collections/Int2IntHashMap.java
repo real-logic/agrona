@@ -28,7 +28,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  */
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
-    @DoNotSub private final double loadFactor;
+    @DoNotSub private final float loadFactor;
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size = 0;
@@ -40,13 +40,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     public Int2IntHashMap(final int missingValue)
     {
-        this(16, 0.67, missingValue);
+        this(16, 0.67f, missingValue);
     }
 
     @SuppressWarnings("unchecked")
     public Int2IntHashMap(
         @DoNotSub final int initialCapacity,
-        @DoNotSub final double loadFactor,
+        @DoNotSub final float loadFactor,
         final int missingValue)
     {
         validateLoadFactor(loadFactor);
@@ -69,6 +69,16 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int missingValue()
     {
         return missingValue;
+    }
+
+    /**
+     * Get the load factor applied for resize operations.
+     *
+     * @return the load factor applied for resize operations.
+     */
+    public float loadFactor()
+    {
+        return loadFactor;
     }
 
     /**

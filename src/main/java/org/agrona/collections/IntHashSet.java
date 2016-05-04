@@ -44,14 +44,14 @@ public final class IntHashSet implements Set<Integer>
     /**
      * The load factor used when none is specified in the constructor.
      */
-    public static final double DEFAULT_LOAD_FACTOR = 0.67;
+    public static final float DEFAULT_LOAD_FACTOR = 0.67f;
 
     /**
      * The initial capacity used when none is specified in the constructor.
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
-    private final double loadFactor;
+    private final float loadFactor;
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size;
@@ -74,7 +74,7 @@ public final class IntHashSet implements Set<Integer>
     public IntHashSet(
         @DoNotSub final int initialCapacity,
         final int missingValue,
-        final double loadFactor)
+        final float loadFactor)
     {
         validateLoadFactor(loadFactor);
 
@@ -253,7 +253,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public void compact()
     {
-        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
+        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
         rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
@@ -308,7 +308,7 @@ public final class IntHashSet implements Set<Integer>
      *
      * @return load factor for when the set should increase size.
      */
-    public double loadFactor()
+    public float loadFactor()
     {
         return loadFactor;
     }
@@ -337,7 +337,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean addAll(final Collection<? extends Integer> coll)
     {
-        return conjunction(coll, (x) -> add(x));
+        return conjunction(coll, this::add);
     }
 
     /**

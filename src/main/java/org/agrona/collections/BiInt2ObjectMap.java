@@ -64,7 +64,7 @@ public class BiInt2ObjectMap<V>
         V apply(int keyPartA, int keyPartB);
     }
 
-    private final double loadFactor;
+    private final float loadFactor;
     private int resizeThreshold;
     private int size;
 
@@ -76,7 +76,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap()
     {
-        this(16, 0.67);
+        this(16, 0.67f);
     }
 
     /**
@@ -85,7 +85,7 @@ public class BiInt2ObjectMap<V>
      * @param initialCapacity for the underlying hash map
      * @param loadFactor      for the underlying hash map
      */
-    public BiInt2ObjectMap(final int initialCapacity, final double loadFactor)
+    public BiInt2ObjectMap(final int initialCapacity, final float loadFactor)
     {
         validateLoadFactor(loadFactor);
 
@@ -112,7 +112,7 @@ public class BiInt2ObjectMap<V>
      *
      * @return load factor for when the map should increase size.
      */
-    public double loadFactor()
+    public float loadFactor()
     {
         return loadFactor;
     }

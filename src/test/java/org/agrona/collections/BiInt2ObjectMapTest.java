@@ -35,7 +35,7 @@ public class BiInt2ObjectMapTest
     public void shouldInitialiseUnderlyingImplementation()
     {
         final int initialCapacity = 10;
-        final double loadFactor = 0.6;
+        final float loadFactor = 0.6f;
         final BiInt2ObjectMap<String> map = new BiInt2ObjectMap<>(initialCapacity, loadFactor);
 
         assertThat(map.capacity(), either(is(initialCapacity)).or(greaterThan(initialCapacity)));

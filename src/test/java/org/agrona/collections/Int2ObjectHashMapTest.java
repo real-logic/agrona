@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertThat;
 
@@ -60,7 +60,7 @@ public class Int2ObjectHashMapTest
     @Test
     public void shouldGrowWhenThresholdExceeded()
     {
-        final double loadFactor = 0.5d;
+        final float loadFactor = 0.5f;
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>(32, loadFactor);
         for (int i = 0; i < 16; i++)
         {
@@ -78,13 +78,13 @@ public class Int2ObjectHashMapTest
         assertThat(map.size(), is(17));
 
         assertThat(map.get(16), equalTo("16"));
-        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
+        assertThat((double)loadFactor, closeTo(map.loadFactor(), 0.0f));
     }
 
     @Test
     public void shouldHandleCollisionAndThenLinearProbe()
     {
-        final double loadFactor = 0.5d;
+        final float loadFactor = 0.5f;
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>(32, loadFactor);
         final int key = 7;
         final String value = "Seven";
@@ -96,7 +96,7 @@ public class Int2ObjectHashMapTest
 
         assertThat(map.get(key), is(value));
         assertThat(map.get(collisionKey), is(collisionValue));
-        assertThat(loadFactor, closeTo(map.loadFactor(), 0.0));
+        assertThat((double)loadFactor, closeTo(map.loadFactor(), 0.0f));
     }
 
     @Test

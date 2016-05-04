@@ -387,7 +387,7 @@ public class Int2IntHashMapTest
     @Test
     public void correctSizeAfterRehash() throws Exception
     {
-        final Int2IntHashMap map = new Int2IntHashMap(16, 0.6D, -1);
+        final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
         IntStream.range(1, 17).forEach(i -> map.put(i, i));
         assertEquals("Map has correct size", 16, map.size());

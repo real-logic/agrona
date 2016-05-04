@@ -74,7 +74,7 @@ public class CollectionUtil
      *
      * @param loadFactor to be validated.
      */
-    public static void validateLoadFactor(final double loadFactor)
+    public static void validateLoadFactor(final float loadFactor)
     {
         if (loadFactor <= 0 || loadFactor >= 1.0)
         {

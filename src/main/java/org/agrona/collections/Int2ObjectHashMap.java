@@ -33,7 +33,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public class Int2ObjectHashMap<V>
     implements Map<Integer, V>
 {
-    private final double loadFactor;
+    private final float loadFactor;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size;
 
@@ -46,7 +46,7 @@ public class Int2ObjectHashMap<V>
 
     public Int2ObjectHashMap()
     {
-        this(8, 0.67);
+        this(8, 0.67f);
     }
 
     /**
@@ -57,7 +57,7 @@ public class Int2ObjectHashMap<V>
      */
     public Int2ObjectHashMap(
         @DoNotSub final int initialCapacity,
-        final double loadFactor)
+        final float loadFactor)
     {
         validateLoadFactor(loadFactor);
 
@@ -79,7 +79,7 @@ public class Int2ObjectHashMap<V>
      *
      * @return load factor for when the map should increase size.
      */
-    public double loadFactor()
+    public float loadFactor()
     {
         return loadFactor;
     }
