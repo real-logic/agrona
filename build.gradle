@@ -22,7 +22,7 @@ apply plugin: 'eclipse'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'org.agrona'
-version = '0.5.1-SNAPSHOT'
+version = '0.5.1'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 ext {
