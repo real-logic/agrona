@@ -63,17 +63,6 @@ public class MappedResizeableBuffer implements AutoCloseable
         unmap();
     }
 
-    private void map(final long offset, final long length)
-    {
-        capacity = length;
-        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, offset, length);
-    }
-
-    private void unmap()
-    {
-        IoUtil.unmap(fileChannel, addressOffset, capacity);
-    }
-
     public void resize(final long newLength)
     {
         if (newLength <= 0)
@@ -115,9 +104,24 @@ public class MappedResizeableBuffer implements AutoCloseable
         map(offset, length);
     }
 
+    /**
+     * Address offset in memory at which the mapping begins.
+     *
+     * @return the address offset in memory at which the mapping begins.
+     */
     public long addressOffset()
     {
         return addressOffset;
+    }
+
+    /**
+     * {@link FileChannel} that this buffer is mapping over.
+     *
+     * @return the {@link FileChannel} that this buffer is mapping over.
+     */
+    public FileChannel fileChannel()
+    {
+        return fileChannel;
     }
 
     public void setMemory(final long index, final int length, final byte value)
@@ -928,5 +932,16 @@ public class MappedResizeableBuffer implements AutoCloseable
         {
             throw new IndexOutOfBoundsException(String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
         }
+    }
+
+    private void map(final long offset, final long length)
+    {
+        capacity = length;
+        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, offset, length);
+    }
+
+    private void unmap()
+    {
+        IoUtil.unmap(fileChannel, addressOffset, capacity);
     }
 }
