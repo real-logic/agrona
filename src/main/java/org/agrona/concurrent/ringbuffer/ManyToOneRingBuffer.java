@@ -128,15 +128,14 @@ public class ManyToOneRingBuffer implements RingBuffer
         final AtomicBuffer buffer = this.buffer;
         final long head = buffer.getLong(headPositionIndex);
 
-        int bytesRead = 0;
-
         final int capacity = this.capacity;
         final int headIndex = (int)head & (capacity - 1);
-        final int contiguousBlockLength = capacity - headIndex;
+        final int maxBlockLength = capacity - headIndex;
+        int bytesRead = 0;
 
         try
         {
-            while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
+            while ((bytesRead < maxBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
                 final long header = buffer.getLongVolatile(recordIndex);
