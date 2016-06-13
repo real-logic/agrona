@@ -28,8 +28,8 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/bounded-mpmc-queue">MPMC queue</a> by Dmitry Vyukov.
  *
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node available
- * but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for empty then call
- * {@link ManyToManyConcurrentArrayQueue#isEmpty()}.
+ * but size could be greater than zero if an offer is in progress. This is a conflated design issue in the Queue implementation.
+ * If you wish to check for empty then call {@link #isEmpty()} rather than {@link #size() checking for zero}.
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
