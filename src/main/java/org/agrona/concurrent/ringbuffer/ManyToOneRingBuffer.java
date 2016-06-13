@@ -22,7 +22,7 @@ import org.agrona.concurrent.MessageHandler;
 
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
-import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.checkCapacity;
+import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 
 /**
  * A ring-buffer that supports the exchange of messages from many producers to a single consumer.
@@ -61,16 +61,16 @@ public class ManyToOneRingBuffer implements RingBuffer
     {
         this.buffer = buffer;
         checkCapacity(buffer.capacity());
-        capacity = buffer.capacity() - RingBufferDescriptor.TRAILER_LENGTH;
+        capacity = buffer.capacity() - TRAILER_LENGTH;
 
         buffer.verifyAlignment();
 
         maxMsgLength = capacity / 8;
-        tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
-        headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
-        headPositionIndex = capacity + RingBufferDescriptor.HEAD_POSITION_OFFSET;
-        correlationIdCounterIndex = capacity + RingBufferDescriptor.CORRELATION_COUNTER_OFFSET;
-        consumerHeartbeatIndex = capacity + RingBufferDescriptor.CONSUMER_HEARTBEAT_OFFSET;
+        tailPositionIndex = capacity + TAIL_POSITION_OFFSET;
+        headCachePositionIndex = capacity + HEAD_CACHE_POSITION_OFFSET;
+        headPositionIndex = capacity + HEAD_POSITION_OFFSET;
+        correlationIdCounterIndex = capacity + CORRELATION_COUNTER_OFFSET;
+        consumerHeartbeatIndex = capacity + CONSUMER_HEARTBEAT_OFFSET;
     }
 
     /**
@@ -319,9 +319,8 @@ public class ManyToOneRingBuffer implements RingBuffer
     {
         if (length > maxMsgLength)
         {
-            final String msg = String.format("encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length);
-
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException(String.format(
+                "encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length));
         }
     }
 
