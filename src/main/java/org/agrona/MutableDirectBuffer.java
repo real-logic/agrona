@@ -205,11 +205,11 @@ public interface MutableDirectBuffer extends DirectBuffer
     /**
      * Encode a String as UTF-8 bytes to the buffer with a length prefix.
      *
-     * @param offset at which the String should be encoded.
-     * @param value  of the String to be encoded.
+     * @param index at which the String should be encoded.
+     * @param value of the String to be encoded.
      * @return the number of bytes put to the buffer.
      */
-    int putStringUtf8(int offset, String value);
+    int putStringUtf8(int index, String value);
 
     /**
      * Encode a String as UTF-8 bytes to the buffer with a length prefix.
