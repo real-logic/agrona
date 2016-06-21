@@ -76,7 +76,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap()
     {
-        this(16, 0.67f);
+        this(8, 0.67f);
     }
 
     /**
