@@ -15,7 +15,10 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Atomic counter that is backed by an {@link AtomicBuffer} that can be read across threads and processes.
@@ -23,17 +26,19 @@ import org.agrona.concurrent.AtomicBuffer;
 public class AtomicCounter implements AutoCloseable
 {
     private final int counterId;
-    private final int offset;
-    private final AtomicBuffer buffer;
+    private final long addressOffset;
+    private final byte[] buffer;
     private final CountersManager countersManager;
 
     AtomicCounter(final AtomicBuffer buffer, final int counterId, final CountersManager countersManager)
     {
-        this.buffer = buffer;
         this.counterId = counterId;
         this.countersManager = countersManager;
-        this.offset = CountersManager.counterOffset(counterId);
-        buffer.putLong(offset, 0);
+        this.buffer = buffer.byteArray();
+
+        final int counterOffset = CountersManager.counterOffset(counterId);
+        buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
+        this.addressOffset = buffer.addressOffset() + counterOffset;
     }
 
     /**
@@ -43,7 +48,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public long increment()
     {
-        return buffer.getAndAddLong(offset, 1);
+        return UnsafeAccess.UNSAFE.getAndAddLong(buffer, addressOffset, 1);
     }
 
     /**
@@ -53,7 +58,10 @@ public class AtomicCounter implements AutoCloseable
      */
     public long orderedIncrement()
     {
-        return buffer.addLongOrdered(offset, 1);
+        final long currentValue = UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
+        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, currentValue + 1);
+
+        return currentValue;
     }
 
     /**
@@ -63,7 +71,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public void set(final long value)
     {
-        buffer.putLongVolatile(offset, value);
+        UnsafeAccess.UNSAFE.putLongVolatile(buffer, addressOffset, value);
     }
 
     /**
@@ -73,7 +81,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public void setOrdered(final long value)
     {
-        buffer.putLongOrdered(offset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
     }
 
     /**
@@ -84,7 +92,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public long add(final long increment)
     {
-        return buffer.getAndAddLong(offset, increment);
+        return UnsafeAccess.UNSAFE.getAndAddLong(buffer, addressOffset, increment);
     }
 
     /**
@@ -95,7 +103,10 @@ public class AtomicCounter implements AutoCloseable
      */
     public long addOrdered(final long increment)
     {
-        return buffer.addLongOrdered(offset, increment);
+        final long currentValue = UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
+        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, currentValue + increment);
+
+        return currentValue;
     }
 
     /**
@@ -105,7 +116,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public long get()
     {
-        return buffer.getLongVolatile(offset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(buffer, addressOffset);
     }
 
     /**
@@ -115,7 +126,7 @@ public class AtomicCounter implements AutoCloseable
      */
     public long getWeak()
     {
-        return buffer.getLong(offset);
+        return UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
     }
 
     /**

@@ -15,7 +15,10 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.UnsafeBuffer;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Reports a position by recording it in an {@link UnsafeBuffer}.
@@ -23,8 +26,8 @@ import org.agrona.concurrent.UnsafeBuffer;
 public final class UnsafeBufferPosition implements Position
 {
     private final int counterId;
-    private final int offset;
-    private final UnsafeBuffer buffer;
+    private final long addressOffset;
+    private final byte[] buffer;
     private final CountersManager countersManager;
 
     /**
@@ -47,10 +50,13 @@ public final class UnsafeBufferPosition implements Position
      */
     public UnsafeBufferPosition(final UnsafeBuffer buffer, final int counterId, final CountersManager countersManager)
     {
-        this.buffer = buffer;
         this.counterId = counterId;
         this.countersManager = countersManager;
-        this.offset = CountersManager.counterOffset(counterId);
+        this.buffer = buffer.byteArray();
+
+        final int counterOffset = CountersManager.counterOffset(counterId);
+        buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
+        this.addressOffset = buffer.addressOffset() + counterOffset;
     }
 
     public int id()
@@ -60,33 +66,31 @@ public final class UnsafeBufferPosition implements Position
 
     public long get()
     {
-        return buffer.getLong(offset);
+        return UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
     }
 
     public long getVolatile()
     {
-        return buffer.getLongVolatile(offset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(buffer, addressOffset);
     }
 
     public void set(final long value)
     {
-        buffer.putLong(offset, value);
+        UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, value);
     }
 
     public void setOrdered(final long value)
     {
-        buffer.putLongOrdered(offset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
     }
 
     public boolean proposeMax(final long proposedValue)
     {
-        final UnsafeBuffer buffer = this.buffer;
-        final int offset = this.offset;
         boolean updated = false;
 
-        if (buffer.getLong(offset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
         {
-            buffer.putLong(offset, proposedValue);
+            UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, proposedValue);
             updated = true;
         }
 
@@ -95,13 +99,11 @@ public final class UnsafeBufferPosition implements Position
 
     public boolean proposeMaxOrdered(final long proposedValue)
     {
-        final UnsafeBuffer buffer = this.buffer;
-        final int offset = this.offset;
         boolean updated = false;
 
-        if (buffer.getLong(offset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
         {
-            buffer.putLongOrdered(offset, proposedValue);
+            UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, proposedValue);
             updated = true;
         }
 
