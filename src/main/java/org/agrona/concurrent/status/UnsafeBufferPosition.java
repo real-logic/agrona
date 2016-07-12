@@ -23,7 +23,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 /**
  * Reports a position by recording it in an {@link UnsafeBuffer}.
  */
-public final class UnsafeBufferPosition implements Position
+public class UnsafeBufferPosition implements Position
 {
     private final int counterId;
     private final long addressOffset;
