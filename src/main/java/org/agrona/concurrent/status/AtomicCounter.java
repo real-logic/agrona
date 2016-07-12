@@ -85,6 +85,16 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Set the counter with normal semantics.
+     *
+     * @param value to be set with normal semantics.
+     */
+    public void setWeak(final long value)
+    {
+        UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, value);
+    }
+
+    /**
      * Add an increment to the counter that will not lose updates across threads.
      *
      * @param increment to be added.
