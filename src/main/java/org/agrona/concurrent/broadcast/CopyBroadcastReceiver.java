@@ -15,19 +15,42 @@
  */
 package org.agrona.concurrent.broadcast;
 
-import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
+
+import java.nio.ByteBuffer;
 
 /**
  * Receiver that copies messages that have been broadcast to enable a simpler API for the client.
  */
 public class CopyBroadcastReceiver
 {
-    private static final int SCRATCH_BUFFER_SIZE = 4096;
+    /**
+     * Default length for the scratch buffer for copying messages into.
+     */
+    public static final int SCRATCH_BUFFER_LENGTH = 4096;
 
     private final BroadcastReceiver receiver;
-    private final MutableDirectBuffer scratchBuffer;
+    private final UnsafeBuffer scratchBuffer;
+
+    /**
+     * Wrap a {@link BroadcastReceiver} to simplify the API for receiving messages.
+     *
+     * @param receiver            to be wrapped.
+     * @param scratchBufferLength is the maximum length of a message to be copied when receiving.
+     */
+    public CopyBroadcastReceiver(final BroadcastReceiver receiver, final int scratchBufferLength)
+    {
+        this.receiver = receiver;
+        scratchBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(scratchBufferLength));
+
+        while (receiver.receiveNext())
+        {
+            // If we're reconnecting to a broadcast buffer then we need to
+            // scan ourselves up to date, otherwise we risk "falling behind"
+            // the buffer due to the time taken to catchup.
+        }
+    }
 
     /**
      * Wrap a {@link BroadcastReceiver} to simplify the API for receiving messages.
@@ -36,15 +59,7 @@ public class CopyBroadcastReceiver
      */
     public CopyBroadcastReceiver(final BroadcastReceiver receiver)
     {
-        this.receiver = receiver;
-        scratchBuffer = new UnsafeBuffer(new byte[SCRATCH_BUFFER_SIZE]);
-
-        while (receiver.receiveNext())
-        {
-            // If we're reconnecting to a broadcast buffer then we need to
-            // scan ourselves up to date, otherwise we risk "falling behind"
-            // the buffer due to the time taken to catchup.
-        }
+        this(receiver, SCRATCH_BUFFER_LENGTH);
     }
 
     /**
@@ -70,7 +85,7 @@ public class CopyBroadcastReceiver
             final int capacity = scratchBuffer.capacity();
             if (length > capacity)
             {
-                throw new IllegalStateException(String.format("Buffer required size %d but only has %d", length, capacity));
+                throw new IllegalStateException(String.format("Buffer required length of %d but only has %d", length, capacity));
             }
 
             final int msgTypeId = receiver.typeId();
