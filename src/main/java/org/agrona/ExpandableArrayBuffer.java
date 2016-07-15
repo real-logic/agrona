@@ -397,16 +397,17 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         final byte[] dstByteArray;
         final long dstBaseOffset;
-        if (dstBuffer.hasArray())
-        {
-            dstByteArray = dstBuffer.array();
-            dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
-        }
-        else
+        if (dstBuffer.isDirect())
         {
             dstByteArray = null;
             dstBaseOffset = address(dstBuffer);
         }
+        else
+        {
+            dstByteArray = array(dstBuffer);
+            dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
+        }
+
 
         UNSAFE.copyMemory(byteArray, ARRAY_BASE_OFFSET + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
@@ -436,15 +437,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         final byte[] srcByteArray;
         final long srcBaseOffset;
-        if (srcBuffer.hasArray())
-        {
-            srcByteArray = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
-        }
-        else
+        if (srcBuffer.isDirect())
         {
             srcByteArray = null;
             srcBaseOffset = address(srcBuffer);
+        }
+        else
+        {
+            srcByteArray = array(srcBuffer);
+            srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, ARRAY_BASE_OFFSET + index, length);

@@ -20,6 +20,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 import static org.agrona.BitUtil.isPowerOfTwo;
+import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * Common functions for buffer implementations.
@@ -28,7 +29,22 @@ public class BufferUtil
 {
     public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
     public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-    public static final long ARRAY_BASE_OFFSET = UnsafeAccess.UNSAFE.arrayBaseOffset(byte[].class);
+    public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+    public static final long BYTE_BUFFER_HB_FIELD_OFFSET;
+    public static final long BYTE_BUFFER_OFFSET_FIELD_OFFSET;
+
+    static
+    {
+        try
+        {
+            BYTE_BUFFER_HB_FIELD_OFFSET = UNSAFE.objectFieldOffset(ByteBuffer.class.getDeclaredField("hb"));
+            BYTE_BUFFER_OFFSET_FIELD_OFFSET = UNSAFE.objectFieldOffset(ByteBuffer.class.getDeclaredField("offset"));
+        }
+        catch (final Exception ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
 
     /**
      * Bounds check the access range and throw a {@link IndexOutOfBoundsException} if exceeded.
@@ -73,6 +89,28 @@ public class BufferUtil
     public static long address(final ByteBuffer buffer)
     {
         return ((sun.nio.ch.DirectBuffer)buffer).address();
+    }
+
+    /**
+     * Get the array from a read-only {@link ByteBuffer} similar to {@link ByteBuffer#array()}.
+     *
+     * @param buffer that wraps the underlying array.
+     * @return the underlying array.
+     */
+    public static byte[] array(final ByteBuffer buffer)
+    {
+        return (byte[])UNSAFE.getObject(buffer, BYTE_BUFFER_HB_FIELD_OFFSET);
+    }
+
+    /**
+     * Get the array offset from a read-only {@link ByteBuffer} similar to {@link ByteBuffer#arrayOffset()}.
+     *
+     * @param buffer that wraps the underlying array.
+     * @return the underlying array offset at which this ByteBuffer starts.
+     */
+    public static int arrayOffset(final ByteBuffer buffer)
+    {
+        return UNSAFE.getInt(buffer, BYTE_BUFFER_OFFSET_FIELD_OFFSET);
     }
 
     /**

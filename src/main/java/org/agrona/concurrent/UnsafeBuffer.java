@@ -176,8 +176,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
+            byteArray = array(byteBuffer);
+            addressOffset = ARRAY_BASE_OFFSET + arrayOffset(byteBuffer);
         }
 
         capacity = buffer.capacity();
@@ -209,8 +209,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset() + offset;
+            byteArray = array(buffer);
+            addressOffset = ARRAY_BASE_OFFSET + arrayOffset(buffer) + offset;
         }
 
         capacity = length;
@@ -845,8 +845,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            dstByteArray = dstBuffer.array();
-            dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
+            dstByteArray = array(dstBuffer);
+            dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
@@ -892,8 +892,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            srcByteArray = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
+            srcByteArray = array(srcBuffer);
+            srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);

@@ -26,6 +26,8 @@ import org.agrona.DirectBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static org.agrona.BufferUtil.array;
+import static org.agrona.BufferUtil.arrayOffset;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -60,6 +62,10 @@ public class AtomicBufferTest
     @DataPoint
     public static final AtomicBuffer HEAP_BYTE_BUFFER_SLICE = new UnsafeBuffer(
         ((ByteBuffer)(ByteBuffer.allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY))).slice());
+
+    @DataPoint
+    public static final AtomicBuffer HEAP_BYTE_BUFFER_READ_ONLY = new UnsafeBuffer(
+        ByteBuffer.allocate(BUFFER_CAPACITY).asReadOnlyBuffer(), 0, BUFFER_CAPACITY);
 
     @Theory
     public void shouldGetCapacity(final AtomicBuffer buffer)
@@ -846,11 +852,29 @@ public class AtomicBufferTest
 
     private static ByteBuffer byteBuffer(final DirectBuffer buffer)
     {
-        final ByteBuffer byteBuffer;
+        ByteBuffer byteBuffer;
 
-        if (null != buffer.byteBuffer())
+        final ByteBuffer bb = buffer.byteBuffer();
+        if (null != bb)
         {
-            byteBuffer = buffer.byteBuffer().duplicate();
+            if (bb.isDirect())
+            {
+                byteBuffer = bb.duplicate();
+            }
+            else
+            {
+                final byte[] array = array(bb);
+                final int offset = arrayOffset(bb);
+                final int capacity = buffer.capacity();
+
+                byteBuffer = ByteBuffer.wrap(array);
+                if (offset > 0)
+                {
+                    byteBuffer.limit(offset + capacity);
+                    byteBuffer.position(offset);
+                    byteBuffer = byteBuffer.slice();
+                }
+            }
         }
         else
         {
