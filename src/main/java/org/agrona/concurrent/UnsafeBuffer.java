@@ -169,15 +169,15 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         byteBuffer = buffer;
 
-        if (buffer.hasArray())
-        {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
-        }
-        else
+        if (buffer.isDirect())
         {
             byteArray = null;
             addressOffset = address(buffer);
+        }
+        else
+        {
+            byteArray = buffer.array();
+            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset();
         }
 
         capacity = buffer.capacity();
@@ -202,15 +202,15 @@ public class UnsafeBuffer implements AtomicBuffer
 
         byteBuffer = buffer;
 
-        if (buffer.hasArray())
-        {
-            byteArray = buffer.array();
-            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset() + offset;
-        }
-        else
+        if (buffer.isDirect())
         {
             byteArray = null;
             addressOffset = address(buffer) + offset;
+        }
+        else
+        {
+            byteArray = buffer.array();
+            addressOffset = ARRAY_BASE_OFFSET + buffer.arrayOffset() + offset;
         }
 
         capacity = length;
@@ -838,15 +838,15 @@ public class UnsafeBuffer implements AtomicBuffer
 
         final byte[] dstByteArray;
         final long dstBaseOffset;
-        if (dstBuffer.hasArray())
-        {
-            dstByteArray = dstBuffer.array();
-            dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
-        }
-        else
+        if (dstBuffer.isDirect())
         {
             dstByteArray = null;
             dstBaseOffset = address(dstBuffer);
+        }
+        else
+        {
+            dstByteArray = dstBuffer.array();
+            dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
@@ -885,15 +885,15 @@ public class UnsafeBuffer implements AtomicBuffer
 
         final byte[] srcByteArray;
         final long srcBaseOffset;
-        if (srcBuffer.hasArray())
-        {
-            srcByteArray = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
-        }
-        else
+        if (srcBuffer.isDirect())
         {
             srcByteArray = null;
             srcBaseOffset = address(srcBuffer);
+        }
+        else
+        {
+            srcByteArray = srcBuffer.array();
+            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
         }
 
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
