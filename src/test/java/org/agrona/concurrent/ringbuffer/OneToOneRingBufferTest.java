@@ -194,8 +194,8 @@ public class OneToOneRingBufferTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer, times(1)).getLongVolatile(headIndex);
-        inOrder.verify(buffer, times(0)).putLongOrdered(HEAD_COUNTER_INDEX, headIndex);
         inOrder.verify(buffer, times(0)).setMemory(anyInt(), anyInt(), anyByte());
+        inOrder.verify(buffer, times(0)).putLongOrdered(HEAD_COUNTER_INDEX, headIndex);
     }
 
     @Test
