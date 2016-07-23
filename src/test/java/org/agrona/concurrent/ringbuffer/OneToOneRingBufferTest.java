@@ -309,7 +309,7 @@ public class OneToOneRingBufferTest
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
-        new OneToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength]));
+        new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength]));
     }
 
     @Test(expected = IllegalArgumentException.class)
