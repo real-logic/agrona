@@ -20,6 +20,7 @@ import org.agrona.concurrent.status.AtomicCounter;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.Objects;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -71,7 +72,19 @@ public class AgentRunner implements Runnable, AutoCloseable
      */
     public static Thread startOnThread(final AgentRunner runner)
     {
-        final Thread thread = new Thread(runner);
+        return startOnThread(runner, Thread::new);
+    }
+
+    /**
+     * Start the given agent runner on a new thread.
+     *
+     * @param runner the agent runner to start.
+     * @param threadFactory the factory to use to create the thread.
+     * @return the new thread that has been started.
+     */
+    public static Thread startOnThread(final AgentRunner runner, final ThreadFactory threadFactory)
+    {
+        final Thread thread = threadFactory.newThread(runner);
         thread.setName(runner.agent().roleName());
         thread.start();
 
