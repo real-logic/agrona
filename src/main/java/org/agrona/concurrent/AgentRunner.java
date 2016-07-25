@@ -67,12 +67,15 @@ public class AgentRunner implements Runnable, AutoCloseable
      * Start the given agent runner on a new thread.
      *
      * @param runner the agent runner to start
+     * @return the new thread that has been started.
      */
-    public static void startOnThread(final AgentRunner runner)
+    public static Thread startOnThread(final AgentRunner runner)
     {
         final Thread thread = new Thread(runner);
         thread.setName(runner.agent().roleName());
         thread.start();
+
+        return thread;
     }
 
     /**
