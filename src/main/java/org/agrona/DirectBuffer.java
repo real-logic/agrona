@@ -90,12 +90,18 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get the underlying byte[] if one exists.
      *
+     * NB: there may not be a one-to-one mapping between indices on this buffer
+     * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
+     *
      * @return the underlying byte[] if one exists.
      */
     byte[] byteArray();
 
     /**
      * Get the underlying {@link ByteBuffer} if one exists.
+     *
+     * NB: there may not be a one-to-one mapping between indices on this buffer
+     * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
      *
      * @return the underlying {@link ByteBuffer} if one exists.
      */
@@ -322,4 +328,18 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * @throws java.lang.IndexOutOfBoundsException if the length goes outside of the capacity range.
      */
     void boundsCheck(int index, int length);
+
+    /**
+     * Get the adjustment in indices between an index in this buffer and the wrapped object.
+     * The wrapped object might be a bytebuffer or a byte[].
+     *
+     * You only need to use this adjustment if you plan to perform operations on the underlying
+     * byte array or byte buffer that rely on their indices.
+     *
+     * @return the adjustment in indices between an index in this buffer and the wrapped object.
+     *
+     * @see DirectBuffer#byteArray()
+     * @see DirectBuffer#byteBuffer()
+     */
+    int wrapAdjustment();
 }

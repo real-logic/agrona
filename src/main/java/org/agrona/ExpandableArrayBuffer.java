@@ -640,6 +640,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         boundsCheck0(index, length);
     }
 
+    public int wrapAdjustment()
+    {
+        return 0;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
 
     public boolean equals(final Object obj)

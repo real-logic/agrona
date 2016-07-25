@@ -1091,6 +1091,13 @@ public class UnsafeBuffer implements AtomicBuffer
         boundsCheck0(index, length);
     }
 
+    public int wrapAdjustment()
+    {
+        final long offset =
+            (byteArray != null) ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
+        return (int) (addressOffset - offset);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
 
     public boolean equals(final Object obj)

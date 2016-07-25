@@ -17,19 +17,24 @@ package org.agrona.concurrent;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class UnsafeBufferTest
 {
-    public byte[] wibbleBytes = "Wibble".getBytes(StandardCharsets.US_ASCII);
-    public byte[] wobbleBytes = "Wobble".getBytes(StandardCharsets.US_ASCII);
-    public byte[] wibbleBytes2 = "Wibble2".getBytes(StandardCharsets.US_ASCII);
+    private static final byte VALUE = 42;
+    private static final int ADJUSTMENT_OFFSET = 3;
+
+    private byte[] wibbleBytes = "Wibble".getBytes(StandardCharsets.US_ASCII);
+    private byte[] wobbleBytes = "Wobble".getBytes(StandardCharsets.US_ASCII);
+    private byte[] wibbleBytes2 = "Wibble2".getBytes(StandardCharsets.US_ASCII);
 
     @Test
     public void shouldEqualOnInstance()
@@ -100,5 +105,40 @@ public class UnsafeBufferTest
         final UnsafeBuffer wibbleBuffer2 = new UnsafeBuffer(wibbleBytes2);
 
         assertThat(wibbleBuffer.compareTo(wibbleBuffer2), is(lessThan(0)));
+    }
+
+    @Test
+    public void shouldExposePositionAtWhichByteArrayGetsWrapped()
+    {
+        final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
+            wibbleBytes, ADJUSTMENT_OFFSET, wibbleBytes.length - ADJUSTMENT_OFFSET);
+
+        wibbleBuffer.putByte(0, VALUE);
+
+        assertEquals(VALUE, wibbleBytes[wibbleBuffer.wrapAdjustment()]);
+    }
+
+    @Test
+    public void shouldExposePositionAtWhichHeapByteBufferGetsWrapped()
+    {
+        final ByteBuffer wibbleByteBuffer = ByteBuffer.wrap(wibbleBytes);
+        shouldExposePositionAtWhichByteBufferGetsWrapped(wibbleByteBuffer);
+    }
+
+    @Test
+    public void shouldExposePositionAtWhichDirectByteBufferGetsWrapped()
+    {
+        final ByteBuffer wibbleByteBuffer = ByteBuffer.allocateDirect(wibbleBytes.length);
+        shouldExposePositionAtWhichByteBufferGetsWrapped(wibbleByteBuffer);
+    }
+
+    private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
+    {
+        final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
+            byteBuffer, ADJUSTMENT_OFFSET, byteBuffer.capacity() - ADJUSTMENT_OFFSET);
+
+        wibbleBuffer.putByte(0, VALUE);
+
+        assertEquals(VALUE, byteBuffer.get(wibbleBuffer.wrapAdjustment()));
     }
 }
