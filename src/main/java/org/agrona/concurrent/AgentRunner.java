@@ -39,6 +39,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     private final IdleStrategy idleStrategy;
     private final Agent agent;
     private final AtomicReference<Thread> thread = new AtomicReference<>();
+    private final ThreadFactory threadFactory;
 
     /**
      * Create an agent passing in {@link IdleStrategy}
@@ -54,6 +55,25 @@ public class AgentRunner implements Runnable, AutoCloseable
         final AtomicCounter errorCounter,
         final Agent agent)
     {
+        this(idleStrategy, errorHandler, errorCounter, agent, Thread::new);
+    }
+
+    /**
+     * Create an agent passing in {@link IdleStrategy}
+     *
+     * @param idleStrategy  to use for Agent run loop
+     * @param errorHandler  to be called if an {@link Throwable} is encountered
+     * @param errorCounter  for reporting how many exceptions have been seen.
+     * @param agent         to be run in this thread.
+     * @param threadFactory factory used to create the thread which will run this agent
+     */
+    public AgentRunner(
+        final IdleStrategy idleStrategy,
+        final ErrorHandler errorHandler,
+        final AtomicCounter errorCounter,
+        final Agent agent,
+        final ThreadFactory threadFactory)
+    {
         Objects.requireNonNull(idleStrategy, "idleStrategy");
         Objects.requireNonNull(errorHandler, "errorHandler");
         Objects.requireNonNull(agent, "agent");
@@ -62,29 +82,19 @@ public class AgentRunner implements Runnable, AutoCloseable
         this.errorHandler = errorHandler;
         this.errorCounter = errorCounter;
         this.agent = agent;
-    }
-
-    /**
-     * Start the given agent runner on a new thread.
-     *
-     * @param runner the agent runner to start
-     * @return the new thread that has been started.
-     */
-    public static Thread startOnThread(final AgentRunner runner)
-    {
-        return startOnThread(runner, Thread::new);
+        this.threadFactory = threadFactory;
     }
 
     /**
      * Start the given agent runner on a new thread.
      *
      * @param runner the agent runner to start.
-     * @param threadFactory the factory to use to create the thread.
      * @return the new thread that has been started.
      */
-    public static Thread startOnThread(final AgentRunner runner, final ThreadFactory threadFactory)
+    public static Thread startOnThread(final AgentRunner runner)
     {
-        final Thread thread = threadFactory.newThread(runner);
+        final ThreadFactory factory = runner.threadFactory;
+        final Thread thread = factory.newThread(runner);
         thread.setName(runner.agent().roleName());
         thread.start();
 
