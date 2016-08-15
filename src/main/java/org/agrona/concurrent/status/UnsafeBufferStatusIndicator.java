@@ -1,0 +1,59 @@
+/*
+ * Copyright 2014 - 2016 Real Logic Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.agrona.concurrent.status;
+
+import org.agrona.UnsafeAccess;
+import org.agrona.concurrent.AtomicBuffer;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
+
+public class UnsafeBufferStatusIndicator implements StatusIndicator
+{
+    private final int counterId;
+    private final long addressOffset;
+    private final byte[] buffer;
+
+    /**
+     * Map a status indicator over a buffer.
+     *
+     * @param buffer    containing the indicator.
+     * @param counterId identifier of the indicator.
+     */
+    public UnsafeBufferStatusIndicator(final AtomicBuffer buffer, final int counterId)
+    {
+        this.counterId = counterId;
+        this.buffer = buffer.byteArray();
+
+        final int counterOffset = CountersManager.counterOffset(counterId);
+        buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
+        this.addressOffset = buffer.addressOffset() + counterOffset;
+    }
+
+    public int id()
+    {
+        return counterId;
+    }
+
+    public void setOrdered(long value)
+    {
+        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
+    }
+
+    public long getVolatile()
+    {
+        return UnsafeAccess.UNSAFE.getLongVolatile(buffer, addressOffset);
+    }
+}
