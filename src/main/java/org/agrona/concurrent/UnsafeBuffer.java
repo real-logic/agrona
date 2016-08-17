@@ -277,17 +277,17 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        final long offsetIndex = addressOffset + index;
-        if (0 == (offsetIndex & 1) && length > 64)
+        final long indexOffset = addressOffset + index;
+        if (0 == (indexOffset & 1) && length > 64)
         {
             // This horrible filth is to encourage the JVM to call memset() when address is even.
             // TODO: check if this still applies when Java 9 is out!!!
-            UNSAFE.putByte(byteArray, offsetIndex, value);
-            UNSAFE.setMemory(byteArray, offsetIndex + 1, length - 1, value);
+            UNSAFE.putByte(byteArray, indexOffset, value);
+            UNSAFE.setMemory(byteArray, indexOffset + 1, length - 1, value);
         }
         else
         {
-            UNSAFE.setMemory(byteArray, offsetIndex, length, value);
+            UNSAFE.setMemory(byteArray, indexOffset, length, value);
         }
     }
 
