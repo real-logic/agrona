@@ -85,7 +85,8 @@ public class OneToOneRingBuffer implements RingBuffer
 
         final AtomicBuffer buffer = this.buffer;
         final int recordLength = length + HEADER_LENGTH;
-        final int requiredCapacity = align(recordLength, ALIGNMENT);
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
+        final int requiredCapacity = alignedRecordLength + HEADER_LENGTH;
         final int capacity = this.capacity;
         final int tailPositionIndex = this.tailPositionIndex;
         final int headCachePositionIndex = this.headCachePositionIndex;
@@ -132,13 +133,15 @@ public class OneToOneRingBuffer implements RingBuffer
 
         if (0 != padding)
         {
+            buffer.putLong(0, 0L);
             buffer.putLongOrdered(recordIndex, makeHeader(padding, PADDING_MSG_TYPE_ID));
             recordIndex = 0;
         }
 
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
+        buffer.putLong(recordIndex + alignedRecordLength, 0L);
         buffer.putLongOrdered(recordIndex, makeHeader(recordLength, msgTypeId));
-        buffer.putLongOrdered(tailPositionIndex, tail + requiredCapacity + padding);
+        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
 
         return true;
     }
@@ -196,7 +199,6 @@ public class OneToOneRingBuffer implements RingBuffer
         {
             if (bytesRead != 0)
             {
-                buffer.setMemory(headIndex, bytesRead, (byte)0);
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
         }

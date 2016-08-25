@@ -67,6 +67,7 @@ public class OneToOneRingBufferTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(encodedMsgOffset((int)tail), srcBuffer, srcIndex, length);
+        inOrder.verify(buffer).putLong((int)tail + alignedRecordLength, 0L);
         inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(recordLength, MSG_TYPE_ID));
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength);
     }
@@ -87,6 +88,7 @@ public class OneToOneRingBufferTest
         assertFalse(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         verify(buffer, never()).putBytes(anyInt(), eq(srcBuffer), anyInt(), anyInt());
+        verify(buffer, never()).putLong(anyInt(), anyInt());
         verify(buffer, never()).putLongOrdered(anyInt(), anyInt());
         verify(buffer, never()).putIntOrdered(anyInt(), anyInt());
     }
@@ -114,6 +116,7 @@ public class OneToOneRingBufferTest
     {
         final int length = 200;
         final int recordLength = length + HEADER_LENGTH;
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long tail = CAPACITY - HEADER_LENGTH;
         final long head = tail - (ALIGNMENT * 4);
 
@@ -126,9 +129,11 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putLong(0, 0L);
         inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(HEADER_LENGTH, PADDING_MSG_TYPE_ID));
 
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
+        inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
         inOrder.verify(buffer).putLongOrdered(0, makeHeader(recordLength, MSG_TYPE_ID));
     }
 
@@ -137,6 +142,7 @@ public class OneToOneRingBufferTest
     {
         final int length = 200;
         final int recordLength = length + HEADER_LENGTH;
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
         final long tail = CAPACITY - HEADER_LENGTH;
         final long head = tail;
 
@@ -149,9 +155,11 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putLong(0, 0L);
         inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(HEADER_LENGTH, PADDING_MSG_TYPE_ID));
 
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
+        inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
         inOrder.verify(buffer).putLongOrdered(0, makeHeader(recordLength, MSG_TYPE_ID));
     }
 
@@ -186,7 +194,7 @@ public class OneToOneRingBufferTest
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer, times(1)).getLongVolatile(headIndex);
-        inOrder.verify(buffer, times(0)).setMemory(headIndex, 0, (byte)0);
+        inOrder.verify(buffer, times(0)).setMemory(anyInt(), anyInt(), anyByte());
         inOrder.verify(buffer, times(0)).putLongOrdered(HEAD_COUNTER_INDEX, headIndex);
     }
 
@@ -212,8 +220,8 @@ public class OneToOneRingBufferTest
         assertThat(times[0], is(2));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer, times(1)).setMemory(headIndex, alignedRecordLength * 2, (byte)0);
         inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, tail);
+        inOrder.verify(buffer, times(0)).setMemory(anyInt(), anyInt(), anyByte());
     }
 
     @Test
@@ -237,8 +245,8 @@ public class OneToOneRingBufferTest
         assertThat(times[0], is(1));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer, times(1)).setMemory(headIndex, alignedRecordLength, (byte)0);
         inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, head + alignedRecordLength);
+        inOrder.verify(buffer, times(0)).setMemory(anyInt(), anyInt(), anyByte());
     }
 
     @Test
@@ -275,8 +283,8 @@ public class OneToOneRingBufferTest
             assertThat(times[0], is(2));
 
             final InOrder inOrder = inOrder(buffer);
-            inOrder.verify(buffer, times(1)).setMemory(headIndex, alignedRecordLength * 2, (byte)0);
             inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, tail);
+            inOrder.verify(buffer, times(0)).setMemory(anyInt(), anyInt(), anyByte());
 
             return;
         }
