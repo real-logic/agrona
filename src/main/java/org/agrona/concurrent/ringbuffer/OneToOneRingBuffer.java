@@ -25,6 +25,9 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 
 /**
  * A ring-buffer that supports the exchange of messages from a single producer to a single consumer.
+ *
+ * This single producer ring-buffer can be used in combination a consumer using the {@link ManyToOneRingBuffer}
+ * provided no other producers are accessing the same ring-buffer.
  */
 public class OneToOneRingBuffer implements RingBuffer
 {
