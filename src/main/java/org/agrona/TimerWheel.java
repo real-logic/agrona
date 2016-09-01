@@ -254,7 +254,7 @@ public class TimerWheel
      */
     public Iterable<Timer> scheduled()
     {
-        return WheelIterator::new;
+        return TimerIterator::new;
     }
 
     private static void checkTicksPerWheel(final int ticksPerWheel)
@@ -372,7 +372,7 @@ public class TimerWheel
 
         public void remove()
         {
-            wheel[this.wheelIndex][this.tickIndex] = null;
+            wheel[wheelIndex][tickIndex] = null;
         }
 
         public String toString()
@@ -386,7 +386,7 @@ public class TimerWheel
         }
     }
 
-    private final class WheelIterator implements Iterator<Timer>
+    private final class TimerIterator implements Iterator<Timer>
     {
         private int tick = 0;
         private int tickIndex = -1;
@@ -425,24 +425,25 @@ public class TimerWheel
 
         private Timer findNext()
         {
+            final int ticksPerWheel = (int)mask + 1;
             do
             {
-                final Timer[] tickTimers = wheel[tick];
-                final int tickTimersLength = tickTimers.length;
-                while (++tickIndex < tickTimersLength)
+                final Timer[] timers = wheel[tick];
+                final int timersLength = timers.length;
+                while (++tickIndex < timersLength)
                 {
-                    final Timer tickTimer = tickTimers[tickIndex];
-                    if (tickTimer != null)
+                    final Timer timer = timers[tickIndex];
+                    if (timer != null)
                     {
                         consumed = false;
-                        return tickTimer;
+                        return timer;
                     }
                 }
 
                 tick++;
                 tickIndex = -1;
             }
-            while (tick <= mask);
+            while (tick < ticksPerWheel);
 
             end = true;
 
