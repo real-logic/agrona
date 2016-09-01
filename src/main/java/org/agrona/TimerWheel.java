@@ -19,6 +19,8 @@ import org.agrona.concurrent.NanoClock;
 import org.agrona.concurrent.SystemNanoClock;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -244,6 +246,17 @@ public class TimerWheel
         return timersExpired;
     }
 
+    /**
+     * Return <code>Iterable&lt;Timer&gt;</code> with scheduled but not yet executed timers.
+     * This timers could be in {@link TimerState#ACTIVE} or {@link TimerState#EXPIRED} states.
+     *
+     * @return <code>Iterable&lt;Timer&gt;</code> with scheduled but not yet executed timers
+     */
+    public Iterable<Timer> scheduled()
+    {
+        return FullIterator::new;
+    }
+
     private static void checkTicksPerWheel(final int ticksPerWheel)
     {
         if (ticksPerWheel < 2 || 1 != Integer.bitCount(ticksPerWheel))
@@ -370,6 +383,63 @@ public class TimerWheel
                 ", deadline=\'" + deadline + "\'" +
                 ", remainingRounds=\'" + remainingRounds + "\'" +
                 "}";
+        }
+    }
+
+    private final class FullIterator implements Iterator<Timer>
+    {
+        private int tick = 0;
+        private int tickIndex = -1;
+        private boolean consumed = true;
+        private boolean end = false;
+
+        @Override
+        public boolean hasNext()
+        {
+            return !end && (!consumed || findNext() != null);
+        }
+
+        @Override
+        public Timer next()
+        {
+            if (end)
+            {
+                throw new NoSuchElementException();
+            }
+            if (consumed)
+            {
+                final Timer timer = findNext();
+                if (timer == null)
+                {
+                    throw new NoSuchElementException();
+                }
+                consumed = true;
+                return timer;
+            }
+            consumed = true;
+            return wheel[tick][tickIndex];
+        }
+
+        private Timer findNext()
+        {
+            do
+            {
+                final Timer[] tickTimers = wheel[tick];
+                final int tickTimersLength = tickTimers.length;
+                while (++tickIndex < tickTimersLength)
+                {
+                    final Timer tickTimer = tickTimers[tickIndex];
+                    if (tickTimer != null)
+                    {
+                        consumed = false;
+                        return tickTimer;
+                    }
+                }
+                tick++;
+                tickIndex = -1;
+            } while (tick <= mask);
+            end = true;
+            return null;
         }
     }
 }
