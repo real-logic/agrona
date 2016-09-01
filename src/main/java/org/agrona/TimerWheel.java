@@ -25,11 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Timer Wheel (NOT thread safe)
- * <p>
+ *
  * Assumes single-writer principle and timers firing on processing thread.
  * Low (or NO) garbage.
+ *
  * <h3>Implementation Details</h3>
- * <p>
+ *
  * Based on netty's HashedTimerWheel, which is based on
  * <a href="http://cseweb.ucsd.edu/users/varghese/">George Varghese</a> and
  * Tony Lauck's paper,
@@ -37,16 +38,16 @@ import java.util.concurrent.TimeUnit;
  * and Hierarchical Timing Wheels: data structures to efficiently implement a
  * timer facility'</a>.  More comprehensive slides are located
  * <a href="http://www.cse.wustl.edu/~cdgill/courses/cs6874/TimingWheels.ppt">here</a>.
- * <p>
+ *
  * Wheel is backed by arrays. Timer cancellation is O(1). Timer scheduling might be slightly
  * longer if a lot of timers are in the same tick. The underlying tick contains an array. That
  * array grows when needed, but does not currently shrink.
- * <p>
- * Timer objects may be reused if desired, but all reuse must be done with timer cancellation, expiration,
- * and timeouts in consideration.
- * <p>
- * Caveats
- * <p>
+ *
+ * Timer objects may be reused if desired, but all reuse must be done with timer cancellation,
+ * expiration, and timeouts in consideration.
+ *
+ * <b>Caveats</b>
+ *
  * Timers that expire in the same tick will not be ordered with one another. As ticks are
  * fairly large normally, this means that some timers may expire out of order.
  */
