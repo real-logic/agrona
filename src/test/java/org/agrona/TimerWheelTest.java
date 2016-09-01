@@ -22,9 +22,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -269,8 +269,8 @@ public class TimerWheelTest
         final TimerWheel.Timer timer3 = wheel.newTimeout(30, TimeUnit.MILLISECONDS, task);
         final TimerWheel.Timer timer4 = wheel.newTimeout(500, TimeUnit.SECONDS, task);
 
-        final Set<TimerWheel.Timer> scheduled = StreamSupport.stream(wheel.scheduled().spliterator(), false)
-                                                       .collect(Collectors.toSet());
+        final Set<TimerWheel.Timer> scheduled = stream(wheel.scheduled().spliterator(), false).collect(toSet());
+
         assertEquals(4, scheduled.size());
         assertThat(scheduled, containsInAnyOrder(timer1, timer2, timer3, timer4));
     }

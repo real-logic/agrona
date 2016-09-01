@@ -95,10 +95,10 @@ public class TimerWheel
 
         if (tickDurationInNs >= (Long.MAX_VALUE / ticksPerWheel))
         {
-            throw new IllegalArgumentException(
-                String.format("tickDuration: %d (expected: 0 < tickDurationInNs < %d",
-                    tickDuration,
-                    Long.MAX_VALUE / ticksPerWheel));
+            throw new IllegalArgumentException(String.format(
+                "tickDuration: %d (expected: 0 < tickDurationInNs < %d",
+                tickDuration,
+                Long.MAX_VALUE / ticksPerWheel));
         }
 
         wheel = new Timer[ticksPerWheel][];
@@ -254,7 +254,7 @@ public class TimerWheel
      */
     public Iterable<Timer> scheduled()
     {
-        return FullIterator::new;
+        return WheelIterator::new;
     }
 
     private static void checkTicksPerWheel(final int ticksPerWheel)
@@ -386,26 +386,25 @@ public class TimerWheel
         }
     }
 
-    private final class FullIterator implements Iterator<Timer>
+    private final class WheelIterator implements Iterator<Timer>
     {
         private int tick = 0;
         private int tickIndex = -1;
         private boolean consumed = true;
         private boolean end = false;
 
-        @Override
         public boolean hasNext()
         {
             return !end && (!consumed || findNext() != null);
         }
 
-        @Override
         public Timer next()
         {
             if (end)
             {
                 throw new NoSuchElementException();
             }
+
             if (consumed)
             {
                 final Timer timer = findNext();
@@ -413,10 +412,14 @@ public class TimerWheel
                 {
                     throw new NoSuchElementException();
                 }
+
                 consumed = true;
+
                 return timer;
             }
+
             consumed = true;
+
             return wheel[tick][tickIndex];
         }
 
@@ -435,10 +438,14 @@ public class TimerWheel
                         return tickTimer;
                     }
                 }
+
                 tick++;
                 tickIndex = -1;
-            } while (tick <= mask);
+            }
+            while (tick <= mask);
+
             end = true;
+
             return null;
         }
     }
