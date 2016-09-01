@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
  * Timers that expire in the same tick will not be ordered with one another. As ticks are
  * fairly large normally, this means that some timers may expire out of order.
  */
+@Deprecated
 public class TimerWheel
 {
     public static final int INITIAL_TICK_DEPTH = 16;
