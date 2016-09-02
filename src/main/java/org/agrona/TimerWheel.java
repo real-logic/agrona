@@ -19,15 +19,18 @@ import org.agrona.concurrent.NanoClock;
 import org.agrona.concurrent.SystemNanoClock;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Timer Wheel (NOT thread safe)
- * <p>
+ *
  * Assumes single-writer principle and timers firing on processing thread.
  * Low (or NO) garbage.
+ *
  * <h3>Implementation Details</h3>
- * <p>
+ *
  * Based on netty's HashedTimerWheel, which is based on
  * <a href="http://cseweb.ucsd.edu/users/varghese/">George Varghese</a> and
  * Tony Lauck's paper,
@@ -35,19 +38,20 @@ import java.util.concurrent.TimeUnit;
  * and Hierarchical Timing Wheels: data structures to efficiently implement a
  * timer facility'</a>.  More comprehensive slides are located
  * <a href="http://www.cse.wustl.edu/~cdgill/courses/cs6874/TimingWheels.ppt">here</a>.
- * <p>
+ *
  * Wheel is backed by arrays. Timer cancellation is O(1). Timer scheduling might be slightly
  * longer if a lot of timers are in the same tick. The underlying tick contains an array. That
  * array grows when needed, but does not currently shrink.
- * <p>
- * Timer objects may be reused if desired, but all reuse must be done with timer cancellation, expiration,
- * and timeouts in consideration.
- * <p>
- * Caveats
- * <p>
+ *
+ * Timer objects may be reused if desired, but all reuse must be done with timer cancellation,
+ * expiration, and timeouts in consideration.
+ *
+ * <b>Caveats</b>
+ *
  * Timers that expire in the same tick will not be ordered with one another. As ticks are
  * fairly large normally, this means that some timers may expire out of order.
  */
+@Deprecated
 public class TimerWheel
 {
     public static final int INITIAL_TICK_DEPTH = 16;
@@ -93,10 +97,10 @@ public class TimerWheel
 
         if (tickDurationInNs >= (Long.MAX_VALUE / ticksPerWheel))
         {
-            throw new IllegalArgumentException(
-                String.format("tickDuration: %d (expected: 0 < tickDurationInNs < %d",
-                    tickDuration,
-                    Long.MAX_VALUE / ticksPerWheel));
+            throw new IllegalArgumentException(String.format(
+                "tickDuration: %d (expected: 0 < tickDurationInNs < %d",
+                tickDuration,
+                Long.MAX_VALUE / ticksPerWheel));
         }
 
         wheel = new Timer[ticksPerWheel][];
@@ -244,6 +248,17 @@ public class TimerWheel
         return timersExpired;
     }
 
+    /**
+     * Return <code>Iterable&lt;Timer&gt;</code> with scheduled but not yet executed timers.
+     * This timers could be in {@link TimerState#ACTIVE} or {@link TimerState#EXPIRED} states.
+     *
+     * @return <code>Iterable&lt;Timer&gt;</code> with scheduled but not yet executed timers
+     */
+    public Iterable<Timer> scheduled()
+    {
+        return TimerIterator::new;
+    }
+
     private static void checkTicksPerWheel(final int ticksPerWheel)
     {
         if (ticksPerWheel < 2 || 1 != Integer.bitCount(ticksPerWheel))
@@ -359,7 +374,7 @@ public class TimerWheel
 
         public void remove()
         {
-            wheel[this.wheelIndex][this.tickIndex] = null;
+            wheel[wheelIndex][tickIndex] = null;
         }
 
         public String toString()
@@ -370,6 +385,71 @@ public class TimerWheel
                 ", deadline=\'" + deadline + "\'" +
                 ", remainingRounds=\'" + remainingRounds + "\'" +
                 "}";
+        }
+    }
+
+    private final class TimerIterator implements Iterator<Timer>
+    {
+        private int tick = 0;
+        private int tickIndex = -1;
+        private boolean consumed = true;
+        private boolean end = false;
+
+        public boolean hasNext()
+        {
+            return !end && (!consumed || findNext() != null);
+        }
+
+        public Timer next()
+        {
+            if (end)
+            {
+                throw new NoSuchElementException();
+            }
+
+            if (consumed)
+            {
+                final Timer timer = findNext();
+                if (timer == null)
+                {
+                    throw new NoSuchElementException();
+                }
+
+                consumed = true;
+
+                return timer;
+            }
+
+            consumed = true;
+
+            return wheel[tick][tickIndex];
+        }
+
+        private Timer findNext()
+        {
+            final int ticksPerWheel = (int)mask + 1;
+            do
+            {
+                final Timer[] timers = wheel[tick];
+                final int timersLength = timers.length;
+                while (++tickIndex < timersLength)
+                {
+                    final Timer timer = timers[tickIndex];
+                    if (timer != null)
+                    {
+                        consumed = false;
+                        return timer;
+                    }
+                }
+
+                tick++;
+                tickIndex = -1;
+            }
+            while (tick < ticksPerWheel);
+
+            end = true;
+
+            return null;
         }
     }
 }

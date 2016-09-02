@@ -18,15 +18,20 @@ package org.agrona;
 import org.agrona.concurrent.NanoClock;
 import org.junit.Test;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@Deprecated
 public class TimerWheelTest
 {
     private static final long ONE_MS_OF_NS = TimeUnit.MILLISECONDS.toNanos(1);
@@ -250,6 +255,25 @@ public class TimerWheelTest
 
         final TimerWheel.Timer timer = wheel.newTimeout(15, TimeUnit.MILLISECONDS, task);
         wheel.rescheduleTimeout(23, TimeUnit.MILLISECONDS, timer);
+    }
+
+    @Test
+    public void shouldReturnScheduledTimers()
+    {
+        controlTimestamp = 0;
+        final AtomicLong firedTimestamp = new AtomicLong(-1);
+        final TimerWheel wheel = new TimerWheel(this::getControlTimestamp, 1, TimeUnit.MILLISECONDS, 8);
+        final Runnable task = () -> firedTimestamp.set(wheel.clock().nanoTime());
+
+        final TimerWheel.Timer timer1 = wheel.newTimeout(15, TimeUnit.MILLISECONDS, task);
+        final TimerWheel.Timer timer2 = wheel.newTimeout(30, TimeUnit.MILLISECONDS, task);
+        final TimerWheel.Timer timer3 = wheel.newTimeout(30, TimeUnit.MILLISECONDS, task);
+        final TimerWheel.Timer timer4 = wheel.newTimeout(500, TimeUnit.SECONDS, task);
+
+        final Set<TimerWheel.Timer> scheduled = stream(wheel.scheduled().spliterator(), false).collect(toSet());
+
+        assertEquals(4, scheduled.size());
+        assertThat(scheduled, containsInAnyOrder(timer1, timer2, timer3, timer4));
     }
 
     private long processTimersUntil(final TimerWheel wheel, final long increment, final BooleanSupplier condition)
