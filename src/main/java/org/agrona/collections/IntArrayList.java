@@ -326,23 +326,12 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         }
     }
 
-    private void checkIndex(@DoNotSub final int index)
-    {
-        if (index >= size || index < 0)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " size=" + size);
-        }
-    }
-
-    private void checkIndexForAdd(@DoNotSub final int index)
-    {
-        if (index > size || index < 0)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " size=" + size);
-        }
-    }
-
-    private void ensureCapacity(@DoNotSub final int requiredCapacity)
+    /**
+     * Ensure the backing array has a required capacity.
+     *
+     * @param requiredCapacity for the backing array.
+     */
+    public void ensureCapacity(@DoNotSub final int requiredCapacity)
     {
         @DoNotSub final int capacity = elements.length;
         if (requiredCapacity > capacity)
@@ -362,6 +351,22 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
             System.arraycopy(elements, 0, newElements, 0, capacity);
             elements = newElements;
+        }
+    }
+
+    private void checkIndex(@DoNotSub final int index)
+    {
+        if (index >= size || index < 0)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " size=" + size);
+        }
+    }
+
+    private void checkIndexForAdd(@DoNotSub final int index)
+    {
+        if (index > size || index < 0)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " size=" + size);
         }
     }
 }
