@@ -26,8 +26,8 @@ import java.util.stream.IntStream;
  */
 public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess
 {
+    public static final int DEFAULT_NULL_VALUE = Integer.MIN_VALUE;
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 10;
-    @DoNotSub public static final int DEFAULT_NULL_VALUE = Integer.MIN_VALUE;
     @DoNotSub public static final int MAX_SIZE = Integer.MAX_VALUE - 8;
 
     private final int nullValue;
