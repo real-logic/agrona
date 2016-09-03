@@ -203,7 +203,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param value for the element.
      * @return the index if found otherwise -1.
      */
-    public int indexOf(final int value)
+    public @DoNotSub int indexOf(
+        final int value)
     {
         for (@DoNotSub int i = 0; i < size; i++)
         {
@@ -222,7 +223,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param value for the element.
      * @return the index if found otherwise -1.
      */
-    public int lastIndexOf(final int value)
+    public @DoNotSub int lastIndexOf(
+        final int value)
     {
         for (@DoNotSub int i = size - 1; i >= 0; i--)
         {
@@ -251,6 +253,25 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         size--;
 
         return value;
+    }
+
+    /**
+     * Remove the first instance of a value if found in the list.
+     *
+     * @param value to be removed.
+     * @return true if successful otherwise false.
+     */
+    public boolean removeInt(final int value)
+    {
+        @DoNotSub final int index = indexOf(value);
+        if (-1 != index)
+        {
+            remove(index);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
