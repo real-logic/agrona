@@ -23,10 +23,10 @@ public interface
     IntIntConsumer
 {
     /**
-     * Accept a key and value that comes as a tuple of ints.
+     * Accept two values that comes as a tuple of ints.
      *
-     * @param key   for the tuple.
-     * @param value for the tuple.
+     * @param valueOne for the tuple.
+     * @param valueTwo for the tuple.
      */
-    void accept(int key, int value);
+    void accept(int valueOne, int valueTwo);
 }
