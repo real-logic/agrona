@@ -37,13 +37,12 @@ public final class PrimitiveExpander
 
     public static void main(final String[] args) throws IOException
     {
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntArrayList");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIterator");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntHashMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
-        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
-        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntFunction");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectHashMap");
     }

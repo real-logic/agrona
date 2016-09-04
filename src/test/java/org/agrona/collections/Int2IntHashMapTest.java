@@ -20,7 +20,7 @@ import org.mockito.InOrder;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.IntFunction;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.hasItems;
@@ -406,7 +406,7 @@ public class Int2IntHashMapTest
         final int testKey = 7;
         final int testValue = 7;
 
-        final IntIntFunction function = (i) -> testValue;
+        final IntUnaryOperator function = (i) -> testValue;
 
         assertEquals(map.missingValue(), map.get(testKey));
 
