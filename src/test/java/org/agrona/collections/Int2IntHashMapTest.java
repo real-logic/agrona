@@ -20,9 +20,11 @@ import org.mockito.InOrder;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -396,6 +398,20 @@ public class Int2IntHashMapTest
         keys.forEach(map::remove);
 
         assertTrue("Map isn't empty", map.isEmpty());
+    }
+
+    @Test
+    public void shouldComputeIfAbsent()
+    {
+        final int testKey = 7;
+        final int testValue = 7;
+
+        final IntIntFunction function = (i) -> testValue;
+
+        assertEquals(map.missingValue(), map.get(testKey));
+
+        assertThat(map.computeIfAbsent(testKey, function), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
     }
 
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)

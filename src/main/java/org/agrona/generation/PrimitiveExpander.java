@@ -43,6 +43,7 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntFunction");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectHashMap");
     }

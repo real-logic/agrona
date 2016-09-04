@@ -20,7 +20,9 @@ import org.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
+import static java.util.Objects.requireNonNull;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -261,6 +263,30 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public Integer get(final Object key)
     {
         return get((int)key);
+    }
+
+    /**
+     * Primitive specialised version of {@link #computeIfAbsent(Object, Function)}
+     *
+     * @param key             to search on.
+     * @param mappingFunction to provide a value if the get returns null.
+     * @return the value if found otherwise the missing value.
+     */
+    public int computeIfAbsent(int key, IntIntFunction mappingFunction)
+    {
+        requireNonNull(mappingFunction, "mappingFunction cannot be null");
+
+        int value = get(key);
+        if (value == missingValue)
+        {
+            value = mappingFunction.apply(key);
+            if (value != missingValue)
+            {
+                put(key, value);
+            }
+        }
+
+        return value;
     }
 
     /**
