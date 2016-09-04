@@ -54,6 +54,41 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * Create a new list that wraps an existing arrays without copying it.
+     *
+     * @param initialElements to be wrapped.
+     * @param initialSize     of the array to wrap.
+     * @param nullValue       to be used to represent a null element.
+     */
+    public IntArrayList(
+        final int[] initialElements,
+        @DoNotSub final int initialSize,
+        final int nullValue)
+    {
+        wrap(initialElements, initialSize);
+        this.nullValue = nullValue;
+    }
+
+    /**
+     * Wrap an existing array without copying it.
+     *
+     * @param initialElements to be wrapped.
+     * @param initialSize     of the array to wrap.
+     */
+    public void wrap(
+        final int[] initialElements,
+        final @DoNotSub int initialSize)
+    {
+        if (initialSize < 0 || initialSize > initialElements.length)
+        {
+            throw new IllegalArgumentException("Illegal size " + initialSize + " for array length " + initialElements.length);
+        }
+
+        elements = initialElements;
+        size = initialSize;
+    }
+
+    /**
      * The value representing a null element.
      *
      * @return value representing a null element.
