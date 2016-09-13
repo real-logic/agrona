@@ -337,7 +337,7 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean addAll(final Collection<? extends Integer> coll)
     {
-        return conjunction(coll, this::add);
+        return disjunction(coll, this::add);
     }
 
     /**
@@ -345,7 +345,17 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean containsAll(final Collection<?> coll)
     {
-        return conjunction(coll, this::contains);
+        Objects.requireNonNull(coll);
+
+        for (final Object t : coll)
+        {
+            if (!contains(t))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -356,19 +366,18 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean containsAll(final IntHashSet other)
     {
-        boolean containsAll = true;
+        Objects.requireNonNull(other);
 
-        final int missingValue = this.missingValue;
-        for (final int value : values)
+        final int missingValue = other.missingValue;
+        for (final int value : other.values)
         {
-            if (value != missingValue && !other.contains(value))
+            if (value != missingValue && !contains(value))
             {
-                containsAll = false;
-                break;
+                return false;
             }
         }
 
-        return containsAll;
+        return true;
     }
 
     /**
@@ -407,10 +416,10 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean removeAll(final Collection<?> coll)
     {
-        return conjunction(coll, this::remove);
+        return disjunction(coll, this::remove);
     }
 
-    private static <T> boolean conjunction(final Collection<T> collection, final Predicate<T> predicate)
+    private static <T> boolean disjunction(final Collection<T> collection, final Predicate<T> predicate)
     {
         Objects.requireNonNull(collection);
 

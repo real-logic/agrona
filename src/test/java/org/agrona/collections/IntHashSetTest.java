@@ -17,10 +17,7 @@ package org.agrona.collections;
 
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -378,6 +375,56 @@ public class IntHashSetTest
         {
             assertTrue(obj.contains(i));
         }
+    }
+
+     @Test
+    public void containsEmptySet()
+    {
+        final IntHashSet other = new IntHashSet(100, -1);
+
+        assertTrue(obj.containsAll(other));
+        assertTrue(obj.containsAll((Collection<?>) other));
+    }
+
+    @Test
+    public void containsSubset()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet subset = new IntHashSet(100, -1);
+
+        subset.add(1);
+
+        assertTrue(obj.containsAll(subset));
+        assertTrue(obj.containsAll((Collection<?>) subset));
+    }
+
+    @Test
+    public void doesNotContainDisjointSet()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet other = new IntHashSet(100, -1);
+
+        other.add(1);
+        other.add(1002);
+
+        assertFalse(obj.containsAll(other));
+        assertFalse(obj.containsAll((Collection<?>) other));
+    }
+
+    @Test
+    public void doesNotContainSuperset()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet superset = new IntHashSet(100, -1);
+
+        addTwoElements(superset);
+        superset.add(15);
+
+        assertFalse(obj.containsAll(superset));
+        assertFalse(obj.containsAll((Collection<?>) superset));
     }
 
     private void addTwoElements(final IntHashSet obj)
