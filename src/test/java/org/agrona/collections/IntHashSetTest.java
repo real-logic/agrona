@@ -383,13 +383,13 @@ public class IntHashSetTest
         }
     }
 
-     @Test
+    @Test
     public void containsEmptySet()
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
         assertTrue(obj.containsAll(other));
-        assertTrue(obj.containsAll((Collection<?>) other));
+        assertTrue(obj.containsAll((Collection<?>)other));
     }
 
     @Test
@@ -402,7 +402,7 @@ public class IntHashSetTest
         subset.add(1);
 
         assertTrue(obj.containsAll(subset));
-        assertTrue(obj.containsAll((Collection<?>) subset));
+        assertTrue(obj.containsAll((Collection<?>)subset));
     }
 
     @Test
@@ -416,7 +416,7 @@ public class IntHashSetTest
         other.add(1002);
 
         assertFalse(obj.containsAll(other));
-        assertFalse(obj.containsAll((Collection<?>) other));
+        assertFalse(obj.containsAll((Collection<?>)other));
     }
 
     @Test
@@ -430,7 +430,7 @@ public class IntHashSetTest
         superset.add(15);
 
         assertFalse(obj.containsAll(superset));
-        assertFalse(obj.containsAll((Collection<?>) superset));
+        assertFalse(obj.containsAll((Collection<?>)superset));
     }
 
     @Test

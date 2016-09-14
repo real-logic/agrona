@@ -419,12 +419,12 @@ public final class IntHashSet implements Set<Integer>
         return disjunction(coll, this::remove);
     }
 
-    private static <T> boolean disjunction(final Collection<T> collection, final Predicate<T> predicate)
+    private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
     {
-        Objects.requireNonNull(collection);
+        Objects.requireNonNull(coll);
 
         boolean acc = false;
-        for (final T t : collection)
+        for (final T t : coll)
         {
             // Deliberate strict evaluation
             acc |= predicate.test(t);
