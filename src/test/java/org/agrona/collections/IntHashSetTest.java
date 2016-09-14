@@ -48,7 +48,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsAddedBoxedElement()
+    public void containsAddedElement()
     {
         assertTrue(obj.add(1));
 
@@ -71,6 +71,12 @@ public class IntHashSetTest
 
         assertTrue(obj.contains(Integer.valueOf(1)));
         assertTrue(obj.contains(2));
+    }
+
+    @Test
+    public void doesNotContainMissingValue()
+    {
+        assertFalse(obj.contains(obj.missingValue()));
     }
 
     @Test
@@ -427,7 +433,125 @@ public class IntHashSetTest
         assertFalse(obj.containsAll((Collection<?>) superset));
     }
 
-    private void addTwoElements(final IntHashSet obj)
+    @Test
+    public void addingEmptySetDoesNothing()
+    {
+        addTwoElements(obj);
+
+        assertFalse(obj.addAll(new IntHashSet(100, -1)));
+        assertContainsElements(obj);
+    }
+
+    @Test
+    public void addingSubsetDoesNothing()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet subset = new IntHashSet(100, -1);
+
+        subset.add(1);
+
+        assertFalse(obj.addAll(subset));
+        assertContainsElements(obj);
+    }
+
+    @Test
+    public void addingEqualSetDoesNothing()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet equal = new IntHashSet(100, -1);
+
+        addTwoElements(equal);
+
+        assertFalse(obj.addAll(equal));
+        assertContainsElements(obj);
+    }
+
+    @Test
+    public void containsValuesAddedFromDisjointSet()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet disjoint = new IntHashSet(100, -1);
+
+        disjoint.add(2);
+        disjoint.add(1002);
+
+        assertTrue(obj.addAll(disjoint));
+        assertTrue(obj.contains(1));
+        assertTrue(obj.contains(1001));
+        assertTrue(obj.containsAll(disjoint));
+    }
+
+    @Test
+    public void containsValuesAddedFromIntersectingSet()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet intersecting = new IntHashSet(100, -1);
+
+        intersecting.add(1);
+        intersecting.add(1002);
+
+        assertTrue(obj.addAll(intersecting));
+        assertTrue(obj.contains(1));
+        assertTrue(obj.contains(1001));
+        assertTrue(obj.containsAll(intersecting));
+    }
+
+    @Test
+    public void removingEmptySetDoesNothing()
+    {
+        addTwoElements(obj);
+
+        assertFalse(obj.removeAll(new IntHashSet(100, -1)));
+        assertContainsElements(obj);
+    }
+
+    @Test
+    public void removingDisjointSetDoesNothing()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet disjoint = new IntHashSet(100, -1);
+
+        disjoint.add(2);
+        disjoint.add(1002);
+
+        assertFalse(obj.removeAll(disjoint));
+        assertContainsElements(obj);
+    }
+
+    @Test
+    public void doesNotContainRemovedIntersectingSet()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet intersecting = new IntHashSet(100, -1);
+
+        intersecting.add(1);
+        intersecting.add(1002);
+
+        assertTrue(obj.removeAll(intersecting));
+        assertTrue(obj.contains(1001));
+        assertFalse(obj.containsAll(intersecting));
+    }
+
+    @Test
+    public void isEmptyAfterRemovingEqualSet()
+    {
+        addTwoElements(obj);
+
+        final IntHashSet equal = new IntHashSet(100, -1);
+
+        addTwoElements(equal);
+
+        assertTrue(obj.removeAll(equal));
+        assertTrue(obj.isEmpty());
+    }
+
+    private static void addTwoElements(final IntHashSet obj)
     {
         obj.add(1);
         obj.add(1001);
@@ -460,12 +584,12 @@ public class IntHashSetTest
         assertContainsElements(values);
     }
 
-    private void assertArrayContainingElements(final Integer[] result)
+    private static void assertArrayContainingElements(final Integer[] result)
     {
         assertThat(result, arrayContainingInAnyOrder(1, 1001));
     }
 
-    private void assertContainsElements(final Set<Integer> other)
+    private static void assertContainsElements(final Set<Integer> other)
     {
         assertThat(other, containsInAnyOrder(1, 1001));
     }
