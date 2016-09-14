@@ -27,14 +27,14 @@ public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
 
-    private final IntHashSet obj = new IntHashSet(INITIAL_CAPACITY, -1);
+    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, -1);
 
     @Test
     public void initiallyContainsNoElements() throws Exception
     {
         for (int i = 0; i < 10_000; i++)
         {
-            assertFalse(obj.contains(i));
+            assertFalse(testSet.contains(i));
         }
     }
 
@@ -43,85 +43,85 @@ public class IntHashSetTest
     {
         for (int i = 0; i < 10_000; i++)
         {
-            assertFalse(obj.contains(Integer.valueOf(i)));
+            assertFalse(testSet.contains(Integer.valueOf(i)));
         }
     }
 
     @Test
     public void containsAddedElement()
     {
-        assertTrue(obj.add(1));
+        assertTrue(testSet.add(1));
 
-        assertTrue(obj.contains(1));
+        assertTrue(testSet.contains(1));
     }
 
     @Test
     public void addingAnElementTwiceDoesNothing()
     {
-        assertTrue(obj.add(1));
+        assertTrue(testSet.add(1));
 
-        assertFalse(obj.add(1));
+        assertFalse(testSet.add(1));
     }
 
     @Test
     public void containsAddedBoxedElements()
     {
-        assertTrue(obj.add(1));
-        assertTrue(obj.add(Integer.valueOf(2)));
+        assertTrue(testSet.add(1));
+        assertTrue(testSet.add(Integer.valueOf(2)));
 
-        assertTrue(obj.contains(Integer.valueOf(1)));
-        assertTrue(obj.contains(2));
+        assertTrue(testSet.contains(Integer.valueOf(1)));
+        assertTrue(testSet.contains(2));
     }
 
     @Test
     public void doesNotContainMissingValue()
     {
-        assertFalse(obj.contains(obj.missingValue()));
+        assertFalse(testSet.contains(testSet.missingValue()));
     }
 
     @Test
     public void removingAnElementFromAnEmptyListDoesNothing()
     {
-        assertFalse(obj.remove(0));
+        assertFalse(testSet.remove(0));
     }
 
     @Test
     public void removingAPresentElementRemovesIt()
     {
-        assertTrue(obj.add(1));
+        assertTrue(testSet.add(1));
 
-        assertTrue(obj.remove(1));
+        assertTrue(testSet.remove(1));
 
-        assertFalse(obj.contains(1));
+        assertFalse(testSet.contains(1));
     }
 
     @Test
     public void sizeIsInitiallyZero()
     {
-        assertEquals(0, obj.size());
+        assertEquals(0, testSet.size());
     }
 
     @Test
     public void sizeIncrementsWithNumberOfAddedElements()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        assertEquals(2, obj.size());
+        assertEquals(2, testSet.size());
     }
 
     @Test
     public void sizeContainsNumberOfNewElements()
     {
-        obj.add(1);
-        obj.add(1);
+        testSet.add(1);
+        testSet.add(1);
 
-        assertEquals(1, obj.size());
+        assertEquals(1, testSet.size());
     }
 
     @Test
     public void iteratorsListElements()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         assertIteratorHasElements();
     }
@@ -137,7 +137,7 @@ public class IntHashSetTest
     @Test
     public void iteratorsListElementsWithoutHasNext()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         assertIteratorHasElementsWithoutHasNext();
     }
@@ -153,7 +153,7 @@ public class IntHashSetTest
     @Test(expected = NoSuchElementException.class)
     public void iteratorsThrowNoSuchElementException()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         exhaustIterator();
     }
@@ -161,7 +161,7 @@ public class IntHashSetTest
     @Test(expected = NoSuchElementException.class)
     public void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         try
         {
@@ -177,57 +177,57 @@ public class IntHashSetTest
     @Test
     public void iteratorHasNoElements()
     {
-        assertFalse(obj.iterator().hasNext());
+        assertFalse(testSet.iterator().hasNext());
     }
 
     @Test(expected = NoSuchElementException.class)
     public void iteratorThrowExceptionForEmptySet()
     {
-        obj.iterator().next();
+        testSet.iterator().next();
     }
 
     @Test
     public void clearRemovesAllElementsOfTheSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        obj.clear();
+        testSet.clear();
 
-        assertEquals(0, obj.size());
-        assertFalse(obj.contains(1));
-        assertFalse(obj.contains(1001));
+        assertEquals(0, testSet.size());
+        assertFalse(testSet.contains(1));
+        assertFalse(testSet.contains(1001));
     }
 
     @Test
     public void differenceReturnsNullIfBothSetsEqual()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet other = new IntHashSet(100, -1);
         addTwoElements(other);
 
-        assertNull(obj.difference(other));
+        assertNull(testSet.difference(other));
     }
 
     @Test
     public void differenceReturnsSetDifference()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet other = new IntHashSet(100, -1);
         other.add(1);
 
-        final IntHashSet diff = obj.difference(other);
+        final IntHashSet diff = testSet.difference(other);
         assertThat(diff, containsInAnyOrder(1001));
     }
 
     @Test
     public void copiesOtherIntHashSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet other = new IntHashSet(100, -1);
-        other.copy(obj);
+        other.copy(testSet);
 
         assertContainsElements(other);
     }
@@ -236,14 +236,14 @@ public class IntHashSetTest
     public void twoEmptySetsAreEqual()
     {
         final IntHashSet other = new IntHashSet(100, -1);
-        assertEquals(obj, other);
+        assertEquals(testSet, other);
     }
 
     @Test
     public void equalityRequiresTheSameMissingValue()
     {
         final IntHashSet other = new IntHashSet(100, 1);
-        assertNotEquals(obj, other);
+        assertNotEquals(testSet, other);
     }
 
     @Test
@@ -251,10 +251,10 @@ public class IntHashSetTest
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
-        addTwoElements(obj);
+        addTwoElements(testSet);
         addTwoElements(other);
 
-        assertEquals(obj, other);
+        assertEquals(testSet, other);
     }
 
     @Test
@@ -262,11 +262,11 @@ public class IntHashSetTest
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         other.add(1001);
 
-        assertNotEquals(obj, other);
+        assertNotEquals(testSet, other);
     }
 
     @Test
@@ -274,19 +274,19 @@ public class IntHashSetTest
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         other.add(2);
         other.add(1001);
 
-        assertNotEquals(obj, other);
+        assertNotEquals(testSet, other);
     }
 
     @Test
     public void twoEmptySetsHaveTheSameHashcode()
     {
         final IntHashSet other = new IntHashSet(100, -1);
-        assertEquals(obj.hashCode(), other.hashCode());
+        assertEquals(testSet.hashCode(), other.hashCode());
     }
 
     @Test
@@ -294,41 +294,41 @@ public class IntHashSetTest
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         addTwoElements(other);
 
-        assertEquals(obj.hashCode(), other.hashCode());
+        assertEquals(testSet.hashCode(), other.hashCode());
     }
 
     @Test
     public void reducesSizeWhenElementRemoved()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        obj.remove(1001);
+        testSet.remove(1001);
 
-        assertEquals(1, obj.size());
+        assertEquals(1, testSet.size());
     }
 
     @Test(expected = ArrayStoreException.class)
     public void toArrayThrowsArrayStoreExceptionForWrongType()
     {
-        obj.toArray(new String[1]);
+        testSet.toArray(new String[1]);
     }
 
     @Test(expected = NullPointerException.class)
     public void toArrayThrowsNullPointerExceptionForNullArgument()
     {
-        obj.toArray(null);
+        testSet.toArray(null);
     }
 
     @Test
     public void toArrayCopiesElementsIntoSufficientlySizedArray()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        final Integer[] result = obj.toArray(new Integer[obj.size()]);
+        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
 
         assertArrayContainingElements(result);
     }
@@ -336,9 +336,9 @@ public class IntHashSetTest
     @Test
     public void toArrayCopiesElementsIntoNewArray()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        final Integer[] result = obj.toArray(new Integer[obj.size()]);
+        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
 
         assertArrayContainingElements(result);
     }
@@ -346,7 +346,7 @@ public class IntHashSetTest
     @Test
     public void toArraySupportsEmptyCollection()
     {
-        final Integer[] result = obj.toArray(new Integer[obj.size()]);
+        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
 
         assertArrayEquals(result, new Integer[]{});
     }
@@ -374,12 +374,12 @@ public class IntHashSetTest
     {
         for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
         {
-            assertTrue(obj.add(i));
+            assertTrue(testSet.add(i));
         }
 
         for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
         {
-            assertTrue(obj.contains(i));
+            assertTrue(testSet.contains(i));
         }
     }
 
@@ -388,167 +388,167 @@ public class IntHashSetTest
     {
         final IntHashSet other = new IntHashSet(100, -1);
 
-        assertTrue(obj.containsAll(other));
-        assertTrue(obj.containsAll((Collection<?>)other));
+        assertTrue(testSet.containsAll(other));
+        assertTrue(testSet.containsAll((Collection<?>)other));
     }
 
     @Test
     public void containsSubset()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet subset = new IntHashSet(100, -1);
 
         subset.add(1);
 
-        assertTrue(obj.containsAll(subset));
-        assertTrue(obj.containsAll((Collection<?>)subset));
+        assertTrue(testSet.containsAll(subset));
+        assertTrue(testSet.containsAll((Collection<?>)subset));
     }
 
     @Test
     public void doesNotContainDisjointSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet other = new IntHashSet(100, -1);
 
         other.add(1);
         other.add(1002);
 
-        assertFalse(obj.containsAll(other));
-        assertFalse(obj.containsAll((Collection<?>)other));
+        assertFalse(testSet.containsAll(other));
+        assertFalse(testSet.containsAll((Collection<?>)other));
     }
 
     @Test
     public void doesNotContainSuperset()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet superset = new IntHashSet(100, -1);
 
         addTwoElements(superset);
         superset.add(15);
 
-        assertFalse(obj.containsAll(superset));
-        assertFalse(obj.containsAll((Collection<?>)superset));
+        assertFalse(testSet.containsAll(superset));
+        assertFalse(testSet.containsAll((Collection<?>)superset));
     }
 
     @Test
     public void addingEmptySetDoesNothing()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        assertFalse(obj.addAll(new IntHashSet(100, -1)));
-        assertContainsElements(obj);
+        assertFalse(testSet.addAll(new IntHashSet(100, -1)));
+        assertContainsElements(testSet);
     }
 
     @Test
     public void addingSubsetDoesNothing()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet subset = new IntHashSet(100, -1);
 
         subset.add(1);
 
-        assertFalse(obj.addAll(subset));
-        assertContainsElements(obj);
+        assertFalse(testSet.addAll(subset));
+        assertContainsElements(testSet);
     }
 
     @Test
     public void addingEqualSetDoesNothing()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet equal = new IntHashSet(100, -1);
 
         addTwoElements(equal);
 
-        assertFalse(obj.addAll(equal));
-        assertContainsElements(obj);
+        assertFalse(testSet.addAll(equal));
+        assertContainsElements(testSet);
     }
 
     @Test
     public void containsValuesAddedFromDisjointSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet disjoint = new IntHashSet(100, -1);
 
         disjoint.add(2);
         disjoint.add(1002);
 
-        assertTrue(obj.addAll(disjoint));
-        assertTrue(obj.contains(1));
-        assertTrue(obj.contains(1001));
-        assertTrue(obj.containsAll(disjoint));
+        assertTrue(testSet.addAll(disjoint));
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(1001));
+        assertTrue(testSet.containsAll(disjoint));
     }
 
     @Test
     public void containsValuesAddedFromIntersectingSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet intersecting = new IntHashSet(100, -1);
 
         intersecting.add(1);
         intersecting.add(1002);
 
-        assertTrue(obj.addAll(intersecting));
-        assertTrue(obj.contains(1));
-        assertTrue(obj.contains(1001));
-        assertTrue(obj.containsAll(intersecting));
+        assertTrue(testSet.addAll(intersecting));
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(1001));
+        assertTrue(testSet.containsAll(intersecting));
     }
 
     @Test
     public void removingEmptySetDoesNothing()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
-        assertFalse(obj.removeAll(new IntHashSet(100, -1)));
-        assertContainsElements(obj);
+        assertFalse(testSet.removeAll(new IntHashSet(100, -1)));
+        assertContainsElements(testSet);
     }
 
     @Test
     public void removingDisjointSetDoesNothing()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet disjoint = new IntHashSet(100, -1);
 
         disjoint.add(2);
         disjoint.add(1002);
 
-        assertFalse(obj.removeAll(disjoint));
-        assertContainsElements(obj);
+        assertFalse(testSet.removeAll(disjoint));
+        assertContainsElements(testSet);
     }
 
     @Test
     public void doesNotContainRemovedIntersectingSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet intersecting = new IntHashSet(100, -1);
 
         intersecting.add(1);
         intersecting.add(1002);
 
-        assertTrue(obj.removeAll(intersecting));
-        assertTrue(obj.contains(1001));
-        assertFalse(obj.containsAll(intersecting));
+        assertTrue(testSet.removeAll(intersecting));
+        assertTrue(testSet.contains(1001));
+        assertFalse(testSet.containsAll(intersecting));
     }
 
     @Test
     public void isEmptyAfterRemovingEqualSet()
     {
-        addTwoElements(obj);
+        addTwoElements(testSet);
 
         final IntHashSet equal = new IntHashSet(100, -1);
 
         addTwoElements(equal);
 
-        assertTrue(obj.removeAll(equal));
-        assertTrue(obj.isEmpty());
+        assertTrue(testSet.removeAll(equal));
+        assertTrue(testSet.isEmpty());
     }
 
     private static void addTwoElements(final IntHashSet obj)
@@ -559,7 +559,7 @@ public class IntHashSetTest
 
     private void assertIteratorHasElements()
     {
-        final Iterator<Integer> iter = obj.iterator();
+        final Iterator<Integer> iter = testSet.iterator();
 
         final Set<Integer> values = new HashSet<>();
 
@@ -574,7 +574,7 @@ public class IntHashSetTest
 
     private void assertIteratorHasElementsWithoutHasNext()
     {
-        final Iterator<Integer> iter = obj.iterator();
+        final Iterator<Integer> iter = testSet.iterator();
 
         final Set<Integer> values = new HashSet<>();
 
@@ -596,7 +596,7 @@ public class IntHashSetTest
 
     private void exhaustIterator()
     {
-        final IntIterator iterator = obj.iterator();
+        final IntIterator iterator = testSet.iterator();
         iterator.next();
         iterator.next();
         iterator.next();
