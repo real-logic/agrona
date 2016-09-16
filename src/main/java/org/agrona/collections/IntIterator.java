@@ -28,6 +28,7 @@ public class IntIterator implements Iterator<Integer>
     private final int missingValue;
     @DoNotSub private int positionCounter;
     @DoNotSub private int stopCounter;
+    protected boolean isPositionValid = false;
     private int[] values;
 
     /**
@@ -60,7 +61,6 @@ public class IntIterator implements Iterator<Integer>
         this.values = values;
         @DoNotSub final int length = values.length;
 
-
         @DoNotSub int i = length;
         if (values[length - 1] != missingValue)
         {
@@ -76,6 +76,7 @@ public class IntIterator implements Iterator<Integer>
 
         stopCounter = i;
         positionCounter = i + length;
+        isPositionValid = false;
     }
 
     @DoNotSub protected int position()
@@ -104,6 +105,7 @@ public class IntIterator implements Iterator<Integer>
     {
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
+        isPositionValid = false;
 
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
@@ -111,6 +113,7 @@ public class IntIterator implements Iterator<Integer>
             if (values[index] != missingValue)
             {
                 positionCounter = i;
+                isPositionValid = true;
                 return;
             }
         }

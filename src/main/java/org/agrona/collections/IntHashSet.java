@@ -87,7 +87,7 @@ public final class IntHashSet implements Set<Integer>
         Arrays.fill(values, missingValue);
 
         // NB: references values in the constructor, so must be assigned after values
-        iterator = new IntIterator(missingValue, values);
+        iterator = new IntHashSetIterator(missingValue, values);
     }
 
     /**
@@ -220,7 +220,7 @@ public final class IntHashSet implements Set<Integer>
         return (index + 1) & mask;
     }
 
-    @DoNotSub private void compactChain(int deleteIndex)
+    @DoNotSub void compactChain(int deleteIndex)
     {
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
@@ -542,6 +542,32 @@ public final class IntHashSet implements Set<Integer>
     @DoNotSub public int hashCode()
     {
         return Arrays.hashCode(values);
+    }
+
+    private final class IntHashSetIterator extends IntIterator
+    {
+        private IntHashSetIterator(final int missingValue, final int[] values)
+        {
+            super(missingValue, values);
+        }
+
+        public void remove()
+        {
+            if (isPositionValid)
+            {
+                @DoNotSub final int position = position();
+                values[position] = missingValue;
+                --size;
+
+                compactChain(position);
+
+                isPositionValid = false;
+            }
+            else
+            {
+                throw new IllegalStateException();
+            }
+        }
     }
 
     // --- Unimplemented below here

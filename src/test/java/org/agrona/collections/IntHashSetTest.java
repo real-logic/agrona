@@ -19,8 +19,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class IntHashSetTest
@@ -549,6 +548,24 @@ public class IntHashSetTest
 
         assertTrue(testSet.removeAll(equal));
         assertTrue(testSet.isEmpty());
+    }
+
+    @Test
+    public void removeElementsFromIterator()
+    {
+        addTwoElements(testSet);
+
+        final IntIterator intIterator = testSet.iterator();
+        while (intIterator.hasNext())
+        {
+            if (intIterator.nextValue() == 1)
+            {
+                intIterator.remove();
+            }
+        }
+
+        assertThat(testSet, contains(1001));
+        assertThat(testSet, hasSize(1));
     }
 
     private static void addTwoElements(final IntHashSet obj)
