@@ -18,14 +18,42 @@ package org.agrona.collections;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import static java.util.Arrays.asList;
+import static org.agrona.collections.CollectionUtil.removeIf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class CollectionUtilTest
 {
+    @Test
+    public void removeIfRemovesMiddle() throws Exception
+    {
+        assertRemoveIfRemoves(1, 2, 3);
+    }
+
+    @Test
+    public void removeIfRemovesStart() throws Exception
+    {
+        assertRemoveIfRemoves(2, 1, 3);
+    }
+
+    @Test
+    public void removeIfRemovesEnd() throws Exception
+    {
+        assertRemoveIfRemoves(3, 1, 2);
+    }
+
+    private void assertRemoveIfRemoves(final int requiredValue, final Integer ... expectedValues)
+    {
+        final List<Integer> values = new ArrayList<>(asList(1, 2, 3));
+        assertEquals(1, removeIf(values, value -> value == requiredValue));
+
+        assertEquals(values, asList(expectedValues));
+    }
+
     @Test
     public void getOrDefaultUsesSupplier()
     {

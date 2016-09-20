@@ -18,6 +18,7 @@ package org.agrona.collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 /**
@@ -93,5 +94,28 @@ public class CollectionUtil
         {
             throw new IllegalStateException("Value must be a positive power of two");
         }
+    }
+
+    public static <T> int removeIf(final List<T> values, final Predicate<T> predicate)
+    {
+        int size = values.size();
+        int total = 0;
+
+        for (int i = 0; i < size;)
+        {
+            final T value = values.get(i);
+            if (predicate.test(value))
+            {
+                values.remove(i);
+                total++;
+                size--;
+            }
+            else
+            {
+                i++;
+            }
+        }
+
+        return total;
     }
 }
