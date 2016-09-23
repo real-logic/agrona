@@ -22,7 +22,7 @@ import java.util.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-public class ObjectHashSetTestString
+public class ObjectHashSetStringTest
 {
     private static final int INITIAL_CAPACITY = 100;
 
