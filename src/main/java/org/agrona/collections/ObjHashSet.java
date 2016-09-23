@@ -16,7 +16,6 @@
 package org.agrona.collections;
 
 import org.agrona.BitUtil;
-import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -32,9 +31,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * Open-addressing with linear-probing expandable hash set. Allocation free in steady state use when expanded.
  * Ability to be notified when resizing occurs so that appropriate sizing can be implemented.
- * <p>
+ *
  * Not Threadsafe.
- * <p>
+ *
  * This HashSet caches its iterator object, so nested iteration is not supported.
  *
  * @see ObjIterator
@@ -50,13 +49,14 @@ public final class ObjHashSet<T> implements Set<T>
     /**
      * The initial capacity used when none is specified in the constructor.
      */
-    @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
+    public static final int DEFAULT_INITIAL_CAPACITY = 8;
+
+    //Using the MISSING_VALUE variable name rather than null to make the code less obtuse
+    private static final Object MISSING_VALUE = null;
 
     private final float loadFactor;
-    //Using the missingValue variable name rather than null to make the code less obtuse
-    private static final Object missingValue = null;
-    @DoNotSub private int resizeThreshold;
-    @DoNotSub private int size;
+    private int resizeThreshold;
+    private int size;
 
     private T[] values;
     private final ObjIterator<T> iterator;
@@ -67,24 +67,23 @@ public final class ObjHashSet<T> implements Set<T>
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
-    public ObjHashSet(
-        @DoNotSub final int proposedCapacity)
+    public ObjHashSet(final int proposedCapacity)
     {
         this(proposedCapacity, DEFAULT_LOAD_FACTOR);
     }
 
-    public ObjHashSet(
-        @DoNotSub final int initialCapacity,
-        final float loadFactor)
+    @SuppressWarnings("unchecked")
+    public ObjHashSet(final int initialCapacity, final float loadFactor)
     {
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         size = 0;
-        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
-        resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
+
+        final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
+        resizeThreshold = (int)(capacity * loadFactor);
         values = (T[])new Object[capacity];
-        Arrays.fill(values, missingValue);
+        Arrays.fill(values, MISSING_VALUE);
 
         // NB: references values in the constructor, so must be assigned after values
         iterator = new ObjHashSetIterator(values);
@@ -92,11 +91,14 @@ public final class ObjHashSet<T> implements Set<T>
 
     /**
      * Add a Consumer that will be called when the collection is resized.
+     *
      * @param resizeNotifier IntConsumer containing the new resizeThreshold
      */
-    public void setReziseNotifier(IntConsumer resizeNotifier){
+    public void resizeNotifier(final IntConsumer resizeNotifier)
+    {
         this.resizeNotifier = resizeNotifier;
     }
+
     /**
      * @param value the value to add
      * @return true if the collection has changed, false otherwise
@@ -105,11 +107,11 @@ public final class ObjHashSet<T> implements Set<T>
     public boolean add(final T value)
     {
         Objects.requireNonNull(value);
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = value.hashCode() & mask;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
+        int index = value.hashCode() & mask;
 
-        while (values[index] != missingValue)
+        while (values[index] != MISSING_VALUE)
         {
             if (values[index].equals(value))
             {
@@ -125,8 +127,10 @@ public final class ObjHashSet<T> implements Set<T>
         if (size > resizeThreshold)
         {
             increaseCapacity();
-            if(resizeNotifier!=null)
+            if (resizeNotifier != null)
+            {
                 resizeNotifier.accept(resizeThreshold);
+            }
         }
 
         return true;
@@ -134,7 +138,7 @@ public final class ObjHashSet<T> implements Set<T>
 
     private void increaseCapacity()
     {
-        @DoNotSub final int newCapacity = values.length * 2;
+        final int newCapacity = values.length * 2;
         if (newCapacity < 0)
         {
             throw new IllegalStateException("Max capacity reached at size=" + size);
@@ -143,21 +147,21 @@ public final class ObjHashSet<T> implements Set<T>
         rehash(newCapacity);
     }
 
-    private void rehash(@DoNotSub final int newCapacity)
+    @SuppressWarnings("unchecked")
+    private void rehash(final int newCapacity)
     {
-        @DoNotSub final int capacity = newCapacity;
-        @DoNotSub final int mask = newCapacity - 1;
-        resizeThreshold = (int)(newCapacity * loadFactor); // @DoNotSub
+        final int mask = newCapacity - 1;
+        resizeThreshold = (int)(newCapacity * loadFactor);
 
-        final T[] tempValues = (T[])new Object[capacity];
-        Arrays.fill(tempValues, missingValue);
+        final T[] tempValues = (T[])new Object[newCapacity];
+        Arrays.fill(tempValues, MISSING_VALUE);
 
         for (final T value : values)
         {
-            if (value != missingValue)
+            if (value != MISSING_VALUE)
             {
-                @DoNotSub int newHash = value.hashCode() & mask;
-                while (tempValues[newHash] != missingValue)
+                int newHash = value.hashCode() & mask;
+                while (tempValues[newHash] != MISSING_VALUE)
                 {
                     newHash = ++newHash & mask;
                 }
@@ -173,18 +177,17 @@ public final class ObjHashSet<T> implements Set<T>
      * @param value the value to remove
      * @return true if the value was present, false otherwise
      */
-    @Override
     public boolean remove(final Object value)
     {
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = value.hashCode() & mask;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
+        int index = value.hashCode() & mask;
 
-        while (values[index] != missingValue)
+        while (values[index] != MISSING_VALUE)
         {
             if (values[index].equals(value))
             {
-                values[index] = (T)missingValue;
+                values[index] = MISSING_VALUE;
                 compactChain(index);
                 size--;
                 return true;
@@ -196,33 +199,33 @@ public final class ObjHashSet<T> implements Set<T>
         return false;
     }
 
-    @DoNotSub private static int next(final int index, final int mask)
+    private static int next(final int index, final int mask)
     {
         return (index + 1) & mask;
     }
 
-    @DoNotSub void compactChain(int deleteIndex)
+    void compactChain(int deleteIndex)
     {
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
 
-        @DoNotSub int index = deleteIndex;
+        int index = deleteIndex;
         while (true)
         {
             index = next(index, mask);
-            if (values[index] == missingValue)
+            if (values[index] == MISSING_VALUE)
             {
                 return;
             }
 
-            @DoNotSub final int hash = values[index].hashCode() &mask;
+            final int hash = values[index].hashCode() & mask;
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 values[deleteIndex] = values[index];
 
-                values[index] = (T)missingValue;
+                values[index] = MISSING_VALUE;
                 deleteIndex = index;
             }
         }
@@ -234,21 +237,20 @@ public final class ObjHashSet<T> implements Set<T>
      */
     public void compact()
     {
-        @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
+        final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
         rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
     public boolean contains(final Object value)
     {
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = value.hashCode()& mask;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
+        int index = value.hashCode() & mask;
 
-        while (values[index] != missingValue)
+        while (values[index] != MISSING_VALUE)
         {
             if (values[index].equals(value))
             {
@@ -264,7 +266,7 @@ public final class ObjHashSet<T> implements Set<T>
     /**
      * {@inheritDoc}
      */
-    @DoNotSub public int size()
+    public int size()
     {
         return size;
     }
@@ -302,7 +304,7 @@ public final class ObjHashSet<T> implements Set<T>
      */
     public void clear()
     {
-        Arrays.fill(values, missingValue);
+        Arrays.fill(values, MISSING_VALUE);
         size = 0;
     }
 
@@ -324,11 +326,11 @@ public final class ObjHashSet<T> implements Set<T>
         return true;
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
-    public boolean addAll(final Collection<? extends T> coll) {
+    public boolean addAll(final Collection<? extends T> coll)
+    {
         return disjunction(coll, this::add);
     }
 
@@ -340,19 +342,19 @@ public final class ObjHashSet<T> implements Set<T>
      * @param other the other set to subtract
      * @return null if identical, otherwise the set of differences
      */
-    public ObjHashSet difference(final ObjHashSet other)
+    public ObjHashSet<T> difference(final ObjHashSet<T> other)
     {
         Objects.requireNonNull(other);
 
-        ObjHashSet difference = null;
+        ObjHashSet<T> difference = null;
 
         for (final T value : values)
         {
-            if (value != missingValue && !other.contains(value))
+            if (value != MISSING_VALUE && !other.contains(value))
             {
                 if (difference == null)
                 {
-                    difference = new ObjHashSet(size);
+                    difference = new ObjHashSet<>(size);
                 }
 
                 difference.add(value);
@@ -387,26 +389,18 @@ public final class ObjHashSet<T> implements Set<T>
     /**
      * {@inheritDoc}
      */
-    public ObjIterator iterator()
+    public ObjIterator<T> iterator()
     {
         iterator.reset();
 
         return iterator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void copy(final ObjHashSet that)
+    public void copy(final ObjHashSet<T> that)
     {
         if (this.values.length != that.values.length)
         {
-            throw new IllegalArgumentException("Cannot copy object: masks not equal");
-        }
-
-        if (this.missingValue != that.missingValue)
-        {
-            throw new IllegalArgumentException("Cannot copy object: missingValues not equal");
+            throw new IllegalArgumentException("Cannot copy object: lengths not equal");
         }
 
         System.arraycopy(that.values, 0, this.values, 0, this.values.length);
@@ -420,22 +414,22 @@ public final class ObjHashSet<T> implements Set<T>
     {
         return
             stream()
-            .map((x) -> x.toString())
-            .collect(joining(",", "{", "}"));
+                .map(Object::toString)
+                .collect(joining(",", "{", "}"));
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(final T[] into)
+    public <T1> T1[] toArray(final T1[] into)
     {
         Objects.requireNonNull(into, "into");
 
         final Class<?> componentType = into.getClass().getComponentType();
 
-        @DoNotSub final int size = this.size;
-        final T[] arrayCopy = into.length >= size ? into : (T[])Array.newInstance(componentType, size);
+        final int size = this.size;
+        final T1[] arrayCopy = into.length >= size ? into : (T1[])Array.newInstance(componentType, size);
         copyValues(arrayCopy);
 
         return arrayCopy;
@@ -455,7 +449,7 @@ public final class ObjHashSet<T> implements Set<T>
     private void copyValues(final Object[] arrayCopy)
     {
         final ObjIterator iterator = iterator();
-        for (@DoNotSub int i = 0; iterator.hasNext(); i++)
+        for (int i = 0; iterator.hasNext(); i++)
         {
             arrayCopy[i] = iterator.next();
         }
@@ -485,24 +479,25 @@ public final class ObjHashSet<T> implements Set<T>
     /**
      * {@inheritDoc}
      */
-    @DoNotSub public int hashCode()
+    public int hashCode()
     {
         return Arrays.hashCode(values);
     }
 
-    private final class ObjHashSetIterator extends ObjIterator
+    private final class ObjHashSetIterator extends ObjIterator<T>
     {
         private ObjHashSetIterator(final T[] values)
         {
             super(values);
         }
 
+        @SuppressWarnings("unchecked")
         public void remove()
         {
             if (isPositionValid)
             {
-                @DoNotSub final int position = position();
-                values[position] = (T)missingValue;
+                final int position = position();
+                values[position] = (T)MISSING_VALUE;
                 --size;
 
                 compactChain(position);

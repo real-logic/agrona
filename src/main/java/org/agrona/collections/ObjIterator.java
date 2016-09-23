@@ -15,8 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.agrona.generation.DoNotSub;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -25,9 +23,10 @@ import java.util.NoSuchElementException;
  */
 public class ObjIterator<T> implements Iterator<T>
 {
-    private static final Object missingValue = null;
-    @DoNotSub private int positionCounter;
-    @DoNotSub private int stopCounter;
+    private static final Object MISSING_VALUE = null;
+
+    private int positionCounter;
+    private int stopCounter;
     protected boolean isPositionValid = false;
     private T[] values;
 
@@ -36,7 +35,7 @@ public class ObjIterator<T> implements Iterator<T>
      *
      * @param values       to iterate over.
      */
-    public ObjIterator(final T[] values)
+    protected ObjIterator(final T[] values)
     {
         reset(values);
     }
@@ -57,15 +56,15 @@ public class ObjIterator<T> implements Iterator<T>
     void reset(final T[] values)
     {
         this.values = values;
-        @DoNotSub final int length = values.length;
+        final int length = values.length;
 
-        @DoNotSub int i = length;
-        if (values[length - 1] != missingValue)
+        int i = length;
+        if (values[length - 1] != MISSING_VALUE)
         {
             i = 0;
-            for (@DoNotSub int size = length; i < size; i++)
+            for (; i < length; i++)
             {
-                if (values[i] == missingValue)
+                if (values[i] == MISSING_VALUE)
                 {
                     break;
                 }
@@ -77,20 +76,20 @@ public class ObjIterator<T> implements Iterator<T>
         isPositionValid = false;
     }
 
-    @DoNotSub protected int position()
+    protected int position()
     {
         return positionCounter & (values.length - 1);
     }
 
     public boolean hasNext()
     {
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
 
-        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
+        for (int i = positionCounter - 1; i >= stopCounter; i--)
         {
-            @DoNotSub final int index = i & mask;
-            if (values[index] != missingValue)
+            final int index = i & mask;
+            if (values[index] != MISSING_VALUE)
             {
                 return true;
             }
@@ -101,14 +100,14 @@ public class ObjIterator<T> implements Iterator<T>
 
     protected void findNext()
     {
-        final T[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
+        final Object[] values = this.values;
+        final int mask = values.length - 1;
         isPositionValid = false;
 
-        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
+        for (int i = positionCounter - 1; i >= stopCounter; i--)
         {
-            @DoNotSub final int index = i & mask;
-            if (values[index] != missingValue)
+            final int index = i & mask;
+            if (values[index] != MISSING_VALUE)
             {
                 positionCounter = i;
                 isPositionValid = true;
@@ -127,6 +126,7 @@ public class ObjIterator<T> implements Iterator<T>
     /**
      * @return the next int value.
      */
+    @SuppressWarnings("unchecked")
     public T nextValue()
     {
         findNext();

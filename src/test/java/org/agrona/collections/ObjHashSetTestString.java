@@ -26,25 +26,7 @@ public class ObjHashSetTestString
 {
     private static final int INITIAL_CAPACITY = 100;
 
-    private final ObjHashSet<String> testSet = new ObjHashSet(INITIAL_CAPACITY);
-
-    @Test
-    public void initiallyContainsNoElements() throws Exception
-    {
-        for (int i = 0; i < 10_000; i++)
-        {
-            assertFalse(testSet.contains(i));
-        }
-    }
-
-    @Test
-    public void initiallyContainsNoBoxedElements()
-    {
-        for (int i = 0; i < 10_000; i++)
-        {
-            assertFalse(testSet.contains(Integer.valueOf(i)));
-        }
-    }
+    private final ObjHashSet<String> testSet = new ObjHashSet<>(INITIAL_CAPACITY);
 
     @Test
     public void containsAddedElement()
@@ -73,15 +55,9 @@ public class ObjHashSetTestString
     }
 
     @Test
-    public void doesNotContainMissingValue()
-    {
-        assertFalse(testSet.contains(2048));
-    }
-
-    @Test
     public void removingAnElementFromAnEmptyListDoesNothing()
     {
-        assertFalse(testSet.remove(0));
+        assertFalse(testSet.remove("0"));
     }
 
     @Test
@@ -193,8 +169,8 @@ public class ObjHashSetTestString
         testSet.clear();
 
         assertEquals(0, testSet.size());
-        assertFalse(testSet.contains(1));
-        assertFalse(testSet.contains(1001));
+        assertFalse(testSet.contains("1"));
+        assertFalse(testSet.contains("1001"));
     }
 
     @Test
@@ -202,7 +178,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
         addTwoElements(other);
 
         assertNull(testSet.difference(other));
@@ -213,22 +189,11 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
         other.add("1");
 
-        final ObjHashSet<Integer> diff = testSet.difference(other);
+        final ObjHashSet<String> diff = testSet.difference(other);
         assertThat(diff, containsInAnyOrder("1001"));
-    }
-
-    @Test
-    public void copiesOtherIntHashSet()
-    {
-        addTwoElements(testSet);
-
-        final ObjHashSet other = new ObjHashSet(100);
-        other.copy(testSet);
-
-        assertContainsElements(other);
     }
 
     @Test
@@ -241,7 +206,7 @@ public class ObjHashSetTestString
     @Test
     public void setsWithTheSameValuesAreEqual()
     {
-        final ObjHashSet other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
 
         addTwoElements(testSet);
         addTwoElements(other);
@@ -252,11 +217,11 @@ public class ObjHashSetTestString
     @Test
     public void setsWithTheDifferentSizesAreNotEqual()
     {
-        final ObjHashSet other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
 
         addTwoElements(testSet);
 
-        other.add(1001);
+        other.add("1001");
 
         assertNotEquals(testSet, other);
     }
@@ -264,12 +229,12 @@ public class ObjHashSetTestString
     @Test
     public void setsWithTheDifferentValuesAreNotEqual()
     {
-        final ObjHashSet other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
 
         addTwoElements(testSet);
 
-        other.add(2);
-        other.add(1001);
+        other.add("2");
+        other.add("1001");
 
         assertNotEquals(testSet, other);
     }
@@ -277,20 +242,7 @@ public class ObjHashSetTestString
     @Test
     public void twoEmptySetsHaveTheSameHashcode()
     {
-        final ObjHashSet other = new ObjHashSet(100);
-        assertEquals(testSet.hashCode(), other.hashCode());
-    }
-
-    @Test
-    public void setsWithTheSameValuesHaveTheSameHashcode()
-    {
-        final ObjHashSet other = new ObjHashSet(100);
-
-        addTwoElements(testSet);
-
-        addTwoElements(other);
-
-        assertEquals(testSet.hashCode(), other.hashCode());
+        assertEquals(testSet.hashCode(), new ObjHashSet<String>(100).hashCode());
     }
 
     @Test
@@ -303,18 +255,12 @@ public class ObjHashSetTestString
         assertEquals(1, testSet.size());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void toArrayThrowsNullPointerExceptionForNullArgument()
-    {
-        testSet.toArray(null);
-    }
-
     @Test
     public void toArrayCopiesElementsIntoSufficientlySizedArray()
     {
         addTwoElements(testSet);
 
-        final String[] result = (String[])testSet.toArray(new String[testSet.size()]);
+        final String[] result = testSet.toArray(new String[testSet.size()]);
 
         assertArrayContainingElements(result);
     }
@@ -324,7 +270,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final String[] result = (String[])testSet.toArray(new String[testSet.size()]);
+        final String[] result = testSet.toArray(new String[testSet.size()]);
 
         assertArrayContainingElements(result);
     }
@@ -332,16 +278,16 @@ public class ObjHashSetTestString
     @Test
     public void toArraySupportsEmptyCollection()
     {
-        final String[] result = (String[])testSet.toArray(new String[testSet.size()]);
+        final String[] result = testSet.toArray(new String[testSet.size()]);
 
-        assertArrayEquals(result, new Integer[]{});
+        assertArrayEquals(result, new String[]{});
     }
 
     // Test case from usage bug.
     @Test
     public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {
-        final ObjHashSet<String> requiredFields = new ObjHashSet(14);
+        final ObjHashSet<String> requiredFields = new ObjHashSet<>(14);
 
         requiredFields.add("8");
         requiredFields.add("9");
@@ -370,25 +316,15 @@ public class ObjHashSetTestString
     }
 
     @Test
-    public void containsEmptySet()
-    {
-        final ObjHashSet other = new ObjHashSet(100);
-
-        assertTrue(testSet.containsAll(other));
-        assertTrue(testSet.containsAll((Collection<?>)other));
-    }
-
-    @Test
     public void containsSubset()
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> subset = new ObjHashSet(100);
+        final ObjHashSet<String> subset = new ObjHashSet<>(100);
 
         subset.add("1");
 
         assertTrue(testSet.containsAll(subset));
-        assertTrue(testSet.containsAll((Collection<?>)subset));
     }
 
     @Test
@@ -396,13 +332,12 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> other = new ObjHashSet(100);
+        final ObjHashSet<String> other = new ObjHashSet<>(100);
 
         other.add("1");
         other.add("1002");
 
         assertFalse(testSet.containsAll(other));
-        assertFalse(testSet.containsAll((Collection<?>)other));
     }
 
     @Test
@@ -410,13 +345,12 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> superset = new ObjHashSet(100);
+        final ObjHashSet<String> superset = new ObjHashSet<>(100);
 
         addTwoElements(superset);
         superset.add("15");
 
         assertFalse(testSet.containsAll(superset));
-        assertFalse(testSet.containsAll((Collection<?>)superset));
     }
 
     @Test
@@ -424,7 +358,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        assertFalse(testSet.addAll(new ObjHashSet(100)));
+        assertFalse(testSet.addAll(new ObjHashSet<>(100)));
         assertContainsElements(testSet);
     }
 
@@ -433,7 +367,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> subset = new ObjHashSet(100);
+        final ObjHashSet<String> subset = new ObjHashSet<>(100);
 
         subset.add("1");
 
@@ -446,7 +380,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> equal = new ObjHashSet(100);
+        final ObjHashSet<String> equal = new ObjHashSet<>(100);
 
         addTwoElements(equal);
 
@@ -459,7 +393,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> disjoint = new ObjHashSet(100);
+        final ObjHashSet<String> disjoint = new ObjHashSet<>(100);
 
         disjoint.add("2");
         disjoint.add("1002");
@@ -475,7 +409,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> intersecting = new ObjHashSet(100);
+        final ObjHashSet<String> intersecting = new ObjHashSet<>(100);
 
         intersecting.add("1");
         intersecting.add("1002");
@@ -491,7 +425,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        assertFalse(testSet.removeAll(new ObjHashSet(100)));
+        assertFalse(testSet.removeAll(new ObjHashSet<String>(100)));
         assertContainsElements(testSet);
     }
 
@@ -500,7 +434,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> disjoint = new ObjHashSet(100);
+        final ObjHashSet<String> disjoint = new ObjHashSet<>(100);
 
         disjoint.add("2");
         disjoint.add("1002");
@@ -514,7 +448,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> intersecting = new ObjHashSet(100);
+        final ObjHashSet<String> intersecting = new ObjHashSet<>(100);
 
         intersecting.add("1");
         intersecting.add("1002");
@@ -529,7 +463,7 @@ public class ObjHashSetTestString
     {
         addTwoElements(testSet);
 
-        final ObjHashSet<String> equal = new ObjHashSet(100);
+        final ObjHashSet<String> equal = new ObjHashSet<>(100);
 
         addTwoElements(equal);
 
