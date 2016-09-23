@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for a sequence of primitive values.
+ * An iterator for a sequence of values.
  */
 public class ObjIterator<T> implements Iterator<T>
 {
@@ -32,7 +32,7 @@ public class ObjIterator<T> implements Iterator<T>
     private T[] values;
 
     /**
-     * Construct an {@link Iterator} over an array of primitives ints.
+     * Construct an {@link Iterator} over an array of values.
      *
      * @param values       to iterate over.
      */
@@ -125,8 +125,6 @@ public class ObjIterator<T> implements Iterator<T>
     }
 
     /**
-     * Strongly typed alternative of {@link Iterator#next()} not to avoid boxing.
-     *
      * @return the next int value.
      */
     public T nextValue()

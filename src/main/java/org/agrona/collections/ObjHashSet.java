@@ -31,8 +31,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
  * Open-addressing with linear-probing expandable hash set. Allocation free in steady state use when expanded.
+ * Ability to be notified when resizing occurs so that appropriate sizing can be implemented.
  * <p>
-  * Not Threadsafe.
+ * Not Threadsafe.
  * <p>
  * This HashSet caches its iterator object, so nested iteration is not supported.
  *
@@ -89,6 +90,10 @@ public final class ObjHashSet<T> implements Set<T>
         iterator = new ObjHashSetIterator(values);
     }
 
+    /**
+     * Add a Consumer that will be called when the collection is resized.
+     * @param resizeNotifier IntConsumer containing the new resizeThreshold
+     */
     public void setReziseNotifier(IntConsumer resizeNotifier){
         this.resizeNotifier = resizeNotifier;
     }
@@ -165,8 +170,6 @@ public final class ObjHashSet<T> implements Set<T>
     }
 
     /**
-     * An int specialised version of {this#remove(Object)}.
-     *
      * @param value the value to remove
      * @return true if the value was present, false otherwise
      */
@@ -234,8 +237,6 @@ public final class ObjHashSet<T> implements Set<T>
         @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
         rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
     }
-
-
 
     /**
      * {@inheritDoc}
