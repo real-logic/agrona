@@ -21,6 +21,8 @@ import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -69,6 +71,10 @@ public class ErrorLogReaderTest
         final long timestampTwo = 10;
         final RuntimeException error = new RuntimeException("Test Error");
 
+        final StringWriter stringWriter = new StringWriter();
+        error.printStackTrace(new PrintWriter(stringWriter));
+        final String errorAsString = stringWriter.toString();
+
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
         log.record(error);
@@ -76,7 +82,7 @@ public class ErrorLogReaderTest
 
         assertThat(ErrorLogReader.read(buffer, consumer), is(1));
 
-        verify(consumer).accept(eq(2), eq(timestampOne), eq(timestampTwo), any(String.class));
+        verify(consumer).accept(eq(2), eq(timestampOne), eq(timestampTwo), eq(errorAsString));
     }
 
     @Test

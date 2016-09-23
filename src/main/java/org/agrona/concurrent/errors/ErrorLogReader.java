@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent.errors;
 
+import org.agrona.BitUtil;
 import org.agrona.concurrent.AtomicBuffer;
 
 import static org.agrona.BitUtil.align;
@@ -70,7 +71,7 @@ public class ErrorLogReader
                     buffer.getInt(offset + OBSERVATION_COUNT_OFFSET),
                     buffer.getLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET),
                     lastObservationTimestamp,
-                    buffer.getStringUtf8(offset + ENCODED_ERROR_OFFSET, length - ENCODED_ERROR_OFFSET));
+                    buffer.getStringUtf8(offset + ENCODED_ERROR_OFFSET - BitUtil.SIZE_OF_INT /* remove length prefix */, length - ENCODED_ERROR_OFFSET));
             }
 
             offset += align(length, RECORD_ALIGNMENT);
