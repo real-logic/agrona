@@ -36,10 +36,10 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  *
  * This HashSet caches its iterator object, so nested iteration is not supported.
  *
- * @see ObjIterator
+ * @see ObjectIterator
  * @see Set
  */
-public final class ObjHashSet<T> implements Set<T>
+public final class ObjectHashSet<T> implements Set<T>
 {
     /**
      * The load factor used when none is specified in the constructor.
@@ -59,21 +59,21 @@ public final class ObjHashSet<T> implements Set<T>
     private int size;
 
     private T[] values;
-    private final ObjIterator<T> iterator;
+    private final ObjectIterator<T> iterator;
     private IntConsumer resizeNotifier;
 
-    public ObjHashSet()
+    public ObjectHashSet()
     {
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
-    public ObjHashSet(final int proposedCapacity)
+    public ObjectHashSet(final int proposedCapacity)
     {
         this(proposedCapacity, DEFAULT_LOAD_FACTOR);
     }
 
     @SuppressWarnings("unchecked")
-    public ObjHashSet(final int initialCapacity, final float loadFactor)
+    public ObjectHashSet(final int initialCapacity, final float loadFactor)
     {
         validateLoadFactor(loadFactor);
 
@@ -86,7 +86,7 @@ public final class ObjHashSet<T> implements Set<T>
         Arrays.fill(values, MISSING_VALUE);
 
         // NB: references values in the constructor, so must be assigned after values
-        iterator = new ObjHashSetIterator(values);
+        iterator = new ObjectHashSetIterator(values);
     }
 
     /**
@@ -335,18 +335,18 @@ public final class ObjHashSet<T> implements Set<T>
     }
 
     /**
-     * Fast Path set difference for comparison with another ObjHashSet.
+     * Fast Path set difference for comparison with another ObjectHashSet.
      * <p>
      * NB: garbage free in the identical case, allocates otherwise.
      *
      * @param other the other set to subtract
      * @return null if identical, otherwise the set of differences
      */
-    public ObjHashSet<T> difference(final ObjHashSet<T> other)
+    public ObjectHashSet<T> difference(final ObjectHashSet<T> other)
     {
         Objects.requireNonNull(other);
 
-        ObjHashSet<T> difference = null;
+        ObjectHashSet<T> difference = null;
 
         for (final T value : values)
         {
@@ -354,7 +354,7 @@ public final class ObjHashSet<T> implements Set<T>
             {
                 if (difference == null)
                 {
-                    difference = new ObjHashSet<>(size);
+                    difference = new ObjectHashSet<>(size);
                 }
 
                 difference.add(value);
@@ -389,14 +389,14 @@ public final class ObjHashSet<T> implements Set<T>
     /**
      * {@inheritDoc}
      */
-    public ObjIterator<T> iterator()
+    public ObjectIterator<T> iterator()
     {
         iterator.reset();
 
         return iterator;
     }
 
-    public void copy(final ObjHashSet<T> that)
+    public void copy(final ObjectHashSet<T> that)
     {
         if (this.values.length != that.values.length)
         {
@@ -448,7 +448,7 @@ public final class ObjHashSet<T> implements Set<T>
 
     private void copyValues(final Object[] arrayCopy)
     {
-        final ObjIterator iterator = iterator();
+        final ObjectIterator iterator = iterator();
         for (int i = 0; iterator.hasNext(); i++)
         {
             arrayCopy[i] = iterator.next();
@@ -465,9 +465,9 @@ public final class ObjHashSet<T> implements Set<T>
             return true;
         }
 
-        if (other instanceof ObjHashSet)
+        if (other instanceof ObjectHashSet)
         {
-            final ObjHashSet otherSet = (ObjHashSet)other;
+            final ObjectHashSet otherSet = (ObjectHashSet)other;
 
             return otherSet.size == size
                 && containsAll(otherSet);
@@ -484,9 +484,9 @@ public final class ObjHashSet<T> implements Set<T>
         return Arrays.hashCode(values);
     }
 
-    private final class ObjHashSetIterator extends ObjIterator<T>
+    private final class ObjectHashSetIterator extends ObjectIterator<T>
     {
-        private ObjHashSetIterator(final T[] values)
+        private ObjectHashSetIterator(final T[] values)
         {
             super(values);
         }

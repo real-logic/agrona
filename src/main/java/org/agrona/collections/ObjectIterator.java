@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 /**
  * An iterator for a sequence of values.
  */
-public class ObjIterator<T> implements Iterator<T>
+public class ObjectIterator<T> implements Iterator<T>
 {
     private static final Object MISSING_VALUE = null;
 
@@ -35,7 +35,7 @@ public class ObjIterator<T> implements Iterator<T>
      *
      * @param values       to iterate over.
      */
-    protected ObjIterator(final T[] values)
+    protected ObjectIterator(final T[] values)
     {
         reset(values);
     }
