@@ -71,7 +71,7 @@ public class RecordBuffer
     private static final int SIZE_OF_KEY_FIELD = SIZE_OF_INT;
     private static final int SIZE_OF_RECORD_FRAME = SIZE_OF_STATUS_FIELD + SIZE_OF_KEY_FIELD;
 
-    public static final long PAUSE_TIME_NS = MICROSECONDS.toNanos(1);
+    private static final long PAUSE_TIME_NS = MICROSECONDS.toNanos(1);
 
     private final AtomicBuffer buffer;
     private final int positionFieldOffset;
@@ -91,7 +91,7 @@ public class RecordBuffer
          * @param key the key for the record in question
          * @param offset the offset within the buffer that the record starts at
          */
-        void onRecord(final int key, final int offset);
+        void onRecord(int key, int offset);
     }
 
     /**
@@ -106,11 +106,10 @@ public class RecordBuffer
          *
          * @param offset the offset within the buffer that has been claimed.
          */
-        void writeRecord(final int offset);
+        void writeRecord(int offset);
     }
 
-    public RecordBuffer(
-        final AtomicBuffer buffer, final int headerSize, final int recordSize)
+    public RecordBuffer(final AtomicBuffer buffer, final int headerSize, final int recordSize)
     {
         this.buffer = buffer;
         this.positionFieldOffset = headerSize;
@@ -153,6 +152,7 @@ public class RecordBuffer
                 final int key = key(offset);
                 handler.onRecord(key, offset + SIZE_OF_RECORD_FRAME);
             }
+
             offset += slotSize;
         }
     }
@@ -175,6 +175,7 @@ public class RecordBuffer
             {
                 return offset + SIZE_OF_RECORD_FRAME;
             }
+
             offset += slotSize;
         }
 
@@ -247,6 +248,7 @@ public class RecordBuffer
         final int claimOffset = movePosition(slotSize);
         compareAndSetStatus(claimOffset, UNUSED, PENDING);
         key(claimOffset, key);
+
         return claimOffset + SIZE_OF_RECORD_FRAME;
     }
 

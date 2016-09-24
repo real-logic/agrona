@@ -81,7 +81,7 @@ public class CompilerUtil
         }
 
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        try (final StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null))
+        try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null))
         {
             final ArrayList<String> options = new ArrayList<>();
             options.addAll(Arrays.asList(
@@ -172,7 +172,7 @@ public class CompilerUtil
             final File file = new File(path.toString(), className + ".java");
             files.add(file);
 
-            try (final FileWriter out = new FileWriter(file))
+            try (FileWriter out = new FileWriter(file))
             {
                 out.append(entry.getValue());
                 out.flush();
