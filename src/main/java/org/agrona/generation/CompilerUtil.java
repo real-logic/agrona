@@ -126,17 +126,17 @@ public class CompilerUtil
                 System.err.printf("Line = %d, Col = %d, File = %s",
                     diagnostic.getLineNumber(), diagnostic.getColumnNumber(), source);
 
-                System.out.println("Start: " + diagnostic.getStartPosition());
-                System.out.println("End: " + diagnostic.getEndPosition());
-                System.out.println("Pos: " + diagnostic.getPosition());
+                System.err.println("Start: " + diagnostic.getStartPosition());
+                System.err.println("End: " + diagnostic.getEndPosition());
+                System.err.println("Pos: " + diagnostic.getPosition());
 
                 try
                 {
                     final String content = source.getCharContent(true).toString();
                     final int begin = content.lastIndexOf('\n', (int)diagnostic.getStartPosition());
                     final int end = content.indexOf('\n', (int)diagnostic.getEndPosition());
-                    System.err.println(content.substring(begin, end));
                     System.err.println(diagnostic.getMessage(null));
+                    System.err.println(content.substring(Math.max(0, begin), end));
                 }
                 catch (final IOException ex)
                 {
