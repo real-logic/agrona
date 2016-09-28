@@ -60,5 +60,5 @@ abstract class MapDelegatingSet<V> extends AbstractSet<V>
     /**
      * {@inheritDoc}
      */
-    public abstract boolean contains(final Object o);
+    public abstract boolean contains(Object o);
 }

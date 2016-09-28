@@ -37,13 +37,13 @@ public interface OutputManager
 
     default void withOutput(final String name, final ResourceConsumer<Writer> resourceConsumer)
     {
-        try (final Writer output = createOutput(name))
+        try (Writer output = createOutput(name))
         {
             resourceConsumer.accept(output);
         }
-        catch (IOException e)
+        catch (final IOException ex)
         {
-            LangUtil.rethrowUnchecked(e);
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 }

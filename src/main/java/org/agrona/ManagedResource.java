@@ -25,7 +25,7 @@ public interface ManagedResource
      *
      * @param time of the last state change.
      */
-    void timeOfLastStateChange(final long time);
+    void timeOfLastStateChange(long time);
 
     /**
      * Get the time of the last state change.
