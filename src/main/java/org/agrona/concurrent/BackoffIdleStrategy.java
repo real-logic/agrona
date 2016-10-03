@@ -30,7 +30,7 @@ import java.util.concurrent.locks.LockSupport;
 @SuppressWarnings("unused")
 abstract class BackoffIdleStrategyPrePad
 {
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07;
 }
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
@@ -63,7 +63,7 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
 @SuppressWarnings("unused")
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07, pad08;
+    long pad01, pad02, pad03, pad04, pad05, pad06, pad07;
 
     /**
      * Create a set of state tracking idle behavior
@@ -88,9 +88,11 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         if (workCount > 0)
         {
             reset();
-            return;
         }
-        idle();
+        else
+        {
+            idle();
+        }
     }
 
     public void idle()
