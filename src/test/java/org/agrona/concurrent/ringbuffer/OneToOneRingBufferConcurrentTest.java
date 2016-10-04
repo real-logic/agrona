@@ -33,7 +33,7 @@ public class OneToOneRingBufferConcurrentTest
 
     private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(byteBuffer);
-    private final RingBuffer ringBuffer = new ManyToOneRingBuffer(unsafeBuffer);
+    private final RingBuffer ringBuffer = new OneToOneRingBuffer(unsafeBuffer);
 
     @Test
     public void shouldExchangeMessages()
