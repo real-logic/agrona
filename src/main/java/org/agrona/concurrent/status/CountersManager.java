@@ -16,11 +16,10 @@
 package org.agrona.concurrent.status;
 
 import org.agrona.MutableDirectBuffer;
+import org.agrona.collections.IntArrayList;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
@@ -84,7 +83,7 @@ public class CountersManager extends CountersReader
         };
 
     private int idHighWaterMark = -1;
-    private final Deque<Integer> freeList = new LinkedList<>();
+    private final IntArrayList freeList = new IntArrayList();
 
     /**
      * Create a new counter buffer manager over two buffers.
@@ -203,7 +202,8 @@ public class CountersManager extends CountersReader
             return ++idHighWaterMark;
         }
 
-        final int counterId = freeList.remove();
+        final int counterId = freeList.getInt(0);
+        freeList.remove(0);
         valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
 
         return counterId;
