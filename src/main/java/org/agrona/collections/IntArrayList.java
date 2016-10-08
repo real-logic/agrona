@@ -284,7 +284,13 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         checkIndex(index);
 
         final int value = elements[index];
-        System.arraycopy(elements, index + 1, elements, index, size - index - 1);
+
+        @DoNotSub final int moveCount = size - index - 1;
+        if (moveCount > 0)
+        {
+            System.arraycopy(elements, index + 1, elements, index, moveCount);
+        }
+
         size--;
 
         return value;
