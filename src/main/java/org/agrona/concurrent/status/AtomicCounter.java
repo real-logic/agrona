@@ -25,6 +25,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  */
 public class AtomicCounter implements AutoCloseable
 {
+    private boolean isClosed = false;
     private final int counterId;
     private final long addressOffset;
     private final byte[] buffer;
@@ -144,6 +145,10 @@ public class AtomicCounter implements AutoCloseable
      */
     public void close()
     {
-        countersManager.free(counterId);
+        if (!isClosed)
+        {
+            isClosed = true;
+            countersManager.free(counterId);
+        }
     }
 }

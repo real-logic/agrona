@@ -25,6 +25,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  */
 public class UnsafeBufferPosition implements Position
 {
+    private boolean isClosed = false;
     private final int counterId;
     private final long addressOffset;
     private final byte[] buffer;
@@ -114,7 +115,11 @@ public class UnsafeBufferPosition implements Position
     {
         if (null != countersManager)
         {
-            countersManager.free(counterId);
+            if (!isClosed)
+            {
+                isClosed = true;
+                countersManager.free(counterId);
+            }
         }
     }
 }
