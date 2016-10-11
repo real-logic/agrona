@@ -22,7 +22,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AtomicLongPosition implements Position
 {
-    final AtomicLong value = new AtomicLong();
+    private boolean isClosed = false;
+    private final AtomicLong value = new AtomicLong();
+
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
 
     public int id()
     {
@@ -69,5 +75,6 @@ public class AtomicLongPosition implements Position
 
     public void close()
     {
+        isClosed = true;
     }
 }

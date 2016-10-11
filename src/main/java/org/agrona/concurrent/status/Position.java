@@ -23,6 +23,13 @@ package org.agrona.concurrent.status;
 public interface Position extends ReadablePosition
 {
     /**
+     * Has this Position been closed?
+     *
+     * @return true if this position has already been closed.
+     */
+    boolean isClosed();
+
+    /**
      * Get the current position of a component without memory ordering semantics.
      *
      * @return the current position of a component

@@ -60,6 +60,11 @@ public class UnsafeBufferPosition implements Position
         this.addressOffset = buffer.addressOffset() + counterOffset;
     }
 
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
     public int id()
     {
         return counterId;

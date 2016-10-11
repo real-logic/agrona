@@ -43,6 +43,16 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Has this counter been closed?
+     *
+     * @return true if this counter has already been closed.
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
+    /**
      * Perform an atomic increment that will not lose updates across threads.
      *
      * @return the previous value of the counter
