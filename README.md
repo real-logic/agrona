@@ -13,9 +13,10 @@ The latest release and **downloads** can be found in [Maven Central](http://sear
 Utilities Included:
 
 * Buffers - Thread safe direct and atomic for working with on and off heap memory with memory ordering semantics.
+* Lists - Array backed lists of int/long primitives to avoid boxing.
 * Maps - Open addressing and linear probing with int/long primitive keys to object reference values.
 * Maps - Open addressing and linear probing with int/long primitive keys to int/long values.
-* Sets - Open addressing and linear probing for int/long primitives.
+* Sets - Open addressing and linear probing for int/long primitives and object references.
 * Cache - Set Associative with int/long primitive keys to object reference values.
 * Queues - Lock-less implementations for low-latency applications.
 * Ring/Broadcast Buffers - implemented off-heap for IPC communication.
