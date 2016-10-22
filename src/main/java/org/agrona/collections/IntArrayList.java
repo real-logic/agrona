@@ -316,6 +316,19 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * Push an element onto the end of the array like a stack.
+     *
+     * @param element to be pushed onto the end of the array.
+     */
+    public void pushInt(final int element)
+    {
+        ensureCapacity(size + 1);
+
+        elements[size] = element;
+        size++;
+    }
+
+    /**
      * Pop a value off the end of the array as a stack operation.
      *
      * @return the value at the end of the array.

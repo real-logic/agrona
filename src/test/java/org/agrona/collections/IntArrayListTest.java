@@ -184,12 +184,12 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldAddAndThenPopInOrder()
+    public void shouldPushAndThenPopInOrder()
     {
         final int count = 7;
         for (int i = 0; i < count; i++)
         {
-            list.add(i);
+            list.pushInt(i);
         }
 
         for (int i = count - 1; i >= 0; i--)
