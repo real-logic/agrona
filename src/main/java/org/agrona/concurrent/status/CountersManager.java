@@ -202,8 +202,7 @@ public class CountersManager extends CountersReader
             return ++idHighWaterMark;
         }
 
-        final int counterId = freeList.getInt(freeList.size() - 1);
-        freeList.remove(freeList.size() - 1);
+        final int counterId = freeList.popInt();
         valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
 
         return counterId;

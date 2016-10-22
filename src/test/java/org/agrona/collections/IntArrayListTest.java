@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -180,5 +181,26 @@ public class IntArrayListTest
         final Integer[] integers = list.toArray(new Integer[0]);
         assertEquals(expected.getClass(), integers.getClass());
         assertArrayEquals(expected, integers);
+    }
+
+    @Test
+    public void shouldAddAndThenPopInOrder()
+    {
+        final int count = 7;
+        for (int i = 0; i < count; i++)
+        {
+            list.add(i);
+        }
+
+        for (int i = count - 1; i >= 0; i--)
+        {
+            assertThat(list.popInt(), is(i));
+        }
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void shouldThrowExceptionWhenPoppingEmptyList()
+    {
+        list.popInt();
     }
 }
