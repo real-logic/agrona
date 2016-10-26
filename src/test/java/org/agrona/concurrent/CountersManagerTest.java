@@ -26,7 +26,7 @@ import org.agrona.concurrent.status.*;
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
