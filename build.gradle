@@ -23,7 +23,7 @@ apply plugin: 'osgi'
 defaultTasks 'clean', 'build', 'install'
 
 group = 'org.agrona'
-version = '0.9.0'
+version = '0.9.1-SNAPSHOT'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 ext {
