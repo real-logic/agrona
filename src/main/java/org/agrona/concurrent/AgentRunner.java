@@ -131,12 +131,15 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
             catch (final Throwable throwable)
             {
-                if (null != errorCounter && running)
+                if (running)
                 {
-                    errorCounter.increment();
-                }
+                    if (null != errorCounter)
+                    {
+                        errorCounter.increment();
+                    }
 
-                errorHandler.onError(throwable);
+                    errorHandler.onError(throwable);
+                }
             }
         }
     }
