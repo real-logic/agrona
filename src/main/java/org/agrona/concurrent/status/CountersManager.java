@@ -77,10 +77,7 @@ public class CountersManager extends CountersReader
     /**
      * Default function to set a key when none is supplied.
      */
-    public static final Consumer<MutableDirectBuffer> DEFAULT_KEY_FUNC =
-        (ignore) ->
-        {
-        };
+    public static final Consumer<MutableDirectBuffer> DEFAULT_KEY_FUNC = (ignore) -> {};
 
     private int idHighWaterMark = -1;
     private final IntArrayList freeList = new IntArrayList();

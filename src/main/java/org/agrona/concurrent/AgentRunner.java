@@ -129,14 +129,17 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 // Deliberately blank, if this exception is thrown then your interrupted status will be set.
             }
-            catch (final Throwable ex)
+            catch (final Throwable throwable)
             {
-                if (null != errorCounter)
+                if (running)
                 {
-                    errorCounter.increment();
-                }
+                    if (null != errorCounter)
+                    {
+                        errorCounter.increment();
+                    }
 
-                errorHandler.onError(ex);
+                    errorHandler.onError(throwable);
+                }
             }
         }
     }

@@ -32,10 +32,7 @@ public class Int2ObjectCacheTest
     public static final int NUM_SETS = 16;
     public static final int SET_SIZE = 4;
     public static final int CAPACITY = NUM_SETS * SET_SIZE;
-    public static final Consumer<String> EVICTION_CONSUMER =
-        (s) ->
-        {
-        };
+    public static final Consumer<String> EVICTION_CONSUMER = (s) -> {};
 
     private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 
