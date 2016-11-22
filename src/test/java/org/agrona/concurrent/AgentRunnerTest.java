@@ -15,9 +15,10 @@
  */
 package org.agrona.concurrent;
 
-import org.junit.Test;
 import org.agrona.ErrorHandler;
 import org.agrona.LangUtil;
+import org.junit.Test;
+import org.mockito.InOrder;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +49,10 @@ public class AgentRunnerTest
         runner.run();
 
         verify(mockAgent, never()).doWork();
-        verify(mockAgent).onClose();
+        final InOrder inOrder = inOrder(mockAgent);
+        inOrder.verify(mockAgent).quiesce();
+        inOrder.verify(mockAgent).onClose();
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
