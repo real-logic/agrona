@@ -170,7 +170,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                             break;
                         }
 
-                        System.err.println("timeout await for agent. Retrying...");
+                        System.err.printf("timeout await for agent: %s. Retrying...\n", agent.roleName());
 
                         thread.interrupt();
                     }
