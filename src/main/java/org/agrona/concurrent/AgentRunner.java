@@ -182,14 +182,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                 }
             }
 
-            try
-            {
-                agent.quiesce();
-            }
-            finally
-            {
-                agent.onClose();
-            }
+            agent.onClose();
         }
     }
 }

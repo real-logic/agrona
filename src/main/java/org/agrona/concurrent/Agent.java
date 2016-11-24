@@ -41,17 +41,6 @@ public interface Agent
     }
 
     /**
-     * To be overridden by Agents that need to do synchronized resource cleanup on close.
-     *
-     * This method will be called after the agent thread has terminated, but before onClose().
-     * It will only be called once by a single thread.
-     */
-    default void quiesce()
-    {
-        // default to do nothing unless you want to handle the notification.
-    }
-
-    /**
      * Get the name of this agent's role.
      *
      * @return the name of this agent's role.
