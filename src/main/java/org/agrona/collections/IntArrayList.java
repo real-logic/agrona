@@ -61,7 +61,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         final int nullValue)
     {
         this.nullValue = nullValue;
-        elements = new int[initialCapacity];
+        elements = new int[Math.max(initialCapacity, INITIAL_CAPACITY)];
     }
 
     /**
@@ -126,7 +126,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     {
         if (elements.length != size)
         {
-            elements = Arrays.copyOf(elements, size);
+            elements = Arrays.copyOf(elements, Math.max(INITIAL_CAPACITY, size));
         }
     }
 
