@@ -22,13 +22,24 @@ import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 /**
- * A {@link List} implementation that stores int values with the ability to have them not boxed.
+ * A {@link List} implementation that stores int values with the ability to not have them boxed.
  */
 public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess
 {
+    /**
+     * The default value that will be used in place of null for an element.
+     */
     public static final int DEFAULT_NULL_VALUE = Integer.MIN_VALUE;
-    @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 10;
-    @DoNotSub public static final int MAX_SIZE = Integer.MAX_VALUE - 8;
+
+    /**
+     * Initial capacity to which the array will be sized.
+     */
+    @DoNotSub public static final int INITIAL_CAPACITY = 10;
+
+    /**
+     * Maximum capacity to which the array can grow.
+     */
+    @DoNotSub public static final int MAX_CAPACITY = Integer.MAX_VALUE - 8;
 
     private final int nullValue;
     @DoNotSub private int size = 0;
@@ -36,7 +47,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
     public IntArrayList()
     {
-        this(DEFAULT_INITIAL_CAPACITY, DEFAULT_NULL_VALUE);
+        this(INITIAL_CAPACITY, DEFAULT_NULL_VALUE);
     }
 
     /**
@@ -154,7 +165,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean addInt(final int element)
     {
-        ensureCapacity(size + 1);
+        ensureCapacityPrivate(size + 1);
 
         elements[size] = element;
         size++;
@@ -182,7 +193,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         checkIndexForAdd(index);
 
         @DoNotSub final int requiredSize = size + 1;
-        ensureCapacity(requiredSize);
+        ensureCapacityPrivate(requiredSize);
 
         if (index < size)
         {
@@ -322,7 +333,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void pushInt(final int element)
     {
-        ensureCapacity(size + 1);
+        ensureCapacityPrivate(size + 1);
 
         elements[size] = element;
         size++;
@@ -403,23 +414,28 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void ensureCapacity(@DoNotSub final int requiredCapacity)
     {
-        @DoNotSub final int capacity = elements.length;
-        if (requiredCapacity > capacity)
+        ensureCapacityPrivate(Math.max(requiredCapacity, INITIAL_CAPACITY));
+    }
+
+    private void ensureCapacityPrivate(@DoNotSub final int requiredCapacity)
+    {
+        @DoNotSub final int currentCapacity = elements.length;
+        if (requiredCapacity > currentCapacity)
         {
-            @DoNotSub int newCapacity = capacity * 2;
-            if (newCapacity < 0)
+            @DoNotSub int newCapacity = currentCapacity + (currentCapacity >> 1);
+
+            if (newCapacity < 0 || newCapacity > MAX_CAPACITY)
             {
-                if (MAX_SIZE == capacity)
+                if (currentCapacity == MAX_CAPACITY)
                 {
-                    throw new IndexOutOfBoundsException("Max size reached: " + MAX_SIZE);
+                    throw new IllegalStateException("Max capacity reached: " + MAX_CAPACITY);
                 }
 
-                newCapacity = MAX_SIZE;
+                newCapacity = MAX_CAPACITY;
             }
 
             final int[] newElements = new int[newCapacity];
-
-            System.arraycopy(elements, 0, newElements, 0, capacity);
+            System.arraycopy(elements, 0, newElements, 0, currentCapacity);
             elements = newElements;
         }
     }
