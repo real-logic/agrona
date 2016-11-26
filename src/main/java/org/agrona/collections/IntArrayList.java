@@ -92,7 +92,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     {
         if (initialSize < 0 || initialSize > initialElements.length)
         {
-            throw new IllegalArgumentException("Illegal size " + initialSize + " for array length " + initialElements.length);
+            throw new IllegalArgumentException("Illegal size " + initialSize + " for array length of " + initialElements.length);
         }
 
         elements = initialElements;
