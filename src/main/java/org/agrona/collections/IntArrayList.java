@@ -83,16 +83,22 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     /**
      * Wrap an existing array without copying it.
      *
+     * The array must be greater than or equal to {@link #INITIAL_CAPACITY}.
+     *
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
+     * @throws IllegalArgumentException if the initialSize is is less than {@link #INITIAL_CAPACITY} or greater than
+     * the length of the initial array.
      */
     public void wrap(
         final int[] initialElements,
         final @DoNotSub int initialSize)
     {
-        if (initialSize < 0 || initialSize > initialElements.length)
+        if (initialSize < INITIAL_CAPACITY || initialSize > initialElements.length)
         {
-            throw new IllegalArgumentException("Illegal size " + initialSize + " for array length of " + initialElements.length);
+            throw new IllegalArgumentException(
+                "Illegal initial size " + initialSize + " for array length of " + initialElements.length +
+                " or less than " + INITIAL_CAPACITY);
         }
 
         elements = initialElements;
