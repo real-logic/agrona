@@ -20,7 +20,8 @@ import sun.misc.Signal;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * One time barrier for blocking one or more threads until a SIGINT signal is received from the operating system.
+ * One time barrier for blocking one or more threads until a SIGINT signal is received from the operating system
+ * or by programmatically calling {@link #signal()}.
  */
 public class SigIntBarrier
 {
