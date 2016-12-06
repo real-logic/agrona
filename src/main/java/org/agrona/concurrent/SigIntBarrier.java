@@ -17,30 +17,29 @@ package org.agrona.concurrent;
 
 import sun.misc.Signal;
 
-import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.CountDownLatch;
 
 /**
- * One time barrier for blocking a thread until a SIGINT signal is received from the operating system.
+ * One time barrier for blocking a single thread until a SIGINT signal is received from the operating system.
  */
 public class SigIntBarrier
 {
-    private final Thread thread;
-    private volatile boolean running = true;
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     /**
      * Construct and register the barrier ready for use.
      */
     public SigIntBarrier()
     {
-        thread = Thread.currentThread();
+        Signal.handle(new Signal("INT"), (signal) -> signal());
+    }
 
-        Signal.handle(
-            new Signal("INT"),
-            (signal) ->
-            {
-                running = false;
-                LockSupport.unpark(thread);
-            });
+    /**
+     * Programmatically signal an awaiting thread.
+     */
+    public void signal()
+    {
+        latch.countDown();
     }
 
     /**
@@ -48,9 +47,13 @@ public class SigIntBarrier
      */
     public void await()
     {
-        while (running)
+        try
         {
-            LockSupport.park();
+            latch.await();
+        }
+        catch (final InterruptedException ignore)
+        {
+            Thread.currentThread().interrupt();
         }
     }
 }
