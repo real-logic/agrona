@@ -19,6 +19,10 @@ import sun.misc.Signal;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * One time barrier for blocking one or more threads until a SIGINT or SIGTERM signal is received from the operating system
+ * or by programmatically calling {@link #signal()}. Useful for shutting down a service.
+ */
 public class ShutdownSignalBarrier
 {
     /**
