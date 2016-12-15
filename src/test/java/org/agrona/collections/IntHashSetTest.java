@@ -438,6 +438,7 @@ public class IntHashSetTest
         addTwoElements(testSet);
 
         assertFalse(testSet.addAll(new IntHashSet(100, -1)));
+        assertFalse(testSet.addAll(new HashSet<Integer>()));
         assertContainsElements(testSet);
     }
 
@@ -450,7 +451,10 @@ public class IntHashSetTest
 
         subset.add(1);
 
+        HashSet subSetCollection = new HashSet<>(subset);
+
         assertFalse(testSet.addAll(subset));
+        assertFalse(testSet.addAll(subSetCollection));
         assertContainsElements(testSet);
     }
 
@@ -463,12 +467,15 @@ public class IntHashSetTest
 
         addTwoElements(equal);
 
+        HashSet<Integer> equalCollection = new HashSet<>(equal);
+
         assertFalse(testSet.addAll(equal));
+        assertFalse(testSet.addAll(equalCollection));
         assertContainsElements(testSet);
     }
 
     @Test
-    public void containsValuesAddedFromDisjointSet()
+    public void containsValuesAddedFromDisjointSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -484,11 +491,43 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsValuesAddedFromIntersectingSet()
+    public void containsValuesAddedFromDisjointSet()
+    {
+        addTwoElements(testSet);
+
+        final HashSet<Integer> disjoint = new HashSet<>();
+
+        disjoint.add(2);
+        disjoint.add(1002);
+
+        assertTrue(testSet.addAll(disjoint));
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(1001));
+        assertTrue(testSet.containsAll(disjoint));
+    }
+
+    @Test
+    public void containsValuesAddedFromIntersectingSetPrimitive()
     {
         addTwoElements(testSet);
 
         final IntHashSet intersecting = new IntHashSet(100, -1);
+
+        intersecting.add(1);
+        intersecting.add(1002);
+
+        assertTrue(testSet.addAll(intersecting));
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(1001));
+        assertTrue(testSet.containsAll(intersecting));
+    }
+
+    @Test
+    public void containsValuesAddedFromIntersectingSet()
+    {
+        addTwoElements(testSet);
+
+        final HashSet<Integer> intersecting = new HashSet<>();
 
         intersecting.add(1);
         intersecting.add(1002);
@@ -505,6 +544,7 @@ public class IntHashSetTest
         addTwoElements(testSet);
 
         assertFalse(testSet.removeAll(new IntHashSet(100, -1)));
+        assertFalse(testSet.removeAll(new HashSet<Integer>()));
         assertContainsElements(testSet);
     }
 
@@ -519,11 +559,12 @@ public class IntHashSetTest
         disjoint.add(1002);
 
         assertFalse(testSet.removeAll(disjoint));
+        assertFalse(testSet.removeAll(new HashSet<Integer>()));
         assertContainsElements(testSet);
     }
 
     @Test
-    public void doesNotContainRemovedIntersectingSet()
+    public void doesNotContainRemovedIntersectingSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -538,11 +579,39 @@ public class IntHashSetTest
     }
 
     @Test
-    public void isEmptyAfterRemovingEqualSet()
+    public void doesNotContainRemovedIntersectingSet()
+    {
+        addTwoElements(testSet);
+
+        final HashSet<Integer> intersecting = new HashSet<>();
+
+        intersecting.add(1);
+        intersecting.add(1002);
+
+        assertTrue(testSet.removeAll(intersecting));
+        assertTrue(testSet.contains(1001));
+        assertFalse(testSet.containsAll(intersecting));
+    }
+
+    @Test
+    public void isEmptyAfterRemovingEqualSetPrimitive()
     {
         addTwoElements(testSet);
 
         final IntHashSet equal = new IntHashSet(100, -1);
+
+        addTwoElements(equal);
+
+        assertTrue(testSet.removeAll(equal));
+        assertTrue(testSet.isEmpty());
+    }
+
+    @Test
+    public void isEmptyAfterRemovingEqualSet()
+    {
+        addTwoElements(testSet);
+
+        final HashSet<Integer> equal = new HashSet<>();
 
         addTwoElements(equal);
 
@@ -569,6 +638,12 @@ public class IntHashSetTest
     }
 
     private static void addTwoElements(final IntHashSet obj)
+    {
+        obj.add(1);
+        obj.add(1001);
+    }
+
+    private static void addTwoElements(final HashSet<Integer> obj)
     {
         obj.add(1);
         obj.add(1001);

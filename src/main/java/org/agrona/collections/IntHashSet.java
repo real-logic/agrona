@@ -341,6 +341,23 @@ public final class IntHashSet implements Set<Integer>
     }
 
     /**
+     * Alias for {@link #addAll(Collection)} for the specialized case when adding another IntHashSet,
+     * avoids boxing and allocations
+     */
+    public boolean addAll(final IntHashSet coll){
+        Objects.requireNonNull(coll);
+
+        boolean acc = false;
+
+        int t;
+        for(IntIterator it = coll.iterator(); it.hasNext(); acc |= add(t)) {
+            t = it.nextValue();
+        }
+
+        return acc;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean containsAll(final Collection<?> coll)
@@ -417,6 +434,23 @@ public final class IntHashSet implements Set<Integer>
     public boolean removeAll(final Collection<?> coll)
     {
         return disjunction(coll, this::remove);
+    }
+
+    /**
+     * See {@link #addAll(IntHashSet)}
+     */
+    public boolean removeAll(final IntHashSet coll)
+    {
+        Objects.requireNonNull(coll);
+
+        boolean acc = false;
+
+        int t;
+        for(IntIterator it = coll.iterator(); it.hasNext(); acc |= remove(t)) {
+            t = it.nextValue();
+        }
+
+        return acc;
     }
 
     private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
