@@ -39,7 +39,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see IntIterator
  * @see Set
  */
-public final class IntHashSet implements Set<Integer>
+public final class IntHashSet extends AbstractSet<Integer>
 {
     /**
      * The load factor used when none is specified in the constructor.
@@ -364,22 +364,6 @@ public final class IntHashSet implements Set<Integer>
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean containsAll(final Collection<?> coll)
-    {
-        for (final Object t : coll)
-        {
-            if (!contains(t))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
      * @param other int hash set to compare against.
@@ -604,12 +588,5 @@ public final class IntHashSet implements Set<Integer>
                 throw new IllegalStateException();
             }
         }
-    }
-
-    // --- Unimplemented below here
-
-    public boolean retainAll(final Collection<?> coll)
-    {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }

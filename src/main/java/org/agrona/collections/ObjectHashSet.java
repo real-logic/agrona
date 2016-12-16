@@ -18,10 +18,7 @@ package org.agrona.collections;
 import org.agrona.BitUtil;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
@@ -39,7 +36,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see ObjectIterator
  * @see Set
  */
-public final class ObjectHashSet<T> implements Set<T>
+public final class ObjectHashSet<T> extends AbstractSet<T>
 {
     /**
      * The load factor used when none is specified in the constructor.
@@ -545,12 +542,5 @@ public final class ObjectHashSet<T> implements Set<T>
                 throw new IllegalStateException();
             }
         }
-    }
-
-    // --- Unimplemented below here
-
-    public boolean retainAll(final Collection<?> coll)
-    {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }
