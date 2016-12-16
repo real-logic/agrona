@@ -333,6 +333,28 @@ public final class ObjectHashSet<T> implements Set<T>
     }
 
     /**
+     * Alias for {@link #addAll(Collection)} for the specialized case when adding another ObjectHashSet,
+     * avoids boxing and allocations
+     *
+     * @param coll containing the values to be added.
+     * @return <tt>true</tt> if this set changed as a result of the call
+     */
+    public boolean addAll(final ObjectHashSet<T> coll)
+    {
+        boolean acc = false;
+
+        for (final T value : coll.values)
+        {
+            if (value != MISSING_VALUE)
+            {
+                acc |= add(value);
+            }
+        }
+
+        return acc;
+    }
+
+    /**
      * Fast Path set difference for comparison with another ObjectHashSet.
      * <p>
      * NB: garbage free in the identical case, allocates otherwise.
@@ -366,6 +388,28 @@ public final class ObjectHashSet<T> implements Set<T>
     public boolean removeAll(final Collection<?> coll)
     {
         return disjunction(coll, this::remove);
+    }
+
+    /**
+     * Alias for {@link #removeAll(Collection)} for the specialized case when removing another ObjectHashSet,
+     * avoids boxing and allocations
+     *
+     * @param coll containing the values to be removed.
+     * @return <tt>true</tt> if this set changed as a result of the call
+     */
+    public boolean removeAll(final ObjectHashSet<T> coll)
+    {
+        boolean acc = false;
+
+        for (final T value : coll.values)
+        {
+            if (value != MISSING_VALUE)
+            {
+                acc |= remove(value);
+            }
+        }
+
+        return acc;
     }
 
     private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)

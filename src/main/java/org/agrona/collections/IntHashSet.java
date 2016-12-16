@@ -351,10 +351,13 @@ public final class IntHashSet implements Set<Integer>
     {
         boolean acc = false;
 
-        int value;
-        for (final IntIterator iter = coll.iterator(); iter.hasNext(); acc |= add(value))
+        final int missingValue = coll.missingValue;
+        for (final int value : coll.values)
         {
-            value = iter.nextValue();
+            if (value != missingValue)
+            {
+                acc |= add(value);
+            }
         }
 
         return acc;
@@ -444,10 +447,13 @@ public final class IntHashSet implements Set<Integer>
     {
         boolean acc = false;
 
-        int value;
-        for (final IntIterator iter = coll.iterator(); iter.hasNext(); acc |= remove(value))
+        final int missingValue = coll.missingValue;
+        for (final int value : coll.values)
         {
-            value = iter.nextValue();
+            if (value != missingValue)
+            {
+                acc |= remove(value);
+            }
         }
 
         return acc;
