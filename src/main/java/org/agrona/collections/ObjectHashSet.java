@@ -519,7 +519,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
 
     public final class ObjectHashSetIterator extends ObjectIterator<T>
     {
-        protected ObjectHashSetIterator(final T[] values)
+        ObjectHashSetIterator(final T[] values)
         {
             super(values);
         }

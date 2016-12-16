@@ -566,7 +566,7 @@ public final class IntHashSet extends AbstractSet<Integer>
 
     public final class IntHashSetIterator extends IntIterator
     {
-        protected IntHashSetIterator(final int missingValue, final int[] values)
+        IntHashSetIterator(final int missingValue, final int[] values)
         {
             super(missingValue, values);
         }
