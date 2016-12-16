@@ -564,9 +564,9 @@ public final class IntHashSet extends AbstractSet<Integer>
         return Arrays.hashCode(values);
     }
 
-    private final class IntHashSetIterator extends IntIterator
+    public final class IntHashSetIterator extends IntIterator
     {
-        private IntHashSetIterator(final int missingValue, final int[] values)
+        protected IntHashSetIterator(final int missingValue, final int[] values)
         {
             super(missingValue, values);
         }

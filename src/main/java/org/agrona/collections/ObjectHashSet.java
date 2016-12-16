@@ -517,9 +517,9 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
         return Arrays.hashCode(values);
     }
 
-    private final class ObjectHashSetIterator extends ObjectIterator<T>
+    public final class ObjectHashSetIterator extends ObjectIterator<T>
     {
-        private ObjectHashSetIterator(final T[] values)
+        protected ObjectHashSetIterator(final T[] values)
         {
             super(values);
         }
