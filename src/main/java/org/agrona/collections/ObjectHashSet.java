@@ -313,8 +313,6 @@ public final class ObjectHashSet<T> implements Set<T>
      */
     public boolean containsAll(final Collection<?> coll)
     {
-        Objects.requireNonNull(coll);
-
         for (final Object t : coll)
         {
             if (!contains(t))
@@ -344,8 +342,6 @@ public final class ObjectHashSet<T> implements Set<T>
      */
     public ObjectHashSet<T> difference(final ObjectHashSet<T> other)
     {
-        Objects.requireNonNull(other);
-
         ObjectHashSet<T> difference = null;
 
         for (final T value : values)
@@ -374,8 +370,6 @@ public final class ObjectHashSet<T> implements Set<T>
 
     private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
     {
-        Objects.requireNonNull(coll);
-
         boolean acc = false;
         for (final T t : coll)
         {
@@ -424,8 +418,6 @@ public final class ObjectHashSet<T> implements Set<T>
     @SuppressWarnings("unchecked")
     public <T1> T1[] toArray(final T1[] into)
     {
-        Objects.requireNonNull(into, "into");
-
         final Class<?> componentType = into.getClass().getComponentType();
 
         final int size = this.size;

@@ -18,7 +18,6 @@ package org.agrona.collections;
 import org.agrona.BitUtil;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -253,8 +252,6 @@ public class BiInt2ObjectMap<V>
      */
     public V computeIfAbsent(final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
     {
-        Objects.requireNonNull(mappingFunction);
-
         V value = get(keyPartA, keyPartB);
         if (value == null)
         {

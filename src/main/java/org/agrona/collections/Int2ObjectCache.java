@@ -269,8 +269,6 @@ public class Int2ObjectCache<V>
      */
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
-        requireNonNull(mappingFunction, "mappingFunction cannot be null");
-
         V value = get(key);
         if (value == null)
         {

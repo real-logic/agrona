@@ -23,7 +23,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 
-import static java.util.Objects.requireNonNull;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -265,8 +264,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int computeIfAbsent(final int key, final IntUnaryOperator mappingFunction)
     {
-        requireNonNull(mappingFunction, "mappingFunction cannot be null");
-
         int value = get(key);
         if (value == missingValue)
         {
