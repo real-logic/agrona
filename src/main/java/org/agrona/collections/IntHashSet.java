@@ -343,15 +343,18 @@ public final class IntHashSet implements Set<Integer>
     /**
      * Alias for {@link #addAll(Collection)} for the specialized case when adding another IntHashSet,
      * avoids boxing and allocations
+     *
+     * @param coll containing the values to be added.
+     * @return <tt>true</tt> if this set changed as a result of the call
      */
-    public boolean addAll(final IntHashSet coll){
-        Objects.requireNonNull(coll);
-
+    public boolean addAll(final IntHashSet coll)
+    {
         boolean acc = false;
 
-        int t;
-        for(IntIterator it = coll.iterator(); it.hasNext(); acc |= add(t)) {
-            t = it.nextValue();
+        int value;
+        for (final IntIterator iter = coll.iterator(); iter.hasNext(); acc |= add(value))
+        {
+            value = iter.nextValue();
         }
 
         return acc;
@@ -362,8 +365,6 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean containsAll(final Collection<?> coll)
     {
-        Objects.requireNonNull(coll);
-
         for (final Object t : coll)
         {
             if (!contains(t))
@@ -383,8 +384,6 @@ public final class IntHashSet implements Set<Integer>
      */
     public boolean containsAll(final IntHashSet other)
     {
-        Objects.requireNonNull(other);
-
         final int missingValue = other.missingValue;
         for (final int value : other.values)
         {
@@ -407,8 +406,6 @@ public final class IntHashSet implements Set<Integer>
      */
     public IntHashSet difference(final IntHashSet other)
     {
-        Objects.requireNonNull(other);
-
         IntHashSet difference = null;
 
         final int missingValue = this.missingValue;
@@ -437,17 +434,20 @@ public final class IntHashSet implements Set<Integer>
     }
 
     /**
-     * See {@link #addAll(IntHashSet)}
+     * Alias for {@link #removeAll(Collection)} for the specialized case when removing another IntHashSet,
+     * avoids boxing and allocations
+     *
+     * @param coll containing the values to be removed.
+     * @return <tt>true</tt> if this set changed as a result of the call
      */
     public boolean removeAll(final IntHashSet coll)
     {
-        Objects.requireNonNull(coll);
-
         boolean acc = false;
 
-        int t;
-        for(IntIterator it = coll.iterator(); it.hasNext(); acc |= remove(t)) {
-            t = it.nextValue();
+        int value;
+        for (final IntIterator iter = coll.iterator(); iter.hasNext(); acc |= remove(value))
+        {
+            value = iter.nextValue();
         }
 
         return acc;
@@ -455,8 +455,6 @@ public final class IntHashSet implements Set<Integer>
 
     private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
     {
-        Objects.requireNonNull(coll);
-
         boolean acc = false;
         for (final T t : coll)
         {
@@ -513,8 +511,6 @@ public final class IntHashSet implements Set<Integer>
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] into)
     {
-        Objects.requireNonNull(into, "into");
-
         final Class<?> componentType = into.getClass().getComponentType();
         if (!componentType.isAssignableFrom(Integer.class))
         {

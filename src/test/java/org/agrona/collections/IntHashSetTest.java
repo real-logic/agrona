@@ -451,7 +451,7 @@ public class IntHashSetTest
 
         subset.add(1);
 
-        HashSet subSetCollection = new HashSet<>(subset);
+        final HashSet<Integer> subSetCollection = new HashSet<>(subset);
 
         assertFalse(testSet.addAll(subset));
         assertFalse(testSet.addAll(subSetCollection));
@@ -467,7 +467,7 @@ public class IntHashSetTest
 
         addTwoElements(equal);
 
-        HashSet<Integer> equalCollection = new HashSet<>(equal);
+        final HashSet<Integer> equalCollection = new HashSet<>(equal);
 
         assertFalse(testSet.addAll(equal));
         assertFalse(testSet.addAll(equalCollection));
