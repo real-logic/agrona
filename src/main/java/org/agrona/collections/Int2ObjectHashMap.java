@@ -419,6 +419,7 @@ public class Int2ObjectHashMap<V>
         {
             curValue = put(key, value);
         }
+
         return curValue;
     }
 
@@ -437,7 +438,9 @@ public class Int2ObjectHashMap<V>
         {
             return false;
         }
+
         put(key, newValue);
+
         return true;
     }
 

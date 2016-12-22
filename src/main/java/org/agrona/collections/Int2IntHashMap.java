@@ -513,6 +513,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             curValue = put(key, value);
         }
+
         return curValue;
     }
 
@@ -531,7 +532,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             return false;
         }
+
         put(key, newValue);
+
         return true;
     }
 
