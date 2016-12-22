@@ -502,8 +502,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
         {
             final ObjectHashSet otherSet = (ObjectHashSet)other;
 
-            return otherSet.size == size
-                && containsAll(otherSet);
+            return otherSet.size == size && containsAll(otherSet);
         }
 
         return false;

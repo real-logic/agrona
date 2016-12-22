@@ -21,6 +21,28 @@ package org.agrona.collections;
 public class Hashing
 {
     /**
+     * Generate a hash for an int value. This is a no op.
+     *
+     * @param value to be hashed.
+     * @return the hashed value.
+     */
+    public static int hash(final int value)
+    {
+        return value;
+    }
+
+    /**
+     * Generate a hash for an long value. This is a no op.
+     *
+     * @param value to be hashed.
+     * @return the hashed value.
+     */
+    public static int hash(final long value)
+    {
+        return (int)value ^ (int)(value >>> 32);
+    }
+
+    /**
      * Generate a hash for a int value.
      *
      * @param value to be hashed.

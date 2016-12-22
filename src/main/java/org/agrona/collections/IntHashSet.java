@@ -548,9 +548,7 @@ public final class IntHashSet extends AbstractSet<Integer>
         {
             final IntHashSet otherSet = (IntHashSet)other;
 
-            return otherSet.missingValue == missingValue
-                && otherSet.size == size
-                && containsAll(otherSet);
+            return otherSet.size == size && containsAll(otherSet);
         }
 
         return false;
@@ -561,7 +559,16 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     @DoNotSub public int hashCode()
     {
-        return Arrays.hashCode(values);
+        @DoNotSub int hashCode = 0;
+        for (final int value : values)
+        {
+            if (value != missingValue)
+            {
+                hashCode = 31 * hashCode + Hashing.hash(value);
+            }
+        }
+
+        return hashCode;
     }
 
     public final class IntHashSetIterator extends IntIterator

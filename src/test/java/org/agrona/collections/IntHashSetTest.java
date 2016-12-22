@@ -239,13 +239,6 @@ public class IntHashSetTest
     }
 
     @Test
-    public void equalityRequiresTheSameMissingValue()
-    {
-        final IntHashSet other = new IntHashSet(100, 1);
-        assertNotEquals(testSet, other);
-    }
-
-    @Test
     public void setsWithTheSameValuesAreEqual()
     {
         final IntHashSet other = new IntHashSet(100, -1);
