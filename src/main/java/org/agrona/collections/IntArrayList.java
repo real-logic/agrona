@@ -428,6 +428,64 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         ensureCapacityPrivate(Math.max(requiredCapacity, INITIAL_CAPACITY));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object other)
+    {
+        if (other == this)
+        {
+            return true;
+        }
+
+        boolean isEqual = false;
+
+        if (other instanceof IntArrayList)
+        {
+            final IntArrayList rhsList = (IntArrayList)other;
+
+            if (this.size == rhsList.size)
+            {
+                isEqual = true;
+
+                for (@DoNotSub int i = 0; i < size; i++)
+                {
+                    final int lhsValue = this.elements[i];
+                    final int rhsValue = rhsList.elements[i];
+
+                    if (lhsValue != rhsValue)
+                    {
+                        if (lhsValue != this.nullValue || rhsValue != rhsList.nullValue)
+                        {
+                            isEqual = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return isEqual;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub public int hashCode()
+    {
+        @DoNotSub int hashCode = 0;
+        for (@DoNotSub int i = 0; i < size; i++)
+        {
+            final int value = elements[i];
+            if (value != nullValue)
+            {
+                hashCode = 31 * hashCode + Hashing.hash(value);
+            }
+        }
+
+        return hashCode;
+    }
+
     private void ensureCapacityPrivate(@DoNotSub final int requiredCapacity)
     {
         @DoNotSub final int currentCapacity = elements.length;
