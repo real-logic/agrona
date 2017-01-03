@@ -18,6 +18,7 @@ package org.agrona.concurrent;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.spi.MidiDeviceProvider;
+import java.lang.reflect.Method;
 
 /**
  * Control the supporting of high resolution timers for scheduled events by enabling the {@link MidiDevice}.
@@ -28,10 +29,21 @@ public class HighResolutionTimer
 
     static
     {
-        final MidiDeviceProvider provider = new com.sun.media.sound.MidiOutDeviceProvider();
-        final MidiDevice.Info[] info = provider.getDeviceInfo();
+        MidiDevice midiDevice = null;
+        try
+        {
+            final Class<?> mediaProviderClass = Class.forName("com.sun.media.sound.MidiOutDeviceProvider");
+            final Method getDeviceInfoMethod = mediaProviderClass.getMethod("getDeviceInfo");
+            final MidiDeviceProvider provider = (MidiDeviceProvider)mediaProviderClass.newInstance();
+            final MidiDevice.Info[] info = (MidiDevice.Info[])getDeviceInfoMethod.invoke(provider);
 
-        MIDI_DEVICE = info.length > 0 ? provider.getDevice(info[0]) : null;
+            midiDevice = info.length > 0 ? provider.getDevice(info[0]) : null;
+        }
+        catch (final Exception ignore)
+        {
+        }
+
+        MIDI_DEVICE = midiDevice;
     }
 
     private static volatile boolean isEnabled = false;
