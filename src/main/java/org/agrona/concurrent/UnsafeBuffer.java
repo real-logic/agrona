@@ -1020,7 +1020,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public String getStringAscii(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(index + SIZE_OF_INT, stringInBytes);
+        getBytes(index + SIZE_OF_INT, stringInBytes, 0, length);
 
         return new String(stringInBytes, US_ASCII);
     }
@@ -1084,7 +1084,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public String getStringWithoutLengthAscii(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(index, stringInBytes);
+        getBytes(index, stringInBytes, 0, length);
 
         return new String(stringInBytes, US_ASCII);
     }
@@ -1131,7 +1131,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public String getStringUtf8(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(index + SIZE_OF_INT, stringInBytes);
+        getBytes(index + SIZE_OF_INT, stringInBytes, 0, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1155,7 +1155,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         putInt(index, bytes.length);
-        putBytes(index + SIZE_OF_INT, bytes);
+        putBytes(index + SIZE_OF_INT, bytes, 0, bytes.length);
 
         return SIZE_OF_INT + bytes.length;
     }
@@ -1169,7 +1169,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         putInt(index, bytes.length, byteOrder);
-        putBytes(index + SIZE_OF_INT, bytes);
+        putBytes(index + SIZE_OF_INT, bytes, 0, bytes.length);
 
         return SIZE_OF_INT + bytes.length;
     }
@@ -1177,7 +1177,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public String getStringWithoutLengthUtf8(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(index, stringInBytes);
+        getBytes(index, stringInBytes, 0, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1185,7 +1185,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public int putStringWithoutLengthUtf8(final int index, final String value)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        putBytes(index, bytes);
+        putBytes(index, bytes, 0, bytes.length);
 
         return bytes.length;
     }
