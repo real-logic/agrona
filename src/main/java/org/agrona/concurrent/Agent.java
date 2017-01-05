@@ -33,7 +33,7 @@ public interface Agent
      *
      * This method will be called after the agent thread has terminated. It will only be called once by a single thread.
      *
-     * <b>Note:</b> Implementations of this method much be idempotent.
+     * <b>Note:</b> Implementations of this method must be idempotent.
      */
     default void onClose()
     {
