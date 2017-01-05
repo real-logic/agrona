@@ -51,7 +51,7 @@ public class Verify
     }
 
     /**
-     * Verify that a map contains and entry for a given key.
+     * Verify that a map contains an entry for a given key.
      *
      * @param map to be checked.
      * @param key to get by.
