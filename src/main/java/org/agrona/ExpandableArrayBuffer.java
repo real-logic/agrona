@@ -610,6 +610,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     }
 
     ///////////////////////////////////////////////////////////////////////////
+
     public String getStringUtf8(final int index)
     {
         final int length = getInt(index);
