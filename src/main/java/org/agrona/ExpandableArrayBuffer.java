@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
@@ -508,6 +509,107 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    public String getStringAscii(final int index)
+    {
+        final int length = getInt(index);
+
+        return getStringAscii(index, length);
+    }
+
+    public String getStringAscii(final int index, final ByteOrder byteOrder)
+    {
+        final int length = getInt(index, byteOrder);
+
+        return getStringAscii(index, length);
+    }
+
+    public String getStringAscii(final int index, final int length)
+    {
+        final byte[] stringInBytes = new byte[length];
+        getBytes(index + SIZE_OF_INT, stringInBytes);
+
+        return new String(stringInBytes, US_ASCII);
+    }
+
+    public int putStringAscii(final int index, final String value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        ensureCapacity(index, length + SIZE_OF_INT);
+
+        UNSAFE.putInt(byteArray, ARRAY_BASE_OFFSET + index, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, ARRAY_BASE_OFFSET + SIZE_OF_INT + index + i, (byte)c);
+        }
+
+        return SIZE_OF_INT + length;
+    }
+
+    public int putStringAscii(final int index, final String value, final ByteOrder byteOrder)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        ensureCapacity(index, length + SIZE_OF_INT);
+
+        int bits = length;
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UNSAFE.putInt(byteArray, ARRAY_BASE_OFFSET + index, bits);
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, ARRAY_BASE_OFFSET + SIZE_OF_INT + index + i, (byte)c);
+        }
+
+        return SIZE_OF_INT + length;
+    }
+
+    public String getStringWithoutLengthAscii(final int index, final int length)
+    {
+        final byte[] stringInBytes = new byte[length];
+        getBytes(index, stringInBytes);
+
+        return new String(stringInBytes, US_ASCII);
+    }
+
+    public int putStringWithoutLengthAscii(final int index, final String value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        boundsCheck0(index, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, ARRAY_BASE_OFFSET + index + i, (byte)c);
+        }
+
+        return length;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     public String getStringUtf8(final int index)
     {
         final int length = getInt(index);

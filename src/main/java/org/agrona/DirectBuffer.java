@@ -286,6 +286,41 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     void getBytes(int index, ByteBuffer dstBuffer, int dstOffset, int length);
 
     /**
+     * Get a String from bytes encoded in ASCII format that is length prefixed.
+     *
+     * @param index    at which the String begins.
+     * @return the String as represented by the ASCII encoded bytes.
+     */
+    String getStringAscii(int index);
+
+    /**
+     * Get a String from bytes encoded in ASCII format that is length prefixed.
+     *
+     * @param index    at which the String begins.
+     * @param byteOrder for the length at the beginning of the String.
+     * @return the String as represented by the ASCII encoded bytes.
+     */
+    String getStringAscii(int index, ByteOrder byteOrder);
+
+    /**
+     * Get part of String from bytes encoded in ASCII format that is length prefixed.
+     *
+     * @param index at which the String begins.
+     * @param length of the String in bytes to decode.
+     * @return the String as represented by the ASCII encoded bytes.
+     */
+    String getStringAscii(int index, int length);
+
+    /**
+     * Get an encoded ASCII String from the buffer that does not have a length prefix.
+     *
+     * @param index at which the String begins.
+     * @param length of the String in bytes to decode.
+     * @return the String as represented by the Ascii encoded bytes.
+     */
+    String getStringWithoutLengthAscii(int index, int length);
+
+    /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
      *
      * @param index    at which the String begins.

@@ -22,6 +22,7 @@ import org.agrona.MutableDirectBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
@@ -1002,6 +1003,117 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    public String getStringAscii(final int index)
+    {
+        final int length = getInt(index);
+
+        return getStringAscii(index, length);
+    }
+
+    public String getStringAscii(final int index, final ByteOrder byteOrder)
+    {
+        final int length = getInt(index, byteOrder);
+
+        return getStringAscii(index, length);
+    }
+
+    public String getStringAscii(final int index, final int length)
+    {
+        final byte[] stringInBytes = new byte[length];
+        getBytes(index + SIZE_OF_INT, stringInBytes);
+
+        return new String(stringInBytes, US_ASCII);
+    }
+
+    public int putStringAscii(final int index, final String value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length + SIZE_OF_INT);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
+        }
+
+        return SIZE_OF_INT + length;
+    }
+
+    public int putStringAscii(final int index, final String value, final ByteOrder byteOrder)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length + SIZE_OF_INT);
+        }
+
+        int bits = length;
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
+        }
+
+        return SIZE_OF_INT + length;
+    }
+
+    public String getStringWithoutLengthAscii(final int index, final int length)
+    {
+        final byte[] stringInBytes = new byte[length];
+        getBytes(index, stringInBytes);
+
+        return new String(stringInBytes, US_ASCII);
+    }
+
+    public int putStringWithoutLengthAscii(final int index, final String value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            final char c = value.charAt(i);
+            if (c > 127)
+            {
+                throw new IllegalArgumentException("String not ASCII: " + value);
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte)c);
+        }
+
+        return length;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
     public String getStringUtf8(final int index)
     {
         final int length = getInt(index);
@@ -1104,9 +1216,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public int wrapAdjustment()
     {
-        final long offset =
-            (byteArray != null) ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
-        return (int) (addressOffset - offset);
+        final long offset = byteArray != null ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
+
+        return (int)(addressOffset - offset);
     }
 
     ///////////////////////////////////////////////////////////////////////////
