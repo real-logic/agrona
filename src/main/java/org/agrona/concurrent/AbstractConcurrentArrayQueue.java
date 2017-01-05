@@ -166,7 +166,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
 
     public boolean isEmpty()
     {
-        return null == peek();
+        return head == tail;
     }
 
     public boolean contains(final Object o)
