@@ -215,6 +215,19 @@ public class IoUtil
      */
     public static FileChannel createEmptyFile(final File file, final long length)
     {
+        return createEmptyFile(file, length, true);
+    }
+
+    /**
+     * Create an empty file, and optionally fill with 0s, and return the {@link FileChannel}
+     *
+     * @param file          to create
+     * @param length        of the file to create
+     * @param fillWithZeros to the length of the file to force allocation.
+     * @return {@link java.nio.channels.FileChannel} for the file
+     */
+    public static FileChannel createEmptyFile(final File file, final long length, final boolean fillWithZeros)
+    {
         ensureDirectoryExists(file.getParentFile(), file.getParent());
 
         FileChannel templateFile = null;
@@ -223,7 +236,11 @@ public class IoUtil
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
             randomAccessFile.setLength(length);
             templateFile = randomAccessFile.getChannel();
-            fill(templateFile, 0, length, (byte)0);
+
+            if (fillWithZeros)
+            {
+                fill(templateFile, 0, length, (byte)0);
+            }
         }
         catch (final IOException ex)
         {
@@ -235,7 +252,7 @@ public class IoUtil
 
     /**
      * Check that file exists, open file, and return MappedByteBuffer for entire file
-     * <p>
+     *
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location         of the file to map
@@ -268,11 +285,11 @@ public class IoUtil
      * @param location         of the file to map
      * @param descriptionLabel to be associated for an exceptions
      * @param offset           offset to start mapping at
-     * @param size             length to map region
+     * @param length           length to map region
      * @return {@link java.nio.MappedByteBuffer} for the file
      */
     public static MappedByteBuffer mapExistingFile(
-        final File location, final String descriptionLabel, final long offset, final long size)
+        final File location, final String descriptionLabel, final long offset, final long length)
     {
         checkFileExists(location, descriptionLabel);
 
@@ -280,7 +297,7 @@ public class IoUtil
         try (RandomAccessFile file = new RandomAccessFile(location, "rw");
              FileChannel channel = file.getChannel())
         {
-            mappedByteBuffer = channel.map(READ_WRITE, offset, size);
+            mappedByteBuffer = channel.map(READ_WRITE, offset, length);
         }
         catch (final IOException ex)
         {
@@ -291,20 +308,35 @@ public class IoUtil
     }
 
     /**
-     * Create a new file, fill with 0s, and return a {@link java.nio.MappedByteBuffer} for the file
-     * <p>
+     * Create a new file, fill with 0s, and return a {@link java.nio.MappedByteBuffer} for the file.
+     *
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location of the file to create and map
-     * @param size     of the file to create and map
+     * @param length   of the file to create and map
      * @return {@link java.nio.MappedByteBuffer} for the file
      */
-    public static MappedByteBuffer mapNewFile(final File location, final long size)
+    public static MappedByteBuffer mapNewFile(final File location, final long length)
+    {
+        return mapNewFile(location, length, true);
+    }
+
+    /**
+     * Create a new file, and optionally fill with 0s, and return a {@link java.nio.MappedByteBuffer} for the file.
+     *
+     * The file itself will be closed, but the mapping will persist.
+     *
+     * @param location      of the file to create and map
+     * @param length        of the file to create and map
+     * @param fillWithZeros to force allocation.
+     * @return {@link java.nio.MappedByteBuffer} for the file
+     */
+    public static MappedByteBuffer mapNewFile(final File location, final long length, final boolean fillWithZeros)
     {
         MappedByteBuffer mappedByteBuffer = null;
-        try (FileChannel channel = createEmptyFile(location, size))
+        try (FileChannel channel = createEmptyFile(location, length, fillWithZeros))
         {
-            mappedByteBuffer = channel.map(READ_WRITE, 0, size);
+            mappedByteBuffer = channel.map(READ_WRITE, 0, length);
         }
         catch (final IOException ex)
         {
