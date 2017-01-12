@@ -156,7 +156,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Convenience {@link #getAndAdd(int, int)} (key, 1).
+     * Convenience version of {@link #getAndAdd(int, int)} (key, 1).
+     *
+     * @param key for the counter.
+     * @return the previous value.
      */
     public int inc(final int key)
     {
@@ -164,7 +167,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Convenience {@link #getAndAdd(int, int)} (key, -1).
+     * Convenience version of {@link #getAndAdd(int, int)} (key, -1).
+     *
+     * @param key for the counter.
+     * @return the previous value.
      */
     public int dec(final int key)
     {
@@ -176,7 +182,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      * current value and associate key with {@link #missingValue()} + amount unless amount is 0, in which case map
      * remains unchanged.
      *
-     * @param key new or existing
+     * @param key    new or existing
      * @param amount to be added
      * @return the previous value associated with the specified key, or
      *         {@link #missingValue()} if there was no mapping for the key.
