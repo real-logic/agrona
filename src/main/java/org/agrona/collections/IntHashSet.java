@@ -27,13 +27,13 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
  * Open-addressing with linear-probing expandable hash set. Allocation free in steady state use when expanded.
- * <p>
+ *
  * By storing elements as int primitives this significantly reduces memory consumption compared with Java's builtin
  * <code>HashSet&lt;Integer&gt;</code>. It implements <code>Set&lt;Integer&gt;</code> for convenience, but calling
  * functionality via those methods can add boxing overhead to your usage.
- * <p>
+ *
  * Not Threadsafe.
- * <p>
+ *
  * This HashSet caches its iterator object, so nested iteration is not supported.
  *
  * @see IntIterator
@@ -385,7 +385,7 @@ public final class IntHashSet extends AbstractSet<Integer>
 
     /**
      * Fast Path set difference for comparison with another IntHashSet.
-     * <p>
+     *
      * NB: garbage free in the identical case, allocates otherwise.
      *
      * @param other the other set to subtract

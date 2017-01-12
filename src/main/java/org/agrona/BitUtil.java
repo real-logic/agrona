@@ -124,7 +124,7 @@ public class BitUtil
     /**
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
-     * <p>
+     *
      * This method executes without branching. This code is designed to be use in the fast path and should not
      * be used with negative numbers. Negative numbers will result in undefined behaviour.
      *

@@ -261,7 +261,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     /**
      * Primitive specialised forEach implementation.
-     * <p>
+     *
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
      * expression, which doesn't interplay well with type inference in lambda expressions.
      *

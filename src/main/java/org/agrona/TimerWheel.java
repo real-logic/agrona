@@ -78,7 +78,7 @@ public class TimerWheel
 
     /**
      * Construct a timer wheel for use in scheduling timers.
-     * <p>
+     *
      * This constructor allows a custom function to return the current time instead of {@link System#nanoTime()}.
      *
      * @param clock         to use for system time
@@ -133,7 +133,7 @@ public class TimerWheel
 
     /**
      * Return a blank {@link Timer} suitable for rescheduling.
-     * <p>
+     *
      * NOTE: Appears to be a cancelled timer
      *
      * @return new blank timer

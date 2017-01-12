@@ -116,7 +116,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Check that a given limit is not greater than the capacity of a buffer from a given offset.
-     * <p>
+     *
      * Can be overridden in a DirectBuffer subclass to enable an extensible buffer or handle retry after a flush.
      *
      * @param limit up to which access is required.

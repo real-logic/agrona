@@ -148,7 +148,7 @@ public class IoUtil
 
     /**
      * Create a directory, removing previous directory if it already exists.
-     * <p>
+     *
      * Call callback if it does exist.
      *
      * @param directory        the directory which definitely exists after this method call.

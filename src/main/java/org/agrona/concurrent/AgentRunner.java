@@ -103,7 +103,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     /**
      * Run an {@link Agent}.
-     * <p>
+     *
      * This method does not return until the run loop is stopped via {@link #close()}.
      */
     public void run()
@@ -147,7 +147,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Stop the running Agent and cleanup. This will wait for the work loop to exit and the {@link Agent} performing
      * it {@link Agent#onClose()} logic.
-     * <p>
+     *
      * The clean up logic will only be performed once even if close is called from multiple concurrent threads.
      */
     public final void close()

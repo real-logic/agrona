@@ -26,15 +26,15 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
 
 /**
  * A cache implementation specialised for int keys using open addressing to probe a set of fixed size.
- * <p>
+ *
  * The eviction strategy is to remove the oldest in a set if the key is not found, or if found then that item.
  * The newly inserted item becomes the youngest in the set. Sets are evicted on a first in, first out, manner unless
  * replacing a matching key.
- * <p>
+ *
  * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line (assuming references are
  * 32 bit references and 64 byte cache lines, YMMV). A linear search within a cache line is much much less costly than a
  * cache-miss to another line.
- * <p>
+ *
  * Null values are not supported by this cache.
  *
  * @param <V> type of values stored in the {@link Map}
@@ -260,7 +260,7 @@ public class Int2ObjectCache<V>
     /**
      * Get a value for a given key, or if it does ot exist then default the value via a {@link java.util.function.IntFunction}
      * and put it in the  cache.
-     * <p>
+     *
      * Primitive specialized version of {@link Map#computeIfAbsent}.
      *
      * @param key             to search on.
@@ -413,7 +413,7 @@ public class Int2ObjectCache<V>
 
     /**
      * Clear down all items in the cache.
-     * <p>
+     *
      * If an exception occurs during the eviction function callback then clear may need to be called again to complete.
      * If an exception occurs the cache should only be used when {@link #size()} reports zero.
      */
