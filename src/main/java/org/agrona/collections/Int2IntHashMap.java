@@ -155,6 +155,76 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return oldValue;
     }
 
+    /**
+     * Convenience {@link #getAndAdd(int, int)} (key, 1).
+     */
+    public int inc(final int key)
+    {
+        return getAndAdd(key, 1);
+    }
+
+    /**
+     * Convenience {@link #getAndAdd(int, int)} (key, -1).
+     */
+    public int dec(final int key)
+    {
+        return getAndAdd(key, -1);
+    }
+
+    /**
+     * Add amount to the current value associated with this key. If no such value exists use {@link #missingValue()} as
+     * current value and associate key with {@link #missingValue()} + amount unless amount is 0, in which case map
+     * remains unchanged.
+     *
+     * @param key new or existing
+     * @param amount to be added
+     * @return the previous value associated with the specified key, or
+     *         {@link #missingValue()} if there was no mapping for the key.
+     */
+    public int getAndAdd(final int key, int amount)
+    {
+        if (amount == 0)
+        {
+            return get(key);
+        }
+
+        final int[] entries = this.entries;
+        final int missingValue = this.missingValue;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+        int oldValue = missingValue;
+
+        int candidateKey;
+        while ((candidateKey = entries[index]) != missingValue)
+        {
+            if (candidateKey == key)
+            {
+                oldValue = entries[index + 1];
+                break;
+            }
+
+            index = next(index, mask);
+        }
+
+        final int newValue = oldValue + amount;
+        entries[index + 1] = newValue;
+
+        if (oldValue == missingValue)
+        {
+            ++size;
+            entries[index] = key;
+            increaseCapacity();
+        }
+        else if (newValue == missingValue)
+        {
+            entries[index] = missingValue;
+            size--;
+            compactChain(index);
+        }
+
+        return oldValue;
+    }
+
     private void increaseCapacity()
     {
         if (size > resizeThreshold)
