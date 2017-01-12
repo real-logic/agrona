@@ -21,7 +21,7 @@ import org.agrona.hints.ThreadHints;
 import java.util.concurrent.locks.LockSupport;
 
 /**
- * Idling strategy for threads when they have not work to do.
+ * Idling strategy for threads when they have no work to do.
  *
  * Spin for maxSpins, then
  * {@link Thread#yield()} for maxYields, then

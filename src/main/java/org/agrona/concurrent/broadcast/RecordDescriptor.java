@@ -38,19 +38,29 @@ import org.agrona.BitUtil;
  */
 public class RecordDescriptor
 {
-    /** Message type is padding to prevent fragmentation in the buffer. */
+    /**
+     * Message type is padding to prevent fragmentation in the buffer.
+     */
     public static final int PADDING_MSG_TYPE_ID = -1;
 
-    /** Offset within the record at which the record length field begins. */
+    /**
+     * Offset within the record at which the record length field begins.
+     */
     public static final int LENGTH_OFFSET = 0;
 
-    /** Offset within the record at which the message type field begins. */
+    /**
+     * Offset within the record at which the message type field begins.
+     */
     public static final int TYPE_OFFSET = LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
 
-    /** Length of the record header in bytes. */
+    /**
+     * Length of the record header in bytes.
+     */
     public static final int HEADER_LENGTH = BitUtil.SIZE_OF_INT * 2;
 
-    /** Alignment as a multiple of bytes for each record. */
+    /**
+     * Alignment as a multiple of bytes for each record.
+     */
     public static final int RECORD_ALIGNMENT = HEADER_LENGTH;
 
     /**

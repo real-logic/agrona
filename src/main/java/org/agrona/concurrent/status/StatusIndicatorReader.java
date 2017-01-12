@@ -18,16 +18,16 @@ package org.agrona.concurrent.status;
 public interface StatusIndicatorReader
 {
     /**
-     * Identifier for this stats indicator.
+     * Identifier for this status indicator.
      *
      * @return the identifier for this status indicator.
      */
     int id();
 
     /**
-     * Get the current status indication of a component with volatile semantics
+     * Get the current status indication of a component with volatile semantics.
      *
-     * @return the current status indication of a component with volatile semantics
+     * @return the current status indication of a component with volatile semantics.
      */
     long getVolatile();
 }

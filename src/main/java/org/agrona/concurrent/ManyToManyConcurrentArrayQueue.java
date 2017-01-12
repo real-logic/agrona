@@ -72,7 +72,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
         for (int i = 0, size = capacity; i < size; i++)
         {
-            final long sequenceOffset = sequenceArrayOffset(i, capacity - 1);
+            final long sequenceOffset = sequenceArrayOffset(i, size - 1);
             UNSAFE.putOrderedLong(sequences, sequenceOffset, i);
         }
 

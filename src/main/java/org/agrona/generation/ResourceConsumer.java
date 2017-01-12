@@ -17,7 +17,18 @@ package org.agrona.generation;
 
 import java.io.IOException;
 
+/**
+ * Consumer of an resource which can throw {@link IOException}s.
+ *
+ * @param <T> type of the resource to be accepted.
+ */
 public interface ResourceConsumer<T>
 {
+    /**
+     * Accept a resource to be consumed.
+     *
+     * @param resource to be consumed.
+     * @throws IOException during the consumption of the resource.
+     */
     void accept(T resource) throws IOException;
 }

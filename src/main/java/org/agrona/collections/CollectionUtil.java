@@ -29,11 +29,11 @@ public class CollectionUtil
     /**
      * A getOrDefault that doesn't create garbage if its suppler is non-capturing.
      *
-     * @param map to perform the lookup on.
-     * @param key on which the lookup is done.
+     * @param map      to perform the lookup on.
+     * @param key      on which the lookup is done.
      * @param supplier of the default value if one is not found.
-     * @param <K> type of the key
-     * @param <V> type of the value
+     * @param <K>      type of the key
+     * @param <V>      type of the value
      * @return the value if found or a new default which as been added to the map.
      */
     public static <K, V> V getOrDefault(final Map<K, V> map, final K key, final Function<K, V> supplier)
@@ -51,9 +51,11 @@ public class CollectionUtil
     /**
      * Garbage free sum function.
      *
-     * @param values the list of input values
+     * <b>Note:</b> the list must implement {@link java.util.RandomAccess} to be efficient.
+     *
+     * @param values   the list of input values
      * @param function function that map each value to an int
-     * @param <V> the value to add up
+     * @param <V>      the value to add up
      * @return the sum of all the int values returned for each member of the list.
      */
     public static <V> int sum(final List<V> values, final ToIntFunction<V> function)
@@ -96,12 +98,22 @@ public class CollectionUtil
         }
     }
 
+    /**
+     * Remove element from a list if it matches a predicate.
+     *
+     * <b>Note:</b> the list must implement {@link java.util.RandomAccess} to be efficient.
+     *
+     * @param values    to be iterated over.
+     * @param predicate to test the value against
+     * @param <T>       type of the value.
+     * @return the number of items remove.
+     */
     public static <T> int removeIf(final List<T> values, final Predicate<T> predicate)
     {
         int size = values.size();
         int total = 0;
 
-        for (int i = 0; i < size;)
+        for (int i = 0; i < size; )
         {
             final T value = values.get(i);
             if (predicate.test(value))

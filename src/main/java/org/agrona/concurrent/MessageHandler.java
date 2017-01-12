@@ -27,9 +27,9 @@ public interface MessageHandler
      * Called for the processing of each message read from a buffer in turn.
      *
      * @param msgTypeId type of the encoded message.
-     * @param buffer containing the encoded message.
-     * @param index at which the encoded message begins.
-     * @param length in bytes of the encoded message.
+     * @param buffer    containing the encoded message.
+     * @param index     at which the encoded message begins.
+     * @param length    in bytes of the encoded message.
      */
     void onMessage(int msgTypeId, MutableDirectBuffer buffer, int index, int length);
 }

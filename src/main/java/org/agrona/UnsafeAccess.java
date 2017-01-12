@@ -21,6 +21,9 @@ import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
+/**
+ * Obtain access the the {@link Unsafe} class for direct memory operations.
+ */
 public class UnsafeAccess
 {
     public static final Unsafe UNSAFE;

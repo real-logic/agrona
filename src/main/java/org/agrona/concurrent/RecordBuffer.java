@@ -66,7 +66,9 @@ public class RecordBuffer
 
     private static final int SIZE_OF_POSITION_FIELD = SIZE_OF_INT;
 
-    /** Status field is an int rather than a byte so that it can be CAS'd */
+    /**
+     * Status field is an int rather than a byte so that it can be CAS'd
+     */
     private static final int SIZE_OF_STATUS_FIELD = SIZE_OF_INT;
     private static final int SIZE_OF_KEY_FIELD = SIZE_OF_INT;
     private static final int SIZE_OF_RECORD_FRAME = SIZE_OF_STATUS_FIELD + SIZE_OF_KEY_FIELD;
@@ -88,7 +90,7 @@ public class RecordBuffer
         /**
          * Called once for each committed record in the buffer.
          *
-         * @param key the key for the record in question
+         * @param key    the key for the record in question
          * @param offset the offset within the buffer that the record starts at
          */
         void onRecord(int key, int offset);
@@ -185,7 +187,7 @@ public class RecordBuffer
     /**
      * High level and safe way of writing a record to the buffer.
      *
-     * @param key the key to associate the record with
+     * @param key    the key to associate the record with
      * @param writer the callback which is passed the record to write.
      * @return whether the write succeeded or not.
      */
@@ -212,10 +214,9 @@ public class RecordBuffer
     /**
      * Claim a record in the buffer. Each record has a unique key.
      *
-     * @see RecordBuffer#commit(int)
-     *
      * @param key the key to claim the record with.
      * @return the offset at which record was claimed or {@code DID_NOT_CLAIM_RECORD} if the claim failed.
+     * @see RecordBuffer#commit(int)
      */
     public int claimRecord(final int key)
     {
@@ -255,9 +256,8 @@ public class RecordBuffer
     /**
      * Commit a claimed record into the buffer.
      *
-     * @see RecordBuffer#claimRecord(int)
-     *
      * @param claimedOffset the offset of the record to commit.
+     * @see RecordBuffer#claimRecord(int)
      */
     public void commit(final int claimedOffset)
     {

@@ -57,22 +57,6 @@ public class IoUtil
         UNMAP_BUFFER = getFileChannelMethod("unmap", MappedByteBuffer.class);
     }
 
-    private static Method getFileChannelMethod(final String name, final Class<?>... parameterTypes)
-    {
-        Method method = null;
-        try
-        {
-            method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
-            method.setAccessible(true);
-        }
-        catch (final NoSuchMethodException ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
-        }
-
-        return method;
-    }
-
     /**
      * Fill a region of a file with a given byte value.
      *
@@ -279,7 +263,7 @@ public class IoUtil
 
     /**
      * Check that file exists, open file, and return MappedByteBuffer for only region specified
-     * <p>
+     *
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location         of the file to map
@@ -424,22 +408,6 @@ public class IoUtil
         }
     }
 
-    private static int getMode(final FileChannel.MapMode mode)
-    {
-        if (mode == READ_ONLY)
-        {
-            return MAP_READ_ONLY;
-        }
-        else if (mode == READ_WRITE)
-        {
-            return MAP_READ_WRITE;
-        }
-        else
-        {
-            return MAP_PRIVATE;
-        }
-    }
-
     /**
      * Unmap a {@link ByteBuffer} without waiting for the next GC cycle if its memory mapped.
      *
@@ -467,5 +435,37 @@ public class IoUtil
         }
 
         return tmpDirName;
+    }
+
+    private static Method getFileChannelMethod(final String name, final Class<?>... parameterTypes)
+    {
+        Method method = null;
+        try
+        {
+            method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
+            method.setAccessible(true);
+        }
+        catch (final NoSuchMethodException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return method;
+    }
+
+    private static int getMode(final FileChannel.MapMode mode)
+    {
+        if (mode == READ_ONLY)
+        {
+            return MAP_READ_ONLY;
+        }
+        else if (mode == READ_WRITE)
+        {
+            return MAP_READ_WRITE;
+        }
+        else
+        {
+            return MAP_PRIVATE;
+        }
     }
 }

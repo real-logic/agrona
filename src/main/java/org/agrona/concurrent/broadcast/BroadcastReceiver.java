@@ -28,10 +28,10 @@ import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
 /**
  * Receive messages broadcast from a {@link BroadcastTransmitter} via an underlying buffer. Receivers can join
  * a transmission stream at any point by consuming the latest message at the point of joining and forward.
- * <p>
+ *
  * If a Receiver cannot keep up with the transmission stream then loss will be experienced. Loss is not an
  * error condition.
- * <p>
+ *
  * <b>Note:</b> Each Receiver is not threadsafe but there can be zero or many receivers to a transmission stream.
  */
 public class BroadcastReceiver
@@ -83,7 +83,7 @@ public class BroadcastReceiver
     /**
      * Get the number of times the transmitter has lapped this receiver around the buffer. On each lap
      * as least a buffer's worth of loss will be experienced.
-     * <p>
+     *
      * <b>Note:</b> This method is threadsafe for calling from an external monitoring thread.
      *
      * @return the capacity of the underlying broadcast buffer.
@@ -135,7 +135,7 @@ public class BroadcastReceiver
 
     /**
      * Non-blocking receive of next message from the transmission stream.
-     * <p>
+     *
      * If loss has occurred then {@link #lappedCount()} will be incremented.
      *
      * @return true if transmission is available with {@link #offset()}, {@link #length()} and {@link #typeId()}
@@ -179,7 +179,7 @@ public class BroadcastReceiver
 
     /**
      * Validate that the current received record is still valid and has not been overwritten.
-     * <p>
+     *
      * If the receiver is not consuming messages fast enough to keep up with the transmitter then loss
      * can be experienced resulting in messages being overwritten thus making them no longer valid.
      *

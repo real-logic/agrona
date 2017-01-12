@@ -24,7 +24,7 @@ public class RecordDescriptor
 {
     /**
      * Header length made up of fields for length, type, and then the encoded message.
-     * <p>
+     *
      * Writing of a positive record length signals the message recording is complete.
      * <pre>
      *   0                   1                   2                   3
@@ -117,7 +117,7 @@ public class RecordDescriptor
     {
         if (msgTypeId < 1)
         {
-            final String msg = String.format("Message type id must be greater than zero, msgTypeId=%d", msgTypeId);
+            final String msg = "Message type id must be greater than zero, msgTypeId=" + msgTypeId;
             throw new IllegalArgumentException(msg);
         }
     }

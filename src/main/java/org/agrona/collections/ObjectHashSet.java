@@ -353,7 +353,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
 
     /**
      * Fast Path set difference for comparison with another ObjectHashSet.
-     * <p>
+     *
      * NB: garbage free in the identical case, allocates otherwise.
      *
      * @param other the other set to subtract

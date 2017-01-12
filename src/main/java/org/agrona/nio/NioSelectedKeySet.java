@@ -52,7 +52,9 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
         keys = new SelectionKey[BitUtil.findNextPositivePowerOfTwo(initialCapacity)];
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public int size()
     {
         return size;
@@ -68,7 +70,9 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
         return keys.length;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean add(final SelectionKey selectionKey)
     {
         if (null == selectionKey)
@@ -82,13 +86,17 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
         return true;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Object o)
     {
         return false;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean contains(final Object o)
     {
         return false;
@@ -133,7 +141,9 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
         return handledFrames;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<SelectionKey> iterator()
     {
         throw new UnsupportedOperationException();

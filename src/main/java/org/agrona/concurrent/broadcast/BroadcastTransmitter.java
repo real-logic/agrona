@@ -85,8 +85,8 @@ public class BroadcastTransmitter
      *
      * @param msgTypeId type of the message to be transmitted.
      * @param srcBuffer containing the encoded message to be transmitted.
-     * @param srcIndex srcIndex in the source buffer at which the encoded message begins.
-     * @param length in bytes of the encoded message.
+     * @param srcIndex  srcIndex in the source buffer at which the encoded message begins.
+     * @param length    in bytes of the encoded message.
      * @throws IllegalArgumentException of the msgTypeId is not valid,
      *                                  or if the message length is greater than {@link #maxMsgLength()}.
      */

@@ -15,6 +15,9 @@
  */
 package org.agrona.concurrent;
 
+/**
+ * An Agent is scheduled to do work on a thread on a duty cycle. Each Agent should have a defined role in a system.
+ */
 public interface Agent
 {
     /**

@@ -24,9 +24,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Base agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
- * <p>
- * Note: An agent runner should only be once per instance.
+ * Base Agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
+ *
+ * <b>Note:</b> An agent runner instance should only be started once and then discarded, it should not be reused.
  */
 public class AgentRunner implements Runnable, AutoCloseable
 {
