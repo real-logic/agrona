@@ -394,25 +394,24 @@ public class Int2IntCounterMap
         final int[] entries = this.entries;
         final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
-        @DoNotSub int index = Hashing.evenHash(key, mask);
+        @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
 
         int oldValue = initialValue;
-        int candidateKey;
-        while ((candidateKey = entries[index]) != initialValue)
+        while (entries[keyIndex + 1] != initialValue)
         {
-            if (candidateKey == key)
+            if (entries[keyIndex] == key)
             {
-                @DoNotSub final int valueIndex = index + 1;
-                oldValue = entries[valueIndex];
-                entries[valueIndex] = initialValue;
+                @DoNotSub final int valueIndex = keyIndex + 1;
+                oldValue = entries[keyIndex + 1];
+                entries[keyIndex + 1] = initialValue;
                 size--;
 
-                compactChain(index);
+                compactChain(keyIndex);
 
                 break;
             }
 
-            index = next(index, mask);
+            keyIndex = next(keyIndex, mask);
         }
 
         return oldValue;

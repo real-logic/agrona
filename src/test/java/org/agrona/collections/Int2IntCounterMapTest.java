@@ -427,4 +427,34 @@ public class Int2IntCounterMapTest
         assertTrue(map.isEmpty());
         assertFalse(map.containsKey(1));
     }
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowMissingValueAsValue()
+    {
+        map.put(1, INITIAL_VALUE);
+    }
+
+    @Test
+    public void shouldAllowMissingValueAsKey()
+    {
+        map.put(INITIAL_VALUE, 1);
+
+        assertEquals(1, map.get(INITIAL_VALUE));
+        assertTrue(map.containsKey(INITIAL_VALUE));
+        assertEquals(1, map.size());
+
+        final int[] tuple = new int[2];
+        map.forEach(
+            (k, v) ->
+            {
+                tuple[0] = k;
+                tuple[1] = v;
+            }
+        );
+        assertEquals(INITIAL_VALUE, tuple[0]);
+        assertEquals(1, tuple[1]);
+
+        assertEquals(1, map.remove(INITIAL_VALUE));
+        assertEquals(0, map.size());
+        assertEquals(INITIAL_VALUE, map.get(INITIAL_VALUE));
+    }
 }

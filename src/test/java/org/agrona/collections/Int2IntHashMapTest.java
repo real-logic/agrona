@@ -470,4 +470,35 @@ public class Int2IntHashMapTest
     {
         return map.keySet().iterator();
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowMissingValueAsValue()
+    {
+        map.put(1, MISSING_VALUE);
+    }
+
+    @Test
+    public void shouldAllowMissingValueAsKey()
+    {
+        map.put(MISSING_VALUE, 1);
+
+        assertEquals(1, map.get(MISSING_VALUE));
+        assertTrue(map.containsKey(MISSING_VALUE));
+        assertEquals(1, map.size());
+
+        final int[] tuple = new int[2];
+        map.intForEach(
+            (k, v) ->
+            {
+                tuple[0] = k;
+                tuple[1] = v;
+            }
+        );
+        assertEquals(MISSING_VALUE, tuple[0]);
+        assertEquals(1, tuple[1]);
+
+        assertEquals(1, map.remove(MISSING_VALUE));
+        assertEquals(0, map.size());
+        assertEquals(MISSING_VALUE, map.get(MISSING_VALUE));
+    }
 }
