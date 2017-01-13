@@ -125,7 +125,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      * @param key   lookup key
      * @param value new value, must not be initialValue
      * @return current counter value associated with key, or initialValue if none found
-     * @throws IllegalArgumentException if value is initialValue
+     * @throws IllegalArgumentException if value is missingValue
      */
     public int put(final int key, final int value)
     {
