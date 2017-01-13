@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 - 2016 Real Logic Ltd.
+ *  Copyright 2017 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ public class Int2IntCounterMap
     }
 
     /**
-     * @param key lookup key
+     * @param key   lookup key
      * @param value new value, must not be initialValue
      * @return current counter value associated with key, or initialValue if none found
      * @throws IllegalArgumentException if value is initialValue
@@ -130,6 +130,7 @@ public class Int2IntCounterMap
         {
             throw new IllegalArgumentException("Cannot accept initialValue");
         }
+
         final int[] entries = this.entries;
         final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
@@ -264,6 +265,7 @@ public class Int2IntCounterMap
                 compactChain(index);
             }
         }
+
         return oldValue;
     }
 
