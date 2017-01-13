@@ -44,13 +44,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void getShouldReturninitialValueWhenEmpty()
+    public void getShouldReturnInitialValueWhenEmpty()
     {
         assertEquals(INITIAL_VALUE, map.get(1));
     }
 
     @Test
-    public void getShouldReturninitialValueWhenThereIsNoElement()
+    public void getShouldReturnInitialValueWhenThereIsNoElement()
     {
         map.put(1, 1);
 
@@ -369,8 +369,6 @@ public class Int2IntCounterMapTest
         assertEquals(1, map.size());
     }
 
-
-
     @Test
     public void shouldReturnInitialValueForGetAndAdd0IfKeyMissing()
     {
@@ -398,7 +396,8 @@ public class Int2IntCounterMapTest
         do
         {
             amount = ThreadLocalRandom.current().nextInt();
-        } while (amount == 0);
+        }
+        while (amount == 0);
         final int val = map.getAndAdd(1, amount);
 
         assertEquals(1, val);
