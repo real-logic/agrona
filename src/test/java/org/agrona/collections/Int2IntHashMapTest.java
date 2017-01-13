@@ -20,7 +20,6 @@ import org.mockito.InOrder;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
@@ -470,108 +469,5 @@ public class Int2IntHashMapTest
     private Iterator<Integer> keyIterator()
     {
         return map.keySet().iterator();
-    }
-
-    @Test
-    public void shouldContainValueForIncEntry()
-    {
-        map.inc(1);
-
-        assertTrue(map.containsKey(1));
-    }
-
-    @Test
-    public void shouldContainValueForDecEntry()
-    {
-        map.dec(1);
-
-        assertTrue(map.containsKey(1));
-    }
-
-    @Test
-    public void shouldResultInEmptyAfterIncAndDecWhenEmpty()
-    {
-        map.inc(1);
-        map.dec(1);
-
-        assertTrue(map.isEmpty());
-    }
-
-    @Test
-    public void shouldResultInEmptyAfterIncAndDecWhenHaveKey()
-    {
-        map.put(1, 1);
-
-        map.inc(1);
-        map.dec(1);
-
-        assertEquals(1, map.get(1));
-        assertEquals(1, map.size());
-    }
-
-    @Test
-    public void shouldContainValueForGetAndAddEntry()
-    {
-        map.getAndAdd(1, 3);
-
-        assertTrue(map.containsKey(1));
-    }
-
-    @Test
-    public void shouldReturnMissingValueForGetAndAdd0IfKeyMissing()
-    {
-        final int val = map.getAndAdd(1, 0);
-
-        assertEquals(MISSING_VALUE, val);
-        assertTrue(map.isEmpty());
-    }
-
-    @Test
-    public void shouldReturnOldValueForGetAndAdd0IfKeyExists()
-    {
-        map.put(1, 1);
-        final int val = map.getAndAdd(1, 0);
-
-        assertEquals(1, val);
-        assertEquals(1, map.size());
-    }
-
-    @Test
-    public void shouldReturnOldValueForGetAndAddNot0IfKeyExists()
-    {
-        map.put(1, 1);
-        int amount;
-        do
-        {
-            amount = ThreadLocalRandom.current().nextInt();
-        } while (amount == 0);
-        final int val = map.getAndAdd(1, amount);
-
-        assertEquals(1, val);
-        assertEquals(1, map.size());
-    }
-
-    @Test
-    public void shouldRemoveEntryAfterDecToMissingVal()
-    {
-        map.put(1, MISSING_VALUE + 1);
-
-        map.dec(1);
-
-        assertEquals(MISSING_VALUE, map.get(1));
-        assertTrue(map.isEmpty());
-        assertFalse(map.containsKey(1));
-    }
-
-    @Test
-    public void shouldRemoveEntryAfterIncToMissingVal()
-    {
-        map.put(1, MISSING_VALUE - 1);
-
-        map.inc(1);
-
-        assertEquals(MISSING_VALUE, map.get(1));
-        assertTrue(map.isEmpty());
-        assertFalse(map.containsKey(1));
     }
 }
