@@ -189,11 +189,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int getAndAdd(final int key, int amount)
     {
-        if (amount == 0)
-        {
-            return get(key);
-        }
-
         final int[] entries = this.entries;
         final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
@@ -210,6 +205,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             }
 
             index = next(index, mask);
+        }
+
+        if (amount == 0) {
+            return oldValue;
         }
 
         final int newValue = oldValue + amount;
