@@ -41,6 +41,7 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntArrayList");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIterator");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntHashMap");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntCounterMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
