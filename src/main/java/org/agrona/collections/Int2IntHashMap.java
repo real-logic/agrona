@@ -207,26 +207,24 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             index = next(index, mask);
         }
 
-        if (amount == 0) {
-            return oldValue;
-        }
-
-        final int newValue = oldValue + amount;
-        entries[index + 1] = newValue;
-
-        if (oldValue == missingValue)
+        if (amount != 0)
         {
-            ++size;
-            entries[index] = key;
-            increaseCapacity();
-        }
-        else if (newValue == missingValue)
-        {
-            entries[index] = missingValue;
-            size--;
-            compactChain(index);
-        }
+            final int newValue = oldValue + amount;
+            entries[index + 1] = newValue;
 
+            if (oldValue == missingValue)
+            {
+                ++size;
+                entries[index] = key;
+                increaseCapacity();
+            }
+            else if (newValue == missingValue)
+            {
+                entries[index] = missingValue;
+                size--;
+                compactChain(index);
+            }
+        }
         return oldValue;
     }
 
