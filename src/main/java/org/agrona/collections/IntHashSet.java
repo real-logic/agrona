@@ -113,9 +113,14 @@ public final class IntHashSet extends AbstractSet<Integer>
      *
      * @param value the value to add
      * @return true if the collection has changed, false otherwise
+     * @throws IllegalArgumentException if value is missingValue
      */
     public boolean add(final int value)
     {
+        if (value == missingValue)
+        {
+            throw new IllegalArgumentException("Cannot accept missingValue");
+        }
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
@@ -270,20 +275,22 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final int value)
     {
-        final int[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = Hashing.hash(value, mask);
-
-        while (values[index] != missingValue)
+        if (value != missingValue)
         {
-            if (values[index] == value)
+            final int[] values = this.values;
+            @DoNotSub final int mask = values.length - 1;
+            @DoNotSub int index = Hashing.hash(value, mask);
+
+            while (values[index] != missingValue)
             {
-                return true;
+                if (values[index] == value)
+                {
+                    return true;
+                }
+
+                index = next(index, mask);
             }
-
-            index = next(index, mask);
         }
-
         return false;
     }
 

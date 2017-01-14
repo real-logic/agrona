@@ -25,8 +25,9 @@ import static org.junit.Assert.*;
 public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
+    public static final int MISSING_VALUE = -1;
 
-    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, -1);
+    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, MISSING_VALUE);
 
     @Test
     public void initiallyContainsNoElements() throws Exception
@@ -686,4 +687,17 @@ public class IntHashSetTest
         iterator.next();
         iterator.next();
     }
+
+    @Test
+    public void shouldNotContainMissingValue()
+    {
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowMissingValue()
+    {
+        testSet.add(MISSING_VALUE);
+    }
+
 }
