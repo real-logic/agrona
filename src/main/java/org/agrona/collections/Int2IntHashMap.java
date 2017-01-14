@@ -226,19 +226,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     public boolean containsValue(final int value)
     {
-        final int[] entries = this.entries;
-        @DoNotSub final int length = entries.length;
-
         boolean found = false;
-        for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
+        if (value != missingValue)
         {
-            if (value == entries[valueIndex])
+            final int[] entries = this.entries;
+            @DoNotSub final int length = entries.length;
+
+            for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
             {
-                found = true;
-                break;
+                if (value == entries[valueIndex])
+                {
+                    found = true;
+                    break;
+                }
             }
         }
-
         return found;
     }
 

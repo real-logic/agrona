@@ -330,19 +330,21 @@ public class Int2IntCounterMap
      */
     public boolean containsValue(final int value)
     {
-        final int[] entries = this.entries;
-        @DoNotSub final int length = entries.length;
-
         boolean found = false;
-        for (@DoNotSub int i = 1; i < length; i += 2)
+        if (value != initialValue)
         {
-            if (value == entries[i])
+            final int[] entries = this.entries;
+            @DoNotSub final int length = entries.length;
+
+            for (@DoNotSub int i = 1; i < length; i += 2)
             {
-                found = true;
-                break;
+                if (value == entries[i])
+                {
+                    found = true;
+                    break;
+                }
             }
         }
-
         return found;
     }
 

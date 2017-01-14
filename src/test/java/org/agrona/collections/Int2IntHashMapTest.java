@@ -501,4 +501,12 @@ public class Int2IntHashMapTest
         assertEquals(0, map.size());
         assertEquals(MISSING_VALUE, map.get(MISSING_VALUE));
     }
+
+    @Test
+    public void shouldNotContainMissingValue()
+    {
+        assertFalse(map.containsValue(MISSING_VALUE));
+        map.put(MISSING_VALUE, 1);
+        assertFalse(map.containsValue(MISSING_VALUE));
+    }
 }

@@ -428,13 +428,13 @@ public class Int2IntCounterMapTest
         assertFalse(map.containsKey(1));
     }
     @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowMissingValueAsValue()
+    public void shouldNotAllowInitialValueAsValue()
     {
         map.put(1, INITIAL_VALUE);
     }
 
     @Test
-    public void shouldAllowMissingValueAsKey()
+    public void shouldAllowInitialValueAsKey()
     {
         map.put(INITIAL_VALUE, 1);
 
@@ -457,4 +457,13 @@ public class Int2IntCounterMapTest
         assertEquals(0, map.size());
         assertEquals(INITIAL_VALUE, map.get(INITIAL_VALUE));
     }
+
+    @Test
+    public void shouldNotContainInitialValue()
+    {
+        assertFalse(map.containsValue(INITIAL_VALUE));
+        map.put(INITIAL_VALUE, 1);
+        assertFalse(map.containsValue(INITIAL_VALUE));
+    }
+
 }
