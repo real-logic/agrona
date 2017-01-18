@@ -1232,7 +1232,6 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
-
         UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + SIZE_OF_INT, bytes.length);
 
         return SIZE_OF_INT + bytes.length;
