@@ -1005,24 +1005,45 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public String getStringAscii(final int index)
     {
-        final int length = getInt(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
 
         return getStringAscii(index, length);
     }
 
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
-        final int length = getInt(index, byteOrder);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        final int length = bits;
 
         return getStringAscii(index, length);
     }
 
     public String getStringAscii(final int index, final int length)
     {
-        final byte[] stringInBytes = new byte[length];
-        getBytes(index + SIZE_OF_INT, stringInBytes, 0, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index + SIZE_OF_INT, length);
+        }
 
-        return new String(stringInBytes, US_ASCII);
+        final byte[] dst = new byte[length];
+        UNSAFE.copyMemory(byteArray, addressOffset + index + SIZE_OF_INT, dst, ARRAY_BASE_OFFSET, length);
+
+        return new String(dst, US_ASCII);
     }
 
     public int putStringAscii(final int index, final String value)
@@ -1083,10 +1104,15 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public String getStringWithoutLengthAscii(final int index, final int length)
     {
-        final byte[] stringInBytes = new byte[length];
-        getBytes(index, stringInBytes, 0, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
 
-        return new String(stringInBytes, US_ASCII);
+        final byte[] dst = new byte[length];
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
+
+        return new String(dst, US_ASCII);
     }
 
     public int putStringWithoutLengthAscii(final int index, final String value)
@@ -1116,22 +1142,43 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public String getStringUtf8(final int index)
     {
-        final int length = getInt(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
 
         return getStringUtf8(index, length);
     }
 
     public String getStringUtf8(final int index, final ByteOrder byteOrder)
     {
-        final int length = getInt(index, byteOrder);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        final int length = bits;
 
         return getStringUtf8(index, length);
     }
 
     public String getStringUtf8(final int index, final int length)
     {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index + SIZE_OF_INT, length);
+        }
+
         final byte[] stringInBytes = new byte[length];
-        getBytes(index + SIZE_OF_INT, stringInBytes, 0, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index + SIZE_OF_INT, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1154,8 +1201,13 @@ public class UnsafeBuffer implements AtomicBuffer
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
         }
 
-        putInt(index, bytes.length);
-        putBytes(index + SIZE_OF_INT, bytes, 0, bytes.length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT + bytes.length);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + SIZE_OF_INT, bytes.length);
 
         return SIZE_OF_INT + bytes.length;
     }
@@ -1168,16 +1220,33 @@ public class UnsafeBuffer implements AtomicBuffer
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
         }
 
-        putInt(index, bytes.length, byteOrder);
-        putBytes(index + SIZE_OF_INT, bytes, 0, bytes.length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT + bytes.length);
+        }
+
+        int bits = bytes.length;
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + SIZE_OF_INT, bytes.length);
 
         return SIZE_OF_INT + bytes.length;
     }
 
     public String getStringWithoutLengthUtf8(final int index, final int length)
     {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
+
         final byte[] stringInBytes = new byte[length];
-        getBytes(index, stringInBytes, 0, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1185,7 +1254,12 @@ public class UnsafeBuffer implements AtomicBuffer
     public int putStringWithoutLengthUtf8(final int index, final String value)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        putBytes(index, bytes, 0, bytes.length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, bytes.length);
+        }
+
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
 
         return bytes.length;
     }
