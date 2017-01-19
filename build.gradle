@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-  id "com.github.johnrengelman.shadow" version "1.2.4"
-}
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -62,11 +59,13 @@ compileJava {
 def generatedDir = file("${buildDir}/generated-src")
 sourceSets {
     generated.java.srcDir generatedDir
+    agent
 }
 
 // Code Generation Configuration
 compileGeneratedJava.dependsOn 'generatePrimitiveExpansions'
 compileGeneratedJava.classpath += sourceSets.main.runtimeClasspath
+
 
 task(generatePrimitiveExpansions, type: JavaExec) {
     main = 'org.agrona.generation.PrimitiveExpander'
@@ -77,14 +76,19 @@ task(generatePrimitiveExpansions, type: JavaExec) {
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:7.3'
     checkstyle 'com.github.sevntu.checkstyle:sevntu-checks:1.23.0'
-    
-	compile "net.bytebuddy:byte-buddy:1.6.0"
 
     testCompile(
         'org.hamcrest:hamcrest-all:1.3',
         'junit:junit:4.12',
-        'org.mockito:mockito-core:2.5.5')
+        'org.mockito:mockito-core:2.5.5',
+        sourceSets.agent.output
+        )
+        
+        
+	agentCompile "net.bytebuddy:byte-buddy:1.6.0"
+	agentCompile sourceSets.main.output
 }
+
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
@@ -108,8 +112,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 
-shadowJar {
-    classifier = 'with_debug_agent'
+task agentJar(type: Jar) {
+    classifier = 'agent'
+    from sourceSets.agent.output
+    exclude(buildDir.path + '/classes/main')
     manifest {
         attributes(
 	        'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
@@ -132,7 +138,7 @@ signing {
 artifacts {
     archives sourcesJar
     archives javadocJar
-    archives shadowJar
+    archives agentJar
 }
 
 uploadArchives {
