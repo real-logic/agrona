@@ -131,7 +131,7 @@ uploadArchives {
             }
 
             pom.project {
-                name = 'Agrona'
+                name = 'agrona'
                 packaging = 'pom'
                 // optionally artifactId can be defined here
                 description = 'High performance primitives and utility library.'
