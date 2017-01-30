@@ -84,7 +84,7 @@ dependencies {
         sourceSets.agent.output
         )
            
-	  agentCompile "net.bytebuddy:byte-buddy:1.6.0"
+	  agentCompile "net.bytebuddy:byte-buddy:1.6.5"
 	  agentCompile sourceSets.main.output
 }
 

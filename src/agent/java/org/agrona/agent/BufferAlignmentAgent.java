@@ -57,7 +57,7 @@ public class BufferAlignmentAgent
                 .disableClassFormatChanges()
                 .with(redefine ? AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED)
                 .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
-                .transform((builder, typeDescription, classLoader) -> builder
+                .transform((builder, typeDescription, classLoader, module) -> builder
                         .visit(to(LongVerifier.class).on(nameContains("Long")))
                         .visit(to(DoubleVerifier.class).on(nameContains("Double")))
                         .visit(to(IntVerifier.class).on(intVerifyerMatcher))
@@ -69,25 +69,30 @@ public class BufferAlignmentAgent
 
     private static final AgentBuilder.Listener LISTENER = new AgentBuilder.Listener()
     {
+        @Override
         public void onTransformation(final TypeDescription typeDescription, final ClassLoader classLoader,
-                final JavaModule module, final DynamicType dynamicType)
+            final JavaModule module, final boolean loaded, final DynamicType dynamicType)
         {
             System.out.format("TRANSFORM %s%n", typeDescription.getName());
         }
 
-        public void onIgnored(final TypeDescription typeDescription, final ClassLoader classLoader,
-                final JavaModule module)
+        @Override
+        public void onIgnored(final TypeDescription typeDescription, final ClassLoader classLoader, final JavaModule module,
+            final boolean loaded)
         {
         }
 
-        public void onError(final String typeName, final ClassLoader classLoader, final JavaModule module,
-                final Throwable throwable)
+        @Override
+        public void onError(final String typeName, final ClassLoader classLoader, final JavaModule module, final boolean loaded,
+            final Throwable throwable)
         {
             System.out.format("ERROR %s%n", typeName);
             throwable.printStackTrace(System.out);
         }
 
-        public void onComplete(final String typeName, final ClassLoader classLoader, final JavaModule module)
+        @Override
+        public void onComplete(final String typeName, final ClassLoader classLoader, final JavaModule module,
+            final boolean loaded)
         {
         }
     };
