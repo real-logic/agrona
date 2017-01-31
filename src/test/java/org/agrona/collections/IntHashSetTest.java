@@ -25,9 +25,9 @@ import static org.junit.Assert.*;
 public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
-    public static final int MISSING_VALUE = -1;
+    private static final int MISSING_VALUE = -1;
 
-    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, MISSING_VALUE);
+    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY);
 
     @Test
     public void initiallyContainsNoElements() throws Exception
@@ -76,7 +76,7 @@ public class IntHashSetTest
     @Test
     public void doesNotContainMissingValue()
     {
-        assertFalse(testSet.contains(testSet.missingValue()));
+        assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
         addTwoElements(other);
 
         assertNull(testSet.difference(other));
@@ -214,7 +214,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
         other.add(1);
 
         final IntHashSet diff = testSet.difference(other);
@@ -226,7 +226,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
         other.copy(testSet);
 
         assertContainsElements(other);
@@ -235,14 +235,14 @@ public class IntHashSetTest
     @Test
     public void twoEmptySetsAreEqual()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
         assertEquals(testSet, other);
     }
 
     @Test
     public void setsWithTheSameValuesAreEqual()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         addTwoElements(testSet);
         addTwoElements(other);
@@ -253,7 +253,7 @@ public class IntHashSetTest
     @Test
     public void setsWithTheDifferentSizesAreNotEqual()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         addTwoElements(testSet);
 
@@ -265,7 +265,7 @@ public class IntHashSetTest
     @Test
     public void setsWithTheDifferentValuesAreNotEqual()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         addTwoElements(testSet);
 
@@ -278,14 +278,14 @@ public class IntHashSetTest
     @Test
     public void twoEmptySetsHaveTheSameHashcode()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
         assertEquals(testSet.hashCode(), other.hashCode());
     }
 
     @Test
     public void setsWithTheSameValuesHaveTheSameHashcode()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         addTwoElements(testSet);
 
@@ -348,7 +348,7 @@ public class IntHashSetTest
     @Test
     public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {
-        final IntHashSet requiredFields = new IntHashSet(14, -1);
+        final IntHashSet requiredFields = new IntHashSet(14);
 
         requiredFields.add(8);
         requiredFields.add(9);
@@ -379,7 +379,7 @@ public class IntHashSetTest
     @Test
     public void containsEmptySet()
     {
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         assertTrue(testSet.containsAll(other));
         assertTrue(testSet.containsAll((Collection<?>)other));
@@ -390,7 +390,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet subset = new IntHashSet(100, -1);
+        final IntHashSet subset = new IntHashSet(100);
 
         subset.add(1);
 
@@ -403,7 +403,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet other = new IntHashSet(100, -1);
+        final IntHashSet other = new IntHashSet(100);
 
         other.add(1);
         other.add(1002);
@@ -417,7 +417,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet superset = new IntHashSet(100, -1);
+        final IntHashSet superset = new IntHashSet(100);
 
         addTwoElements(superset);
         superset.add(15);
@@ -431,7 +431,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        assertFalse(testSet.addAll(new IntHashSet(100, -1)));
+        assertFalse(testSet.addAll(new IntHashSet(100)));
         assertFalse(testSet.addAll(new HashSet<Integer>()));
         assertContainsElements(testSet);
     }
@@ -441,7 +441,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet subset = new IntHashSet(100, -1);
+        final IntHashSet subset = new IntHashSet(100);
 
         subset.add(1);
 
@@ -457,7 +457,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet equal = new IntHashSet(100, -1);
+        final IntHashSet equal = new IntHashSet(100);
 
         addTwoElements(equal);
 
@@ -473,7 +473,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet disjoint = new IntHashSet(100, -1);
+        final IntHashSet disjoint = new IntHashSet(100);
 
         disjoint.add(2);
         disjoint.add(1002);
@@ -505,7 +505,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet intersecting = new IntHashSet(100, -1);
+        final IntHashSet intersecting = new IntHashSet(100);
 
         intersecting.add(1);
         intersecting.add(1002);
@@ -537,7 +537,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        assertFalse(testSet.removeAll(new IntHashSet(100, -1)));
+        assertFalse(testSet.removeAll(new IntHashSet(100)));
         assertFalse(testSet.removeAll(new HashSet<Integer>()));
         assertContainsElements(testSet);
     }
@@ -547,7 +547,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet disjoint = new IntHashSet(100, -1);
+        final IntHashSet disjoint = new IntHashSet(100);
 
         disjoint.add(2);
         disjoint.add(1002);
@@ -562,7 +562,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet intersecting = new IntHashSet(100, -1);
+        final IntHashSet intersecting = new IntHashSet(100);
 
         intersecting.add(1);
         intersecting.add(1002);
@@ -592,7 +592,7 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntHashSet equal = new IntHashSet(100, -1);
+        final IntHashSet equal = new IntHashSet(100);
 
         addTwoElements(equal);
 
