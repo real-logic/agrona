@@ -19,13 +19,13 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
-    private static final int MISSING_VALUE = -1;
 
     private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY);
 
@@ -71,12 +71,6 @@ public class IntHashSetTest
 
         assertTrue(testSet.contains(Integer.valueOf(1)));
         assertTrue(testSet.contains(2));
-    }
-
-    @Test
-    public void doesNotContainMissingValue()
-    {
-        assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     @Test
@@ -382,7 +376,7 @@ public class IntHashSetTest
         final IntHashSet other = new IntHashSet(100);
 
         assertTrue(testSet.containsAll(other));
-        assertTrue(testSet.containsAll((Collection<?>)other));
+        assertTrue(testSet.containsAll((Collection<?>) other));
     }
 
     @Test
@@ -395,7 +389,7 @@ public class IntHashSetTest
         subset.add(1);
 
         assertTrue(testSet.containsAll(subset));
-        assertTrue(testSet.containsAll((Collection<?>)subset));
+        assertTrue(testSet.containsAll((Collection<?>) subset));
     }
 
     @Test
@@ -409,7 +403,7 @@ public class IntHashSetTest
         other.add(1002);
 
         assertFalse(testSet.containsAll(other));
-        assertFalse(testSet.containsAll((Collection<?>)other));
+        assertFalse(testSet.containsAll((Collection<?>) other));
     }
 
     @Test
@@ -423,7 +417,7 @@ public class IntHashSetTest
         superset.add(15);
 
         assertFalse(testSet.containsAll(superset));
-        assertFalse(testSet.containsAll((Collection<?>)superset));
+        assertFalse(testSet.containsAll((Collection<?>) superset));
     }
 
     @Test
@@ -689,15 +683,138 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldNotContainMissingValue()
+    public void shouldNotContainMissingValueInitially()
     {
         assertFalse(testSet.contains(MISSING_VALUE));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowMissingValue()
+    @Test
+    public void shouldAllowMissingValue()
     {
-        testSet.add(MISSING_VALUE);
+        assertTrue(testSet.add(MISSING_VALUE));
+
+        assertTrue(testSet.contains(MISSING_VALUE));
+
+        assertFalse(testSet.add(MISSING_VALUE));
     }
 
+    @Test
+    public void shouldAllowRemovalOfMissingValue()
+    {
+        assertTrue(testSet.add(MISSING_VALUE));
+
+        assertTrue(testSet.remove(MISSING_VALUE));
+
+        assertFalse(testSet.contains(MISSING_VALUE));
+
+        assertFalse(testSet.remove(MISSING_VALUE));
+    }
+
+    @Test
+    public void sizeAccountsForMissingValue()
+    {
+        testSet.add(1);
+        testSet.add(MISSING_VALUE);
+
+        assertEquals(2, testSet.size());
+    }
+
+    @Test
+    public void toArrayCopiesElementsIntoNewArrayIncludingMissingValue()
+    {
+        addTwoElements(testSet);
+
+        testSet.add(MISSING_VALUE);
+
+        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
+
+        assertThat(result, arrayContainingInAnyOrder(1, 1001, MISSING_VALUE));
+    }
+
+    @Test
+    public void toObjectArrayCopiesElementsIntoNewArrayIncludingMissingValue()
+    {
+        addTwoElements(testSet);
+
+        testSet.add(MISSING_VALUE);
+
+        final Object[] result = testSet.toArray();
+
+        assertThat(result, arrayContainingInAnyOrder(1, 1001, MISSING_VALUE));
+    }
+
+    @Test
+    public void equalsAccountsForMissingValue()
+    {
+        addTwoElements(testSet);
+        testSet.add(MISSING_VALUE);
+
+        final IntHashSet other = new IntHashSet(100);
+        addTwoElements(other);
+
+        assertNotEquals(testSet, other);
+
+        other.add(MISSING_VALUE);
+        assertEquals(testSet, other);
+
+        testSet.remove(MISSING_VALUE);
+
+        assertNotEquals(testSet, other);
+    }
+
+    @Test
+    public void hashCodeAccountsForMissingValue()
+    {
+        addTwoElements(testSet);
+        testSet.add(MISSING_VALUE);
+
+        final IntHashSet other = new IntHashSet(100);
+        addTwoElements(other);
+
+        assertNotEquals(testSet.hashCode(), other.hashCode());
+
+        other.add(MISSING_VALUE);
+        assertEquals(testSet.hashCode(), other.hashCode());
+
+        testSet.remove(MISSING_VALUE);
+
+        assertNotEquals(testSet.hashCode(), other.hashCode());
+    }
+
+    @Test
+    public void iteratorAccountsForMissingValue()
+    {
+        addTwoElements(testSet);
+        testSet.add(MISSING_VALUE);
+
+        int missingValueCount = 0;
+        final IntIterator iterator = testSet.iterator();
+        while (iterator.hasNext())
+        {
+            if (iterator.nextValue() == MISSING_VALUE)
+            {
+                missingValueCount++;
+            }
+        }
+
+        assertEquals(1, missingValueCount);
+    }
+
+    @Test
+    public void iteratorCanRemoveMissingValue()
+    {
+        addTwoElements(testSet);
+        testSet.add(MISSING_VALUE);
+
+        final IntIterator iterator = testSet.iterator();
+        while (iterator.hasNext())
+        {
+            if (iterator.nextValue() == MISSING_VALUE)
+            {
+                iterator.remove();
+            }
+        }
+
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
 }

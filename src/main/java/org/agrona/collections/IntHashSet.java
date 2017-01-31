@@ -55,10 +55,12 @@ public final class IntHashSet extends AbstractSet<Integer>
 
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
-    @DoNotSub private int size;
+    // NB: excludes missing value
+    @DoNotSub private int sizeOfArrayValues;
 
     private int[] values;
-    private final IntIterator iterator;
+    private final IntIterator iterator = new IntHashSetIterator();
+    private boolean containsMissingValue;
 
     public IntHashSet()
     {
@@ -78,14 +80,11 @@ public final class IntHashSet extends AbstractSet<Integer>
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
-        size = 0;
+        sizeOfArrayValues = 0;
         @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
         Arrays.fill(values, MISSING_VALUE);
-
-        // NB: references values in the constructor, so must be assigned after values
-        iterator = new IntHashSetIterator(values);
     }
 
     /**
@@ -107,8 +106,11 @@ public final class IntHashSet extends AbstractSet<Integer>
     {
         if (value == MISSING_VALUE)
         {
-            throw new IllegalArgumentException("Cannot accept missingValue");
+            final boolean previousContainsMissingValue = this.containsMissingValue;
+            containsMissingValue = true;
+            return !previousContainsMissingValue;
         }
+
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
@@ -124,9 +126,9 @@ public final class IntHashSet extends AbstractSet<Integer>
         }
 
         values[index] = value;
-        size++;
+        sizeOfArrayValues++;
 
-        if (size > resizeThreshold)
+        if (sizeOfArrayValues > resizeThreshold)
         {
             increaseCapacity();
         }
@@ -139,7 +141,7 @@ public final class IntHashSet extends AbstractSet<Integer>
         @DoNotSub final int newCapacity = values.length * 2;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("Max capacity reached at size=" + size());
         }
 
         rehash(newCapacity);
@@ -187,6 +189,13 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean remove(final int value)
     {
+        if (value == MISSING_VALUE)
+        {
+            final boolean previousContainsMissingValue = this.containsMissingValue;
+            containsMissingValue = false;
+            return previousContainsMissingValue;
+        }
+
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
@@ -197,7 +206,7 @@ public final class IntHashSet extends AbstractSet<Integer>
             {
                 values[index] = MISSING_VALUE;
                 compactChain(index);
-                size--;
+                sizeOfArrayValues--;
                 return true;
             }
 
@@ -262,22 +271,25 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final int value)
     {
-        if (value != MISSING_VALUE)
+        if (value == MISSING_VALUE)
         {
-            final int[] values = this.values;
-            @DoNotSub final int mask = values.length - 1;
-            @DoNotSub int index = Hashing.hash(value, mask);
-
-            while (values[index] != MISSING_VALUE)
-            {
-                if (values[index] == value)
-                {
-                    return true;
-                }
-
-                index = next(index, mask);
-            }
+            return containsMissingValue;
         }
+
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(value, mask);
+
+        while (values[index] != MISSING_VALUE)
+        {
+            if (values[index] == value)
+            {
+                return true;
+            }
+
+            index = next(index, mask);
+        }
+
         return false;
     }
 
@@ -286,7 +298,7 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     @DoNotSub public int size()
     {
-        return size;
+        return sizeOfArrayValues + (containsMissingValue ? 1 : 0);
     }
 
     /**
@@ -294,7 +306,7 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean isEmpty()
     {
-        return size == 0;
+        return size() == 0;
     }
 
     /**
@@ -323,7 +335,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     public void clear()
     {
         Arrays.fill(values, MISSING_VALUE);
-        size = 0;
+        sizeOfArrayValues = 0;
     }
 
     /**
@@ -393,7 +405,7 @@ public final class IntHashSet extends AbstractSet<Integer>
             {
                 if (difference == null)
                 {
-                    difference = new IntHashSet(size);
+                    difference = new IntHashSet(sizeOfArrayValues);
                 }
 
                 difference.add(value);
@@ -450,7 +462,7 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public IntIterator iterator()
     {
-        iterator.reset();
+        iterator.reset(values, containsMissingValue);
 
         return iterator;
     }
@@ -466,7 +478,7 @@ public final class IntHashSet extends AbstractSet<Integer>
         }
 
         System.arraycopy(that.values, 0, this.values, 0, this.values.length);
-        this.size = that.size;
+        this.sizeOfArrayValues = that.sizeOfArrayValues;
     }
 
     /**
@@ -492,7 +504,7 @@ public final class IntHashSet extends AbstractSet<Integer>
             throw new ArrayStoreException("Cannot store Integers in array of type " + componentType);
         }
 
-        @DoNotSub final int size = this.size;
+        @DoNotSub final int size = size();
         final T[] arrayCopy = into.length >= size ? into : (T[])Array.newInstance(componentType, size);
         copyValues(arrayCopy);
 
@@ -504,9 +516,8 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public Object[] toArray()
     {
-        final Object[] arrayCopy = new Object[size];
+        final Object[] arrayCopy = new Object[size()];
         copyValues(arrayCopy);
-
         return arrayCopy;
     }
 
@@ -516,6 +527,11 @@ public final class IntHashSet extends AbstractSet<Integer>
         for (@DoNotSub int i = 0; iterator.hasNext(); i++)
         {
             arrayCopy[i] = iterator.next();
+        }
+
+        if (containsMissingValue)
+        {
+            arrayCopy[sizeOfArrayValues] = MISSING_VALUE;
         }
     }
 
@@ -533,7 +549,9 @@ public final class IntHashSet extends AbstractSet<Integer>
         {
             final IntHashSet otherSet = (IntHashSet)other;
 
-            return otherSet.size == size && containsAll(otherSet);
+            return otherSet.containsMissingValue == containsMissingValue &&
+                   otherSet.sizeOfArrayValues == sizeOfArrayValues &&
+                   containsAll(otherSet);
         }
 
         return false;
@@ -553,23 +571,20 @@ public final class IntHashSet extends AbstractSet<Integer>
             }
         }
 
+        hashCode = 31 * hashCode + (containsMissingValue ? 1 : 0);
+
         return hashCode;
     }
 
     public final class IntHashSetIterator extends IntIterator
     {
-        IntHashSetIterator(final int[] values)
-        {
-            super(values);
-        }
-
         public void remove()
         {
             if (isPositionValid)
             {
                 @DoNotSub final int position = position();
                 values[position] = MISSING_VALUE;
-                --size;
+                --sizeOfArrayValues;
 
                 compactChain(position);
 
@@ -577,7 +592,14 @@ public final class IntHashSet extends AbstractSet<Integer>
             }
             else
             {
-                throw new IllegalStateException();
+                if (containsMissingValue)
+                {
+                    containsMissingValue = false;
+                }
+                else
+                {
+                    throw new IllegalStateException();
+                }
             }
         }
     }

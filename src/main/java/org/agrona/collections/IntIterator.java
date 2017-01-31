@@ -20,8 +20,6 @@ import org.agrona.generation.DoNotSub;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import static org.agrona.collections.IntHashSet.MISSING_VALUE;
-
 /**
  * An iterator for a sequence of primitive values.
  */
@@ -31,42 +29,28 @@ public class IntIterator implements Iterator<Integer>
     @DoNotSub private int stopCounter;
     protected boolean isPositionValid = false;
     private int[] values;
-
-    /**
-     * Construct an {@link Iterator} over an array of primitives ints.
-     *
-     * @param values       to iterate over.
-     */
-    public IntIterator(final int[] values)
-    {
-        reset(values);
-    }
-
-    /**
-     * Reset methods for fixed size collections.
-     */
-    void reset()
-    {
-        reset(values);
-    }
+    private boolean containsMissingValue;
 
     /**
      * Reset method for expandable collections.
      *
      * @param values to be iterated over
+     * @param containsMissingValue true iff the hashset contains a missing value
      */
-    void reset(final int[] values)
+    void reset(final int[] values, final boolean containsMissingValue)
     {
         this.values = values;
+        this.containsMissingValue = containsMissingValue;
+
         @DoNotSub final int length = values.length;
 
         @DoNotSub int i = length;
-        if (values[length - 1] != MISSING_VALUE)
+        if (values[length - 1] != IntHashSet.MISSING_VALUE)
         {
             i = 0;
             for (@DoNotSub int size = length; i < size; i++)
             {
-                if (values[i] == MISSING_VALUE)
+                if (values[i] == IntHashSet.MISSING_VALUE)
                 {
                     break;
                 }
@@ -91,13 +75,13 @@ public class IntIterator implements Iterator<Integer>
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
-            if (values[index] != MISSING_VALUE)
+            if (values[index] != IntHashSet.MISSING_VALUE)
             {
                 return true;
             }
         }
 
-        return false;
+        return containsMissingValue;
     }
 
     protected void findNext()
@@ -109,7 +93,7 @@ public class IntIterator implements Iterator<Integer>
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
-            if (values[index] != MISSING_VALUE)
+            if (values[index] != IntHashSet.MISSING_VALUE)
             {
                 positionCounter = i;
                 isPositionValid = true;
@@ -117,7 +101,10 @@ public class IntIterator implements Iterator<Integer>
             }
         }
 
-        throw new NoSuchElementException();
+        if (!containsMissingValue)
+        {
+            throw new NoSuchElementException();
+        }
     }
 
     public Integer next()
@@ -134,6 +121,14 @@ public class IntIterator implements Iterator<Integer>
     {
         findNext();
 
-        return values[position()];
+        if (isPositionValid)
+        {
+            return values[position()];
+        }
+        else
+        {
+            containsMissingValue = false;
+            return IntHashSet.MISSING_VALUE;
+        }
     }
 }
