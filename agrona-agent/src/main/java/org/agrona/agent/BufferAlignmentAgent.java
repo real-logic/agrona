@@ -28,6 +28,12 @@ import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 
+/**
+ * An agent that verifies that all memory accesses in {@link DirectBuffer} implementations are aligned<br>
+ * Unaligned accesses can be slower or even make the JVM crash on some architectures.<br>
+ * Using this agent will avoid such crashes, but it has a performance overhead and should only be used for testing and debugging
+ */
+
 public class BufferAlignmentAgent
 {
 
