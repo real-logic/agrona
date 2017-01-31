@@ -20,12 +20,13 @@ import org.agrona.generation.DoNotSub;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.agrona.collections.IntHashSet.MISSING_VALUE;
+
 /**
  * An iterator for a sequence of primitive values.
  */
 public class IntIterator implements Iterator<Integer>
 {
-    private final int missingValue;
     @DoNotSub private int positionCounter;
     @DoNotSub private int stopCounter;
     protected boolean isPositionValid = false;
@@ -34,12 +35,10 @@ public class IntIterator implements Iterator<Integer>
     /**
      * Construct an {@link Iterator} over an array of primitives ints.
      *
-     * @param missingValue to indicate the value is missing, i.e. not present or null.
      * @param values       to iterate over.
      */
-    public IntIterator(final int missingValue, final int[] values)
+    public IntIterator(final int[] values)
     {
-        this.missingValue = missingValue;
         reset(values);
     }
 
@@ -62,12 +61,12 @@ public class IntIterator implements Iterator<Integer>
         @DoNotSub final int length = values.length;
 
         @DoNotSub int i = length;
-        if (values[length - 1] != missingValue)
+        if (values[length - 1] != MISSING_VALUE)
         {
             i = 0;
             for (@DoNotSub int size = length; i < size; i++)
             {
-                if (values[i] == missingValue)
+                if (values[i] == MISSING_VALUE)
                 {
                     break;
                 }
@@ -92,7 +91,7 @@ public class IntIterator implements Iterator<Integer>
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
-            if (values[index] != missingValue)
+            if (values[index] != MISSING_VALUE)
             {
                 return true;
             }
@@ -110,7 +109,7 @@ public class IntIterator implements Iterator<Integer>
         for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
         {
             @DoNotSub final int index = i & mask;
-            if (values[index] != missingValue)
+            if (values[index] != MISSING_VALUE)
             {
                 positionCounter = i;
                 isPositionValid = true;

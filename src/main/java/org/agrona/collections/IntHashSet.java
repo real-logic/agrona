@@ -51,7 +51,7 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
-    private static final int MISSING_VALUE = -1;
+    static final int MISSING_VALUE = -1;
 
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
@@ -560,7 +560,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     {
         IntHashSetIterator(final int[] values)
         {
-            super(MISSING_VALUE, values);
+            super(values);
         }
 
         public void remove()
