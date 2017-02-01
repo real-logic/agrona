@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Real Logic Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.agrona.agent;
 
 import static org.junit.Assert.assertTrue;
@@ -22,7 +37,6 @@ import sun.misc.Unsafe;
 
 public class BufferAlignmentAgentTest
 {
-
     private static final String TEST_STRING = "BufferAlignmentTest";
     //on 32-bits JVMs, array content are not 8-byte aligned => need to add a 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET % 8;
@@ -115,7 +129,7 @@ public class BufferAlignmentAgentTest
         testUnAlignedWriteMethods(buffer, HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
-    private void testUnsafeBuffer(UnsafeBuffer buffer, int offset)
+    private void testUnsafeBuffer(final UnsafeBuffer buffer, final int offset)
     {
         testAlignedReadMethods(buffer, offset);
         testUnAlignedReadMethods(buffer, offset);
@@ -123,10 +137,9 @@ public class BufferAlignmentAgentTest
         testUnAlignedWriteMethods(buffer, offset);
         testAlignedAtomicMethods(buffer, offset);
         testUnAlignedAtomicMethods(buffer, offset);
-
     }
 
-    private void testAlignedReadMethods(DirectBuffer buffer, int offset)
+    private void testAlignedReadMethods(final DirectBuffer buffer, final int offset)
     {
         buffer.getLong(offset + BitUtil.SIZE_OF_LONG);
         buffer.getLong(offset + BitUtil.SIZE_OF_LONG, ByteOrder.BIG_ENDIAN);
@@ -159,9 +172,8 @@ public class BufferAlignmentAgentTest
         buffer.getStringWithoutLengthAscii(offset + BitUtil.SIZE_OF_BYTE, 7);
     }
 
-    private void testUnAlignedReadMethods(DirectBuffer buffer, int offset)
+    private void testUnAlignedReadMethods(final DirectBuffer buffer, final int offset)
     {
-
         buffer.getLong(offset); // assert that buffer[offset] is 8-bytes aligned
 
         assertUnaligned(offset + BitUtil.SIZE_OF_INT, buffer::getLong);
@@ -183,12 +195,10 @@ public class BufferAlignmentAgentTest
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getStringUtf8(i, ByteOrder.BIG_ENDIAN));
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getStringAscii);
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getStringAscii(i, ByteOrder.BIG_ENDIAN));
-
     }
 
-    private void testAlignedWriteMethods(MutableDirectBuffer buffer, int offset)
+    private void testAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
     {
-
         buffer.putLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
         buffer.putLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE, ByteOrder.BIG_ENDIAN);
         buffer.putDouble(offset + BitUtil.SIZE_OF_DOUBLE, Double.MAX_VALUE);
@@ -220,11 +230,10 @@ public class BufferAlignmentAgentTest
         buffer.putStringWithoutLengthAscii(offset + BitUtil.SIZE_OF_BYTE, TEST_STRING);
     }
 
-    private void testUnAlignedWriteMethods(MutableDirectBuffer buffer, int offset)
+    private void testUnAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
     {
-
         buffer.putLong(offset, Long.MAX_VALUE); // assert that buffer[offset] is
-                                                // 8-bytes aligned
+        // 8-bytes aligned
 
         assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLong(i, Long.MAX_VALUE));
         assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLong(i, Long.MAX_VALUE, ByteOrder.BIG_ENDIAN));
@@ -247,12 +256,11 @@ public class BufferAlignmentAgentTest
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringUtf8(i, TEST_STRING, ByteOrder.BIG_ENDIAN));
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));
         assertUnaligned(offset + BitUtil.SIZE_OF_SHORT,
-            i -> buffer.putStringUtf8(i, TEST_STRING, ByteOrder.BIG_ENDIAN, Integer.MAX_VALUE));
+            (i) -> buffer.putStringUtf8(i, TEST_STRING, ByteOrder.BIG_ENDIAN, Integer.MAX_VALUE));
     }
 
-    private void testAlignedAtomicMethods(AtomicBuffer buffer, int offset)
+    private void testAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
-
         buffer.getLongVolatile(offset + BitUtil.SIZE_OF_LONG);
         buffer.putLongVolatile(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
         buffer.compareAndSetLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE, Long.MAX_VALUE);
@@ -275,14 +283,12 @@ public class BufferAlignmentAgentTest
         buffer.putCharVolatile(offset + BitUtil.SIZE_OF_CHAR, Character.MAX_VALUE);
         buffer.getByteVolatile(offset + BitUtil.SIZE_OF_BYTE);
         buffer.putByteVolatile(offset + BitUtil.SIZE_OF_BYTE, Byte.MAX_VALUE);
-
     }
 
-    private void testUnAlignedAtomicMethods(AtomicBuffer buffer, int offset)
+    private void testUnAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
-
         buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
-                                        // aligned
+        // aligned
 
         assertUnaligned(offset + BitUtil.SIZE_OF_INT, buffer::getLongVolatile);
         assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLongVolatile(i, Long.MAX_VALUE));
@@ -307,17 +313,17 @@ public class BufferAlignmentAgentTest
 
     }
 
-    private void assertUnaligned(int index, IntConsumer methodUnderTest)
+    private void assertUnaligned(final int index, final IntConsumer methodUnderTest)
     {
         try
         {
             methodUnderTest.accept(index);
         }
-        catch (final BufferAlignmentException e)
+        catch (final BufferAlignmentException ignore)
         {
             return;
         }
+
         fail("Should have thrown BufferAlignmentException");
     }
-
 }
