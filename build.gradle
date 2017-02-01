@@ -220,10 +220,10 @@ project(':agrona-agent') {
     jar {
         manifest {
             attributes(
-                    'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                    'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                    'Can-Redefine-Classes': 'true',
-                    'Can-Retransform-Classes': 'true'
+                'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
+                'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
             )
         }
     }
