@@ -55,9 +55,11 @@ public class CompilerUtil
             throw new IllegalStateException("JDK required to run tests. JRE is not sufficient.");
         }
 
-        final JavaFileManager fileManager = new ClassFileManager<>(compiler.getStandardFileManager(null, null, null));
+        final JavaFileManager fileManager = new ClassFileManager<>(
+            compiler.getStandardFileManager(null, null, null));
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, wrap(sources));
+        final JavaCompiler.CompilationTask task = compiler.getTask(
+            null, fileManager, diagnostics, null, null, wrap(sources));
 
         return compileAndLoad(className, diagnostics, fileManager, task);
     }

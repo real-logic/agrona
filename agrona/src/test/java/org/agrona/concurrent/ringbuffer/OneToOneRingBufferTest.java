@@ -210,7 +210,8 @@ public class OneToOneRingBufferTest
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
-        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getLongVolatile(headIndex + alignedRecordLength))
+            .thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -261,7 +262,8 @@ public class OneToOneRingBufferTest
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
-        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getLongVolatile(headIndex + alignedRecordLength))
+            .thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler =
@@ -329,7 +331,8 @@ public class OneToOneRingBufferTest
         final long tail = 2 * CAPACITY - padding;
         final long head = tail;
 
-        // free space is (200 + 300) more than message length (400) but contiguous space (300) is less than message length (400)
+        // free space is (200 + 300) more than message length (400)
+        // but contiguous space (300) is less than message length (400)
         final long headCache = CAPACITY + 300;
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);

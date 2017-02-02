@@ -60,7 +60,8 @@ public class ManyToOneRingBufferTest
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength)).thenReturn(TRUE);
+        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength))
+            .thenReturn(TRUE);
 
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
         final int srcIndex = 0;
@@ -125,7 +126,8 @@ public class ManyToOneRingBufferTest
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT)).thenReturn(TRUE);
+        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT))
+            .thenReturn(TRUE);
 
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
@@ -151,7 +153,8 @@ public class ManyToOneRingBufferTest
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT)).thenReturn(TRUE);
+        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT))
+            .thenReturn(TRUE);
 
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
@@ -213,7 +216,8 @@ public class ManyToOneRingBufferTest
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
-        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getLongVolatile(headIndex + alignedRecordLength))
+            .thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -389,14 +393,18 @@ public class ManyToOneRingBufferTest
         final long tail = 2 * CAPACITY - padding;
         final long head = tail;
 
-        // free space is (200 + 300) more than message length (400) but contiguous space (300) is less than message length (400)
+        // free space is (200 + 300) more than message length (400)
+        // but contiguous space (300) is less than message length (400)
         final long headCache = CAPACITY + 300;
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
         when(buffer.getLongVolatile(HEAD_COUNTER_CACHE_INDEX)).thenReturn(headCache);
-        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + padding)).thenReturn(true);
+        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + padding))
+            .thenReturn(true);
+
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[messageLength]);
+
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, messageLength));
     }
 }

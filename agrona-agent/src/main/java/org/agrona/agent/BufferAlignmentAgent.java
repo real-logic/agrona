@@ -48,7 +48,8 @@ import net.bytebuddy.utility.JavaModule;
  *
  * Unaligned accesses can be slower or even make the JVM crash on some architectures.
  *
- * Using this agent will avoid such crashes, but it has a performance overhead and should only be used for testing and debugging
+ * Using this agent will avoid such crashes, but it has a performance overhead and should only be used for testing
+ * and debugging
  */
 
 public class BufferAlignmentAgent
@@ -66,22 +67,25 @@ public class BufferAlignmentAgent
         agent(true, instrumentation);
     }
 
-    private static synchronized void agent(final boolean redefine, final Instrumentation instrumentation)
+    private static synchronized void agent(final boolean shouldRedefine, final Instrumentation instrumentation)
     {
         BufferAlignmentAgent.instrumentation = instrumentation;
         // all Int methods, and all String method other than
         // XXXStringWithoutLengthXXX or getStringXXX(int, int)
-        final Junction<MethodDescription> intVerifyerMatcher = nameContains("Int")
+        final Junction<MethodDescription> intVerifierMatcher = nameContains("Int")
             .or(nameMatches(".*String[^W].*").and(not(ElementMatchers.takesArguments(int.class, int.class))));
 
-        alignmentTransformer = new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED)).with(LISTENER)
+        alignmentTransformer = new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED))
+            .with(LISTENER)
             .disableClassFormatChanges()
-            .with(redefine ? AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED)
+            .with(shouldRedefine ?
+                AgentBuilder.RedefinitionStrategy.RETRANSFORMATION :
+                AgentBuilder.RedefinitionStrategy.DISABLED)
             .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
             .transform((builder, typeDescription, classLoader, module) -> builder
                 .visit(to(LongVerifier.class).on(nameContains("Long")))
                 .visit(to(DoubleVerifier.class).on(nameContains("Double")))
-                .visit(to(IntVerifier.class).on(intVerifyerMatcher))
+                .visit(to(IntVerifier.class).on(intVerifierMatcher))
                 .visit(to(FloatVerifier.class).on(nameContains("Float")))
                 .visit(to(ShortVerifier.class).on(nameContains("Short")))
                 .visit(to(CharVerifier.class).on(nameContains("Char"))))

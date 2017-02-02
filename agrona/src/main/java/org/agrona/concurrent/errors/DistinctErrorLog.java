@@ -151,7 +151,8 @@ public class DistinctErrorLog
         return true;
     }
 
-    private static DistinctObservation find(final DistinctObservation[] existingObservations, final Throwable observation)
+    private static DistinctObservation find(
+        final DistinctObservation[] existingObservations, final Throwable observation)
     {
         DistinctObservation existingObservation = null;
 

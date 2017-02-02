@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
- * Many producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow consumer
- * adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
+ * Many producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow
+ * consumer adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */

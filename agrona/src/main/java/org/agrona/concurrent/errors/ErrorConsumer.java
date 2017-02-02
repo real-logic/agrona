@@ -15,6 +15,9 @@
  */
 package org.agrona.concurrent.errors;
 
+/**
+ * Callback handler for consuming errors encountered in a {@link DistinctErrorLog}.
+ */
 @FunctionalInterface
 public interface ErrorConsumer
 {
@@ -26,5 +29,6 @@ public interface ErrorConsumer
      * @param lastObservationTimestamp  time the last observation was recorded.
      * @param encodedException          String encoding of the exception and stack trace in UTF-8 format.
      */
-    void accept(int observationCount, long firstObservationTimestamp, long lastObservationTimestamp, String encodedException);
+    void accept(
+        int observationCount, long firstObservationTimestamp, long lastObservationTimestamp, String encodedException);
 }

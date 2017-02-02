@@ -49,7 +49,8 @@ public class AtomicBufferTest
     private static final double DOUBLE_VALUE = Integer.MAX_VALUE + 7.0d;
 
     @DataPoint
-    public static final AtomicBuffer BYTE_ARRAY_BACKED = new UnsafeBuffer(new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY);
+    public static final AtomicBuffer BYTE_ARRAY_BACKED =
+        new UnsafeBuffer(new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY);
 
     @DataPoint
     public static final AtomicBuffer HEAP_BYTE_BUFFER = new UnsafeBuffer(
@@ -731,7 +732,8 @@ public class AtomicBufferTest
         duplicateBuffer.position(INDEX);
         duplicateBuffer.put(testBytes);
 
-        final ByteBuffer dstBuffer = ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
+        final ByteBuffer dstBuffer =
+            ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
 
         buffer.getBytes(INDEX, dstBuffer, testBytes.length);
 
@@ -796,7 +798,8 @@ public class AtomicBufferTest
     public void shouldPutBytesToBufferFromSlice(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer = ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
+        final ByteBuffer srcBuffer =
+            ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
         srcBuffer.put(testBytes).flip();
 
         buffer.putBytes(INDEX, srcBuffer, testBytes.length);

@@ -227,7 +227,8 @@ public class TimerWheelTest
 
         final TimerWheel.Timer timer = wheel.newTimeout(15, TimeUnit.MILLISECONDS, task1);
 
-        processTimersUntil(wheel, ONE_MS_OF_NS, () -> wheel.clock().nanoTime() >= TimeUnit.MILLISECONDS.toNanos(50));
+        processTimersUntil(
+            wheel, ONE_MS_OF_NS, () -> wheel.clock().nanoTime() >= TimeUnit.MILLISECONDS.toNanos(50));
 
         assertTrue(timer.isExpired());
         assertFalse(timer.isActive());
@@ -237,7 +238,8 @@ public class TimerWheelTest
 
         wheel.rescheduleTimeout(23, TimeUnit.MILLISECONDS, timer, task2);
 
-        processTimersUntil(wheel, ONE_MS_OF_NS, () -> wheel.clock().nanoTime() >= TimeUnit.MILLISECONDS.toNanos(50 + 50));
+        processTimersUntil(
+            wheel, ONE_MS_OF_NS, () -> wheel.clock().nanoTime() >= TimeUnit.MILLISECONDS.toNanos(50 + 50));
 
         assertTrue(timer.isExpired());
         assertFalse(timer.isActive());

@@ -51,7 +51,8 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     protected long yields;
     protected long parkPeriodNs;
 
-    BackoffIdleStrategyData(final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
+    BackoffIdleStrategyData(
+        final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
     {
         this.maxSpins = maxSpins;
         this.maxYields = maxYields;

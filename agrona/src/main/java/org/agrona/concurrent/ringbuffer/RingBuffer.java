@@ -36,8 +36,8 @@ public interface RingBuffer
      *
      * @param msgTypeId type of the message encoding.
      * @param srcBuffer containing the encoded binary message.
-     * @param srcIndex at which the encoded message begins.
-     * @param length of the encoded message in bytes.
+     * @param srcIndex  at which the encoded message begins.
+     * @param length    of the encoded message in bytes.
      * @return true if written to the ring-buffer, or false if insufficient space exists.
      * @throws IllegalArgumentException if the length is greater than {@link RingBuffer#maxMsgLength()}
      */
@@ -54,7 +54,7 @@ public interface RingBuffer
     /**
      * Read as many messages as are available from the ring buffer to up a supplied maximum.
      *
-     * @param handler to be called for processing each message in turn.
+     * @param handler           to be called for processing each message in turn.
      * @param messageCountLimit the number of messages will be read in a single invocation.
      * @return the number of messages that have been processed.
      */
@@ -116,15 +116,15 @@ public interface RingBuffer
     long consumerPosition();
 
     /**
-     * Size of the backlog of bytes in the buffer between producers and consumers. The figure includes the size of headers.
+     * Size of the buffer backlog in bytes between producers and consumers. The figure includes the size of headers.
      *
      * @return size of the backlog of bytes in the buffer between producers and consumers.
      */
     int size();
 
     /**
-     * Unblock a multi-producer ring buffer where a producer has died during the act of offering. The operation will scan from
-     * the consumer position up to the producer position.
+     * Unblock a multi-producer ring buffer where a producer has died during the act of offering. The operation will
+     * scan from the consumer position up to the producer position.
      *
      * If no action is required at the position then none will be taken.
      *

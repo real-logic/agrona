@@ -141,9 +141,8 @@ public class BroadcastTransmitter
     {
         if (length > maxMsgLength)
         {
-            final String msg = String.format("encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length);
-
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException(String.format(
+                "encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length));
         }
     }
 }

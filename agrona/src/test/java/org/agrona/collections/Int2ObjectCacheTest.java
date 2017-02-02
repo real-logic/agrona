@@ -34,15 +34,15 @@ public class Int2ObjectCacheTest
     public static final int CAPACITY = NUM_SETS * SET_SIZE;
     public static final Consumer<String> EVICTION_CONSUMER = (s) -> {};
 
-    private final Int2ObjectCache<String> int2ObjectCache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
+    private final Int2ObjectCache<String> cache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 
     @Test
     public void shouldDoPutAndThenGet()
     {
         final String value = "Seven";
-        int2ObjectCache.put(7, value);
+        cache.put(7, value);
 
-        assertThat(int2ObjectCache.get(7), is(value));
+        assertThat(cache.get(7), is(value));
     }
 
     @Test
@@ -50,13 +50,13 @@ public class Int2ObjectCacheTest
     {
         final int key = 7;
         final String value = "Seven";
-        int2ObjectCache.put(key, value);
+        cache.put(key, value);
 
         final String newValue = "New Seven";
-        int2ObjectCache.put(key, newValue);
+        cache.put(key, newValue);
 
-        assertThat(int2ObjectCache.get(key), is(newValue));
-        assertThat(int2ObjectCache.size(), is(1));
+        assertThat(cache.get(key), is(newValue));
+        assertThat(cache.size(), is(1));
     }
 
     @Test
@@ -64,11 +64,11 @@ public class Int2ObjectCacheTest
     {
         for (int i = 0; i < (CAPACITY * 2); i++)
         {
-            int2ObjectCache.put(i, Integer.toString(i));
+            cache.put(i, Integer.toString(i));
         }
 
-        assertThat(int2ObjectCache.size(), greaterThan(0));
-        assertThat(int2ObjectCache.size(), lessThanOrEqualTo(CAPACITY));
+        assertThat(cache.size(), greaterThan(0));
+        assertThat(cache.size(), lessThanOrEqualTo(CAPACITY));
     }
 
     @Test
@@ -76,14 +76,14 @@ public class Int2ObjectCacheTest
     {
         for (int i = 0; i < CAPACITY; i++)
         {
-            int2ObjectCache.put(i, Integer.toString(i));
+            cache.put(i, Integer.toString(i));
         }
 
-        assertThat(int2ObjectCache.size(), greaterThan(0));
+        assertThat(cache.size(), greaterThan(0));
 
-        int2ObjectCache.clear();
+        cache.clear();
 
-        assertThat(int2ObjectCache.size(), is(0));
+        assertThat(cache.size(), is(0));
     }
 
     @Test
@@ -92,10 +92,10 @@ public class Int2ObjectCacheTest
         final int key = 7;
         final String value = "Seven";
 
-        int2ObjectCache.put(key, value);
+        cache.put(key, value);
 
-        assertTrue(int2ObjectCache.containsValue(value));
-        assertFalse(int2ObjectCache.containsValue("NoKey"));
+        assertTrue(cache.containsValue(value));
+        assertFalse(cache.containsValue("NoKey"));
     }
 
     @Test
@@ -104,10 +104,10 @@ public class Int2ObjectCacheTest
         final int key = 7;
         final String value = "Seven";
 
-        int2ObjectCache.put(key, value);
+        cache.put(key, value);
 
-        assertTrue(int2ObjectCache.containsKey(key));
-        assertFalse(int2ObjectCache.containsKey(0));
+        assertTrue(cache.containsKey(key));
+        assertFalse(cache.containsKey(0));
     }
 
     @Test
@@ -116,13 +116,13 @@ public class Int2ObjectCacheTest
         final int key = 7;
         final String value = "Seven";
 
-        int2ObjectCache.put(key, value);
+        cache.put(key, value);
 
-        assertTrue(int2ObjectCache.containsKey(key));
+        assertTrue(cache.containsKey(key));
 
-        int2ObjectCache.remove(key);
+        cache.remove(key);
 
-        assertFalse(int2ObjectCache.containsKey(key));
+        assertFalse(cache.containsKey(key));
     }
 
     @Test
@@ -133,13 +133,13 @@ public class Int2ObjectCacheTest
         for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
-            int2ObjectCache.put(i, value);
+            cache.put(i, value);
             initialSet.add(value);
         }
 
         final Collection<String> copyToSet = new HashSet<>();
 
-        for (final String s : int2ObjectCache.values())
+        for (final String s : cache.values())
         {
             copyToSet.add(s);
         }
@@ -155,13 +155,13 @@ public class Int2ObjectCacheTest
         for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
-            int2ObjectCache.put(i, value);
+            cache.put(i, value);
             initialSet.add(i);
         }
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Int2ObjectCache.KeyIterator iter = int2ObjectCache.keySet().iterator(); iter.hasNext(); )
+        for (final Int2ObjectCache.KeyIterator iter = cache.keySet().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }
@@ -177,7 +177,7 @@ public class Int2ObjectCacheTest
         for (int i = 0; i < (CAPACITY - 1); i++)
         {
             final String value = Integer.toString(i);
-            int2ObjectCache.put(i, value);
+            cache.put(i, value);
             initialSet.add(i);
         }
 
@@ -189,7 +189,7 @@ public class Int2ObjectCacheTest
     private void assertIterateKeys(final Collection<Integer> initialSet)
     {
         final Collection<Integer> copyToSet = new HashSet<>();
-        for (final Integer aInteger : int2ObjectCache.keySet())
+        for (final Integer aInteger : cache.keySet())
         {
             copyToSet.add(aInteger);
         }
@@ -204,10 +204,10 @@ public class Int2ObjectCacheTest
         for (int i = 0; i < count; i++)
         {
             final String value = Integer.toString(i);
-            int2ObjectCache.put(i, value);
+            cache.put(i, value);
         }
 
-        for (final Map.Entry<Integer, String> entry : int2ObjectCache.entrySet())
+        for (final Map.Entry<Integer, String> entry : cache.entrySet())
         {
             assertThat(String.valueOf(entry.getKey()), equalTo(entry.getValue()));
         }
@@ -220,11 +220,11 @@ public class Int2ObjectCacheTest
 
         for (final int testEntry : testEntries)
         {
-            int2ObjectCache.put(testEntry, String.valueOf(testEntry));
+            cache.put(testEntry, String.valueOf(testEntry));
         }
 
         final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
-        assertThat(int2ObjectCache.toString(), equalTo(mapAsAString));
+        assertThat(cache.toString(), equalTo(mapAsAString));
     }
 
     @Test
@@ -252,38 +252,38 @@ public class Int2ObjectCacheTest
 
         final IntFunction<String> function = (i) -> testValue;
 
-        assertNull(int2ObjectCache.get(testKey));
+        assertNull(cache.get(testKey));
 
-        assertThat(int2ObjectCache.computeIfAbsent(testKey, function), is(testValue));
-        assertThat(int2ObjectCache.get(testKey), is(testValue));
+        assertThat(cache.computeIfAbsent(testKey, function), is(testValue));
+        assertThat(cache.get(testKey), is(testValue));
     }
 
     @Test
     public void shouldTestStats()
     {
-        assertThat(int2ObjectCache.cachePuts(), is(0L));
-        assertThat(int2ObjectCache.cacheMisses(), is(0L));
-        assertThat(int2ObjectCache.cacheHits(), is(0L));
+        assertThat(cache.cachePuts(), is(0L));
+        assertThat(cache.cacheMisses(), is(0L));
+        assertThat(cache.cacheHits(), is(0L));
 
-        int2ObjectCache.get(7);
-        assertThat(int2ObjectCache.cacheMisses(), is(1L));
-        assertThat(int2ObjectCache.cacheHits(), is(0L));
-        assertThat(int2ObjectCache.cachePuts(), is(0L));
+        cache.get(7);
+        assertThat(cache.cacheMisses(), is(1L));
+        assertThat(cache.cacheHits(), is(0L));
+        assertThat(cache.cachePuts(), is(0L));
 
-        int2ObjectCache.put(7, "Seven");
-        assertThat(int2ObjectCache.cacheMisses(), is(1L));
-        assertThat(int2ObjectCache.cacheHits(), is(0L));
-        assertThat(int2ObjectCache.cachePuts(), is(1L));
+        cache.put(7, "Seven");
+        assertThat(cache.cacheMisses(), is(1L));
+        assertThat(cache.cacheHits(), is(0L));
+        assertThat(cache.cachePuts(), is(1L));
 
-        int2ObjectCache.get(7);
-        assertThat(int2ObjectCache.cacheMisses(), is(1L));
-        assertThat(int2ObjectCache.cacheHits(), is(1L));
-        assertThat(int2ObjectCache.cachePuts(), is(1L));
+        cache.get(7);
+        assertThat(cache.cacheMisses(), is(1L));
+        assertThat(cache.cacheHits(), is(1L));
+        assertThat(cache.cachePuts(), is(1L));
 
-        int2ObjectCache.resetCounters();
-        assertThat(int2ObjectCache.cachePuts(), is(0L));
-        assertThat(int2ObjectCache.cacheMisses(), is(0L));
-        assertThat(int2ObjectCache.cacheHits(), is(0L));
+        cache.resetCounters();
+        assertThat(cache.cachePuts(), is(0L));
+        assertThat(cache.cacheMisses(), is(0L));
+        assertThat(cache.cacheHits(), is(0L));
     }
 }
 

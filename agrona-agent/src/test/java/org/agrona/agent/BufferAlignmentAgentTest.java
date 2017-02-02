@@ -15,14 +15,14 @@
  */
 package org.agrona.agent;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static org.agrona.BitUtil.*;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.function.IntConsumer;
 
-import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -38,7 +38,7 @@ import sun.misc.Unsafe;
 public class BufferAlignmentAgentTest
 {
     private static final String TEST_STRING = "BufferAlignmentTest";
-    //on 32-bits JVMs, array content are not 8-byte aligned => need to add a 4 bytes offset
+    //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET % 8;
 
     @BeforeClass
@@ -141,93 +141,93 @@ public class BufferAlignmentAgentTest
 
     private void testAlignedReadMethods(final DirectBuffer buffer, final int offset)
     {
-        buffer.getLong(offset + BitUtil.SIZE_OF_LONG);
-        buffer.getLong(offset + BitUtil.SIZE_OF_LONG, ByteOrder.BIG_ENDIAN);
-        buffer.getDouble(offset + BitUtil.SIZE_OF_DOUBLE);
-        buffer.getDouble(offset + BitUtil.SIZE_OF_DOUBLE, ByteOrder.BIG_ENDIAN);
+        buffer.getLong(offset + SIZE_OF_LONG);
+        buffer.getLong(offset + SIZE_OF_LONG, BIG_ENDIAN);
+        buffer.getDouble(offset + SIZE_OF_DOUBLE);
+        buffer.getDouble(offset + SIZE_OF_DOUBLE, BIG_ENDIAN);
 
-        buffer.getInt(offset + BitUtil.SIZE_OF_INT);
-        buffer.getInt(offset + BitUtil.SIZE_OF_INT, ByteOrder.BIG_ENDIAN);
-        buffer.getFloat(offset + BitUtil.SIZE_OF_FLOAT);
-        buffer.getFloat(offset + BitUtil.SIZE_OF_FLOAT, ByteOrder.BIG_ENDIAN);
+        buffer.getInt(offset + SIZE_OF_INT);
+        buffer.getInt(offset + SIZE_OF_INT, BIG_ENDIAN);
+        buffer.getFloat(offset + SIZE_OF_FLOAT);
+        buffer.getFloat(offset + SIZE_OF_FLOAT, BIG_ENDIAN);
 
-        buffer.getShort(offset + BitUtil.SIZE_OF_SHORT);
-        buffer.getShort(offset + BitUtil.SIZE_OF_SHORT, ByteOrder.BIG_ENDIAN);
-        buffer.getChar(offset + BitUtil.SIZE_OF_CHAR);
-        buffer.getChar(offset + BitUtil.SIZE_OF_CHAR, ByteOrder.BIG_ENDIAN);
+        buffer.getShort(offset + SIZE_OF_SHORT);
+        buffer.getShort(offset + SIZE_OF_SHORT, BIG_ENDIAN);
+        buffer.getChar(offset + SIZE_OF_CHAR);
+        buffer.getChar(offset + SIZE_OF_CHAR, BIG_ENDIAN);
 
-        buffer.getByte(offset + BitUtil.SIZE_OF_BYTE);
-        buffer.getByte(offset + BitUtil.SIZE_OF_BYTE);
+        buffer.getByte(offset + SIZE_OF_BYTE);
+        buffer.getByte(offset + SIZE_OF_BYTE);
 
-        buffer.getStringUtf8(offset + BitUtil.SIZE_OF_INT);
-        buffer.getStringUtf8(offset + BitUtil.SIZE_OF_INT, ByteOrder.BIG_ENDIAN);
-        buffer.getStringAscii(offset + BitUtil.SIZE_OF_INT);
-        buffer.getStringAscii(offset + BitUtil.SIZE_OF_INT, ByteOrder.BIG_ENDIAN);
+        buffer.getStringUtf8(offset + SIZE_OF_INT);
+        buffer.getStringUtf8(offset + SIZE_OF_INT, BIG_ENDIAN);
+        buffer.getStringAscii(offset + SIZE_OF_INT);
+        buffer.getStringAscii(offset + SIZE_OF_INT, BIG_ENDIAN);
 
         // string size is not read for these method => no need for 4-bytes
         // alignment
-        buffer.getStringUtf8(offset + BitUtil.SIZE_OF_BYTE, 7);
-        buffer.getStringWithoutLengthUtf8(offset + BitUtil.SIZE_OF_BYTE, 7);
-        buffer.getStringAscii(offset + BitUtil.SIZE_OF_BYTE, 7);
-        buffer.getStringWithoutLengthAscii(offset + BitUtil.SIZE_OF_BYTE, 7);
+        buffer.getStringUtf8(offset + SIZE_OF_BYTE, 7);
+        buffer.getStringWithoutLengthUtf8(offset + SIZE_OF_BYTE, 7);
+        buffer.getStringAscii(offset + SIZE_OF_BYTE, 7);
+        buffer.getStringWithoutLengthAscii(offset + SIZE_OF_BYTE, 7);
     }
 
     private void testUnAlignedReadMethods(final DirectBuffer buffer, final int offset)
     {
         buffer.getLong(offset); // assert that buffer[offset] is 8-bytes aligned
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, buffer::getLong);
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.getLong(i, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_FLOAT, buffer::getDouble);
-        assertUnaligned(offset + BitUtil.SIZE_OF_FLOAT, i -> buffer.getDouble(i, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_INT, buffer::getLong);
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getLong(i, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_FLOAT, buffer::getDouble);
+        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.getDouble(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getInt);
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getInt(i, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getFloat);
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getFloat(i, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getInt);
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getInt(i, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getFloat);
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getFloat(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, buffer::getShort);
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.getShort(i, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, buffer::getChar);
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.getChar(i, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getShort);
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.getShort(i, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getChar);
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.getChar(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getStringUtf8);
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getStringUtf8(i, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getStringAscii);
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getStringAscii(i, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getStringUtf8);
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getStringUtf8(i, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getStringAscii);
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getStringAscii(i, BIG_ENDIAN));
     }
 
     private void testAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
     {
-        buffer.putLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.putLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE, ByteOrder.BIG_ENDIAN);
-        buffer.putDouble(offset + BitUtil.SIZE_OF_DOUBLE, Double.MAX_VALUE);
-        buffer.putDouble(offset + BitUtil.SIZE_OF_DOUBLE, Double.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        buffer.putLong(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.putLong(offset + SIZE_OF_LONG, Long.MAX_VALUE, BIG_ENDIAN);
+        buffer.putDouble(offset + SIZE_OF_DOUBLE, Double.MAX_VALUE);
+        buffer.putDouble(offset + SIZE_OF_DOUBLE, Double.MAX_VALUE, BIG_ENDIAN);
 
-        buffer.putInt(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.putInt(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE, ByteOrder.BIG_ENDIAN);
-        buffer.putFloat(offset + BitUtil.SIZE_OF_FLOAT, Float.MAX_VALUE);
-        buffer.putFloat(offset + BitUtil.SIZE_OF_FLOAT, Float.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        buffer.putInt(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.putInt(offset + SIZE_OF_INT, Integer.MAX_VALUE, BIG_ENDIAN);
+        buffer.putFloat(offset + SIZE_OF_FLOAT, Float.MAX_VALUE);
+        buffer.putFloat(offset + SIZE_OF_FLOAT, Float.MAX_VALUE, BIG_ENDIAN);
 
-        buffer.putShort(offset + BitUtil.SIZE_OF_SHORT, Short.MAX_VALUE);
-        buffer.putShort(offset + BitUtil.SIZE_OF_SHORT, Short.MAX_VALUE, ByteOrder.BIG_ENDIAN);
-        buffer.putChar(offset + BitUtil.SIZE_OF_CHAR, Character.MAX_VALUE);
-        buffer.putChar(offset + BitUtil.SIZE_OF_CHAR, Character.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        buffer.putShort(offset + SIZE_OF_SHORT, Short.MAX_VALUE);
+        buffer.putShort(offset + SIZE_OF_SHORT, Short.MAX_VALUE, BIG_ENDIAN);
+        buffer.putChar(offset + SIZE_OF_CHAR, Character.MAX_VALUE);
+        buffer.putChar(offset + SIZE_OF_CHAR, Character.MAX_VALUE, BIG_ENDIAN);
 
-        buffer.putByte(offset + BitUtil.SIZE_OF_BYTE, Byte.MAX_VALUE);
-        buffer.putByte(offset + BitUtil.SIZE_OF_BYTE, Byte.MAX_VALUE);
+        buffer.putByte(offset + SIZE_OF_BYTE, Byte.MAX_VALUE);
+        buffer.putByte(offset + SIZE_OF_BYTE, Byte.MAX_VALUE);
 
-        buffer.putStringUtf8(offset + BitUtil.SIZE_OF_INT, TEST_STRING);
-        buffer.putStringUtf8(offset + BitUtil.SIZE_OF_INT, TEST_STRING, ByteOrder.BIG_ENDIAN);
-        buffer.putStringUtf8(offset + BitUtil.SIZE_OF_INT, TEST_STRING, Integer.MAX_VALUE);
-        buffer.putStringUtf8(offset + BitUtil.SIZE_OF_INT, TEST_STRING, ByteOrder.BIG_ENDIAN, Integer.MAX_VALUE);
-        buffer.putStringAscii(offset + BitUtil.SIZE_OF_INT, TEST_STRING);
-        buffer.putStringAscii(offset + BitUtil.SIZE_OF_INT, TEST_STRING, ByteOrder.BIG_ENDIAN);
+        buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING);
+        buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN);
+        buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING, Integer.MAX_VALUE);
+        buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN, Integer.MAX_VALUE);
+        buffer.putStringAscii(offset + SIZE_OF_INT, TEST_STRING);
+        buffer.putStringAscii(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN);
 
         // string size is not read for these method => no need for 4-bytes
         // alignment
-        buffer.putStringWithoutLengthUtf8(offset + BitUtil.SIZE_OF_BYTE, TEST_STRING);
-        buffer.putStringWithoutLengthAscii(offset + BitUtil.SIZE_OF_BYTE, TEST_STRING);
+        buffer.putStringWithoutLengthUtf8(offset + SIZE_OF_BYTE, TEST_STRING);
+        buffer.putStringWithoutLengthAscii(offset + SIZE_OF_BYTE, TEST_STRING);
     }
 
     private void testUnAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
@@ -235,54 +235,54 @@ public class BufferAlignmentAgentTest
         buffer.putLong(offset, Long.MAX_VALUE); // assert that buffer[offset] is
         // 8-bytes aligned
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLong(i, Long.MAX_VALUE, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_FLOAT, i -> buffer.putDouble(i, Double.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_FLOAT, i -> buffer.putDouble(i, Double.MAX_VALUE, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putInt(i, Integer.MAX_VALUE, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putFloat(i, Float.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putFloat(i, Float.MAX_VALUE, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putShort(i, Short.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putShort(i, Short.MAX_VALUE, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putChar(i, Character.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putChar(i, Character.MAX_VALUE, ByteOrder.BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringAscii(i, TEST_STRING));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringAscii(i, TEST_STRING, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringUtf8(i, TEST_STRING));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringUtf8(i, TEST_STRING, ByteOrder.BIG_ENDIAN));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT,
-            (i) -> buffer.putStringUtf8(i, TEST_STRING, ByteOrder.BIG_ENDIAN, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT,
+            (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN, Integer.MAX_VALUE));
     }
 
     private void testAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
-        buffer.getLongVolatile(offset + BitUtil.SIZE_OF_LONG);
-        buffer.putLongVolatile(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.compareAndSetLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE, Long.MAX_VALUE);
-        buffer.getAndAddLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.getAndSetLong(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.putLongOrdered(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.addLongOrdered(offset + BitUtil.SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.getLongVolatile(offset + SIZE_OF_LONG);
+        buffer.putLongVolatile(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.compareAndSetLong(offset + SIZE_OF_LONG, Long.MAX_VALUE, Long.MAX_VALUE);
+        buffer.getAndAddLong(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.getAndSetLong(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.putLongOrdered(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.addLongOrdered(offset + SIZE_OF_LONG, Long.MAX_VALUE);
 
-        buffer.getIntVolatile(offset + BitUtil.SIZE_OF_INT);
-        buffer.putIntVolatile(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.compareAndSetInt(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        buffer.getAndAddInt(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.getAndSetInt(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.putIntOrdered(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.addIntOrdered(offset + BitUtil.SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.getIntVolatile(offset + SIZE_OF_INT);
+        buffer.putIntVolatile(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.compareAndSetInt(offset + SIZE_OF_INT, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        buffer.getAndAddInt(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.getAndSetInt(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.putIntOrdered(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.addIntOrdered(offset + SIZE_OF_INT, Integer.MAX_VALUE);
 
-        buffer.getShortVolatile(offset + BitUtil.SIZE_OF_SHORT);
-        buffer.putShortVolatile(offset + BitUtil.SIZE_OF_SHORT, Short.MAX_VALUE);
-        buffer.getCharVolatile(offset + BitUtil.SIZE_OF_CHAR);
-        buffer.putCharVolatile(offset + BitUtil.SIZE_OF_CHAR, Character.MAX_VALUE);
-        buffer.getByteVolatile(offset + BitUtil.SIZE_OF_BYTE);
-        buffer.putByteVolatile(offset + BitUtil.SIZE_OF_BYTE, Byte.MAX_VALUE);
+        buffer.getShortVolatile(offset + SIZE_OF_SHORT);
+        buffer.putShortVolatile(offset + SIZE_OF_SHORT, Short.MAX_VALUE);
+        buffer.getCharVolatile(offset + SIZE_OF_CHAR);
+        buffer.putCharVolatile(offset + SIZE_OF_CHAR, Character.MAX_VALUE);
+        buffer.getByteVolatile(offset + SIZE_OF_BYTE);
+        buffer.putByteVolatile(offset + SIZE_OF_BYTE, Byte.MAX_VALUE);
     }
 
     private void testUnAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
@@ -290,27 +290,27 @@ public class BufferAlignmentAgentTest
         buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
         // aligned
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, buffer::getLongVolatile);
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLongVolatile(i, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.getAndAddLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.getAndSetLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.putLongOrdered(i, Long.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_INT, i -> buffer.addLongOrdered(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, buffer::getLongVolatile);
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongVolatile(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getAndAddLong(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getAndSetLong(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongOrdered(i, Long.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.addLongOrdered(i, Long.MAX_VALUE));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, buffer::getIntVolatile);
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putIntVolatile(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.compareAndSetInt(i, Integer.MAX_VALUE, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getAndAddInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.getAndSetInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_SHORT, i -> buffer.addIntOrdered(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getIntVolatile);
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putIntVolatile(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT,
+            (i) -> buffer.compareAndSetInt(i, Integer.MAX_VALUE, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getAndAddInt(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getAndSetInt(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.addIntOrdered(i, Integer.MAX_VALUE));
 
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, buffer::getShortVolatile);
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putShortVolatile(i, Short.MAX_VALUE));
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, buffer::getCharVolatile);
-        assertUnaligned(offset + BitUtil.SIZE_OF_BYTE, i -> buffer.putCharVolatile(i, Character.MAX_VALUE));
-
+        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getShortVolatile);
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShortVolatile(i, Short.MAX_VALUE));
+        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getCharVolatile);
+        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putCharVolatile(i, Character.MAX_VALUE));
     }
 
     private void assertUnaligned(final int index, final IntConsumer methodUnderTest)

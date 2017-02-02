@@ -93,9 +93,9 @@ class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQue
 /**
  * Concurrent linked {@link Queue} that can be used from many producers and a single consumer.
  *
- * This is a Java port of the
- * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">MPSC queue</a>
- * by Dmitry Vyukov.
+ * This is a Java port of Dmitry Vyukov's
+ * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">
+ *     MPSC linked queue</a>.
  *
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node
  * available but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for

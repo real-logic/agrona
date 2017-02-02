@@ -31,7 +31,8 @@ public class BroadcastTransmitterTest
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 1024;
     private static final int TOTAL_BUFFER_LENGTH = CAPACITY + BroadcastBufferDescriptor.TRAILER_LENGTH;
-    private static final int TAIL_INTENT_COUNTER_OFFSET = CAPACITY + BroadcastBufferDescriptor.TAIL_INTENT_COUNTER_OFFSET;
+    private static final int TAIL_INTENT_COUNTER_OFFSET =
+        CAPACITY + BroadcastBufferDescriptor.TAIL_INTENT_COUNTER_OFFSET;
     private static final int TAIL_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.TAIL_COUNTER_OFFSET;
     private static final int LATEST_COUNTER_INDEX = CAPACITY + BroadcastBufferDescriptor.LATEST_COUNTER_OFFSET;
 

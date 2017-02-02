@@ -19,8 +19,8 @@ import org.agrona.hints.ThreadHints;
 
 /**
  * Busy spin strategy targeted at lowest possible latency. This strategy will monopolise a thread to achieve the lowest
- * possible latency. Useful for creating bubbles in the execution pipeline of tight busy spin loops with no other logic than
- * status checks on progress.
+ * possible latency. Useful for creating bubbles in the execution pipeline of tight busy spin loops with no other logic
+ * than status checks on progress.
  */
 public final class BusySpinIdleStrategy implements IdleStrategy
 {
