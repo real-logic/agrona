@@ -529,7 +529,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      * @param newValue value to be associated with the specified key
      * @return {@code true} if the value was replaced
      */
-    public boolean replace(final int key, int oldValue, int newValue)
+    public boolean replace(final int key, final int oldValue, final int newValue)
     {
         final int curValue = get(key);
         if (curValue != oldValue || curValue == missingValue)
@@ -547,7 +547,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return (index + 2) & mask;
     }
 
-    private void capacity(@DoNotSub int newCapacity)
+    private void capacity(@DoNotSub final int newCapacity)
     {
         @DoNotSub final int entriesLength = newCapacity * 2;
         if (entriesLength < 0)

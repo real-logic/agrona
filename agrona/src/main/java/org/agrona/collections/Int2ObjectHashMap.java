@@ -431,7 +431,7 @@ public class Int2ObjectHashMap<V>
      * @param newValue value to be associated with the specified key
      * @return {@code true} if the value was replaced
      */
-    public boolean replace(final int key, V oldValue, V newValue)
+    public boolean replace(final int key, final V oldValue, final V newValue)
     {
         final Object curValue = get(key);
         if (curValue == null || !Objects.equals(curValue, oldValue))

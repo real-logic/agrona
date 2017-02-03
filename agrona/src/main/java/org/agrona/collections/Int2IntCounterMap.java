@@ -36,7 +36,11 @@ public class Int2IntCounterMap
 
     private int[] entries;
 
-
+    /**
+     * Construct a new counter map with the initial value for the counter provided.
+     *
+     * @param initialValue to be used for each counter.
+     */
     public Int2IntCounterMap(final int initialValue)
     {
         this(8, 0.67f, initialValue);
@@ -193,7 +197,7 @@ public class Int2IntCounterMap
      * @return the new value associated with the specified key, or
      *         {@link #initialValue()} + amount if there was no mapping for the key.
      */
-    public int addAndGet(final int key, int amount)
+    public int addAndGet(final int key, final int amount)
     {
         return getAndAdd(key, amount) + amount;
     }
@@ -229,7 +233,7 @@ public class Int2IntCounterMap
      * @return the previous value associated with the specified key, or
      *         {@link #initialValue()} if there was no mapping for the key.
      */
-    public int getAndAdd(final int key, int amount)
+    public int getAndAdd(final int key, final int amount)
     {
         final int[] entries = this.entries;
         final int initialValue = this.initialValue;
@@ -529,7 +533,7 @@ public class Int2IntCounterMap
         return (index + 2) & mask;
     }
 
-    private void capacity(@DoNotSub int newCapacity)
+    private void capacity(@DoNotSub final int newCapacity)
     {
         @DoNotSub final int entriesLength = newCapacity * 2;
         if (entriesLength < 0)

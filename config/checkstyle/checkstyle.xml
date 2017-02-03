@@ -19,6 +19,10 @@
 
         <module name="ConstantName"/>
 
+        <module name="FinalParameters">
+            <property name="tokens" value="CTOR_DEF"/>
+        </module>
+
         <module name="FinalLocalVariable"/>
 
         <module name="LocalFinalVariableName"/>
