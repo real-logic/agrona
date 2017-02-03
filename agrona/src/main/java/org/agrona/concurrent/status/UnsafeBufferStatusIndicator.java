@@ -47,7 +47,7 @@ public class UnsafeBufferStatusIndicator implements StatusIndicator
         return counterId;
     }
 
-    public void setOrdered(long value)
+    public void setOrdered(final long value)
     {
         UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
     }

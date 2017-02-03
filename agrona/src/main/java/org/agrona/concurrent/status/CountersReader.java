@@ -167,7 +167,7 @@ public class CountersReader
      * @param counterId for which the offset should be provided.
      * @return the offset in the counter buffer.
      */
-    public static int counterOffset(int counterId)
+    public static int counterOffset(final int counterId)
     {
         return counterId * COUNTER_LENGTH;
     }

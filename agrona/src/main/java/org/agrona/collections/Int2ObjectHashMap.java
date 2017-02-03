@@ -484,6 +484,7 @@ public class Int2ObjectHashMap<V>
         values = tempValues;
     }
 
+    @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteIndex)
     {
         @DoNotSub final int mask = values.length - 1;

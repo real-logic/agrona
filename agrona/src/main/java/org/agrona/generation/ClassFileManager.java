@@ -37,7 +37,7 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
     {
         return new SecureClassLoader()
         {
-            protected Class<?> findClass(String name)
+            protected Class<?> findClass(final String name)
                 throws ClassNotFoundException
             {
                 final byte[] buffer = classObjectByNameMap.get(name).getBytes();

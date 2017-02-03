@@ -175,7 +175,7 @@ public class BitUtil
      * @param length the number of bytes to convert
      * @return new byte array that is hex representation (in Big Endian) of the passed array
      */
-    public static byte[] toHexByteArray(final byte[] buffer, int offset, int length)
+    public static byte[] toHexByteArray(final byte[] buffer, final int offset, final int length)
     {
         final byte[] outputBuffer = new byte[length << 1];
 
@@ -209,7 +209,7 @@ public class BitUtil
      * @param length the number of bytes to convert
      * @return new String holding the hex representation (in Big Endian) of the passed array
      */
-    public static String toHex(final byte[] buffer, int offset, int length)
+    public static String toHex(final byte[] buffer, final int offset, final int length)
     {
         return new String(toHexByteArray(buffer, offset, length), UTF8_CHARSET);
     }

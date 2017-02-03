@@ -28,7 +28,7 @@ public class CharSequenceJavaFileObject extends SimpleJavaFileObject
         this.sourceCode = sourceCode;
     }
 
-    public CharSequence getCharContent(boolean ignoreEncodingErrors)
+    public CharSequence getCharContent(final boolean ignoreEncodingErrors)
     {
         return sourceCode;
     }

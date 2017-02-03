@@ -423,6 +423,7 @@ public class Int2IntCounterMap
         return oldValue;
     }
 
+    @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteKeyIndex)
     {
         final int[] entries = this.entries;

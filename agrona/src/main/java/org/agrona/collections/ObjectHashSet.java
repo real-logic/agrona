@@ -201,6 +201,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
         return (index + 1) & mask;
     }
 
+    @SuppressWarnings("FinalParameters")
     void compactChain(int deleteIndex)
     {
         final Object[] values = this.values;

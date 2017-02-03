@@ -359,6 +359,7 @@ public class BiInt2ObjectMap<V>
         values = tempValues;
     }
 
+    @SuppressWarnings("FinalParameters")
     private void compactChain(int deleteIndex)
     {
         final int mask = values.length - 1;

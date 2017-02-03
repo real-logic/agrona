@@ -221,6 +221,7 @@ public final class IntHashSet extends AbstractSet<Integer>
         return (index + 1) & mask;
     }
 
+    @SuppressWarnings("FinalParameters")
     @DoNotSub void compactChain(int deleteIndex)
     {
         final int[] values = this.values;

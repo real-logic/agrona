@@ -168,6 +168,7 @@ public class DistinctErrorLog
         return existingObservation;
     }
 
+    @SuppressWarnings("FinalParameters")
     private static boolean equals(Throwable lhs, Throwable rhs)
     {
         while (true)

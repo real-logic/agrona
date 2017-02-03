@@ -397,6 +397,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return oldValue;
     }
 
+    @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteKeyIndex)
     {
         final int[] entries = this.entries;
