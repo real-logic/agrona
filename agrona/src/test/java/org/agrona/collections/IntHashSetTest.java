@@ -763,6 +763,25 @@ public class IntHashSetTest
     }
 
     @Test
+    public void consecutiveValuesShouldBeCorrectlyStored() throws Exception
+    {
+        for (int i = 0; i < 10_000; i++)
+        {
+            testSet.add(i);
+        }
+
+        assertThat(testSet, hasSize(10_000));
+
+        int distinctElements = 0;
+        for (final int ignore : testSet)
+        {
+            distinctElements++;
+        }
+
+        assertThat(distinctElements, is(10_000));
+    }
+
+    @Test
     public void hashCodeAccountsForMissingValue()
     {
         addTwoElements(testSet);
