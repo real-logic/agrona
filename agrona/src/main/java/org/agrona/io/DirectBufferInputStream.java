@@ -115,7 +115,7 @@ public class DirectBufferInputStream extends InputStream
         int b = -1;
         if (position < length)
         {
-            b = buffer.getByte(offset + position);
+            b = buffer.getByte(offset + position) & 0xFF;
             ++position;
         }
 
