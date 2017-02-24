@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2015 Real Logic Ltd.
+ * Copyright 2017 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,12 @@ import static org.junit.Assert.assertEquals;
 
 public class DirectBufferInputStreamTest
 {
-
     private static final int END_OF_STREAM_MARKER = -1;
 
     @Test
     public void shouldCorrectlyConvertBytesToPositiveIntegers() throws IOException
     {
-        final byte[] data = {(byte) -1, 0};
+        final byte[] data = { (byte)-1, 0 };
         final DirectBuffer buffer = new UnsafeBuffer(data);
         final DirectBufferInputStream inputStream = new DirectBufferInputStream(buffer);
 
@@ -41,7 +40,7 @@ public class DirectBufferInputStreamTest
     @Test
     public void shouldReturnMinusOneOnEndOfStream() throws IOException
     {
-        final byte[] data = {1, 2};
+        final byte[] data = { 1, 2 };
 
         final DirectBuffer buffer = new UnsafeBuffer(data);
         final DirectBufferInputStream inputStream = new DirectBufferInputStream(buffer);
