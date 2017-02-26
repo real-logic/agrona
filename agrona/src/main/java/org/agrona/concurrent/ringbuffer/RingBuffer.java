@@ -44,7 +44,11 @@ public interface RingBuffer
     boolean write(int msgTypeId, DirectBuffer srcBuffer, int srcIndex, int length);
 
     /**
-     * Read as many messages as are available from the ring buffer.
+     * Read as many messages as are available to the end of the ring buffer.
+     *
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return an expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
      *
      * @param handler to be called for processing each message in turn.
      * @return the number of messages that have been processed.
@@ -52,7 +56,11 @@ public interface RingBuffer
     int read(MessageHandler handler);
 
     /**
-     * Read as many messages as are available from the ring buffer to up a supplied maximum.
+     * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
+     *
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return an expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
      *
      * @param handler           to be called for processing each message in turn.
      * @param messageCountLimit the number of messages will be read in a single invocation.
@@ -116,7 +124,10 @@ public interface RingBuffer
     long consumerPosition();
 
     /**
-     * Size of the buffer backlog in bytes between producers and consumers. The figure includes the size of headers.
+     * Size of the buffer backlog in bytes between producers and consumers. The value includes the size of headers.
+     *
+     * This method gives a concurrent snapshot of the buffer whereby a concurrent read or write may be
+     * partially complete and thus should be take as an indication.
      *
      * @return size of the backlog of bytes in the buffer between producers and consumers.
      */
