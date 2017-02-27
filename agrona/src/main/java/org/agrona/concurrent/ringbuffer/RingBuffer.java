@@ -20,7 +20,8 @@ import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.MessageHandler;
 
 /**
- * Ring-buffer for the concurrent exchanging of binary encoded messages from producer to consumer in a FIFO manner.
+ * Ring-buffer for the concurrent exchanging of binary encoded messages from producer(s) to consumer(s)
+ * in a FIFO manner.
  */
 public interface RingBuffer
 {
@@ -47,7 +48,7 @@ public interface RingBuffer
      * Read as many messages as are available to the end of the ring buffer.
      *
      * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
-     * may choose to return an expect the caller to try again. The {@link #size()} method may be called to
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
      * @param handler to be called for processing each message in turn.
@@ -59,7 +60,7 @@ public interface RingBuffer
      * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
      *
      * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
-     * may choose to return an expect the caller to try again. The {@link #size()} method may be called to
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
      * @param handler           to be called for processing each message in turn.
@@ -109,7 +110,7 @@ public interface RingBuffer
     long consumerHeartbeatTime();
 
     /**
-     * The position in bytes from start up of the producers.  The figure includes the headers.
+     * The position in bytes from start up of the producers. The figure includes the headers.
      * This is the range they are working with but could still be in the act of working with.
      *
      * @return number of bytes produced by the producers in claimed space.
@@ -117,7 +118,7 @@ public interface RingBuffer
     long producerPosition();
 
     /**
-     * The position in bytes from start up for the consumers.  The figure includes the headers.
+     * The position in bytes from start up for the consumers. The figure includes the headers.
      *
      * @return the count of bytes consumed by the consumers.
      */
@@ -127,14 +128,14 @@ public interface RingBuffer
      * Size of the buffer backlog in bytes between producers and consumers. The value includes the size of headers.
      *
      * This method gives a concurrent snapshot of the buffer whereby a concurrent read or write may be
-     * partially complete and thus should be take as an indication.
+     * partially complete and thus the value should be taken as an indication.
      *
      * @return size of the backlog of bytes in the buffer between producers and consumers.
      */
     int size();
 
     /**
-     * Unblock a multi-producer ring buffer where a producer has died during the act of offering. The operation will
+     * Unblock a multi-producer ring buffer when a producer has died during the act of offering. The operation will
      * scan from the consumer position up to the producer position.
      *
      * If no action is required at the position then none will be taken.
