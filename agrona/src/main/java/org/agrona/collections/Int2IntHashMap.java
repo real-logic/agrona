@@ -543,6 +543,36 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || !(o instanceof Map))
+        {
+            return false;
+        }
+
+        final Map<?, ?> that = (Map<?, ?>) o;
+
+        if (size != that.size())
+        {
+            return false;
+        }
+
+        return entrySet.equals(that.entrySet());
+    }
+
+    @DoNotSub public int hashCode()
+    {
+        return entrySet.hashCode();
+    }
+
     @DoNotSub private static int next(final int index, final int mask)
     {
         return (index + 2) & mask;
@@ -716,6 +746,35 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             value = missingValue;
 
             return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @DoNotSub public int hashCode()
+        {
+            // Has to use Integer.hashCode method in order to meet the contract for
+            // Map.Entry's hashCode() method
+            return Integer.hashCode(key) ^ Integer.hashCode(value);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || !(o instanceof Entry))
+            {
+                return false;
+            }
+
+            final Entry that = (Entry) o;
+
+            return Objects.equals(key, that.getKey()) && Objects.equals(value, that.getValue());
         }
     }
 

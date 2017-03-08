@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 
 public class Int2IntHashMapTest
 {
-    public static final int MISSING_VALUE = -1;
+    private static final int MISSING_VALUE = -1;
 
     private Int2IntHashMap map = new Int2IntHashMap(MISSING_VALUE);
 
@@ -339,9 +339,7 @@ public class Int2IntHashMapTest
     @Test
     public void shouldFindMinValue()
     {
-        map.put(1, 2);
-        map.put(2, 10);
-        map.put(3, -5);
+        addValues(map);
 
         assertEquals(-5, map.minValue());
     }
@@ -355,9 +353,7 @@ public class Int2IntHashMapTest
     @Test
     public void shouldFindMaxValue()
     {
-        map.put(1, 2);
-        map.put(2, 10);
-        map.put(3, -5);
+        addValues(map);
 
         assertEquals(10, map.maxValue());
     }
@@ -508,5 +504,157 @@ public class Int2IntHashMapTest
         assertFalse(map.containsValue(MISSING_VALUE));
         map.put(MISSING_VALUE, 1);
         assertFalse(map.containsValue(MISSING_VALUE));
+    }
+
+    @Test
+    public void emptyMapsShouldBeEqual()
+    {
+        assertEquals(map, new Int2IntHashMap(MISSING_VALUE));
+        assertEquals(map, new HashMap<Integer, Integer>());
+    }
+
+    @Test
+    public void shouldEqualPrimitiveMapWithSameContents()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldEqualPrimitiveMapWithSameContentsAndDifferentMissingValue()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(-2);
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldEqualHashMapWithSameContents()
+    {
+        final Map<Integer, Integer> otherMap = new HashMap<>();
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldNotEqualPrimitiveMapWithDifferentContents()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
+
+        addValues(map);
+        addAValue(otherMap);
+
+        assertNotEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldNotEqualHashMapWithDifferentContents()
+    {
+        final Map<Integer, Integer> otherMap = new HashMap<>();
+
+        addValues(map);
+        addAValue(otherMap);
+
+        assertNotEquals(map, otherMap);
+    }
+
+    @Test
+    public void emptyMapsShouldHaveEqualHashcodes()
+    {
+        assertHashcodeEquals(map, new Int2IntHashMap(MISSING_VALUE));
+        assertHashcodeEquals(map, new HashMap<Integer, Integer>());
+    }
+
+    @Test
+    public void shouldHaveEqualHashcodePrimitiveMapWithSameContents()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertHashcodeEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldHaveEqualHashcodePrimitiveMapWithSameContentsAndDifferentMissingValue()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(-2);
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertHashcodeEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldHaveEqualHashcodeHashMapWithSameContents()
+    {
+        final Map<Integer, Integer> otherMap = new HashMap<>();
+
+        addValues(map);
+        addValues(otherMap);
+
+        assertHashcodeEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldNotHaveEqualHashcodePrimitiveMapWithDifferentContents()
+    {
+        final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
+
+        addValues(map);
+        addAValue(otherMap);
+
+        assertHashcodeNotEquals(map, otherMap);
+    }
+
+    @Test
+    public void shouldNotHaveEqualHashcodeHashMapWithDifferentContents()
+    {
+        final Map<Integer, Integer> otherMap = new HashMap<>();
+
+        addValues(map);
+        addAValue(otherMap);
+
+        assertHashcodeNotEquals(map, otherMap);
+    }
+
+    private void addValues(final Map<Integer, Integer> map)
+    {
+        map.put(1, 2);
+        map.put(2, 10);
+        map.put(3, -5);
+    }
+
+    private void addAValue(final Map<Integer, Integer> map)
+    {
+        map.put(5, 10);
+    }
+
+    private void assertHashcodeEquals(final Object expected, final Object value)
+    {
+        assertEquals(
+            value + " should have the same hashcode as " + expected,
+            expected.hashCode(),
+            value.hashCode());
+    }
+
+    private void assertHashcodeNotEquals(final Object unexpected, final Object value)
+    {
+        assertNotEquals(
+            value + " should not have the same hashcode as " + unexpected,
+            unexpected.hashCode(),
+            value.hashCode());
     }
 }
