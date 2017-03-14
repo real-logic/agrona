@@ -216,7 +216,7 @@ project(':agrona-agent') {
 
     dependencies {
         compile project(':agrona')
-        compile "net.bytebuddy:byte-buddy:1.6.9"
+        compile "net.bytebuddy:byte-buddy:1.6.11"
     }
 
     jar {
