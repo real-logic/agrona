@@ -46,7 +46,7 @@ public class CollectionUtilTest
         assertRemoveIfRemoves(3, 1, 2);
     }
 
-    private void assertRemoveIfRemoves(final int requiredValue, final Integer ... expectedValues)
+    private void assertRemoveIfRemoves(final int requiredValue, final Integer... expectedValues)
     {
         final List<Integer> values = new ArrayList<>(asList(1, 2, 3));
         assertEquals(1, removeIf(values, value -> value == requiredValue));
@@ -58,7 +58,7 @@ public class CollectionUtilTest
     public void getOrDefaultUsesSupplier()
     {
         final Map<Integer, Integer> ints = new HashMap<>();
-        final Integer result = CollectionUtil.getOrDefault(ints, 0, x -> x + 1);
+        final Integer result = CollectionUtil.getOrDefault(ints, 0, (x) -> x + 1);
 
         assertThat(result, is(1));
     }
