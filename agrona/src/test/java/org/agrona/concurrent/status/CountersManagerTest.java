@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.agrona.concurrent;
+package org.agrona.concurrent.status;
 
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.agrona.DirectBuffer;
 import org.agrona.collections.IntObjConsumer;
-import org.agrona.concurrent.status.*;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.hamcrest.Matchers.is;

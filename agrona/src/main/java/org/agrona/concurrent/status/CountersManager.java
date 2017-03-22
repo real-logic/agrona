@@ -58,7 +58,7 @@ import java.util.function.Consumer;
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
  *  +-+-------------------------------------------------------------+
- *  |                  124 bytes of Label in UTF-8                 ...
+ *  |                  380 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -73,11 +73,6 @@ public class CountersManager extends CountersReader
      * Default type id of a counter when none is supplied.
      */
     public static final int DEFAULT_TYPE_ID = 0;
-
-    /**
-     * Default function to set a key when none is supplied.
-     */
-    public static final Consumer<MutableDirectBuffer> DEFAULT_KEY_FUNC = (ignore) -> {};
 
     private int idHighWaterMark = -1;
     private final IntArrayList freeList = new IntArrayList();
@@ -108,7 +103,24 @@ public class CountersManager extends CountersReader
      */
     public int allocate(final String label)
     {
-        return allocate(label, DEFAULT_TYPE_ID, DEFAULT_KEY_FUNC);
+        final int counterId = nextCounterId();
+        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
+        {
+            throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
+        }
+
+        final int recordOffset = metaDataOffset(counterId);
+        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
+        {
+            throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
+        }
+
+        metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
+        metaDataBuffer.putStringUtf8(recordOffset + LABEL_OFFSET, label, MAX_LABEL_LENGTH);
+
+        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+
+        return counterId;
     }
 
     /**

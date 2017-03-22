@@ -60,7 +60,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
  *  +-+-------------------------------------------------------------+
- *  |                  124 bytes of Label in UTF-8                 ...
+ *  |                  380 bytes of Label in UTF-8                 ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -87,11 +87,6 @@ public class CountersReader
     public static final int RECORD_RECLAIMED = -1;
 
     /**
-     * Length of a meta data record in bytes.
-     */
-    public static final int METADATA_LENGTH = BitUtil.CACHE_LINE_LENGTH * 4;
-
-    /**
      * Offset in the record at which the type id field is stored.
      */
     public static final int TYPE_ID_OFFSET = SIZE_OF_INT;
@@ -109,7 +104,7 @@ public class CountersReader
     /**
      * Length of a counter label length including length prefix.
      */
-    public static final int FULL_LABEL_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
+    public static final int FULL_LABEL_LENGTH = BitUtil.CACHE_LINE_LENGTH * 6;
 
     /**
      * Maximum length of a label not including its length prefix.
@@ -120,6 +115,11 @@ public class CountersReader
      * Maximum length a key can be.
      */
     public static final int MAX_KEY_LENGTH = (CACHE_LINE_LENGTH * 2) - (SIZE_OF_INT * 2);
+
+    /**
+     * Length of a meta data record in bytes.
+     */
+    public static final int METADATA_LENGTH = LABEL_OFFSET + FULL_LABEL_LENGTH;
 
     /**
      * Length of the space allocated to a counter that includes padding to avoid false sharing.
