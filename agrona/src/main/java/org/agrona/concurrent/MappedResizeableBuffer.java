@@ -921,7 +921,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (index < 0 || index >= capacity)
         {
-            throw new IndexOutOfBoundsException(String.format("index=%d, capacity=%d", index, capacity));
+            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
         }
     }
 
@@ -930,8 +930,8 @@ public class MappedResizeableBuffer implements AutoCloseable
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > capacity || resultingPosition < index)
         {
-            throw new IndexOutOfBoundsException(String.format(
-                "index=%d, length=%d, capacity=%d", index, length, capacity));
+            throw new IndexOutOfBoundsException(
+                "index=" + index + " length=" + length + " capacity=" + capacity);
         }
     }
 

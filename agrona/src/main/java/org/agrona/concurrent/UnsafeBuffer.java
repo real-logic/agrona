@@ -302,8 +302,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (limit > capacity)
         {
-            final String msg = String.format("limit=%d is beyond capacity=%d", limit, capacity);
-            throw new IndexOutOfBoundsException(msg);
+            throw new IndexOutOfBoundsException("limit=" + limit + " is beyond capacity=" + capacity);
         }
     }
 
@@ -316,10 +315,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (0 != (addressOffset & (ALIGNMENT - 1)))
         {
-            throw new IllegalStateException(String.format(
-                "AtomicBuffer is not correctly aligned: addressOffset=%d in not divisible by %d",
-                addressOffset,
-                ALIGNMENT));
+            throw new IllegalStateException(
+                "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
+                " is not divisible by " + ALIGNMENT);
         }
     }
 
@@ -1275,7 +1273,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (index < 0 || index >= capacity)
         {
-            throw new IndexOutOfBoundsException(String.format("index=%d, capacity=%d", index, capacity));
+            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
         }
     }
 
@@ -1284,8 +1282,7 @@ public class UnsafeBuffer implements AtomicBuffer
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > capacity)
         {
-            throw new IndexOutOfBoundsException(
-                String.format("index=%d, length=%d, capacity=%d", index, length, capacity));
+            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
         }
     }
 
@@ -1298,8 +1295,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (length < 0)
         {
-            throw new IllegalArgumentException(String.format(
-                "Length [%d] should not be < 0: ", length));
+            throw new IllegalArgumentException("Length " + length + " should not be < 0");
         }
     }
 
