@@ -46,7 +46,7 @@ public class Int2ObjectHashMap<V>
 
     public Int2ObjectHashMap()
     {
-        this(8, 0.67f);
+        this(8, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
     /**

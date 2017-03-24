@@ -43,7 +43,7 @@ public class Int2IntCounterMap
      */
     public Int2IntCounterMap(final int initialValue)
     {
-        this(8, 0.67f, initialValue);
+        this(8, Hashing.DEFAULT_LOAD_FACTOR, initialValue);
     }
 
     @SuppressWarnings("unchecked")

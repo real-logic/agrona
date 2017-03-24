@@ -21,6 +21,11 @@ package org.agrona.collections;
 public class Hashing
 {
     /**
+     * Default load factor to be used in open addressing hashed data structures.
+     */
+    public static final float DEFAULT_LOAD_FACTOR = 0.55f;
+
+    /**
      * Generate a hash for an int value. This is a no op.
      *
      * @param value to be hashed.
@@ -32,14 +37,17 @@ public class Hashing
     }
 
     /**
-     * Generate a hash for an long value. This is a no op.
+     * Generate a hash for an long value.
      *
      * @param value to be hashed.
      * @return the hashed value.
      */
     public static int hash(final long value)
     {
-        return (int)value ^ (int)(value >>> 32);
+        long hash = value * 31;
+        hash = (int)hash ^ (int)(hash >>> 32);
+
+        return (int)hash;
     }
 
     /**
@@ -51,7 +59,7 @@ public class Hashing
      */
     public static int hash(final int value, final int mask)
     {
-        final int hash = value ^ (value >>> 16);
+        final int hash = value * 31;
 
         return hash & mask;
     }
@@ -65,26 +73,10 @@ public class Hashing
      */
     public static int hash(final long value, final int mask)
     {
-        int hash = (int)value ^ (int)(value >>> 32);
-        hash = hash ^ (hash >>> 16);
+        long hash = value * 31;
+        hash = (int)hash ^ (int)(hash >>> 32);
 
-        return hash & mask;
-    }
-
-    /**
-     * Generate a hash for two ints.
-     *
-     * @param valueOne to be hashed.
-     * @param valueTwo to be hashed.
-     * @param mask     mask to be applied that must be a power of 2 - 1.
-     * @return a hash of the values.
-     */
-    public static int hash(final int valueOne, final int valueTwo, final int mask)
-    {
-        int hash = valueOne ^ valueTwo;
-        hash = hash ^ (hash >>> 16);
-
-        return hash & mask;
+        return (int)hash & mask;
     }
 
     /**
@@ -114,5 +106,17 @@ public class Hashing
         hash = (hash << 1) - (hash << 8);
 
         return hash & mask;
+    }
+
+    /**
+     * Combined two 32 bit keys into a 64-bit compound.
+     *
+     * @param keyPartA to make the upper bits
+     * @param keyPartB to make the lower bits.
+     * @return the compound key
+     */
+    public static long compoundKey(final int keyPartA, final int keyPartB)
+    {
+        return ((long)keyPartA << 32) | (keyPartB & 0xFFFF_FFFFL);
     }
 }

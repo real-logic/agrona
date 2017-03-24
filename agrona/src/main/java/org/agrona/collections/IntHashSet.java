@@ -42,11 +42,6 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public final class IntHashSet extends AbstractSet<Integer>
 {
     /**
-     * The load factor used when none is specified in the constructor.
-     */
-    public static final float DEFAULT_LOAD_FACTOR = 0.67f;
-
-    /**
      * The initial capacity used when none is specified in the constructor.
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
@@ -70,7 +65,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     public IntHashSet(
         @DoNotSub final int proposedCapacity)
     {
-        this(proposedCapacity, DEFAULT_LOAD_FACTOR);
+        this(proposedCapacity, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
     public IntHashSet(

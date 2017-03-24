@@ -223,7 +223,7 @@ public class Int2ObjectCacheTest
             cache.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
+        final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
         assertThat(cache.toString(), equalTo(mapAsAString));
     }
 

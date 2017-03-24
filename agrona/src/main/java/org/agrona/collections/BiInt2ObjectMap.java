@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
+import static org.agrona.collections.Hashing.compoundKey;
 
 /**
  * Map that takes two part int key and associates with an object.
@@ -75,7 +76,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap()
     {
-        this(8, 0.67f);
+        this(8, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -150,7 +151,7 @@ public class BiInt2ObjectMap<V>
 
         V oldValue = null;
         final int mask = values.length - 1;
-        int index = Hashing.hash(keyPartA, keyPartB, mask);
+        int index = Hashing.hash(key, mask);
 
         while (null != values[index])
         {
@@ -191,7 +192,7 @@ public class BiInt2ObjectMap<V>
     {
         final long key = compoundKey(keyPartA, keyPartB);
         final int mask = values.length - 1;
-        int index = Hashing.hash(keyPartA, keyPartB, mask);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -220,7 +221,7 @@ public class BiInt2ObjectMap<V>
         final long key = compoundKey(keyPartA, keyPartB);
 
         final int mask = values.length - 1;
-        int index = Hashing.hash(keyPartA, keyPartB, mask);
+        int index = Hashing.hash(key, mask);
 
         Object value;
         while (null != (value = values[index]))
@@ -322,11 +323,6 @@ public class BiInt2ObjectMap<V>
     public boolean isEmpty()
     {
         return 0 == size;
-    }
-
-    private static long compoundKey(final int keyPartA, final int keyPartB)
-    {
-        return ((long)keyPartA << 32) | (keyPartB & 0xFFFF_FFFFL);
     }
 
     private void rehash(final int newCapacity)

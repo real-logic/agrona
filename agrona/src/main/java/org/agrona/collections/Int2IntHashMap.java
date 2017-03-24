@@ -42,7 +42,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     public Int2IntHashMap(final int missingValue)
     {
-        this(8, 0.67f, missingValue);
+        this(8, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
     }
 
     @SuppressWarnings("unchecked")

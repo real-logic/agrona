@@ -229,7 +229,7 @@ public class Int2ObjectHashMapTest
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Int2ObjectHashMap.KeyIterator iter = intToObjectMap.keySet().iterator(); iter.hasNext();)
+        for (final Int2ObjectHashMap.KeyIterator iter = intToObjectMap.keySet().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }
@@ -261,6 +261,7 @@ public class Int2ObjectHashMapTest
         {
             copyToSet.add(aInteger);
         }
+
         assertThat(copyToSet, is(initialSet));
     }
 
@@ -280,7 +281,7 @@ public class Int2ObjectHashMapTest
         final Collection<Integer> copyOfSet = new HashSet<>();
 
         int i = 0;
-        for (final Iterator<Integer> iter = intToObjectMap.keySet().iterator(); iter.hasNext();)
+        for (final Iterator<Integer> iter = intToObjectMap.keySet().iterator(); iter.hasNext(); )
         {
             final Integer item = iter.next();
             if (i++ == 7)
@@ -345,7 +346,7 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
+        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
 }
