@@ -18,21 +18,21 @@ package org.agrona.concurrent.status;
 /**
  * Indicates how far through an abstract task a component has progressed as a counter value.
  */
-public interface ReadablePosition extends AutoCloseable
+public abstract class ReadablePosition implements AutoCloseable
 {
     /**
      * Identifier for this position.
      *
      * @return the identifier for this position.
      */
-    int id();
+    public abstract int id();
 
     /**
      * Get the current position of a component with volatile semantics
      *
      * @return the current position of a component with volatile semantics
      */
-    long getVolatile();
+    public abstract long getVolatile();
 
-    void close();
+    public abstract void close();
 }

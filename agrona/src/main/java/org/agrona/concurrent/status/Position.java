@@ -20,35 +20,35 @@ package org.agrona.concurrent.status;
  *
  * Threadsafe to write to from a single writer.
  */
-public interface Position extends ReadablePosition
+public abstract class Position extends ReadablePosition
 {
     /**
      * Has this Position been closed?
      *
      * @return true if this position has already been closed.
      */
-    boolean isClosed();
+    public abstract boolean isClosed();
 
     /**
      * Get the current position of a component without memory ordering semantics.
      *
      * @return the current position of a component
      */
-    long get();
+    public abstract long get();
 
     /**
      * Sets the current position of the component without memory ordering semantics.
      *
      * @param value the current position of the component.
      */
-    void set(long value);
+    public abstract void set(long value);
 
     /**
      * Sets the current position of the component with ordered memory semantics.
      *
      * @param value the current position of the component.
      */
-    void setOrdered(long value);
+    public abstract void setOrdered(long value);
 
     /**
      * Set the position to a new proposedValue if greater than the current value with memory ordering semantics.
@@ -56,7 +56,7 @@ public interface Position extends ReadablePosition
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
      */
-    boolean proposeMax(long proposedValue);
+    public abstract boolean proposeMax(long proposedValue);
 
     /**
      * Set the position to the new proposedValue if greater than the current value with memory ordering semantics.
@@ -64,5 +64,5 @@ public interface Position extends ReadablePosition
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
      */
-    boolean proposeMaxOrdered(long proposedValue);
+    public abstract boolean proposeMaxOrdered(long proposedValue);
 }

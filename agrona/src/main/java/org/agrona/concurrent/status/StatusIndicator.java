@@ -15,12 +15,12 @@
  */
 package org.agrona.concurrent.status;
 
-public interface StatusIndicator extends StatusIndicatorReader
+public abstract class StatusIndicator extends StatusIndicatorReader
 {
     /**
      * Sets the current status indication of the component with ordered atomic memory semantics.
      *
      * @param value the current status indication of the component.
      */
-    void setOrdered(long value);
+    public abstract void setOrdered(long value);
 }

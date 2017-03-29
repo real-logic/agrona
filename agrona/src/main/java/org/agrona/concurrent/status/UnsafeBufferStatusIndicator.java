@@ -20,7 +20,7 @@ import org.agrona.concurrent.AtomicBuffer;
 
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
-public class UnsafeBufferStatusIndicator implements StatusIndicator
+public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;
     private final long addressOffset;

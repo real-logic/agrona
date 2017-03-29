@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * {@link Position} that is backed by an {@link AtomicLong} that is useful for tests.
  */
-public class AtomicLongPosition implements Position
+public class AtomicLongPosition extends Position
 {
     private boolean isClosed = false;
     private final AtomicLong value = new AtomicLong();
