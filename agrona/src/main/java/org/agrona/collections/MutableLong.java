@@ -21,5 +21,5 @@ package org.agrona.collections;
  */
 public class MutableLong
 {
-    public int value = 0;
+    public long value = 0;
 }
