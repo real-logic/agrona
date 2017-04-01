@@ -16,10 +16,10 @@
 package org.agrona.collections;
 
 /**
- * Holder for an int value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
+ * Holder for an long value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
  * reference.
  */
-public class MutableInteger
+public class MutableLong
 {
     public int value = 0;
 }
