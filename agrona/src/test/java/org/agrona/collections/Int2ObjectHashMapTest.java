@@ -349,5 +349,19 @@ public class Int2ObjectHashMapTest
         final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
+
+    @Test
+    public void shouldCopyConstructAndBeEqual()
+    {
+        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            intToObjectMap.put(testEntry, String.valueOf(testEntry));
+        }
+
+        final Int2ObjectHashMap<String> mapCopy = new Int2ObjectHashMap<>(intToObjectMap);
+        assertThat(mapCopy, is(intToObjectMap));
+    }
 }
 

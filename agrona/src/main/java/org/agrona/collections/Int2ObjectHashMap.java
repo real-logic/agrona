@@ -75,6 +75,26 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
+     * Copy construct a new map from an existing one.
+     *
+     * @param mapToCopy for construction.
+     */
+    public Int2ObjectHashMap(final Int2ObjectHashMap<V> mapToCopy)
+    {
+        this.loadFactor = mapToCopy.loadFactor;
+        this.resizeThreshold = mapToCopy.resizeThreshold;
+        this.size = mapToCopy.size;
+
+        keys = mapToCopy.keys.clone();
+        values = mapToCopy.values.clone();
+
+        // Cached to avoid allocation.
+        valueCollection = new ValueCollection<>();
+        keySet = new KeySet();
+        entrySet = new EntrySet<>();
+    }
+
+    /**
      * Get the load factor beyond which the map will increase size.
      *
      * @return load factor for when the map should increase size.
@@ -405,12 +425,68 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+
+        if (o == null || !(o instanceof Map))
+        {
+            return false;
+        }
+
+        final Map<?, ?> that = (Map<?, ?>)o;
+
+        if (size != that.size())
+        {
+            return false;
+        }
+
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
+        {
+            final Object thisValue = values[i];
+            if (null != thisValue)
+            {
+                final Object thatValue = that.get(keys[i]);
+                if (null == thatValue || !thisValue.equals(thatValue))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub public int hashCode()
+    {
+        @DoNotSub int result = size;
+
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
+        {
+            if (null != values[i])
+            {
+                result = 31 * result + (values[i].hashCode() ^ Hashing.hash(keys[i]));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Primitive specialised version of {@link #replace(Object, Object)}
      *
-     * @param key key with which the specified value is associated
+     * @param key   key with which the specified value is associated
      * @param value value to be associated with the specified key
      * @return the previous value associated with the specified key, or
-     *         {@code null} if there was no mapping for the key.
+     * {@code null} if there was no mapping for the key.
      */
     public V replace(final int key, final V value)
     {
@@ -426,7 +502,7 @@ public class Int2ObjectHashMap<V>
     /**
      * Primitive specialised version of {@link #replace(Object, Object, Object)}
      *
-     * @param key key with which the specified value is associated
+     * @param key      key with which the specified value is associated
      * @param oldValue value expected to be associated with the specified key
      * @param newValue value to be associated with the specified key
      * @return {@code true} if the value was replaced
