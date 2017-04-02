@@ -21,6 +21,7 @@ import java.util.*;
 
 import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
 public class IntHashSetTest
@@ -835,5 +836,19 @@ public class IntHashSetTest
         }
 
         assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            testSet.add(testEntry);
+        }
+
+        final String mapAsAString = "{1, 19, 11, 7, 3, 12, -1}";
+        assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 }

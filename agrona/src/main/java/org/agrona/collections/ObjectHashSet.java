@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.joining;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -443,10 +442,26 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
      */
     public String toString()
     {
-        return
-            stream()
-                .map(Object::toString)
-                .collect(joining(",", "{", "}"));
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        for (final Object value : values)
+        {
+            if (value != MISSING_VALUE)
+            {
+                sb.append(value);
+                sb.append(", ");
+            }
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
     }
 
     /**

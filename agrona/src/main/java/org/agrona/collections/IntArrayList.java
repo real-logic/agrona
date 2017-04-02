@@ -486,6 +486,34 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         return hashCode;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        for (@DoNotSub int i = 0; i < size; i++)
+        {
+            final int value = elements[i];
+            if (value != nullValue)
+            {
+                sb.append(value);
+                sb.append(", ");
+            }
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
     private void ensureCapacityPrivate(@DoNotSub final int requiredCapacity)
     {
         @DoNotSub final int currentCapacity = elements.length;

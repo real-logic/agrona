@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -656,5 +657,19 @@ public class Int2IntHashMapTest
             value + " should not have the same hashcode as " + unexpected,
             unexpected.hashCode(),
             value.hashCode());
+    }
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            map.put(testEntry, testEntry + 1000);
+        }
+
+        final String mapAsAString = "{1=1001, 3=1003, 19=1019, 7=1007, 11=1011, 12=1012}";
+        assertThat(map.toString(), equalTo(mapAsAString));
     }
 }

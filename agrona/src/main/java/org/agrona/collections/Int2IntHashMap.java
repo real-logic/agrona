@@ -485,12 +485,16 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        for (final Entry<Integer, Integer> entry : entrySet())
+        for (@DoNotSub int i = 1, length = entries.length; i < length; i += 2)
         {
-            sb.append(entry.getKey().intValue());
-            sb.append('=');
-            sb.append(entry.getValue().intValue());
-            sb.append(", ");
+            final int value = entries[i];
+            if (value != missingValue)
+            {
+                sb.append(entries[i - 1]);
+                sb.append('=');
+                sb.append(value);
+                sb.append(", ");
+            }
         }
 
         if (sb.length() > 1)

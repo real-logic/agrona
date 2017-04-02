@@ -509,15 +509,21 @@ public class Int2IntCounterMap
     {
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
-        forEach(
-            (k, v) ->
+
+        final int[] entries = this.entries;
+        final int initialValue = this.initialValue;
+        @DoNotSub final int length = entries.length;
+
+        for (@DoNotSub int i = 0; i < length; i += 2)
+        {
+            if (entries[i + 1] != initialValue)
             {
-                sb.append(k);
+                sb.append(entries[i]);
                 sb.append('=');
-                sb.append(v);
+                sb.append(entries[i + 1]);
                 sb.append(", ");
             }
-        );
+        }
 
         if (sb.length() > 1)
         {

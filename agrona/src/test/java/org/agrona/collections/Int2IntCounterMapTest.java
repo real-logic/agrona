@@ -448,8 +448,8 @@ public class Int2IntCounterMapTest
             {
                 tuple[0] = k;
                 tuple[1] = v;
-            }
-        );
+            });
+
         assertEquals(INITIAL_VALUE, tuple[0]);
         assertEquals(1, tuple[1]);
 
@@ -465,5 +465,4 @@ public class Int2IntCounterMapTest
         map.put(INITIAL_VALUE, 1);
         assertFalse(map.containsValue(INITIAL_VALUE));
     }
-
 }

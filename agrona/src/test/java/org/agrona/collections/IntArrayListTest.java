@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
 public class IntArrayListTest
@@ -202,5 +203,19 @@ public class IntArrayListTest
     public void shouldThrowExceptionWhenPoppingEmptyList()
     {
         list.popInt();
+    }
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            list.add(testEntry);
+        }
+
+        final String mapAsAString = "{3, 1, -1, 19, 7, 11, 12, 7}";
+        assertThat(list.toString(), equalTo(mapAsAString));
     }
 }

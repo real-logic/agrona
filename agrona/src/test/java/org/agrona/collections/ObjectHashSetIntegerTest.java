@@ -20,6 +20,7 @@ import org.junit.Test;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
 public class ObjectHashSetIntegerTest
@@ -602,5 +603,19 @@ public class ObjectHashSetIntegerTest
         iterator.next();
         iterator.next();
         iterator.next();
+    }
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            testSet.add(testEntry);
+        }
+
+        final String mapAsAString = "{1, 3, 7, 11, 12, 19, -1}";
+        assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 }

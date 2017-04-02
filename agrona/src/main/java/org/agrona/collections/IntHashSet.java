@@ -22,7 +22,6 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.joining;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -482,10 +481,32 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public String toString()
     {
-        return
-            stream()
-            .map((x) -> Integer.toString(x))
-            .collect(joining(",", "{", "}"));
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        for (final int value : values)
+        {
+            if (value != MISSING_VALUE)
+            {
+                sb.append(value);
+                sb.append(", ");
+            }
+        }
+
+        if (containsMissingValue)
+        {
+            sb.append(MISSING_VALUE);
+            sb.append(", ");
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
     }
 
     /**

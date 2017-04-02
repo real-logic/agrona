@@ -406,12 +406,16 @@ public class Int2ObjectHashMap<V>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        for (final Entry<Integer, V> entry : entrySet())
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
-            sb.append(entry.getKey().intValue());
-            sb.append('=');
-            sb.append(entry.getValue());
-            sb.append(", ");
+            final Object value = values[i];
+            if (null != value)
+            {
+                sb.append(keys[i]);
+                sb.append('=');
+                sb.append(value);
+                sb.append(", ");
+            }
         }
 
         if (sb.length() > 1)
@@ -471,9 +475,10 @@ public class Int2ObjectHashMap<V>
 
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
-            if (null != values[i])
+            final Object value = values[i];
+            if (null != value)
             {
-                result = 31 * result + (values[i].hashCode() ^ Hashing.hash(keys[i]));
+                result = 31 * result + (value.hashCode() ^ Hashing.hash(keys[i]));
             }
         }
 
