@@ -695,6 +695,7 @@ public class Int2ObjectHashMap<V>
     {
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
+        @DoNotSub private int remaining;
         private boolean isPositionValid = false;
         protected int[] keys;
         protected Object[] values;
@@ -711,19 +712,7 @@ public class Int2ObjectHashMap<V>
 
         public boolean hasNext()
         {
-            @DoNotSub final int mask = values.length - 1;
-            boolean hasNext = false;
-            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
-            {
-                @DoNotSub final int index = i & mask;
-                if (null != values[index])
-                {
-                    hasNext = true;
-                    break;
-                }
-            }
-
-            return hasNext;
+            return remaining > 0;
         }
 
         protected void findNext()
@@ -738,6 +727,7 @@ public class Int2ObjectHashMap<V>
                 {
                     posCounter = i;
                     isPositionValid = true;
+                    --remaining;
                     return;
                 }
             }
@@ -767,6 +757,7 @@ public class Int2ObjectHashMap<V>
 
         void reset()
         {
+            remaining = Int2ObjectHashMap.this.size;
             keys = Int2ObjectHashMap.this.keys;
             values = Int2ObjectHashMap.this.values;
             @DoNotSub final int capacity = values.length;
@@ -774,8 +765,7 @@ public class Int2ObjectHashMap<V>
             @DoNotSub int i = capacity;
             if (null != values[capacity - 1])
             {
-                i = 0;
-                for (@DoNotSub int size = capacity; i < size; i++)
+                for (i = 0; i < capacity; i++)
                 {
                     if (null == values[i])
                     {

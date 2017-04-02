@@ -562,14 +562,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             return false;
         }
 
-        final Map<?, ?> that = (Map<?, ?>) o;
+        final Map<?, ?> that = (Map<?, ?>)o;
 
-        if (size != that.size())
-        {
-            return false;
-        }
+        return size == that.size() && entrySet.equals(that.entrySet());
 
-        return entrySet.equals(that.entrySet());
     }
 
     @DoNotSub public int hashCode()
@@ -600,6 +596,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     abstract class AbstractIterator
     {
+        @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
@@ -610,6 +607,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         private void reset()
         {
+            remaining = Int2IntHashMap.this.size;
             final int missingValue = Int2IntHashMap.this.missingValue;
             final int[] entries = Int2IntHashMap.this.entries;
             @DoNotSub final int capacity = entries.length;
@@ -638,21 +636,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         public boolean hasNext()
         {
-            final int[] entries = Int2IntHashMap.this.entries;
-            final int missingValue = Int2IntHashMap.this.missingValue;
-            @DoNotSub final int mask = entries.length - 1;
-            boolean hasNext = false;
-            for (@DoNotSub int keyIndex = positionCounter - 2; keyIndex >= stopCounter; keyIndex -= 2)
-            {
-                @DoNotSub final int index = keyIndex & mask;
-                if (entries[index + 1] != missingValue)
-                {
-                    hasNext = true;
-                    break;
-                }
-            }
-
-            return hasNext;
+            return remaining > 0;
         }
 
         protected void findNext()
@@ -667,6 +651,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 if (entries[index + 1] != missingValue)
                 {
                     positionCounter = keyIndex;
+                    --remaining;
                     return;
                 }
             }
@@ -776,7 +761,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 return false;
             }
 
-            final Entry that = (Entry) o;
+            final Entry that = (Entry)o;
 
             return Objects.equals(key, that.getKey()) && Objects.equals(value, that.getValue());
         }
