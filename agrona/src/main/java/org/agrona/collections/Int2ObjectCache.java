@@ -590,6 +590,7 @@ public class Int2ObjectCache<V>
 
     abstract class AbstractIterator<T> implements Iterator<T>
     {
+        @DoNotSub private int remaining;
         @DoNotSub private int position = -1;
 
         protected AbstractIterator()
@@ -604,17 +605,7 @@ public class Int2ObjectCache<V>
 
         public boolean hasNext()
         {
-            boolean found = false;
-            for (@DoNotSub int i = position + 1; i < capacity; i++)
-            {
-                if (null != values[i])
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            return found;
+            return remaining > 0;
         }
 
         protected void findNext()
@@ -626,6 +617,7 @@ public class Int2ObjectCache<V>
                 {
                     found = true;
                     position = i;
+                    --remaining;
                     break;
                 }
             }
@@ -645,6 +637,7 @@ public class Int2ObjectCache<V>
 
         void reset()
         {
+            remaining = size;
             position = -1;
         }
     }
@@ -699,7 +692,7 @@ public class Int2ObjectCache<V>
 
         public V setValue(final V value)
         {
-            throw new UnsupportedOperationException("Cannot set on iterator");
+            throw new UnsupportedOperationException("Cannot set on this iterator");
         }
     }
 }
