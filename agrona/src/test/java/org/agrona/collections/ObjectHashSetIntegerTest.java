@@ -554,6 +554,43 @@ public class ObjectHashSetIntegerTest
         assertThat(testSet, hasSize(1));
     }
 
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+
+        for (final int testEntry : testEntries)
+        {
+            testSet.add(testEntry);
+        }
+
+        final String mapAsAString = "{1, 3, 7, 11, 12, 19, -1}";
+        assertThat(testSet.toString(), equalTo(mapAsAString));
+    }
+
+    @Test
+    public void shouldIterateOverExpandedSet()
+    {
+        final HashSet<Integer> refSet = new HashSet<>(5);
+        final ObjectHashSet<Integer> testSet = new ObjectHashSet<>(5);
+
+        for (int i = 0; i < 20; i++)
+        {
+            refSet.add(i);
+            testSet.add(i);
+        }
+
+        final ObjectIterator<Integer> iter = testSet.iterator();
+        for (int i = 0; i < 20; i++)
+        {
+            assertTrue(iter.hasNext());
+            assertTrue(refSet.contains(iter.next()));
+        }
+
+        assertFalse(iter.hasNext());
+    }
+
     private static void addTwoElements(final ObjectHashSet<Integer> obj)
     {
         obj.add(1);
@@ -603,19 +640,5 @@ public class ObjectHashSetIntegerTest
         iterator.next();
         iterator.next();
         iterator.next();
-    }
-
-    @Test
-    public void shouldGenerateStringRepresentation()
-    {
-        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
-
-        for (final int testEntry : testEntries)
-        {
-            testSet.add(testEntry);
-        }
-
-        final String mapAsAString = "{1, 3, 7, 11, 12, 19, -1}";
-        assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 }

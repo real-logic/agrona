@@ -30,6 +30,10 @@ public class ObjectIterator<T> implements Iterator<T>
     protected boolean isPositionValid = false;
     private T[] values;
 
+    protected ObjectIterator()
+    {
+    }
+
     /**
      * Construct an {@link Iterator} over an array of values.
      *

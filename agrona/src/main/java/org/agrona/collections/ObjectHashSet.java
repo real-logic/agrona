@@ -50,7 +50,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
     private int size;
 
     private T[] values;
-    private final ObjectIterator<T> iterator;
+    private final ObjectHashSetIterator iterator;
     private IntConsumer resizeNotifier;
 
     public ObjectHashSet()
@@ -77,7 +77,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
         Arrays.fill(values, MISSING_VALUE);
 
         // NB: references values in the constructor, so must be assigned after values
-        iterator = new ObjectHashSetIterator(values);
+        iterator = new ObjectHashSetIterator();
     }
 
     /**
@@ -421,7 +421,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
      */
     public ObjectIterator<T> iterator()
     {
-        iterator.reset();
+        iterator.reset(values);
 
         return iterator;
     }
@@ -529,9 +529,8 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
 
     public final class ObjectHashSetIterator extends ObjectIterator<T>
     {
-        ObjectHashSetIterator(final T[] values)
+        ObjectHashSetIterator()
         {
-            super(values);
         }
 
         @SuppressWarnings("unchecked")
