@@ -42,7 +42,6 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
      */
     public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
-    //Using the MISSING_VALUE variable name rather than null to make the code less obtuse
     private static final Object MISSING_VALUE = null;
 
     private final float loadFactor;
@@ -421,7 +420,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
      */
     public ObjectIterator<T> iterator()
     {
-        iterator.reset(values);
+        iterator.reset(values, size);
 
         return iterator;
     }

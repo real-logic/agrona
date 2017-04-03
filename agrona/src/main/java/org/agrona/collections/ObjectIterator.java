@@ -25,6 +25,7 @@ public class ObjectIterator<T> implements Iterator<T>
 {
     private static final Object MISSING_VALUE = null;
 
+    private int remaining;
     private int positionCounter;
     private int stopCounter;
     protected boolean isPositionValid = false;
@@ -35,30 +36,14 @@ public class ObjectIterator<T> implements Iterator<T>
     }
 
     /**
-     * Construct an {@link Iterator} over an array of values.
-     *
-     * @param values       to iterate over.
-     */
-    protected ObjectIterator(final T[] values)
-    {
-        reset(values);
-    }
-
-    /**
-     * Reset methods for fixed size collections.
-     */
-    void reset()
-    {
-        reset(values);
-    }
-
-    /**
      * Reset method for expandable collections.
      *
      * @param values to be iterated over
+     * @param size   of the collection in contained items.
      */
-    void reset(final T[] values)
+    void reset(final T[] values, final int size)
     {
+        this.remaining = size;
         this.values = values;
         final int length = values.length;
 
@@ -87,19 +72,7 @@ public class ObjectIterator<T> implements Iterator<T>
 
     public boolean hasNext()
     {
-        final Object[] values = this.values;
-        final int mask = values.length - 1;
-
-        for (int i = positionCounter - 1; i >= stopCounter; i--)
-        {
-            final int index = i & mask;
-            if (values[index] != MISSING_VALUE)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return remaining > 0;
     }
 
     protected void findNext()
@@ -115,6 +88,7 @@ public class ObjectIterator<T> implements Iterator<T>
             {
                 positionCounter = i;
                 isPositionValid = true;
+                --remaining;
                 return;
             }
         }
