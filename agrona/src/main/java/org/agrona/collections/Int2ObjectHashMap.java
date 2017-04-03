@@ -707,7 +707,7 @@ public class Int2ObjectHashMap<V>
 
         @DoNotSub protected int position()
         {
-            return posCounter & values.length - 1;
+            return posCounter & (values.length - 1);
         }
 
         public boolean hasNext()
