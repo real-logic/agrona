@@ -360,6 +360,11 @@ public final class IntHashSet extends AbstractSet<Integer>
             }
         }
 
+        if (coll.containsMissingValue)
+        {
+            add(MISSING_VALUE);
+        }
+
         return acc;
     }
 
