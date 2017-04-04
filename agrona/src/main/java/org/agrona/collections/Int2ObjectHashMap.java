@@ -776,6 +776,7 @@ public class Int2ObjectHashMap<V>
 
             stopCounter = i;
             posCounter = i + capacity;
+            isPositionValid = false;
         }
     }
 
