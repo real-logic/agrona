@@ -478,7 +478,7 @@ public class Int2ObjectHashMap<V>
             final Object value = values[i];
             if (null != value)
             {
-                result = 31 * result + (value.hashCode() ^ Hashing.hash(keys[i]));
+                result += (Integer.hashCode(keys[i]) ^ value.hashCode());
             }
         }
 
