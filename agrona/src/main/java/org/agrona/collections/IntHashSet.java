@@ -471,6 +471,7 @@ public final class IntHashSet extends AbstractSet<Integer>
 
         System.arraycopy(that.values, 0, this.values, 0, this.values.length);
         this.sizeOfArrayValues = that.sizeOfArrayValues;
+        this.containsMissingValue = that.containsMissingValue;
     }
 
     /**
