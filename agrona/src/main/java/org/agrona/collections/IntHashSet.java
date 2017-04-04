@@ -405,11 +405,21 @@ public final class IntHashSet extends AbstractSet<Integer>
             {
                 if (difference == null)
                 {
-                    difference = new IntHashSet(sizeOfArrayValues);
+                    difference = new IntHashSet();
                 }
 
                 difference.add(value);
             }
+        }
+
+        if (other.containsMissingValue && !this.containsMissingValue)
+        {
+            if (difference == null)
+            {
+                difference = new IntHashSet();
+            }
+
+            difference.add(MISSING_VALUE);
         }
 
         return difference;
