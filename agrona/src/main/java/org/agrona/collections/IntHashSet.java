@@ -379,7 +379,7 @@ public final class IntHashSet extends AbstractSet<Integer>
             }
         }
 
-        return true;
+        return !(other.containsMissingValue && !this.containsMissingValue);
     }
 
     /**
