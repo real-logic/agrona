@@ -20,7 +20,6 @@ import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
@@ -338,7 +337,14 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean addAll(final Collection<? extends Integer> coll)
     {
-        return disjunction(coll, this::add);
+        boolean added = false;
+
+        for (final Integer value : coll)
+        {
+            added |= add(value);
+        }
+
+        return added;
     }
 
     /**
@@ -430,7 +436,14 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public boolean removeAll(final Collection<?> coll)
     {
-        return disjunction(coll, this::remove);
+        boolean removed = false;
+
+        for (final Object value : coll)
+        {
+            removed |= remove(value);
+        }
+
+        return removed;
     }
 
     /**
@@ -455,18 +468,6 @@ public final class IntHashSet extends AbstractSet<Integer>
         if (coll.containsMissingValue)
         {
             acc |= remove(MISSING_VALUE);
-        }
-
-        return acc;
-    }
-
-    private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
-    {
-        boolean acc = false;
-        for (final T t : coll)
-        {
-            // Deliberate strict evaluation
-            acc |= predicate.test(t);
         }
 
         return acc;
