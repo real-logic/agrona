@@ -66,10 +66,11 @@ public class Int2ObjectCache<V>
     {
         validatePositivePowerOfTwo(numSets);
         requireNonNull(evictionConsumer, "Null values are not permitted");
-        if (((long)numSets) * setSize > Integer.MAX_VALUE)
+
+        if (((long)numSets) * setSize > (Integer.MAX_VALUE - 8))
         {
-            throw new IllegalArgumentException(String.format(
-                "Total capacity must be <= Integer.MAX_VALUE: numSets=%d setSize=%d", numSets, setSize));
+            throw new IllegalArgumentException(
+                "Total capacity must be <= max array size: numSets=" + numSets + " setSize=" + setSize);
         }
 
         this.setSize = setSize;
@@ -476,12 +477,16 @@ public class Int2ObjectCache<V>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        for (final Entry<Integer, V> entry : entrySet())
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
-            sb.append(entry.getKey().intValue());
-            sb.append('=');
-            sb.append(entry.getValue());
-            sb.append(", ");
+            final Object value = values[i];
+            if (null != value)
+            {
+                sb.append(keys[i]);
+                sb.append('=');
+                sb.append(value);
+                sb.append(", ");
+            }
         }
 
         if (sb.length() > 1)
@@ -492,6 +497,63 @@ public class Int2ObjectCache<V>
         sb.append('}');
 
         return sb.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+
+        if (o == null || !(o instanceof Map))
+        {
+            return false;
+        }
+
+        final Map<?, ?> that = (Map<?, ?>)o;
+
+        if (size != that.size())
+        {
+            return false;
+        }
+
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
+        {
+            final Object thisValue = values[i];
+            if (null != thisValue)
+            {
+                final Object thatValue = that.get(keys[i]);
+                if (null == thatValue || !thisValue.equals(thatValue))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub public int hashCode()
+    {
+        @DoNotSub int result = 0;
+
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
+            {
+                result += (Integer.hashCode(keys[i]) ^ value.hashCode());
+            }
+        }
+
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
