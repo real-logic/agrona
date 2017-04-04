@@ -471,7 +471,7 @@ public class Int2ObjectHashMap<V>
      */
     @DoNotSub public int hashCode()
     {
-        @DoNotSub int result = size;
+        @DoNotSub int result = 0;
 
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
