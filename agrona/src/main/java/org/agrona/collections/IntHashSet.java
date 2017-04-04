@@ -437,6 +437,11 @@ public final class IntHashSet extends AbstractSet<Integer>
             }
         }
 
+        if (coll.containsMissingValue)
+        {
+            acc |= remove(MISSING_VALUE);
+        }
+
         return acc;
     }
 
