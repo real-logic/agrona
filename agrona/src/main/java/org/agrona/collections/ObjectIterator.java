@@ -20,6 +20,8 @@ import java.util.NoSuchElementException;
 
 /**
  * An iterator for a sequence of values.
+ *
+ * @param <T> type of values stored in the collection being iterated.
  */
 public class ObjectIterator<T> implements Iterator<T>
 {
@@ -46,8 +48,8 @@ public class ObjectIterator<T> implements Iterator<T>
         this.remaining = size;
         this.values = values;
         final int length = values.length;
-
         int i = length;
+
         if (values[length - 1] != MISSING_VALUE)
         {
             i = 0;
@@ -65,14 +67,30 @@ public class ObjectIterator<T> implements Iterator<T>
         isPositionValid = false;
     }
 
-    protected int position()
-    {
-        return positionCounter & (values.length - 1);
-    }
-
     public boolean hasNext()
     {
         return remaining > 0;
+    }
+
+    public T next()
+    {
+        return nextValue();
+    }
+
+    /**
+     * @return the next int value.
+     */
+    @SuppressWarnings("unchecked")
+    public T nextValue()
+    {
+        findNext();
+
+        return values[position()];
+    }
+
+    protected int position()
+    {
+        return positionCounter & (values.length - 1);
     }
 
     protected void findNext()
@@ -94,21 +112,5 @@ public class ObjectIterator<T> implements Iterator<T>
         }
 
         throw new NoSuchElementException();
-    }
-
-    public T next()
-    {
-        return nextValue();
-    }
-
-    /**
-     * @return the next int value.
-     */
-    @SuppressWarnings("unchecked")
-    public T nextValue()
-    {
-        findNext();
-
-        return values[position()];
     }
 }

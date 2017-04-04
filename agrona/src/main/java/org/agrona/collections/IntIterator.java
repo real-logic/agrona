@@ -21,34 +21,42 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for a sequence of primitive values.
+ * An {@link Iterator} for a sequence of primitive values.
  */
 public class IntIterator implements Iterator<Integer>
 {
+    @DoNotSub private int remaining;
     @DoNotSub private int positionCounter;
     @DoNotSub private int stopCounter;
     protected boolean isPositionValid = false;
     private int[] values;
     private boolean containsMissingValue;
 
+    protected IntIterator()
+    {
+    }
+
     /**
      * Reset method for expandable collections.
      *
-     * @param values to be iterated over
-     * @param containsMissingValue true iff the hashset contains a missing value
+     * @param values               to be iterated over
+     * @param containsMissingValue true iff the collection contains a missing value
      */
-    void reset(final int[] values, final boolean containsMissingValue)
+    void reset(
+        final int[] values,
+        final boolean containsMissingValue,
+        @DoNotSub final int size)
     {
         this.values = values;
         this.containsMissingValue = containsMissingValue;
+        this.remaining = size;
 
         @DoNotSub final int length = values.length;
-
         @DoNotSub int i = length;
+
         if (values[length - 1] != IntHashSet.MISSING_VALUE)
         {
-            i = 0;
-            for (@DoNotSub int size = length; i < size; i++)
+            for (i = 0; i < length; i++)
             {
                 if (values[i] == IntHashSet.MISSING_VALUE)
                 {
@@ -69,42 +77,12 @@ public class IntIterator implements Iterator<Integer>
 
     public boolean hasNext()
     {
-        final int[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-
-        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
-        {
-            @DoNotSub final int index = i & mask;
-            if (values[index] != IntHashSet.MISSING_VALUE)
-            {
-                return true;
-            }
-        }
-
-        return containsMissingValue;
+        return remaining > 0;
     }
 
-    protected void findNext()
+    @DoNotSub public int remaining()
     {
-        final int[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        isPositionValid = false;
-
-        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
-        {
-            @DoNotSub final int index = i & mask;
-            if (values[index] != IntHashSet.MISSING_VALUE)
-            {
-                positionCounter = i;
-                isPositionValid = true;
-                return;
-            }
-        }
-
-        if (!containsMissingValue)
-        {
-            throw new NoSuchElementException();
-        }
+        return remaining;
     }
 
     public Integer next()
@@ -113,7 +91,7 @@ public class IntIterator implements Iterator<Integer>
     }
 
     /**
-     * Strongly typed alternative of {@link Iterator#next()} not to avoid boxing.
+     * Strongly typed alternative of {@link Iterator#next()} to avoid boxing.
      *
      * @return the next int value.
      */
@@ -121,14 +99,40 @@ public class IntIterator implements Iterator<Integer>
     {
         findNext();
 
-        if (isPositionValid)
+        if (remaining == 1 && containsMissingValue)
         {
-            return values[position()];
+            return IntHashSet.MISSING_VALUE;
         }
         else
         {
-            containsMissingValue = false;
-            return IntHashSet.MISSING_VALUE;
+            return values[position()];
         }
+    }
+
+    protected void findNext()
+    {
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        isPositionValid = true;
+
+        for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
+        {
+            @DoNotSub final int index = i & mask;
+            if (values[index] != IntHashSet.MISSING_VALUE)
+            {
+                positionCounter = i;
+                --remaining;
+                return;
+            }
+        }
+
+        if (containsMissingValue)
+        {
+            --remaining;
+            return;
+        }
+
+        isPositionValid = false;
+        throw new NoSuchElementException();
     }
 }

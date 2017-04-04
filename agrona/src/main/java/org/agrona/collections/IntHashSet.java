@@ -53,7 +53,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     @DoNotSub private int sizeOfArrayValues;
 
     private int[] values;
-    private final IntIterator iterator = new IntHashSetIterator();
+    private final IntHashSetIterator iterator = new IntHashSetIterator();
     private boolean containsMissingValue;
 
     public IntHashSet()
@@ -457,14 +457,11 @@ public final class IntHashSet extends AbstractSet<Integer>
      */
     public IntIterator iterator()
     {
-        iterator.reset(values, containsMissingValue);
+        iterator.reset(values, containsMissingValue, size());
 
         return iterator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public void copy(final IntHashSet that)
     {
         if (this.values.length != that.values.length)
@@ -535,15 +532,20 @@ public final class IntHashSet extends AbstractSet<Integer>
     {
         final Object[] arrayCopy = new Object[size()];
         copyValues(arrayCopy);
+
         return arrayCopy;
     }
 
     private void copyValues(final Object[] arrayCopy)
     {
-        final IntIterator iterator = iterator();
-        for (@DoNotSub int i = 0; iterator.hasNext(); i++)
+        @DoNotSub int i = 0;
+        final int[] values = this.values;
+        for (final int value : values)
         {
-            arrayCopy[i] = iterator.next();
+            if (MISSING_VALUE != value)
+            {
+                arrayCopy[i++] = value;
+            }
         }
 
         if (containsMissingValue)
@@ -599,24 +601,24 @@ public final class IntHashSet extends AbstractSet<Integer>
         {
             if (isPositionValid)
             {
-                @DoNotSub final int position = position();
-                values[position] = MISSING_VALUE;
-                --sizeOfArrayValues;
-
-                compactChain(position);
-
-                isPositionValid = false;
-            }
-            else
-            {
-                if (containsMissingValue)
+                if (remaining() == 1 && containsMissingValue)
                 {
                     containsMissingValue = false;
                 }
                 else
                 {
-                    throw new IllegalStateException();
+                    @DoNotSub final int position = position();
+                    values[position] = MISSING_VALUE;
+                    --sizeOfArrayValues;
+
+                    compactChain(position);
                 }
+
+                isPositionValid = false;
+            }
+            else
+            {
+                throw new IllegalStateException();
             }
         }
     }

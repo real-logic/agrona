@@ -34,6 +34,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  *
  * @see ObjectIterator
  * @see Set
+ * @param <T> type of values stored in the {@link java.util.Set}
  */
 public final class ObjectHashSet<T> extends AbstractSet<T>
 {
