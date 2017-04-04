@@ -608,11 +608,14 @@ public final class IntHashSet extends AbstractSet<Integer>
         {
             if (value != MISSING_VALUE)
             {
-                hashCode = 31 * hashCode + Hashing.hash(value);
+                hashCode += Integer.hashCode(value);
             }
         }
 
-        hashCode = 31 * hashCode + (containsMissingValue ? 1 : 0);
+        if (containsMissingValue)
+        {
+            hashCode += Integer.hashCode(MISSING_VALUE);
+        }
 
         return hashCode;
     }

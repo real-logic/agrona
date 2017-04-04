@@ -33,7 +33,7 @@ public class Hashing
      */
     public static int hash(final int value)
     {
-        return value;
+        return value * 31;
     }
 
     /**

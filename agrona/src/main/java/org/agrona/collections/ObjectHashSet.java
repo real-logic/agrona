@@ -524,7 +524,17 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
      */
     public int hashCode()
     {
-        return Arrays.hashCode(values);
+        int hashCode = 0;
+
+        for (final Object value : values)
+        {
+            if (value != MISSING_VALUE)
+            {
+                hashCode += value.hashCode();
+            }
+        }
+
+        return hashCode;
     }
 
     public final class ObjectHashSetIterator extends ObjectIterator<T>
