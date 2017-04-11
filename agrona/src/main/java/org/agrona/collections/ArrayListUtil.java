@@ -34,10 +34,13 @@ public class ArrayListUtil
     public static <T> void fastUnorderedRemove(final ArrayList<T> list, final int index)
     {
         final int lastIndex = list.size() - 1;
-        final T last = list.remove(lastIndex);
         if (index != lastIndex)
         {
-            list.set(index, last);
+            list.set(index, list.remove(lastIndex));
+        }
+        else
+        {
+            list.remove(index);
         }
     }
 
@@ -53,10 +56,13 @@ public class ArrayListUtil
      */
     public static <T> void fastUnorderedRemove(final ArrayList<T> list, final int index, final int lastIndex)
     {
-        final T last = list.remove(lastIndex);
         if (index != lastIndex)
         {
-            list.set(index, last);
+            list.set(index, list.remove(lastIndex));
+        }
+        else
+        {
+            list.remove(index);
         }
     }
 
