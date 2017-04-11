@@ -26,6 +26,25 @@ public class ArrayListUtil
      * Removes element at index, but instead of copying all elements to the left, moves into the same slot the last
      * element. This avoids the copy costs, but spoils the list order. If index is the last element it is just removed.
      *
+     * @param list  to be modified.
+     * @param index to be removed.
+     * @param <T>   element type.
+     * @throws IndexOutOfBoundsException if index is out of bounds.
+     */
+    public static <T> void fastUnorderedRemove(final ArrayList<T> list, final int index)
+    {
+        final int lastIndex = list.size() - 1;
+        final T last = list.remove(lastIndex);
+        if (index != lastIndex)
+        {
+            list.set(index, last);
+        }
+    }
+
+    /**
+     * Removes element at index, but instead of copying all elements to the left, moves into the same slot the last
+     * element. This avoids the copy costs, but spoils the list order. If index is the last element it is just removed.
+     *
      * @param list      to be modified.
      * @param index     to be removed.
      * @param lastIndex last element index in the list to be swapped into the removed index.
