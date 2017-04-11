@@ -22,7 +22,7 @@ plugins {
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '0.9.4-SNAPSHOT'
+def agronaVersion = '0.9.5-SNAPSHOT'
 
 group = agronaGroup
 version = agronaVersion
