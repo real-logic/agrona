@@ -851,4 +851,14 @@ public class IntHashSetTest
         final String mapAsAString = "{1, 19, 11, 7, 3, 12, -1}";
         assertThat(testSet.toString(), equalTo(mapAsAString));
     }
+
+    @Test
+    public void shouldRemoveMissingValueWhenCleared()
+    {
+        assertTrue(testSet.add(MISSING_VALUE));
+
+        testSet.clear();
+
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
 }

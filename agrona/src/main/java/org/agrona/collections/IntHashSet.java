@@ -330,6 +330,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     {
         Arrays.fill(values, MISSING_VALUE);
         sizeOfArrayValues = 0;
+        containsMissingValue = false;
     }
 
     /**
