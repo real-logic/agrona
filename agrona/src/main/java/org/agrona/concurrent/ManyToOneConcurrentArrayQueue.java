@@ -83,16 +83,21 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         return (E)e;
     }
 
-    @SuppressWarnings("unchecked")
     public int drain(final Consumer<E> elementHandler)
+    {
+        return drain(elementHandler, (int)(tail - head));
+    }
+
+    @SuppressWarnings("unchecked")
+    public int drain(final Consumer<E> elementHandler, final int limit)
     {
         final Object[] buffer = this.buffer;
         final long mask = this.capacity - 1;
         final long currentHead = head;
         long nextSequence = currentHead;
-        final long limit = nextSequence + mask + 1;
+        final long limitSequence = nextSequence + limit;
 
-        while (nextSequence < limit)
+        while (nextSequence < limitSequence)
         {
             final long elementOffset = sequenceToBufferOffset(nextSequence, mask);
             final Object item = UNSAFE.getObjectVolatile(buffer, elementOffset);

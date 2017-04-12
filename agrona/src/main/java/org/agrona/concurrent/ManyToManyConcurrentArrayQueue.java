@@ -145,11 +145,15 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
     public int drain(final Consumer<E> elementHandler)
     {
-        final int size = size();
+        return drain(elementHandler, size());
+    }
+
+    public int drain(final Consumer<E> elementHandler, final int limit)
+    {
         int count = 0;
 
         E e;
-        while (count < size && null != (e = poll()))
+        while (count < limit && null != (e = poll()))
         {
             elementHandler.accept(e);
             ++count;

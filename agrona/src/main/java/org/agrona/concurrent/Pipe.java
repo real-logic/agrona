@@ -62,6 +62,18 @@ public interface Pipe<E>
     int drain(Consumer<E> elementHandler);
 
     /**
+     * Invoke a {@link Consumer} callback on each elements to drain the collection of elements until it is empty or
+     * limit, whichever is sooner.
+     *
+     * If possible, implementations should use smart batching to best handle burst traffic.
+     *
+     * @param elementHandler to callback for processing elements
+     * @param limit          maximum number of elements to be drained.
+     * @return the number of elements drained
+     */
+    int drain(Consumer<E> elementHandler, int limit);
+
+    /**
      * Drain available elements into the provided {@link java.util.Collection} up to a provided maximum limit of elements.
      *
      * If possible, implementations should use smart batching to best handle burst traffic.
