@@ -52,22 +52,21 @@ public interface Pipe<E>
     int remainingCapacity();
 
     /**
-     * Invoke a {@link Consumer} callback on each elements to drain the collection of elements until it is empty.
+     * Drain the number of elements present in a collection at the time the operation starts.
      *
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
-     * @param elementHandler to callback for processing elements
+     * @param elementHandler {@link Consumer} for processing elements
      * @return the number of elements drained
      */
     int drain(Consumer<E> elementHandler);
 
     /**
-     * Invoke a {@link Consumer} callback on each elements to drain the collection of elements until it is empty or
-     * limit, whichever is sooner.
+     * Drain the minimum of a limit and the number of elements present in a collection at the time the operation starts.
      *
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
-     * @param elementHandler to callback for processing elements
+     * @param elementHandler {@link Consumer} for processing elements
      * @param limit          maximum number of elements to be drained.
      * @return the number of elements drained
      */
