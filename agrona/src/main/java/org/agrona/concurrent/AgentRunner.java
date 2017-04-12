@@ -33,6 +33,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     private static final Thread TOMBSTONE = new Thread();
 
     private volatile boolean running = true;
+    private volatile boolean done = false;
 
     private final AtomicCounter errorCounter;
     private final ErrorHandler errorHandler;
@@ -108,39 +109,43 @@ public class AgentRunner implements Runnable, AutoCloseable
      */
     public void run()
     {
-        if (!thread.compareAndSet(null, Thread.currentThread()))
+        try
         {
-            return;
-        }
+            if (!thread.compareAndSet(null, Thread.currentThread()))
+            {
+                return;
+            }
 
-        final IdleStrategy idleStrategy = this.idleStrategy;
-        final Agent agent = this.agent;
-        while (running)
-        {
-            try
+            final IdleStrategy idleStrategy = this.idleStrategy;
+            final Agent agent = this.agent;
+            while (running)
             {
-                idleStrategy.idle(agent.doWork());
-            }
-            catch (final InterruptedException ignore)
-            {
-                Thread.interrupted();
-            }
-            catch (final ClosedByInterruptException ignore)
-            {
-                // Deliberately blank, if this exception is thrown then your interrupted status will be set.
-            }
-            catch (final Throwable throwable)
-            {
-                if (running)
+                try
                 {
-                    if (null != errorCounter)
+                    idleStrategy.idle(agent.doWork());
+                }
+                catch (final InterruptedException | ClosedByInterruptException ignore)
+                {
+                    Thread.interrupted();
+                    break;
+                }
+                catch (final Throwable throwable)
+                {
+                    if (running)
                     {
-                        errorCounter.increment();
-                    }
+                        if (null != errorCounter)
+                        {
+                            errorCounter.increment();
+                        }
 
-                    errorHandler.onError(throwable);
+                        errorHandler.onError(throwable);
+                    }
                 }
             }
+        }
+        finally
+        {
+            done = true;
         }
     }
 
@@ -165,18 +170,18 @@ public class AgentRunner implements Runnable, AutoCloseable
                     {
                         thread.join(1000);
 
-                        if (!thread.isAlive())
+                        if (!thread.isAlive() || done)
                         {
                             break;
                         }
 
-                        System.err.printf("timeout await for agent: %s. Retrying...%n", agent.roleName());
+                        System.err.println("Timeout waiting for " + agent.roleName() + " Retrying...");
 
+                        running = false;
                         thread.interrupt();
                     }
                     catch (final InterruptedException ignore)
                     {
-                        Thread.currentThread().interrupt();
                         return;
                     }
                 }
