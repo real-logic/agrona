@@ -733,8 +733,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             if (currentArrayLength >= MAX_ARRAY_LENGTH)
             {
-                throw new IndexOutOfBoundsException(String.format(
-                    "index=%d, length=%d, maxCapacity=%d", index, length, MAX_ARRAY_LENGTH));
+                throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
             }
 
             byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, (int)resultingPosition));
@@ -747,7 +747,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         while (value < requiredLength)
         {
-            value = value * 2;
+            value = value + (value >> 1);
 
             if (value > Integer.MAX_VALUE)
             {
@@ -764,8 +764,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > currentArrayLength)
         {
-            throw new IndexOutOfBoundsException(String.format(
-                "index=%d, length=%d, capacity=%d", index, length, currentArrayLength));
+            throw new IndexOutOfBoundsException(
+                "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
         }
     }
 
