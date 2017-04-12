@@ -79,7 +79,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Start the given agent runner on a new thread.
      *
-     * @param runner the agent runner to start.
+     * @param runner        the agent runner to start.
      * @param threadFactory the factory to use to create the thread.
      * @return the new thread that has been started.
      */
@@ -177,7 +177,6 @@ public class AgentRunner implements Runnable, AutoCloseable
 
                         System.err.println("Timeout waiting for " + agent.roleName() + " Retrying...");
 
-                        running = false;
                         thread.interrupt();
                     }
                     catch (final InterruptedException ignore)
