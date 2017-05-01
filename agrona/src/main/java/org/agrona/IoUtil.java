@@ -340,7 +340,7 @@ public class IoUtil
     {
         if (!file.exists())
         {
-            final String msg = String.format("Missing file for %1$s: %2$s", name, file.getAbsolutePath());
+            final String msg = "Missing file for " + name + " : " + file.getAbsolutePath();
             throw new IllegalStateException(msg);
         }
     }

@@ -143,8 +143,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (limit > capacity)
         {
-            final String msg = String.format("limit=%d is beyond capacity=%d", limit, capacity);
-            throw new IndexOutOfBoundsException(msg);
+            throw new IndexOutOfBoundsException("limit=" + limit + " is beyond capacity=" + capacity);
         }
     }
 
@@ -152,10 +151,9 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         if (0 != (addressOffset & (ALIGNMENT - 1)))
         {
-            throw new IllegalStateException(String.format(
-                "AtomicBuffer is not correctly aligned: addressOffset=%d in not divisible by %d",
-                addressOffset,
-                ALIGNMENT));
+            throw new IllegalStateException(
+                "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
+                " is not divisible by " + ALIGNMENT);
         }
     }
 

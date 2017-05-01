@@ -297,8 +297,8 @@ public class OneToOneRingBuffer implements RingBuffer
     {
         if (length > maxMsgLength)
         {
-            throw new IllegalArgumentException(String.format(
-                "encoded message exceeds maxMsgLength of %d, length=%d", maxMsgLength, length));
+            throw new IllegalArgumentException(
+                "Encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
         }
     }
 }

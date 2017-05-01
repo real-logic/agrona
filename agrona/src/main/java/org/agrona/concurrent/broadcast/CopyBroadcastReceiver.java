@@ -85,8 +85,8 @@ public class CopyBroadcastReceiver
             final int capacity = scratchBuffer.capacity();
             if (length > capacity)
             {
-                throw new IllegalStateException(String.format(
-                    "Buffer required length of %d but only has %d", length, capacity));
+                throw new IllegalStateException(
+                    "Buffer required length of " + length + " but only has " + capacity);
             }
 
             final int msgTypeId = receiver.typeId();

@@ -61,8 +61,7 @@ public class BufferUtil
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > capacity)
         {
-            throw new IndexOutOfBoundsException(String.format(
-                "index=%d, length=%d, capacity=%d", index, length, capacity));
+            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
         }
     }
 
@@ -79,8 +78,7 @@ public class BufferUtil
         final long resultingPosition = index + (long)length;
         if (index < 0 || resultingPosition > capacity)
         {
-            throw new IndexOutOfBoundsException(String.format(
-                "index=%d, length=%d, capacity=%d", index, length, capacity));
+            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
         }
     }
 

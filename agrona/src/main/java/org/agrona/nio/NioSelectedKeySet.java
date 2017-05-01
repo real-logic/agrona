@@ -153,8 +153,8 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     {
         if (requiredCapacity < 0)
         {
-            throw new IllegalStateException(String.format(
-                "Insufficient capacity: length=%d required=%d", keys.length, requiredCapacity));
+            throw new IllegalStateException(
+                "Insufficient capacity: length=" + keys.length + " required=" + requiredCapacity);
         }
 
         if (requiredCapacity > keys.length)
