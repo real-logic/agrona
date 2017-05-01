@@ -16,6 +16,8 @@
 package org.agrona.generation;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
 
 import static java.io.File.separatorChar;
@@ -67,6 +69,6 @@ public class PackageOutputManager implements OutputManager
     {
         final File targetFile = new File(outputDir, name + ".java");
 
-        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        return Files.newBufferedWriter(targetFile.toPath(), StandardCharsets.UTF_8);
     }
 }
