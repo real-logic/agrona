@@ -31,6 +31,9 @@ import java.util.function.BiConsumer;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
  * Collection of IO utilities.
@@ -70,7 +73,11 @@ public class IoUtil
         try
         {
             final byte[] filler = new byte[BLOCK_SIZE];
-            Arrays.fill(filler, value);
+            if (0 != value)
+            {
+                Arrays.fill(filler, value);
+            }
+
             final ByteBuffer byteBuffer = ByteBuffer.wrap(filler);
             fileChannel.position(position);
 
@@ -318,9 +325,18 @@ public class IoUtil
     public static MappedByteBuffer mapNewFile(final File location, final long length, final boolean fillWithZeros)
     {
         MappedByteBuffer mappedByteBuffer = null;
-        try (FileChannel channel = createEmptyFile(location, length, fillWithZeros))
+        try (FileChannel channel = FileChannel.open(location.toPath(), CREATE_NEW, READ, WRITE))
         {
             mappedByteBuffer = channel.map(READ_WRITE, 0, length);
+            if (fillWithZeros)
+            {
+                int pos = 0;
+                while (pos < length)
+                {
+                    mappedByteBuffer.put(pos, (byte)0);
+                    pos += BLOCK_SIZE;
+                }
+            }
         }
         catch (final IOException ex)
         {
