@@ -45,6 +45,8 @@ public class IoUtil
      */
     public static final int BLOCK_SIZE = 4 * 1024;
 
+    private static final byte[] FILLER = new byte[BLOCK_SIZE];
+
     private static final int MAP_READ_ONLY = 0;
     private static final int MAP_READ_WRITE = 1;
     private static final int MAP_PRIVATE = 2;
@@ -72,10 +74,15 @@ public class IoUtil
     {
         try
         {
-            final byte[] filler = new byte[BLOCK_SIZE];
+            final byte[] filler;
             if (0 != value)
             {
+                filler = new byte[BLOCK_SIZE];
                 Arrays.fill(filler, value);
+            }
+            else
+            {
+                filler = FILLER;
             }
 
             final ByteBuffer byteBuffer = ByteBuffer.wrap(filler);
