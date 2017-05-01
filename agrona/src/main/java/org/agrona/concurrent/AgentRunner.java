@@ -24,9 +24,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Base Agent runner that is responsible for lifecycle of an {@link Agent} and ensuring exceptions are handled.
+ * Agent runner containing an {@link Agent} which is run on a {@link Thread}.
  *
- * <b>Note:</b> An agent runner instance should only be started once and then discarded, it should not be reused.
+ * <b>Note:</b> An instance should only be started once and then discarded, it should not be reused.
  */
 public class AgentRunner implements Runnable, AutoCloseable
 {
@@ -42,11 +42,11 @@ public class AgentRunner implements Runnable, AutoCloseable
     private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     /**
-     * Create an agent passing in {@link IdleStrategy}
+     * Create an agent runner and initialise it.
      *
      * @param idleStrategy to use for Agent run loop
      * @param errorHandler to be called if an {@link Throwable} is encountered
-     * @param errorCounter for reporting how many exceptions have been seen.
+     * @param errorCounter to be incremented each time an exception is encountered. This may be null.
      * @param agent        to be run in this thread.
      */
     public AgentRunner(
@@ -93,9 +93,9 @@ public class AgentRunner implements Runnable, AutoCloseable
     }
 
     /**
-     * The {@link Agent} who's lifecycle is being managed.
+     * The {@link Agent} which is contained
      *
-     * @return {@link Agent} who's lifecycle is being managed.
+     * @return {@link Agent} being contained.
      */
     public Agent agent()
     {
