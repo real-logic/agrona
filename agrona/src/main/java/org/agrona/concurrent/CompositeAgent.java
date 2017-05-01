@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Compose several agents into one so a thread can be shared.
+ * Group several {@link Agent}s into one composite so it can be scheduled as a unit.
  */
 public class CompositeAgent implements Agent
 {
@@ -52,8 +52,8 @@ public class CompositeAgent implements Agent
             throw new IllegalArgumentException("Expecting at least one Agent");
         }
 
-        final StringBuilder buff = new StringBuilder(agents.length * 16);
-        buff.append('[');
+        final StringBuilder sb = new StringBuilder(agents.length * 16);
+        sb.append('[');
         for (final Agent agent : agents)
         {
             if (agent == null)
@@ -61,12 +61,12 @@ public class CompositeAgent implements Agent
                 throw new NullPointerException("Agents list contains a null");
             }
 
-            buff.append(agent.roleName());
-            buff.append(',');
+            sb.append(agent.roleName());
+            sb.append(',');
         }
 
-        buff.setCharAt(buff.length() - 1, ']'); // overwrite the last ','
-        roleName = buff.toString();
+        sb.setCharAt(sb.length() - 1, ']');
+        roleName = sb.toString();
 
         this.agents = Arrays.copyOf(agents, agents.length);
     }
