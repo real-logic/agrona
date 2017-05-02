@@ -30,7 +30,10 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class AgentRunner implements Runnable, AutoCloseable
 {
-    private static final Thread TOMBSTONE = new Thread();
+    /**
+     * Indicates that the runner is being closed.
+     */
+    public static final Thread TOMBSTONE = new Thread();
 
     private volatile boolean running = true;
     private volatile boolean done = false;
@@ -100,6 +103,18 @@ public class AgentRunner implements Runnable, AutoCloseable
     public Agent agent()
     {
         return agent;
+    }
+
+    /**
+     * Get the thread which is running that {@link Agent}.
+     *
+     * If null then the runner has not been started. If {@link #TOMBSTONE} then the runner is being closed.
+     *
+     * @return the thread running the {@link Agent}.
+     */
+    public Thread thread()
+    {
+        return thread.get();
     }
 
     /**
