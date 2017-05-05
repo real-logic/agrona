@@ -24,7 +24,7 @@ import java.util.function.IntUnaryOperator;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
- * A open addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
+ * A open-addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
  * counters which hit {@link #initialValue} as deleted. This means that changing a counter may impact {@link #size()}.
  */
 public class Int2IntCounterMap
@@ -81,6 +81,8 @@ public class Int2IntCounterMap
     }
 
     /**
+     * The current size of the map which at not at {@link #initialValue()}.
+     *
      * @return map size, counters at {@link #initialValue()} are not counted
      */
     @DoNotSub public int size()
@@ -89,6 +91,8 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Is the map empty.
+     *
      * @return size == 0
      */
     public boolean isEmpty()
@@ -97,8 +101,10 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Get the value of a counter associated with a key or {@link #initialValue()} if not found.
+     *
      * @param key lookup key
-     * @return counter value associated with key, or initialValue if none found
+     * @return counter value associated with key or {@link #initialValue()} if not found.
      */
     public int get(final int key)
     {
@@ -123,10 +129,12 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Put the value for a key into the map.
+     *
      * @param key   lookup key
      * @param value new value, must not be initialValue
-     * @return current counter value associated with key, or initialValue if none found
-     * @throws IllegalArgumentException if value is initialValue
+     * @return current counter value associated with key, or {@link #initialValue()} if none found
+     * @throws IllegalArgumentException if value is {@link #initialValue()}
      */
     public int put(final int key, final int value)
     {
@@ -223,6 +231,7 @@ public class Int2IntCounterMap
     {
         return getAndAdd(key, -1);
     }
+
     /**
      * Add amount to the current value associated with this key. If no such value exists use {@link #initialValue()} as
      * current value and associate key with {@link #initialValue()} + amount unless amount is 0, in which case map
@@ -273,36 +282,10 @@ public class Int2IntCounterMap
         return oldValue;
     }
 
-    private void increaseCapacity()
-    {
-        if (size > resizeThreshold)
-        {
-            // entries.length = 2 * capacity
-            @DoNotSub final int newCapacity = entries.length;
-            rehash(newCapacity);
-        }
-    }
-
-    private void rehash(@DoNotSub final int newCapacity)
-    {
-        final int[] oldEntries = entries;
-        final int initialValue = this.initialValue;
-        @DoNotSub final int length = entries.length;
-
-        capacity(newCapacity);
-
-        for (@DoNotSub int i = 0; i < length; i += 2)
-        {
-            final int key = oldEntries[i];
-            if (oldEntries[i + 1] != initialValue)
-            {
-                put(key, oldEntries[i + 1]);
-            }
-        }
-    }
-
     /**
-     * @param consumer a callback called for each key/value pair in the map.
+     * Iterate over all value in the map which are not at {@link #initialValue()}.
+     *
+     * @param consumer called for each key/value pair in the map.
      */
     public void forEach(final IntIntConsumer consumer)
     {
@@ -320,8 +303,10 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Does the map contain a value for a given key which is not {@link #initialValue()}.
+     *
      * @param key the key to check.
-     * @return true if the map contains key as a mapped key, false otherwise.
+     * @return true if the map contains the key with a value other than {@link #initialValue()}, false otherwise.
      */
     public boolean containsKey(final int key)
     {
@@ -329,6 +314,10 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Iterate over the values to see if any match the provided value.
+     *
+     * If value provided is {@link #initialValue()} then it will always return false.
+     *
      * @param value the key to check.
      * @return true if the map contains value as a mapped value, false otherwise.
      */
@@ -349,11 +338,12 @@ public class Int2IntCounterMap
                 }
             }
         }
+
         return found;
     }
 
     /**
-     * {@inheritDoc}
+     * Clear out all entries.
      */
     public void clear()
     {
@@ -372,6 +362,8 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Try get a value for a key and if not present then apply mapping function.
+     *
      * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns null.
      * @return the value if found otherwise the missing value.
@@ -392,6 +384,8 @@ public class Int2IntCounterMap
     }
 
     /**
+     * Remove a counter value for a given key.
+     *
      * @param key to be removed
      * @return old value for key
      */
@@ -421,35 +415,6 @@ public class Int2IntCounterMap
         }
 
         return oldValue;
-    }
-
-    @SuppressWarnings("FinalParameters")
-    private void compactChain(@DoNotSub int deleteKeyIndex)
-    {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
-        @DoNotSub final int mask = entries.length - 1;
-        @DoNotSub int index = deleteKeyIndex;
-
-        while (true)
-        {
-            index = next(index, mask);
-            if (entries[index + 1] == initialValue)
-            {
-                break;
-            }
-
-            @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
-
-            if ((index < hash && (hash <= deleteKeyIndex || deleteKeyIndex <= index)) ||
-                (hash <= deleteKeyIndex && deleteKeyIndex <= index))
-            {
-                entries[deleteKeyIndex] = entries[index];
-                entries[deleteKeyIndex + 1] = entries[index + 1];
-                entries[index + 1] = initialValue;
-                deleteKeyIndex = index;
-            }
-        }
     }
 
     /**
@@ -540,6 +505,35 @@ public class Int2IntCounterMap
         return (index + 2) & mask;
     }
 
+    @SuppressWarnings("FinalParameters")
+    private void compactChain(@DoNotSub int deleteKeyIndex)
+    {
+        final int[] entries = this.entries;
+        final int initialValue = this.initialValue;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = deleteKeyIndex;
+
+        while (true)
+        {
+            index = next(index, mask);
+            if (entries[index + 1] == initialValue)
+            {
+                break;
+            }
+
+            @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
+
+            if ((index < hash && (hash <= deleteKeyIndex || deleteKeyIndex <= index)) ||
+                (hash <= deleteKeyIndex && deleteKeyIndex <= index))
+            {
+                entries[deleteKeyIndex] = entries[index];
+                entries[deleteKeyIndex + 1] = entries[index + 1];
+                entries[index + 1] = initialValue;
+                deleteKeyIndex = index;
+            }
+        }
+    }
+
     private void capacity(@DoNotSub final int newCapacity)
     {
         @DoNotSub final int entriesLength = newCapacity * 2;
@@ -552,5 +546,33 @@ public class Int2IntCounterMap
         entries = new int[entriesLength];
         size = 0;
         Arrays.fill(entries, initialValue);
+    }
+
+    private void increaseCapacity()
+    {
+        if (size > resizeThreshold)
+        {
+            // entries.length = 2 * capacity
+            @DoNotSub final int newCapacity = entries.length;
+            rehash(newCapacity);
+        }
+    }
+
+    private void rehash(@DoNotSub final int newCapacity)
+    {
+        final int[] oldEntries = entries;
+        final int initialValue = this.initialValue;
+        @DoNotSub final int length = entries.length;
+
+        capacity(newCapacity);
+
+        for (@DoNotSub int i = 0; i < length; i += 2)
+        {
+            final int key = oldEntries[i];
+            if (oldEntries[i + 1] != initialValue)
+            {
+                put(key, oldEntries[i + 1]);
+            }
+        }
     }
 }
