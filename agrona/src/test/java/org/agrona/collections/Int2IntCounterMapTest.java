@@ -427,6 +427,7 @@ public class Int2IntCounterMapTest
         assertTrue(map.isEmpty());
         assertFalse(map.containsKey(1));
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAllowInitialValueAsValue()
     {
