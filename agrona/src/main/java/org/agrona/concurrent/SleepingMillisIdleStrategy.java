@@ -15,25 +15,23 @@
  */
 package org.agrona.concurrent;
 
-import java.util.concurrent.locks.LockSupport;
-
 /**
- * When idle this strategy is to sleep for a specified period in nanoseconds.
+ * When idle this strategy is to sleep for a specified period time in milliseconds.
  *
- * This class uses {@link LockSupport#parkNanos(long)} to idle.
+ * This class uses {@link Thread#sleep(long)} to idle.
  */
-public final class SleepingIdleStrategy implements IdleStrategy
+public final class SleepingMillisIdleStrategy implements IdleStrategy
 {
-    private final long sleepPeriodNs;
+    private final long sleepPeriodMs;
 
     /**
      * Constructed a new strategy that will sleep for a given period when idle.
      *
-     * @param sleepPeriodNs period in nanosecond for which the strategy will sleep when work count is 0.
+     * @param sleepPeriodMs period in milliseconds for which the strategy will sleep when work count is 0.
      */
-    public SleepingIdleStrategy(final long sleepPeriodNs)
+    public SleepingMillisIdleStrategy(final long sleepPeriodMs)
     {
-        this.sleepPeriodNs = sleepPeriodNs;
+        this.sleepPeriodMs = sleepPeriodMs;
     }
 
     public void idle(final int workCount)
@@ -43,12 +41,26 @@ public final class SleepingIdleStrategy implements IdleStrategy
             return;
         }
 
-        LockSupport.parkNanos(sleepPeriodNs);
+        try
+        {
+            Thread.sleep(sleepPeriodMs);
+        }
+        catch (final InterruptedException ignore)
+        {
+            Thread.interrupted();
+        }
     }
 
     public void idle()
     {
-        LockSupport.parkNanos(sleepPeriodNs);
+        try
+        {
+            Thread.sleep(sleepPeriodMs);
+        }
+        catch (final InterruptedException ignore)
+        {
+            Thread.interrupted();
+        }
     }
 
     public void reset()
