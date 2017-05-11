@@ -51,7 +51,7 @@ public class Int2IntHashMapTest
     @Test
     public void boxedGetShouldReturnNull()
     {
-        assertNull(map.get((Integer) 1));
+        assertNull(map.get((Integer)1));
     }
 
     @Test
