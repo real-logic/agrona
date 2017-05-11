@@ -114,9 +114,9 @@ subprojects {
         checkstyle 'com.github.sevntu.checkstyle:sevntu-checks:1.23.1'
 
         testCompile(
-                'org.hamcrest:hamcrest-all:1.3',
-                'junit:junit:4.12',
-                'org.mockito:mockito-core:2.7.22',
+            'org.hamcrest:hamcrest-all:1.3',
+            'junit:junit:4.12',
+            'org.mockito:mockito-core:2.7.22',
         )
     }
 
@@ -141,11 +141,15 @@ project(':agrona') {
 
     apply plugin: 'osgi'
 
+    if (null == System.getenv("JAVA_HOME")) {
+        throw new GradleException('JAVA_HOME environment variable required')
+    }
+
     compileJava {
         // Suppress warnings about using Unsafe and sun.misc
         options.compilerArgs << '-XDignore.symbol.file'
         options.fork = true
-        options.forkOptions.executable = 'javac'
+        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
     }
 
     uploadArchives {
@@ -167,7 +171,6 @@ project(':agrona') {
             }
         }
     }
-
 
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
@@ -211,7 +214,7 @@ project(':agrona-agent') {
         // Suppress warnings about using Unsafe and sun.misc
         options.compilerArgs << '-XDignore.symbol.file'
         options.fork = true
-        options.forkOptions.executable = 'javac'
+        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
     }
 
     dependencies {
