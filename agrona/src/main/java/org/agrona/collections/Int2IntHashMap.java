@@ -292,7 +292,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer get(final Object key)
     {
-        return get((int)key);
+        final int primitiveResult = get((int) key);
+        return primitiveResult == missingValue ? null : primitiveResult;
     }
 
     /**

@@ -20,7 +20,6 @@ import org.mockito.InOrder;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.hasItems;
@@ -47,6 +46,12 @@ public class Int2IntHashMapTest
     public void getShouldReturnMissingValueWhenEmpty()
     {
         assertEquals(MISSING_VALUE, map.get(1));
+    }
+
+    @Test
+    public void boxedGetShouldReturnNull()
+    {
+        assertNull(map.get((Integer) 1));
     }
 
     @Test
@@ -403,11 +408,21 @@ public class Int2IntHashMapTest
         final int testKey = 7;
         final int testValue = 7;
 
-        final IntUnaryOperator function = (i) -> testValue;
-
         assertEquals(map.missingValue(), map.get(testKey));
 
-        assertThat(map.computeIfAbsent(testKey, function), is(testValue));
+        assertThat(map.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfAbsentBoxed()
+    {
+        final Map<Integer, Integer> map = this.map;
+
+        final int testKey = 7;
+        final int testValue = 7;
+
+        assertThat(map.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
         assertThat(map.get(testKey), is(testValue));
     }
 
