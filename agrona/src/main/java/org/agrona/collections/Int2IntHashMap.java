@@ -133,6 +133,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             throw new IllegalArgumentException("Cannot accept missingValue");
         }
+
         final int[] entries = this.entries;
         final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
@@ -224,6 +225,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         return get(key) != missingValue;
     }
 
+    /**
+     * Does the map contain the value.
+     *
+     * @param value to be tested against contained values.
+     * @return true if contained otherwise value.
+     */
     public boolean containsValue(final int value)
     {
         boolean found = false;
@@ -241,6 +248,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 }
             }
         }
+
         return found;
     }
 
@@ -292,8 +300,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer get(final Object key)
     {
-        final int primitiveResult = get((int) key);
-        return primitiveResult == missingValue ? null : primitiveResult;
+        final int value = get((int)key);
+        return value == missingValue ? null : value;
     }
 
     /**
@@ -301,7 +309,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer put(final Integer key, final Integer value)
     {
-        return put((int)key, (int)value);
+        final int existingValue = put((int)key, (int)value);
+        return existingValue == missingValue ? null : existingValue;
     }
 
     /**
@@ -368,7 +377,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer remove(final Object key)
     {
-        return remove((int)key);
+        final int intKey = (int)key;
+        if (intKey == missingValue)
+        {
+            throw new IllegalArgumentException("missing value not allowed: " + missingValue);
+        }
+
+        return remove(intKey);
     }
 
     public int remove(final int key)

@@ -264,20 +264,6 @@ public class Int2IntHashMapTest
         entrySetContainsTwoElements();
     }
 
-    private void entrySetContainsTwoElements()
-    {
-        final Set<Entry<Integer, Integer>> entrySet = map.entrySet();
-        assertEquals(2, entrySet.size());
-        assertFalse(entrySet.isEmpty());
-
-        final Iterator<Entry<Integer, Integer>> it = entrySet.iterator();
-        assertTrue(it.hasNext());
-        assertEntryIs(it.next(), 2, 3);
-        assertTrue(it.hasNext());
-        assertEntryIs(it.next(), 1, 1);
-        assertFalse(it.hasNext());
-    }
-
     @Test
     public void removeShouldReturnMissing()
     {
@@ -424,63 +410,6 @@ public class Int2IntHashMapTest
 
         assertThat(map.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
         assertThat(map.get(testKey), is(testValue));
-    }
-
-    private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
-    {
-        assertEquals(expectedKey, entry.getKey().intValue());
-        assertEquals(expectedValue, entry.getValue().intValue());
-    }
-
-    private void assertCollectionContainsElements(final Collection<Integer> keys)
-    {
-        assertEquals(2, keys.size());
-        assertFalse(keys.isEmpty());
-        assertTrue(keys.contains(1));
-        assertTrue(keys.contains(2));
-        assertFalse(keys.contains(3));
-        assertThat(keys, hasItems(1, 2));
-
-        assertThat("iterator has failed to be reset", keys, hasItems(1, 2));
-    }
-
-    private void assertIteratesKeys()
-    {
-        final Iterator<Integer> it = keyIterator();
-        assertContains(it, 2, 1);
-    }
-
-    private void assertIteratesValues()
-    {
-        final Iterator<Integer> it = map.values().iterator();
-        assertContains(it, 3, 1);
-    }
-
-    private void assertContains(final Iterator<Integer> it, final int first, final int second)
-    {
-        assertTrue(it.hasNext());
-        assertEquals(Integer.valueOf(first), it.next());
-        assertTrue(it.hasNext());
-        assertEquals(Integer.valueOf(second), it.next());
-        assertFalse(it.hasNext());
-    }
-
-    private void addTwoElements()
-    {
-        map.put(1, 1);
-        map.put(2, 3);
-    }
-
-    private void assertIterateKeysWithoutHasNext()
-    {
-        final Iterator<Integer> it = keyIterator();
-        assertEquals(Integer.valueOf(2), it.next());
-        assertEquals(Integer.valueOf(1), it.next());
-    }
-
-    private Iterator<Integer> keyIterator()
-    {
-        return map.keySet().iterator();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -646,6 +575,95 @@ public class Int2IntHashMapTest
         assertHashcodeNotEquals(map, otherMap);
     }
 
+    @Test
+    public void computeIfAbsentUsingImplementation()
+    {
+        final Int2IntHashMap int2IntHashMap = new Int2IntHashMap(-1);
+        final int key = 0;
+        final int result = int2IntHashMap.computeIfAbsent(key, (k) -> k);
+        assertEquals(key, result);
+    }
+
+    @Test
+    public void computeIfAbsentUsingInterface()
+    {
+        final Map<Integer, Integer> map = new Int2IntHashMap(-1);
+        final int key = 0;
+        final int result = map.computeIfAbsent(key, (k) -> k);
+        assertEquals(key, result);
+    }
+
+    @Test
+    public void shouldGenerateStringRepresentation()
+    {
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
+
+        for (final int testEntry : testEntries)
+        {
+            map.put(testEntry, testEntry + 1000);
+        }
+
+        final String mapAsAString = "{1=1001, 3=1003, 19=1019, 7=1007, 11=1011, 12=1012}";
+        assertThat(map.toString(), equalTo(mapAsAString));
+    }
+
+    private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
+    {
+        assertEquals(expectedKey, entry.getKey().intValue());
+        assertEquals(expectedValue, entry.getValue().intValue());
+    }
+
+    private void assertCollectionContainsElements(final Collection<Integer> keys)
+    {
+        assertEquals(2, keys.size());
+        assertFalse(keys.isEmpty());
+        assertTrue(keys.contains(1));
+        assertTrue(keys.contains(2));
+        assertFalse(keys.contains(3));
+        assertThat(keys, hasItems(1, 2));
+
+        assertThat("iterator has failed to be reset", keys, hasItems(1, 2));
+    }
+
+    private void assertIteratesKeys()
+    {
+        final Iterator<Integer> it = keyIterator();
+        assertContains(it, 2, 1);
+    }
+
+    private void assertIteratesValues()
+    {
+        final Iterator<Integer> it = map.values().iterator();
+        assertContains(it, 3, 1);
+    }
+
+    private void assertContains(final Iterator<Integer> it, final int first, final int second)
+    {
+        assertTrue(it.hasNext());
+        assertEquals(Integer.valueOf(first), it.next());
+        assertTrue(it.hasNext());
+        assertEquals(Integer.valueOf(second), it.next());
+        assertFalse(it.hasNext());
+    }
+
+    private void addTwoElements()
+    {
+        map.put(1, 1);
+        map.put(2, 3);
+    }
+
+    private void assertIterateKeysWithoutHasNext()
+    {
+        final Iterator<Integer> it = keyIterator();
+        assertEquals(Integer.valueOf(2), it.next());
+        assertEquals(Integer.valueOf(1), it.next());
+    }
+
+    private Iterator<Integer> keyIterator()
+    {
+        return map.keySet().iterator();
+    }
+
     private void addValues(final Map<Integer, Integer> map)
     {
         map.put(1, 2);
@@ -674,17 +692,17 @@ public class Int2IntHashMapTest
             value.hashCode());
     }
 
-    @Test
-    public void shouldGenerateStringRepresentation()
+    private void entrySetContainsTwoElements()
     {
-        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+        final Set<Entry<Integer, Integer>> entrySet = map.entrySet();
+        assertEquals(2, entrySet.size());
+        assertFalse(entrySet.isEmpty());
 
-        for (final int testEntry : testEntries)
-        {
-            map.put(testEntry, testEntry + 1000);
-        }
-
-        final String mapAsAString = "{1=1001, 3=1003, 19=1019, 7=1007, 11=1011, 12=1012}";
-        assertThat(map.toString(), equalTo(mapAsAString));
+        final Iterator<Entry<Integer, Integer>> it = entrySet.iterator();
+        assertTrue(it.hasNext());
+        assertEntryIs(it.next(), 2, 3);
+        assertTrue(it.hasNext());
+        assertEntryIs(it.next(), 1, 1);
+        assertFalse(it.hasNext());
     }
 }
