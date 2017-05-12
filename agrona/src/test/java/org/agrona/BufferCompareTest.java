@@ -52,6 +52,18 @@ public class BufferCompareTest
     }
 
     @Test
+    public void shouldEqualOnDifferentExpandableTypeAndValue()
+    {
+        final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
+        final MutableDirectBuffer rhsBuffer = new ExpandableDirectByteBuffer();
+
+        lhsBuffer.putStringUtf8(0, "Hello World");
+        rhsBuffer.putStringUtf8(0, "Hello World");
+
+        assertThat(lhsBuffer.compareTo(rhsBuffer), is(0));
+    }
+
+    @Test
     public void shouldBeGreater()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();

@@ -41,6 +41,10 @@ public class BufferStringOperationsTest
     @DataPoint
     public static final MutableDirectBuffer EXPANDABLE_ARRAY_BUFFER = new ExpandableArrayBuffer(BUFFER_CAPACITY);
 
+    @DataPoint
+    public static final MutableDirectBuffer EXPANDABLE_DIRECT_BYTE_BUFFER =
+        new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
+
     @Theory
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToInsertNonAscii(final MutableDirectBuffer buffer)
