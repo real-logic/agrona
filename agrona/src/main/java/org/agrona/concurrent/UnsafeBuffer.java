@@ -820,9 +820,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(dst, offset, length);
-            lengthCheck(length);
         }
 
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
@@ -844,9 +844,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(dstBuffer, (long)dstOffset, length);
-            lengthCheck(length);
         }
 
         final byte[] dstByteArray;
@@ -874,9 +874,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(src, offset, length);
-            lengthCheck(length);
         }
 
         UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
@@ -893,9 +893,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
-            lengthCheck(length);
         }
 
         final byte[] srcByteArray;
@@ -918,9 +918,9 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
+            lengthCheck(length);
             boundsCheck0(index, length);
             srcBuffer.boundsCheck(srcIndex, length);
-            lengthCheck(length);
         }
 
         UNSAFE.copyMemory(
