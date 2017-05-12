@@ -38,12 +38,12 @@ import static org.agrona.BufferUtil.*;
 public class ExpandableArrayBuffer implements MutableDirectBuffer
 {
     /**
-     * Maximum length to which the underlying array can grow. Some JVMs set bits in the last few bytes.
+     * Maximum length to which the underlying buffer can grow. Some JVMs set bits in the last few bytes.
      */
     public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8;
 
     /**
-     * Initial capacity of the array from which it will double in size on each expansion.
+     * Initial capacity of the buffer from which it will expand as necessary.
      */
     public static final int INITIAL_CAPACITY = 128;
 
@@ -60,7 +60,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     /**
      * Create an {@link ExpandableArrayBuffer} with a provided initial length.
      *
-     * @param initialCapacity of the backing array.
+     * @param initialCapacity of the buffer.
      */
     public ExpandableArrayBuffer(final int initialCapacity)
     {
