@@ -119,6 +119,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
     public void setMemory(final int index, final int length, final byte value)
     {
+        ensureCapacity(index, length);
         Arrays.fill(byteArray, index, index + length, value);
     }
 
