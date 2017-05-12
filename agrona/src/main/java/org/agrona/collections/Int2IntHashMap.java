@@ -377,13 +377,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public Integer remove(final Object key)
     {
-        final int intKey = (int)key;
-        if (intKey == missingValue)
-        {
-            throw new IllegalArgumentException("missing value not allowed: " + missingValue);
-        }
-
-        return remove(intKey);
+        final int value = remove((int)key);
+        return value == missingValue ? null : value;
     }
 
     public int remove(final int key)
