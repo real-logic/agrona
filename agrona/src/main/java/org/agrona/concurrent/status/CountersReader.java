@@ -21,6 +21,9 @@ import org.agrona.collections.IntObjConsumer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
 import static org.agrona.BitUtil.SIZE_OF_INT;
 
@@ -60,7 +63,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
  *  +-+-------------------------------------------------------------+
- *  |                  380 bytes of Label in UTF-8                 ...
+ *  |                     380 bytes of Label                       ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -71,6 +74,23 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  */
 public class CountersReader
 {
+    /**
+     * Callback function for consuming metadata records of counters.
+     */
+    @FunctionalInterface
+    public interface MetaData
+    {
+        /**
+         * Accept a metadata record.
+         *
+         * @param counterId of the counter.
+         * @param typeId    of the counter.
+         * @param keyBuffer for the counter.
+         * @param label     for the counter.
+         */
+        void accept(int counterId, int typeId, DirectBuffer keyBuffer, String label);
+    }
+
     /**
      * Record has not been used.
      */
@@ -128,17 +148,34 @@ public class CountersReader
 
     protected final AtomicBuffer metaDataBuffer;
     protected final AtomicBuffer valuesBuffer;
+    protected final Charset labelCharset;
 
     /**
      * Construct a reader over buffers containing the values and associated metadata.
+     *
+     * Counter labels default to {@link StandardCharsets#UTF_8}.
      *
      * @param metaDataBuffer containing the counter metadata.
      * @param valuesBuffer   containing the counter values.
      */
     public CountersReader(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
     {
+        this(metaDataBuffer, valuesBuffer, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Construct a reader over buffers containing the values and associated metadata.
+     *
+     * @param metaDataBuffer containing the counter metadata.
+     * @param valuesBuffer   containing the counter values.
+     * @param labelCharset   for the label encoding.
+     */
+    public CountersReader(
+        final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
+    {
         this.valuesBuffer = valuesBuffer;
         this.metaDataBuffer = metaDataBuffer;
+        this.labelCharset = labelCharset;
     }
 
     /**
@@ -159,6 +196,16 @@ public class CountersReader
     public AtomicBuffer valuesBuffer()
     {
         return valuesBuffer;
+    }
+
+    /**
+     * The {@link Charset} used for the encoded label.
+     *
+     * @return the {@link Charset} used for the encoded label.
+     */
+    public Charset labelCharset()
+    {
+        return labelCharset;
     }
 
     /**
@@ -195,14 +242,15 @@ public class CountersReader
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
-            if (RECORD_UNUSED == recordStatus)
+
+            if (RECORD_ALLOCATED == recordStatus)
+            {
+                final String label = labelValue(i);
+                consumer.accept(counterId, label);
+            }
+            else if (RECORD_UNUSED == recordStatus)
             {
                 break;
-            }
-            else if (RECORD_ALLOCATED == recordStatus)
-            {
-                final String label = metaDataBuffer.getStringUtf8(i + LABEL_OFFSET);
-                consumer.accept(counterId, label);
             }
 
             counterId++;
@@ -221,17 +269,17 @@ public class CountersReader
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
-            if (RECORD_UNUSED == recordStatus)
-            {
-                break;
-            }
-            else if (RECORD_ALLOCATED == recordStatus)
+            if (RECORD_ALLOCATED == recordStatus)
             {
                 final int typeId = metaDataBuffer.getInt(i + TYPE_ID_OFFSET);
-                final String label = metaDataBuffer.getStringUtf8(i + LABEL_OFFSET);
+                final String label = labelValue(i);
                 final DirectBuffer keyBuffer = new UnsafeBuffer(metaDataBuffer, i + KEY_OFFSET, MAX_KEY_LENGTH);
 
                 metaData.accept(counterId, typeId, keyBuffer, label);
+            }
+            else if (RECORD_UNUSED == recordStatus)
+            {
+                break;
             }
 
             counterId++;
@@ -249,20 +297,12 @@ public class CountersReader
         return valuesBuffer.getLongVolatile(counterOffset(counterId));
     }
 
-    /**
-     * Callback function for consuming metadata records of counters.
-     */
-    @FunctionalInterface
-    public interface MetaData
+    private String labelValue(final int recordOffset)
     {
-        /**
-         * Accept a metadata record.
-         *
-         * @param counterId of the counter.
-         * @param typeId    of the counter.
-         * @param keyBuffer for the counter.
-         * @param label     for the counter.
-         */
-        void accept(int counterId, int typeId, DirectBuffer keyBuffer, String label);
+        final int labelLength = metaDataBuffer.getInt(recordOffset + LABEL_OFFSET);
+        final byte[] stringInBytes = new byte[labelLength];
+        metaDataBuffer.getBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, stringInBytes);
+
+        return new String(stringInBytes, labelCharset);
     }
 }

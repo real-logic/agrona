@@ -20,7 +20,11 @@ import org.agrona.collections.IntArrayList;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+
+import static org.agrona.BitUtil.SIZE_OF_INT;
 
 /**
  * Manages the allocation and freeing of counters that are normally stored in a memory-mapped file.
@@ -58,7 +62,7 @@ import java.util.function.Consumer;
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
  *  +-+-------------------------------------------------------------+
- *  |                  380 bytes of Label in UTF-8                 ...
+ *  |                     380 bytes of Label                       ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -96,6 +100,26 @@ public class CountersManager extends CountersReader
     }
 
     /**
+     * Create a new counter buffer manager over two buffers.
+     *
+     * @param metaDataBuffer containing the types, keys, and labels for the counters.
+     * @param valuesBuffer   containing the values of the counters themselves.
+     * @param labelCharset   for the label encoding.
+     */
+    public CountersManager(
+        final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
+    {
+        super(metaDataBuffer, valuesBuffer, labelCharset);
+
+        valuesBuffer.verifyAlignment();
+
+        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
+        {
+            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
+        }
+    }
+
+    /**
      * Allocate a new counter with a given label.
      *
      * @param label to describe the counter.
@@ -106,17 +130,17 @@ public class CountersManager extends CountersReader
         final int counterId = nextCounterId();
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
+            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
         }
 
         final int recordOffset = metaDataOffset(counterId);
         if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
         {
-            throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
+            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
         }
 
         metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
-        metaDataBuffer.putStringUtf8(recordOffset + LABEL_OFFSET, label, MAX_LABEL_LENGTH);
+        labelValue(recordOffset, label);
 
         metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
 
@@ -139,18 +163,18 @@ public class CountersManager extends CountersReader
         final int counterId = nextCounterId();
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalArgumentException("Unable to allocated counter, values buffer is full");
+            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
         }
 
         final int recordOffset = metaDataOffset(counterId);
         if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
         {
-            throw new IllegalArgumentException("Unable to allocate counter, labels buffer is full");
+            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
         }
 
         metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
         keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
-        metaDataBuffer.putStringUtf8(recordOffset + LABEL_OFFSET, label, MAX_LABEL_LENGTH);
+        labelValue(recordOffset, label);
 
         metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
 
@@ -215,5 +239,30 @@ public class CountersManager extends CountersReader
         valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
 
         return counterId;
+    }
+
+    private void labelValue(final int recordOffset, final String label)
+    {
+        if (StandardCharsets.US_ASCII == labelCharset)
+        {
+            metaDataBuffer.putStringAscii(
+                recordOffset + LABEL_OFFSET,
+                label.length() > MAX_LABEL_LENGTH ? label.substring(0, MAX_LABEL_LENGTH) : label);
+        }
+        else
+        {
+            final byte[] bytes = label.getBytes(labelCharset);
+
+            if (bytes.length > MAX_LABEL_LENGTH)
+            {
+                metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, MAX_LABEL_LENGTH);
+                metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes, 0, MAX_LABEL_LENGTH);
+            }
+            else
+            {
+                metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, bytes.length);
+                metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes);
+            }
+        }
     }
 }

@@ -23,7 +23,10 @@ import org.mockito.Mockito;
 import org.agrona.DirectBuffer;
 import org.agrona.collections.IntObjConsumer;
 
+import java.nio.charset.StandardCharsets;
+
 import static java.nio.ByteBuffer.allocateDirect;
+import static org.agrona.concurrent.status.CountersReader.MAX_LABEL_LENGTH;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,15 +41,33 @@ public class CountersManagerTest
 
     private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
     private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
-    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer);
-    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer);
+    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.UTF_8);
+    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.UTF_8);
 
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
     private final CountersReader.MetaData metaData = mock(CountersReader.MetaData.class);
 
     @Test
-    public void managerShouldStoreLabels()
+    public void shouldTruncateLongLabel()
+    {
+        final int labelLength = MAX_LABEL_LENGTH + 10;
+        final StringBuilder sb = new StringBuilder(labelLength);
+
+        for (int i = 0; i < labelLength; i++)
+        {
+            sb.append('x');
+        }
+
+        final String label = sb.toString();
+        final int counterId = manager.allocate(label);
+
+        otherManager.forEach(consumer);
+        verify(consumer).accept(counterId, label.substring(0, MAX_LABEL_LENGTH));
+    }
+
+    @Test
+    public void shouldStoreLabels()
     {
         final int counterId = manager.allocate("abc");
         otherManager.forEach(consumer);
@@ -54,7 +75,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void managerShouldStoreMultipleLabels()
+    public void shouldStoreMultipleLabels()
     {
         final int abc = manager.allocate("abc");
         final int def = manager.allocate("def");
@@ -88,8 +109,8 @@ public class CountersManagerTest
         assertThat(manager.allocate("the next label"), is(def));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void managerShouldNotOverAllocateCounters()
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotOverAllocateCounters()
     {
         manager.allocate("abc");
         manager.allocate("def");
@@ -99,7 +120,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void allocatedCountersCanBeMapped()
+    public void shouldMapAllocatedCounters()
     {
         manager.allocate("def");
 
