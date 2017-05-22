@@ -813,7 +813,12 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void getBytes(final int index, final byte[] dst)
     {
-        getBytes(index, dst, 0, dst.length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, dst.length);
+        }
+
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
     }
 
     public void getBytes(final int index, final byte[] dst, final int offset, final int length)
@@ -867,7 +872,12 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public void putBytes(final int index, final byte[] src)
     {
-        putBytes(index, src, 0, src.length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, src.length);
+        }
+
+        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
     }
 
     public void putBytes(final int index, final byte[] src, final int offset, final int length)
