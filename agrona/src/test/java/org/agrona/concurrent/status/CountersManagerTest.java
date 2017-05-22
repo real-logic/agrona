@@ -29,6 +29,7 @@ import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.concurrent.status.CountersReader.MAX_LABEL_LENGTH;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,8 +42,8 @@ public class CountersManagerTest
 
     private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
     private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
-    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.UTF_8);
-    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.UTF_8);
+    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.US_ASCII);
+    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.US_ASCII);
 
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
@@ -64,6 +65,52 @@ public class CountersManagerTest
 
         otherManager.forEach(consumer);
         verify(consumer).accept(counterId, label.substring(0, MAX_LABEL_LENGTH));
+    }
+
+    @Test
+    public void shouldCopeWithExceptionKeyFunc()
+    {
+        final RuntimeException ex = new RuntimeException();
+
+        try
+        {
+            manager.allocate(
+                "label",
+                CountersManager.DEFAULT_TYPE_ID,
+                (buffer) ->
+                {
+                    throw ex;
+                });
+        }
+        catch (final RuntimeException caught)
+        {
+            assertThat(caught, is(ex));
+
+            final AtomicCounter counter = manager.newCounter("new label");
+            assertThat(counter.id(), is(0));
+
+            return;
+        }
+
+        fail("Should have thrown exception");
+    }
+
+    @Test
+    public void shouldCopeWithExceptionEncodingLabel()
+    {
+        try
+        {
+            manager.allocate("lab£el");
+        }
+        catch (final RuntimeException ignore)
+        {
+            final AtomicCounter counter = manager.newCounter("new label");
+            assertThat(counter.id(), is(0));
+
+            return;
+        }
+
+        fail("Should have thrown exception");
     }
 
     @Test

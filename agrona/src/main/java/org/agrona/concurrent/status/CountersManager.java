@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.collections.IntArrayList;
 import org.agrona.concurrent.AtomicBuffer;
@@ -139,10 +140,18 @@ public class CountersManager extends CountersReader
             throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
         }
 
-        metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
-        labelValue(recordOffset, label);
+        try
+        {
+            metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
+            labelValue(recordOffset, label);
 
-        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+        }
+        catch (final Exception ex)
+        {
+            freeList.pushInt(counterId);
+            LangUtil.rethrowUnchecked(ex);
+        }
 
         return counterId;
     }
@@ -172,11 +181,19 @@ public class CountersManager extends CountersReader
             throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
         }
 
-        metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
-        keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
-        labelValue(recordOffset, label);
+        try
+        {
+            metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
+            keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
+            labelValue(recordOffset, label);
 
-        metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+        }
+        catch (final Exception ex)
+        {
+            freeList.pushInt(counterId);
+            LangUtil.rethrowUnchecked(ex);
+        }
 
         return counterId;
     }

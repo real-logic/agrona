@@ -26,20 +26,30 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 public class AtomicCounter implements AutoCloseable
 {
     private boolean isClosed = false;
-    private final int counterId;
+    private final int id;
     private final long addressOffset;
     private final byte[] buffer;
     private final CountersManager countersManager;
 
     AtomicCounter(final AtomicBuffer buffer, final int counterId, final CountersManager countersManager)
     {
-        this.counterId = counterId;
+        this.id = counterId;
         this.countersManager = countersManager;
         this.buffer = buffer.byteArray();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
         buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
         this.addressOffset = buffer.addressOffset() + counterOffset;
+    }
+
+    /**
+     * Identity for the counter within the {@link CountersManager}.
+     *
+     * @return identity for the counter within the {@link CountersManager}.
+     */
+    public int id()
+    {
+        return id;
     }
 
     /**
@@ -158,7 +168,7 @@ public class AtomicCounter implements AutoCloseable
         if (!isClosed)
         {
             isClosed = true;
-            countersManager.free(counterId);
+            countersManager.free(id);
         }
     }
 }
