@@ -1073,10 +1073,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
@@ -1104,10 +1104,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
@@ -1140,10 +1140,10 @@ public class UnsafeBuffer implements AtomicBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(byteArray, addressOffset + index + i, (byte)c);

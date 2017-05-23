@@ -584,10 +584,10 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(null, address + SIZE_OF_INT + index + i, (byte)c);
@@ -612,10 +612,10 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(null, address + SIZE_OF_INT + index + i, (byte)c);
@@ -642,10 +642,10 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         for (int i = 0; i < length; i++)
         {
-            final char c = value.charAt(i);
+            char c = value.charAt(i);
             if (c > 127)
             {
-                throw new IllegalArgumentException("String not ASCII: " + value);
+                c = '?';
             }
 
             UNSAFE.putByte(null, address + index + i, (byte)c);

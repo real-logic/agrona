@@ -16,7 +16,6 @@
 package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -46,12 +45,12 @@ public class BufferStringOperationsTest
         new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
 
     @Theory
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailToInsertNonAscii(final MutableDirectBuffer buffer)
+    public void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World £";
 
         buffer.putStringAscii(INDEX, value);
+        assertThat(buffer.getStringAscii(INDEX), is("Hello World ?"));
     }
 
     @Theory

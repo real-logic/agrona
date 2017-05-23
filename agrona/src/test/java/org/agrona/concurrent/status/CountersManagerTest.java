@@ -96,24 +96,6 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldCopeWithExceptionEncodingLabel()
-    {
-        try
-        {
-            manager.allocate("lab£el");
-        }
-        catch (final RuntimeException ignore)
-        {
-            final AtomicCounter counter = manager.newCounter("new label");
-            assertThat(counter.id(), is(0));
-
-            return;
-        }
-
-        fail("Should have thrown exception");
-    }
-
-    @Test
     public void shouldStoreLabels()
     {
         final int counterId = manager.allocate("abc");
