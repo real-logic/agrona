@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Group several {@link Agent}s into one composite so it can be scheduled as a unit.
+ * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
  */
 public class CompositeAgent implements Agent
 {
@@ -47,6 +47,7 @@ public class CompositeAgent implements Agent
         {
             throw new NullPointerException("Expecting at least one Agent");
         }
+
         if (agents.length == 0)
         {
             throw new IllegalArgumentException("Expecting at least one Agent");
@@ -73,13 +74,14 @@ public class CompositeAgent implements Agent
 
     public int doWork() throws Exception
     {
-        int sum = 0;
+        int workCount = 0;
+
         for (final Agent agent : agents)
         {
-            sum += agent.doWork();
+            workCount += agent.doWork();
         }
 
-        return sum;
+        return workCount;
     }
 
     public void onClose()
