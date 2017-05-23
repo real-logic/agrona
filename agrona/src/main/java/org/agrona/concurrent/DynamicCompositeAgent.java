@@ -66,7 +66,6 @@ public class DynamicCompositeAgent implements Agent
             if (null == agent)
             {
                 throw new NullPointerException("Nulls are not supported");
-
             }
         }
 
