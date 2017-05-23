@@ -130,6 +130,14 @@ public class BufferAlignmentAgent
             final boolean loaded)
         {
         }
+
+        public void onDiscovery(
+            final String typeName,
+            final ClassLoader classLoader,
+            final JavaModule module,
+            final boolean loaded)
+        {
+        }
     };
 
     public static synchronized void removeTransformer()
