@@ -94,6 +94,14 @@ public class BufferAlignmentAgent
 
     private static final AgentBuilder.Listener LISTENER = new AgentBuilder.Listener()
     {
+        public void onDiscovery(
+            final String typeName,
+            final ClassLoader classLoader,
+            final JavaModule module,
+            final boolean loaded)
+        {
+        }
+
         public void onTransformation(
             final TypeDescription typeDescription,
             final ClassLoader classLoader,
@@ -124,14 +132,6 @@ public class BufferAlignmentAgent
         }
 
         public void onComplete(
-            final String typeName,
-            final ClassLoader classLoader,
-            final JavaModule module,
-            final boolean loaded)
-        {
-        }
-
-        public void onDiscovery(
             final String typeName,
             final ClassLoader classLoader,
             final JavaModule module,
