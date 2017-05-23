@@ -109,7 +109,7 @@ public class BufferAlignmentAgent
             final boolean loaded,
             final DynamicType dynamicType)
         {
-            System.out.format("TRANSFORM %s%n", typeDescription.getName());
+            System.out.println("TRANSFORM " + typeDescription.getName());
         }
 
         public void onIgnored(
@@ -127,7 +127,7 @@ public class BufferAlignmentAgent
             final boolean loaded,
             final Throwable throwable)
         {
-            System.out.format("ERROR %s%n", typeName);
+            System.out.println("ERROR " + typeName);
             throwable.printStackTrace(System.out);
         }
 
