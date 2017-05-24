@@ -53,7 +53,7 @@ public class DynamicCompositeAgent implements Agent
 
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
-     * @throws NullPointerException     if the array or any element is null
+     * @throws NullPointerException if the array or any element is null
      */
     public DynamicCompositeAgent(final Agent... agents)
     {
