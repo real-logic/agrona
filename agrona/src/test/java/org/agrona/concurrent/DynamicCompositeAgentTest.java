@@ -67,5 +67,6 @@ public class DynamicCompositeAgentTest
         compositeAgent.doWork();
         verify(mockAgentOne, times(2)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
+        verify(mockAgentTwo, times(1)).onClose();
     }
 }

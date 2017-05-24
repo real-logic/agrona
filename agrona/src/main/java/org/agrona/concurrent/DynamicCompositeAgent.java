@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  */
 public class DynamicCompositeAgent implements Agent
 {
+    private static final Agent[] EMPTY_AGENTS = new Agent[0];
     private static final AtomicReferenceFieldUpdater<DynamicCompositeAgent, Agent[]> AGENTS_UPDATER =
         AtomicReferenceFieldUpdater.newUpdater(DynamicCompositeAgent.class, Agent[].class, "agents");
 
@@ -38,7 +39,7 @@ public class DynamicCompositeAgent implements Agent
      */
     public DynamicCompositeAgent()
     {
-        agents = new Agent[0];
+        agents = EMPTY_AGENTS;
     }
 
     /**
@@ -86,7 +87,7 @@ public class DynamicCompositeAgent implements Agent
 
     public void onClose()
     {
-        for (final Agent agent : agents)
+        for (final Agent agent : AGENTS_UPDATER.getAndSet(this, EMPTY_AGENTS))
         {
             agent.onClose();
         }
@@ -168,6 +169,8 @@ public class DynamicCompositeAgent implements Agent
             System.arraycopy(oldAgents, index + 1, newAgents, index, newLength - index);
         }
         while (!AGENTS_UPDATER.compareAndSet(this, oldAgents, newAgents));
+
+        agent.onClose();
 
         return true;
     }
