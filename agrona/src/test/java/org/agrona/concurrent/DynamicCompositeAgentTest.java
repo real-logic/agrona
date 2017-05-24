@@ -24,22 +24,21 @@ import static org.mockito.Mockito.*;
 
 public class DynamicCompositeAgentTest
 {
+    private static final String ROLE_NAME = "roleName";
+
     @Test
     public void shouldAddAgent() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
-        when(mockAgentOne.roleName()).thenReturn("AgentOne");
 
-        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(mockAgentOne);
-        assertThat(compositeAgent.roleName(), is("[AgentOne]"));
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne);
+        assertThat(compositeAgent.roleName(), is(ROLE_NAME));
 
         compositeAgent.doWork();
         verify(mockAgentOne, times(1)).doWork();
 
         final Agent mockAgentTwo = mock(Agent.class);
-        when(mockAgentTwo.roleName()).thenReturn("AgentTwo");
         compositeAgent.add(mockAgentTwo);
-        assertThat(compositeAgent.roleName(), is("[AgentOne,AgentTwo]"));
 
         compositeAgent.doWork();
         verify(mockAgentOne, times(2)).doWork();
@@ -50,23 +49,32 @@ public class DynamicCompositeAgentTest
     public void shouldRemoveAgent() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
-        when(mockAgentOne.roleName()).thenReturn("AgentOne");
         final Agent mockAgentTwo = mock(Agent.class);
-        when(mockAgentTwo.roleName()).thenReturn("AgentTwo");
 
-        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(mockAgentOne, mockAgentTwo);
-        assertThat(compositeAgent.roleName(), is("[AgentOne,AgentTwo]"));
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
 
         compositeAgent.doWork();
         verify(mockAgentOne, times(1)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
 
         assertTrue(compositeAgent.remove(mockAgentTwo));
-        assertThat(compositeAgent.roleName(), is("[AgentOne]"));
 
         compositeAgent.doWork();
         verify(mockAgentOne, times(2)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
+        verify(mockAgentTwo, times(1)).onClose();
+    }
+
+    @Test
+    public void shouldCloseAgents()
+    {
+        final Agent mockAgentOne = mock(Agent.class);
+        final Agent mockAgentTwo = mock(Agent.class);
+
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
+
+        compositeAgent.onClose();
+        verify(mockAgentOne, times(1)).onClose();
         verify(mockAgentTwo, times(1)).onClose();
     }
 }

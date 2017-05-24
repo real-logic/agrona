@@ -32,31 +32,39 @@ public class DynamicCompositeAgent implements Agent
     private static final AtomicReferenceFieldUpdater<DynamicCompositeAgent, Agent[]> AGENTS_UPDATER =
         AtomicReferenceFieldUpdater.newUpdater(DynamicCompositeAgent.class, Agent[].class, "agents");
 
+    private final String roleName;
     private volatile Agent[] agents;
 
     /**
      * Construct a new composite that has no {@link Agent}s to begin with.
+     *
+     * @param roleName to be given for {@link Agent#roleName()}.
      */
-    public DynamicCompositeAgent()
+    public DynamicCompositeAgent(final String roleName)
     {
+        this.roleName = roleName;
         agents = EMPTY_AGENTS;
     }
 
     /**
-     * @param agents the parts of this composite, at least one agent and no null agents allowed
+     * @param roleName to be given for {@link Agent#roleName()}.
+     * @param agents   the parts of this composite, at least one agent and no null agents allowed
      * @throws NullPointerException if the array or any element is null
      */
-    public DynamicCompositeAgent(final List<? extends Agent> agents)
+    public DynamicCompositeAgent(final String roleName, final List<? extends Agent> agents)
     {
-        this(agents.toArray(new Agent[agents.size()]));
+        this(roleName, agents.toArray(new Agent[agents.size()]));
     }
 
     /**
-     * @param agents the parts of this composite, at least one agent and no null agents allowed
+     * @param roleName to be given for {@link Agent#roleName()}.
+     * @param agents   the parts of this composite, at least one agent and no null agents allowed
      * @throws NullPointerException if the array or any element is null
      */
-    public DynamicCompositeAgent(final Agent... agents)
+    public DynamicCompositeAgent(final String roleName, final Agent... agents)
     {
+        this.roleName = roleName;
+
         if (agents == null)
         {
             throw new NullPointerException("Agents cannot be null");
@@ -95,17 +103,7 @@ public class DynamicCompositeAgent implements Agent
 
     public String roleName()
     {
-        final StringBuilder sb = new StringBuilder(agents.length * 16);
-        sb.append('[');
-        for (final Agent agent : agents)
-        {
-            sb.append(agent.roleName());
-            sb.append(',');
-        }
-
-        sb.setCharAt(sb.length() - 1, ']');
-
-        return sb.toString();
+        return roleName;
     }
 
     /**
