@@ -153,7 +153,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
-                    " is not divisible by " + ALIGNMENT);
+                " is not divisible by " + ALIGNMENT);
         }
     }
 
