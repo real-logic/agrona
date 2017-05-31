@@ -53,7 +53,7 @@ public interface Pipe<E>
 
     /**
      * Drain the number of elements present in a collection at the time the operation starts.
-     *
+     * <p>
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
      * @param elementHandler {@link Consumer} for processing elements
@@ -63,7 +63,7 @@ public interface Pipe<E>
 
     /**
      * Drain the minimum of a limit and the number of elements present in a collection at the time the operation starts.
-     *
+     * <p>
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
      * @param elementHandler {@link Consumer} for processing elements
@@ -74,7 +74,7 @@ public interface Pipe<E>
 
     /**
      * Drain available elements into the provided {@link java.util.Collection} up to a provided maximum limit of elements.
-     *
+     * <p>
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
      * @param target in to which elements are drained.

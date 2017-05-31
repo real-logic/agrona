@@ -22,7 +22,7 @@ import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
 /**
  * Reader for the log created by a {@link DistinctErrorLog}.
- *
+ * <p>
  * The read methods are thread safe.
  */
 public class ErrorLogReader

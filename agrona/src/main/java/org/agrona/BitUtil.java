@@ -78,6 +78,7 @@ public class BitUtil
     static
     {
         FROM_HEX_DIGIT_TABLE = new byte[128];
+
         FROM_HEX_DIGIT_TABLE['0'] = 0x00;
         FROM_HEX_DIGIT_TABLE['1'] = 0x01;
         FROM_HEX_DIGIT_TABLE['2'] = 0x02;
@@ -108,9 +109,9 @@ public class BitUtil
 
     /**
      * Fast method of finding the next power of 2 greater than or equal to the supplied value.
-     *
+     * <p>
      * If the value is &lt;= 0 then 1 will be returned.
-     *
+     * <p>
      * This method is not suitable for {@link Integer#MIN_VALUE} or numbers greater than 2^30.
      *
      * @param value from which to search for next power of 2
@@ -124,7 +125,7 @@ public class BitUtil
     /**
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
-     *
+     * <p>
      * This method executes without branching. This code is designed to be use in the fast path and should not
      * be used with negative numbers. Negative numbers will result in undefined behaviour.
      *

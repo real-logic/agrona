@@ -339,7 +339,7 @@ public class Int2ObjectHashMapTest
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
         for (final int testEntry : testEntries)
         {
@@ -353,7 +353,7 @@ public class Int2ObjectHashMapTest
     @Test
     public void shouldCopyConstructAndBeEqual()
     {
-        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
         for (final int testEntry : testEntries)
         {

@@ -43,7 +43,7 @@ public class ContinueBarrier
     public boolean await()
     {
         System.out.format("%n%s (y/n): ", label).flush();
-        final Scanner in  = new Scanner(System.in);
+        final Scanner in = new Scanner(System.in);
         final String line = in.nextLine();
 
         return "y".equalsIgnoreCase(line);

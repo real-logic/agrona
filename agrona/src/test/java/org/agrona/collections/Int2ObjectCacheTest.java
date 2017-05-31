@@ -32,7 +32,8 @@ public class Int2ObjectCacheTest
     public static final int NUM_SETS = 16;
     public static final int SET_SIZE = 4;
     public static final int CAPACITY = NUM_SETS * SET_SIZE;
-    public static final Consumer<String> EVICTION_CONSUMER = (s) -> {};
+    public static final Consumer<String> EVICTION_CONSUMER = (s) ->
+    {};
 
     private final Int2ObjectCache<String> cache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 
@@ -216,7 +217,7 @@ public class Int2ObjectCacheTest
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        final int[] testEntries = {3, 1, 19, 7, 11, 12, 7};
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
         for (final int testEntry : testEntries)
         {

@@ -315,7 +315,7 @@ public class Int2IntCounterMap
 
     /**
      * Iterate over the values to see if any match the provided value.
-     *
+     * <p>
      * If value provided is {@link #initialValue()} then it will always return false.
      *
      * @param value the key to check.

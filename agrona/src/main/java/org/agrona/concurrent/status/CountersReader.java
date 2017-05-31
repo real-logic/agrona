@@ -29,9 +29,9 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 
 /**
  * Reads the counters metadata and values buffers.
- *
+ * <p>
  * This class is threadsafe and can be used across threads.
- *
+ * <p>
  * <b>Values Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -48,7 +48,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  * ...                                                              |
  *  +---------------------------------------------------------------+
  * </pre>
- *
+ * <p>
  * <b>Meta Data Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -152,7 +152,7 @@ public class CountersReader
 
     /**
      * Construct a reader over buffers containing the values and associated metadata.
-     *
+     * <p>
      * Counter labels default to {@link StandardCharsets#UTF_8}.
      *
      * @param metaDataBuffer containing the counter metadata.

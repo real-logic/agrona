@@ -21,7 +21,7 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * A {@link Lock} implementation that is a no operation, i.e. it effectively does nothing.
- *
+ * <p>
  * Useful for effectively eliding a lock in a single threaded environment.
  */
 public final class NoOpLock implements Lock

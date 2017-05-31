@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * A {@link NanoClock} that caches a timestamp which can be updated with {@link #update(long)}.
- *
+ * <p>
  * Instances are threadsafe with the read being volatile.
  */
 public class CachedNanoClock implements NanoClock

@@ -659,7 +659,7 @@ public class AtomicBufferTest
     @Theory
     public void shouldGetByteArrayFromBuffer(final AtomicBuffer buffer)
     {
-        final byte[] testArray = {'H', 'e', 'l', 'l', 'o'};
+        final byte[] testArray = { 'H', 'e', 'l', 'l', 'o' };
 
         int i = INDEX;
         for (final byte v : testArray)

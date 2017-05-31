@@ -82,7 +82,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
     /**
      * Wrap an existing array without copying it.
-     *
+     * <p>
      * The array length must be greater than or equal to {@link #INITIAL_CAPACITY}.
      *
      * @param initialElements to be wrapped.

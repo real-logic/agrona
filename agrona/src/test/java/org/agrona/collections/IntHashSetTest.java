@@ -377,7 +377,7 @@ public class IntHashSetTest
         final IntHashSet other = new IntHashSet(100);
 
         assertTrue(testSet.containsAll(other));
-        assertTrue(testSet.containsAll((Collection<?>) other));
+        assertTrue(testSet.containsAll((Collection<?>)other));
     }
 
     @Test
@@ -390,7 +390,7 @@ public class IntHashSetTest
         subset.add(1);
 
         assertTrue(testSet.containsAll(subset));
-        assertTrue(testSet.containsAll((Collection<?>) subset));
+        assertTrue(testSet.containsAll((Collection<?>)subset));
     }
 
     @Test
@@ -404,7 +404,7 @@ public class IntHashSetTest
         other.add(1002);
 
         assertFalse(testSet.containsAll(other));
-        assertFalse(testSet.containsAll((Collection<?>) other));
+        assertFalse(testSet.containsAll((Collection<?>)other));
     }
 
     @Test
@@ -418,7 +418,7 @@ public class IntHashSetTest
         superset.add(15);
 
         assertFalse(testSet.containsAll(superset));
-        assertFalse(testSet.containsAll((Collection<?>) superset));
+        assertFalse(testSet.containsAll((Collection<?>)superset));
     }
 
     @Test
@@ -841,7 +841,7 @@ public class IntHashSetTest
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+        final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
 
         for (final int testEntry : testEntries)
         {

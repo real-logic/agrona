@@ -27,14 +27,14 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * Open-addressing with linear-probing expandable hash set. Allocation free in steady state use when expanded.
  * Ability to be notified when resizing occurs so that appropriate sizing can be implemented.
- *
+ * <p>
  * Not Threadsafe.
- *
+ * <p>
  * This HashSet caches its iterator object, so nested iteration is not supported.
  *
+ * @param <T> type of values stored in the {@link java.util.Set}
  * @see ObjectIterator
  * @see Set
- * @param <T> type of values stored in the {@link java.util.Set}
  */
 public final class ObjectHashSet<T> extends AbstractSet<T>
 {
@@ -348,7 +348,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T>
 
     /**
      * Fast Path set difference for comparison with another ObjectHashSet.
-     *
+     * <p>
      * NB: garbage free in the identical case, allocates otherwise.
      *
      * @param other the other set to subtract

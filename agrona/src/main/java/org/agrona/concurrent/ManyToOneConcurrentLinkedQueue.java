@@ -92,11 +92,11 @@ class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQue
 
 /**
  * Concurrent linked {@link Queue} that can be used from many producers and a single consumer.
- *
+ * <p>
  * This is a Java port of Dmitry Vyukov's
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">
- *     MPSC linked queue</a>.
- *
+ * MPSC linked queue</a>.
+ * <p>
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node
  * available but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for
  * empty then call {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
@@ -194,7 +194,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
      * Size can be considered an approximation on a moving list.
      * It is only really stable when the consumer is inactive.
      * If you want to check for size() == 0 then {@link #isEmpty()} is a better alternative.
-     *
+     * <p>
      * This operation is O(n) on the length of the linked chain.
      *
      * @return an approximation for the size of the list.

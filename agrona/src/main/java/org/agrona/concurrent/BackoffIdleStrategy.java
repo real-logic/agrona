@@ -22,7 +22,7 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * Idling strategy for threads when they have no work to do.
- *
+ * <p>
  * Spin for maxSpins, then
  * {@link Thread#yield()} for maxYields, then
  * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs

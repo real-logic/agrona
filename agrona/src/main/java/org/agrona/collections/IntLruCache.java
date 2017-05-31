@@ -22,9 +22,9 @@ import java.util.function.IntFunction;
 
 /**
  * A fixed capacity cache of int keyed values that evicts the least-recently-used element when it runs out of space.
- *
+ * <p>
  * When an element is evicted it is closed by calling the closer function with the element as an argument.
- *
+ * <p>
  * When a new key arrives the factory function is called in order to create the new element associated with that key.
  *
  * @param <E> the type of element that this cache holds.

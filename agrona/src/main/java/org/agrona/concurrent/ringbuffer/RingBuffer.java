@@ -46,7 +46,7 @@ public interface RingBuffer
 
     /**
      * Read as many messages as are available to the end of the ring buffer.
-     *
+     * <p>
      * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
@@ -58,7 +58,7 @@ public interface RingBuffer
 
     /**
      * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
-     *
+     * <p>
      * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
@@ -78,7 +78,7 @@ public interface RingBuffer
 
     /**
      * Get the next value that can be used for a correlation id on an message when a response needs to be correlated.
-     *
+     * <p>
      * This method should be thread safe.
      *
      * @return the next value in the correlation sequence.
@@ -94,7 +94,7 @@ public interface RingBuffer
 
     /**
      * Set the time of the last consumer heartbeat.
-     *
+     * <p>
      * <b>Note:</b> The value for time must be valid across processes which means {@link System#nanoTime()}
      * is not a valid option.
      *
@@ -126,7 +126,7 @@ public interface RingBuffer
 
     /**
      * Size of the buffer backlog in bytes between producers and consumers. The value includes the size of headers.
-     *
+     * <p>
      * This method gives a concurrent snapshot of the buffer whereby a concurrent read or write may be
      * partially complete and thus the value should be taken as an indication.
      *
@@ -137,7 +137,7 @@ public interface RingBuffer
     /**
      * Unblock a multi-producer ring buffer when a producer has died during the act of offering. The operation will
      * scan from the consumer position up to the producer position.
-     *
+     * <p>
      * If no action is required at the position then none will be taken.
      *
      * @return true of an unblocking action was taken otherwise false.

@@ -17,7 +17,7 @@ package org.agrona.concurrent;
 
 /**
  * When idle this strategy is to sleep for a specified period time in milliseconds.
- *
+ * <p>
  * This class uses {@link Thread#sleep(long)} to idle.
  */
 public final class SleepingMillisIdleStrategy implements IdleStrategy

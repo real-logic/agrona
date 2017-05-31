@@ -24,7 +24,7 @@ public class RecordDescriptor
 {
     /**
      * Header length made up of fields for length, type, and then the encoded message.
-     *
+     * <p>
      * Writing of a positive record length signals the message recording is complete.
      * <pre>
      *   0                   1                   2                   3

@@ -33,10 +33,10 @@ import static org.agrona.concurrent.UnsafeBuffer.*;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer.
- *
+ * <p>
  * This buffer is resizable and based upon an underlying FileChannel.
  * The channel is <b>not</b> closed when the buffer is closed.
- *
+ * <p>
  * Note: The resize method is not threadsafe. Concurrent access should only occur after a successful resize.
  */
 public class MappedResizeableBuffer implements AutoCloseable
@@ -153,7 +153,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
-                " is not divisible by " + ALIGNMENT);
+                    " is not divisible by " + ALIGNMENT);
         }
     }
 

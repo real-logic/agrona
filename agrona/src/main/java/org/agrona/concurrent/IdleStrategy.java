@@ -42,7 +42,7 @@ public interface IdleStrategy
      * <li>'work' returns 0 when no work has been done</li>
      * <li>'work' may return error codes which are less than 0, but which amount to no work has been done</li>
      * </ul>
-     *
+     * <p>
      * Callers are expected to follow this pattern:
      *
      * <pre>
@@ -60,8 +60,8 @@ public interface IdleStrategy
 
     /**
      * Perform current idle action (e.g. nothing/yield/sleep). To be used in conjunction with
-     * {@link IdleStrategy#reset()} to clear internal state when idle period is over (or before it begins). Callers are
-     * expected to follow this pattern:
+     * {@link IdleStrategy#reset()} to clear internal state when idle period is over (or before it begins).
+     * Callers are expected to follow this pattern:
      *
      * <pre>
      * <code>

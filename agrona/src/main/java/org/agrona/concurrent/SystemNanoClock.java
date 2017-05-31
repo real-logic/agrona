@@ -17,7 +17,7 @@ package org.agrona.concurrent;
 
 /**
  * A {@link org.agrona.concurrent.NanoClock} the delegates to {@link System#nanoTime()}.
- *
+ * <p>
  * Instances are threadsafe.
  */
 public class SystemNanoClock implements NanoClock

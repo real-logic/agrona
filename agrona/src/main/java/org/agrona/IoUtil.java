@@ -162,7 +162,7 @@ public class IoUtil
 
     /**
      * Create a directory, removing previous directory if it already exists.
-     *
+     * <p>
      * Call callback if it does exist.
      *
      * @param directory        the directory which definitely exists after this method call.
@@ -250,7 +250,7 @@ public class IoUtil
 
     /**
      * Check that file exists, open file, and return MappedByteBuffer for entire file
-     *
+     * <p>
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location         of the file to map
@@ -277,7 +277,7 @@ public class IoUtil
 
     /**
      * Check that file exists, open file, and return MappedByteBuffer for only region specified
-     *
+     * <p>
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location         of the file to map
@@ -307,7 +307,7 @@ public class IoUtil
 
     /**
      * Create a new file, fill with 0s, and return a {@link java.nio.MappedByteBuffer} for the file.
-     *
+     * <p>
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location of the file to create and map
@@ -321,7 +321,7 @@ public class IoUtil
 
     /**
      * Create a new file, and optionally fill with 0s, and return a {@link java.nio.MappedByteBuffer} for the file.
-     *
+     * <p>
      * The file itself will be closed, but the mapping will persist.
      *
      * @param location      of the file to create and map

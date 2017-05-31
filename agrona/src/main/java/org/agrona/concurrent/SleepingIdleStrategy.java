@@ -19,7 +19,7 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * When idle this strategy is to sleep for a specified period in nanoseconds.
- *
+ * <p>
  * This class uses {@link LockSupport#parkNanos(long)} to idle.
  */
 public final class SleepingIdleStrategy implements IdleStrategy

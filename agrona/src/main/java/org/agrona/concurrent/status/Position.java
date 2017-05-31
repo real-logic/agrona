@@ -17,7 +17,7 @@ package org.agrona.concurrent.status;
 
 /**
  * Reports on how far through a buffer some component has progressed.
- *
+ * <p>
  * Threadsafe to write to from a single writer.
  */
 public abstract class Position extends ReadablePosition

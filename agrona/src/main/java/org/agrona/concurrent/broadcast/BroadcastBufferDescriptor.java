@@ -23,16 +23,24 @@ import org.agrona.BitUtil;
  */
 public class BroadcastBufferDescriptor
 {
-    /** Offset within the trailer for where the tail intended value is stored. */
+    /**
+     * Offset within the trailer for where the tail intended value is stored.
+     */
     public static final int TAIL_INTENT_COUNTER_OFFSET;
 
-    /** Offset within the trailer for where the tail value is stored. */
+    /**
+     * Offset within the trailer for where the tail value is stored.
+     */
     public static final int TAIL_COUNTER_OFFSET;
 
-    /** Offset within the trailer for where the latest sequence value is stored. */
+    /**
+     * Offset within the trailer for where the latest sequence value is stored.
+     */
     public static final int LATEST_COUNTER_OFFSET;
 
-    /** Total size of the trailer */
+    /**
+     * Total size of the trailer
+     */
     public static final int TRAILER_LENGTH;
 
     static

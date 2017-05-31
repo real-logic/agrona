@@ -50,7 +50,7 @@ public class CollectionUtil
 
     /**
      * Garbage free sum function.
-     *
+     * <p>
      * <b>Note:</b> the list must implement {@link java.util.RandomAccess} to be efficient.
      *
      * @param values   the list of input values
@@ -100,7 +100,7 @@ public class CollectionUtil
 
     /**
      * Remove element from a list if it matches a predicate.
-     *
+     * <p>
      * <b>Note:</b> the list must implement {@link java.util.RandomAccess} to be efficient.
      *
      * @param values    to be iterated over.

@@ -29,9 +29,9 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 
 /**
  * Manages the allocation and freeing of counters that are normally stored in a memory-mapped file.
- *
+ * <p>
  * This class in not threadsafe. Counters should be centrally managed.
- *
+ * <p>
  * <b>Values Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -48,7 +48,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  * ...                                                              |
  *  +---------------------------------------------------------------+
  * </pre>
- *
+ * <p>
  * <b>Meta Data Buffer</b>
  * <pre>
  *   0                   1                   2                   3
@@ -158,7 +158,7 @@ public class CountersManager extends CountersReader
 
     /**
      * Allocate a new counter with a given label.
-     *
+     * <p>
      * The key function will be called with a buffer with the exact length of available key space
      * in the record for the user to store what they want for the key. No offset is required.
      *
@@ -215,7 +215,6 @@ public class CountersManager extends CountersReader
      * @param label   to describe the counter.
      * @param typeId  for the type of counter.
      * @param keyFunc for setting the key value for the counter.
-     *
      * @return a newly allocated {@link AtomicCounter}
      */
     public AtomicCounter newCounter(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)

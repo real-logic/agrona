@@ -558,7 +558,7 @@ public class ObjectHashSetIntegerTest
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        final int[] testEntries = {3, 1, -1, 19, 7, 11, 12, 7};
+        final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
 
         for (final int testEntry : testEntries)
         {

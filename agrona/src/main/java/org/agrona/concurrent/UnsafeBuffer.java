@@ -31,14 +31,14 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer. The buffer can be a
  * byte[], one of the various {@link ByteBuffer} implementations, or an off Java heap memory address.
- *
+ * <p>
  * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
  * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
  * with the {@link ByteOrder} overload.
- *
+ * <p>
  * <b>Note:</b> This class has a natural ordering that is inconsistent with equals.
  * Types my be different but equal on buffer contents.
- *
+ * <p>
  * <b>Note:</b> The wrap methods on this class are not thread safe. Concurrent access should only happen after a
  * successful wrap.
  */
@@ -317,7 +317,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
-                " is not divisible by " + ALIGNMENT);
+                    " is not divisible by " + ALIGNMENT);
         }
     }
 

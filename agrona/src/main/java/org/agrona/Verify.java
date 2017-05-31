@@ -25,7 +25,7 @@ public class Verify
     /**
      * Verify that a reference is not null.
      *
-     * @param ref to be verified not null.
+     * @param ref  to be verified not null.
      * @param name of the reference to be verified.
      */
     public static void notNull(final Object ref, final String name)
@@ -39,7 +39,7 @@ public class Verify
     /**
      * Verify that a reference is null.
      *
-     * @param ref to be verified as null.
+     * @param ref  to be verified as null.
      * @param name of the reference to be verified.
      */
     public static void verifyNull(final Object ref, final String name)
@@ -53,10 +53,10 @@ public class Verify
     /**
      * Verify that a map contains an entry for a given key.
      *
-     * @param map to be checked.
-     * @param key to get by.
+     * @param map  to be checked.
+     * @param key  to get by.
      * @param name of entry.
-     * @throws NullPointerException if map or key is null
+     * @throws NullPointerException  if map or key is null
      * @throws IllegalStateException if the entry does not exist.
      */
     public static void present(final Map<?, ?> map, final Object key, final String name)

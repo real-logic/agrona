@@ -166,8 +166,8 @@ public class CompilerUtil
 
                 path = Paths.get(
                     TEMP_DIR_NAME +
-                    File.separatorChar +
-                    fqClassName.substring(0, indexOfLastDot).replace('.', File.separatorChar));
+                        File.separatorChar +
+                        fqClassName.substring(0, indexOfLastDot).replace('.', File.separatorChar));
                 Files.createDirectories(path);
             }
 

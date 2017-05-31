@@ -24,10 +24,10 @@ import java.util.Objects;
 /**
  * {@link Agent} container which does not start a thread. It instead allows the duty cycle {@link Agent#doWork()} to be
  * invoked directly.
- *
+ * <p>
  * Exceptions which occur during the {@link Agent#doWork()} invocation will be caught and passed to the provided
  * {@link ErrorHandler}.
- *
+ * <p>
  * <b>Note:</b> This class is not threadsafe.
  */
 public class AgentInvoker implements AutoCloseable
@@ -70,10 +70,10 @@ public class AgentInvoker implements AutoCloseable
 
     /**
      * Invoke the {@link Agent#doWork()} method and return the work count.
-     *
+     * <p>
      * If an error occurs then the {@link AtomicCounter#increment()} will be called on the errorCounter if not null
      * and the {@link Throwable} will be passed to the {@link ErrorHandler#onError(Throwable)} method.
-     *
+     * <p>
      * Once closed this method will return without invoking the {@link Agent}.
      *
      * @return the work count for the {@link Agent#doWork()} method.
@@ -107,7 +107,7 @@ public class AgentInvoker implements AutoCloseable
 
     /**
      * Mark the invoker as closed and call the {@link Agent#onClose()} logic for clean up.
-     *
+     * <p>
      * The clean up logic will only be performed once.
      */
     public final void close()

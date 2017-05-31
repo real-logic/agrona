@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Agent runner containing an {@link Agent} which is run on a {@link Thread}.
- *
+ * <p>
  * <b>Note:</b> An instance should only be started once and then discarded, it should not be reused.
  */
 public class AgentRunner implements Runnable, AutoCloseable
@@ -107,7 +107,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     /**
      * Get the thread which is running that {@link Agent}.
-     *
+     * <p>
      * If null then the runner has not been started. If {@link #TOMBSTONE} then the runner is being closed.
      *
      * @return the thread running the {@link Agent}.
@@ -119,7 +119,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     /**
      * Run an {@link Agent}.
-     *
+     * <p>
      * This method does not return until the run loop is stopped via {@link #close()}.
      */
     public void run()
@@ -167,7 +167,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Stop the running Agent and cleanup. This will wait for the work loop to exit and the {@link Agent} performing
      * it {@link Agent#onClose()} logic.
-     *
+     * <p>
      * The clean up logic will only be performed once even if close is called from multiple concurrent threads.
      */
     public final void close()

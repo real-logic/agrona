@@ -23,18 +23,18 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 /**
  * A record buffer is an off-heap buffer with a series of records
  * and a header that can be written to or read from multiple threads.
- *
+ * <p>
  * The buffer has a position field at the start, then a variable
  * sized header, then a series of records. Each record has a status
  * tag and a key.
- *
+ * <p>
  * NB: its possible for an element to be overwritten as you're reading
  * Out of the buffer, take care.
  *
  * <pre>
  *  +----------------------------+
  *  |           Header           |
- *  |             ....
+ *  |                           ...
  *  +----------------------------+
  *  |        Position Field      |
  *  +----------------------------+
@@ -43,16 +43,16 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  |         Key Field 0        |
  *  +----------------------------+
  *  |           Record 0         |
- *  |             ....
+ *  |                           ...
  *  +----------------------------+
  *  |        Status Field 1      |
  *  +----------------------------+
  *  |         Key Field 1        |
  *  +----------------------------+
  *  |           Record 1         |
- *  |             ....
+ *  |                           ...
  *  +----------------------------+
- *  |             ....
+ *  |                           ...
  * </pre>
  */
 // TODO: consider optimising this class by indexing on the key, rather than just linear scanning

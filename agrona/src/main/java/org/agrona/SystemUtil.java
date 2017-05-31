@@ -29,7 +29,7 @@ public class SystemUtil
 
     /**
      * Get the name of the operating system as a lower case String.
-     *
+     * <p>
      * This is what is returned from System.getProperty("os.name").toLowerCase().
      *
      * @return the name of the operating system as a lower case String.

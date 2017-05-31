@@ -22,9 +22,9 @@ import java.util.Arrays;
  * Utility class for operating on arrays as if they were collections. This is useful for
  * critical paths where operations like add and remove are seldom used, but iterating
  * is common and checkcast and indirection are comparatively expensive.
- *
+ * <p>
  * In all cases the array being mutated is assumed to be full.
- *
+ * <p>
  * In all cases reference equality is used.
  */
 public final class ArrayUtil
@@ -51,7 +51,7 @@ public final class ArrayUtil
 
     /**
      * Remove an element from an array resulting in a new array if the element was found otherwise the old array.
-     *
+     * <p>
      * Returns its input parameter if the element to remove isn't a member.
      *
      * @param oldElements     to have the element removed from.
@@ -103,7 +103,7 @@ public final class ArrayUtil
      * @param oldElements on which the new array is based.
      * @param length      of the new array.
      * @param <T>         type of the array.
-     * @return            the new array of requested length.
+     * @return the new array of requested length.
      */
     @SuppressWarnings("unchecked")
     public static <T> T[] newArray(final T[] oldElements, final int length)
@@ -117,7 +117,7 @@ public final class ArrayUtil
      * @param oldElements    to ensure that are long enough.
      * @param requiredLength to ensure.
      * @param <T>            type of the array.
-     * @return               an array of the required length.
+     * @return an array of the required length.
      */
     public static <T> T[] ensureCapacity(final T[] oldElements, final int requiredLength)
     {

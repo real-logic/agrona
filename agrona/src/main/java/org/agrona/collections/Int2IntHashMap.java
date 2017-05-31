@@ -122,6 +122,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Put a key value pair into the map.
+     *
      * @param key   lookup key
      * @param value new value, must not be initialValue
      * @return current counter value associated with key, or initialValue if none found
@@ -193,7 +195,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     /**
      * Primitive specialised forEach implementation.
-     *
+     * <p>
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
      * expression, which doesn't interplay well with type inference in lambda expressions.
      *

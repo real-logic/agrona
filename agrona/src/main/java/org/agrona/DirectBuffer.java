@@ -89,7 +89,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get the underlying byte[] if one exists.
-     *
+     * <p>
      * NB: there may not be a one-to-one mapping between indices on this buffer
      * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
      *
@@ -99,7 +99,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get the underlying {@link ByteBuffer} if one exists.
-     *
+     * <p>
      * NB: there may not be a one-to-one mapping between indices on this buffer
      * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
      *
@@ -116,7 +116,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Check that a given limit is not greater than the capacity of a buffer from a given offset.
-     *
+     * <p>
      * Can be overridden in a DirectBuffer subclass to enable an extensible buffer or handle retry after a flush.
      *
      * @param limit up to which access is required.
@@ -255,6 +255,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get bytes from this {@link DirectBuffer} into the provided {@link MutableDirectBuffer} at given indices.
+     *
      * @param index     in this buffer to begin getting the bytes.
      * @param dstBuffer to which the bytes will be copied.
      * @param dstIndex  in the channel buffer to which the byte copy will begin.
@@ -264,7 +265,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get from the underlying buffer into a supplied {@link ByteBuffer} current {@link ByteBuffer#position()}.
-     *
+     * <p>
      * The destination buffer will have its {@link ByteBuffer#position()} advanced as a result.
      *
      * @param index     in the underlying buffer to start from.
@@ -275,7 +276,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get from the underlying buffer into a supplied {@link ByteBuffer} at a offset.
-     *
+     * <p>
      * The destination buffer will not have its {@link ByteBuffer#position()} advanced as a result.
      *
      * @param index     in the underlying buffer to start from.
@@ -288,7 +289,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get a String from bytes encoded in ASCII format that is length prefixed.
      *
-     * @param index    at which the String begins.
+     * @param index at which the String begins.
      * @return the String as represented by the ASCII encoded bytes.
      */
     String getStringAscii(int index);
@@ -296,7 +297,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get a String from bytes encoded in ASCII format that is length prefixed.
      *
-     * @param index    at which the String begins.
+     * @param index     at which the String begins.
      * @param byteOrder for the length at the beginning of the String.
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -305,7 +306,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get part of String from bytes encoded in ASCII format that is length prefixed.
      *
-     * @param index at which the String begins.
+     * @param index  at which the String begins.
      * @param length of the String in bytes to decode.
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -314,7 +315,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get an encoded ASCII String from the buffer that does not have a length prefix.
      *
-     * @param index at which the String begins.
+     * @param index  at which the String begins.
      * @param length of the String in bytes to decode.
      * @return the String as represented by the Ascii encoded bytes.
      */
@@ -323,7 +324,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
      *
-     * @param index    at which the String begins.
+     * @param index at which the String begins.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
     String getStringUtf8(int index);
@@ -331,7 +332,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
      *
-     * @param index    at which the String begins.
+     * @param index     at which the String begins.
      * @param byteOrder for the length at the beginning of the String.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
@@ -340,7 +341,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get part of String from bytes encoded in UTF-8 format that is length prefixed.
      *
-     * @param index at which the String begins.
+     * @param index  at which the String begins.
      * @param length of the String in bytes to decode.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
@@ -349,7 +350,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get an encoded UTF-8 String from the buffer that does not have a length prefix.
      *
-     * @param index at which the String begins.
+     * @param index  at which the String begins.
      * @param length of the String in bytes to decode.
      * @return the String as represented by the UTF-8 encoded bytes.
      */
@@ -367,12 +368,11 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Get the adjustment in indices between an index in this buffer and the wrapped object.
      * The wrapped object might be a bytebuffer or a byte[].
-     *
+     * <p>
      * You only need to use this adjustment if you plan to perform operations on the underlying
      * byte array or byte buffer that rely on their indices.
      *
      * @return the adjustment in indices between an index in this buffer and the wrapped object.
-     *
      * @see DirectBuffer#byteArray()
      * @see DirectBuffer#byteBuffer()
      */

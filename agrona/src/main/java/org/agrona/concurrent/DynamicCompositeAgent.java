@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
- *
+ * <p>
  * {@link Agent}s can be dynamically added and removed.
- *
+ * <p>
  * <b>Note:</b> This class is threadsafe for add and remove.
  */
 public class DynamicCompositeAgent implements Agent
@@ -134,7 +134,7 @@ public class DynamicCompositeAgent implements Agent
 
     /**
      * Remove an {@link Agent} from the composite. This method is lock-free.
-     *
+     * <p>
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *
      * @param agent to be removed.

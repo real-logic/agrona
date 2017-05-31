@@ -28,10 +28,10 @@ import static org.agrona.BufferUtil.*;
 /**
  * Expandable {@link MutableDirectBuffer} that is backed by an array. When values are put into the buffer beyond its
  * current length, then it will be expanded to accommodate the resulting position for the value.
- *
+ * <p>
  * Put operations will expand the capacity as necessary up to {@link #MAX_ARRAY_LENGTH}. Get operations will throw
  * a {@link IndexOutOfBoundsException} if past current capacity.
- *
+ * <p>
  * Note: this class has a natural ordering that is inconsistent with equals.
  * Types my be different but equal on buffer contents.
  */

@@ -24,22 +24,34 @@ import org.agrona.BitUtil;
  */
 public class RingBufferDescriptor
 {
-    /** Offset within the trailer for where the tail value is stored. */
+    /**
+     * Offset within the trailer for where the tail value is stored.
+     */
     public static final int TAIL_POSITION_OFFSET;
 
-    /** Offset within the trailer for where the head cache value is stored. */
+    /**
+     * Offset within the trailer for where the head cache value is stored.
+     */
     public static final int HEAD_CACHE_POSITION_OFFSET;
 
-    /** Offset within the trailer for where the head value is stored. */
+    /**
+     * Offset within the trailer for where the head value is stored.
+     */
     public static final int HEAD_POSITION_OFFSET;
 
-    /** Offset within the trailer for where the correlation counter value is stored. */
+    /**
+     * Offset within the trailer for where the correlation counter value is stored.
+     */
     public static final int CORRELATION_COUNTER_OFFSET;
 
-    /** Offset within the trailer for where the consumer heartbeat time value is stored. */
+    /**
+     * Offset within the trailer for where the consumer heartbeat time value is stored.
+     */
     public static final int CONSUMER_HEARTBEAT_OFFSET;
 
-    /** Total length of the trailer in bytes. */
+    /**
+     * Total length of the trailer in bytes.
+     */
     public static final int TRAILER_LENGTH;
 
     static

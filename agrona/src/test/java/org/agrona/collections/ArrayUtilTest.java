@@ -27,7 +27,7 @@ public class ArrayUtilTest
     private static final Integer TWO = valueOf(2);
     private static final Integer THREE = valueOf(3);
 
-    private Integer[] values = {ONE, TWO};
+    private Integer[] values = { ONE, TWO };
 
     @Test
     public void shouldNotRemoveMissingElement()
@@ -42,7 +42,7 @@ public class ArrayUtilTest
     {
         final Integer[] result = ArrayUtil.remove(values, TWO);
 
-        assertArrayEquals(new Integer[]{ONE}, result);
+        assertArrayEquals(new Integer[]{ ONE }, result);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ArrayUtilTest
     {
         final Integer[] result = ArrayUtil.remove(values, ONE);
 
-        assertArrayEquals(new Integer[]{TWO}, result);
+        assertArrayEquals(new Integer[]{ TWO }, result);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class ArrayUtilTest
     {
         final Integer[] result = ArrayUtil.remove(values, 0);
 
-        assertArrayEquals(new Integer[]{TWO}, result);
+        assertArrayEquals(new Integer[]{ TWO }, result);
     }
 }

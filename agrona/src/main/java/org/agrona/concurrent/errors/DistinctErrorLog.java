@@ -33,14 +33,13 @@ import static org.agrona.BitUtil.align;
  * Distinct record of error observations. Rather than grow a record indefinitely when many errors of the same type
  * are logged, this log takes the approach of only recording distinct errors of the same type type and stack trace
  * and keeping a count and time of observation so that the record only grows with new distinct observations.
- *
+ * <p>
  * The provided {@link AtomicBuffer} can wrap a memory-mapped file so logging can be out of process. This provides
  * the benefit that if a crash or lockup occurs then the log can be read externally without loss of data.
- *
+ * <p>
  * This class is threadsafe to be used from multiple logging threads.
- *
+ * <p>
  * The error records are recorded to the memory mapped buffer in the following format.
- *
  * <pre>
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1

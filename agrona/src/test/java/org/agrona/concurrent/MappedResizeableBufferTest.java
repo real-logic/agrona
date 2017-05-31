@@ -31,8 +31,8 @@ import static org.junit.Assert.assertTrue;
 
 public class MappedResizeableBufferTest
 {
-    private static final long SIZE = 2 * (long) Integer.MAX_VALUE;
-    private static final String PATH = IoUtil.tmpDirName() +  "/eg-buffer";
+    private static final long SIZE = 2 * (long)Integer.MAX_VALUE;
+    private static final String PATH = IoUtil.tmpDirName() + "/eg-buffer";
     private static final int VALUE = 4;
 
     private static FileChannel channel;

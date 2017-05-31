@@ -25,7 +25,7 @@ import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
 
 /**
  * Transmit messages via an underlying broadcast buffer to zero or more {@link BroadcastReceiver}s.
- *
+ * <p>
  * <b>Note:</b> This class is not threadsafe. Only one transmitter is allowed per broadcast buffer.
  */
 public class BroadcastTransmitter

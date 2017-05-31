@@ -55,6 +55,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index
@@ -116,6 +117,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index
