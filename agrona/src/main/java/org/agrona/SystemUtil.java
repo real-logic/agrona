@@ -24,7 +24,7 @@ public class SystemUtil
 
     static
     {
-        OS_NAME = System.getProperty("os.name").toLowerCase().intern();
+        OS_NAME = System.getProperty("os.name").toLowerCase();
     }
 
     /**
