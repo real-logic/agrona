@@ -43,6 +43,14 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
      * heap based or direct.
      *
+     * When using this method to wrap the view of the ByteBuffer the entire ByteBuffer gets wrapped
+     * between index 0 and capacity. If you want to just wrap the ByteBuffer between the position
+     * and the limit then you should use the {@link #wrap(ByteBuffer, int, int)} method, eg:
+     *
+     * <code>
+     *   directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
+     * </code>
+     *
      * @param buffer to which the view is attached.
      */
     void wrap(ByteBuffer buffer);
