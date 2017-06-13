@@ -16,7 +16,7 @@
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '1.2.4'
+    id 'com.github.johnrengelman.shadow' version '1.2.4' apply false
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
@@ -83,6 +83,7 @@ def projectPom = {
     }
 }
 
+jar.enabled = false
 
 subprojects {
     apply plugin: 'java'
@@ -101,6 +102,8 @@ subprojects {
             url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
         }
     }
+
+    jar.enabled = true
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
