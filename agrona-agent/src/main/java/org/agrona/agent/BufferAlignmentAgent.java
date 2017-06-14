@@ -51,7 +51,6 @@ import net.bytebuddy.utility.JavaModule;
  * Using this agent will avoid such crashes, but it has a performance overhead and should only be used for testing
  * and debugging
  */
-
 public class BufferAlignmentAgent
 {
     private static ClassFileTransformer alignmentTransformer;
@@ -109,7 +108,6 @@ public class BufferAlignmentAgent
             final boolean loaded,
             final DynamicType dynamicType)
         {
-            System.out.println("TRANSFORM " + typeDescription.getName());
         }
 
         public void onIgnored(
