@@ -93,7 +93,6 @@ public class DynamicCompositeAgent implements Agent
 
     public int doWork() throws Exception
     {
-        // TODO: handle onStart for newly added agents
         int workCount = 0;
 
         final Agent[] agents = this.agents;

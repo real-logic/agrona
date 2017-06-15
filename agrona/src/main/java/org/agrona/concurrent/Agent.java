@@ -23,7 +23,7 @@ public interface Agent
     /**
      * To be overridden by Agents that need to do resource init on start.
      * <p>
-     * This method will be called by the agent thread. It will only be called once by a single thread.
+     * This method will be called by the agent thread. It will only be called once.
      * <p>
      * <b>Note:</b> Implementations of this method must be idempotent.
      */
