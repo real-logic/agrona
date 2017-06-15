@@ -81,21 +81,14 @@ public class AgentInvoker implements AutoCloseable
      */
     public int invoke()
     {
-        if (!started)
-        {
-            started = true;
-            try
-            {
-                agent.onStart();
-            }
-            catch (final Throwable throwable)
-            {
-                handleError(throwable);
-            }
-        }
         int workCount = 0;
         if (!closed)
         {
+            if (!started)
+            {
+                started = true;
+                doStart();
+            }
             try
             {
                 workCount = agent.doWork();
@@ -111,6 +104,17 @@ public class AgentInvoker implements AutoCloseable
         }
 
         return workCount;
+    }
+
+    private void doStart() {
+        try
+        {
+            agent.onStart();
+        }
+        catch (final Throwable throwable)
+        {
+            handleError(throwable);
+        }
     }
 
     private void handleError(final Throwable throwable)

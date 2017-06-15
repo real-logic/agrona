@@ -19,7 +19,6 @@ import org.agrona.ErrorHandler;
 import org.agrona.LangUtil;
 import org.agrona.concurrent.status.AtomicCounter;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
@@ -30,26 +29,24 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-public class AgentRunnerTest
+public class AgentInvokerTest
 {
-    private final AtomicCounter mockAtomicCounter = mock(AtomicCounter.class);
-
     private final ErrorHandler mockErrorHandler = mock(ErrorHandler.class);
+    private final AtomicCounter mockAtomicCounter = mock(AtomicCounter.class);
     private final Agent mockAgent = mock(Agent.class);
-    private final IdleStrategy idleStrategy = new NoOpIdleStrategy();
-    private final AgentRunner runner = new AgentRunner(idleStrategy, mockErrorHandler, mockAtomicCounter, mockAgent);
+    private final AgentInvoker invoker = new AgentInvoker(mockErrorHandler, mockAtomicCounter, mockAgent);
 
     @Test
     public void shouldReturnAgent()
     {
-        assertThat(runner.agent(), is(mockAgent));
+        assertThat(invoker.agent(), is(mockAgent));
     }
 
     @Test
     public void shouldNotDoWorkOnClosedRunnerButCallOnClose() throws Exception
     {
-        runner.close();
-        runner.run();
+        invoker.close();
+        invoker.invoke();
 
         verify(mockAgent, never()).onStart();
         verify(mockAgent, never()).doWork();
@@ -65,23 +62,19 @@ public class AgentRunnerTest
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
-        doAnswer(invocation ->
-        {
-            latch.countDown();
-            return null;
-        }).when(mockErrorHandler).onError(expectedException);
-        new Thread(runner).start();
+        invoker.invoke();
 
-        if (!latch.await(3, TimeUnit.SECONDS))
-        {
-            fail("Should have called error handler");
-        }
         verify(mockAgent).onStart();
-        verify(mockAgent, atLeastOnce()).doWork();
-        verify(mockErrorHandler, atLeastOnce()).onError(expectedException);
-        verify(mockAtomicCounter, atLeastOnce()).increment();
+        verify(mockAgent).doWork();
+        verify(mockErrorHandler).onError(expectedException);
+        verify(mockAtomicCounter).increment();
 
-        runner.close();
+        reset(mockAgent);
+        invoker.close();
+
+        verify(mockAgent, never()).onStart();
+        verify(mockAgent, never()).doWork();
+        verify(mockAgent).onClose();
     }
 
     @Test
@@ -115,12 +108,9 @@ public class AgentRunnerTest
 
     private void assertExceptionNotReported() throws InterruptedException
     {
-        new Thread(runner).start();
-
-        Thread.sleep(100);
-
-        runner.close();
-        verify(mockAgent, times(1)).onStart();
+        invoker.invoke();
+        invoker.close();
+        verify(mockAgent).onStart();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
     }
