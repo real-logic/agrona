@@ -70,12 +70,14 @@ public class AgentRunnerTest
             latch.countDown();
             return null;
         }).when(mockErrorHandler).onError(expectedException);
+
         new Thread(runner).start();
 
         if (!latch.await(3, TimeUnit.SECONDS))
         {
             fail("Should have called error handler");
         }
+
         verify(mockAgent).onStart();
         verify(mockAgent, atLeastOnce()).doWork();
         verify(mockErrorHandler, atLeastOnce()).onError(expectedException);
@@ -120,6 +122,7 @@ public class AgentRunnerTest
         Thread.sleep(100);
 
         runner.close();
+
         verify(mockAgent, times(1)).onStart();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
