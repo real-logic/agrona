@@ -83,6 +83,11 @@ public class CompositeAgent implements Agent
         return workCount;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that one agent throwing an exception on close may result in other agents not being closed.
+     */
     public void onClose()
     {
         for (final Agent agent : agents)
@@ -91,6 +96,11 @@ public class CompositeAgent implements Agent
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that one agent throwing an exception on start may result in other agents not being started.
+     */
     public void onStart()
     {
         for (final Agent agent : agents)

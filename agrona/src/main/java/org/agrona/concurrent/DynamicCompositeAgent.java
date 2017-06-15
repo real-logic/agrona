@@ -34,7 +34,7 @@ public class DynamicCompositeAgent implements Agent
 
     private final String roleName;
     private volatile Agent[] agents;
-    private Agent[] startedAgents;
+    private Agent[] startedAgents = EMPTY_AGENTS;
 
     /**
      * Construct a new composite that has no {@link Agent}s to begin with.
@@ -82,6 +82,11 @@ public class DynamicCompositeAgent implements Agent
         this.agents = Arrays.copyOf(agents, agents.length);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that one agent throwing an exception on start may result in other agents not being started.
+     */
     public void onStart()
     {
         startedAgents = agents;
@@ -125,6 +130,11 @@ public class DynamicCompositeAgent implements Agent
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that one agent throwing an exception on close may result in other agents not being closed.
+     */
     public void onClose()
     {
         for (final Agent agent : AGENTS_UPDATER.getAndSet(this, EMPTY_AGENTS))
