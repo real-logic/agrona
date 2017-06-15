@@ -33,15 +33,20 @@ public class DynamicCompositeAgentTest
 
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne);
         assertThat(compositeAgent.roleName(), is(ROLE_NAME));
+        compositeAgent.onStart();
+        verify(mockAgentOne, times(1)).onStart();
 
         compositeAgent.doWork();
+        verify(mockAgentOne, times(1)).onStart();
         verify(mockAgentOne, times(1)).doWork();
 
         final Agent mockAgentTwo = mock(Agent.class);
         compositeAgent.add(mockAgentTwo);
 
         compositeAgent.doWork();
+        verify(mockAgentOne, times(1)).onStart();
         verify(mockAgentOne, times(2)).doWork();
+        verify(mockAgentTwo, times(1)).onStart();
         verify(mockAgentTwo, times(1)).doWork();
     }
 
@@ -52,6 +57,9 @@ public class DynamicCompositeAgentTest
         final Agent mockAgentTwo = mock(Agent.class);
 
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
+        compositeAgent.onStart();
+        verify(mockAgentOne, times(1)).onStart();
+        verify(mockAgentTwo, times(1)).onStart();
 
         compositeAgent.doWork();
         verify(mockAgentOne, times(1)).doWork();
@@ -62,11 +70,13 @@ public class DynamicCompositeAgentTest
         compositeAgent.doWork();
         verify(mockAgentOne, times(2)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
+        verify(mockAgentOne, times(1)).onStart();
+        verify(mockAgentTwo, times(1)).onStart();
         verify(mockAgentTwo, times(1)).onClose();
     }
 
     @Test
-    public void shouldCloseAgents()
+    public void shouldCloseAgents() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);
@@ -74,6 +84,10 @@ public class DynamicCompositeAgentTest
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
 
         compositeAgent.onClose();
+        verify(mockAgentOne, never()).doWork();
+        verify(mockAgentTwo, never()).doWork();
+        verify(mockAgentOne, never()).onStart();
+        verify(mockAgentTwo, never()).onStart();
         verify(mockAgentOne, times(1)).onClose();
         verify(mockAgentTwo, times(1)).onClose();
     }

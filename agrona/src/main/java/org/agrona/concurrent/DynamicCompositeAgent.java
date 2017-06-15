@@ -34,6 +34,7 @@ public class DynamicCompositeAgent implements Agent
 
     private final String roleName;
     private volatile Agent[] agents;
+    private Agent[] startedAgents;
 
     /**
      * Construct a new composite that has no {@link Agent}s to begin with.
@@ -81,10 +82,25 @@ public class DynamicCompositeAgent implements Agent
         this.agents = Arrays.copyOf(agents, agents.length);
     }
 
+    public void onStart()
+    {
+        startedAgents = agents;
+        for (final Agent agent : startedAgents)
+        {
+            agent.onStart();
+        }
+    }
+
     public int doWork() throws Exception
     {
+        // TODO: handle onStart for newly added agents
         int workCount = 0;
 
+        final Agent[] agents = this.agents;
+        if (agents != startedAgents)
+        {
+            doStartNewAgents(startedAgents, agents);
+        }
         for (final Agent agent : agents)
         {
             workCount += agent.doWork();
@@ -93,12 +109,30 @@ public class DynamicCompositeAgent implements Agent
         return workCount;
     }
 
+    private void doStartNewAgents(final Agent[] startedAgents, final Agent[] maybeStartedAgents)
+    {
+        this.startedAgents = agents;
+        OuterLoop:
+        for (final Agent maybeStartedAgent : maybeStartedAgents)
+        {
+            for (final Agent startedAgent : startedAgents)
+            {
+                if (maybeStartedAgent == startedAgent)
+                {
+                    continue OuterLoop;
+                }
+            }
+            maybeStartedAgent.onStart();
+        }
+    }
+
     public void onClose()
     {
         for (final Agent agent : AGENTS_UPDATER.getAndSet(this, EMPTY_AGENTS))
         {
             agent.onClose();
         }
+        startedAgents = null;
     }
 
     public String roleName()
@@ -168,6 +202,7 @@ public class DynamicCompositeAgent implements Agent
         }
         while (!AGENTS_UPDATER.compareAndSet(this, oldAgents, newAgents));
 
+        // TODO: this is racy
         agent.onClose();
 
         return true;
