@@ -33,6 +33,7 @@ import java.util.Objects;
 public class AgentInvoker implements AutoCloseable
 {
     private boolean closed = false;
+    private boolean started = false;
 
     private final AtomicCounter errorCounter;
     private final ErrorHandler errorHandler;
@@ -80,6 +81,18 @@ public class AgentInvoker implements AutoCloseable
      */
     public int invoke()
     {
+        if (!started)
+        {
+            started = true;
+            try
+            {
+                agent.onStart();
+            }
+            catch (final Throwable throwable)
+            {
+                handleError(throwable);
+            }
+        }
         int workCount = 0;
         if (!closed)
         {
@@ -93,16 +106,21 @@ public class AgentInvoker implements AutoCloseable
             }
             catch (final Throwable throwable)
             {
-                if (null != errorCounter)
-                {
-                    errorCounter.increment();
-                }
-
-                errorHandler.onError(throwable);
+                handleError(throwable);
             }
         }
 
         return workCount;
+    }
+
+    private void handleError(final Throwable throwable)
+    {
+        if (null != errorCounter)
+        {
+            errorCounter.increment();
+        }
+
+        errorHandler.onError(throwable);
     }
 
     /**

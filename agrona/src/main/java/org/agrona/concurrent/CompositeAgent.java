@@ -62,8 +62,7 @@ public class CompositeAgent implements Agent
                 throw new NullPointerException("Agents list contains a null");
             }
 
-            sb.append(agent.roleName());
-            sb.append(',');
+            sb.append(agent.roleName()).append(',');
         }
 
         sb.setCharAt(sb.length() - 1, ']');
@@ -89,6 +88,14 @@ public class CompositeAgent implements Agent
         for (final Agent agent : agents)
         {
             agent.onClose();
+        }
+    }
+
+    public void onStart()
+    {
+        for (final Agent agent : agents)
+        {
+            agent.onStart();
         }
     }
 

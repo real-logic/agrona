@@ -133,6 +133,14 @@ public class AgentRunner implements Runnable, AutoCloseable
 
             final IdleStrategy idleStrategy = this.idleStrategy;
             final Agent agent = this.agent;
+            try
+            {
+                agent.onStart();
+            }
+            catch (final Throwable throwable)
+            {
+                handleError(throwable);
+            }
             while (running)
             {
                 try
@@ -146,21 +154,26 @@ public class AgentRunner implements Runnable, AutoCloseable
                 }
                 catch (final Throwable throwable)
                 {
-                    if (running)
-                    {
-                        if (null != errorCounter)
-                        {
-                            errorCounter.increment();
-                        }
-
-                        errorHandler.onError(throwable);
-                    }
+                    handleError(throwable);
                 }
             }
         }
         finally
         {
             done = true;
+        }
+    }
+
+    private void handleError(final Throwable throwable)
+    {
+        if (running)
+        {
+            if (null != errorCounter)
+            {
+                errorCounter.increment();
+            }
+
+            errorHandler.onError(throwable);
         }
     }
 

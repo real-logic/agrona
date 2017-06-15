@@ -21,6 +21,18 @@ package org.agrona.concurrent;
 public interface Agent
 {
     /**
+     * To be overridden by Agents that need to do resource init on start.
+     * <p>
+     * This method will be called by the agent thread. It will only be called once by a single thread.
+     * <p>
+     * <b>Note:</b> Implementations of this method must be idempotent.
+     */
+    default void onStart()
+    {
+        // default to do nothing unless you want to handle the notification.
+    }
+
+    /**
      * An agent should implement this method to do its work.
      * <p>
      * The return value is used for implementing a backoff strategy that can be employed when no work is
