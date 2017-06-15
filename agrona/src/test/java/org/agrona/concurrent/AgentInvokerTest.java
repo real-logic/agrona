@@ -69,13 +69,14 @@ public class AgentInvokerTest
         verify(mockErrorHandler).onError(expectedException);
         verify(mockAtomicCounter).increment();
         verify(mockAgent, never()).onClose();
-
         reset(mockAgent);
+
         invoker.invoke();
+
         verify(mockAgent, never()).onStart();
         verify(mockAgent).doWork();
-
         reset(mockAgent);
+
         invoker.close();
 
         verify(mockAgent, never()).onStart();
@@ -116,6 +117,7 @@ public class AgentInvokerTest
     {
         invoker.invoke();
         invoker.close();
+
         verify(mockAgent).onStart();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
