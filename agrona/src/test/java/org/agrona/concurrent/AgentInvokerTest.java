@@ -68,6 +68,12 @@ public class AgentInvokerTest
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
         verify(mockAtomicCounter).increment();
+        verify(mockAgent, never()).onClose();
+
+        reset(mockAgent);
+        invoker.invoke();
+        verify(mockAgent, never()).onStart();
+        verify(mockAgent).doWork();
 
         reset(mockAgent);
         invoker.close();
