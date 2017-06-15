@@ -19,7 +19,6 @@ import org.agrona.ErrorHandler;
 import org.agrona.LangUtil;
 import org.agrona.concurrent.status.AtomicCounter;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;

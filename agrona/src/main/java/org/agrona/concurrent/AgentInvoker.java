@@ -89,6 +89,7 @@ public class AgentInvoker implements AutoCloseable
                 started = true;
                 doStart();
             }
+
             try
             {
                 workCount = agent.doWork();
@@ -106,7 +107,8 @@ public class AgentInvoker implements AutoCloseable
         return workCount;
     }
 
-    private void doStart() {
+    private void doStart()
+    {
         try
         {
             agent.onStart();

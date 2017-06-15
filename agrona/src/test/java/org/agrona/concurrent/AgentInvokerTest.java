@@ -21,12 +21,9 @@ import org.agrona.concurrent.status.AtomicCounter;
 import org.junit.Test;
 
 import java.nio.channels.ClosedByInterruptException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class AgentInvokerTest
@@ -58,7 +55,6 @@ public class AgentInvokerTest
     @Test
     public void shouldReportExceptionThrownByAgent() throws Exception
     {
-        final CountDownLatch latch = new CountDownLatch(1);
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
