@@ -34,6 +34,7 @@ public class AgentRunner implements Runnable, AutoCloseable
      * Indicates that the runner is being closed.
      */
     public static final Thread TOMBSTONE = new Thread();
+    private static final int TIMEOUT_MS = 1000;
 
     private volatile boolean running = true;
     private volatile boolean done = false;
@@ -202,7 +203,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 try
                 {
-                    thread.join(1000);
+                    thread.join(TIMEOUT_MS);
 
                     if (!thread.isAlive() || done)
                     {
