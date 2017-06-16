@@ -174,7 +174,6 @@ public class DynamicCompositeAgent implements Agent
             if (TOMBSTONE == addAgent.get())
             {
                 throw new IllegalStateException("Add called after close");
-
             }
 
             Thread.yield();
@@ -207,7 +206,6 @@ public class DynamicCompositeAgent implements Agent
             if (TOMBSTONE == removeAgent.get())
             {
                 throw new IllegalStateException("Remove called after close");
-
             }
 
             Thread.yield();
