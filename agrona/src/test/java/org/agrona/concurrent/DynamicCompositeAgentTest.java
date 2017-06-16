@@ -18,9 +18,7 @@ package org.agrona.concurrent;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class DynamicCompositeAgentTest
@@ -118,5 +116,7 @@ public class DynamicCompositeAgentTest
         verify(mockAgentTwo, never()).onStart();
         verify(mockAgentOne, times(1)).onClose();
         verify(mockAgentTwo, times(1)).onClose();
+
+        assertEquals(DynamicCompositeAgent.Status.CLOSED, compositeAgent.status());
     }
 }

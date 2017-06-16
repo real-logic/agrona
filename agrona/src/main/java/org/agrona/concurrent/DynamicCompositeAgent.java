@@ -30,21 +30,27 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class DynamicCompositeAgent implements Agent
 {
-    private static final Agent TOMBSTONE = new Agent()
+    public enum Status
     {
-        public int doWork() throws Exception
-        {
-            return 0;
-        }
+        /**
+         * Agent is being initialised and has not yet been started.
+         */
+        INIT,
 
-        public String roleName()
-        {
-            return "tombstone";
-        }
-    };
+        /**
+         * Agent is not active after a successful {@link #onStart()}
+         */
+        ACTIVE,
+
+        /**
+         * Agent has been closed.
+         */
+        CLOSED
+    }
 
     private static final Agent[] EMPTY_AGENTS = new Agent[0];
 
+    private volatile Status status = Status.INIT;
     private Agent[] agents;
     private final String roleName;
     private final AtomicReference<Agent> addAgent = new AtomicReference<>();
@@ -80,6 +86,16 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
+     * Get the {@link Status} for the Agent.
+     *
+     * @return the {@link Status} for the Agent.
+     */
+    public Status status()
+    {
+        return status;
+    }
+
+    /**
      * @param roleName to be given for {@link Agent#roleName()}.
      * @param agents   the parts of this composite, at least one agent and no null agents allowed
      * @throws NullPointerException if the array or any element is null
@@ -108,6 +124,8 @@ public class DynamicCompositeAgent implements Agent
         {
             agent.onStart();
         }
+
+        status = Status.ACTIVE;
     }
 
     public int doWork() throws Exception
@@ -141,8 +159,7 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onClose()
     {
-        addAgent.lazySet(TOMBSTONE);
-        removeAgent.lazySet(TOMBSTONE);
+        status = Status.CLOSED;
 
         for (final Agent agent : agents)
         {
@@ -169,11 +186,16 @@ public class DynamicCompositeAgent implements Agent
     {
         Objects.requireNonNull(agent, "Agent cannot be null");
 
+        if (Status.ACTIVE != status)
+        {
+            throw new IllegalStateException("Add called when not active");
+        }
+
         while (!addAgent.compareAndSet(null, agent))
         {
-            if (TOMBSTONE == addAgent.get())
+            if (Status.ACTIVE != status)
             {
-                throw new IllegalStateException("Add called after close");
+                throw new IllegalStateException("Add called when not active");
             }
 
             Thread.yield();
@@ -201,11 +223,16 @@ public class DynamicCompositeAgent implements Agent
     {
         Objects.requireNonNull(agent, "Agent cannot be null");
 
+        if (Status.ACTIVE != status)
+        {
+            throw new IllegalStateException("Remove called when not active");
+        }
+
         while (!removeAgent.compareAndSet(null, agent))
         {
-            if (TOMBSTONE == removeAgent.get())
+            if (Status.ACTIVE != status)
             {
-                throw new IllegalStateException("Remove called after close");
+                throw new IllegalStateException("Remove called when not active");
             }
 
             Thread.yield();
