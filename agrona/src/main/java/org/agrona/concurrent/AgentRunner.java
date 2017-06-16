@@ -196,29 +196,26 @@ public class AgentRunner implements Runnable, AutoCloseable
         running = false;
 
         final Thread thread = this.thread.getAndSet(TOMBSTONE);
-        if (TOMBSTONE != thread)
+        if (TOMBSTONE != thread && null != thread)
         {
-            if (null != thread)
+            while (true)
             {
-                while (true)
+                try
                 {
-                    try
+                    thread.join(1000);
+
+                    if (!thread.isAlive() || done)
                     {
-                        thread.join(1000);
-
-                        if (!thread.isAlive() || done)
-                        {
-                            break;
-                        }
-
-                        System.err.println("Timeout waiting for " + agent.roleName() + " Retrying...");
-
-                        thread.interrupt();
+                        break;
                     }
-                    catch (final InterruptedException ignore)
-                    {
-                        return;
-                    }
+
+                    System.err.println("Timeout waiting for agent '" + agent.roleName() + "' Retrying...");
+
+                    thread.interrupt();
+                }
+                catch (final InterruptedException ignore)
+                {
+                    return;
                 }
             }
         }
