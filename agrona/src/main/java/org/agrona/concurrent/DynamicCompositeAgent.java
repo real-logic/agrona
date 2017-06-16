@@ -102,14 +102,16 @@ public class DynamicCompositeAgent implements Agent
     {
         int workCount = 0;
 
-        if (null != addAgent.get())
+        final Agent agentToAdd = addAgent.get();
+        if (null != agentToAdd)
         {
-            addAgent(addAgent.get());
+            addAgent(agentToAdd);
         }
 
-        if (null != removeAgent.get())
+        final Agent agentToRemove = removeAgent.get();
+        if (null != agentToRemove)
         {
-            removeAgent(removeAgent.get());
+            removeAgent(agentToRemove);
         }
 
         for (final Agent agent : agents)
