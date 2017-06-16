@@ -45,7 +45,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldNotDoWorkOnClosedRunnerButCallOnClose() throws Exception
+    public void shouldNotDoWorkOnClosedRunner() throws Exception
     {
         runner.close();
         runner.run();
@@ -54,7 +54,7 @@ public class AgentRunnerTest
         verify(mockAgent, never()).doWork();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
-        verify(mockAgent).onClose();
+        verify(mockAgent, never()).onClose();
     }
 
     @Test
@@ -64,11 +64,12 @@ public class AgentRunnerTest
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
-        doAnswer(invocation ->
-        {
-            latch.countDown();
-            return null;
-        }).when(mockErrorHandler).onError(expectedException);
+        doAnswer(
+            (invocation) ->
+            {
+                latch.countDown();
+                return null;
+            }).when(mockErrorHandler).onError(expectedException);
 
         new Thread(runner).start();
 

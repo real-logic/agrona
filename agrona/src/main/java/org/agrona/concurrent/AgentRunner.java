@@ -141,6 +141,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 handleError(throwable);
             }
+
             while (running)
             {
                 try
@@ -156,6 +157,15 @@ public class AgentRunner implements Runnable, AutoCloseable
                 {
                     handleError(throwable);
                 }
+            }
+
+            try
+            {
+                agent.onClose();
+            }
+            catch (final Throwable throwable)
+            {
+                handleError(throwable);
             }
         }
         finally
@@ -178,10 +188,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     }
 
     /**
-     * Stop the running Agent and cleanup. This will wait for the work loop to exit and the {@link Agent} performing
-     * it {@link Agent#onClose()} logic.
-     * <p>
-     * The clean up logic will only be performed once even if close is called from multiple concurrent threads.
+     * Stop the running Agent and cleanup. This will wait for the work loop to exit.
      */
     public final void close()
     {
@@ -213,8 +220,6 @@ public class AgentRunner implements Runnable, AutoCloseable
                     }
                 }
             }
-
-            agent.onClose();
         }
     }
 }

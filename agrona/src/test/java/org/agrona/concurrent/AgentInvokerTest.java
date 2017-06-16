@@ -34,6 +34,25 @@ public class AgentInvokerTest
     private final AgentInvoker invoker = new AgentInvoker(mockErrorHandler, mockAtomicCounter, mockAgent);
 
     @Test
+    public void shouldFollowLifecycle() throws Exception
+    {
+        invoker.start();
+        invoker.start();
+        verify(mockAgent, times(1)).onStart();
+        verifyNoMoreInteractions(mockAgent);
+
+        invoker.invoke();
+        invoker.invoke();
+        verify(mockAgent, times(2)).doWork();
+        verifyNoMoreInteractions(mockAgent);
+
+        invoker.close();
+        invoker.close();
+        verify(mockAgent, times(1)).onClose();
+        verifyNoMoreInteractions(mockAgent);
+    }
+
+    @Test
     public void shouldReturnAgent()
     {
         assertThat(invoker.agent(), is(mockAgent));
@@ -60,7 +79,6 @@ public class AgentInvokerTest
 
         invoker.invoke();
 
-        verify(mockAgent).onStart();
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
         verify(mockAtomicCounter).increment();
@@ -69,13 +87,11 @@ public class AgentInvokerTest
 
         invoker.invoke();
 
-        verify(mockAgent, never()).onStart();
         verify(mockAgent).doWork();
         reset(mockAgent);
 
         invoker.close();
 
-        verify(mockAgent, never()).onStart();
         verify(mockAgent, never()).doWork();
         verify(mockAgent).onClose();
     }
@@ -114,7 +130,6 @@ public class AgentInvokerTest
         invoker.invoke();
         invoker.close();
 
-        verify(mockAgent).onStart();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
     }

@@ -23,7 +23,8 @@ import java.util.Objects;
 
 /**
  * {@link Agent} container which does not start a thread. It instead allows the duty cycle {@link Agent#doWork()} to be
- * invoked directly.
+ * invoked directly. {@link #start()} should be called to allow the {@link Agent#onStart()} to fire before any calls
+ * to {@link #invoke()} of the agent duty cycle.
  * <p>
  * Exceptions which occur during the {@link Agent#doWork()} invocation will be caught and passed to the provided
  * {@link ErrorHandler}.
@@ -84,12 +85,6 @@ public class AgentInvoker implements AutoCloseable
         int workCount = 0;
         if (!closed)
         {
-            if (!started)
-            {
-                started = true;
-                doStart();
-            }
-
             try
             {
                 workCount = agent.doWork();
@@ -107,26 +102,25 @@ public class AgentInvoker implements AutoCloseable
         return workCount;
     }
 
-    private void doStart()
+    /**
+     * Mark the invoker as started and call the {@link Agent#onStart()} method.
+     * <p>
+     * Startup logic will only be performed once.
+     */
+    public void start()
     {
         try
         {
-            agent.onStart();
+            if (!started)
+            {
+                started = true;
+                agent.onStart();
+            }
         }
         catch (final Throwable throwable)
         {
             handleError(throwable);
         }
-    }
-
-    private void handleError(final Throwable throwable)
-    {
-        if (null != errorCounter)
-        {
-            errorCounter.increment();
-        }
-
-        errorHandler.onError(throwable);
     }
 
     /**
@@ -141,5 +135,15 @@ public class AgentInvoker implements AutoCloseable
             closed = true;
             agent.onClose();
         }
+    }
+
+    private void handleError(final Throwable throwable)
+    {
+        if (null != errorCounter)
+        {
+            errorCounter.increment();
+        }
+
+        errorHandler.onError(throwable);
     }
 }
