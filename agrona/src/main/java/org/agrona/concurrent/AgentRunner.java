@@ -140,6 +140,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             catch (final Throwable throwable)
             {
                 handleError(throwable);
+                running = false;
             }
 
             while (running)
