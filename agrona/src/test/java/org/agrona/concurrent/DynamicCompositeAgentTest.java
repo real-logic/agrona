@@ -17,9 +17,10 @@ package org.agrona.concurrent;
 
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class DynamicCompositeAgentTest
@@ -32,18 +33,22 @@ public class DynamicCompositeAgentTest
         final Agent mockAgentOne = mock(Agent.class);
 
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne);
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+
         assertThat(compositeAgent.roleName(), is(ROLE_NAME));
-        compositeAgent.onStart();
+        invoker.start();
         verify(mockAgentOne, times(1)).onStart();
 
-        compositeAgent.doWork();
+        invoker.invoke();
         verify(mockAgentOne, times(1)).onStart();
         verify(mockAgentOne, times(1)).doWork();
 
         final Agent mockAgentTwo = mock(Agent.class);
         compositeAgent.add(mockAgentTwo);
+        assertFalse(compositeAgent.hasAddAgentCompleted());
 
-        compositeAgent.doWork();
+        invoker.invoke();
+        assertTrue(compositeAgent.hasAddAgentCompleted());
         verify(mockAgentOne, times(1)).onStart();
         verify(mockAgentOne, times(2)).doWork();
         verify(mockAgentTwo, times(1)).onStart();
@@ -57,17 +62,20 @@ public class DynamicCompositeAgentTest
         final Agent mockAgentTwo = mock(Agent.class);
 
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
-        compositeAgent.onStart();
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+        invoker.start();
         verify(mockAgentOne, times(1)).onStart();
         verify(mockAgentTwo, times(1)).onStart();
 
-        compositeAgent.doWork();
+        invoker.invoke();
         verify(mockAgentOne, times(1)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
 
-        assertTrue(compositeAgent.remove(mockAgentTwo));
+        compositeAgent.remove(mockAgentTwo);
+        assertFalse(compositeAgent.hasRemoveAgentCompleted());
 
-        compositeAgent.doWork();
+        invoker.invoke();
+        assertTrue(compositeAgent.hasRemoveAgentCompleted());
         verify(mockAgentOne, times(2)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
         verify(mockAgentOne, times(1)).onStart();

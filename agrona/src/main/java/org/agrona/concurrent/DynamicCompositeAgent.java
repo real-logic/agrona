@@ -15,9 +15,11 @@
  */
 package org.agrona.concurrent;
 
-import java.util.Arrays;
+import org.agrona.collections.ArrayListUtil;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
@@ -26,15 +28,13 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * <p>
  * <b>Note:</b> This class is threadsafe for add and remove.
  */
+@SuppressWarnings("ForLoopReplaceableByForEach")
 public class DynamicCompositeAgent implements Agent
 {
-    private static final Agent[] EMPTY_AGENTS = new Agent[0];
-    private static final AtomicReferenceFieldUpdater<DynamicCompositeAgent, Agent[]> AGENTS_UPDATER =
-        AtomicReferenceFieldUpdater.newUpdater(DynamicCompositeAgent.class, Agent[].class, "agents");
-
     private final String roleName;
-    private volatile Agent[] agents;
-    private Agent[] startedAgents = EMPTY_AGENTS;
+    private final ArrayList<Agent> agents = new ArrayList<>();
+    private final AtomicReference<Agent> addAgent = new AtomicReference<>();
+    private final AtomicReference<Agent> removeAgent = new AtomicReference<>();
 
     /**
      * Construct a new composite that has no {@link Agent}s to begin with.
@@ -44,7 +44,6 @@ public class DynamicCompositeAgent implements Agent
     public DynamicCompositeAgent(final String roleName)
     {
         this.roleName = roleName;
-        agents = EMPTY_AGENTS;
     }
 
     /**
@@ -54,7 +53,8 @@ public class DynamicCompositeAgent implements Agent
      */
     public DynamicCompositeAgent(final String roleName, final List<? extends Agent> agents)
     {
-        this(roleName, agents.toArray(new Agent[agents.size()]));
+        this.roleName = roleName;
+        this.agents.addAll(agents);
     }
 
     /**
@@ -77,9 +77,9 @@ public class DynamicCompositeAgent implements Agent
             {
                 throw new NullPointerException("Nulls are not supported");
             }
-        }
 
-        this.agents = Arrays.copyOf(agents, agents.length);
+            this.agents.add(agent);
+        }
     }
 
     /**
@@ -89,10 +89,9 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onStart()
     {
-        startedAgents = agents;
-        for (final Agent agent : startedAgents)
+        for (int i = 0, size = agents.size(); i < size; i++)
         {
-            agent.onStart();
+            agents.get(i).onStart();
         }
     }
 
@@ -100,34 +99,35 @@ public class DynamicCompositeAgent implements Agent
     {
         int workCount = 0;
 
-        final Agent[] agents = this.agents;
-        if (agents != startedAgents)
+        final Agent toBeAddedAgent = addAgent.get();
+        if (null != toBeAddedAgent)
         {
-            doStartNewAgents(startedAgents, agents);
+            addAgent.set(null);
+            toBeAddedAgent.onStart();
+            agents.add(toBeAddedAgent);
         }
-        for (final Agent agent : agents)
+
+        final Agent toBeRemovedAgent = removeAgent.get();
+        if (null != toBeRemovedAgent)
         {
-            workCount += agent.doWork();
+            removeAgent.set(null);
+            for (int i = 0, size = agents.size(); i < size; i++)
+            {
+                if (agents.get(i) == toBeRemovedAgent)
+                {
+                    ArrayListUtil.fastUnorderedRemove(agents, i);
+                    toBeRemovedAgent.onClose();
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0, size = agents.size(); i < size; i++)
+        {
+            workCount += agents.get(i).doWork();
         }
 
         return workCount;
-    }
-
-    private void doStartNewAgents(final Agent[] startedAgents, final Agent[] maybeStartedAgents)
-    {
-        this.startedAgents = agents;
-        OuterLoop:
-        for (final Agent maybeStartedAgent : maybeStartedAgents)
-        {
-            for (final Agent startedAgent : startedAgents)
-            {
-                if (maybeStartedAgent == startedAgent)
-                {
-                    continue OuterLoop;
-                }
-            }
-            maybeStartedAgent.onStart();
-        }
     }
 
     /**
@@ -137,11 +137,12 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onClose()
     {
-        for (final Agent agent : AGENTS_UPDATER.getAndSet(this, EMPTY_AGENTS))
+        for (int i = 0, size = agents.size(); i < size; i++)
         {
-            agent.onClose();
+            agents.get(i).onClose();
         }
-        startedAgents = null;
+
+        agents.clear();
     }
 
     public String roleName()
@@ -151,6 +152,8 @@ public class DynamicCompositeAgent implements Agent
 
     /**
      * Add a new {@link Agent} to the composite. This method is lock-free.
+     * <p>
+     * The agent will be added during the next invocation of {@link #doWork()}.
      *
      * @param agent to be added to the composite.
      */
@@ -161,72 +164,50 @@ public class DynamicCompositeAgent implements Agent
             throw new NullPointerException("Null agents is not supported");
         }
 
-        Agent[] newAgents;
-        Agent[] oldAgents;
-
-        do
+        while (!addAgent.compareAndSet(null, agent))
         {
-            oldAgents = agents;
-            final int oldLength = oldAgents.length;
-            newAgents = new Agent[oldLength + 1];
-            System.arraycopy(oldAgents, 0, newAgents, 0, oldLength);
-            newAgents[oldLength] = agent;
+            Thread.yield();
         }
-        while (!AGENTS_UPDATER.compareAndSet(this, oldAgents, newAgents));
     }
 
     /**
-     * Remove an {@link Agent} from the composite. This method is lock-free.
+     * Has the last {@link #add(Agent)} operation be processed in the {@link #doWork()} cycle?
+     *
+     * @return the last {@link #add(Agent)} operation be processed in the {@link #doWork()} cycle?
+     */
+    public boolean hasAddAgentCompleted()
+    {
+        return null == addAgent.get();
+    }
+
+    /**
+     * Remove an {@link Agent} from the composite. This method blocks until the agent is added during the next
+     * {@link #doWork()} duty cycle.
      * <p>
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *
      * @param agent to be removed.
-     * @return true if the agent was removed otherwise false.
      */
-    public boolean remove(final Agent agent)
+    public void remove(final Agent agent)
     {
         if (null == agent)
         {
             throw new NullPointerException("Null agents is not supported");
         }
 
-        Agent[] newAgents;
-        Agent[] oldAgents;
-
-        do
+        while (!removeAgent.compareAndSet(null, agent))
         {
-            oldAgents = agents;
-
-            final int index = find(oldAgents, agent);
-            if (-1 == index)
-            {
-                return false;
-            }
-
-            final int newLength = oldAgents.length - 1;
-            newAgents = new Agent[newLength];
-
-            System.arraycopy(oldAgents, 0, newAgents, 0, index);
-            System.arraycopy(oldAgents, index + 1, newAgents, index, newLength - index);
+            Thread.yield();
         }
-        while (!AGENTS_UPDATER.compareAndSet(this, oldAgents, newAgents));
-
-        // TODO: this is racy
-        agent.onClose();
-
-        return true;
     }
 
-    private static int find(final Agent[] agents, final Agent agent)
+    /**
+     * Has the last {@link #remove(Agent)} operation be processed in the {@link #doWork()} cycle?
+     *
+     * @return the last {@link #remove(Agent)} operation be processed in the {@link #doWork()} cycle?
+     */
+    public boolean hasRemoveAgentCompleted()
     {
-        for (int i = 0; i < agents.length; i++)
-        {
-            if (agent == agents[i])
-            {
-                return i;
-            }
-        }
-
-        return -1;
+        return null == removeAgent.get();
     }
 }
