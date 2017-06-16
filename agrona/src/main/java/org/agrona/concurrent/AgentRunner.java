@@ -206,7 +206,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
                     if (!thread.isAlive() || done)
                     {
-                        break;
+                        return;
                     }
 
                     System.err.println("Timeout waiting for agent '" + agent.roleName() + "' Retrying...");
