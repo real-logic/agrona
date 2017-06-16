@@ -15,10 +15,11 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.collections.ArrayListUtil;
+import org.agrona.collections.ArrayUtil;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -28,11 +29,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>
  * <b>Note:</b> This class is threadsafe for add and remove.
  */
-@SuppressWarnings("ForLoopReplaceableByForEach")
 public class DynamicCompositeAgent implements Agent
 {
+    private static final Agent[] EMPTY_AGENTS = new Agent[0];
+
+    private Agent[] agents;
     private final String roleName;
-    private final ArrayList<Agent> agents = new ArrayList<>();
     private final AtomicReference<Agent> addAgent = new AtomicReference<>();
     private final AtomicReference<Agent> removeAgent = new AtomicReference<>();
 
@@ -44,6 +46,7 @@ public class DynamicCompositeAgent implements Agent
     public DynamicCompositeAgent(final String roleName)
     {
         this.roleName = roleName;
+        agents = EMPTY_AGENTS;
     }
 
     /**
@@ -54,7 +57,13 @@ public class DynamicCompositeAgent implements Agent
     public DynamicCompositeAgent(final String roleName, final List<? extends Agent> agents)
     {
         this.roleName = roleName;
-        this.agents.addAll(agents);
+
+        for (final Agent agent : agents)
+        {
+            Objects.requireNonNull(agent, "Agent cannot be null");
+        }
+
+        this.agents = agents.toArray(new Agent[agents.size()]);
     }
 
     /**
@@ -66,20 +75,14 @@ public class DynamicCompositeAgent implements Agent
     {
         this.roleName = roleName;
 
-        if (agents == null)
-        {
-            throw new NullPointerException("Agents cannot be null");
-        }
+        Objects.requireNonNull(agents, "Agents cannot be null");
 
         for (final Agent agent : agents)
         {
-            if (null == agent)
-            {
-                throw new NullPointerException("Nulls are not supported");
-            }
-
-            this.agents.add(agent);
+            Objects.requireNonNull(agent, "Agent cannot be null");
         }
+
+        this.agents = Arrays.copyOf(agents, agents.length);
     }
 
     /**
@@ -89,9 +92,9 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onStart()
     {
-        for (int i = 0, size = agents.size(); i < size; i++)
+        for (final Agent agent : agents)
         {
-            agents.get(i).onStart();
+            agent.onStart();
         }
     }
 
@@ -99,32 +102,19 @@ public class DynamicCompositeAgent implements Agent
     {
         int workCount = 0;
 
-        final Agent toBeAddedAgent = addAgent.get();
-        if (null != toBeAddedAgent)
+        if (null != addAgent.get())
         {
-            addAgent.lazySet(null);
-            toBeAddedAgent.onStart();
-            agents.add(toBeAddedAgent);
+            addAgent(addAgent.get());
         }
 
-        final Agent toBeRemovedAgent = removeAgent.get();
-        if (null != toBeRemovedAgent)
+        if (null != removeAgent.get())
         {
-            removeAgent.lazySet(null);
-            for (int i = 0, size = agents.size(); i < size; i++)
-            {
-                if (agents.get(i) == toBeRemovedAgent)
-                {
-                    ArrayListUtil.fastUnorderedRemove(agents, i);
-                    toBeRemovedAgent.onClose();
-                    break;
-                }
-            }
+            removeAgent(removeAgent.get());
         }
 
-        for (int i = 0, size = agents.size(); i < size; i++)
+        for (final Agent agent : agents)
         {
-            workCount += agents.get(i).doWork();
+            workCount += agent.doWork();
         }
 
         return workCount;
@@ -137,12 +127,12 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onClose()
     {
-        for (int i = 0, size = agents.size(); i < size; i++)
+        for (final Agent agent : agents)
         {
-            agents.get(i).onClose();
+            agent.onClose();
         }
 
-        agents.clear();
+        agents = EMPTY_AGENTS;
     }
 
     public String roleName()
@@ -153,16 +143,14 @@ public class DynamicCompositeAgent implements Agent
     /**
      * Add a new {@link Agent} to the composite.
      * <p>
-     * The agent will be added during the next invocation of {@link #doWork()}.
+     * The agent will be added during the next invocation of {@link #doWork()}. If the {@link Agent#onStart()}
+     * method throws an exception then it will not be added and {@link Agent#onClose()} will be called.
      *
      * @param agent to be added to the composite.
      */
     public void add(final Agent agent)
     {
-        if (agent == null)
-        {
-            throw new NullPointerException("Null agents is not supported");
-        }
+        Objects.requireNonNull(agent, "Agent cannot be null");
 
         while (!addAgent.compareAndSet(null, agent))
         {
@@ -189,10 +177,7 @@ public class DynamicCompositeAgent implements Agent
      */
     public void remove(final Agent agent)
     {
-        if (null == agent)
-        {
-            throw new NullPointerException("Null agents is not supported");
-        }
+        Objects.requireNonNull(agent, "Agent cannot be null");
 
         while (!removeAgent.compareAndSet(null, agent))
         {
@@ -208,5 +193,41 @@ public class DynamicCompositeAgent implements Agent
     public boolean hasRemoveAgentCompleted()
     {
         return null == removeAgent.get();
+    }
+
+    private void removeAgent(final Agent agent)
+    {
+        removeAgent.lazySet(null);
+
+        final Agent[] newAgents = ArrayUtil.remove(agents, agent);
+
+        try
+        {
+            if (newAgents != agents)
+            {
+                agent.onClose();
+            }
+        }
+        finally
+        {
+            agents = newAgents;
+        }
+    }
+
+    private void addAgent(final Agent agent)
+    {
+        addAgent.lazySet(null);
+
+        try
+        {
+            agent.onStart();
+        }
+        catch (final RuntimeException ex)
+        {
+            agent.onClose();
+            throw ex;
+        }
+
+        agents = ArrayUtil.add(agents, agent);
     }
 }
