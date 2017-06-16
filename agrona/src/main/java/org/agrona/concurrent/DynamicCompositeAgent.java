@@ -102,7 +102,7 @@ public class DynamicCompositeAgent implements Agent
         final Agent toBeAddedAgent = addAgent.get();
         if (null != toBeAddedAgent)
         {
-            addAgent.set(null);
+            addAgent.lazySet(null);
             toBeAddedAgent.onStart();
             agents.add(toBeAddedAgent);
         }
@@ -110,7 +110,7 @@ public class DynamicCompositeAgent implements Agent
         final Agent toBeRemovedAgent = removeAgent.get();
         if (null != toBeRemovedAgent)
         {
-            removeAgent.set(null);
+            removeAgent.lazySet(null);
             for (int i = 0, size = agents.size(); i < size; i++)
             {
                 if (agents.get(i) == toBeRemovedAgent)
@@ -151,7 +151,7 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     * Add a new {@link Agent} to the composite. This method is lock-free.
+     * Add a new {@link Agent} to the composite.
      * <p>
      * The agent will be added during the next invocation of {@link #doWork()}.
      *
@@ -181,8 +181,7 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     * Remove an {@link Agent} from the composite. This method blocks until the agent is added during the next
-     * {@link #doWork()} duty cycle.
+     * Remove an {@link Agent} from the composite. The agent is removed during the next {@link #doWork()} duty cycle.
      * <p>
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *
