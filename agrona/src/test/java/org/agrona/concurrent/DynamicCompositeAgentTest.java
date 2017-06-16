@@ -27,6 +27,26 @@ public class DynamicCompositeAgentTest
 {
     private static final String ROLE_NAME = "roleName";
 
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotAllowAddAfterClose()
+    {
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+
+        invoker.close();
+        compositeAgent.add(mock(Agent.class));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotAllowRemoveAfterClose()
+    {
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+
+        invoker.close();
+        compositeAgent.remove(mock(Agent.class));
+    }
+
     @Test
     public void shouldAddAgent() throws Exception
     {

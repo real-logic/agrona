@@ -30,6 +30,19 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class DynamicCompositeAgent implements Agent
 {
+    private static final Agent TOMBSTONE = new Agent()
+    {
+        public int doWork() throws Exception
+        {
+            return 0;
+        }
+
+        public String roleName()
+        {
+            return "tombstone";
+        }
+    };
+
     private static final Agent[] EMPTY_AGENTS = new Agent[0];
 
     private Agent[] agents;
@@ -128,6 +141,9 @@ public class DynamicCompositeAgent implements Agent
      */
     public void onClose()
     {
+        addAgent.lazySet(TOMBSTONE);
+        removeAgent.lazySet(TOMBSTONE);
+
         for (final Agent agent : agents)
         {
             agent.onClose();
@@ -155,6 +171,12 @@ public class DynamicCompositeAgent implements Agent
 
         while (!addAgent.compareAndSet(null, agent))
         {
+            if (TOMBSTONE == addAgent.get())
+            {
+                throw new IllegalStateException("Add called after close");
+
+            }
+
             Thread.yield();
         }
     }
@@ -182,6 +204,12 @@ public class DynamicCompositeAgent implements Agent
 
         while (!removeAgent.compareAndSet(null, agent))
         {
+            if (TOMBSTONE == removeAgent.get())
+            {
+                throw new IllegalStateException("Remove called after close");
+
+            }
+
             Thread.yield();
         }
     }
