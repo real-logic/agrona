@@ -17,7 +17,6 @@ package org.agrona.concurrent;
 
 import org.agrona.collections.ArrayUtil;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,13 +56,14 @@ public class DynamicCompositeAgent implements Agent
     public DynamicCompositeAgent(final String roleName, final List<? extends Agent> agents)
     {
         this.roleName = roleName;
+        this.agents = new Agent[agents.size()];
 
+        int i = 0;
         for (final Agent agent : agents)
         {
             Objects.requireNonNull(agent, "Agent cannot be null");
+            this.agents[i++] = agent;
         }
-
-        this.agents = agents.toArray(new Agent[agents.size()]);
     }
 
     /**
@@ -74,15 +74,14 @@ public class DynamicCompositeAgent implements Agent
     public DynamicCompositeAgent(final String roleName, final Agent... agents)
     {
         this.roleName = roleName;
+        this.agents = new Agent[agents.length];
 
-        Objects.requireNonNull(agents, "Agents cannot be null");
-
+        int i = 0;
         for (final Agent agent : agents)
         {
             Objects.requireNonNull(agent, "Agent cannot be null");
+            this.agents[i++] = agent;
         }
-
-        this.agents = Arrays.copyOf(agents, agents.length);
     }
 
     /**
