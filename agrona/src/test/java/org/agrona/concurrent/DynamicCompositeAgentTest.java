@@ -32,7 +32,7 @@ public class DynamicCompositeAgentTest
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
 
         invoker.close();
-        compositeAgent.add(mock(Agent.class));
+        compositeAgent.tryAdd(mock(Agent.class));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -42,7 +42,7 @@ public class DynamicCompositeAgentTest
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
 
         invoker.close();
-        compositeAgent.remove(mock(Agent.class));
+        compositeAgent.tryRemove(mock(Agent.class));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DynamicCompositeAgentTest
         verify(mockAgentOne, times(1)).doWork();
 
         final Agent mockAgentTwo = mock(Agent.class);
-        compositeAgent.add(mockAgentTwo);
+        assertTrue(compositeAgent.tryAdd(mockAgentTwo));
         assertFalse(compositeAgent.hasAddAgentCompleted());
 
         invoker.invoke();
@@ -89,7 +89,7 @@ public class DynamicCompositeAgentTest
         verify(mockAgentOne, times(1)).doWork();
         verify(mockAgentTwo, times(1)).doWork();
 
-        compositeAgent.remove(mockAgentTwo);
+        assertTrue(compositeAgent.tryRemove(mockAgentTwo));
         assertFalse(compositeAgent.hasRemoveAgentCompleted());
 
         invoker.invoke();
@@ -118,5 +118,44 @@ public class DynamicCompositeAgentTest
         verify(mockAgentTwo, times(1)).onClose();
 
         assertEquals(DynamicCompositeAgent.Status.CLOSED, compositeAgent.status());
+    }
+
+    @Test
+    public void shouldDetectConcurrentAdd() throws Exception
+    {
+        final Agent mockAgentOne = mock(Agent.class);
+        final Agent mockAgentTwo = mock(Agent.class);
+
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+        invoker.start();
+
+        assertTrue(compositeAgent.tryAdd(mockAgentOne));
+        assertFalse(compositeAgent.tryAdd(mockAgentTwo));
+
+        invoker.invoke();
+        assertTrue(compositeAgent.tryAdd(mockAgentTwo));
+    }
+
+    @Test
+    public void shouldDetectConcurrentRemove() throws Exception
+    {
+        final Agent mockAgentOne = mock(Agent.class);
+        final Agent mockAgentTwo = mock(Agent.class);
+
+        final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME, mockAgentOne, mockAgentTwo);
+        final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
+        invoker.start();
+
+        assertTrue(compositeAgent.tryAdd(mockAgentOne));
+        invoker.invoke();
+        assertTrue(compositeAgent.tryAdd(mockAgentTwo));
+        invoker.invoke();
+
+        assertTrue(compositeAgent.tryRemove(mockAgentOne));
+        assertFalse(compositeAgent.tryRemove(mockAgentTwo));
+        invoker.invoke();
+
+        assertTrue(compositeAgent.tryRemove(mockAgentTwo));
     }
 }

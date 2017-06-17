@@ -135,13 +135,13 @@ public class DynamicCompositeAgent implements Agent
         final Agent agentToAdd = addAgent.get();
         if (null != agentToAdd)
         {
-            addAgent(agentToAdd);
+            add(agentToAdd);
         }
 
         final Agent agentToRemove = removeAgent.get();
         if (null != agentToRemove)
         {
-            removeAgent(agentToRemove);
+            remove(agentToRemove);
         }
 
         for (final Agent agent : agents)
@@ -175,14 +175,18 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     * Add a new {@link Agent} to the composite.
+     * Try and add a new {@link Agent} to the composite. This method does not block and will return false if another
+     * concurrent attempt to add is in progress.
      * <p>
-     * The agent will be added during the next invocation of {@link #doWork()}. If the {@link Agent#onStart()}
-     * method throws an exception then it will not be added and {@link Agent#onClose()} will be called.
+     * The agent will be added during the next invocation of {@link #doWork()} if this operation is successful.
+     * If the {@link Agent#onStart()} method throws an exception then it will not be added and {@link Agent#onClose()}
+     * will be called.
      *
      * @param agent to be added to the composite.
+     * @return true is a successful add request is pending otherwise false if another concurrent add request is in
+     * progress.
      */
-    public void add(final Agent agent)
+    public boolean tryAdd(final Agent agent)
     {
         Objects.requireNonNull(agent, "Agent cannot be null");
 
@@ -191,21 +195,13 @@ public class DynamicCompositeAgent implements Agent
             throw new IllegalStateException("Add called when not active");
         }
 
-        while (!addAgent.compareAndSet(null, agent))
-        {
-            if (Status.ACTIVE != status)
-            {
-                throw new IllegalStateException("Add called when not active");
-            }
-
-            Thread.yield();
-        }
+        return addAgent.compareAndSet(null, agent);
     }
 
     /**
-     * Has the last {@link #add(Agent)} operation be processed in the {@link #doWork()} cycle?
+     * Has the last successful {@link #tryAdd(Agent)} operation been processed in the {@link #doWork()} cycle?
      *
-     * @return the last {@link #add(Agent)} operation be processed in the {@link #doWork()} cycle?
+     * @return the last successful {@link #tryAdd(Agent)} operation been processed in the {@link #doWork()} cycle?
      */
     public boolean hasAddAgentCompleted()
     {
@@ -213,13 +209,15 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     * Remove an {@link Agent} from the composite. The agent is removed during the next {@link #doWork()} duty cycle.
+     * Try and remove an {@link Agent} from the composite. The agent is removed during the next {@link #doWork()}
+     * duty cycle if this operation is successful. This method does not block and will return false if another
+     * concurrent attempt to remove is in progress..
      * <p>
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *
      * @param agent to be removed.
      */
-    public void remove(final Agent agent)
+    public boolean tryRemove(final Agent agent)
     {
         Objects.requireNonNull(agent, "Agent cannot be null");
 
@@ -228,28 +226,37 @@ public class DynamicCompositeAgent implements Agent
             throw new IllegalStateException("Remove called when not active");
         }
 
-        while (!removeAgent.compareAndSet(null, agent))
-        {
-            if (Status.ACTIVE != status)
-            {
-                throw new IllegalStateException("Remove called when not active");
-            }
-
-            Thread.yield();
-        }
+        return removeAgent.compareAndSet(null, agent);
     }
 
     /**
-     * Has the last {@link #remove(Agent)} operation be processed in the {@link #doWork()} cycle?
+     * Has the last {@link #tryRemove(Agent)} operation been processed in the {@link #doWork()} cycle?
      *
-     * @return the last {@link #remove(Agent)} operation be processed in the {@link #doWork()} cycle?
+     * @return the last {@link #tryRemove(Agent)} operation been processed in the {@link #doWork()} cycle?
      */
     public boolean hasRemoveAgentCompleted()
     {
         return null == removeAgent.get();
     }
 
-    private void removeAgent(final Agent agent)
+    private void add(final Agent agent)
+    {
+        addAgent.lazySet(null);
+
+        try
+        {
+            agent.onStart();
+        }
+        catch (final RuntimeException ex)
+        {
+            agent.onClose();
+            throw ex;
+        }
+
+        agents = ArrayUtil.add(agents, agent);
+    }
+
+    private void remove(final Agent agent)
     {
         removeAgent.lazySet(null);
 
@@ -266,22 +273,5 @@ public class DynamicCompositeAgent implements Agent
         {
             agents = newAgents;
         }
-    }
-
-    private void addAgent(final Agent agent)
-    {
-        addAgent.lazySet(null);
-
-        try
-        {
-            agent.onStart();
-        }
-        catch (final RuntimeException ex)
-        {
-            agent.onClose();
-            throw ex;
-        }
-
-        agents = ArrayUtil.add(agents, agent);
     }
 }
