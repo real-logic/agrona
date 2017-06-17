@@ -185,6 +185,7 @@ public class DynamicCompositeAgent implements Agent
      * @param agent to be added to the composite.
      * @return true is a successful add request is pending otherwise false if another concurrent add request is in
      * progress.
+     * @see #hasAddAgentCompleted()
      */
     public boolean tryAdd(final Agent agent)
     {
@@ -202,6 +203,7 @@ public class DynamicCompositeAgent implements Agent
      * Has the last successful {@link #tryAdd(Agent)} operation been processed in the {@link #doWork()} cycle?
      *
      * @return the last successful {@link #tryAdd(Agent)} operation been processed in the {@link #doWork()} cycle?
+     * @see #tryAdd(Agent)
      */
     public boolean hasAddAgentCompleted()
     {
@@ -223,6 +225,7 @@ public class DynamicCompositeAgent implements Agent
      * @param agent to be removed.
      * @return true is a successful remove request is pending otherwise false if another concurrent remove request
      * is in progress.
+     * @see #hasRemoveAgentCompleted()
      */
     public boolean tryRemove(final Agent agent)
     {
@@ -240,6 +243,7 @@ public class DynamicCompositeAgent implements Agent
      * Has the last {@link #tryRemove(Agent)} operation been processed in the {@link #doWork()} cycle?
      *
      * @return the last {@link #tryRemove(Agent)} operation been processed in the {@link #doWork()} cycle?
+     * @see #tryRemove(Agent)
      */
     public boolean hasRemoveAgentCompleted()
     {
