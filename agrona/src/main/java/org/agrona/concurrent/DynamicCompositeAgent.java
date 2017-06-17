@@ -207,7 +207,7 @@ public class DynamicCompositeAgent implements Agent
     {
         if (Status.ACTIVE != status)
         {
-            throw new IllegalStateException("Remove called when not active");
+            throw new IllegalStateException("Agent is not active");
         }
 
         return null == addAgent.get();
