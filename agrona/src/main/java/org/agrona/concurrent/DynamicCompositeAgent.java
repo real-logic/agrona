@@ -205,6 +205,11 @@ public class DynamicCompositeAgent implements Agent
      */
     public boolean hasAddAgentCompleted()
     {
+        if (Status.ACTIVE != status)
+        {
+            throw new IllegalStateException("Remove called when not active");
+        }
+
         return null == addAgent.get();
     }
 
@@ -238,6 +243,11 @@ public class DynamicCompositeAgent implements Agent
      */
     public boolean hasRemoveAgentCompleted()
     {
+        if (Status.ACTIVE != status)
+        {
+            throw new IllegalStateException("Agent is not active");
+        }
+
         return null == removeAgent.get();
     }
 
