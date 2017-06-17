@@ -216,6 +216,8 @@ public class DynamicCompositeAgent implements Agent
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *
      * @param agent to be removed.
+     * @return true is a successful remove request is pending otherwise false if another concurrent remove request
+     * is in progress.
      */
     public boolean tryRemove(final Agent agent)
     {
