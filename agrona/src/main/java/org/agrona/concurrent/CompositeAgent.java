@@ -15,8 +15,8 @@
  */
 package org.agrona.concurrent;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
@@ -43,44 +43,20 @@ public class CompositeAgent implements Agent
      */
     public CompositeAgent(final Agent... agents)
     {
-        if (agents == null)
-        {
-            throw new NullPointerException("Expecting at least one Agent");
-        }
-
-        if (agents.length == 0)
-        {
-            throw new IllegalArgumentException("Expecting at least one Agent");
-        }
+        this.agents = new Agent[agents.length];
 
         final StringBuilder sb = new StringBuilder(agents.length * 16);
         sb.append('[');
+        int i = 0;
         for (final Agent agent : agents)
         {
-            if (agent == null)
-            {
-                throw new NullPointerException("Agents list contains a null");
-            }
-
+            Objects.requireNonNull(agent, "Agent cannot be null");
             sb.append(agent.roleName()).append(',');
+            this.agents[i++] = agent;
         }
 
         sb.setCharAt(sb.length() - 1, ']');
         roleName = sb.toString();
-
-        this.agents = Arrays.copyOf(agents, agents.length);
-    }
-
-    public int doWork() throws Exception
-    {
-        int workCount = 0;
-
-        for (final Agent agent : agents)
-        {
-            workCount += agent.doWork();
-        }
-
-        return workCount;
     }
 
     /**
@@ -94,6 +70,18 @@ public class CompositeAgent implements Agent
         {
             agent.onClose();
         }
+    }
+
+    public int doWork() throws Exception
+    {
+        int workCount = 0;
+
+        for (final Agent agent : agents)
+        {
+            workCount += agent.doWork();
+        }
+
+        return workCount;
     }
 
     /**
