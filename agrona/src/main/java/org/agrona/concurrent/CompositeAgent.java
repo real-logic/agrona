@@ -59,16 +59,21 @@ public class CompositeAgent implements Agent
         roleName = sb.toString();
     }
 
+    public String roleName()
+    {
+        return roleName;
+    }
+
     /**
      * {@inheritDoc}
      * <p>
-     * Note that one agent throwing an exception on close may result in other agents not being closed.
+     * Note that one agent throwing an exception on start may result in other agents not being started.
      */
-    public void onClose()
+    public void onStart()
     {
         for (final Agent agent : agents)
         {
-            agent.onClose();
+            agent.onStart();
         }
     }
 
@@ -87,18 +92,13 @@ public class CompositeAgent implements Agent
     /**
      * {@inheritDoc}
      * <p>
-     * Note that one agent throwing an exception on start may result in other agents not being started.
+     * Note that one agent throwing an exception on close may result in other agents not being closed.
      */
-    public void onStart()
+    public void onClose()
     {
         for (final Agent agent : agents)
         {
-            agent.onStart();
+            agent.onClose();
         }
-    }
-
-    public String roleName()
-    {
-        return roleName;
     }
 }
