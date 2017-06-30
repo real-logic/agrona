@@ -46,12 +46,12 @@ def projectPom = {
     packaging = 'pom'
     // optionally artifactId can be defined here
     description = 'High performance primitives and utility library.'
-    url = 'https://github.com/real-logic/Agrona'
+    url = 'https://github.com/real-logic/agrona'
 
     scm {
-        connection = 'scm:git:https://github.com/real-logic/Agrona.git'
-        developerConnection = 'scm:git:https://github.com/real-logic/Agrona.git'
-        url = 'https://github.com/real-logic/Agrona.git'
+        connection = 'scm:git:https://github.com/real-logic/agrona.git'
+        developerConnection = 'scm:git:https://github.com/real-logic/agrona.git'
+        url = 'https://github.com/real-logic/agrona.git'
     }
 
     licenses {
