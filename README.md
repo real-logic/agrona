@@ -2,13 +2,13 @@ Agrona
 ======
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
-applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/Aeron) 
+applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
 efficient reliable UDP unicast, multicast, and IPC message transport and provides high-performance buffer implementations
 to support the [Simple Binary Encoding](https://github.com/real-logic/simple-binary-encoding) Message Codec.
 
-For the latest version information and changes see the [Change Log](https://github.com/real-logic/Agrona/wiki/Change-Log). 
+For the latest version information and changes see the [Change Log](https://github.com/real-logic/agrona/wiki/Change-Log). 
 
-The latest release and **downloads** can be found in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7CAgrona).
+The latest release and **downloads** can be found in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cagrona).
 
 Utilities Included:
 
@@ -49,7 +49,7 @@ Build
 
 ### Java Build
 
-The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/Agrona/blob/master/build.gradle) file.
+The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
 
 You require the following to build Agrona:
 
