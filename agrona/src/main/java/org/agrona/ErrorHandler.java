@@ -23,6 +23,8 @@ public interface ErrorHandler
 {
     /**
      * Callback to notify of an error that has occurred when processing an operation or event.
+     * <p>
+     * This method is assumed non-throwing, so rethrowing the exception or triggering further exceptions would be a bug.
      *
      * @param throwable that occurred while processing an operation or event.
      */
