@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,9 +24,10 @@ import org.mockito.Mockito;
 import org.agrona.DirectBuffer;
 import org.agrona.collections.IntObjConsumer;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 
 import static java.nio.ByteBuffer.allocateDirect;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.agrona.concurrent.status.CountersReader.MAX_LABEL_LENGTH;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -42,8 +44,8 @@ public class CountersManagerTest
 
     private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
     private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
-    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.US_ASCII);
-    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, StandardCharsets.US_ASCII);
+    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
+    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
 
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
@@ -190,6 +192,44 @@ public class CountersManagerTest
 
         final DirectBuffer keyTwoBuffer = argCaptorTwo.getValue();
         assertThat(keyTwoBuffer.getLong(0), is(keyTwo));
+    }
+
+    @Test
+    public void shouldStoreRawData()
+    {
+        final int typeIdOne = 333;
+        final long keyOne = 777L;
+        final MutableDirectBuffer keyOneBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(8));
+        keyOneBuffer.putLong(0, keyOne);
+        final DirectBuffer labelOneBuffer = new UnsafeBuffer("Test Label One".getBytes(US_ASCII));
+
+        final int typeIdTwo = 222;
+        final long keyTwo = 444;
+        final MutableDirectBuffer keyTwoBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(8));
+        keyTwoBuffer.putLong(0, keyTwo);
+        final DirectBuffer labelTwoBuffer = new UnsafeBuffer("Test Label Two".getBytes(US_ASCII));
+
+        final int counterIdOne = manager.allocate(
+            typeIdOne, keyOneBuffer, 0, keyOneBuffer.capacity(), labelOneBuffer, 0, labelOneBuffer.capacity());
+
+        final int counterIdTwo = manager.allocate(
+            typeIdTwo, keyTwoBuffer, 0, keyTwoBuffer.capacity(), labelTwoBuffer, 0, labelTwoBuffer.capacity());
+
+        manager.forEach(metaData);
+
+        final ArgumentCaptor<DirectBuffer> argCaptorOne = ArgumentCaptor.forClass(DirectBuffer.class);
+        final ArgumentCaptor<DirectBuffer> argCaptorTwo = ArgumentCaptor.forClass(DirectBuffer.class);
+
+        final InOrder inOrder = Mockito.inOrder(metaData);
+        inOrder.verify(metaData).accept(eq(counterIdOne), eq(typeIdOne), argCaptorOne.capture(), eq("Test Label One"));
+        inOrder.verify(metaData).accept(eq(counterIdTwo), eq(typeIdTwo), argCaptorTwo.capture(), eq("Test Label Two"));
+        inOrder.verifyNoMoreInteractions();
+
+        final DirectBuffer keyOneBufferCapture = argCaptorOne.getValue();
+        assertThat(keyOneBufferCapture.getLong(0), is(keyOne));
+
+        final DirectBuffer keyTwoBufferCapture = argCaptorTwo.getValue();
+        assertThat(keyTwoBufferCapture.getLong(0), is(keyTwo));
     }
 
     @Test

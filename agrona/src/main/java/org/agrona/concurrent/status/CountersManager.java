@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.collections.IntArrayList;
@@ -143,7 +144,7 @@ public class CountersManager extends CountersReader
         try
         {
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
-            labelValue(recordOffset, label);
+            putLabel(recordOffset, label);
 
             metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
         }
@@ -185,7 +186,67 @@ public class CountersManager extends CountersReader
         {
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
             keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
-            labelValue(recordOffset, label);
+            putLabel(recordOffset, label);
+
+            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+        }
+        catch (final Exception ex)
+        {
+            freeList.pushInt(counterId);
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return counterId;
+    }
+
+    /**
+     * Allocate a counter with the minimum of allocation by allowing the label an key to be provided and copied.
+     * <p>
+     * If the keyBuffer is null then a copy of the key is not attempted.
+     *
+     * @param typeId      for the counter.
+     * @param keyBuffer   containing the optional key for the counter.
+     * @param keyOffset   within the keyBuffer at which the key begins.
+     * @param keyLength   of the key in the keyBuffer.
+     * @param labelBuffer containing the mandatory label for the counter.
+     * @param labelOffset within the labelBuffer at which the label begins.
+     * @param labelLength of the label in the labelBuffer.
+     * @return the id allocated for the counter.
+     */
+    public int allocate(
+        final int typeId,
+        final DirectBuffer keyBuffer,
+        final int keyOffset,
+        final int keyLength,
+        final DirectBuffer labelBuffer,
+        final int labelOffset,
+        final int labelLength)
+    {
+        final int counterId = nextCounterId();
+        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
+        {
+            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
+        }
+
+        final int recordOffset = metaDataOffset(counterId);
+        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
+        {
+            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
+        }
+
+        try
+        {
+            metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
+
+            if (null != keyBuffer)
+            {
+                final int length = Math.min(keyLength, MAX_KEY_LENGTH);
+                metaDataBuffer.putBytes(recordOffset + KEY_OFFSET, keyBuffer, keyOffset, length);
+            }
+
+            final int length = Math.min(labelLength, MAX_LABEL_LENGTH);
+            metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, length);
+            metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, labelBuffer, labelOffset, length);
 
             metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
         }
@@ -223,6 +284,35 @@ public class CountersManager extends CountersReader
     }
 
     /**
+     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use.
+     * <p>
+     * If the keyBuffer is null then a copy of the key is not attempted.
+     *
+     * @param typeId      for the counter.
+     * @param keyBuffer   containing the optional key for the counter.
+     * @param keyOffset   within the keyBuffer at which the key begins.
+     * @param keyLength   of the key in the keyBuffer.
+     * @param labelBuffer containing the mandatory label for the counter.
+     * @param labelOffset within the labelBuffer at which the label begins.
+     * @param labelLength of the label in the labelBuffer.
+     * @return the id allocated for the counter.
+     */
+    public AtomicCounter newCounter(
+        final int typeId,
+        final DirectBuffer keyBuffer,
+        final int keyOffset,
+        final int keyLength,
+        final DirectBuffer labelBuffer,
+        final int labelOffset,
+        final int labelLength)
+    {
+        return new AtomicCounter(
+            valuesBuffer,
+            allocate(typeId, keyBuffer, keyOffset, keyLength, labelBuffer, labelOffset, labelLength),
+            this);
+    }
+
+    /**
      * Free the counter identified by counterId.
      *
      * @param counterId the counter to freed
@@ -257,7 +347,7 @@ public class CountersManager extends CountersReader
         return counterId;
     }
 
-    private void labelValue(final int recordOffset, final String label)
+    private void putLabel(final int recordOffset, final String label)
     {
         if (StandardCharsets.US_ASCII == labelCharset)
         {
