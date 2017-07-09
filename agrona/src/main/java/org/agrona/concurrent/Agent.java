@@ -40,6 +40,8 @@ public interface Agent
      * <p>
      * The return value is used for implementing a backoff strategy that can be employed when no work is
      * currently available for the agent to process.
+     * <p>
+     * If the Agent should terminate and close then a {@link AgentTerminationException} can be thrown.
      *
      * @return 0 to indicate no work was currently available, a positive value otherwise.
      * @throws java.lang.Exception if an error has occurred
