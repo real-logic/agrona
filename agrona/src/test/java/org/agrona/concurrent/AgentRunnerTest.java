@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -55,6 +56,21 @@ public class AgentRunnerTest
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
         verify(mockAgent, never()).onClose();
+    }
+
+    @Test
+    public void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
+    {
+        final RuntimeException expectedException = new AgentTerminationException();
+        when(mockAgent.doWork()).thenThrow(expectedException);
+
+        runner.run();
+
+        verify(mockAgent).doWork();
+        verify(mockErrorHandler).onError(expectedException);
+        verify(mockAtomicCounter).increment();
+        verify(mockAgent).onClose();
+        assertTrue(runner.isClosed());
     }
 
     @Test

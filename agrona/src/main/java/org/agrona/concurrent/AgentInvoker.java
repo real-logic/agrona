@@ -33,8 +33,8 @@ import java.util.Objects;
  */
 public class AgentInvoker implements AutoCloseable
 {
-    private boolean closed = false;
-    private boolean started = false;
+    private boolean isClosed = false;
+    private boolean isStarted = false;
 
     private final AtomicCounter errorCounter;
     private final ErrorHandler errorHandler;
@@ -61,6 +61,26 @@ public class AgentInvoker implements AutoCloseable
     }
 
     /**
+     * Has the {@link Agent} been started?
+     *
+     * @return has the {@link Agent} been started?
+     */
+    public boolean isStarted()
+    {
+        return isStarted;
+    }
+
+    /**
+     * Has the {@link Agent} been closed?
+     *
+     * @return has the {@link Agent} been closed?
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
+    /**
      * The {@link Agent} which is contained.
      *
      * @return {@link Agent} being contained.
@@ -74,7 +94,8 @@ public class AgentInvoker implements AutoCloseable
      * Invoke the {@link Agent#doWork()} method and return the work count.
      * <p>
      * If an error occurs then the {@link AtomicCounter#increment()} will be called on the errorCounter if not null
-     * and the {@link Throwable} will be passed to the {@link ErrorHandler#onError(Throwable)} method.
+     * and the {@link Throwable} will be passed to the {@link ErrorHandler#onError(Throwable)} method. If the error
+     * is an {@link AgentTerminationException} then {@link #close()} will be called after the error handler.
      * <p>
      * Once closed this method will return without invoking the {@link Agent}.
      *
@@ -83,7 +104,7 @@ public class AgentInvoker implements AutoCloseable
     public int invoke()
     {
         int workCount = 0;
-        if (!closed)
+        if (!isClosed)
         {
             try
             {
@@ -92,6 +113,11 @@ public class AgentInvoker implements AutoCloseable
             catch (final InterruptedException | ClosedByInterruptException ignore)
             {
                 Thread.interrupted();
+            }
+            catch (final AgentTerminationException ex)
+            {
+                handleError(ex);
+                close();
             }
             catch (final Throwable throwable)
             {
@@ -111,9 +137,9 @@ public class AgentInvoker implements AutoCloseable
     {
         try
         {
-            if (!started)
+            if (!isStarted)
             {
-                started = true;
+                isStarted = true;
                 agent.onStart();
             }
         }
@@ -130,10 +156,17 @@ public class AgentInvoker implements AutoCloseable
      */
     public final void close()
     {
-        if (!closed)
+        try
         {
-            closed = true;
-            agent.onClose();
+            if (!isClosed)
+            {
+                isClosed = true;
+                agent.onClose();
+            }
+        }
+        catch (final Throwable throwable)
+        {
+            handleError(throwable);
         }
     }
 

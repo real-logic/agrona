@@ -37,7 +37,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     private static final int TIMEOUT_MS = 1000;
 
     private volatile boolean running = true;
-    private volatile boolean done = false;
+    private volatile boolean isClosed = false;
 
     private final AtomicCounter errorCounter;
     private final ErrorHandler errorHandler;
@@ -107,6 +107,16 @@ public class AgentRunner implements Runnable, AutoCloseable
     }
 
     /**
+     * Has the {@link Agent} been closed?
+     *
+     * @return has the {@link Agent} been closed?
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
+    /**
      * Get the thread which is running that {@link Agent}.
      * <p>
      * If null then the runner has not been started. If {@link #TOMBSTONE} then the runner is being closed.
@@ -155,6 +165,11 @@ public class AgentRunner implements Runnable, AutoCloseable
                     Thread.interrupted();
                     break;
                 }
+                catch (final AgentTerminationException ex)
+                {
+                    handleError(ex);
+                    break;
+                }
                 catch (final Throwable throwable)
                 {
                     handleError(throwable);
@@ -172,7 +187,7 @@ public class AgentRunner implements Runnable, AutoCloseable
         }
         finally
         {
-            done = true;
+            isClosed = true;
         }
     }
 
@@ -205,7 +220,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                 {
                     thread.join(TIMEOUT_MS);
 
-                    if (!thread.isAlive() || done)
+                    if (!thread.isAlive() || isClosed)
                     {
                         return;
                     }

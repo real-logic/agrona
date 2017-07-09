@@ -24,6 +24,7 @@ import java.nio.channels.ClosedByInterruptException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class AgentInvokerTest
@@ -94,6 +95,27 @@ public class AgentInvokerTest
 
         verify(mockAgent, never()).doWork();
         verify(mockAgent).onClose();
+    }
+
+    @Test
+    public void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
+    {
+        final RuntimeException expectedException = new AgentTerminationException();
+        when(mockAgent.doWork()).thenThrow(expectedException);
+
+        invoker.invoke();
+
+        verify(mockAgent).doWork();
+        verify(mockErrorHandler).onError(expectedException);
+        verify(mockAtomicCounter).increment();
+        verify(mockAgent).onClose();
+        assertTrue(invoker.isClosed());
+
+        reset(mockAgent);
+        invoker.invoke();
+
+        verify(mockAgent, never()).doWork();
+        assertTrue(invoker.isClosed());
     }
 
     @Test
