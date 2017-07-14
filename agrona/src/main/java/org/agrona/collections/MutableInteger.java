@@ -22,4 +22,23 @@ package org.agrona.collections;
 public class MutableInteger
 {
     public int value = 0;
+
+    public MutableInteger()
+    {
+    }
+
+    public MutableInteger(final int value)
+    {
+        this.value = value;
+    }
+
+    public int get()
+    {
+        return value;
+    }
+
+    public void set(final int value)
+    {
+        this.value = value;
+    }
 }

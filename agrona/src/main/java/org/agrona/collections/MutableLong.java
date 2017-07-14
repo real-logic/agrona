@@ -22,4 +22,23 @@ package org.agrona.collections;
 public class MutableLong
 {
     public long value = 0;
+
+    public MutableLong()
+    {
+    }
+
+    public MutableLong(final long value)
+    {
+        this.value = value;
+    }
+
+    public long get()
+    {
+        return value;
+    }
+
+    public void set(final long value)
+    {
+        this.value = value;
+    }
 }
