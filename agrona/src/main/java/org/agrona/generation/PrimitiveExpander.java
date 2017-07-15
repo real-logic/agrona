@@ -65,8 +65,8 @@ public final class PrimitiveExpander
                 .collect(toList());
 
             final Path outputPath = Paths.get(GENERATED_DIRECTORY, packageName, substitutedFileName + SUFFIX);
+
             Files.write(outputPath, substitutedContents, UTF_8);
-            System.out.println("Generated " + substitutedFileName);
         }
     }
 
