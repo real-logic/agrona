@@ -19,7 +19,7 @@ package org.agrona.collections;
  * Holder for an long value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
  * reference.
  */
-public class MutableLong
+public class MutableLong extends Number implements Comparable<MutableLong>
 {
     public long value = 0;
 
@@ -40,5 +40,72 @@ public class MutableLong
     public void set(final long value)
     {
         this.value = value;
+    }
+
+    public byte byteValue()
+    {
+        return (byte)value;
+    }
+
+    public short shortValue()
+    {
+        return (short)value;
+    }
+
+    public int intValue()
+    {
+        return (int)value;
+    }
+
+    public long longValue()
+    {
+        return value;
+    }
+
+    public float floatValue()
+    {
+        return (float)value;
+    }
+
+    public double doubleValue()
+    {
+        return (double)value;
+    }
+
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        final MutableLong that = (MutableLong)o;
+
+        return value == that.value;
+    }
+
+    public int hashCode()
+    {
+        return Long.hashCode(value);
+    }
+
+    public String toString()
+    {
+        return Long.toString(value);
+    }
+
+    public int compareTo(final MutableLong that)
+    {
+        return compare(this.value, that.value);
+    }
+
+    public static int compare(final long lhs, final long rhs)
+    {
+        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }
 }
