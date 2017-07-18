@@ -91,6 +91,27 @@ public class AgentInvoker implements AutoCloseable
     }
 
     /**
+     * Mark the invoker as started and call the {@link Agent#onStart()} method.
+     * <p>
+     * Startup logic will only be performed once.
+     */
+    public void start()
+    {
+        try
+        {
+            if (!isStarted)
+            {
+                agent.onStart();
+                isStarted = true;
+            }
+        }
+        catch (final Throwable throwable)
+        {
+            handleError(throwable);
+        }
+    }
+
+    /**
      * Invoke the {@link Agent#doWork()} method and return the work count.
      * <p>
      * If an error occurs then the {@link AtomicCounter#increment()} will be called on the errorCounter if not null
@@ -126,27 +147,6 @@ public class AgentInvoker implements AutoCloseable
         }
 
         return workCount;
-    }
-
-    /**
-     * Mark the invoker as started and call the {@link Agent#onStart()} method.
-     * <p>
-     * Startup logic will only be performed once.
-     */
-    public void start()
-    {
-        try
-        {
-            if (!isStarted)
-            {
-                agent.onStart();
-                isStarted = true;
-            }
-        }
-        catch (final Throwable throwable)
-        {
-            handleError(throwable);
-        }
     }
 
     /**
