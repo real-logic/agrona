@@ -35,6 +35,7 @@ public class AgentInvoker implements AutoCloseable
 {
     private boolean isClosed = false;
     private boolean isStarted = false;
+    private boolean isRunning = false;
 
     private final AtomicCounter errorCounter;
     private final ErrorHandler errorHandler;
@@ -71,6 +72,16 @@ public class AgentInvoker implements AutoCloseable
     }
 
     /**
+     * Has the {@link Agent} been running?
+     *
+     * @return has the {@link Agent} been started successfully and not closed?
+     */
+    public boolean isRunning()
+    {
+        return isRunning;
+    }
+
+    /**
      * Has the {@link Agent} been closed?
      *
      * @return has the {@link Agent} been closed?
@@ -101,8 +112,9 @@ public class AgentInvoker implements AutoCloseable
         {
             if (!isStarted)
             {
-                agent.onStart();
                 isStarted = true;
+                agent.onStart();
+                isRunning = true;
             }
         }
         catch (final Throwable throwable)
@@ -125,7 +137,7 @@ public class AgentInvoker implements AutoCloseable
     public int invoke()
     {
         int workCount = 0;
-        if (isStarted && !isClosed)
+        if (isRunning)
         {
             try
             {
@@ -160,6 +172,7 @@ public class AgentInvoker implements AutoCloseable
         {
             if (!isClosed)
             {
+                isRunning = false;
                 isClosed = true;
                 agent.onClose();
             }
