@@ -156,23 +156,9 @@ public class AgentRunner implements Runnable, AutoCloseable
 
             while (running)
             {
-                try
+                if (doDutyCycle(idleStrategy, agent))
                 {
-                    idleStrategy.idle(agent.doWork());
-                }
-                catch (final InterruptedException | ClosedByInterruptException ignore)
-                {
-                    Thread.interrupted();
                     break;
-                }
-                catch (final AgentTerminationException ex)
-                {
-                    handleError(ex);
-                    break;
-                }
-                catch (final Throwable throwable)
-                {
-                    handleError(throwable);
                 }
             }
 
@@ -189,6 +175,30 @@ public class AgentRunner implements Runnable, AutoCloseable
         {
             isClosed = true;
         }
+    }
+
+    private boolean doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)
+    {
+        try
+        {
+            idleStrategy.idle(agent.doWork());
+        }
+        catch (final InterruptedException | ClosedByInterruptException ignore)
+        {
+            Thread.interrupted();
+            return true;
+        }
+        catch (final AgentTerminationException ex)
+        {
+            handleError(ex);
+            return true;
+        }
+        catch (final Throwable throwable)
+        {
+            handleError(throwable);
+        }
+
+        return false;
     }
 
     private void handleError(final Throwable throwable)
