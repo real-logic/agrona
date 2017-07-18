@@ -120,6 +120,7 @@ public class AgentInvoker implements AutoCloseable
         catch (final Throwable throwable)
         {
             handleError(throwable);
+            close();
         }
     }
 
@@ -146,6 +147,7 @@ public class AgentInvoker implements AutoCloseable
             catch (final InterruptedException | ClosedByInterruptException ignore)
             {
                 Thread.interrupted();
+                close();
             }
             catch (final AgentTerminationException ex)
             {

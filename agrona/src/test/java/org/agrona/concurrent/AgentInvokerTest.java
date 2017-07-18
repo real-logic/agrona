@@ -19,10 +19,12 @@ import org.agrona.ErrorHandler;
 import org.agrona.LangUtil;
 import org.agrona.concurrent.status.AtomicCounter;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.channels.ClosedByInterruptException;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -96,6 +98,25 @@ public class AgentInvokerTest
 
         verify(mockAgent, never()).doWork();
         verify(mockAgent).onClose();
+    }
+
+    @Test
+    public void shouldReportExceptionThrownOnStart() throws Exception
+    {
+        final RuntimeException expectedException = new RuntimeException();
+        Mockito.doThrow(expectedException).when(mockAgent).onStart();
+
+        invoker.start();
+        invoker.invoke();
+
+        verify(mockAgent, never()).doWork();
+        verify(mockErrorHandler).onError(expectedException);
+        verify(mockAtomicCounter).increment();
+        verify(mockAgent).onClose();
+
+        assertTrue(invoker.isStarted());
+        assertFalse(invoker.isRunning());
+        assertTrue(invoker.isClosed());
     }
 
     @Test
