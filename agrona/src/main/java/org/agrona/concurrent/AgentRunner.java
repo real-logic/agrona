@@ -34,7 +34,7 @@ public class AgentRunner implements Runnable, AutoCloseable
      * Indicates that the runner is being closed.
      */
     public static final Thread TOMBSTONE = new Thread();
-    private static final int TIMEOUT_MS = 1000;
+    private static final int RETRY_CLOSE_TIMEOUT_MS = 3000;
 
     private volatile boolean running = true;
     private volatile boolean isClosed = false;
@@ -177,6 +177,42 @@ public class AgentRunner implements Runnable, AutoCloseable
         }
     }
 
+    /**
+     * Stop the running Agent and cleanup. This will wait for the work loop to exit.
+     */
+    public final void close()
+    {
+        running = false;
+
+        final Thread thread = this.thread.getAndSet(TOMBSTONE);
+        if (TOMBSTONE != thread && null != thread)
+        {
+            while (true)
+            {
+                try
+                {
+                    thread.join(RETRY_CLOSE_TIMEOUT_MS);
+
+                    if (!thread.isAlive() || isClosed)
+                    {
+                        return;
+                    }
+
+                    System.err.println("Timeout waiting for agent '" + agent.roleName() + "' to close, Retrying...");
+
+                    if (!thread.isInterrupted())
+                    {
+                        thread.interrupt();
+                    }
+                }
+                catch (final InterruptedException ignore)
+                {
+                    return;
+                }
+            }
+        }
+    }
+
     private boolean doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)
     {
         try
@@ -211,39 +247,6 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
 
             errorHandler.onError(throwable);
-        }
-    }
-
-    /**
-     * Stop the running Agent and cleanup. This will wait for the work loop to exit.
-     */
-    public final void close()
-    {
-        running = false;
-
-        final Thread thread = this.thread.getAndSet(TOMBSTONE);
-        if (TOMBSTONE != thread && null != thread)
-        {
-            while (true)
-            {
-                try
-                {
-                    thread.join(TIMEOUT_MS);
-
-                    if (!thread.isAlive() || isClosed)
-                    {
-                        return;
-                    }
-
-                    System.err.println("Timeout waiting for agent '" + agent.roleName() + "' Retrying...");
-
-                    thread.interrupt();
-                }
-                catch (final InterruptedException ignore)
-                {
-                    return;
-                }
-            }
         }
     }
 }
