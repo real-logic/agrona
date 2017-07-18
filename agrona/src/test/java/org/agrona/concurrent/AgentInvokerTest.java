@@ -78,6 +78,7 @@ public class AgentInvokerTest
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
+        invoker.start();
         invoker.invoke();
 
         verify(mockAgent).doWork();
@@ -103,6 +104,7 @@ public class AgentInvokerTest
         final RuntimeException expectedException = new AgentTerminationException();
         when(mockAgent.doWork()).thenThrow(expectedException);
 
+        invoker.start();
         invoker.invoke();
 
         verify(mockAgent).doWork();
@@ -149,6 +151,7 @@ public class AgentInvokerTest
 
     private void assertExceptionNotReported() throws InterruptedException
     {
+        invoker.start();
         invoker.invoke();
         invoker.close();
 

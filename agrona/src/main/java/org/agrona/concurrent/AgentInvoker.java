@@ -97,14 +97,14 @@ public class AgentInvoker implements AutoCloseable
      * and the {@link Throwable} will be passed to the {@link ErrorHandler#onError(Throwable)} method. If the error
      * is an {@link AgentTerminationException} then {@link #close()} will be called after the error handler.
      * <p>
-     * Once closed this method will return without invoking the {@link Agent}.
+     * If not successfully started or after closed then this method will return without invoking the {@link Agent}.
      *
      * @return the work count for the {@link Agent#doWork()} method.
      */
     public int invoke()
     {
         int workCount = 0;
-        if (!isClosed)
+        if (isStarted && !isClosed)
         {
             try
             {
@@ -139,8 +139,8 @@ public class AgentInvoker implements AutoCloseable
         {
             if (!isStarted)
             {
-                isStarted = true;
                 agent.onStart();
+                isStarted = true;
             }
         }
         catch (final Throwable throwable)
