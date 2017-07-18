@@ -44,6 +44,8 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public class UnsafeBuffer implements AtomicBuffer
 {
+    private static final byte[] EMPTY_BYTES = new byte[0];
+
     /**
      * Buffer alignment to ensure atomic word accesses.
      */
@@ -56,6 +58,14 @@ public class UnsafeBuffer implements AtomicBuffer
     private int capacity;
     private byte[] byteArray;
     private ByteBuffer byteBuffer;
+
+    /**
+     * Empty constructor for a reusable wrapper buffer.
+     */
+    public UnsafeBuffer()
+    {
+        wrap(EMPTY_BYTES);
+    }
 
     /**
      * Attach a view to a byte[] for providing direct access.
