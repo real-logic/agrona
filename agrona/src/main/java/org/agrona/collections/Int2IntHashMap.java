@@ -15,7 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.agrona.BitUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.util.*;
@@ -23,6 +22,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 
+import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -30,6 +30,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  */
 public class Int2IntHashMap implements Map<Integer, Integer>
 {
+    @DoNotSub private static final int MIN_CAPACITY = 8;
+
     @DoNotSub private final float loadFactor;
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
@@ -42,7 +44,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     public Int2IntHashMap(final int missingValue)
     {
-        this(8, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
+        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +58,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
 
-        capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
+        capacity(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity)));
 
         keySet = new KeySet();
         values = new Values();
@@ -270,7 +272,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public void compact()
     {
         @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
-        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
+        rehash(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, idealCapacity)));
     }
 
     /**

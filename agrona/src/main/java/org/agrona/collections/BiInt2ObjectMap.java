@@ -15,11 +15,10 @@
  */
 package org.agrona.collections;
 
-import org.agrona.BitUtil;
-
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 import static org.agrona.collections.Hashing.compoundKey;
 
@@ -64,6 +63,8 @@ public class BiInt2ObjectMap<V>
         V apply(int keyPartA, int keyPartB);
     }
 
+    private static final int MIN_CAPACITY = 8;
+
     private final float loadFactor;
     private int resizeThreshold;
     private int size;
@@ -76,7 +77,7 @@ public class BiInt2ObjectMap<V>
      */
     public BiInt2ObjectMap()
     {
-        this(8, Hashing.DEFAULT_LOAD_FACTOR);
+        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -90,7 +91,7 @@ public class BiInt2ObjectMap<V>
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
-        final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
+        final int capacity = findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity));
         resizeThreshold = (int)(capacity * loadFactor);
 
         keys = new long[capacity];
@@ -133,7 +134,7 @@ public class BiInt2ObjectMap<V>
     public void compact()
     {
         final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
-        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
+        rehash(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, idealCapacity)));
     }
 
     /**

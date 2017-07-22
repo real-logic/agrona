@@ -15,12 +15,12 @@
  */
 package org.agrona.collections;
 
-import org.agrona.BitUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -74,7 +74,7 @@ public final class IntHashSet extends AbstractSet<Integer>
 
         this.loadFactor = loadFactor;
         sizeOfArrayValues = 0;
-        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
+        @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, initialCapacity));
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
         Arrays.fill(values, MISSING_VALUE);
@@ -249,7 +249,7 @@ public final class IntHashSet extends AbstractSet<Integer>
     public void compact()
     {
         @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0 / loadFactor));
-        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
+        rehash(findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, idealCapacity)));
     }
 
     /**

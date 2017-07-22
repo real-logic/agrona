@@ -15,12 +15,12 @@
  */
 package org.agrona.collections;
 
-import org.agrona.BitUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.IntUnaryOperator;
 
+import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
@@ -29,6 +29,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  */
 public class Int2IntCounterMap
 {
+    @DoNotSub private static final int MIN_CAPACITY = 8;
+
     @DoNotSub private final float loadFactor;
     private final int initialValue;
     @DoNotSub private int resizeThreshold;
@@ -43,7 +45,7 @@ public class Int2IntCounterMap
      */
     public Int2IntCounterMap(final int initialValue)
     {
-        this(8, Hashing.DEFAULT_LOAD_FACTOR, initialValue);
+        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, initialValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -57,7 +59,7 @@ public class Int2IntCounterMap
         this.loadFactor = loadFactor;
         this.initialValue = initialValue;
 
-        capacity(BitUtil.findNextPositivePowerOfTwo(initialCapacity));
+        capacity(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity)));
     }
 
     /**
@@ -358,7 +360,7 @@ public class Int2IntCounterMap
     public void compact()
     {
         @DoNotSub final int idealCapacity = (int)Math.round(size() * (1.0d / loadFactor));
-        rehash(BitUtil.findNextPositivePowerOfTwo(idealCapacity));
+        rehash(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, idealCapacity)));
     }
 
     /**
