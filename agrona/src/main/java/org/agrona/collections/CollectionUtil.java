@@ -73,15 +73,17 @@ public class CollectionUtil
     }
 
     /**
-     * Validate that a load factor is greater than 0 and less than 1.0.
+     * Validate that a load factor is in the range of 0.1 to 0.9.
+     * <p>
+     * Load factors in the range 0.5 - 0.7 are recommended for open-addressing with linear probing.
      *
      * @param loadFactor to be validated.
      */
     public static void validateLoadFactor(final float loadFactor)
     {
-        if (loadFactor <= 0 || loadFactor >= 1.0)
+        if (loadFactor < 0.1f || loadFactor > 0.9f)
         {
-            throw new IllegalArgumentException("Load factors must be > 0.0 and < 1.0");
+            throw new IllegalArgumentException("Load factor must be in the range of 0.1 to 0.9: " + loadFactor);
         }
     }
 
