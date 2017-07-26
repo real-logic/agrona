@@ -67,13 +67,32 @@ public class CompositeAgent implements Agent
     /**
      * {@inheritDoc}
      * <p>
-     * Note that one agent throwing an exception on start may result in other agents not being started.
+     * Note that one agent throwing an exception on start will not prevent other agents from being started.
+     *
+     * @throws RuntimeException if any sub-agent throws an exception onStart. The agents exceptions are collected as
+     * suppressed exceptions in the thrown exception.
      */
     public void onStart()
     {
+        RuntimeException ce = null;
         for (final Agent agent : agents)
         {
-            agent.onStart();
+            try
+            {
+                agent.onStart();
+            }
+            catch (final Exception e)
+            {
+                if (ce == null)
+                {
+                    ce = new RuntimeException("CompositeAgent underlying agents error on start");
+                }
+                ce.addSuppressed(e);
+            }
+        }
+        if (ce != null)
+        {
+            throw ce;
         }
     }
 
@@ -92,13 +111,32 @@ public class CompositeAgent implements Agent
     /**
      * {@inheritDoc}
      * <p>
-     * Note that one agent throwing an exception on close may result in other agents not being closed.
+     * Note that one agent throwing an exception on close will not prevent other agents from being closed.
+     *
+     * @throws RuntimeException if any sub-agent throws an exception onClose. The agents exceptions are collected as
+     * suppressed exceptions in the thrown exception.
      */
     public void onClose()
     {
+        RuntimeException ce = null;
         for (final Agent agent : agents)
         {
-            agent.onClose();
+            try
+            {
+                agent.onClose();
+            }
+            catch (final Exception e)
+            {
+                if (ce == null)
+                {
+                    ce = new RuntimeException("CompositeAgent underlying agents error on close");
+                }
+                ce.addSuppressed(e);
+            }
+        }
+        if (ce != null)
+        {
+            throw ce;
         }
     }
 }
