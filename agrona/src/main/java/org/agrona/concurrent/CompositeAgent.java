@@ -25,6 +25,7 @@ public class CompositeAgent implements Agent
 {
     private final Agent[] agents;
     private final String roleName;
+    private int workIndex = 0;
 
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
@@ -38,11 +39,16 @@ public class CompositeAgent implements Agent
 
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
-     * @throws IllegalArgumentException if an empty array of agents is provided
+     * @throws IllegalArgumentException if an empty array of agents is provided, or single agent provided
      * @throws NullPointerException     if the array or any element is null
      */
     public CompositeAgent(final Agent... agents)
     {
+        if (agents.length == 0)
+        {
+            throw new IllegalArgumentException("CompositeAgent requires at least one sub-agent");
+        }
+
         this.agents = new Agent[agents.length];
 
         final StringBuilder sb = new StringBuilder(agents.length * 16);
@@ -100,11 +106,14 @@ public class CompositeAgent implements Agent
     {
         int workCount = 0;
 
-        for (final Agent agent : agents)
+        final Agent[] agents = this.agents;
+        while (workIndex < agents.length)
         {
+            final Agent agent = agents[workIndex++];
             workCount += agent.doWork();
-        }
 
+        }
+        workIndex = 0;
         return workCount;
     }
 
