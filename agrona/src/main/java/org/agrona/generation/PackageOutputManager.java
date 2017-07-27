@@ -42,9 +42,10 @@ public class PackageOutputManager implements OutputManager
         Objects.requireNonNull(baseDirName, "baseDirName");
         Objects.requireNonNull(packageName, "packageName");
 
+        final char lastChar = baseDirName.charAt(baseDirName.length() - 1);
         final String dirName =
-            (baseDirName.endsWith("" + separatorChar) ?
-                baseDirName : (baseDirName + separatorChar)) + packageName.replace('.', separatorChar);
+            (lastChar == separatorChar ? baseDirName : baseDirName + separatorChar) +
+                packageName.replace('.', separatorChar);
 
         outputDir = new File(dirName);
         if (!outputDir.exists())
