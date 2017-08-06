@@ -122,12 +122,24 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Allocate a new counter with a given label.
+     * Allocate a new counter with a given label with a default type of {@link #DEFAULT_TYPE_ID}.
      *
      * @param label to describe the counter.
      * @return the id allocated for the counter.
      */
     public int allocate(final String label)
+    {
+        return allocate(label, DEFAULT_TYPE_ID);
+    }
+
+    /**
+     * Allocate a new counter with a given label and type.
+     *
+     * @param label  to describe the counter.
+     * @param typeId for the type of counter.
+     * @return the id allocated for the counter.
+     */
+    public int allocate(final String label, final int typeId)
     {
         final int counterId = nextCounterId();
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
@@ -143,7 +155,7 @@ public class CountersManager extends CountersReader
 
         try
         {
-            metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, DEFAULT_TYPE_ID);
+            metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
             putLabel(recordOffset, label);
 
             metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
@@ -260,7 +272,8 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use.
+     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use with a default type
+     * of {@link #DEFAULT_TYPE_ID}.
      *
      * @param label to describe the counter.
      * @return a newly allocated {@link AtomicCounter}
@@ -268,6 +281,18 @@ public class CountersManager extends CountersReader
     public AtomicCounter newCounter(final String label)
     {
         return new AtomicCounter(valuesBuffer, allocate(label), this);
+    }
+
+    /**
+     * Allocate a counter record and wrap it with a new {@link AtomicCounter} for use.
+     *
+     * @param label  to describe the counter.
+     * @param typeId for the type of counter.
+     * @return a newly allocated {@link AtomicCounter}
+     */
+    public AtomicCounter newCounter(final String label, final int typeId)
+    {
+        return new AtomicCounter(valuesBuffer, allocate(label, typeId), this);
     }
 
     /**

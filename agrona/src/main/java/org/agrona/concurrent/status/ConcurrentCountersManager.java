@@ -44,12 +44,12 @@ public class ConcurrentCountersManager extends CountersManager
         super(metaDataBuffer, valuesBuffer, labelCharset);
     }
 
-    public int allocate(final String label)
+    public int allocate(final String label, final int typeId)
     {
         lock.lock();
         try
         {
-            return super.allocate(label);
+            return super.allocate(label, typeId);
         }
         finally
         {
