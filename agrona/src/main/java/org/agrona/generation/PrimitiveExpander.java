@@ -93,9 +93,10 @@ public final class PrimitiveExpander
 
         public String checkedSubstitute(final String contents)
         {
-            return contents.contains("@DoNotSub") || contents.contains("interface") || contents.contains("Interface")
-                ? contents
-                : substitute(contents);
+            return
+                (contents.contains("@DoNotSub") || contents.contains("interface") || contents.contains("Interface")) ?
+                    contents :
+                    substitute(contents);
         }
     }
 }
