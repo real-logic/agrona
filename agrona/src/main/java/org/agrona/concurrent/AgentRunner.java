@@ -36,7 +36,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     public static final Thread TOMBSTONE = new Thread();
     private static final int RETRY_CLOSE_TIMEOUT_MS = 3000;
 
-    private volatile boolean running = true;
+    private volatile boolean isRunning = true;
     private volatile boolean isClosed = false;
 
     private final AtomicCounter errorCounter;
@@ -151,10 +151,10 @@ public class AgentRunner implements Runnable, AutoCloseable
             catch (final Throwable throwable)
             {
                 handleError(throwable);
-                running = false;
+                isRunning = false;
             }
 
-            while (running)
+            while (isRunning)
             {
                 if (doDutyCycle(idleStrategy, agent))
                 {
@@ -182,7 +182,7 @@ public class AgentRunner implements Runnable, AutoCloseable
      */
     public final void close()
     {
-        running = false;
+        isRunning = false;
 
         final Thread thread = this.thread.getAndSet(TOMBSTONE);
         if (TOMBSTONE != thread && null != thread)
@@ -239,7 +239,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     private void handleError(final Throwable throwable)
     {
-        if (running)
+        if (isRunning)
         {
             if (null != errorCounter)
             {

@@ -87,15 +87,16 @@ public class CompositeAgent implements Agent
             {
                 agent.onStart();
             }
-            catch (final Exception e)
+            catch (final Exception ex)
             {
                 if (ce == null)
                 {
-                    ce = new RuntimeException("CompositeAgent underlying agents error on start");
+                    ce = new RuntimeException("CompositeAgent: underlying agent error on start");
                 }
-                ce.addSuppressed(e);
+                ce.addSuppressed(ex);
             }
         }
+
         if (ce != null)
         {
             throw ce;
@@ -113,7 +114,9 @@ public class CompositeAgent implements Agent
             workCount += agent.doWork();
 
         }
+
         workIndex = 0;
+
         return workCount;
     }
 
@@ -134,15 +137,17 @@ public class CompositeAgent implements Agent
             {
                 agent.onClose();
             }
-            catch (final Exception e)
+            catch (final Exception ex)
             {
                 if (ce == null)
                 {
-                    ce = new RuntimeException("CompositeAgent underlying agents error on close");
+                    ce = new RuntimeException("CompositeAgent: underlying agent error on close");
                 }
-                ce.addSuppressed(e);
+
+                ce.addSuppressed(ex);
             }
         }
+
         if (ce != null)
         {
             throw ce;
