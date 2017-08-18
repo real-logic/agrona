@@ -118,11 +118,11 @@ public class UnsafeBufferPosition extends Position
 
     public void close()
     {
-        if (null != countersManager)
+        if (!isClosed)
         {
-            if (!isClosed)
+            isClosed = true;
+            if (null != countersManager)
             {
-                isClosed = true;
                 countersManager.free(counterId);
             }
         }
