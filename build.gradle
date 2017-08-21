@@ -22,7 +22,7 @@ plugins {
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '0.9.7-SNAPSHOT'
+def agronaVersion = '0.9.7'
 
 group = agronaGroup
 version = agronaVersion
@@ -323,7 +323,7 @@ project(':agrona-agent') {
 }
 
 task uploadToMavenCentral {
-    dependsOn 'agrona:uploadArchives', 'agrona-agent:uploadShadow'
+    dependsOn 'agrona:uploadArchives', 'agrona-agent:uploadArchives', 'agrona-agent:uploadShadow'
 }
 
 task wrapper(type: Wrapper) {
