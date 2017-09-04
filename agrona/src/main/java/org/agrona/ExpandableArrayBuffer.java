@@ -832,4 +832,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         return 0;
     }
+
+    public String toString()
+    {
+        return "ExpandableArrayBuffer{" +
+            "byteArray=" + Arrays.toString(byteArray) +
+            '}';
+    }
 }

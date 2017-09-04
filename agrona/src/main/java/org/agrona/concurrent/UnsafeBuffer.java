@@ -21,6 +21,7 @@ import org.agrona.MutableDirectBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -1404,5 +1405,15 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         return 0;
+    }
+
+    public String toString()
+    {
+        return "UnsafeBuffer{" +
+            "addressOffset=" + addressOffset +
+            ", capacity=" + capacity +
+            ", byteArray=" + Arrays.toString(byteArray) +
+            ", byteBuffer=" + byteBuffer +
+            '}';
     }
 }

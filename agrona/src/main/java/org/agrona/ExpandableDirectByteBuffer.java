@@ -894,4 +894,13 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         return 0;
     }
+
+    public String toString()
+    {
+        return "ExpandableDirectByteBuffer{" +
+            "address=" + address +
+            ", capacity=" + capacity +
+            ", byteBuffer=" + byteBuffer +
+            '}';
+    }
 }
