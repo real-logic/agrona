@@ -27,20 +27,20 @@ abstract class BackoffIdleStrategyPrePad
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
 {
-    protected enum State
-    {
-        NOT_IDLE, SPINNING, YIELDING, PARKING
-    }
+    protected static final int NOT_IDLE = 0;
+    protected static final int SPINNING = 1;
+    protected static final int YIELDING = 2;
+    protected static final int PARKING = 3;
 
     protected final long maxSpins;
     protected final long maxYields;
     protected final long minParkPeriodNs;
     protected final long maxParkPeriodNs;
 
+    protected int state = NOT_IDLE;
     protected long spins;
     protected long yields;
     protected long parkPeriodNs;
-    protected State state;
 
     BackoffIdleStrategyData(
         final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
@@ -76,7 +76,6 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
     {
         super(maxSpins, maxYields, minParkPeriodNs, maxParkPeriodNs);
-        this.state = State.NOT_IDLE;
     }
 
     /**
@@ -99,7 +98,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         switch (state)
         {
             case NOT_IDLE:
-                state = State.SPINNING;
+                state = SPINNING;
                 spins++;
                 break;
 
@@ -107,7 +106,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
                 ThreadHints.onSpinWait();
                 if (++spins > maxSpins)
                 {
-                    state = State.YIELDING;
+                    state = YIELDING;
                     yields = 0;
                 }
                 break;
@@ -115,7 +114,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
             case YIELDING:
                 if (++yields > maxYields)
                 {
-                    state = State.PARKING;
+                    state = PARKING;
                     parkPeriodNs = minParkPeriodNs;
                 }
                 else
@@ -135,7 +134,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     {
         spins = 0;
         yields = 0;
-        state = State.NOT_IDLE;
+        state = NOT_IDLE;
     }
 }
 
