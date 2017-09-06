@@ -22,7 +22,7 @@ import java.util.concurrent.locks.LockSupport;
 abstract class BackoffIdleStrategyPrePad
 {
     @SuppressWarnings("unused")
-    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11;
+    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
 }
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
