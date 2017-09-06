@@ -15,27 +15,19 @@
  */
 package org.agrona.concurrent;
 
-
 import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.locks.LockSupport;
 
-/**
- * Idling strategy for threads when they have no work to do.
- * <p>
- * Spin for maxSpins, then
- * {@link Thread#yield()} for maxYields, then
- * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs
- */
-@SuppressWarnings("unused")
 abstract class BackoffIdleStrategyPrePad
 {
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07;
+    @SuppressWarnings("unused")
+    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11;
 }
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
 {
-    enum State
+    protected enum State
     {
         NOT_IDLE, SPINNING, YIELDING, PARKING
     }
@@ -45,11 +37,10 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     protected final long minParkPeriodNs;
     protected final long maxParkPeriodNs;
 
-    protected State state;
-
     protected long spins;
     protected long yields;
     protected long parkPeriodNs;
+    protected State state;
 
     BackoffIdleStrategyData(
         final long maxSpins, final long maxYields, final long minParkPeriodNs, final long maxParkPeriodNs)
@@ -61,10 +52,17 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     }
 }
 
-@SuppressWarnings("unused")
+/**
+ * Idling strategy for threads when they have no work to do.
+ * <p>
+ * Spin for maxSpins, then
+ * {@link Thread#yield()} for maxYields, then
+ * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs
+ */
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
-    long pad01, pad02, pad03, pad04, pad05, pad06, pad07;
+    @SuppressWarnings("unused")
+    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
 
     /**
      * Create a set of state tracking idle behavior
