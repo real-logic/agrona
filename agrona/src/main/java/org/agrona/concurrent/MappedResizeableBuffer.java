@@ -25,10 +25,10 @@ import java.nio.channels.FileChannel;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
+import static org.agrona.BufferUtil.*;
+import static org.agrona.BufferUtil.array;
+import static org.agrona.BufferUtil.arrayOffset;
 import static org.agrona.UnsafeAccess.UNSAFE;
-import static org.agrona.BufferUtil.ARRAY_BASE_OFFSET;
-import static org.agrona.BufferUtil.NATIVE_BYTE_ORDER;
-import static org.agrona.BufferUtil.NULL_BYTES;
 import static org.agrona.concurrent.UnsafeBuffer.*;
 
 /**
@@ -670,20 +670,20 @@ public class MappedResizeableBuffer implements AutoCloseable
             BufferUtil.boundsCheck(dstBuffer, (long)dstOffset, length);
         }
 
-        final byte[] dstnull;
+        final byte[] dstByteArray;
         final long dstBaseOffset;
-        if (dstBuffer.hasArray())
+        if (dstBuffer.isDirect())
         {
-            dstnull = dstBuffer.array();
-            dstBaseOffset = ARRAY_BASE_OFFSET + dstBuffer.arrayOffset();
+            dstByteArray = null;
+            dstBaseOffset = address(dstBuffer);
         }
         else
         {
-            dstnull = null;
-            dstBaseOffset = ((sun.nio.ch.DirectBuffer)dstBuffer).address();
+            dstByteArray = array(dstBuffer);
+            dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        UNSAFE.copyMemory(null, addressOffset + index, dstnull, dstBaseOffset + dstOffset, length);
+        UNSAFE.copyMemory(null, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
         dstBuffer.position(dstBuffer.position() + length);
     }
 
@@ -724,20 +724,20 @@ public class MappedResizeableBuffer implements AutoCloseable
             BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
         }
 
-        final byte[] srcnull;
+        final byte[] srcByteArray;
         final long srcBaseOffset;
-        if (srcBuffer.hasArray())
+        if (srcBuffer.isDirect())
         {
-            srcnull = srcBuffer.array();
-            srcBaseOffset = ARRAY_BASE_OFFSET + srcBuffer.arrayOffset();
+            srcByteArray = null;
+            srcBaseOffset = address(srcBuffer);
         }
         else
         {
-            srcnull = null;
-            srcBaseOffset = ((sun.nio.ch.DirectBuffer)srcBuffer).address();
+            srcByteArray = array(srcBuffer);
+            srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        UNSAFE.copyMemory(srcnull, srcBaseOffset + srcIndex, null, addressOffset + index, length);
+        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length)
