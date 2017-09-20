@@ -15,6 +15,9 @@
  */
 package org.agrona;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+
 /**
  * Utilities for inspecting the system.
  */
@@ -37,5 +40,25 @@ public class SystemUtil
     public static String osName()
     {
         return OS_NAME;
+    }
+
+    /**
+     * Is a debugger attached to the JVM?
+     *
+     * @return true if attached otherwise false.
+     */
+    public static boolean isDebuggerAttached()
+    {
+        final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+
+        for (final String arg : runtimeMXBean.getInputArguments())
+        {
+            if (arg.contains("-agentlib:jdwp"))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
