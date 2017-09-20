@@ -28,6 +28,21 @@ Utilities Included:
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
 * DistinctErrorLog: A log of distinct errors to avoid filling disks with existing logging approaches.
 
+Build
+-----
+
+### Java Build
+
+The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
+
+You require the following to build Agrona:
+
+* Latest stable [Oracle JDK 8](http://www.oracle.com/technetwork/java/)
+
+Full clean, build, and install into local maven repository
+
+    $ ./gradlew
+
 License (See LICENSE file for full license)
 -------------------------------------------
 Copyright 2014 - 2017 Real Logic Limited
@@ -43,18 +58,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-Build
------
-
-### Java Build
-
-The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
-
-You require the following to build Agrona:
-
-* Latest stable [Oracle JDK 8](http://www.oracle.com/technetwork/java/)
-
-Full clean, build, and install into local maven repository
-
-    $ ./gradlew
