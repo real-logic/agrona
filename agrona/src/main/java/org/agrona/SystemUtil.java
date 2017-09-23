@@ -15,8 +15,13 @@
  */
 package org.agrona;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * Utilities for inspecting the system.
@@ -60,5 +65,66 @@ public class SystemUtil
         }
 
         return false;
+    }
+
+    /**
+     * Load system properties from a given filename or url.
+     * <p>
+     * File is first searched for in resources using the system {@link ClassLoader},
+     * then file system, then URL. All are loaded if multiples found.
+     *
+     * @param filenameOrUrl that holds properties
+     */
+    public static void loadPropertiesFile(final String filenameOrUrl)
+    {
+        final Properties properties = new Properties(System.getProperties());
+
+        final URL resource = ClassLoader.getSystemClassLoader().getResource(filenameOrUrl);
+        if (null != resource)
+        {
+            try (InputStream in = resource.openStream())
+            {
+                properties.load(in);
+            }
+            catch (final Exception ignore)
+            {
+            }
+        }
+
+        final File file = new File(filenameOrUrl);
+        if (file.exists())
+        {
+            try (FileInputStream in = new FileInputStream(file))
+            {
+                properties.load(in);
+            }
+            catch (final Exception ignore)
+            {
+            }
+        }
+
+        try (InputStream in = new URL(filenameOrUrl).openStream())
+        {
+            properties.load(in);
+        }
+        catch (final Exception ignore)
+        {
+        }
+
+        System.setProperties(properties);
+    }
+
+    /**
+     * Load system properties from a given set of filenames or URLs.
+     *
+     * @param filenamesOrUrls that holds properties
+     * @see #loadPropertiesFile(String)
+     */
+    public static void loadPropertiesFiles(final String[] filenamesOrUrls)
+    {
+        for (final String filenameOrUrl : filenamesOrUrls)
+        {
+            loadPropertiesFile(filenameOrUrl);
+        }
     }
 }
