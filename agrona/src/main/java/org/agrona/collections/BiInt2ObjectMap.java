@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -27,7 +28,7 @@ import static org.agrona.collections.Hashing.compoundKey;
  *
  * @param <V> type of the object stored in the map.
  */
-public class BiInt2ObjectMap<V>
+public class BiInt2ObjectMap<V> implements Serializable
 {
     /**
      * Handler for a map entry

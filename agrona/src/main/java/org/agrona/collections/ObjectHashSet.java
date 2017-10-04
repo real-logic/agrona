@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.IntConsumer;
@@ -35,7 +36,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see ObjectIterator
  * @see Set
  */
-public final class ObjectHashSet<T> extends AbstractSet<T>
+public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
 {
     /**
      * The initial capacity used when none is specified in the constructor.

@@ -17,6 +17,7 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -37,7 +38,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see IntIterator
  * @see Set
  */
-public final class IntHashSet extends AbstractSet<Integer>
+public final class IntHashSet extends AbstractSet<Integer> implements Serializable
 {
     /**
      * The initial capacity used when none is specified in the constructor.

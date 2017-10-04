@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import java.util.Map;
  *
  * @param <V> The generic type of the set.
  */
-abstract class MapDelegatingSet<V> extends AbstractSet<V>
+abstract class MapDelegatingSet<V> extends AbstractSet<V> implements Serializable
 {
     private final Map<?, ?> delegate;
 

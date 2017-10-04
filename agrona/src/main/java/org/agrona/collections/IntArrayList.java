@@ -17,6 +17,7 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
@@ -24,7 +25,7 @@ import java.util.stream.IntStream;
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
  */
-public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess
+public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess, Serializable
 {
     /**
      * The default value that will be used in place of null for an element.

@@ -17,6 +17,7 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.IntFunction;
 
@@ -31,7 +32,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @param <V> type of values stored in the {@link java.util.Map}
  */
 public class Int2ObjectHashMap<V>
-    implements Map<Integer, V>
+    implements Map<Integer, V>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
 
@@ -598,7 +599,7 @@ public class Int2ObjectHashMap<V>
     // Internal Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public class KeySet extends AbstractSet<Integer>
+    public class KeySet extends AbstractSet<Integer> implements Serializable
     {
         private final KeyIterator iterator = new KeyIterator();
 
@@ -640,7 +641,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    private class ValueCollection<V> extends AbstractCollection<V>
+    private class ValueCollection<V> extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator<V> iterator = new ValueIterator<V>();
 
@@ -667,7 +668,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    private class EntrySet<V> extends AbstractSet<Entry<Integer, V>>
+    private class EntrySet<V> extends AbstractSet<Entry<Integer, V>> implements Serializable
     {
         private final EntryIterator<V> iterator = new EntryIterator<V>();
 
@@ -693,7 +694,7 @@ public class Int2ObjectHashMap<V>
     // Iterators
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    abstract class AbstractIterator<T> implements Iterator<T>
+    abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;

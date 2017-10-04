@@ -17,6 +17,7 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -40,7 +41,7 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
  * @param <V> type of values stored in the {@link Map}
  */
 public class Int2ObjectCache<V>
-    implements Map<Integer, V>
+    implements Map<Integer, V>, Serializable
 {
     private long cachePuts = 0;
     private long cacheHits = 0;

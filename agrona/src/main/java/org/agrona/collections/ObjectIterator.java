@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -23,7 +24,7 @@ import java.util.NoSuchElementException;
  *
  * @param <T> type of values stored in the collection being iterated.
  */
-public class ObjectIterator<T> implements Iterator<T>
+public class ObjectIterator<T> implements Iterator<T>, Serializable
 {
     private static final Object MISSING_VALUE = null;
 

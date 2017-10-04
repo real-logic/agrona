@@ -17,13 +17,14 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * An {@link Iterator} for a sequence of primitive values.
  */
-public class IntIterator implements Iterator<Integer>
+public class IntIterator implements Iterator<Integer>, Serializable
 {
     @DoNotSub private int remaining;
     @DoNotSub private int positionCounter;

@@ -17,6 +17,7 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -28,7 +29,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * A open addressing with linear probing hash map specialised for primitive key and value pairs.
  */
-public class Int2IntHashMap implements Map<Integer, Integer>
+public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
 
@@ -609,7 +610,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     // ---------------- Utility Classes ----------------
 
-    abstract class AbstractIterator
+    abstract class AbstractIterator implements Serializable
     {
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;

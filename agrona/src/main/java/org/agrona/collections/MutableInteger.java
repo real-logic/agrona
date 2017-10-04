@@ -15,11 +15,13 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
+
 /**
  * Holder for an int value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
  * reference.
  */
-public class MutableInteger extends Number implements Comparable<MutableInteger>
+public class MutableInteger extends Number implements Comparable<MutableInteger>, Serializable
 {
     public int value = 0;
 

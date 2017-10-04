@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ import java.util.function.Function;
  * @param <V> The type of the view.
  * @param <E> The type of the underlying element.
  */
-public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
+public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> implements Serializable
 {
     private final ReusableIterator iterator = new ReusableIterator();
     private final Function<E, V> viewer;
@@ -55,7 +56,7 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
         return iterator.reset();
     }
 
-    private class ReusableIterator implements Iterator<V>
+    private class ReusableIterator implements Iterator<V>, Serializable
     {
         private Iterator<E> delegate;
 
