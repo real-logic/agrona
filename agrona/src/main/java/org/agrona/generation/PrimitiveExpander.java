@@ -46,6 +46,7 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectHashMap");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Object2IntHashMap");
     }
 
     private static void expandPrimitiveSpecialisedClass(final String packageName, final String className)
