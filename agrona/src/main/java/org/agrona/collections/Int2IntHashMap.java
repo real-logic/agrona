@@ -39,9 +39,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     @DoNotSub private int size = 0;
 
     private int[] entries;
-    private final KeySet keySet;
-    private final Values values;
-    private final Set<Entry<Integer, Integer>> entrySet;
+    private final KeySet keySet = new KeySet();
+    private final Values values = new Values();
+    private final Set<Entry<Integer, Integer>> entrySet = new EntrySet();
 
     public Int2IntHashMap(final int missingValue)
     {
@@ -60,10 +60,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         this.missingValue = missingValue;
 
         capacity(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity)));
-
-        keySet = new KeySet();
-        values = new Values();
-        entrySet = new EntrySet();
     }
 
     /**
@@ -615,11 +611,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
-
-        AbstractIterator()
-        {
-            reset();
-        }
 
         private void reset()
         {

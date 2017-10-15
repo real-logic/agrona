@@ -43,9 +43,9 @@ public class Int2ObjectHashMap<V>
     private int[] keys;
     private Object[] values;
 
-    private final ValueCollection<V> valueCollection;
-    private final KeySet keySet;
-    private final EntrySet<V> entrySet;
+    private final ValueCollection<V> valueCollection = new ValueCollection<>();
+    private final KeySet keySet = new KeySet();
+    private final EntrySet<V> entrySet = new EntrySet<>();
 
     public Int2ObjectHashMap()
     {
@@ -70,11 +70,6 @@ public class Int2ObjectHashMap<V>
 
         keys = new int[capacity];
         values = new Object[capacity];
-
-        // Cached to avoid allocation.
-        valueCollection = new ValueCollection<>();
-        keySet = new KeySet();
-        entrySet = new EntrySet<>();
     }
 
     /**
@@ -90,11 +85,6 @@ public class Int2ObjectHashMap<V>
 
         keys = mapToCopy.keys.clone();
         values = mapToCopy.values.clone();
-
-        // Cached to avoid allocation.
-        valueCollection = new ValueCollection<>();
-        keySet = new KeySet();
-        entrySet = new EntrySet<>();
     }
 
     /**
@@ -702,11 +692,6 @@ public class Int2ObjectHashMap<V>
         private boolean isPositionValid = false;
         protected int[] keys;
         protected Object[] values;
-
-        protected AbstractIterator()
-        {
-            reset();
-        }
 
         @DoNotSub protected int position()
         {

@@ -50,7 +50,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     private int size;
 
     private T[] values;
-    private final ObjectHashSetIterator iterator;
+    private final ObjectHashSetIterator iterator = new ObjectHashSetIterator();
     private IntConsumer resizeNotifier;
 
     public ObjectHashSet()
@@ -75,9 +75,6 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
         resizeThreshold = (int)(capacity * loadFactor);
         values = (T[])new Object[capacity];
         Arrays.fill(values, MISSING_VALUE);
-
-        // NB: references values in the constructor, so must be assigned after values
-        iterator = new ObjectHashSetIterator();
     }
 
     /**
@@ -539,10 +536,6 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
 
     public final class ObjectHashSetIterator extends ObjectIterator<T>
     {
-        ObjectHashSetIterator()
-        {
-        }
-
         @SuppressWarnings("unchecked")
         public void remove()
         {

@@ -56,9 +56,9 @@ public class Int2ObjectCache<V>
     private final Object[] values;
     private final Consumer<V> evictionConsumer;
 
-    private final ValueCollection<V> valueCollection;
-    private final KeySet keySet;
-    private final EntrySet<V> entrySet;
+    private final ValueCollection<V> valueCollection = new ValueCollection<>();
+    private final KeySet keySet = new KeySet();
+    private final EntrySet<V> entrySet = new EntrySet<>();
 
     public Int2ObjectCache(
         @DoNotSub final int numSets,
@@ -81,11 +81,6 @@ public class Int2ObjectCache<V>
         keys = new int[capacity];
         values = new Object[capacity];
         this.evictionConsumer = evictionConsumer;
-
-        // Cached to avoid allocation.
-        valueCollection = new ValueCollection<>();
-        keySet = new KeySet();
-        entrySet = new EntrySet<>();
     }
 
     /**
@@ -656,11 +651,6 @@ public class Int2ObjectCache<V>
     {
         @DoNotSub private int remaining;
         @DoNotSub private int position = -1;
-
-        protected AbstractIterator()
-        {
-            reset();
-        }
 
         @DoNotSub protected int position()
         {
