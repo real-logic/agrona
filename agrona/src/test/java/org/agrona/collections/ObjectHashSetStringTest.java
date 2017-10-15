@@ -415,7 +415,7 @@ public class ObjectHashSetStringTest
     {
         addTwoElements(testSet);
 
-        assertFalse(testSet.removeAll(new ObjectHashSet<String>(100)));
+        assertFalse(testSet.removeAll(new ObjectHashSet<>(100)));
         assertContainsElements(testSet);
     }
 
@@ -467,9 +467,10 @@ public class ObjectHashSetStringTest
         addTwoElements(testSet);
 
         final ObjectIterator<String> intIterator = testSet.iterator();
+        //noinspection Java8CollectionRemoveIf
         while (intIterator.hasNext())
         {
-            if (intIterator.nextValue().equals("1"))
+            if (intIterator.next().equals("1"))
             {
                 intIterator.remove();
             }
