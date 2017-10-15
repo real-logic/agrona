@@ -78,6 +78,37 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     }
 
     /**
+     * Get the load factor beyond which the set will increase size.
+     *
+     * @return load factor for when the set should increase size.
+     */
+    public float loadFactor()
+    {
+        return loadFactor;
+    }
+
+    /**
+     * Get the total capacity for the set to which the load factor with be a fraction of.
+     *
+     * @return the total capacity for the set.
+     */
+    public int capacity()
+    {
+        return values.length;
+    }
+
+    /**
+     * Get the actual threshold which when reached the map will resize.
+     * This is a function of the current capacity and load factor.
+     *
+     * @return the threshold when the map will resize.
+     */
+    public int resizeThreshold()
+    {
+        return resizeThreshold;
+    }
+
+    /**
      * Add a Consumer that will be called when the collection is resized.
      *
      * @param resizeNotifier IntConsumer containing the new resizeThreshold
@@ -266,26 +297,6 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     public boolean isEmpty()
     {
         return size == 0;
-    }
-
-    /**
-     * Get the load factor beyond which the set will increase size.
-     *
-     * @return load factor for when the set should increase size.
-     */
-    public float loadFactor()
-    {
-        return loadFactor;
-    }
-
-    /**
-     * Get the total capacity for the set to which the load factor with be a fraction of.
-     *
-     * @return the total capacity for the set.
-     */
-    public int capacity()
-    {
-        return values.length;
     }
 
     /**

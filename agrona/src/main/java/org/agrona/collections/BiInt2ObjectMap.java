@@ -120,6 +120,17 @@ public class BiInt2ObjectMap<V> implements Serializable
     }
 
     /**
+     * Get the actual threshold which when reached the map will resize.
+     * This is a function of the current capacity and load factor.
+     *
+     * @return the threshold when the map will resize.
+     */
+    public int resizeThreshold()
+    {
+        return resizeThreshold;
+    }
+
+    /**
      * Clear out the map of all entries.
      */
     public void clear()

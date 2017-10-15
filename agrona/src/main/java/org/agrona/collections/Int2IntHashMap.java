@@ -83,6 +83,17 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
+     * Get the actual threshold which when reached the map will resize.
+     * This is a function of the current capacity and load factor.
+     *
+     * @return the threshold when the map will resize.
+     */
+    @DoNotSub public int resizeThreshold()
+    {
+        return resizeThreshold;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @DoNotSub public int size()

@@ -84,6 +84,17 @@ public class Int2IntCounterMap implements Serializable
     }
 
     /**
+     * Get the actual threshold which when reached the map will resize.
+     * This is a function of the current capacity and load factor.
+     *
+     * @return the threshold when the map will resize.
+     */
+    @DoNotSub public int resizeThreshold()
+    {
+        return resizeThreshold;
+    }
+
+    /**
      * The current size of the map which at not at {@link #initialValue()}.
      *
      * @return map size, counters at {@link #initialValue()} are not counted

@@ -30,8 +30,8 @@ import org.agrona.generation.DoNotSub;
 
 /**
  * {@link java.util.Map} implementation specialised for int values using open addressing and
- * linear probing for cache efficient access. the implementation is mirror copy of {@link org.agrona.collections.Int2ObjectHashMap}
- * and it also relies on missing value concept from {@link org.agrona.collections.Int2IntHashMap}
+ * linear probing for cache efficient access. The implementation is mirror copy of {@link Int2ObjectHashMap}
+ * and it also relies on missing value concept from {@link Int2IntHashMap}
  *
  * @param <K> type of keys stored in the {@link java.util.Map}
  */
@@ -44,14 +44,19 @@ public class Object2IntHashMap<K>
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size;
 
-    private int[] values;
     private K[] keys;
+    private int[] values;
 
-    private final ValueCollection valueCollection;
-    private final KeySet<K> keySet;
-    private final EntrySet<K> entrySet;
+    private final ValueCollection valueCollection = new ValueCollection();
+    private final KeySet<K> keySet = new KeySet<>();
+    private final EntrySet<K> entrySet = new EntrySet<>();
     private final int missingValue;
 
+    /**
+     * Construct a map with default capacity and load factor.
+     *
+     * @param missingValue value to be used as a null maker in the map
+     */
     public Object2IntHashMap(final int missingValue)
     {
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
@@ -79,11 +84,6 @@ public class Object2IntHashMap<K>
         keys = (K[])new Object[capacity];
         values = new int[capacity];
         Arrays.fill(values, missingValue);
-
-        // Cached to avoid allocation.
-        valueCollection = new ValueCollection();
-        keySet = new KeySet<>();
-        entrySet = new EntrySet<>();
     }
 
     /**
@@ -100,11 +100,16 @@ public class Object2IntHashMap<K>
 
         keys = mapToCopy.keys.clone();
         values = mapToCopy.values.clone();
+    }
 
-        // Cached to avoid allocation.
-        valueCollection = new ValueCollection();
-        keySet = new KeySet<>();
-        entrySet = new EntrySet<>();
+    /**
+     * The value to be used as a null marker in the map.
+     *
+     * @return value to be used as a null marker in the map.
+     */
+    public int missingValue()
+    {
+        return missingValue;
     }
 
     /**
@@ -118,7 +123,7 @@ public class Object2IntHashMap<K>
     }
 
     /**
-     * Get the total capacity for the map to which the load factor with be a fraction of.
+     * Get the total capacity for the map to which the load factor will be a fraction of.
      *
      * @return the total capacity for the map.
      */
@@ -128,7 +133,7 @@ public class Object2IntHashMap<K>
     }
 
     /**
-     * Get the actual threshold which when reached the map resize.
+     * Get the actual threshold which when reached the map will resize.
      * This is a function of the current capacity and load factor.
      *
      * @return the threshold when the map will resize.
@@ -186,21 +191,23 @@ public class Object2IntHashMap<K>
      */
     public boolean containsValue(final Object value)
     {
-        final int valueInt = ((Integer)value).intValue();
-        if (valueInt == missingValue)
+        return containsValue(((Integer)value).intValue());
+    }
+
+    public boolean containsValue(final int value)
+    {
+        if (value == missingValue)
         {
             return false;
         }
+
         boolean found = false;
-        if (missingValue != valueInt)
+        for (final int v : values)
         {
-            for (final int v : values)
+            if (value == v)
             {
-                if (valueInt == v)
-                {
-                    found = true;
-                    break;
-                }
+                found = true;
+                break;
             }
         }
 
@@ -476,7 +483,8 @@ public class Object2IntHashMap<K>
                 {
                     return false;
                 }
-                final int thatValue = ((Integer)thatValueObject).intValue();
+
+                final int thatValue = (Integer)thatValueObject;
                 if (missingValue == thatValue || thisValue != thatValue)
                 {
                     return false;
@@ -496,10 +504,10 @@ public class Object2IntHashMap<K>
 
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
-            final Object value = values[i];
-            if (null != value)
+            final int value = values[i];
+            if (missingValue != value)
             {
-                result += (keys[i].hashCode() ^ Integer.hashCode(value.hashCode()));
+                result += (keys[i].hashCode() ^ Integer.hashCode(value));
             }
         }
 
@@ -593,6 +601,7 @@ public class Object2IntHashMap<K>
     {
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = deleteIndex;
+
         while (true)
         {
             index = ++index & mask;
@@ -619,7 +628,7 @@ public class Object2IntHashMap<K>
     // Internal Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private class KeySet<T> extends AbstractSet<T> implements Serializable
+    class KeySet<T> extends AbstractSet<T> implements Serializable
     {
         private final KeyIterator<T> iterator = new KeyIterator<>();
 
@@ -679,7 +688,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    private class EntrySet<T> extends AbstractSet<Entry<T, Integer>> implements Serializable
+    class EntrySet<T> extends AbstractSet<Entry<T, Integer>> implements Serializable
     {
         private final EntryIterator<T> iterator = new EntryIterator<>();
 
@@ -714,11 +723,6 @@ public class Object2IntHashMap<K>
         protected Object[] keys;
         protected int[] values;
 
-        protected AbstractIterator()
-        {
-            reset();
-        }
-
         @DoNotSub protected int position()
         {
             return posCounter & (values.length - 1);
@@ -742,6 +746,7 @@ public class Object2IntHashMap<K>
                     posCounter = i;
                     isPositionValid = true;
                     --remaining;
+
                     return;
                 }
             }

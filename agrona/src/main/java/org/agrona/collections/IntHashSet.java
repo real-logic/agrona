@@ -82,6 +82,37 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
     }
 
     /**
+     * Get the load factor beyond which the set will increase size.
+     *
+     * @return load factor for when the set should increase size.
+     */
+    public float loadFactor()
+    {
+        return loadFactor;
+    }
+
+    /**
+     * Get the total capacity for the set to which the load factor with be a fraction of.
+     *
+     * @return the total capacity for the set.
+     */
+    @DoNotSub public int capacity()
+    {
+        return values.length;
+    }
+
+    /**
+     * Get the actual threshold which when reached the map will resize.
+     * This is a function of the current capacity and load factor.
+     *
+     * @return the threshold when the map will resize.
+     */
+    @DoNotSub public int resizeThreshold()
+    {
+        return resizeThreshold;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean add(final Integer value)
@@ -302,26 +333,6 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
     public boolean isEmpty()
     {
         return size() == 0;
-    }
-
-    /**
-     * Get the load factor beyond which the set will increase size.
-     *
-     * @return load factor for when the set should increase size.
-     */
-    public float loadFactor()
-    {
-        return loadFactor;
-    }
-
-    /**
-     * Get the total capacity for the set to which the load factor with be a fraction of.
-     *
-     * @return the total capacity for the set.
-     */
-    public int capacity()
-    {
-        return values.length;
     }
 
     /**

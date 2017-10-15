@@ -98,7 +98,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Get the total capacity for the map to which the load factor with be a fraction of.
+     * Get the total capacity for the map to which the load factor will be a fraction of.
      *
      * @return the total capacity for the map.
      */
@@ -108,7 +108,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Get the actual threshold which when reached the map resize.
+     * Get the actual threshold which when reached the map will resize.
      * This is a function of the current capacity and load factor.
      *
      * @return the threshold when the map will resize.

@@ -124,7 +124,7 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * Get the total capacity for the map to which the load factor with be a fraction of.
+     * Get the total capacity for the map to which the load factor will be a fraction of.
      *
      * @return the total capacity for the map.
      */
