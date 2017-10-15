@@ -612,7 +612,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
-        private void reset()
+        void reset()
         {
             remaining = Int2IntHashMap.this.size;
             final int missingValue = Int2IntHashMap.this.missingValue;
@@ -671,7 +671,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         @DoNotSub private final int offset;
 
-        private IntIterator(
+        IntIterator(
             @DoNotSub final int offset)
         {
             this.offset = offset;
@@ -688,13 +688,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
             return entries[keyPosition() + offset];
         }
-
-        public IntIterator reset()
-        {
-            super.reset();
-
-            return this;
-        }
     }
 
     final class EntryIterator
@@ -703,11 +696,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private int key;
         private int value;
-
-        private EntryIterator()
-        {
-            super();
-        }
 
         public Integer getKey()
         {
@@ -735,13 +723,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return this;
         }
 
-        public EntryIterator reset()
+        void reset()
         {
             super.reset();
             key = missingValue;
             value = missingValue;
-
-            return this;
         }
 
         /**
@@ -778,7 +764,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private final IntIterator keyIterator = new IntIterator(0);
 
-        private KeySet()
+        KeySet()
         {
             super(Int2IntHashMap.this);
         }
@@ -788,7 +774,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          */
         public IntIterator iterator()
         {
-            return keyIterator.reset();
+            keyIterator.reset();
+
+            return keyIterator;
         }
 
         /**
@@ -809,16 +797,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private final IntIterator valueIterator = new IntIterator(1);
 
-        private Values()
-        {
-        }
-
         /**
          * {@inheritDoc}
          */
         public IntIterator iterator()
         {
-            return valueIterator.reset();
+            valueIterator.reset();
+
+            return valueIterator;
         }
 
         /**
@@ -847,7 +833,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private final EntryIterator entryIterator = new EntryIterator();
 
-        private EntrySet()
+        EntrySet()
         {
             super(Int2IntHashMap.this);
         }
@@ -857,7 +843,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          */
         public Iterator<Entry<Integer, Integer>> iterator()
         {
-            return entryIterator.reset();
+            entryIterator.reset();
+
+            return entryIterator;
         }
 
         /**

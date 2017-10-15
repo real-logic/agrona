@@ -84,18 +84,6 @@ public class ObjectIterator<T> implements Iterator<T>, Serializable
     @SuppressWarnings("unchecked")
     public T nextValue()
     {
-        findNext();
-
-        return values[position()];
-    }
-
-    protected int position()
-    {
-        return positionCounter & (values.length - 1);
-    }
-
-    protected void findNext()
-    {
         final Object[] values = this.values;
         final int mask = values.length - 1;
         isPositionValid = false;
@@ -103,15 +91,22 @@ public class ObjectIterator<T> implements Iterator<T>, Serializable
         for (int i = positionCounter - 1; i >= stopCounter; i--)
         {
             final int index = i & mask;
-            if (values[index] != MISSING_VALUE)
+            final Object value = values[index];
+            if (value != MISSING_VALUE)
             {
                 positionCounter = i;
                 isPositionValid = true;
                 --remaining;
-                return;
+
+                return (T)value;
             }
         }
 
         throw new NoSuchElementException();
+    }
+
+    protected int position()
+    {
+        return positionCounter & (values.length - 1);
     }
 }

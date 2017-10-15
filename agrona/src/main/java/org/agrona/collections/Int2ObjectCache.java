@@ -594,7 +594,7 @@ public class Int2ObjectCache<V>
         }
     }
 
-    private class ValueCollection<V> extends AbstractCollection<V>
+    class ValueCollection<V> extends AbstractCollection<V>
     {
         private final ValueIterator<V> iterator = new ValueIterator<V>();
 
@@ -621,7 +621,7 @@ public class Int2ObjectCache<V>
         }
     }
 
-    private class EntrySet<V> extends AbstractSet<Entry<Integer, V>>
+    class EntrySet<V> extends AbstractSet<Entry<Integer, V>>
     {
         private final EntryIterator<V> iterator = new EntryIterator<V>();
 

@@ -631,7 +631,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    private class ValueCollection<V> extends AbstractCollection<V> implements Serializable
+    class ValueCollection<V> extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator<V> iterator = new ValueIterator<V>();
 
@@ -658,7 +658,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    private class EntrySet<V> extends AbstractSet<Entry<Integer, V>> implements Serializable
+    class EntrySet<V> extends AbstractSet<Entry<Integer, V>> implements Serializable
     {
         private final EntryIterator<V> iterator = new EntryIterator<V>();
 
