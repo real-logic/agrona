@@ -15,28 +15,17 @@
  */
 package org.agrona.collections;
 
-import org.junit.Assert;
-import org.junit.Test;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.stream.IntStream;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class Object2IntHashMapTest
 {
@@ -81,7 +70,7 @@ public class Object2IntHashMapTest
         assertThat(map.capacity(), is(32));
         assertThat(map.size(), is(16));
 
-        map.put("16",16);
+        map.put("16", 16);
 
         assertThat(map.resizeThreshold(), is(32));
         assertThat(map.capacity(), is(64));
@@ -101,7 +90,7 @@ public class Object2IntHashMapTest
         map.put(key, value);
 
         final Integer collisionKey = key + map.capacity();
-        final int collisionValue =collisionKey;
+        final int collisionValue = collisionKey;
         map.put(collisionKey, collisionValue);
 
         assertThat(map.get(key), is(value));
@@ -123,7 +112,7 @@ public class Object2IntHashMapTest
         objectToIntMap.clear();
 
         assertThat(objectToIntMap.size(), is(0));
-        Assert.assertEquals(MISSING_VALUE,objectToIntMap.getValue("1"));
+        Assert.assertEquals(MISSING_VALUE, objectToIntMap.getValue("1"));
     }
 
     @Test
@@ -190,7 +179,7 @@ public class Object2IntHashMapTest
     {
         final float loadFactor = 0.5f;
         final Object2IntHashMap<Integer> objectToIntMap = new Object2IntHashMap<>(32, loadFactor, MISSING_VALUE);
-      
+
         final int value = 12;
         final Integer key = 12;
 
@@ -249,7 +238,7 @@ public class Object2IntHashMapTest
 
         assertThat(copyToSet, is(initialSet));
     }
-    
+
     @Test
     public void shouldIterateKeys()
     {
@@ -348,53 +337,67 @@ public class Object2IntHashMapTest
             assertThat(entry.getKey(), equalTo(String.valueOf(entry.getValue())));
         }
     }
-    
-    private static class ControlledHash {
-      private int value;
-      
-      public static ControlledHash[] create(int... values) {
-        ControlledHash[] result  = new ControlledHash[values.length];
-        for(int i = 0;i < values.length;i++){
-          result[i] = new ControlledHash(values[i]);
+
+    private static class ControlledHash
+    {
+        private int value;
+
+        public static ControlledHash[] create(final int... values)
+        {
+            final ControlledHash[] result = new ControlledHash[values.length];
+            for (int i = 0; i < values.length; i++)
+            {
+                result[i] = new ControlledHash(values[i]);
+            }
+            return result;
         }
-        return result;
-      }
 
-      public ControlledHash(int value) {
-        super();
-        this.value = value;
-      }
+        ControlledHash(final int value)
+        {
+            super();
+            this.value = value;
+        }
 
-      @Override
-      public String toString() {
-        return Integer.toString(value);
-      }
+        @Override
+        public String toString()
+        {
+            return Integer.toString(value);
+        }
 
-      @Override
-      public int hashCode() {
-        return value * 31;
-      }
+        @Override
+        public int hashCode()
+        {
+            return value * 31;
+        }
 
-      @Override
-      public boolean equals(Object obj) {
-        if (this == obj)
-          return true;
-        if (obj == null)
-          return false;
-        if (getClass() != obj.getClass())
-          return false;
-        ControlledHash other = (ControlledHash) obj;
-        if (value != other.value)
-          return false;
-        return true;
-      }
-      
+        @Override
+        public boolean equals(final Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+            final ControlledHash other = (ControlledHash)obj;
+            if (value != other.value)
+            {
+                return false;
+            }
+            return true;
+        }
     }
-    
+
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        Object2IntHashMap<ControlledHash> objectToIntMap = new Object2IntHashMap<>(MISSING_VALUE);
+        final Object2IntHashMap<ControlledHash> objectToIntMap = new Object2IntHashMap<>(MISSING_VALUE);
 
         final ControlledHash[] testEntries = ControlledHash.create(3, 1, 19, 7, 11, 12, 7);
 
@@ -414,11 +417,10 @@ public class Object2IntHashMapTest
 
         for (final int testEntry : testEntries)
         {
-            objectToIntMap.put(String.valueOf(testEntry),testEntry);
+            objectToIntMap.put(String.valueOf(testEntry), testEntry);
         }
 
         final Object2IntHashMap<String> mapCopy = new Object2IntHashMap<>(objectToIntMap);
         assertThat(mapCopy, is(objectToIntMap));
     }
 }
-

@@ -63,7 +63,7 @@ public class Hashing
 
         return hash & mask;
     }
-    
+
     /**
      * Generate a hash for a K value.
      *
@@ -72,10 +72,11 @@ public class Hashing
      * @param mask  mask to be applied that must be a power of 2 - 1.
      * @return the hash of the value.
      */
-    public static <K> int hash(final K value, final int mask) {
-      final int hash = value.hashCode();
+    public static <K> int hash(final K value, final int mask)
+    {
+        final int hash = value.hashCode();
 
-      return hash & mask;
+        return hash & mask;
     }
 
     /**

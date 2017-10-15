@@ -52,9 +52,9 @@ public class Object2IntHashMap<K>
     private final EntrySet<K> entrySet;
     private final int missingValue;
 
-    public Object2IntHashMap(int missingValue)
+    public Object2IntHashMap(final int missingValue)
     {
-        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR,missingValue);
+        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
     }
 
     /**
@@ -62,7 +62,7 @@ public class Object2IntHashMap<K>
      *
      * @param initialCapacity for the backing array
      * @param loadFactor      limit for resizing on puts
-     * @param missingValue    value to be used as a null marker in the map 
+     * @param missingValue    value to be used as a null marker in the map
      */
     @SuppressWarnings("unchecked")
     public Object2IntHashMap(
@@ -186,9 +186,11 @@ public class Object2IntHashMap<K>
      */
     public boolean containsValue(final Object value)
     {
-        int valueInt = ((Integer)value).intValue();
-        if(valueInt == missingValue)
-          return false;
+        final int valueInt = ((Integer)value).intValue();
+        if (valueInt == missingValue)
+        {
+            return false;
+        }
         boolean found = false;
         if (missingValue != valueInt)
         {
@@ -216,8 +218,8 @@ public class Object2IntHashMap<K>
 
     /**
      * Overloaded version of {@link Map#get(Object)} that takes a primitive int key.
-     * Due to type erasure have to rename the method 
-     * 
+     * Due to type erasure have to rename the method
+     *
      * @param key for indexing the {@link Map}
      * @return the value if found otherwise missingValue
      */
@@ -275,7 +277,7 @@ public class Object2IntHashMap<K>
 
     /**
      * Overloaded version of {@link Map#put(Object, Object)} that takes a primitive int key.
-     *  
+     *
      * @param key   for indexing the {@link Map}
      * @param value to be inserted in the {@link Map}
      * @return the previous value if found otherwise missingValue
@@ -330,8 +332,8 @@ public class Object2IntHashMap<K>
 
     /**
      * Overloaded version of {@link Map#remove(Object)} that takes a primitive int key.
-     * Due to type erasure have to rename the method 
-     * 
+     * Due to type erasure have to rename the method
+     *
      * @param key for indexing the {@link Map}
      * @return the value if found otherwise missingValue
      */
@@ -470,8 +472,9 @@ public class Object2IntHashMap<K>
             if (missingValue != thisValue)
             {
                 final Object thatValueObject = that.get(keys[i]);
-                if(!(thatValueObject instanceof Integer)) {
-                  return false;
+                if (!(thatValueObject instanceof Integer))
+                {
+                    return false;
                 }
                 final int thatValue = ((Integer)thatValueObject).intValue();
                 if (missingValue == thatValue || thisValue != thatValue)
@@ -585,6 +588,7 @@ public class Object2IntHashMap<K>
         values = tempValues;
     }
 
+    @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteIndex)
     {
         @DoNotSub final int mask = values.length - 1;
@@ -627,7 +631,7 @@ public class Object2IntHashMap<K>
         public boolean contains(final Object o)
         {
             return Object2IntHashMap.this.containsKey(o);
-        } 
+        }
 
         public KeyIterator<T> iterator()
         {
@@ -796,7 +800,7 @@ public class Object2IntHashMap<K>
         {
             return nextInt();
         }
-        
+
         public int nextInt()
         {
             findNext();
@@ -840,9 +844,9 @@ public class Object2IntHashMap<K>
 
         public Integer setValue(final Integer value)
         {
-          return setValue(value.intValue());
+            return setValue(value.intValue());
         }
-        
+
         public int setValue(final int value)
         {
             if (value == missingValue)
