@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ * Copyright 2017 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,13 @@
  */
 package org.agrona.concurrent;
 
-/**
- * Retrieves the number of milliseconds since 1 Jan 1970 UTC.
- */
 @FunctionalInterface
-public interface EpochClock
+public interface EpochNanoClock
 {
     /**
-     * Time in milliseconds since 1 Jan 1970 UTC.
+     * Time in nanoseconds since 1 Jan 1970 UTC.
      *
-     * @return the number of milliseconds since 1 Jan 1970 UTC.
+     * @return the number of nanoseconds since 1 Jan 1970 UTC.
      */
-    long time();
+    long nanoTime();
 }
