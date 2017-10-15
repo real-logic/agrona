@@ -63,6 +63,20 @@ public class Hashing
 
         return hash & mask;
     }
+    
+    /**
+     * Generate a hash for a K value.
+     *
+     * @param <K> is the type of value
+     * @param value to be hashed.
+     * @param mask  mask to be applied that must be a power of 2 - 1.
+     * @return the hash of the value.
+     */
+    public static <K> int hash(final K value, final int mask) {
+      final int hash = value.hashCode();
+
+      return hash & mask;
+    }
 
     /**
      * Generate a hash for a long value.
