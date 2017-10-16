@@ -18,13 +18,14 @@ Utilities Included:
 * Maps - Open addressing and linear probing with int/long primitive keys to int/long values.
 * Sets - Open addressing and linear probing for int/long primitives and object references.
 * Cache - Set Associative with int/long primitive keys to object reference values.
+* Clocks - Clock implementations to abstract system clocks, allow caching, and enable testing.
 * Queues - Lock-less implementations for low-latency applications.
 * Ring/Broadcast Buffers - implemented off-heap for IPC communication.
 * Basic Agent framework.
 * Signal handling to support "Ctrl + c" in a server application.
 * Scalable Timer Wheel.
 * Basic code generation from annotated implementations that can vary on primitive types.
-* Off-heap counters implementation for application telemetry.
+* Off-heap counters implementation for application telemetry and position tracking.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
 * DistinctErrorLog: A log of distinct errors to avoid filling disks with existing logging approaches.
 
