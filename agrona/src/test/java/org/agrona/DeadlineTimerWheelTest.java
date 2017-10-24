@@ -36,19 +36,23 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimeout(5 * wheel.tickDurationNs());
+        final long id = wheel.scheduleTimeout(5 * wheel.tickIntervalNs());
 
         do
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value);
 
@@ -61,19 +65,23 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = TimeUnit.MILLISECONDS.toNanos(100);
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + (5 * wheel.tickDurationNs()));
+        final long id = wheel.scheduleTimeout(controlTimestamp + (5 * wheel.tickIntervalNs()));
 
         do
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value);
 
@@ -86,8 +94,8 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
         final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(5) + 1);
 
@@ -95,10 +103,14 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value);
 
@@ -112,8 +124,8 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 16);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 16);
 
         final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
 
@@ -121,10 +133,14 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value);
 
@@ -137,8 +153,8 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
         final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
 
@@ -146,10 +162,14 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(16));
 
@@ -159,10 +179,10 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerid) -> firedTimestamp.value = nowNs,
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(128));
 
@@ -174,8 +194,8 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
         final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
 
@@ -186,12 +206,16 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) -> firedTimestamp.value = timeNow,
+                (nowNs, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = nowNs;
+                },
                 Integer.MAX_VALUE);
 
             if (wheel.currentTickDeadlineNs() > pollStartTimeNs)
             {
-                controlTimestamp += wheel.tickDurationNs();
+                controlTimestamp += wheel.tickIntervalNs();
             }
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(128));
@@ -205,8 +229,8 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
         final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
         final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
@@ -215,20 +239,20 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) ->
+                (nowNs, timerId) ->
                 {
-                    if (timerCorrelationId == id1)
+                    if (timerId == id1)
                     {
-                        firedTimestamp1.value = timeNow;
+                        firedTimestamp1.value = nowNs;
                     }
-                    else if (timerCorrelationId == id2)
+                    else if (timerId == id2)
                     {
-                        firedTimestamp2.value = timeNow;
+                        firedTimestamp2.value = nowNs;
                     }
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -242,8 +266,8 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
 
         final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
         final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
@@ -252,20 +276,20 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) ->
+                (nowNs, timerId) ->
                 {
-                    if (timerCorrelationId == id1)
+                    if (timerId == id1)
                     {
-                        firedTimestamp1.value = timeNow;
+                        firedTimestamp1.value = nowNs;
                     }
-                    else if (timerCorrelationId == id2)
+                    else if (timerId == id2)
                     {
-                        firedTimestamp2.value = timeNow;
+                        firedTimestamp2.value = nowNs;
                     }
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -279,8 +303,8 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
 
         final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
         final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
@@ -289,20 +313,20 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeNow, timerCorrelationId) ->
+                (nowNs, timerId) ->
                 {
-                    if (timerCorrelationId == id1)
+                    if (timerId == id1)
                     {
-                        firedTimestamp1.value = timeNow;
+                        firedTimestamp1.value = nowNs;
                     }
-                    else if (timerCorrelationId == id2)
+                    else if (timerId == id2)
                     {
-                        firedTimestamp2.value = timeNow;
+                        firedTimestamp2.value = nowNs;
                     }
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickDurationNs();
+            controlTimestamp += wheel.tickIntervalNs();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 

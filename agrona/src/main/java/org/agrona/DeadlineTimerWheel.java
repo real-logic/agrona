@@ -18,13 +18,8 @@ package org.agrona;
 import java.util.Arrays;
 
 /**
- * Timer Wheel (NOT thread safe)
+ * Deadline scheduled Timer Wheel (NOT thread safe)
  * <p>
- * Assumes single-writer principle and timers firing on processing thread.
- * Low (or NO) garbage.
- *
- * <h3>Implementation Details</h3>
- *
  * Based on netty's HashedTimerWheel, which is based on
  * <a href="http://cseweb.ucsd.edu/users/varghese/">George Varghese</a> and
  * Tony Lauck's paper,
@@ -41,6 +36,8 @@ import java.util.Arrays;
  * <p>
  * Timers that expire in the same tick will not be ordered with one another. As ticks are
  * fairly large normally, this means that some timers may expire out of order.
+ * <p>
+ * <b>Note:</b> Not threadsafe.
  */
 public class DeadlineTimerWheel
 {
@@ -52,7 +49,7 @@ public class DeadlineTimerWheel
     private final long startTimeNs;
     private final int mask;
 
-    private long numTimers;
+    private long timerCount;
     private int currentTick;
 
     /**
@@ -64,41 +61,41 @@ public class DeadlineTimerWheel
         /**
          * Expiring timeout.
          *
-         * @param timeNowNs for the expiring timer.
-         * @param timerCorrelationId for the expiring timer.
+         * @param nowNs   for the expiring timer.
+         * @param timerId for the expiring timer.
          */
-        void onTimeout(long timeNowNs, long timerCorrelationId);
+        void onTimeout(long nowNs, long timerId);
     }
 
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param startTimeNs for the wheel (in nanoseconds)
-     * @param tickDurationNs for the wheel (in nanoseconds)
-     * @param ticksPerWheel for the wheel (must be power of 2)
+     * @param startTimeNs    for the wheel (in nanoseconds)
+     * @param tickIntervalNs for the wheel (in nanoseconds)
+     * @param ticksPerWheel  for the wheel (must be power of 2)
      */
-    public DeadlineTimerWheel(final long startTimeNs, final long tickDurationNs, final int ticksPerWheel)
+    public DeadlineTimerWheel(final long startTimeNs, final long tickIntervalNs, final int ticksPerWheel)
     {
-        this(startTimeNs, tickDurationNs, ticksPerWheel, INITIAL_TICK_DEPTH);
+        this(startTimeNs, tickIntervalNs, ticksPerWheel, INITIAL_TICK_DEPTH);
     }
 
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param startTimeNs for the wheel (in nanoseconds)
-     * @param tickDurationNs for the wheel (in nanoseconds)
-     * @param ticksPerWheel for the wheel (must be power of 2)
+     * @param startTimeNs      for the wheel (in nanoseconds)
+     * @param tickIntervalNs   for the wheel (in nanoseconds)
+     * @param ticksPerWheel    for the wheel (must be power of 2)
      * @param initialTickDepth for the wheel to be used for all ticks
      */
     public DeadlineTimerWheel(
-        final long startTimeNs, final long tickDurationNs, final int ticksPerWheel, final int initialTickDepth)
+        final long startTimeNs, final long tickIntervalNs, final int ticksPerWheel, final int initialTickDepth)
     {
         checkTicksPerWheel(ticksPerWheel);
 
         this.mask = ticksPerWheel - 1;
-        this.tickDurationNs = tickDurationNs;
+        this.tickDurationNs = tickIntervalNs;
         this.startTimeNs = startTimeNs;
-        this.numTimers = 0;
+        this.timerCount = 0;
 
         wheel = new long[ticksPerWheel][];
 
@@ -114,11 +111,11 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Duration of a tick of the wheel in nanoseconds.
+     * Interval of a tick of the wheel in nanoseconds.
      *
-     * @return duration of a tick of the wheel in nanoseconds.
+     * @return interval of a tick of the wheel in nanoseconds.
      */
-    public long tickDurationNs()
+    public long tickIntervalNs()
     {
         return tickDurationNs;
     }
@@ -134,24 +131,25 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Number of currently active timers.
+     * Number of active timers.
      *
-     * @return number of currently active timers.
+     * @return number of active timers.
      */
-    public long numTimers()
+    public long timerCount()
     {
-        return numTimers;
+        return timerCount;
     }
 
     /**
-     * Schedule a timer for a given absolute time in nanoseconds.
+     * Schedule a timer for a given absolute time as a deadline in nanoseconds. A timerId will be assigned
+     * and returned for future reference.
      *
-     * @param deadlineTimeNs for the timer to expire.
-     * @return correlationId for the scheduled timer
+     * @param deadlineNs for the timer to expire.
+     * @return timerId for the scheduled timer
      */
-    public long scheduleTimeout(final long deadlineTimeNs)
+    public long scheduleTimeout(final long deadlineNs)
     {
-        final long ticks = Math.max((deadlineTimeNs - startTimeNs) / tickDurationNs, currentTick);
+        final long ticks = Math.max((deadlineNs - startTimeNs) / tickDurationNs, currentTick);
         final int wheelIndex = (int)(ticks & mask);
         final long[] array = wheel[wheelIndex];
 
@@ -159,69 +157,69 @@ public class DeadlineTimerWheel
         {
             if (NO_TIMER_SCHEDULED == array[i])
             {
-                array[i] = deadlineTimeNs;
-                numTimers++;
+                array[i] = deadlineNs;
+                timerCount++;
 
-                return correlationIdForSlot(wheelIndex, i);
+                return timerIdForSlot(wheelIndex, i);
             }
         }
 
         final long[] newArray = Arrays.copyOf(array, array.length + 1);
-        newArray[array.length] = deadlineTimeNs;
+        newArray[array.length] = deadlineNs;
 
         wheel[wheelIndex] = newArray;
-        numTimers++;
+        timerCount++;
 
-        return correlationIdForSlot(wheelIndex, array.length);
+        return timerIdForSlot(wheelIndex, array.length);
     }
 
     /**
      * Cancel a previously scheduled timer.
      *
-     * @param timerCorrelationId of the timer to cancel.
+     * @param timerId of the timer to cancel.
      */
-    public void cancelTimeout(final long timerCorrelationId)
+    public void cancelTimeout(final long timerId)
     {
-        final int wheelIndex = tickForCorrelationId(timerCorrelationId);
-        final int arrayIndex = indexInTickArray(timerCorrelationId);
+        final int wheelIndex = tickForTimerId(timerId);
+        final int arrayIndex = indexInTickArray(timerId);
 
         final long[] array = wheel[wheelIndex];
 
         if (array[arrayIndex] != NO_TIMER_SCHEDULED)
         {
             array[arrayIndex] = NO_TIMER_SCHEDULED;
-            numTimers--;
+            timerCount--;
         }
     }
 
     /**
      * Expire timers that have been scheduled to expire by the passed time.
      *
-     * @param timeNowNs to use to determine timers to expire.
-     * @param timerHandler to call for each expiring timer.
+     * @param nowNs             to use to determine timers to expire.
+     * @param handler      to call for each expiring timer.
      * @param maxTimersToExpire before returning.
      * @return number of expired timers.
      */
-    public int poll(final long timeNowNs, final TimerHandler timerHandler, final int maxTimersToExpire)
+    public int poll(final long nowNs, final TimerHandler handler, final int maxTimersToExpire)
     {
         int timersExpired = 0;
 
-        if (numTimers > 0)
+        if (timerCount > 0)
         {
             final long[] array = wheel[currentTick & mask];
 
             for (int i = 0, length = array.length; i < length && maxTimersToExpire > timersExpired; i++)
             {
-                if (array[i] <= timeNowNs)
+                if (array[i] <= nowNs)
                 {
-                    timerHandler.onTimeout(timeNowNs, correlationIdForSlot(currentTick & mask, i));
+                    handler.onTimeout(nowNs, timerIdForSlot(currentTick & mask, i));
                     array[i] = NO_TIMER_SCHEDULED;
-                    numTimers--;
+                    timerCount--;
                     timersExpired++;
                 }
             }
 
-            if (currentTickDeadlineNs() <= timeNowNs)
+            if (currentTickDeadlineNs() <= nowNs)
             {
                 currentTick++;
             }
@@ -230,26 +228,26 @@ public class DeadlineTimerWheel
         return timersExpired;
     }
 
-    private static long correlationIdForSlot(final int tickOnWheel, final int indexInTickArray)
+    private static long timerIdForSlot(final int tickOnWheel, final int indexInTickArray)
     {
         return ((long)tickOnWheel << 32) | indexInTickArray;
     }
 
-    private static int tickForCorrelationId(final long correlationId)
+    private static int tickForTimerId(final long timerId)
     {
-        return (int)(correlationId >> 32);
+        return (int)(timerId >> 32);
     }
 
-    private static int indexInTickArray(final long correlationId)
+    private static int indexInTickArray(final long timerId)
     {
-        return (int)correlationId;
+        return (int)timerId;
     }
 
     private static void checkTicksPerWheel(final int ticksPerWheel)
     {
         if (!BitUtil.isPowerOfTwo(ticksPerWheel))
         {
-            throw new IllegalArgumentException("ticks per wheel must be a power of 2: ticks=" + ticksPerWheel);
+            throw new IllegalArgumentException("ticks per wheel must be a power of 2: " + ticksPerWheel);
         }
     }
 }
