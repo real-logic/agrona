@@ -39,7 +39,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimeout(5 * wheel.tickIntervalNs());
+        final long id = wheel.scheduleTimer(5 * wheel.tickIntervalNs());
 
         do
         {
@@ -68,7 +68,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + (5 * wheel.tickIntervalNs()));
+        final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickIntervalNs()));
 
         do
         {
@@ -97,7 +97,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(5) + 1);
+        final long id = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(5) + 1);
 
         do
         {
@@ -127,7 +127,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 16);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
+        final long id = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
 
         do
         {
@@ -156,7 +156,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
+        final long id = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(63));
 
         do
         {
@@ -173,7 +173,7 @@ public class DeadlineTimerWheelTest
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(16));
 
-        wheel.cancelTimeout(id);
+        wheel.cancelTimer(id);
 
         do
         {
@@ -197,7 +197,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
-        final long id = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
 
         final long pollStartTimeNs = TimeUnit.MILLISECONDS.toNanos(32);
         controlTimestamp += pollStartTimeNs;
@@ -232,8 +232,8 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 256);
 
-        final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
-        final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
 
         do
         {
@@ -269,8 +269,8 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
 
-        final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
-        final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
 
         do
         {
@@ -306,8 +306,8 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
 
-        final long id1 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
-        final long id2 = wheel.scheduleTimeout(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(23));
 
         do
         {

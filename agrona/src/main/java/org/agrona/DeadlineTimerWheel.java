@@ -53,16 +53,16 @@ public class DeadlineTimerWheel
     private int currentTick;
 
     /**
-     * Callbacks for expiring timers.
+     * Callback for expired timers.
      */
     @FunctionalInterface
     public interface TimerHandler
     {
         /**
-         * Expiring timeout.
+         * Called when the deadline is past.
          *
-         * @param nowNs   for the expiring timer.
-         * @param timerId for the expiring timer.
+         * @param nowNs   for the expired timer.
+         * @param timerId for the expired timer.
          */
         void onTimeout(long nowNs, long timerId);
     }
@@ -147,7 +147,7 @@ public class DeadlineTimerWheel
      * @param deadlineNs for the timer to expire.
      * @return timerId for the scheduled timer
      */
-    public long scheduleTimeout(final long deadlineNs)
+    public long scheduleTimer(final long deadlineNs)
     {
         final long ticks = Math.max((deadlineNs - startTimeNs) / tickDurationNs, currentTick);
         final int wheelIndex = (int)(ticks & mask);
@@ -178,7 +178,7 @@ public class DeadlineTimerWheel
      *
      * @param timerId of the timer to cancel.
      */
-    public void cancelTimeout(final long timerId)
+    public void cancelTimer(final long timerId)
     {
         final int wheelIndex = tickForTimerId(timerId);
         final int arrayIndex = indexInTickArray(timerId);
@@ -193,11 +193,11 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Expire timers that have been scheduled to expire by the passed time.
+     * Expire timers that have been past their deadline.
      *
-     * @param nowNs             to use to determine timers to expire.
-     * @param handler      to call for each expiring timer.
-     * @param maxTimersToExpire before returning.
+     * @param nowNs             current time to compare deadlines against.
+     * @param handler           to call for each expired timer.
+     * @param maxTimersToExpire to process in one poll operation.
      * @return number of expired timers.
      */
     public int poll(final long nowNs, final TimerHandler handler, final int maxTimersToExpire)
