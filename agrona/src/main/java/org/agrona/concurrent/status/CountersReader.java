@@ -107,6 +107,11 @@ public class CountersReader
     public static final int RECORD_RECLAIMED = -1;
 
     /**
+     * Record was active and now lingering before being reclaimed.
+     */
+    public static final int RECORD_LINGERING = -2;
+
+    /**
      * Offset in the record at which the type id field is stored.
      */
     public static final int TYPE_ID_OFFSET = SIZE_OF_INT;
@@ -295,6 +300,21 @@ public class CountersReader
     public long getCounterValue(final int counterId)
     {
         return valuesBuffer.getLongVolatile(counterOffset(counterId));
+    }
+
+    /**
+     * Get the state for a given counter id as a volatile read.
+     *
+     * @param counterId to be read.
+     * @return the current state of the counter.
+     * @see #RECORD_UNUSED
+     * @see #RECORD_ALLOCATED
+     * @see #RECORD_LINGERING
+     * @see #RECORD_RECLAIMED
+     */
+    public int getCounterState(final int counterId)
+    {
+        return metaDataBuffer.getIntVolatile(metaDataOffset(counterId));
     }
 
     private String labelValue(final int recordOffset)

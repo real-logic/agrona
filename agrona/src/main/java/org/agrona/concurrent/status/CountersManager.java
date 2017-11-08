@@ -349,6 +349,16 @@ public class CountersManager extends CountersReader
     }
 
     /**
+     * Linger the counter identified by counterId.
+     *
+     * @param counterId the counter to linger
+     */
+    public void linger(final int counterId)
+    {
+        metaDataBuffer.putIntOrdered(metaDataOffset(counterId), RECORD_LINGERING);
+    }
+
+    /**
      * Set an {@link AtomicCounter} value based on counterId.
      *
      * @param counterId to be set.
