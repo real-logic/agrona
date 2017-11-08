@@ -31,7 +31,25 @@ public class AtomicCounter implements AutoCloseable
     private final byte[] buffer;
     private final CountersManager countersManager;
 
-    AtomicCounter(final AtomicBuffer buffer, final int counterId, final CountersManager countersManager)
+    /**
+     * Map a counter over a buffer. This version will NOT free the counter on close.
+     *
+     * @param buffer    containing the counter.
+     * @param counterId identifier of the counter.
+     */
+    public AtomicCounter(final AtomicBuffer buffer, final int counterId)
+    {
+        this(buffer, counterId, null);
+    }
+
+    /**
+     * Map a counter over a buffer. This version will free the counter on close.
+     *
+     * @param buffer          containing the counter.
+     * @param counterId       identifier for the counter.
+     * @param countersManager to be called to free the counter on close.
+     */
+    public AtomicCounter(final AtomicBuffer buffer, final int counterId, final CountersManager countersManager)
     {
         this.id = counterId;
         this.countersManager = countersManager;
@@ -168,7 +186,10 @@ public class AtomicCounter implements AutoCloseable
         if (!isClosed)
         {
             isClosed = true;
-            countersManager.free(id);
+            if (null != countersManager)
+            {
+                countersManager.free(id);
+            }
         }
     }
 }

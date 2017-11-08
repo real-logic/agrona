@@ -51,6 +51,13 @@ public abstract class Position extends ReadablePosition
     public abstract void setOrdered(long value);
 
     /**
+     * Sets the current position of the component with volatile memory semantics.
+     *
+     * @param value the current position of the component.
+     */
+    public abstract void setVolatile(long value);
+
+    /**
      * Set the position to a new proposedValue if greater than the current value with memory ordering semantics.
      *
      * @param proposedValue for the new max.

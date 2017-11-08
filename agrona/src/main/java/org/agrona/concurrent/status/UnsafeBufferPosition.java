@@ -90,6 +90,11 @@ public class UnsafeBufferPosition extends Position
         UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
     }
 
+    public void setVolatile(final long value)
+    {
+        UnsafeAccess.UNSAFE.putLongVolatile(buffer, addressOffset, value);
+    }
+
     public boolean proposeMax(final long proposedValue)
     {
         boolean updated = false;

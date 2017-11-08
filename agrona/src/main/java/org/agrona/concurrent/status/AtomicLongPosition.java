@@ -55,6 +55,11 @@ public class AtomicLongPosition extends Position
         this.value.lazySet(value);
     }
 
+    public void setVolatile(final long value)
+    {
+        this.value.set(value);
+    }
+
     public boolean proposeMax(final long proposedValue)
     {
         return proposeMaxOrdered(proposedValue);
