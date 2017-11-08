@@ -179,7 +179,7 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (nowNs, timerid) -> firedTimestamp.value = nowNs,
+                (nowNs, timerId) -> firedTimestamp.value = nowNs,
                 Integer.MAX_VALUE);
 
             controlTimestamp += wheel.tickIntervalNs();

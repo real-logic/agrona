@@ -64,7 +64,7 @@ public class DeadlineTimerWheel
          * @param nowNs   for the expired timer.
          * @param timerId for the expired timer.
          */
-        void onTimeout(long nowNs, long timerId);
+        void onExpiry(long nowNs, long timerId);
     }
 
     /**
@@ -212,7 +212,7 @@ public class DeadlineTimerWheel
             {
                 if (array[i] <= nowNs)
                 {
-                    handler.onTimeout(nowNs, timerIdForSlot(currentTick & mask, i));
+                    handler.onExpiry(nowNs, timerIdForSlot(currentTick & mask, i));
                     array[i] = NO_TIMER_SCHEDULED;
                     timerCount--;
                     timersExpired++;
