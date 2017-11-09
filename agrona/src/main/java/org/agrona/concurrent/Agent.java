@@ -19,14 +19,14 @@ package org.agrona.concurrent;
  * An Agent is scheduled to do work on a thread on a duty cycle. Each Agent should have a defined role in a system.
  *
  * {@link #onStart()}, {@link #doWork()}, and {@link #onClose()} will all be called by the same thread and in a
- * threadsafe manner.
+ * threadsafe manner if the agent runs successfully. {@link #onClose()} will be called if the agent fails to run.
  */
 public interface Agent
 {
     /**
      * To be overridden by Agents that need to do resource init on start.
      * <p>
-     * This method will be called by the agent thread. It will only be called once.
+     * This method will be called by the agent thread.
      * <p>
      * <b>Note:</b> Implementations of this method must be idempotent.
      */
@@ -51,7 +51,7 @@ public interface Agent
     /**
      * To be overridden by Agents that need to do resource cleanup on close.
      * <p>
-     * This method will be called after the agent thread has terminated. It will only be called once by a single thread.
+     * This method will be called after the agent thread has terminated or if the agent is closed before it runs.
      * <p>
      * <b>Note:</b> Implementations of this method must be idempotent.
      */

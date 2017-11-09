@@ -185,7 +185,19 @@ public class AgentRunner implements Runnable, AutoCloseable
         isRunning = false;
 
         final Thread thread = this.thread.getAndSet(TOMBSTONE);
-        if (TOMBSTONE != thread && null != thread)
+        if (null == thread)
+        {
+            try
+            {
+                isClosed = true;
+                agent.onClose();
+            }
+            catch (final Throwable throwable)
+            {
+                handleError(throwable);
+            }
+        }
+        else if (TOMBSTONE != thread)
         {
             while (true)
             {

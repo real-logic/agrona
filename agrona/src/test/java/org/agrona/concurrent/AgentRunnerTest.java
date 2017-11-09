@@ -55,7 +55,8 @@ public class AgentRunnerTest
         verify(mockAgent, never()).doWork();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
-        verify(mockAgent, never()).onClose();
+        verify(mockAgent, times(1)).onClose();
+        assertTrue(runner.isClosed());
     }
 
     @Test
@@ -69,7 +70,7 @@ public class AgentRunnerTest
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
         verify(mockAtomicCounter).increment();
-        verify(mockAgent).onClose();
+        verify(mockAgent, atLeastOnce()).onClose();
         assertTrue(runner.isClosed());
     }
 
@@ -94,7 +95,7 @@ public class AgentRunnerTest
             fail("Should have called error handler");
         }
 
-        verify(mockAgent).onStart();
+        verify(mockAgent, times(1)).onStart();
         verify(mockAgent, atLeastOnce()).doWork();
         verify(mockErrorHandler, atLeastOnce()).onError(expectedException);
         verify(mockAtomicCounter, atLeastOnce()).increment();
