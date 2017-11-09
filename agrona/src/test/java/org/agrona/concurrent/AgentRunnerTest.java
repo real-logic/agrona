@@ -70,7 +70,7 @@ public class AgentRunnerTest
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
         verify(mockAtomicCounter).increment();
-        verify(mockAgent, atLeastOnce()).onClose();
+        verify(mockAgent, times(1)).onClose();
         assertTrue(runner.isClosed());
     }
 
@@ -132,7 +132,7 @@ public class AgentRunnerTest
         assertExceptionNotReported();
     }
 
-    private void assertExceptionNotReported() throws InterruptedException
+    private void assertExceptionNotReported() throws Exception
     {
         new Thread(runner).start();
 
@@ -141,6 +141,7 @@ public class AgentRunnerTest
         runner.close();
 
         verify(mockAgent, times(1)).onStart();
+        verify(mockAgent, atLeastOnce()).doWork();
         verify(mockErrorHandler, never()).onError(any());
         verify(mockAtomicCounter, never()).increment();
     }
