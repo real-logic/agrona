@@ -151,6 +151,7 @@ public class CountersReader
      */
     public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
+    protected int maxCounterId;
     protected final AtomicBuffer metaDataBuffer;
     protected final AtomicBuffer valuesBuffer;
     protected final Charset labelCharset;
@@ -178,9 +179,20 @@ public class CountersReader
     public CountersReader(
         final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
+        this.maxCounterId = valuesBuffer.capacity() / COUNTER_LENGTH;
         this.valuesBuffer = valuesBuffer;
         this.metaDataBuffer = metaDataBuffer;
         this.labelCharset = labelCharset;
+    }
+
+    /**
+     * Get the maximum counter id which can be supported given the length of the values buffer.
+     *
+     * @return the maximum counter id which can be supported given the length of the values buffer.
+     */
+    public int maxCounterId()
+    {
+        return maxCounterId;
     }
 
     /**
@@ -299,6 +311,8 @@ public class CountersReader
      */
     public long getCounterValue(final int counterId)
     {
+        validateCounterId(counterId);
+
         return valuesBuffer.getLongVolatile(counterOffset(counterId));
     }
 
@@ -314,7 +328,31 @@ public class CountersReader
      */
     public int getCounterState(final int counterId)
     {
+        validateCounterId(counterId);
+
         return metaDataBuffer.getIntVolatile(metaDataOffset(counterId));
+    }
+
+    /**
+     * Get the label for a given counter id.
+     *
+     * @param counterId to be read.
+     * @return the label for the given counter id.
+     */
+    public String getCounterLabel(final int counterId)
+    {
+        validateCounterId(counterId);
+
+        return labelValue(metaDataOffset(counterId));
+    }
+
+    private void validateCounterId(final int counterId)
+    {
+        if (counterId < 0 || counterId > maxCounterId)
+        {
+            throw new IllegalArgumentException(
+                "Counter id " + counterId + " out of range: maxCounterId=" + maxCounterId);
+        }
     }
 
     private String labelValue(final int recordOffset)
