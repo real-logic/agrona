@@ -26,9 +26,7 @@ public interface Agent
     /**
      * To be overridden by Agents that need to do resource init on start.
      * <p>
-     * This method will be called by the agent thread.
-     * <p>
-     * <b>Note:</b> Implementations of this method must be idempotent.
+     * This method will be called by the agent thread thread once on start..
      */
     default void onStart()
     {
@@ -41,7 +39,7 @@ public interface Agent
      * The return value is used for implementing a backoff strategy that can be employed when no work is
      * currently available for the agent to process.
      * <p>
-     * If the Agent should terminate and close then a {@link AgentTerminationException} can be thrown.
+     * If the Agent wished to terminate and close then a {@link AgentTerminationException} can be thrown.
      *
      * @return 0 to indicate no work was currently available, a positive value otherwise.
      * @throws java.lang.Exception if an error has occurred
@@ -52,8 +50,6 @@ public interface Agent
      * To be overridden by Agents that need to do resource cleanup on close.
      * <p>
      * This method will be called after the agent thread has terminated or if the agent is closed before it runs.
-     * <p>
-     * <b>Note:</b> Implementations of this method must be idempotent.
      */
     default void onClose()
     {
