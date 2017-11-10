@@ -142,16 +142,10 @@ public class CountersManager extends CountersReader
     public int allocate(final String label, final int typeId)
     {
         final int counterId = nextCounterId();
-        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
-        }
+        checkCountersCapacity(counterId);
 
         final int recordOffset = metaDataOffset(counterId);
-        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
-        }
+        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -183,16 +177,10 @@ public class CountersManager extends CountersReader
     public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
     {
         final int counterId = nextCounterId();
-        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
-        }
+        checkCountersCapacity(counterId);
 
         final int recordOffset = metaDataOffset(counterId);
-        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
-        }
+        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -235,16 +223,10 @@ public class CountersManager extends CountersReader
         final int labelLength)
     {
         final int counterId = nextCounterId();
-        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
-        }
+        checkCountersCapacity(counterId);
 
         final int recordOffset = metaDataOffset(counterId);
-        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
-        {
-            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
-        }
+        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -404,6 +386,22 @@ public class CountersManager extends CountersReader
                 metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, bytes.length);
                 metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes);
             }
+        }
+    }
+
+    private void checkCountersCapacity(final int counterId)
+    {
+        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
+        {
+            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
+        }
+    }
+
+    private void checkMetaDataCapacity(final int recordOffset)
+    {
+        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
+        {
+            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
         }
     }
 }
