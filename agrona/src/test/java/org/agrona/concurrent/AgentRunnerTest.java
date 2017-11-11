@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalAnswers.answersWithDelay;
 import static org.mockito.Mockito.*;
 
 public class AgentRunnerTest
@@ -130,6 +131,21 @@ public class AgentRunnerTest
             });
 
         assertExceptionNotReported();
+    }
+
+    @Test
+    public void shouldRaiseInterruptFlagByClose() throws Exception
+    {
+        when(mockAgent.doWork()).then(answersWithDelay(500, RETURNS_DEFAULTS));
+
+        new Thread(runner).start();
+
+        Thread.sleep(100);
+
+        Thread.currentThread().interrupt();
+        runner.close();
+
+        assertTrue(Thread.interrupted());
     }
 
     private void assertExceptionNotReported() throws Exception
