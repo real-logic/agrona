@@ -146,7 +146,6 @@ public class AgentInvoker implements AutoCloseable
             }
             catch (final InterruptedException | ClosedByInterruptException ignore)
             {
-                Thread.interrupted();
                 close();
             }
             catch (final AgentTerminationException ex)
