@@ -95,7 +95,7 @@ public class AtomicCounter implements AutoCloseable
      *
      * @return the previous value of the counter
      */
-    public long orderedIncrement()
+    public long incrementOrdered()
     {
         final long currentValue = UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
         UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, currentValue + 1);
@@ -139,7 +139,7 @@ public class AtomicCounter implements AutoCloseable
      * @param increment to be added.
      * @return the previous value of the counter
      */
-    public long add(final long increment)
+    public long getAndAdd(final long increment)
     {
         return UnsafeAccess.UNSAFE.getAndAddLong(buffer, addressOffset, increment);
     }
@@ -150,7 +150,7 @@ public class AtomicCounter implements AutoCloseable
      * @param increment to be added with ordered store semantics.
      * @return the previous value of the counter
      */
-    public long addOrdered(final long increment)
+    public long getAndAddOrdered(final long increment)
     {
         final long currentValue = UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
         UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, currentValue + increment);
@@ -159,7 +159,30 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Get the latest value for the counter.
+     * Get the current value of a counter and atomically set it to a new value.
+     *
+     * @param value to be set.
+     * @return the previous value of the counter
+     */
+    public long getAndSet(final long value)
+    {
+        return UnsafeAccess.UNSAFE.getAndSetLong(buffer, addressOffset, value);
+    }
+
+    /**
+     * Compare the current value to expected and if true then set to the update value atomically.
+     *
+     * @param expectedValue for the counter.
+     * @param updateValue   for the counter.
+     * @return true if successful otherwise false.
+     */
+    public boolean compareAndSet(final long expectedValue, final long updateValue)
+    {
+        return UnsafeAccess.UNSAFE.compareAndSwapLong(buffer, addressOffset, expectedValue, updateValue);
+    }
+
+    /**
+     * Get the latest value for the counter with volatile semantics.
      *
      * @return the latest value for the counter.
      */
