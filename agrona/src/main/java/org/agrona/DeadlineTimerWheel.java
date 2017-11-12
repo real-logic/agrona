@@ -16,6 +16,7 @@
 package org.agrona;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Deadline scheduled Timer Wheel (NOT thread safe)
@@ -45,9 +46,10 @@ public class DeadlineTimerWheel
     private static final long NO_TIMER_SCHEDULED = Long.MAX_VALUE;
 
     private final long[][] wheel;
-    private final long tickDurationNs;
-    private final long startTimeNs;
+    private final long tickInterval;
+    private final long startTime;
     private final int mask;
+    private final TimeUnit timeUnit;
 
     private long timerCount;
     private int currentTick;
@@ -61,40 +63,49 @@ public class DeadlineTimerWheel
         /**
          * Called when the deadline is past.
          *
-         * @param nowNs   for the expired timer.
-         * @param timerId for the expired timer.
+         * @param timeUnit for the tick.
+         * @param now      for the expired timer.
+         * @param timerId  for the expired timer.
          */
-        void onExpiry(long nowNs, long timerId);
+        void onExpiry(TimeUnit timeUnit, long now, long timerId);
     }
 
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param startTimeNs    for the wheel (in nanoseconds)
-     * @param tickIntervalNs for the wheel (in nanoseconds)
-     * @param ticksPerWheel  for the wheel (must be power of 2)
+     * @param timeUnit      for each tick.
+     * @param startTime     for the wheel (in given {@link TimeUnit})
+     * @param tickInterval  for the wheel (in given {@link TimeUnit})
+     * @param ticksPerWheel for the wheel (must be power of 2)
      */
-    public DeadlineTimerWheel(final long startTimeNs, final long tickIntervalNs, final int ticksPerWheel)
+    public DeadlineTimerWheel(
+        final TimeUnit timeUnit, final long startTime, final long tickInterval, final int ticksPerWheel)
     {
-        this(startTimeNs, tickIntervalNs, ticksPerWheel, INITIAL_TICK_DEPTH);
+        this(timeUnit, startTime, tickInterval, ticksPerWheel, INITIAL_TICK_DEPTH);
     }
 
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param startTimeNs      for the wheel (in nanoseconds)
-     * @param tickIntervalNs   for the wheel (in nanoseconds)
+     * @param timeUnit         for each tick.
+     * @param startTime        for the wheel (in given {@link TimeUnit})
+     * @param tickInterval     for the wheel (in given {@link TimeUnit})
      * @param ticksPerWheel    for the wheel (must be power of 2)
      * @param initialTickDepth for the wheel to be used for all ticks
      */
     public DeadlineTimerWheel(
-        final long startTimeNs, final long tickIntervalNs, final int ticksPerWheel, final int initialTickDepth)
+        final TimeUnit timeUnit,
+        final long startTime,
+        final long tickInterval,
+        final int ticksPerWheel,
+        final int initialTickDepth)
     {
         checkTicksPerWheel(ticksPerWheel);
 
+        this.timeUnit = timeUnit;
         this.mask = ticksPerWheel - 1;
-        this.tickDurationNs = tickIntervalNs;
-        this.startTimeNs = startTimeNs;
+        this.tickInterval = tickInterval;
+        this.startTime = startTime;
         this.timerCount = 0;
 
         wheel = new long[ticksPerWheel][];
@@ -111,23 +122,33 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Interval of a tick of the wheel in nanoseconds.
+     * Time unit for the ticks.
      *
-     * @return interval of a tick of the wheel in nanoseconds.
+     * @return time unit for the ticks.
      */
-    public long tickIntervalNs()
+    public TimeUnit timeUnit()
     {
-        return tickDurationNs;
+        return timeUnit;
     }
 
     /**
-     * Deadline of current tick of the wheel in nanoseconds.
+     * Interval of a tick of the wheel in {@link #timeUnit()}s.
      *
-     * @return deadline of the current tick of the wheel in nanoseconds.
+     * @return interval of a tick of the wheel in {@link #timeUnit()}s.
      */
-    public long currentTickDeadlineNs()
+    public long tickInterval()
     {
-        return ((currentTick + 1) * tickDurationNs) + startTimeNs;
+        return tickInterval;
+    }
+
+    /**
+     * Deadline of current tick of the wheel in {@link #timeUnit()}s.
+     *
+     * @return deadline of the current tick of the wheel in {@link #timeUnit()}s.
+     */
+    public long currentTickDeadline()
+    {
+        return ((currentTick + 1) * tickInterval) + startTime;
     }
 
     /**
@@ -144,12 +165,12 @@ public class DeadlineTimerWheel
      * Schedule a timer for a given absolute time as a deadline in nanoseconds. A timerId will be assigned
      * and returned for future reference.
      *
-     * @param deadlineNs for the timer to expire.
+     * @param deadline for the timer to expire.
      * @return timerId for the scheduled timer
      */
-    public long scheduleTimer(final long deadlineNs)
+    public long scheduleTimer(final long deadline)
     {
-        final long ticks = Math.max((deadlineNs - startTimeNs) / tickDurationNs, currentTick);
+        final long ticks = Math.max((deadline - startTime) / tickInterval, currentTick);
         final int wheelIndex = (int)(ticks & mask);
         final long[] array = wheel[wheelIndex];
 
@@ -157,7 +178,7 @@ public class DeadlineTimerWheel
         {
             if (NO_TIMER_SCHEDULED == array[i])
             {
-                array[i] = deadlineNs;
+                array[i] = deadline;
                 timerCount++;
 
                 return timerIdForSlot(wheelIndex, i);
@@ -165,7 +186,7 @@ public class DeadlineTimerWheel
         }
 
         final long[] newArray = Arrays.copyOf(array, array.length + 1);
-        newArray[array.length] = deadlineNs;
+        newArray[array.length] = deadline;
 
         wheel[wheelIndex] = newArray;
         timerCount++;
@@ -195,12 +216,12 @@ public class DeadlineTimerWheel
     /**
      * Expire timers that have been past their deadline.
      *
-     * @param nowNs             current time to compare deadlines against.
+     * @param now               current time to compare deadlines against.
      * @param handler           to call for each expired timer.
      * @param maxTimersToExpire to process in one poll operation.
      * @return number of expired timers.
      */
-    public int poll(final long nowNs, final TimerHandler handler, final int maxTimersToExpire)
+    public int poll(final long now, final TimerHandler handler, final int maxTimersToExpire)
     {
         int timersExpired = 0;
 
@@ -210,16 +231,16 @@ public class DeadlineTimerWheel
 
             for (int i = 0, length = array.length; i < length && maxTimersToExpire > timersExpired; i++)
             {
-                if (array[i] <= nowNs)
+                if (array[i] <= now)
                 {
-                    handler.onExpiry(nowNs, timerIdForSlot(currentTick & mask, i));
+                    handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & mask, i));
                     array[i] = NO_TIMER_SCHEDULED;
                     timerCount--;
                     timersExpired++;
                 }
             }
 
-            if (currentTickDeadlineNs() <= nowNs)
+            if (currentTickDeadline() <= now)
             {
                 currentTick++;
             }
