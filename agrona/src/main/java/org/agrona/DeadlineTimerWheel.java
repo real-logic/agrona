@@ -162,7 +162,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Schedule a timer for a given absolute time as a deadline in nanoseconds. A timerId will be assigned
+     * Schedule a timer for a given absolute time as a deadline in {@link #timeUnit()}s. A timerId will be assigned
      * and returned for future reference.
      *
      * @param deadline for the timer to expire.
