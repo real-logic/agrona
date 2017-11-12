@@ -233,10 +233,10 @@ public class DeadlineTimerWheel
             {
                 if (array[i] <= now)
                 {
-                    handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & mask, i));
                     array[i] = NO_TIMER_SCHEDULED;
                     timerCount--;
                     timersExpired++;
+                    handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & mask, i));
                 }
             }
 
@@ -249,9 +249,9 @@ public class DeadlineTimerWheel
         return timersExpired;
     }
 
-    private static long timerIdForSlot(final int tickOnWheel, final int indexInTickArray)
+    private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)
     {
-        return ((long)tickOnWheel << 32) | indexInTickArray;
+        return ((long)tickOnWheel << 32) | tickArrayIndex;
     }
 
     private static int tickForTimerId(final long timerId)
