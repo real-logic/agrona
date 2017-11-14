@@ -15,19 +15,48 @@
  */
 package org.agrona.concurrent;
 
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+import static org.agrona.UnsafeAccess.UNSAFE;
+
+/**
+ * Pad out a cacheline to the left of a value to prevent false sharing.
+ */
+class CachedEpochClockPadding
+{
+    @SuppressWarnings("unused")
+    protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
+}
+
+/**
+ * Value for the sequence that is expected to be padded.
+ */
+class CachedEpochClockValue extends CachedEpochClockPadding
+{
+    protected volatile long timeMs;
+}
 
 /**
  * An {@link EpochClock} that caches a timestamp which can be updated with {@link #update(long)}.
  * <p>
  * Instances are threadsafe with the read being volatile.
  */
-public class CachedEpochClock implements EpochClock
+public class CachedEpochClock extends CachedEpochClockValue implements EpochClock
 {
-    private static final AtomicLongFieldUpdater<CachedEpochClock> TIME_UPDATER =
-        AtomicLongFieldUpdater.newUpdater(CachedEpochClock.class, "timeMs");
+    private static final long VALUE_OFFSET;
 
-    private volatile long timeMs;
+    static
+    {
+        try
+        {
+            VALUE_OFFSET = UNSAFE.objectFieldOffset(CachedEpochClockValue.class.getDeclaredField("timeMs"));
+        }
+        catch (final Exception ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
 
     public long time()
     {
@@ -35,12 +64,12 @@ public class CachedEpochClock implements EpochClock
     }
 
     /**
-     * Update the value of the timestamp.
+     * Update the value of the timestamp in with ordered semantics.
      *
      * @param timeMs value to update the timestamp.
      */
     public void update(final long timeMs)
     {
-        TIME_UPDATER.lazySet(this, timeMs);
+        UNSAFE.putOrderedLong(this, VALUE_OFFSET, timeMs);
     }
 }
