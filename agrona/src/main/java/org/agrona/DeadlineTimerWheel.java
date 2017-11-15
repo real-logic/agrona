@@ -85,7 +85,7 @@ public class DeadlineTimerWheel
      *
      * @param timeUnit      for each tick.
      * @param startTime     for the wheel (in given {@link TimeUnit})
-     * @param resolution    for the wheel, i.e. how any {@link TimeUnit}s per tick.
+     * @param resolution    for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel for the wheel (must be power of 2)
      */
     public DeadlineTimerWheel(
@@ -99,7 +99,7 @@ public class DeadlineTimerWheel
      *
      * @param timeUnit              for each tick.
      * @param startTime             for the wheel (in given {@link TimeUnit})
-     * @param resolution            for the wheel, i.e. how any {@link TimeUnit}s per tick.
+     * @param resolution            for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel         for the wheel (must be power of 2)
      * @param initialTickAllocation space allocated in the wheel.
      */
