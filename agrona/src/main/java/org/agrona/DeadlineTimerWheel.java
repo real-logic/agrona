@@ -63,7 +63,7 @@ public class DeadlineTimerWheel
         /**
          * Called when the deadline is past.
          *
-         * @param timeUnit for the tick.
+         * @param timeUnit for the time.
          * @param now      for the expired timer.
          * @param timerId  for the expired timer.
          * @return true to continue processing and expire timer or false to keep timer active
@@ -83,7 +83,7 @@ public class DeadlineTimerWheel
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param timeUnit      for each tick.
+     * @param timeUnit      for the values used to express the time.
      * @param startTime     for the wheel (in given {@link TimeUnit})
      * @param resolution    for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel for the wheel (must be power of 2)
@@ -97,7 +97,7 @@ public class DeadlineTimerWheel
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param timeUnit              for each tick.
+     * @param timeUnit              for the values used to express the time.
      * @param startTime             for the wheel (in given {@link TimeUnit})
      * @param resolution            for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel         for the wheel (must be power of 2)
@@ -132,7 +132,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Time unit for the ticks.
+     * Time unit for the time values.
      *
      * @return time unit for the ticks.
      */
@@ -152,11 +152,11 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Deadline of current tick of the wheel in {@link #timeUnit()}s.
+     * Time of current tick of the wheel in {@link #timeUnit()}s.
      *
-     * @return deadline of the current tick of the wheel in {@link #timeUnit()}s.
+     * @return time of the current tick of the wheel in {@link #timeUnit()}s.
      */
-    public long currentTickDeadline()
+    public long currentTickTime()
     {
         return ((currentTick + 1) * resolution) + startTime;
     }
@@ -175,7 +175,7 @@ public class DeadlineTimerWheel
      * Schedule a timer for a given absolute time as a deadline in {@link #timeUnit()}s. A timerId will be assigned
      * and returned for future reference.
      *
-     * @param deadline for the timer to expire.
+     * @param deadline after which the timer should expire.
      * @return timerId for the scheduled timer
      */
     public long scheduleTimer(final long deadline)
@@ -224,7 +224,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Expire timers that have been past their deadline.
+     * Poll for timers expired by the deadline passing.
      *
      * @param now               current time to compare deadlines against.
      * @param handler           to call for each expired timer.
@@ -259,7 +259,7 @@ public class DeadlineTimerWheel
                 }
             }
 
-            if (maxTimersToExpire > timersExpired && currentTickDeadline() <= now)
+            if (maxTimersToExpire > timersExpired && currentTickTime() <= now)
             {
                 currentTick++;
             }
@@ -269,7 +269,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Iterate over wheel and callback deadline and timerId for each active timer.
+     * Iterate over wheel so all active timers can be consumed without expiring them.
      *
      * @param consumer to call for each active timer.
      */

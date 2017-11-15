@@ -226,7 +226,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            if (wheel.currentTickDeadline() > pollStartTimeNs)
+            if (wheel.currentTickTime() > pollStartTimeNs)
             {
                 controlTimestamp += wheel.tickResolution();
             }
