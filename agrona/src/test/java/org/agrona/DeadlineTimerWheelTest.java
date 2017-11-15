@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 public class DeadlineTimerWheelTest
 {
@@ -512,5 +512,26 @@ public class DeadlineTimerWheelTest
         assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(17)));
         assertThat(numExpired, is((2)));
         verify(errorHandler).onError(any(IllegalStateException.class));
+    }
+
+    @Test(timeout = 1000)
+    public void shouldBeAbleToIterateOverTimers()
+    {
+        final long controlTimestamp = 0;
+        final long deadline1 = controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15);
+        final long deadline2 = controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15 + 7);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+
+        final long id1 = wheel.scheduleTimer(deadline1);
+        final long id2 = wheel.scheduleTimer(deadline2);
+
+        final DeadlineTimerWheel.TimerHandler handler = mock(DeadlineTimerWheel.TimerHandler.class);
+
+        when(handler.onExpiry(any(TimeUnit.class), anyLong(), anyLong())).thenReturn(true);
+        wheel.forEach(handler);
+        verify(handler).onExpiry(any(TimeUnit.class), eq(deadline1), eq(id1));
+        verify(handler).onExpiry(any(TimeUnit.class), eq(deadline2), eq(id2));
+        verifyNoMoreInteractions(handler);
     }
 }

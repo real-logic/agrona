@@ -273,6 +273,36 @@ public class DeadlineTimerWheel
         return timersExpired;
     }
 
+    /**
+     * Iterate over wheel and callback deadline and timerId for each active timer.
+     *
+     * @param handler to call for each active timer. The return value of the handler is ignored.
+     */
+    public void forEach(final TimerHandler handler)
+    {
+        long numTimersLeft = timerCount;
+
+        for (int j = currentTick, end = currentTick + wheel.length; j <= end; j++)
+        {
+            final long[] array = wheel[j & mask];
+
+            for (int i = 0, length = array.length; i < length; i++)
+            {
+                final long deadline = array[i];
+
+                if (deadline != NO_TIMER_SCHEDULED)
+                {
+                    handler.onExpiry(timeUnit, deadline, timerIdForSlot(j & mask, i));
+
+                    if (--numTimersLeft == 0)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)
     {
         return ((long)tickOnWheel << 32) | tickArrayIndex;
