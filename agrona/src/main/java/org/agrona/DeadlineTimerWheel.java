@@ -55,7 +55,7 @@ public class DeadlineTimerWheel
     private int currentTick;
 
     /**
-     * Callback for expired timers.
+     * Handler for expired timers.
      */
     @FunctionalInterface
     public interface TimerHandler
@@ -69,6 +69,15 @@ public class DeadlineTimerWheel
          * @return true to continue processing and expire timer or false to keep timer active
          */
         boolean onExpiry(TimeUnit timeUnit, long now, long timerId);
+    }
+
+    /**
+     * Consumer of timer entries as deadline to timerId.
+     */
+    @FunctionalInterface
+    public interface TimerConsumer
+    {
+        void accept(long deadline, long timerId);
     }
 
     /**
@@ -262,9 +271,9 @@ public class DeadlineTimerWheel
     /**
      * Iterate over wheel and callback deadline and timerId for each active timer.
      *
-     * @param handler to call for each active timer. The return value of the handler is ignored.
+     * @param consumer to call for each active timer.
      */
-    public void forEach(final TimerHandler handler)
+    public void forEach(final TimerConsumer consumer)
     {
         long numTimersLeft = timerCount;
 
@@ -278,7 +287,7 @@ public class DeadlineTimerWheel
 
                 if (deadline != NO_TIMER_SCHEDULED)
                 {
-                    handler.onExpiry(timeUnit, deadline, timerIdForSlot(j & mask, i));
+                    consumer.accept(deadline, timerIdForSlot(j & mask, i));
 
                     if (--numTimersLeft == 0)
                     {

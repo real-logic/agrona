@@ -18,14 +18,13 @@ package org.agrona;
 import org.agrona.collections.MutableLong;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 public class DeadlineTimerWheelTest
 {
@@ -520,12 +519,12 @@ public class DeadlineTimerWheelTest
         final long id1 = wheel.scheduleTimer(deadline1);
         final long id2 = wheel.scheduleTimer(deadline2);
 
-        final DeadlineTimerWheel.TimerHandler handler = mock(DeadlineTimerWheel.TimerHandler.class);
+        final Map<Long, Long> timerIdByDeadlineMap = new HashMap<>();
 
-        when(handler.onExpiry(any(TimeUnit.class), anyLong(), anyLong())).thenReturn(true);
-        wheel.forEach(handler);
-        verify(handler).onExpiry(any(TimeUnit.class), eq(deadline1), eq(id1));
-        verify(handler).onExpiry(any(TimeUnit.class), eq(deadline2), eq(id2));
-        verifyNoMoreInteractions(handler);
+        wheel.forEach(timerIdByDeadlineMap::put);
+
+        assertThat(timerIdByDeadlineMap.size(), is(2));
+        assertThat(timerIdByDeadlineMap.get(deadline1), is(id1));
+        assertThat(timerIdByDeadlineMap.get(deadline2), is(id2));
     }
 }
