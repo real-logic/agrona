@@ -31,22 +31,22 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Wheel is backed by arrays. Timer cancellation is O(1). Timer scheduling might be slightly
  * longer if a lot of timers are in the same tick. The underlying tick contains an array. That
- * array grows when needed, but does not currently shrink.
+ * array grows when needed, but does not shrink.
  * <p>
  * <b>Caveats</b>
  * <p>
  * Timers that expire in the same tick will not be ordered with one another. As ticks are
- * fairly large normally, this means that some timers may expire out of order.
+ * fairly coarse resolution normally, this means that some timers may expire out of order.
  * <p>
  * <b>Note:</b> Not threadsafe.
  */
 public class DeadlineTimerWheel
 {
-    private static final int INITIAL_TICK_DEPTH = 16;
-    private static final long NO_TIMER_SCHEDULED = Long.MAX_VALUE;
+    private static final int INITIAL_TICK_ALLOCATION = 16;
+    private static final long NULL_TIMER = Long.MAX_VALUE;
 
     private final long[][] wheel;
-    private final long tickInterval;
+    private final long resolution;
     private final long startTime;
     private final int mask;
     private final TimeUnit timeUnit;
@@ -85,36 +85,36 @@ public class DeadlineTimerWheel
      *
      * @param timeUnit      for each tick.
      * @param startTime     for the wheel (in given {@link TimeUnit})
-     * @param tickInterval  for the wheel (in given {@link TimeUnit})
+     * @param resolution    for the wheel, i.e. how any {@link TimeUnit}s per tick.
      * @param ticksPerWheel for the wheel (must be power of 2)
      */
     public DeadlineTimerWheel(
-        final TimeUnit timeUnit, final long startTime, final long tickInterval, final int ticksPerWheel)
+        final TimeUnit timeUnit, final long startTime, final long resolution, final int ticksPerWheel)
     {
-        this(timeUnit, startTime, tickInterval, ticksPerWheel, INITIAL_TICK_DEPTH);
+        this(timeUnit, startTime, resolution, ticksPerWheel, INITIAL_TICK_ALLOCATION);
     }
 
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param timeUnit         for each tick.
-     * @param startTime        for the wheel (in given {@link TimeUnit})
-     * @param tickInterval     for the wheel (in given {@link TimeUnit})
-     * @param ticksPerWheel    for the wheel (must be power of 2)
-     * @param initialTickDepth for the wheel to be used for all ticks
+     * @param timeUnit              for each tick.
+     * @param startTime             for the wheel (in given {@link TimeUnit})
+     * @param resolution            for the wheel, i.e. how any {@link TimeUnit}s per tick.
+     * @param ticksPerWheel         for the wheel (must be power of 2)
+     * @param initialTickAllocation space allocated in the wheel.
      */
     public DeadlineTimerWheel(
         final TimeUnit timeUnit,
         final long startTime,
-        final long tickInterval,
+        final long resolution,
         final int ticksPerWheel,
-        final int initialTickDepth)
+        final int initialTickAllocation)
     {
         checkTicksPerWheel(ticksPerWheel);
 
         this.timeUnit = timeUnit;
         this.mask = ticksPerWheel - 1;
-        this.tickInterval = tickInterval;
+        this.resolution = resolution;
         this.startTime = startTime;
         this.timerCount = 0;
 
@@ -122,11 +122,11 @@ public class DeadlineTimerWheel
 
         for (int i = 0; i < wheel.length; i++)
         {
-            wheel[i] = new long[initialTickDepth];
+            wheel[i] = new long[initialTickAllocation];
 
             for (int j = 0; j < wheel[i].length; j++)
             {
-                wheel[i][j] = NO_TIMER_SCHEDULED;
+                wheel[i][j] = NULL_TIMER;
             }
         }
     }
@@ -142,13 +142,13 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Interval of a tick of the wheel in {@link #timeUnit()}s.
+     * Resolution of a tick of the wheel in {@link #timeUnit()}s.
      *
-     * @return interval of a tick of the wheel in {@link #timeUnit()}s.
+     * @return resolution of a tick of the wheel in {@link #timeUnit()}s.
      */
-    public long tickInterval()
+    public long tickResolution()
     {
-        return tickInterval;
+        return resolution;
     }
 
     /**
@@ -158,7 +158,7 @@ public class DeadlineTimerWheel
      */
     public long currentTickDeadline()
     {
-        return ((currentTick + 1) * tickInterval) + startTime;
+        return ((currentTick + 1) * resolution) + startTime;
     }
 
     /**
@@ -180,13 +180,13 @@ public class DeadlineTimerWheel
      */
     public long scheduleTimer(final long deadline)
     {
-        final long ticks = Math.max((deadline - startTime) / tickInterval, currentTick);
+        final long ticks = Math.max((deadline - startTime) / resolution, currentTick);
         final int wheelIndex = (int)(ticks & mask);
         final long[] array = wheel[wheelIndex];
 
         for (int i = 0; i < array.length; i++)
         {
-            if (NO_TIMER_SCHEDULED == array[i])
+            if (NULL_TIMER == array[i])
             {
                 array[i] = deadline;
                 timerCount++;
@@ -216,9 +216,9 @@ public class DeadlineTimerWheel
 
         final long[] array = wheel[wheelIndex];
 
-        if (array[arrayIndex] != NO_TIMER_SCHEDULED)
+        if (array[arrayIndex] != NULL_TIMER)
         {
-            array[arrayIndex] = NO_TIMER_SCHEDULED;
+            array[arrayIndex] = NULL_TIMER;
             timerCount--;
         }
     }
@@ -245,7 +245,7 @@ public class DeadlineTimerWheel
 
                 if (deadline <= now)
                 {
-                    array[i] = NO_TIMER_SCHEDULED;
+                    array[i] = NULL_TIMER;
                     timerCount--;
                     timersExpired++;
 
@@ -285,7 +285,7 @@ public class DeadlineTimerWheel
             {
                 final long deadline = array[i];
 
-                if (deadline != NO_TIMER_SCHEDULED)
+                if (deadline != NULL_TIMER)
                 {
                     consumer.accept(deadline, timerIdForSlot(j & mask, i));
 

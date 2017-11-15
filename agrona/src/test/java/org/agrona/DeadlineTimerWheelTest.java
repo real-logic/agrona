@@ -42,7 +42,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimer(5 * wheel.tickInterval());
+        final long id = wheel.scheduleTimer(5 * wheel.tickResolution());
 
         do
         {
@@ -56,7 +56,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value);
 
@@ -72,7 +72,7 @@ public class DeadlineTimerWheelTest
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
             TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 1024);
 
-        final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickInterval()));
+        final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()));
 
         do
         {
@@ -86,7 +86,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value);
 
@@ -116,7 +116,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value);
 
@@ -147,7 +147,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value);
 
@@ -177,7 +177,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(16));
 
@@ -194,7 +194,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(128));
 
@@ -228,7 +228,7 @@ public class DeadlineTimerWheelTest
 
             if (wheel.currentTickDeadline() > pollStartTimeNs)
             {
-                controlTimestamp += wheel.tickInterval();
+                controlTimestamp += wheel.tickResolution();
             }
         }
         while (-1 == firedTimestamp.value && controlTimestamp < TimeUnit.MILLISECONDS.toNanos(128));
@@ -267,7 +267,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -306,7 +306,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -345,7 +345,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -379,7 +379,7 @@ public class DeadlineTimerWheelTest
                 },
                 1);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
 
@@ -397,14 +397,14 @@ public class DeadlineTimerWheelTest
                 },
                 1);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
 
         assertThat(numExpired, is(2));
 
         assertThat(firedTimestamp1.value, is(TimeUnit.MILLISECONDS.toNanos(16)));
-        assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(16) + wheel.tickInterval()));
+        assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(16) + wheel.tickResolution()));
     }
 
     @Test(timeout = 1000)
@@ -446,7 +446,7 @@ public class DeadlineTimerWheelTest
                 },
                 Integer.MAX_VALUE);
 
-            controlTimestamp += wheel.tickInterval();
+            controlTimestamp += wheel.tickResolution();
         }
         while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
@@ -491,7 +491,7 @@ public class DeadlineTimerWheelTest
                     },
                     Integer.MAX_VALUE);
 
-                controlTimestamp += wheel.tickInterval();
+                controlTimestamp += wheel.tickResolution();
             }
             catch (final Exception ex)
             {
