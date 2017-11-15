@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class DeadlineTimerWheelTest
 {
@@ -49,8 +52,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -78,8 +83,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -107,8 +114,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -137,8 +146,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -166,8 +177,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -179,8 +192,13 @@ public class DeadlineTimerWheelTest
         {
             wheel.poll(
                 controlTimestamp,
-                (timeUnit, now, timerId) -> firedTimestamp.value = now,
-                Integer.MAX_VALUE);
+                (timeUnit, now, timerId) ->
+                {
+                    firedTimestamp.value = now;
+                    return true;
+                },
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -210,8 +228,10 @@ public class DeadlineTimerWheelTest
                 {
                     assertThat(timerId, is(id));
                     firedTimestamp.value = now;
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             if (wheel.currentTickDeadline() > pollStartTimeNs)
             {
@@ -249,8 +269,11 @@ public class DeadlineTimerWheelTest
                     {
                         firedTimestamp2.value = now;
                     }
+
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -286,8 +309,11 @@ public class DeadlineTimerWheelTest
                     {
                         firedTimestamp2.value = now;
                     }
+
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -323,8 +349,11 @@ public class DeadlineTimerWheelTest
                     {
                         firedTimestamp2.value = now;
                     }
+
+                    return true;
                 },
-                Integer.MAX_VALUE);
+                Integer.MAX_VALUE,
+                (t) -> {});
 
             controlTimestamp += wheel.tickInterval();
         }
@@ -332,5 +361,156 @@ public class DeadlineTimerWheelTest
 
         assertThat(firedTimestamp1.value, is(TimeUnit.MILLISECONDS.toNanos(16)));
         assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(24)));
+    }
+
+    @Test(timeout = 1000)
+    public void shouldLimitExpiringTimers()
+    {
+        long controlTimestamp = 0;
+        final MutableLong firedTimestamp1 = new MutableLong(-1);
+        final MutableLong firedTimestamp2 = new MutableLong(-1);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+
+        int numExpired = 0;
+
+        do
+        {
+            numExpired += wheel.poll(
+                controlTimestamp,
+                (timeUnit, now, timerId) ->
+                {
+                    assertThat(timerId, is(id1));
+                    firedTimestamp1.value = now;
+                    return true;
+                },
+                1,
+                (t) -> {});
+
+            controlTimestamp += wheel.tickInterval();
+        }
+        while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
+
+        assertThat(numExpired, is(1));
+
+        do
+        {
+            numExpired += wheel.poll(
+                controlTimestamp,
+                (timeUnit, now, timerId) ->
+                {
+                    assertThat(timerId, is(id2));
+                    firedTimestamp2.value = now;
+                    return true;
+                },
+                1,
+                (t) -> {});
+
+            controlTimestamp += wheel.tickInterval();
+        }
+        while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
+
+        assertThat(numExpired, is(2));
+
+        assertThat(firedTimestamp1.value, is(TimeUnit.MILLISECONDS.toNanos(16)));
+        assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(16) + wheel.tickInterval()));
+    }
+
+    @Test(timeout = 1000)
+    public void shouldHandleFalseReturnToExpireTimerAgain()
+    {
+        long controlTimestamp = 0;
+        final MutableLong firedTimestamp1 = new MutableLong(-1);
+        final MutableLong firedTimestamp2 = new MutableLong(-1);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+
+        int numExpired = 0;
+
+        do
+        {
+            numExpired += wheel.poll(
+                controlTimestamp,
+                (timeUnit, now, timerId) ->
+                {
+                    if (timerId == id1)
+                    {
+                        if (-1 == firedTimestamp1.value)
+                        {
+                            firedTimestamp1.value = now;
+                            return false;
+                        }
+
+                        firedTimestamp1.value = now;
+                    }
+                    else if (timerId == id2)
+                    {
+                        firedTimestamp2.value = now;
+                    }
+
+                    return true;
+                },
+                Integer.MAX_VALUE,
+                (t) -> {});
+
+            controlTimestamp += wheel.tickInterval();
+        }
+        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+        assertThat(firedTimestamp1.value, is(TimeUnit.MILLISECONDS.toNanos(17)));
+        assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(17)));
+        assertThat(numExpired, is(3));
+    }
+
+    @Test(timeout = 1000)
+    public void shouldCopeWithExceptionFromHandler()
+    {
+        long controlTimestamp = 0;
+        final MutableLong firedTimestamp1 = new MutableLong(-1);
+        final MutableLong firedTimestamp2 = new MutableLong(-1);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            TimeUnit.NANOSECONDS, controlTimestamp, TimeUnit.MILLISECONDS.toNanos(1), 8);
+
+        final long id1 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+        final long id2 = wheel.scheduleTimer(controlTimestamp + TimeUnit.MILLISECONDS.toNanos(15));
+
+        final ErrorHandler errorHandler = mock(ErrorHandler.class);
+        int numExpired = 0;
+
+        do
+        {
+            numExpired += wheel.poll(
+                controlTimestamp,
+                (timeUnit, now, timerId) ->
+                {
+                    if (timerId == id1)
+                    {
+                        firedTimestamp1.value = now;
+                        throw new IllegalStateException();
+                    }
+                    else if (timerId == id2)
+                    {
+                        firedTimestamp2.value = now;
+                    }
+
+                    return true;
+                },
+                Integer.MAX_VALUE,
+                errorHandler);
+
+            controlTimestamp += wheel.tickInterval();
+        }
+        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+        assertThat(firedTimestamp1.value, is(TimeUnit.MILLISECONDS.toNanos(16)));
+        assertThat(firedTimestamp2.value, is(TimeUnit.MILLISECONDS.toNanos(17)));
+        assertThat(numExpired, is((2)));
+        verify(errorHandler).onError(any(IllegalStateException.class));
     }
 }

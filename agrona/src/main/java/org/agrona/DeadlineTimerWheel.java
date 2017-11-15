@@ -66,8 +66,9 @@ public class DeadlineTimerWheel
          * @param timeUnit for the tick.
          * @param now      for the expired timer.
          * @param timerId  for the expired timer.
+         * @return true to continue processing and expire timeout or false to keep timeout active
          */
-        void onExpiry(TimeUnit timeUnit, long now, long timerId);
+        boolean onExpiry(TimeUnit timeUnit, long now, long timerId);
     }
 
     /**
@@ -219,9 +220,14 @@ public class DeadlineTimerWheel
      * @param now               current time to compare deadlines against.
      * @param handler           to call for each expired timer.
      * @param maxTimersToExpire to process in one poll operation.
+     * @param errorHandler      to be notified if an error occurs during the callback.
      * @return number of expired timers.
      */
-    public int poll(final long now, final TimerHandler handler, final int maxTimersToExpire)
+    public int poll(
+        final long now,
+        final TimerHandler handler,
+        final int maxTimersToExpire,
+        final ErrorHandler errorHandler)
     {
         int timersExpired = 0;
 
@@ -231,16 +237,34 @@ public class DeadlineTimerWheel
 
             for (int i = 0, length = array.length; i < length && maxTimersToExpire > timersExpired; i++)
             {
-                if (array[i] <= now)
+                final long deadline = array[i];
+
+                if (deadline <= now)
                 {
-                    array[i] = NO_TIMER_SCHEDULED;
-                    timerCount--;
-                    timersExpired++;
-                    handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & mask, i));
+                    try
+                    {
+                        array[i] = NO_TIMER_SCHEDULED;
+                        timerCount--;
+                        timersExpired++;
+
+                        if (!handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & mask, i)))
+                        {
+                            array[i] = deadline;
+                            timerCount++;
+
+                            return timersExpired;
+                        }
+                    }
+                    catch (final Throwable t)
+                    {
+                        errorHandler.onError(t);
+
+                        return timersExpired;
+                    }
                 }
             }
 
-            if (currentTickDeadline() <= now)
+            if (maxTimersToExpire > timersExpired && currentTickDeadline() <= now)
             {
                 currentTick++;
             }
