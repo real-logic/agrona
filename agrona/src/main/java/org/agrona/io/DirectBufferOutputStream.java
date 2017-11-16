@@ -17,7 +17,6 @@ package org.agrona.io;
 
 import org.agrona.MutableDirectBuffer;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -108,7 +107,7 @@ public class DirectBufferOutputStream extends OutputStream
      * @param b to be written.
      * @throws IllegalStateException if insufficient capacity remains in the buffer.
      */
-    public void write(final int b) throws IOException
+    public void write(final int b)
     {
         if (position == length)
         {
@@ -127,7 +126,7 @@ public class DirectBufferOutputStream extends OutputStream
      * @param length    of the srcBytes to read.
      * @throws IllegalStateException if insufficient capacity remains in the buffer.
      */
-    public void write(final byte[] srcBytes, final int srcOffset, final int length) throws IOException
+    public void write(final byte[] srcBytes, final int srcOffset, final int length)
     {
         final long resultingOffset = position + ((long)length);
         if (resultingOffset >= this.length)
@@ -137,5 +136,9 @@ public class DirectBufferOutputStream extends OutputStream
 
         buffer.putBytes(offset + position, srcBytes, srcOffset, length);
         position += length;
+    }
+
+    public void close()
+    {
     }
 }
