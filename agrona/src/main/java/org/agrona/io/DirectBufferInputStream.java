@@ -17,7 +17,6 @@ package org.agrona.io;
 
 import org.agrona.DirectBuffer;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -97,12 +96,12 @@ public class DirectBufferInputStream extends InputStream
         return false;
     }
 
-    public int available() throws IOException
+    public int available()
     {
         return length - position;
     }
 
-    public long skip(final long n) throws IOException
+    public long skip(final long n)
     {
         final int skipped = (int)Math.min(n, available());
         position += skipped;
@@ -110,7 +109,7 @@ public class DirectBufferInputStream extends InputStream
         return skipped;
     }
 
-    public int read() throws IOException
+    public int read()
     {
         int b = -1;
         if (position < length)
@@ -122,7 +121,7 @@ public class DirectBufferInputStream extends InputStream
         return b;
     }
 
-    public int read(final byte[] dstBytes, final int dstOffset, final int length) throws IOException
+    public int read(final byte[] dstBytes, final int dstOffset, final int length)
     {
         int bytesRead = -1;
 
@@ -134,5 +133,9 @@ public class DirectBufferInputStream extends InputStream
         }
 
         return bytesRead;
+    }
+
+    public void close()
+    {
     }
 }
