@@ -264,14 +264,14 @@ public class DeadlineTimerWheel
                 }
             }
 
-            if (pollIndex >= array.length)
-            {
-                pollIndex = 0;
-            }
-
             if (maxTimersToExpire > timersExpired && currentTickTime() <= now)
             {
                 currentTick++;
+                pollIndex = 0;
+            }
+            else if (pollIndex >= array.length)
+            {
+                pollIndex = 0;
             }
         }
 
