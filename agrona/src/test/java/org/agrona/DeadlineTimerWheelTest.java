@@ -33,13 +33,13 @@ public class DeadlineTimerWheelTest
         BitUtil.findNextPositivePowerOfTwo((int)TimeUnit.MILLISECONDS.toNanos(1));
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldExceptionOnNonPowerOf2TicksPerWheel()
+    public void shouldExceptionOnNonPowerOfTwoTicksPerWheel()
     {
         new DeadlineTimerWheel(TimeUnit.NANOSECONDS, 0, 16, 10);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldExceptionOnNonPowerOf2Resoilution()
+    public void shouldExceptionOnNonPowerOfTwoResolution()
     {
         new DeadlineTimerWheel(TimeUnit.NANOSECONDS, 0, 17, 8);
     }
@@ -49,8 +49,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
         final long id = wheel.scheduleTimer(5 * wheel.tickResolution());
 
@@ -79,8 +78,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 100 * RESOLUTION;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
         final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()));
 
@@ -109,8 +107,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
         final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()) + 1);
 
@@ -140,8 +137,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 16);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 16);
 
         final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
 
@@ -170,8 +166,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
 
         final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
 
@@ -252,8 +247,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
@@ -291,8 +285,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
@@ -330,8 +323,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
@@ -369,8 +361,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
@@ -423,8 +414,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
@@ -471,8 +461,7 @@ public class DeadlineTimerWheelTest
         long controlTimestamp = 0;
         final MutableLong firedTimestamp1 = new MutableLong(-1);
         final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
         final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
@@ -521,8 +510,7 @@ public class DeadlineTimerWheelTest
     public void shouldBeAbleToIterateOverTimers()
     {
         final long controlTimestamp = 0;
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
         final long deadline1 = controlTimestamp + (15 * wheel.tickResolution());
         final long deadline2 = controlTimestamp + ((15 + 7) * wheel.tickResolution());
 

@@ -47,7 +47,7 @@ public class DeadlineTimerWheel
 
     private final long[][] wheel;
     private final long startTime;
-    private final int resolution;
+    private final int tickResolution;
     private final int wheelMask;
     private final int resolutionBitsToShift;
     private final TimeUnit timeUnit;
@@ -85,15 +85,15 @@ public class DeadlineTimerWheel
     /**
      * Construct timer wheel with given parameters.
      *
-     * @param timeUnit      for the values used to express the time.
-     * @param startTime     for the wheel (in given {@link TimeUnit})
-     * @param resolution    for the wheel, i.e. how many {@link TimeUnit}s per tick.
-     * @param ticksPerWheel for the wheel (must be power of 2)
+     * @param timeUnit       for the values used to express the time.
+     * @param startTime      for the wheel (in given {@link TimeUnit})
+     * @param tickResolution for the wheel, i.e. how many {@link TimeUnit}s per tick.
+     * @param ticksPerWheel  for the wheel (must be power of 2)
      */
     public DeadlineTimerWheel(
-        final TimeUnit timeUnit, final long startTime, final int resolution, final int ticksPerWheel)
+        final TimeUnit timeUnit, final long startTime, final int tickResolution, final int ticksPerWheel)
     {
-        this(timeUnit, startTime, resolution, ticksPerWheel, INITIAL_TICK_ALLOCATION);
+        this(timeUnit, startTime, tickResolution, ticksPerWheel, INITIAL_TICK_ALLOCATION);
     }
 
     /**
@@ -101,24 +101,24 @@ public class DeadlineTimerWheel
      *
      * @param timeUnit              for the values used to express the time.
      * @param startTime             for the wheel (in given {@link TimeUnit})
-     * @param resolution            for the wheel, i.e. how many {@link TimeUnit}s per tick.
+     * @param tickResolution        for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel         for the wheel (must be power of 2)
      * @param initialTickAllocation space allocated in the wheel.
      */
     public DeadlineTimerWheel(
         final TimeUnit timeUnit,
         final long startTime,
-        final int resolution,
+        final int tickResolution,
         final int ticksPerWheel,
         final int initialTickAllocation)
     {
         checkTicksPerWheel(ticksPerWheel);
-        checkResolution(resolution);
+        checkResolution(tickResolution);
 
         this.timeUnit = timeUnit;
         this.wheelMask = ticksPerWheel - 1;
-        this.resolution = resolution;
-        this.resolutionBitsToShift = Integer.numberOfTrailingZeros(resolution);
+        this.tickResolution = tickResolution;
+        this.resolutionBitsToShift = Integer.numberOfTrailingZeros(tickResolution);
         this.startTime = startTime;
         this.timerCount = 0;
         this.pollIndex = 0;
@@ -153,7 +153,7 @@ public class DeadlineTimerWheel
      */
     public long tickResolution()
     {
-        return resolution;
+        return tickResolution;
     }
 
     /**
@@ -163,7 +163,7 @@ public class DeadlineTimerWheel
      */
     public long currentTickTime()
     {
-        return (((long)currentTick + 1L) << resolutionBitsToShift) + startTime;
+        return ((currentTick + 1L) << resolutionBitsToShift) + startTime;
     }
 
     /**
@@ -331,11 +331,11 @@ public class DeadlineTimerWheel
         }
     }
 
-    private static void checkResolution(final int resolution)
+    private static void checkResolution(final int tickResolution)
     {
-        if (!BitUtil.isPowerOfTwo(resolution))
+        if (!BitUtil.isPowerOfTwo(tickResolution))
         {
-            throw new IllegalArgumentException("resolution must be a power of 2: " + resolution);
+            throw new IllegalArgumentException(" tick resolution must be a power of 2: " + tickResolution);
         }
     }
 }
