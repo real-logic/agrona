@@ -31,7 +31,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * Not Threadsafe.
  * <p>
  * This HashSet caches its iterator object by default, so nested iteration is not supported. You can override this
- * behaviour at construction.
+ * behaviour at construction by indicating that the iterator should not be cached.
  *
  * @param <T> type of values stored in the {@link java.util.Set}
  * @see ObjectIterator
@@ -46,44 +46,66 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
 
     private static final Object MISSING_VALUE = null;
 
+    private final boolean shouldCacheIterator;
     private final float loadFactor;
     private int resizeThreshold;
     private int size;
 
     private T[] values;
-    private final ObjectHashSetIterator iterator;
+    private ObjectHashSetIterator iterator;
     private IntConsumer resizeNotifier;
 
+    /**
+     * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR},
+     * and iterator caching support.
+     */
     public ObjectHashSet()
     {
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
+    /**
+     * Construct a hash set with a proposed initial capacity, {@link Hashing#DEFAULT_LOAD_FACTOR},
+     * and iterator caching support.
+     *
+     * @param proposedCapacity for the initial capacity of the set.
+     */
     public ObjectHashSet(final int proposedCapacity)
     {
         this(proposedCapacity, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
-    @SuppressWarnings("unchecked")
-    public ObjectHashSet(final int initialCapacity, final float loadFactor)
+    /**
+     * Construct a hash set with a proposed initial capacity, load factor, and iterator caching support.
+     *
+     * @param proposedCapacity for the initial capacity of the set.
+     * @param loadFactor to be used for resizing.
+     */
+    public ObjectHashSet(final int proposedCapacity, final float loadFactor)
     {
-        this(initialCapacity, loadFactor, true);
+        this(proposedCapacity, loadFactor, true);
     }
 
+    /**
+     * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
+     *
+     * @param proposedCapacity    for the initial capacity of the set.
+     * @param loadFactor          to be used for resizing.
+     * @param shouldCacheIterator should the iterator be cached to avoid further allocation.
+     */
     @SuppressWarnings("unchecked")
-    public ObjectHashSet(final int initialCapacity, final float loadFactor, final boolean cacheIterator)
+    public ObjectHashSet(final int proposedCapacity, final float loadFactor, final boolean shouldCacheIterator)
     {
         validateLoadFactor(loadFactor);
 
+        this.shouldCacheIterator = shouldCacheIterator;
         this.loadFactor = loadFactor;
         size = 0;
 
-        final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, initialCapacity));
+        final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
         resizeThreshold = (int)(capacity * loadFactor);
         values = (T[])new Object[capacity];
         Arrays.fill(values, MISSING_VALUE);
-
-        iterator = cacheIterator ? new ObjectHashSetIterator() : null;
     }
 
     /**
@@ -439,12 +461,18 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     public ObjectIterator<T> iterator()
     {
         ObjectHashSetIterator iterator = this.iterator;
-        if (iterator == null)
+        if (null == iterator)
         {
             iterator = new ObjectHashSetIterator();
+
+            if (shouldCacheIterator)
+            {
+                this.iterator = iterator;
+            }
         }
 
         iterator.reset(values, size);
+
         return iterator;
     }
 
