@@ -30,7 +30,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * <p>
  * Not Threadsafe.
  * <p>
- * This HashSet caches its iterator object, so nested iteration is not supported.
+ * This HashSet caches its iterator object by default, so nested iteration is not supported. You can override this
+ * behaviour at construction.
  *
  * @param <T> type of values stored in the {@link java.util.Set}
  * @see ObjectIterator
@@ -50,7 +51,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     private int size;
 
     private T[] values;
-    private final ObjectHashSetIterator iterator = new ObjectHashSetIterator();
+    private final ObjectHashSetIterator iterator;
     private IntConsumer resizeNotifier;
 
     public ObjectHashSet()
@@ -66,6 +67,12 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     @SuppressWarnings("unchecked")
     public ObjectHashSet(final int initialCapacity, final float loadFactor)
     {
+        this(initialCapacity, loadFactor, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ObjectHashSet(final int initialCapacity, final float loadFactor, final boolean cacheIterator)
+    {
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
@@ -75,6 +82,8 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
         resizeThreshold = (int)(capacity * loadFactor);
         values = (T[])new Object[capacity];
         Arrays.fill(values, MISSING_VALUE);
+
+        iterator = cacheIterator ? new ObjectHashSetIterator() : null;
     }
 
     /**
@@ -429,8 +438,13 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
      */
     public ObjectIterator<T> iterator()
     {
-        iterator.reset(values, size);
+        ObjectHashSetIterator iterator = this.iterator;
+        if (iterator == null)
+        {
+            iterator = new ObjectHashSetIterator();
+        }
 
+        iterator.reset(values, size);
         return iterator;
     }
 
