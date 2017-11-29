@@ -15,18 +15,42 @@
  */
 package org.agrona.collections;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class ObjectHashSetStringTest
 {
+    @Parameters
+    public static ObjectHashSet[] data()
+    {
+        return new ObjectHashSet[] {
+            new ObjectHashSet<String>(INITIAL_CAPACITY),
+            new ObjectHashSet<String>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false)};
+    }
+
     private static final int INITIAL_CAPACITY = 100;
 
-    private final ObjectHashSet<String> testSet = new ObjectHashSet<>(INITIAL_CAPACITY);
+    private final ObjectHashSet<String> testSet;
+
+    public ObjectHashSetStringTest(final ObjectHashSet<String> testSet)
+    {
+        this.testSet = testSet;
+    }
+
+    @Before
+    public void clear()
+    {
+        testSet.clear();
+    }
 
     @Test
     public void containsAddedElement()

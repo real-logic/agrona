@@ -15,7 +15,10 @@
  */
 package org.agrona.collections;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.*;
 
@@ -23,11 +26,31 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class ObjectHashSetIntegerTest
 {
+    @Parameterized.Parameters
+    public static Iterable<ObjectHashSet<Integer>> data()
+    {
+        return Arrays.asList(
+            new ObjectHashSet<Integer>(INITIAL_CAPACITY),
+            new ObjectHashSet<Integer>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false));
+    }
+
     private static final int INITIAL_CAPACITY = 100;
 
-    private final ObjectHashSet<Integer> testSet = new ObjectHashSet<>(INITIAL_CAPACITY);
+    private final ObjectHashSet<Integer> testSet;
+
+    public ObjectHashSetIntegerTest(final ObjectHashSet<Integer> testSet)
+    {
+        this.testSet = testSet;
+    }
+
+    @Before
+    public void clear()
+    {
+        testSet.clear();
+    }
 
     @Test
     public void initiallyContainsNoElements() throws Exception
