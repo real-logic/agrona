@@ -33,7 +33,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * <p>
  * This class is not Threadsafe.
  * <p>
- * This HashSet caches its iterator object, so nested iteration is not supported.
+ * This HashSet caches its iterator object by default, so nested iteration is not supported. You can override this
+ * behaviour at construction by indicating that the iterator should not be cached.
  *
  * @see IntIterator
  * @see Set
@@ -47,35 +48,68 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
 
     static final int MISSING_VALUE = -1;
 
+    private final boolean shouldCacheIterator;
+    private boolean containsMissingValue;
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
     // NB: excludes missing value
     @DoNotSub private int sizeOfArrayValues;
 
     private int[] values;
-    private final IntHashSetIterator iterator = new IntHashSetIterator();
-    private boolean containsMissingValue;
+    private IntHashSetIterator iterator;
 
+    /**
+     * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR},
+     * and iterator caching support.
+     */
     public IntHashSet()
     {
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
+    /**
+     * Construct a hash set with a proposed capacity, {@link Hashing#DEFAULT_LOAD_FACTOR},
+     * and iterator caching support.
+     *
+     * @param proposedCapacity for the initial capacity of the set.
+     */
     public IntHashSet(
         @DoNotSub final int proposedCapacity)
     {
-        this(proposedCapacity, Hashing.DEFAULT_LOAD_FACTOR);
+        this(proposedCapacity, Hashing.DEFAULT_LOAD_FACTOR, true);
     }
 
+    /**
+     * Construct a hash set with a proposed initial capacity, load factor, and iterator caching support.
+     *
+     * @param proposedCapacity for the initial capacity of the set.
+     * @param loadFactor       to be used for resizing.
+     */
     public IntHashSet(
-        @DoNotSub final int initialCapacity,
+        @DoNotSub final int proposedCapacity,
         final float loadFactor)
+    {
+        this(proposedCapacity, loadFactor, true);
+    }
+
+    /**
+     * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
+     *
+     * @param proposedCapacity    for the initial capacity of the set.
+     * @param loadFactor          to be used for resizing.
+     * @param shouldCacheIterator should the iterator be cached to avoid further allocation.
+     */
+    public IntHashSet(
+        @DoNotSub final int proposedCapacity,
+        final float loadFactor,
+        final boolean shouldCacheIterator)
     {
         validateLoadFactor(loadFactor);
 
+        this.shouldCacheIterator = shouldCacheIterator;
         this.loadFactor = loadFactor;
         sizeOfArrayValues = 0;
-        @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, initialCapacity));
+        @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
         Arrays.fill(values, MISSING_VALUE);
@@ -491,6 +525,16 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
      */
     public IntIterator iterator()
     {
+        IntHashSetIterator iterator = this.iterator;
+        if (null == iterator)
+        {
+            iterator = new IntHashSetIterator();
+            if (shouldCacheIterator)
+            {
+                this.iterator = iterator;
+            }
+        }
+
         iterator.reset(values, containsMissingValue, size());
 
         return iterator;
