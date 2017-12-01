@@ -244,7 +244,7 @@ public class DeadlineTimerWheel
         {
             final long[] array = wheel[currentTick & wheelMask];
 
-            for (int length = array.length; pollIndex < length && maxTimersToExpire > timersExpired; pollIndex++)
+            for (int i = 0, length = array.length; i < length && maxTimersToExpire > timersExpired; i++)
             {
                 final long deadline = array[pollIndex];
 
@@ -262,6 +262,8 @@ public class DeadlineTimerWheel
                         return timersExpired;
                     }
                 }
+
+                pollIndex = (pollIndex + 1) >= length ? 0 : (pollIndex + 1);
             }
 
             if (maxTimersToExpire > timersExpired && currentTickTime() <= now)
