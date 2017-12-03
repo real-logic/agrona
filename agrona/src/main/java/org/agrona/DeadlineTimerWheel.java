@@ -68,9 +68,9 @@ public class DeadlineTimerWheel
          * @param timeUnit for the time.
          * @param now      for the expired timer.
          * @param timerId  for the expired timer.
-         * @return true to continue processing and expire timer or false to keep timer active
+         * @return true to consume timer and continue processing or false to keep timer active and abort.
          */
-        boolean onExpiry(TimeUnit timeUnit, long now, long timerId);
+        boolean onTimerExpiry(TimeUnit timeUnit, long now, long timerId);
     }
 
     /**
@@ -254,7 +254,7 @@ public class DeadlineTimerWheel
                     timerCount--;
                     timersExpired++;
 
-                    if (!handler.onExpiry(timeUnit, now, timerIdForSlot(currentTick & wheelMask, pollIndex)))
+                    if (!handler.onTimerExpiry(timeUnit, now, timerIdForSlot(currentTick & wheelMask, pollIndex)))
                     {
                         array[pollIndex] = deadline;
                         timerCount++;
