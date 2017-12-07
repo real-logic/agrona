@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Read-only collection which delegates its operations to an underlying map and a couple of functions. Designed
- * to easily implement keyset() and values() methods in a map.
+ * to easily implement {@link Map#keySet()} {@link Map#values()} methods.
  *
  * @param <V> The generic type of the set.
  */

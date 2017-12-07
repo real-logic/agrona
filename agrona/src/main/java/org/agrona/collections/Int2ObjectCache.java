@@ -609,9 +609,9 @@ public class Int2ObjectCache<V>
         }
     }
 
-    class ValueCollection<V> extends AbstractCollection<V>
+    class ValueCollection<T> extends AbstractCollection<T>
     {
-        private final ValueIterator<V> iterator = new ValueIterator<V>();
+        private final ValueIterator<T> iterator = new ValueIterator<>();
 
         @DoNotSub public int size()
         {
@@ -623,7 +623,7 @@ public class Int2ObjectCache<V>
             return Int2ObjectCache.this.containsValue(o);
         }
 
-        public ValueIterator<V> iterator()
+        public ValueIterator<T> iterator()
         {
             iterator.reset();
 
@@ -636,16 +636,16 @@ public class Int2ObjectCache<V>
         }
     }
 
-    class EntrySet<V> extends AbstractSet<Entry<Integer, V>>
+    class EntrySet<T> extends AbstractSet<Entry<Integer, T>>
     {
-        private final EntryIterator<V> iterator = new EntryIterator<V>();
+        private final EntryIterator<T> iterator = new EntryIterator<>();
 
         @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
 
-        public Iterator<Entry<Integer, V>> iterator()
+        public Iterator<Entry<Integer, T>> iterator()
         {
             iterator.reset();
 
@@ -738,11 +738,11 @@ public class Int2ObjectCache<V>
     }
 
     @SuppressWarnings("unchecked")
-    public class EntryIterator<V>
-        extends AbstractIterator<Entry<Integer, V>>
-        implements Entry<Integer, V>
+    public class EntryIterator<T>
+        extends AbstractIterator<Entry<Integer, T>>
+        implements Entry<Integer, T>
     {
-        public Entry<Integer, V> next()
+        public Entry<Integer, T> next()
         {
             findNext();
 
@@ -754,12 +754,12 @@ public class Int2ObjectCache<V>
             return keys[position()];
         }
 
-        public V getValue()
+        public T getValue()
         {
-            return (V)values[position()];
+            return (T)values[position()];
         }
 
-        public V setValue(final V value)
+        public T setValue(final T value)
         {
             throw new UnsupportedOperationException("Cannot set on this iterator");
         }

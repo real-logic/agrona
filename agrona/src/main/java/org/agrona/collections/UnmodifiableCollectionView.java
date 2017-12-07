@@ -22,8 +22,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 /**
- * An unmodifiable view of a collection that maps each element in an underlying
- * collection into a view.
+ * An unmodifiable view of a collection that maps each element in an underlying collection into a view.
  *
  * @param <V> The type of the view.
  * @param <E> The type of the underlying element.
