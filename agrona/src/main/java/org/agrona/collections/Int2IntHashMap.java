@@ -39,9 +39,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     @DoNotSub private int size = 0;
 
     private int[] entries;
-    private final KeySet keySet = new KeySet();
-    private final Values values = new Values();
-    private final Set<Entry<Integer, Integer>> entrySet = new EntrySet();
+    private KeySet keySet;
+    private Values values;
+    private Set<Entry<Integer, Integer>> entrySet;
 
     public Int2IntHashMap(final int missingValue)
     {
@@ -365,6 +365,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public KeySet keySet()
     {
+        if (null == keySet)
+        {
+            keySet = new KeySet();
+        }
+
         return keySet;
     }
 
@@ -373,6 +378,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public Values values()
     {
+        if (null == values)
+        {
+            values = new Values();
+        }
+
         return values;
     }
 
@@ -381,6 +391,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public Set<Entry<Integer, Integer>> entrySet()
     {
+        if (null == entrySet)
+        {
+            entrySet = new EntrySet();
+        }
+
         return entrySet;
     }
 
@@ -587,13 +602,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         final Map<?, ?> that = (Map<?, ?>)o;
 
-        return size == that.size() && entrySet.equals(that.entrySet());
+        return size == that.size() && entrySet().equals(that.entrySet());
 
     }
 
     @DoNotSub public int hashCode()
     {
-        return entrySet.hashCode();
+        return entrySet().hashCode();
     }
 
     @DoNotSub private static int next(final int index, final int mask)

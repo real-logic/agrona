@@ -47,9 +47,9 @@ public class Object2IntHashMap<K>
     private K[] keys;
     private int[] values;
 
-    private final ValueCollection valueCollection = new ValueCollection();
-    private final KeySet<K> keySet = new KeySet<>();
-    private final EntrySet<K> entrySet = new EntrySet<>();
+    private ValueCollection valueCollection;
+    private KeySet<K> keySet;
+    private EntrySet<K> entrySet;
     private final int missingValue;
 
     /**
@@ -402,6 +402,11 @@ public class Object2IntHashMap<K>
      */
     public Set<K> keySet()
     {
+        if (null == keySet)
+        {
+            keySet = new KeySet<>();
+        }
+
         return keySet;
     }
 
@@ -410,6 +415,11 @@ public class Object2IntHashMap<K>
      */
     public ValueCollection values()
     {
+        if (null == valueCollection)
+        {
+            valueCollection = new ValueCollection();
+        }
+
         return valueCollection;
     }
 
@@ -418,6 +428,11 @@ public class Object2IntHashMap<K>
      */
     public Set<Entry<K, Integer>> entrySet()
     {
+        if (null == entrySet)
+        {
+            entrySet = new EntrySet<>();
+        }
+
         return entrySet;
     }
 

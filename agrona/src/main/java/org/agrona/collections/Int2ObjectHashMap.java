@@ -43,9 +43,9 @@ public class Int2ObjectHashMap<V>
     private int[] keys;
     private Object[] values;
 
-    private final ValueCollection<V> valueCollection = new ValueCollection<>();
-    private final KeySet keySet = new KeySet();
-    private final EntrySet<V> entrySet = new EntrySet<>();
+    private ValueCollection<V> valueCollection;
+    private KeySet keySet;
+    private EntrySet<V> entrySet;
 
     public Int2ObjectHashMap()
     {
@@ -372,6 +372,11 @@ public class Int2ObjectHashMap<V>
      */
     public KeySet keySet()
     {
+        if (null == keySet)
+        {
+            keySet = new KeySet();
+        }
+
         return keySet;
     }
 
@@ -380,6 +385,11 @@ public class Int2ObjectHashMap<V>
      */
     public Collection<V> values()
     {
+        if (null == valueCollection)
+        {
+            valueCollection = new ValueCollection<>();
+        }
+
         return valueCollection;
     }
 
@@ -388,6 +398,11 @@ public class Int2ObjectHashMap<V>
      */
     public Set<Entry<Integer, V>> entrySet()
     {
+        if (null == entrySet)
+        {
+            entrySet = new EntrySet<>();
+        }
+
         return entrySet;
     }
 
@@ -631,9 +646,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    class ValueCollection<V> extends AbstractCollection<V> implements Serializable
+    class ValueCollection<T> extends AbstractCollection<T> implements Serializable
     {
-        private final ValueIterator<V> iterator = new ValueIterator<V>();
+        private final ValueIterator<T> iterator = new ValueIterator<>();
 
         @DoNotSub public int size()
         {
@@ -645,7 +660,7 @@ public class Int2ObjectHashMap<V>
             return Int2ObjectHashMap.this.containsValue(o);
         }
 
-        public ValueIterator<V> iterator()
+        public ValueIterator<T> iterator()
         {
             iterator.reset();
 
@@ -658,16 +673,16 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    class EntrySet<V> extends AbstractSet<Entry<Integer, V>> implements Serializable
+    class EntrySet<T> extends AbstractSet<Entry<Integer, T>> implements Serializable
     {
-        private final EntryIterator<V> iterator = new EntryIterator<V>();
+        private final EntryIterator<T> iterator = new EntryIterator<>();
 
         @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
 
-        public Iterator<Entry<Integer, V>> iterator()
+        public Iterator<Entry<Integer, T>> iterator()
         {
             iterator.reset();
 
@@ -795,11 +810,11 @@ public class Int2ObjectHashMap<V>
     }
 
     @SuppressWarnings("unchecked")
-    public class EntryIterator<V>
-        extends AbstractIterator<Entry<Integer, V>>
-        implements Entry<Integer, V>
+    public class EntryIterator<T>
+        extends AbstractIterator<Entry<Integer, T>>
+        implements Entry<Integer, T>
     {
-        public Entry<Integer, V> next()
+        public Entry<Integer, T> next()
         {
             findNext();
 
@@ -811,12 +826,12 @@ public class Int2ObjectHashMap<V>
             return keys[position()];
         }
 
-        public V getValue()
+        public T getValue()
         {
-            return (V)values[position()];
+            return (T)values[position()];
         }
 
-        public V setValue(final V value)
+        public T setValue(final T value)
         {
             requireNonNull(value);
 
@@ -824,7 +839,7 @@ public class Int2ObjectHashMap<V>
             final Object oldValue = values[pos];
             values[pos] = value;
 
-            return (V)oldValue;
+            return (T)oldValue;
         }
     }
 }

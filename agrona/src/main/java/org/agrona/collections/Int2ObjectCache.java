@@ -56,9 +56,9 @@ public class Int2ObjectCache<V>
     private final Object[] values;
     private final Consumer<V> evictionConsumer;
 
-    private final ValueCollection<V> valueCollection = new ValueCollection<>();
-    private final KeySet keySet = new KeySet();
-    private final EntrySet<V> entrySet = new EntrySet<>();
+    private ValueCollection<V> valueCollection;
+    private KeySet keySet;
+    private EntrySet<V> entrySet;
 
     public Int2ObjectCache(
         @DoNotSub final int numSets,
@@ -447,6 +447,11 @@ public class Int2ObjectCache<V>
      */
     public KeySet keySet()
     {
+        if (null == keySet)
+        {
+            keySet = new KeySet();
+        }
+
         return keySet;
     }
 
@@ -455,6 +460,11 @@ public class Int2ObjectCache<V>
      */
     public Collection<V> values()
     {
+        if (null == valueCollection)
+        {
+            valueCollection = new ValueCollection<>();
+        }
+
         return valueCollection;
     }
 
@@ -463,6 +473,11 @@ public class Int2ObjectCache<V>
      */
     public Set<Entry<Integer, V>> entrySet()
     {
+        if (null == entrySet)
+        {
+            entrySet = new EntrySet<>();
+        }
+
         return entrySet;
     }
 
