@@ -231,6 +231,18 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringWithoutLengthAscii(int index, String value);
 
     /**
+     * Encode a String as ASCII bytes in the buffer without a length prefix taking a range of the value.
+     *
+     * @param index       at which the String begins.
+     * @param value       of the String to be encoded.
+     * @param valueOffset in the value String to begin.
+     * @param length      of the value String to encode. If this is greater than valueOffset - value length then the
+     *                    lesser will be used.
+     * @return the number of bytes encoded.
+     */
+    int putStringWithoutLengthAscii(int index, String value, int valueOffset, int length);
+
+    /**
      * Encode a String as UTF-8 bytes to the buffer with a length prefix.
      *
      * @param index at which the String should be encoded.

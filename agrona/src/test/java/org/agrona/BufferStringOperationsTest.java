@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -32,6 +33,10 @@ public class BufferStringOperationsTest
 {
     private static final int BUFFER_CAPACITY = 4096;
     private static final int INDEX = 8;
+
+    @DataPoint
+    public static final MutableDirectBuffer ARRAY_BUFFER = new UnsafeBuffer(
+        new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY);
 
     @DataPoint
     public static final MutableDirectBuffer DIRECT_BYTE_BUFFER = new UnsafeBuffer(
@@ -51,6 +56,30 @@ public class BufferStringOperationsTest
 
         buffer.putStringAscii(INDEX, value);
         assertThat(buffer.getStringAscii(INDEX), is("Hello World ?"));
+    }
+
+    @Theory
+    public void shouldAppendAsciiStringInParts(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World Test";
+
+        int stringIndex = 0;
+        int bufferIndex = INDEX + SIZE_OF_INT;
+
+        bufferIndex += buffer.putStringWithoutLengthAscii(bufferIndex, value, stringIndex, 5);
+
+        stringIndex += 5;
+        bufferIndex += buffer.putStringWithoutLengthAscii(bufferIndex, value, stringIndex, 5);
+
+        stringIndex += 5;
+        bufferIndex += buffer.putStringWithoutLengthAscii(
+            bufferIndex, value, stringIndex, value.length() - stringIndex);
+
+        assertThat(bufferIndex, is(value.length() + INDEX + SIZE_OF_INT));
+        buffer.putInt(INDEX, value.length());
+
+        assertThat(buffer.getStringWithoutLengthAscii(INDEX + SIZE_OF_INT, value.length()), is(value));
+        assertThat(buffer.getStringAscii(INDEX), is(value));
     }
 
     @Theory
