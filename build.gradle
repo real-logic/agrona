@@ -96,7 +96,6 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
     apply plugin: 'signing'
-    apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'eclipse'
 
     group = agronaGroup
@@ -143,7 +142,6 @@ subprojects {
     signing {
         required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
-        sign configurations.shadow
     }
 }
 
@@ -224,6 +222,7 @@ project(':agrona') {
 }
 
 project(':agrona-agent') {
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     compileTestJava {
         // Suppress warnings about using Unsafe and sun.misc
@@ -318,6 +317,11 @@ project(':agrona-agent') {
     artifacts {
         archives sourcesJar
         archives javadocJar
+    }
+
+    signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.shadow
     }
 }
 
