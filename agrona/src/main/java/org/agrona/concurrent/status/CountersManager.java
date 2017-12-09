@@ -368,9 +368,10 @@ public class CountersManager extends CountersReader
     {
         if (StandardCharsets.US_ASCII == labelCharset)
         {
-            metaDataBuffer.putStringAscii(
+            metaDataBuffer.putInt(
                 recordOffset + LABEL_OFFSET,
-                label.length() > MAX_LABEL_LENGTH ? label.substring(0, MAX_LABEL_LENGTH) : label);
+                metaDataBuffer.putStringWithoutLengthAscii(
+                    recordOffset + LABEL_OFFSET + SIZE_OF_INT, label, 0, MAX_LABEL_LENGTH));
         }
         else
         {
