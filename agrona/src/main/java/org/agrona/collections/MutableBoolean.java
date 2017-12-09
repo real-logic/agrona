@@ -18,52 +18,50 @@ package org.agrona.collections;
 import java.io.Serializable;
 
 /**
- * Mutable reference that is useful for capturing an object reference when using lambdas.
- *
- * @param <T> type of the reference.
+ * Mutable boolean valid that is useful for capturing a value when using lambdas or collections.
  */
-public class MutableReference<T> implements Serializable
+public class MutableBoolean implements Serializable
 {
     /**
      * For convenient access.
      */
-    public T ref;
+    public boolean value;
 
     /**
      * Default constructor.
      */
-    public MutableReference()
+    public MutableBoolean()
     {
     }
 
     /**
-     * Set the reference at construction.
+     * Construct with a default value.
      *
-     * @param ref to be set.
+     * @param value to be set initially.
      */
-    public MutableReference(final T ref)
+    public MutableBoolean(final boolean value)
     {
-        this.ref = ref;
+        this.value = value;
     }
 
     /**
-     * Get the current value of the reference.
+     * Get the current value.
      *
-     * @return the current value of the reference.
+     * @return the current value.
      */
-    public T get()
+    public boolean get()
     {
-        return ref;
+        return value;
     }
 
     /**
-     * Set the current value of the reference.
+     * Set the current value.
      *
-     * @param ref to be set.
+     * @param value to be set.
      */
-    public void set(final T ref)
+    public void set(final boolean value)
     {
-        this.ref = ref;
+        this.value = value;
     }
 
     public boolean equals(final Object o)
@@ -78,18 +76,18 @@ public class MutableReference<T> implements Serializable
             return false;
         }
 
-        final MutableReference<?> that = (MutableReference<?>)o;
+        final MutableBoolean that = (MutableBoolean)o;
 
-        return ref != null ? ref.equals(that.ref) : that.ref == null;
+        return value == that.value;
     }
 
     public int hashCode()
     {
-        return ref != null ? ref.hashCode() : 0;
+        return Boolean.hashCode(value);
     }
 
     public String toString()
     {
-        return null == ref ? "null" : ref.toString();
+        return Boolean.toString(value);
     }
 }
