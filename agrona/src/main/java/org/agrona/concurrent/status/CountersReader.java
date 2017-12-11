@@ -97,7 +97,7 @@ public class CountersReader
     public static final int RECORD_UNUSED = 0;
 
     /**
-     * Record currently allocated for use..
+     * Record currently allocated for use.
      */
     public static final int RECORD_ALLOCATED = 1;
 
