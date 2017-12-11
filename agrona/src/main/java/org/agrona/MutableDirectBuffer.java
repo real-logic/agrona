@@ -83,13 +83,22 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putIntAscii(int index,  int value);
 
     /**
-     * Puts an ascii encoded natural number into the buffer
+     * Puts an ascii encoded int sized natural number into the buffer
      *
      * @param index the offset at which to put the int
      * @param value  the int to write
      * @return the number of bytes that the int took up encoded
      */
-    int putNaturalAscii(int index,  int value);
+    int putNaturalIntAscii(int index, int value);
+
+    /**
+     * Puts an ascii encoded long sized natural number into the buffer
+     *
+     * @param index the offset at which to put the int
+     * @param value  the int to write
+     * @return the number of bytes that the int took up encoded
+     */
+    int putNaturalLongAscii(int index, long value);
 
     /**
      * Puts an ascii encoded long integer into the buffer

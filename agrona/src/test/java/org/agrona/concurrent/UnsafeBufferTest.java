@@ -154,7 +154,7 @@ public class UnsafeBufferTest
         final UnsafeBuffer buffer = newBuffer();
         putAscii(buffer, "123");
 
-        final int value = buffer.parseNaturalAscii(1, 3);
+        final int value = buffer.parseNaturalIntAscii(1, 3);
 
         assertEquals(123, value);
     }
@@ -234,29 +234,40 @@ public class UnsafeBufferTest
     public static int[][] valuesAndLengths()
     {
         return new int[][]
-            {
-                {1, 1},
-                {10, 2},
-                {100, 3},
-                {1000, 4},
-                {12, 2},
-                {123, 3},
-                {2345, 4},
-                {9, 1},
-                {99, 2},
-                {999, 3},
-                {9999, 4},
-            };
+        {
+            {1, 1},
+            {10, 2},
+            {100, 3},
+            {1000, 4},
+            {12, 2},
+            {123, 3},
+            {2345, 4},
+            {9, 1},
+            {99, 2},
+            {999, 3},
+            {9999, 4},
+        };
     }
 
     @Theory
-    public void shouldPutNatural(final int[] valueAndLength)
+    public void shouldPutNaturalInt(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
 
         final UnsafeBuffer buffer = newBuffer();
 
-        final int length = buffer.putNaturalAscii(1, value);
+        final int length = buffer.putNaturalIntAscii(1, value);
+        assertValueAndLengthEquals(valueAndLength, buffer, length);
+    }
+
+    @Theory
+    public void shouldPutNaturalLong(final int[] valueAndLength)
+    {
+        final long value = valueAndLength[0];
+
+        final UnsafeBuffer buffer = newBuffer();
+
+        final int length = buffer.putNaturalLongAscii(1, value);
         assertValueAndLengthEquals(valueAndLength, buffer, length);
     }
 

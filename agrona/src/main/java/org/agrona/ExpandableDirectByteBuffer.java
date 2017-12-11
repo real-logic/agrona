@@ -237,12 +237,26 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return UNSAFE.getInt(null, address + index);
     }
 
-    public int parseNaturalAscii(final int start, final int length)
+    public int parseNaturalIntAscii(final int start, final int length)
     {
         boundsCheck0(start, length);
 
         final int end = start + length;
         int tally = 0;
+        for (int index = start; index < end; index++)
+        {
+            tally = (tally * 10) + getDigit(index);
+        }
+
+        return tally;
+    }
+
+    public long parseNaturalLongAscii(final int start, final int length)
+    {
+        boundsCheck0(start, length);
+
+        final int end = start + length;
+        long tally = 0L;
         for (int index = start; index < end; index++)
         {
             tally = (tally * 10) + getDigit(index);
@@ -357,7 +371,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return length;
     }
 
-    public int putNaturalAscii(final int index, final int value)
+    public int putNaturalIntAscii(final int index, final int value)
     {
         if (value == 0)
         {
@@ -374,6 +388,32 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         while (i >= 0)
         {
             final int remainder = quotient % 10;
+            quotient = quotient / 10;
+            byteBuffer.put(i + index, (byte)(ZERO + remainder));
+
+            i--;
+        }
+
+        return length;
+    }
+
+    public int putNaturalLongAscii(final int index, final long value)
+    {
+        if (value == 0L)
+        {
+            putByte(index, ZERO);
+            return 1;
+        }
+
+        int i = endOffset(value);
+        final int length = i + 1;
+
+        ensureCapacity(index, length);
+
+        long quotient = value;
+        while (i >= 0)
+        {
+            final long remainder = quotient % 10;
             quotient = quotient / 10;
             byteBuffer.put(i + index, (byte)(ZERO + remainder));
 
