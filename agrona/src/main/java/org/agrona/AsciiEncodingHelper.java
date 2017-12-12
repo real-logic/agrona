@@ -22,12 +22,12 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
  */
 public class AsciiEncodingHelper
 {
-    public static final byte NEGATIVE = '-';
     public static final byte ZERO = '0';
     private static final int[] INT_ROUNDS =
     {
         9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE
     };
+
     private static final long[] LONG_ROUNDS =
     {
         9L, 99L, 999L, 9999L, 99999L, 999999L, 9999999L, 99999999L, 999999999L,
@@ -35,6 +35,7 @@ public class AsciiEncodingHelper
         99999_999999999L, 999999_999999999L, 9999999_999999999L, 99999999_999999999L,
         999999999_999999999L, Long.MAX_VALUE
     };
+
     public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
     public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
     public static final byte MINUS_SIGN = (byte)'-';

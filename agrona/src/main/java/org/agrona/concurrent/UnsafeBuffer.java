@@ -1364,93 +1364,95 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
-    public int parseNaturalIntAscii(final int start, final int length)
+    public int parseNaturalIntAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(start, length);
+            boundsCheck0(index, length);
         }
 
-        final int end = start + length;
+        final int end = index + length;
         int tally = 0;
-        for (int index = start; index < end; index++)
+        for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(index);
+            tally = (tally * 10) + getDigit(i);
         }
 
         return tally;
     }
 
-    public long parseNaturalLongAscii(final int start, final int length)
+    public long parseNaturalLongAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(start, length);
+            boundsCheck0(index, length);
         }
 
-        final int end = start + length;
+        final int end = index + length;
         long tally = 0;
-        for (int index = start; index < end; index++)
+        for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(index);
+            tally = (tally * 10) + getDigit(i);
         }
 
         return tally;
     }
 
-    public int parseIntAscii(final int start, final int length)
+    public int parseIntAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(start, length);
+            boundsCheck0(index, length);
         }
 
-        final int endExclusive = start + length;
-        final int first = getByteWithoutBoundsCheck(start);
-        int index = start;
-        if (first == NEGATIVE)
+        final int endExclusive = index + length;
+        final int first = getByteWithoutBoundsCheck(index);
+        int i = index;
+
+        if (first == MINUS_SIGN)
         {
-            index++;
+            i++;
         }
 
         int tally = 0;
-        for (; index < endExclusive; index++)
+        for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(index);
+            tally = (tally * 10) + getDigit(i);
         }
 
-        if (first == NEGATIVE)
+        if (first == MINUS_SIGN)
         {
-            tally *= -1;
+            tally = -tally;
         }
 
         return tally;
     }
 
-    public long parseLongAscii(final int start, final int length)
+    public long parseLongAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(start, length);
+            boundsCheck0(index, length);
         }
 
-        final int endExclusive = start + length;
-        final int first = getByteWithoutBoundsCheck(start);
-        int index = start;
-        if (first == NEGATIVE)
+        final int endExclusive = index + length;
+        final int first = getByteWithoutBoundsCheck(index);
+        int i = index;
+
+        if (first == MINUS_SIGN)
         {
-            index++;
+            i++;
         }
 
         long  tally = 0;
-        for (; index < endExclusive; index++)
+        for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(index);
+            tally = (tally * 10) + getDigit(i);
         }
 
-        if (first == NEGATIVE)
+        if (first == MINUS_SIGN)
         {
-            tally *= -1;
+            tally = -tally;
         }
 
         return tally;
@@ -1458,8 +1460,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
     private int getDigit(final int index)
     {
-        final byte value = getByteWithoutBoundsCheck(index);
-        return AsciiEncodingHelper.getDigit(index, value);
+        return AsciiEncodingHelper.getDigit(index, getByteWithoutBoundsCheck(index));
     }
 
     public int putIntAscii(final int index, final int value)

@@ -16,13 +16,8 @@
 package org.agrona.concurrent;
 
 import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.CoreMatchers.is;
@@ -32,10 +27,10 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Theories.class)
 public class UnsafeBufferTest
 {
     private static final byte VALUE = 42;
+    private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
 
     private byte[] wibbleBytes = "Wibble".getBytes(US_ASCII);
@@ -151,10 +146,10 @@ public class UnsafeBufferTest
     @Test
     public void shouldGetIntegerValuesAtSpecifiedOffset()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
         putAscii(buffer, "123");
 
-        final int value = buffer.parseNaturalIntAscii(1, 3);
+        final int value = buffer.parseNaturalIntAscii(INDEX, 3);
 
         assertEquals(123, value);
     }
@@ -162,11 +157,11 @@ public class UnsafeBufferTest
     @Test
     public void shouldDecodeNegativeIntegers()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
         putAscii(buffer, "-1");
 
-        final int value = buffer.parseIntAscii(1, 2);
+        final int value = buffer.parseIntAscii(INDEX, 2);
 
         assertEquals(-1, value);
     }
@@ -174,145 +169,63 @@ public class UnsafeBufferTest
     @Test
     public void shouldWriteIntZero()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
-        final int length = buffer.putIntAscii(1, 0);
+        final int length = buffer.putIntAscii(INDEX, 0);
 
         assertEquals(1, length);
-        assertContainsString(buffer, "0", 1, 1);
+        assertContainsString(buffer, "0", 1);
     }
 
     @Test
     public void shouldWritePositiveIntValues()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
-        final int length = buffer.putIntAscii(1, 123);
+        final int length = buffer.putIntAscii(INDEX, 123);
 
         assertEquals(3, length);
-        assertContainsString(buffer, "123", 1, 3);
+        assertContainsString(buffer, "123", 3);
     }
 
     @Test
     public void shouldWriteNegativeIntValues()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
-        final int length = buffer.putIntAscii(1, -123);
+        final int length = buffer.putIntAscii(INDEX, -123);
 
         assertEquals(4, length);
-        assertContainsString(buffer, "-123", 1, 4);
+        assertContainsString(buffer, "-123", 4);
     }
 
     @Test
     public void shouldWriteMaxIntValue()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
-        final int length = buffer.putIntAscii(1, Integer.MAX_VALUE);
+        final int length = buffer.putIntAscii(INDEX, Integer.MAX_VALUE);
 
-        assertContainsString(buffer, String.valueOf(Integer.MAX_VALUE), 1, length);
+        assertContainsString(buffer, String.valueOf(Integer.MAX_VALUE), length);
     }
 
     @Test
     public void shouldWriteMinIntValue()
     {
-        final UnsafeBuffer buffer = newBuffer();
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
-        final int length = buffer.putIntAscii(1, Integer.MIN_VALUE);
+        final int length = buffer.putIntAscii(INDEX, Integer.MIN_VALUE);
 
-        assertContainsString(buffer, String.valueOf(Integer.MIN_VALUE), 1, length);
+        assertContainsString(buffer, String.valueOf(Integer.MIN_VALUE), length);
     }
 
-    private void assertContainsString(
-        final UnsafeBuffer buffer, final String value, final int offset, final int length)
+    private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
     {
-        assertEquals(value, buffer.getStringWithoutLengthAscii(offset, length));
-    }
-
-    @DataPoints
-    public static int[][] valuesAndLengths()
-    {
-        return new int[][]
-        {
-            {1, 1},
-            {10, 2},
-            {100, 3},
-            {1000, 4},
-            {12, 2},
-            {123, 3},
-            {2345, 4},
-            {9, 1},
-            {99, 2},
-            {999, 3},
-            {9999, 4},
-        };
-    }
-
-    @Theory
-    public void shouldPutNaturalInt(final int[] valueAndLength)
-    {
-        final int value = valueAndLength[0];
-
-        final UnsafeBuffer buffer = newBuffer();
-
-        final int length = buffer.putNaturalIntAscii(1, value);
-        assertValueAndLengthEquals(valueAndLength, buffer, length);
-    }
-
-    @Theory
-    public void shouldPutNaturalLong(final int[] valueAndLength)
-    {
-        final long value = valueAndLength[0];
-
-        final UnsafeBuffer buffer = newBuffer();
-
-        final int length = buffer.putNaturalLongAscii(1, value);
-        assertValueAndLengthEquals(valueAndLength, buffer, length);
-    }
-
-    @Theory
-    public void shouldPutInt(final int[] valueAndLength)
-    {
-        final int value = valueAndLength[0];
-
-        final UnsafeBuffer buffer = newBuffer();
-
-        final int length = buffer.putIntAscii(1, value);
-        assertValueAndLengthEquals(valueAndLength, buffer, length);
-    }
-
-    @Theory
-    public void shouldPutLong(final int[] valueAndLength)
-    {
-        final int value = valueAndLength[0];
-
-        final UnsafeBuffer buffer = newBuffer();
-
-        final int length = buffer.putLongAscii(1, value);
-        assertValueAndLengthEquals(valueAndLength, buffer, length);
-    }
-
-    private void assertValueAndLengthEquals(final int[] valueAndLength, final UnsafeBuffer buffer, final int length)
-    {
-        final int value = valueAndLength[0];
-        final int expectedLength = valueAndLength[1];
-
-        assertEquals("for " + Arrays.toString(valueAndLength), expectedLength, length);
-
-        assertEquals(
-            "for " + Arrays.toString(valueAndLength),
-            String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(1, expectedLength));
+        assertEquals(value, buffer.getStringWithoutLengthAscii(INDEX, length));
     }
 
     private void putAscii(final UnsafeBuffer buffer, final String value)
     {
-        buffer.putBytes(1, value.getBytes(US_ASCII));
-    }
-
-    private UnsafeBuffer newBuffer()
-    {
-        return new UnsafeBuffer(new byte[1024]);
+        buffer.putBytes(INDEX, value.getBytes(US_ASCII));
     }
 }
