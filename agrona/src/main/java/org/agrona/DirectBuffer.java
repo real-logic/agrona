@@ -48,7 +48,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * and the limit then you should use the {@link #wrap(ByteBuffer, int, int)} method, eg:
      *
      * <code>
-     *   directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
+     *     directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
      * </code>
      *
      * @param buffer to which the view is attached.
@@ -167,36 +167,36 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     int getInt(int index);
 
     /**
-     * Get the ascii encoded int sized natural value at a given index.
+     * Get the ASCII encoded int sized natural value at a given index.
      *
-     * @param index in bytes from which to get.
+     * @param index  in bytes from which to get.
      * @param length the length in bytes to parse
      * @return the value at a given index
      */
     int parseNaturalIntAscii(int index, int length);
 
     /**
-     * Get the ascii encoded long sized natural value at a given index.
+     * Get the ASCII encoded long sized natural value at a given index.
      *
-     * @param index in bytes from which to get.
+     * @param index  in bytes from which to get.
      * @param length the length in bytes to parse
      * @return the value at a given index
      */
     long parseNaturalLongAscii(int index, int length);
 
     /**
-     * Get the ascii encoded integer value at a given index.
+     * Get the ASCII encoded integer value at a given index.
      *
-     * @param index in bytes from which to get.
+     * @param index  in bytes from which to get.
      * @param length the length in bytes to parse
      * @return the value at a given index
      */
     int parseIntAscii(int index, int length);
 
     /**
-     * Get the ascii encoded long integer value at a given index.
+     * Get the ASCII encoded long integer value at a given index.
      *
-     * @param index in bytes from which to get.
+     * @param index  in bytes from which to get.
      * @param length the length in bytes to parse
      * @return the value at a given index
      */
