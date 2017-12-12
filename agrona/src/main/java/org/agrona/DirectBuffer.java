@@ -162,9 +162,45 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the value at a given index.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for a given index
      */
     int getInt(int index);
+
+    /**
+     * Get the ascii encoded int sized natural value at a given index.
+     *
+     * @param index in bytes from which to get.
+     * @param length the length in bytes to parse
+     * @return the value at a given index
+     */
+    int parseNaturalIntAscii(int index, int length);
+
+    /**
+     * Get the ascii encoded long sized natural value at a given index.
+     *
+     * @param index in bytes from which to get.
+     * @param length the length in bytes to parse
+     * @return the value at a given index
+     */
+    long parseNaturalLongAscii(int index, int length);
+
+    /**
+     * Get the ascii encoded integer value at a given index.
+     *
+     * @param index in bytes from which to get.
+     * @param length the length in bytes to parse
+     * @return the value at a given index
+     */
+    int parseIntAscii(int index, int length);
+
+    /**
+     * Get the ascii encoded long integer value at a given index.
+     *
+     * @param index in bytes from which to get.
+     * @param length the length in bytes to parse
+     * @return the value at a given index
+     */
+    long parseLongAscii(int index, int length);
 
     /**
      * Get the value at a given index.
