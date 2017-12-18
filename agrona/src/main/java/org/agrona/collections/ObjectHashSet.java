@@ -566,7 +566,29 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
             return otherSet.size == size && containsAll(otherSet);
         }
 
-        return false;
+        if (!(other instanceof Set))
+        {
+            return false;
+        }
+
+        final Set<?> c = (Set<?>)other;
+        if (c.size() != size())
+        {
+            return false;
+        }
+
+        try
+        {
+            return containsAll(c);
+        }
+        catch (final ClassCastException unused)
+        {
+            return false;
+        }
+        catch (final NullPointerException unused)
+        {
+            return false;
+        }
     }
 
     /**

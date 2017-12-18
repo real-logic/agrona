@@ -652,7 +652,29 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
                    containsAll(otherSet);
         }
 
-        return false;
+        if (!(other instanceof Set))
+        {
+            return false;
+        }
+
+        final Set<?> c = (Set<?>)other;
+        if (c.size() != size())
+        {
+            return false;
+        }
+
+        try
+        {
+            return containsAll(c);
+        }
+        catch (final ClassCastException unused)
+        {
+            return false;
+        }
+        catch (final @DoNotSub NullPointerException unused)
+        {
+            return false;
+        }
     }
 
     /**
