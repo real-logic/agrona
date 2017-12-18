@@ -615,6 +615,24 @@ public class ObjectHashSetIntegerTest
         assertFalse(iter.hasNext());
     }
 
+    @Test
+    public void shouldHaveCompatibleEqualsAndHashcode()
+    {
+        final HashSet compatibleSet = new HashSet();
+        final long seed = System.nanoTime();
+        final Random r = new Random(seed);
+        for (int i = 0; i < 1024; i++)
+        {
+            final int value = r.nextInt();
+            compatibleSet.add(value);
+            testSet.add(value);
+        }
+
+        assertEquals("Fail with seed:" + seed, testSet, compatibleSet);
+        assertEquals("Fail with seed:" + seed, compatibleSet, testSet);
+        assertEquals("Fail with seed:" + seed, compatibleSet.hashCode(), testSet.hashCode());
+    }
+
     private static void addTwoElements(final ObjectHashSet<Integer> obj)
     {
         obj.add(1);

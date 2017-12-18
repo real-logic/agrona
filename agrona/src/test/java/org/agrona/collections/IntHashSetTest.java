@@ -626,63 +626,6 @@ public class IntHashSetTest
         assertThat(testSet, hasSize(1));
     }
 
-    private static void addTwoElements(final IntHashSet obj)
-    {
-        obj.add(1);
-        obj.add(1001);
-    }
-
-    private static void addTwoElements(final HashSet<Integer> obj)
-    {
-        obj.add(1);
-        obj.add(1001);
-    }
-
-    private void assertIteratorHasElements()
-    {
-        final Iterator<Integer> iter = testSet.iterator();
-
-        final Set<Integer> values = new HashSet<>();
-
-        assertTrue(iter.hasNext());
-        values.add(iter.next());
-        assertTrue(iter.hasNext());
-        values.add(iter.next());
-        assertFalse(iter.hasNext());
-
-        assertContainsElements(values);
-    }
-
-    private void assertIteratorHasElementsWithoutHasNext()
-    {
-        final Iterator<Integer> iter = testSet.iterator();
-
-        final Set<Integer> values = new HashSet<>();
-
-        values.add(iter.next());
-        values.add(iter.next());
-
-        assertContainsElements(values);
-    }
-
-    private static void assertArrayContainingElements(final Integer[] result)
-    {
-        assertThat(result, arrayContainingInAnyOrder(1, 1001));
-    }
-
-    private static void assertContainsElements(final Set<Integer> other)
-    {
-        assertThat(other, containsInAnyOrder(1, 1001));
-    }
-
-    private void exhaustIterator()
-    {
-        final IntIterator iterator = testSet.iterator();
-        iterator.next();
-        iterator.next();
-        iterator.next();
-    }
-
     @Test
     public void shouldNotContainMissingValueInitially()
     {
@@ -860,5 +803,85 @@ public class IntHashSetTest
         testSet.clear();
 
         assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    public void shouldHaveCompatibleEqualsAndHashcode()
+    {
+        final HashSet compatibleSet = new HashSet();
+        final long seed = System.nanoTime();
+        final Random r = new Random(seed);
+        for (int i = 0; i < 1024; i++)
+        {
+            final int value = r.nextInt();
+            compatibleSet.add(value);
+            testSet.add(value);
+        }
+
+        if (r.nextBoolean())
+        {
+            compatibleSet.add(MISSING_VALUE);
+            testSet.add(MISSING_VALUE);
+        }
+        assertEquals("Fail with seed:" + seed, testSet, compatibleSet);
+        assertEquals("Fail with seed:" + seed, compatibleSet, testSet);
+        assertEquals("Fail with seed:" + seed, compatibleSet.hashCode(), testSet.hashCode());
+    }
+
+    private static void addTwoElements(final IntHashSet obj)
+    {
+        obj.add(1);
+        obj.add(1001);
+    }
+
+    private static void addTwoElements(final HashSet<Integer> obj)
+    {
+        obj.add(1);
+        obj.add(1001);
+    }
+
+    private void assertIteratorHasElements()
+    {
+        final Iterator<Integer> iter = testSet.iterator();
+
+        final Set<Integer> values = new HashSet<>();
+
+        assertTrue(iter.hasNext());
+        values.add(iter.next());
+        assertTrue(iter.hasNext());
+        values.add(iter.next());
+        assertFalse(iter.hasNext());
+
+        assertContainsElements(values);
+    }
+
+    private void assertIteratorHasElementsWithoutHasNext()
+    {
+        final Iterator<Integer> iter = testSet.iterator();
+
+        final Set<Integer> values = new HashSet<>();
+
+        values.add(iter.next());
+        values.add(iter.next());
+
+        assertContainsElements(values);
+    }
+
+    private static void assertArrayContainingElements(final Integer[] result)
+    {
+        assertThat(result, arrayContainingInAnyOrder(1, 1001));
+    }
+
+    private static void assertContainsElements(final Set<Integer> other)
+    {
+        assertThat(other, containsInAnyOrder(1, 1001));
+    }
+
+    private void exhaustIterator()
+    {
+        final IntIterator iterator = testSet.iterator();
+        iterator.next();
+        iterator.next();
+        iterator.next();
     }
 }
