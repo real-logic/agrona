@@ -667,11 +667,7 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
         {
             return containsAll(c);
         }
-        catch (final ClassCastException unused)
-        {
-            return false;
-        }
-        catch (final @DoNotSub NullPointerException unused)
+        catch (final @DoNotSub ClassCastException | NullPointerException ignore)
         {
             return false;
         }

@@ -581,11 +581,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
         {
             return containsAll(c);
         }
-        catch (final ClassCastException unused)
-        {
-            return false;
-        }
-        catch (final NullPointerException unused)
+        catch (final ClassCastException | NullPointerException ignore)
         {
             return false;
         }
