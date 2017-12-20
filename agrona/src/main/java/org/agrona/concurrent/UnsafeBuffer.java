@@ -29,6 +29,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
 import static org.agrona.AsciiEncodingHelper.*;
+import static org.agrona.LangUtil.EMPTY_BYTE_ARRAY;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
@@ -47,8 +48,6 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public class UnsafeBuffer implements AtomicBuffer
 {
-    private static final byte[] EMPTY_BYTES = new byte[0];
-
     /**
      * Buffer alignment to ensure atomic word accesses.
      */
@@ -67,7 +66,7 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public UnsafeBuffer()
     {
-        wrap(EMPTY_BYTES);
+        wrap(EMPTY_BYTE_ARRAY);
     }
 
     /**
