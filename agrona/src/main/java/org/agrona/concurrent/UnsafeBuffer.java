@@ -29,7 +29,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
 import static org.agrona.AsciiEncodingHelper.*;
-import static org.agrona.LangUtil.EMPTY_BYTE_ARRAY;
+import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
