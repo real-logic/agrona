@@ -53,7 +53,7 @@ public class ObjectHashSetIntegerTest
     }
 
     @Test
-    public void initiallyContainsNoElements() throws Exception
+    public void initiallyContainsNoElements()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -135,7 +135,9 @@ public class ObjectHashSetIntegerTest
         assertEquals(2, testSet.size());
     }
 
+
     @Test
+    @SuppressWarnings("OverwrittenKey")
     public void sizeContainsNumberOfNewElements()
     {
         testSet.add(1);
@@ -363,7 +365,6 @@ public class ObjectHashSetIntegerTest
         assertArrayEquals(result, new Integer[]{});
     }
 
-    // Test case from usage bug.
     @Test
     public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {
@@ -616,9 +617,10 @@ public class ObjectHashSetIntegerTest
     }
 
     @Test
+    @SuppressWarnings("AssertEqualsBetweenInconvertibleTypes")
     public void shouldHaveCompatibleEqualsAndHashcode()
     {
-        final HashSet compatibleSet = new HashSet();
+        final HashSet<Integer> compatibleSet = new HashSet<>();
         final long seed = System.nanoTime();
         final Random r = new Random(seed);
         for (int i = 0; i < 1024; i++)
