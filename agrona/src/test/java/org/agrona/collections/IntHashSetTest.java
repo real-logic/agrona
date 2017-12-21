@@ -31,7 +31,7 @@ public class IntHashSetTest
     private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY);
 
     @Test
-    public void initiallyContainsNoElements() throws Exception
+    public void initiallyContainsNoElements()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -105,6 +105,7 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("OverwrittenKey")
     public void sizeContainsNumberOfNewElements()
     {
         testSet.add(1);
@@ -273,8 +274,7 @@ public class IntHashSetTest
     @Test
     public void twoEmptySetsHaveTheSameHashcode()
     {
-        final IntHashSet other = new IntHashSet(100);
-        assertEquals(testSet.hashCode(), other.hashCode());
+        assertEquals(testSet.hashCode(), new IntHashSet(100).hashCode());
     }
 
     @Test
@@ -300,12 +300,14 @@ public class IntHashSetTest
     }
 
     @Test(expected = ArrayStoreException.class)
+    @SuppressWarnings("SuspiciousToArrayCall")
     public void toArrayThrowsArrayStoreExceptionForWrongType()
     {
         testSet.toArray(new String[1]);
     }
 
     @Test(expected = NullPointerException.class)
+    @SuppressWarnings("ConstantConditions")
     public void toArrayThrowsNullPointerExceptionForNullArgument()
     {
         testSet.toArray(null);
@@ -427,7 +429,7 @@ public class IntHashSetTest
         addTwoElements(testSet);
 
         assertFalse(testSet.addAll(new IntHashSet(100)));
-        assertFalse(testSet.addAll(new HashSet<Integer>()));
+        assertFalse(testSet.addAll(new HashSet<>()));
         assertContainsElements(testSet);
     }
 
@@ -707,7 +709,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void consecutiveValuesShouldBeCorrectlyStored() throws Exception
+    public void consecutiveValuesShouldBeCorrectlyStored()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -806,9 +808,10 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("AssertEqualsBetweenInconvertibleTypes")
     public void shouldHaveCompatibleEqualsAndHashcode()
     {
-        final HashSet compatibleSet = new HashSet();
+        final HashSet<Integer> compatibleSet = new HashSet<>();
         final long seed = System.nanoTime();
         final Random r = new Random(seed);
         for (int i = 0; i < 1024; i++)
@@ -823,6 +826,7 @@ public class IntHashSetTest
             compatibleSet.add(MISSING_VALUE);
             testSet.add(MISSING_VALUE);
         }
+
         assertEquals("Fail with seed:" + seed, testSet, compatibleSet);
         assertEquals("Fail with seed:" + seed, compatibleSet, testSet);
         assertEquals("Fail with seed:" + seed, compatibleSet.hashCode(), testSet.hashCode());
