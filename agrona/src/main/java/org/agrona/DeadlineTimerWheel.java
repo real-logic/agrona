@@ -213,19 +213,24 @@ public class DeadlineTimerWheel
      * Cancel a previously scheduled timer.
      *
      * @param timerId of the timer to cancel.
+     * @return true if successful otherwise false if the timerId did not exist.
      */
-    public void cancelTimer(final long timerId)
+    public boolean cancelTimer(final long timerId)
     {
         final int wheelIndex = tickForTimerId(timerId);
         final int arrayIndex = indexInTickArray(timerId);
 
         final long[] array = wheel[wheelIndex];
 
-        if (array[arrayIndex] != NULL_TIMER)
+        if (NULL_TIMER != array[arrayIndex])
         {
             array[arrayIndex] = NULL_TIMER;
             timerCount--;
+
+            return true;
         }
+
+        return false;
     }
 
     /**

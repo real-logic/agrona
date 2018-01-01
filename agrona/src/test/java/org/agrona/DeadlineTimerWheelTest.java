@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -186,7 +188,8 @@ public class DeadlineTimerWheelTest
         }
         while (-1 == firedTimestamp.value && controlTimestamp < (16 * wheel.tickResolution()));
 
-        wheel.cancelTimer(id);
+        assertTrue(wheel.cancelTimer(id));
+        assertFalse(wheel.cancelTimer(id));
 
         do
         {
