@@ -132,11 +132,11 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
-     * Trim the underlying array to be the same capacity as the current size.
+     * Trim the underlying array to be the current size, or {@link #INITIAL_CAPACITY} if size is less.
      */
     public void trimToSize()
     {
-        if (elements.length != size)
+        if (elements.length != size && elements.length > INITIAL_CAPACITY)
         {
             elements = Arrays.copyOf(elements, Math.max(INITIAL_CAPACITY, size));
         }
