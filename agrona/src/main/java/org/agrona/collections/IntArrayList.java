@@ -517,10 +517,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         for (@DoNotSub int i = 0; i < size; i++)
         {
             final int value = elements[i];
-            if (value != nullValue)
-            {
-                hashCode = 31 * hashCode + Hashing.hash(value);
-            }
+
+            hashCode = 31 * hashCode + (value == nullValue ? 0 : Hashing.hash(value));
         }
 
         return hashCode;
