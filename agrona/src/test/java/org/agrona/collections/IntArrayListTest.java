@@ -206,6 +206,24 @@ public class IntArrayListTest
     }
 
     @Test
+    public void shouldEqualGenericList()
+    {
+        final int count = 7;
+        final List<Integer> genericList = new ArrayList<>();
+
+        for (int i = 0; i < count; i++)
+        {
+            list.add(i);
+            genericList.add(i);
+        }
+
+        list.add(null);
+        genericList.add(null);
+
+        assertEquals(list, genericList);
+    }
+
+    @Test
     public void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
@@ -215,7 +233,7 @@ public class IntArrayListTest
             list.add(testEntry);
         }
 
-        final String mapAsAString = "{3, 1, -1, 19, 7, 11, 12, 7}";
+        final String mapAsAString = "[3, 1, -1, 19, 7, 11, 12, 7]";
         assertThat(list.toString(), equalTo(mapAsAString));
     }
 }

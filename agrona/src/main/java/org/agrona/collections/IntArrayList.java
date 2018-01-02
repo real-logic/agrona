@@ -429,6 +429,38 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         ensureCapacityPrivate(Math.max(requiredCapacity, INITIAL_CAPACITY));
     }
 
+    public boolean equals(final IntArrayList that)
+    {
+        if (that == this)
+        {
+            return true;
+        }
+
+        boolean isEqual = false;
+
+        if (this.size == that.size)
+        {
+            isEqual = true;
+
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int thisValue = this.elements[i];
+                final int thatValue = that.elements[i];
+
+                if (thisValue != thatValue)
+                {
+                    if (thisValue != this.nullValue || thatValue != that.nullValue)
+                    {
+                        isEqual = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return isEqual;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -443,25 +475,32 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
         if (other instanceof IntArrayList)
         {
-            final IntArrayList rhsList = (IntArrayList)other;
+            return equals((IntArrayList)other);
+        }
+        else if (other instanceof List)
+        {
+            final List<?> that = (List<?>)other;
 
-            if (this.size == rhsList.size)
+            if (this.size == ((List)other).size())
             {
                 isEqual = true;
+                @DoNotSub int i = 0;
 
-                for (@DoNotSub int i = 0; i < size; i++)
+                for (final Object o : that)
                 {
-                    final int lhsValue = this.elements[i];
-                    final int rhsValue = rhsList.elements[i];
-
-                    if (lhsValue != rhsValue)
+                    if (o == null || o instanceof Integer)
                     {
-                        if (lhsValue != this.nullValue || rhsValue != rhsList.nullValue)
+                        final Integer thisValue = get(i++);
+                        final Integer thatValue = (Integer)o;
+
+                        if (Objects.equals(thisValue, thatValue))
                         {
-                            isEqual = false;
-                            break;
+                            continue;
                         }
                     }
+
+                    isEqual = false;
+                    break;
                 }
             }
         }
@@ -493,7 +532,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();
-        sb.append('{');
+        sb.append('[');
 
         for (@DoNotSub int i = 0; i < size; i++)
         {
@@ -510,7 +549,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
             sb.setLength(sb.length() - 2);
         }
 
-        sb.append('}');
+        sb.append(']');
 
         return sb.toString();
     }
