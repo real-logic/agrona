@@ -72,4 +72,14 @@ public class CachedNanoClock extends CachedNanoClockValue implements NanoClock
     {
         UNSAFE.putOrderedLong(this, VALUE_OFFSET, timeNs);
     }
+
+    /**
+     * Update the value of the timestamp in with weak ordering semantics.
+     *
+     * @param timeNs value to update the timestamp.
+     */
+    public void updateWeak(final long timeNs)
+    {
+        UNSAFE.putLong(this, VALUE_OFFSET, timeNs);
+    }
 }

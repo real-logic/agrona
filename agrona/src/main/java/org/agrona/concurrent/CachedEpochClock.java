@@ -72,4 +72,14 @@ public class CachedEpochClock extends CachedEpochClockValue implements EpochCloc
     {
         UNSAFE.putOrderedLong(this, VALUE_OFFSET, timeMs);
     }
+
+    /**
+     * Update the value of the timestamp in with weak ordering semantics.
+     *
+     * @param timeMs value to update the timestamp.
+     */
+    public void updateWeak(final long timeMs)
+    {
+        UNSAFE.putLong(this, VALUE_OFFSET, timeMs);
+    }
 }
