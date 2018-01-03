@@ -42,8 +42,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class DeadlineTimerWheel
 {
+    public static final long NULL_TIMER = Long.MAX_VALUE;
+
     private static final int INITIAL_TICK_ALLOCATION = 16;
-    private static final long NULL_TIMER = Long.MAX_VALUE;
 
     private final long[][] wheel;
     private final long startTime;
@@ -313,6 +314,22 @@ public class DeadlineTimerWheel
                 }
             }
         }
+    }
+
+    /**
+     * Return the deadline for the given timerId.
+     *
+     * @param timerId of the timer to return the deadline of.
+     * @return deadline for the given timerId or {@link #NULL_TIMER} if timerId is not running.
+     */
+    public long deadline(final long timerId)
+    {
+        final int wheelIndex = tickForTimerId(timerId);
+        final int arrayIndex = indexInTickArray(timerId);
+
+        final long[] array = wheel[wheelIndex];
+
+        return array[arrayIndex];
     }
 
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)
