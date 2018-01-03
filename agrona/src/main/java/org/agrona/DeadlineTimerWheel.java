@@ -221,14 +221,17 @@ public class DeadlineTimerWheel
         final int wheelIndex = tickForTimerId(timerId);
         final int arrayIndex = indexInTickArray(timerId);
 
-        final long[] array = wheel[wheelIndex];
-
-        if (NULL_TIMER != array[arrayIndex])
+        if (wheelIndex < wheel.length)
         {
-            array[arrayIndex] = NULL_TIMER;
-            timerCount--;
+            final long[] array = wheel[wheelIndex];
 
-            return true;
+            if (arrayIndex < array.length && NULL_TIMER != array[arrayIndex])
+            {
+                array[arrayIndex] = NULL_TIMER;
+                timerCount--;
+
+                return true;
+            }
         }
 
         return false;
@@ -327,9 +330,17 @@ public class DeadlineTimerWheel
         final int wheelIndex = tickForTimerId(timerId);
         final int arrayIndex = indexInTickArray(timerId);
 
-        final long[] array = wheel[wheelIndex];
+        if (wheelIndex < wheel.length)
+        {
+            final long[] array = wheel[wheelIndex];
 
-        return array[arrayIndex];
+            if (arrayIndex < array.length)
+            {
+                return array[arrayIndex];
+            }
+        }
+
+        return NULL_TIMER;
     }
 
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)
