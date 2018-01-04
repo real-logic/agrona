@@ -29,7 +29,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * A open addressing with linear probing hash map specialised for primitive key and value pairs.
  */
-public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
+public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
 
@@ -41,7 +41,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     private int[] entries;
     private KeySet keySet;
     private Values values;
-    private Set<Entry<Integer, Integer>> entrySet;
+    private EntrySet entrySet;
 
     public Int2IntHashMap(final int missingValue)
     {
@@ -634,12 +634,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     abstract class AbstractIterator implements Serializable
     {
+        protected boolean isPositionValid = false;
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
         void reset()
         {
+            isPositionValid = false;
             remaining = Int2IntHashMap.this.size;
             final int missingValue = Int2IntHashMap.this.missingValue;
             final int[] entries = Int2IntHashMap.this.entries;
@@ -683,26 +685,38 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 @DoNotSub final int index = keyIndex & mask;
                 if (entries[index + 1] != missingValue)
                 {
+                    isPositionValid = true;
                     positionCounter = keyIndex;
                     --remaining;
                     return;
                 }
             }
 
+            isPositionValid = false;
             throw new NoSuchElementException();
+        }
+
+        public void remove()
+        {
+            if (isPositionValid)
+            {
+                @DoNotSub final int position = keyPosition();
+                entries[position + 1] = missingValue;
+                --size;
+
+                compactChain(position);
+
+                isPositionValid = false;
+            }
+            else
+            {
+                throw new IllegalStateException();
+            }
         }
     }
 
-    public final class IntIterator extends AbstractIterator implements Iterator<Integer>
+    public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
-        @DoNotSub private final int offset;
-
-        IntIterator(
-            @DoNotSub final int offset)
-        {
-            this.offset = offset;
-        }
-
         public Integer next()
         {
             return nextValue();
@@ -712,25 +726,47 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             findNext();
 
-            return entries[keyPosition() + offset];
+            return entries[keyPosition()];
         }
     }
 
-    final class EntryIterator
+    public final class ValueIterator extends AbstractIterator implements Iterator<Integer>
+    {
+        public Integer next()
+        {
+            return nextValue();
+        }
+
+        public int nextValue()
+        {
+            findNext();
+
+            return entries[keyPosition() + 1];
+        }
+    }
+
+    public final class EntryIterator
         extends AbstractIterator
         implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
     {
-        private int key;
-        private int value;
-
         public Integer getKey()
         {
-            return key;
+            return getIntKey();
+        }
+
+        public int getIntKey()
+        {
+            return entries[keyPosition()];
         }
 
         public Integer getValue()
         {
-            return value;
+            return getIntValue();
+        }
+
+        public int getIntValue()
+        {
+            return entries[keyPosition() + 1];
         }
 
         public Integer setValue(final Integer value)
@@ -742,18 +778,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             findNext();
 
-            @DoNotSub final int keyPosition = keyPosition();
-            key = entries[keyPosition];
-            value = entries[keyPosition + 1];
-
             return this;
         }
 
         void reset()
         {
             super.reset();
-            key = missingValue;
-            value = missingValue;
         }
 
         /**
@@ -761,9 +791,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          */
         @DoNotSub public int hashCode()
         {
-            // Has to use Integer.hashCode method in order to meet the contract for
-            // Map.Entry's hashCode() method
-            return Integer.hashCode(key) ^ Integer.hashCode(value);
+            return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
         }
 
         /**
@@ -782,27 +810,46 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
             final Entry that = (Entry)o;
 
-            return Objects.equals(key, that.getKey()) && Objects.equals(value, that.getValue());
+            return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
         }
     }
 
-    public final class KeySet extends MapDelegatingSet<Integer>
+    public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
-        private final IntIterator keyIterator = new IntIterator(0);
+        private final KeyIterator keyIterator = new KeyIterator();
 
-        KeySet()
+        /**
+         * {@inheritDoc}
+         */
+        public KeyIterator iterator()
         {
-            super(Int2IntHashMap.this);
+            keyIterator.reset();
+
+            return keyIterator;
         }
 
         /**
          * {@inheritDoc}
          */
-        public IntIterator iterator()
+        @DoNotSub public int size()
         {
-            keyIterator.reset();
+            return Int2IntHashMap.this.size();
+        }
 
-            return keyIterator;
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isEmpty()
+        {
+            return Int2IntHashMap.this.isEmpty();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clear()
+        {
+            Int2IntHashMap.this.clear();
         }
 
         /**
@@ -821,12 +868,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public final class Values extends AbstractCollection<Integer>
     {
-        private final IntIterator valueIterator = new IntIterator(1);
+        private final ValueIterator valueIterator = new ValueIterator();
 
         /**
          * {@inheritDoc}
          */
-        public IntIterator iterator()
+        public ValueIterator iterator()
         {
             valueIterator.reset();
 
@@ -855,23 +902,42 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
-    private final class EntrySet extends MapDelegatingSet<Entry<Integer, Integer>>
+    private final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = new EntryIterator();
 
-        EntrySet()
+        /**
+         * {@inheritDoc}
+         */
+        public EntryIterator iterator()
         {
-            super(Int2IntHashMap.this);
+            entryIterator.reset();
+
+            return entryIterator;
         }
 
         /**
          * {@inheritDoc}
          */
-        public Iterator<Entry<Integer, Integer>> iterator()
+        @DoNotSub public int size()
         {
-            entryIterator.reset();
+            return Int2IntHashMap.this.size();
+        }
 
-            return entryIterator;
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isEmpty()
+        {
+            return Int2IntHashMap.this.isEmpty();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clear()
+        {
+            Int2IntHashMap.this.clear();
         }
 
         /**

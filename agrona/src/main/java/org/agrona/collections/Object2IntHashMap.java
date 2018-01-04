@@ -35,7 +35,7 @@ import org.agrona.generation.DoNotSub;
  *
  * @param <K> type of keys stored in the {@link java.util.Map}
  */
-public class Object2IntHashMap<K>
+public final class Object2IntHashMap<K>
     implements Map<K, Integer>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
@@ -295,7 +295,6 @@ public class Object2IntHashMap<K>
         {
             throw new IllegalArgumentException("Cannot accept missingValue");
         }
-
 
         int oldValue = missingValue;
         @DoNotSub final int mask = values.length - 1;
@@ -643,7 +642,7 @@ public class Object2IntHashMap<K>
     // Internal Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    class KeySet<T> extends AbstractSet<T> implements Serializable
+    public final class KeySet<T> extends AbstractSet<T> implements Serializable
     {
         private final KeyIterator<T> iterator = new KeyIterator<>();
 
@@ -676,7 +675,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    public class ValueCollection extends AbstractCollection<Integer> implements Serializable
+    public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
     {
         private final ValueIterator iterator = new ValueIterator();
 
@@ -703,7 +702,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    class EntrySet<T> extends AbstractSet<Entry<T, Integer>> implements Serializable
+    public final class EntrySet<T> extends AbstractSet<Entry<T, Integer>> implements Serializable
     {
         private final EntryIterator<T> iterator = new EntryIterator<>();
 
@@ -814,7 +813,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    public class ValueIterator extends AbstractIterator<Integer>
+    public final class ValueIterator extends AbstractIterator<Integer>
     {
         public Integer next()
         {
@@ -829,7 +828,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    public class KeyIterator<T> extends AbstractIterator<T>
+    public final class KeyIterator<T> extends AbstractIterator<T>
     {
         @SuppressWarnings("unchecked")
         public T next()
@@ -841,7 +840,7 @@ public class Object2IntHashMap<K>
     }
 
     @SuppressWarnings("unchecked")
-    public class EntryIterator<T>
+    public final class EntryIterator<T>
         extends AbstractIterator<Entry<T, Integer>>
         implements Entry<T, Integer>
     {
@@ -857,9 +856,14 @@ public class Object2IntHashMap<K>
             return (T)keys[position()];
         }
 
-        public Integer getValue()
+        public int getIntValue()
         {
             return values[position()];
+        }
+
+        public Integer getValue()
+        {
+            return getIntValue();
         }
 
         public Integer setValue(final Integer value)

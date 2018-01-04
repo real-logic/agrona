@@ -278,6 +278,7 @@ public class Int2IntHashMapTest
         assertEquals(2, map.remove(1));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void removeShouldRemoveEntry()
     {
@@ -514,7 +515,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void emptyMapsShouldHaveEqualHashcodes()
+    public void emptyMapsShouldHaveEqualHashCodes()
     {
         assertHashcodeEquals(map, new Int2IntHashMap(MISSING_VALUE));
         assertHashcodeEquals(map, new HashMap<Integer, Integer>());
@@ -605,6 +606,30 @@ public class Int2IntHashMapTest
 
         final String mapAsAString = "{1=1001, 3=1003, 19=1019, 7=1007, 11=1011, 12=1012}";
         assertThat(map.toString(), equalTo(mapAsAString));
+    }
+
+    @Test
+    public void shouldIterateEntriesBySpecialisedType()
+    {
+        final Map<Integer, Integer> expected = new HashMap<>();
+        final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
+
+        IntStream.range(1, 10).forEachOrdered(
+            (i) ->
+            {
+                map.put(i, -i);
+                expected.put(i, -i);
+            });
+
+        final Map<Integer, Integer> actual = new HashMap<>();
+        final Int2IntHashMap.EntryIterator iter = (Int2IntHashMap.EntryIterator)map.entrySet().iterator();
+        while (iter.hasNext())
+        {
+            iter.next();
+            actual.put(iter.getIntKey(), iter.getIntValue());
+        }
+
+        assertEquals(expected, actual);
     }
 
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
