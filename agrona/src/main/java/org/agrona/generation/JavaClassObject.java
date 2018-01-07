@@ -17,7 +17,6 @@ package org.agrona.generation;
 
 import javax.tools.SimpleJavaFileObject;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 
@@ -35,7 +34,7 @@ public class JavaClassObject extends SimpleJavaFileObject
         return baos.toByteArray();
     }
 
-    public OutputStream openOutputStream() throws IOException
+    public OutputStream openOutputStream()
     {
         return baos;
     }

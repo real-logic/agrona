@@ -374,7 +374,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void correctSizeAfterRehash() throws Exception
+    public void correctSizeAfterRehash()
     {
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 

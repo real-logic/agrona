@@ -19,8 +19,6 @@ import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 
 public class DirectBufferInputStreamTest
@@ -28,7 +26,7 @@ public class DirectBufferInputStreamTest
     private static final int END_OF_STREAM_MARKER = -1;
 
     @Test
-    public void shouldCorrectlyConvertBytesToPositiveIntegers() throws IOException
+    public void shouldCorrectlyConvertBytesToPositiveIntegers()
     {
         final byte[] data = { (byte)-1, 0 };
         final DirectBuffer buffer = new UnsafeBuffer(data);
@@ -38,7 +36,7 @@ public class DirectBufferInputStreamTest
     }
 
     @Test
-    public void shouldReturnMinusOneOnEndOfStream() throws IOException
+    public void shouldReturnMinusOneOnEndOfStream()
     {
         final byte[] data = { 1, 2 };
 

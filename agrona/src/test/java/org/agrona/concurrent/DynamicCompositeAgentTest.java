@@ -121,7 +121,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldDetectConcurrentAdd() throws Exception
+    public void shouldDetectConcurrentAdd()
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);
@@ -138,7 +138,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldDetectConcurrentRemove() throws Exception
+    public void shouldDetectConcurrentRemove()
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);

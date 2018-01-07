@@ -15,7 +15,6 @@
  */
 package org.agrona.generation;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class StringWriterOutputManager implements OutputManager
     private String packageName;
     private final Map<String, StringWriter> sourceFileByName = new HashMap<>();
 
-    public Writer createOutput(final String name) throws IOException
+    public Writer createOutput(final String name)
     {
         final StringWriter stringWriter = new StringWriter();
         sourceFileByName.put(packageName + "." + name, stringWriter);

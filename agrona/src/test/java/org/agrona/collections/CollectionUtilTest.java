@@ -29,19 +29,19 @@ import static org.junit.Assert.assertThat;
 public class CollectionUtilTest
 {
     @Test
-    public void removeIfRemovesMiddle() throws Exception
+    public void removeIfRemovesMiddle()
     {
         assertRemoveIfRemoves(1, 2, 3);
     }
 
     @Test
-    public void removeIfRemovesStart() throws Exception
+    public void removeIfRemovesStart()
     {
         assertRemoveIfRemoves(2, 1, 3);
     }
 
     @Test
-    public void removeIfRemovesEnd() throws Exception
+    public void removeIfRemovesEnd()
     {
         assertRemoveIfRemoves(3, 1, 2);
     }

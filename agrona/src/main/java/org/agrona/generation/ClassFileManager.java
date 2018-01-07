@@ -19,7 +19,6 @@ import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
 import java.security.SecureClassLoader;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,6 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
         return new SecureClassLoader()
         {
             protected Class<?> findClass(final String name)
-                throws ClassNotFoundException
             {
                 final byte[] buffer = classObjectByNameMap.get(name).getBytes();
                 return super.defineClass(name, buffer, 0, buffer.length);
@@ -48,7 +46,6 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
 
     public JavaFileObject getJavaFileForOutput(
         final Location location, final String className, final JavaFileObject.Kind kind, final FileObject sibling)
-        throws IOException
     {
         final JavaClassObject javaClassObject = new JavaClassObject(className, kind);
         classObjectByNameMap.put(className, javaClassObject);

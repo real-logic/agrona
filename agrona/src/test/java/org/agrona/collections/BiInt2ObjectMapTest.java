@@ -132,7 +132,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldPutAndGetKeysOfNegativeValue() throws Exception
+    public void shouldPutAndGetKeysOfNegativeValue()
     {
         map.put(721632679, 333118496, "a");
         assertThat(map.get(721632679, 333118496), is("a"));

@@ -36,7 +36,7 @@ public final class NoOpLock implements Lock
     /**
      * Proceeds as if the lock has been acquired.
      */
-    public void lockInterruptibly() throws InterruptedException
+    public void lockInterruptibly()
     {
     }
 
@@ -55,7 +55,7 @@ public final class NoOpLock implements Lock
      *
      * @return always true.
      */
-    public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException
+    public boolean tryLock(final long time, final TimeUnit unit)
     {
         return true;
     }

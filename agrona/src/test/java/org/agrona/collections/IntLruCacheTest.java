@@ -72,7 +72,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldEvictLeastRecentlyUsedItem() throws Exception
+    public void shouldEvictLeastRecentlyUsedItem()
     {
         final AutoCloseable first = cache.lookup(1);
         cache.lookup(2);
@@ -82,7 +82,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldReconstructItemsAfterEviction() throws Exception
+    public void shouldReconstructItemsAfterEviction()
     {
         cache.lookup(1);
         final AutoCloseable second = cache.lookup(2);
@@ -94,7 +94,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldSupportKeyOfZero() throws Exception
+    public void shouldSupportKeyOfZero()
     {
         final AutoCloseable actual = cache.lookup(0);
 
@@ -103,7 +103,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldCloseAllOpenResources() throws Exception
+    public void shouldCloseAllOpenResources()
     {
         final AutoCloseable first = cache.lookup(1);
         final AutoCloseable second = cache.lookup(2);

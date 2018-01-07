@@ -21,7 +21,7 @@ import org.junit.Test;
 public class ThreadHintsTest
 {
     @Test
-    public void shouldDoNothingOnSpinWait() throws Exception
+    public void shouldDoNothingOnSpinWait()
     {
         for (int i = 0; i < 100; i++)
         {

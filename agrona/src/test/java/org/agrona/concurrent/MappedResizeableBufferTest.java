@@ -48,7 +48,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldWriteDataToBuffer() throws IOException
+    public void shouldWriteDataToBuffer()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -56,7 +56,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldResizeBufferToOver2GB() throws IOException
+    public void shouldResizeBufferToOver2GB()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -66,7 +66,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldReadPreviousWrites() throws IOException
+    public void shouldReadPreviousWrites()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -78,7 +78,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldReadBytesFromOtherBuffer() throws IOException
+    public void shouldReadBytesFromOtherBuffer()
     {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
@@ -92,7 +92,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldNotCloseChannelUponBufferClose() throws Exception
+    public void shouldNotCloseChannelUponBufferClose()
     {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
         buffer.close();
@@ -101,7 +101,7 @@ public class MappedResizeableBufferTest
         buffer = null;
     }
 
-    private void exchangeDataAt(final long index) throws IOException
+    private void exchangeDataAt(final long index)
     {
         buffer.putInt(index, VALUE);
         assertEquals(VALUE, buffer.getInt(index));

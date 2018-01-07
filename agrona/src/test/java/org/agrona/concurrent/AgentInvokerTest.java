@@ -170,7 +170,7 @@ public class AgentInvokerTest
         assertExceptionNotReported();
     }
 
-    private void assertExceptionNotReported() throws InterruptedException
+    private void assertExceptionNotReported()
     {
         invoker.start();
         invoker.invoke();
