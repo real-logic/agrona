@@ -19,12 +19,10 @@ import org.junit.Test;
 import org.mockito.InOrder;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.inOrder;
@@ -176,12 +174,11 @@ public class Int2IntCounterMapTest
         IntStream
             .range(1, 8)
             .filter((i) -> i != 5L)
-            .forEach(
-                (i) ->
-                {
-                    assertTrue(map.containsKey(i));
-                    assertTrue(map.containsValue(2 * i));
-                });
+            .forEach((i) ->
+            {
+                assertTrue(map.containsKey(i));
+                assertTrue(map.containsValue(2 * i));
+            });
     }
 
     @Test
@@ -189,13 +186,12 @@ public class Int2IntCounterMapTest
     {
         IntStream
             .range(1, 100)
-            .forEach(
-                (key) ->
-                {
-                    final int value = key * 2;
-                    assertEquals(INITIAL_VALUE, map.put(key, value));
-                    assertEquals(value, map.get(key));
-                });
+            .forEach((key) ->
+            {
+                final int value = key * 2;
+                assertEquals(INITIAL_VALUE, map.put(key, value));
+                assertEquals(value, map.get(key));
+            });
     }
 
     @Test
@@ -254,12 +250,13 @@ public class Int2IntCounterMapTest
         new Int2IntHashMap(4, 1, 0);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
-    public void correctSizeAfterRehash() throws Exception
+    public void correctSizeAfterRehash()
     {
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
-        IntStream.range(1, 17).forEach(i -> map.put(i, i));
+        IntStream.range(1, 17).forEach((i) -> map.put(i, i));
         assertEquals("Map has correct size", 16, map.size());
 
         final List<Integer> keys = new ArrayList<>(map.keySet());
@@ -280,39 +277,6 @@ public class Int2IntCounterMapTest
 
         assertThat(map.computeIfAbsent(testKey, function), is(testValue));
         assertThat(map.get(testKey), is(testValue));
-    }
-
-    private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
-    {
-        assertEquals(expectedKey, entry.getKey().intValue());
-        assertEquals(expectedValue, entry.getValue().intValue());
-    }
-
-    private void assertCollectionContainsElements(final Collection<Integer> keys)
-    {
-        assertEquals(2, keys.size());
-        assertFalse(keys.isEmpty());
-        assertTrue(keys.contains(1));
-        assertTrue(keys.contains(2));
-        assertFalse(keys.contains(3));
-        assertThat(keys, hasItems(1, 2));
-
-        assertThat("iterator has failed to be reset", keys, hasItems(1, 2));
-    }
-
-    private void assertContains(final Iterator<Integer> it, final int first, final int second)
-    {
-        assertTrue(it.hasNext());
-        assertEquals(Integer.valueOf(first), it.next());
-        assertTrue(it.hasNext());
-        assertEquals(Integer.valueOf(second), it.next());
-        assertFalse(it.hasNext());
-    }
-
-    private void addTwoElements()
-    {
-        map.put(1, 1);
-        map.put(2, 3);
     }
 
     @Test
@@ -444,12 +408,11 @@ public class Int2IntCounterMapTest
         assertEquals(1, map.size());
 
         final int[] tuple = new int[2];
-        map.forEach(
-            (k, v) ->
-            {
-                tuple[0] = k;
-                tuple[1] = v;
-            });
+        map.forEach((k, v) ->
+        {
+            tuple[0] = k;
+            tuple[1] = v;
+        });
 
         assertEquals(INITIAL_VALUE, tuple[0]);
         assertEquals(1, tuple[1]);

@@ -122,10 +122,9 @@ public class DistinctErrorLogTest
 
         for (int i = 0; i < 2; i++)
         {
-            assertTrue(log.record(
-                i == 1 ?
-                    new RuntimeException("One") :
-                    new RuntimeException("One", new Exception("Cause"))));
+            assertTrue(log.record(i == 1 ?
+                new RuntimeException("One") :
+                new RuntimeException("One", new Exception("Cause"))));
         }
 
         final ArgumentCaptor<Integer> lengthArg = ArgumentCaptor.forClass(Integer.class);

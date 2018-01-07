@@ -143,10 +143,9 @@ public class BufferAlignmentAgent
         if (alignmentTransformer != null)
         {
             instrumentation.removeTransformer(alignmentTransformer);
-            instrumentation.removeTransformer(
-                new AgentBuilder.Default()
-                    .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
-                    .transform(AgentBuilder.Transformer.NoOp.INSTANCE).installOn(instrumentation));
+            instrumentation.removeTransformer(new AgentBuilder.Default()
+                .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
+                .transform(AgentBuilder.Transformer.NoOp.INSTANCE).installOn(instrumentation));
             alignmentTransformer = null;
             instrumentation = null;
         }

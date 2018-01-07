@@ -301,12 +301,11 @@ public class Int2IntHashMapTest
         IntStream
             .range(0, 8)
             .filter((i) -> i != 5L)
-            .forEach(
-                (i) ->
-                {
-                    assertTrue(map.containsKey(i));
-                    assertTrue(map.containsValue(2 * i));
-                });
+            .forEach((i) ->
+            {
+                assertTrue(map.containsKey(i));
+                assertTrue(map.containsValue(2 * i));
+            });
     }
 
     @Test
@@ -314,13 +313,12 @@ public class Int2IntHashMapTest
     {
         IntStream
             .range(0, 100)
-            .forEach(
-                (key) ->
-                {
-                    final int value = key * 2;
-                    assertEquals(MISSING_VALUE, map.put(key, value));
-                    assertEquals(value, map.get(key));
-                });
+            .forEach((key) ->
+            {
+                final int value = key * 2;
+                assertEquals(MISSING_VALUE, map.put(key, value));
+                assertEquals(value, map.get(key));
+            });
     }
 
     @Test
@@ -380,7 +378,7 @@ public class Int2IntHashMapTest
     {
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
-        IntStream.range(1, 17).forEach(i -> map.put(i, i));
+        IntStream.range(1, 17).forEach((i) -> map.put(i, i));
         assertEquals("Map has correct size", 16, map.size());
 
         final List<Integer> keys = new ArrayList<>(map.keySet());
@@ -429,13 +427,12 @@ public class Int2IntHashMapTest
         assertEquals(1, map.size());
 
         final int[] tuple = new int[2];
-        map.intForEach(
-            (k, v) ->
-            {
-                tuple[0] = k;
-                tuple[1] = v;
-            }
-        );
+        map.intForEach((k, v) ->
+        {
+            tuple[0] = k;
+            tuple[1] = v;
+        });
+
         assertEquals(MISSING_VALUE, tuple[0]);
         assertEquals(1, tuple[1]);
 
@@ -614,12 +611,11 @@ public class Int2IntHashMapTest
         final Map<Integer, Integer> expected = new HashMap<>();
         final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
 
-        IntStream.range(1, 10).forEachOrdered(
-            (i) ->
-            {
-                map.put(i, -i);
-                expected.put(i, -i);
-            });
+        IntStream.range(1, 10).forEachOrdered((i) ->
+        {
+            map.put(i, -i);
+            expected.put(i, -i);
+        });
 
         final Map<Integer, Integer> actual = new HashMap<>();
         final Int2IntHashMap.EntryIterator iter = (Int2IntHashMap.EntryIterator)map.entrySet().iterator();

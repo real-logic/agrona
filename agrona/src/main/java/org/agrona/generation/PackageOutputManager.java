@@ -35,24 +35,22 @@ public class PackageOutputManager implements OutputManager
      *
      * @param baseDirName for the generated source code.
      * @param packageName for the generated source code relative to the baseDirName.
-     * @throws java.io.IOException if an error occurs during output.
      */
-    public PackageOutputManager(final String baseDirName, final String packageName) throws IOException
+    public PackageOutputManager(final String baseDirName, final String packageName)
     {
         Objects.requireNonNull(baseDirName, "baseDirName");
         Objects.requireNonNull(packageName, "packageName");
 
         final char lastChar = baseDirName.charAt(baseDirName.length() - 1);
-        final String dirName =
-            (lastChar == separatorChar ? baseDirName : baseDirName + separatorChar) +
-                packageName.replace('.', separatorChar);
+        final String dirName = lastChar == separatorChar ? baseDirName : baseDirName + separatorChar;
+        final String dirNamePlusPackage = dirName + packageName.replace('.', separatorChar);
 
-        outputDir = new File(dirName);
+        outputDir = new File(dirNamePlusPackage);
         if (!outputDir.exists())
         {
             if (!outputDir.mkdirs())
             {
-                throw new IllegalStateException("Unable to create directory: " + dirName);
+                throw new IllegalStateException("Unable to create directory: " + dirNamePlusPackage);
             }
         }
     }

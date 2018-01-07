@@ -263,7 +263,7 @@ public class IoUtil
 
         MappedByteBuffer mappedByteBuffer = null;
         try (RandomAccessFile file = new RandomAccessFile(location, "rw");
-             FileChannel channel = file.getChannel())
+            FileChannel channel = file.getChannel())
         {
             mappedByteBuffer = channel.map(READ_WRITE, 0, channel.size());
         }
@@ -293,7 +293,7 @@ public class IoUtil
 
         MappedByteBuffer mappedByteBuffer = null;
         try (RandomAccessFile file = new RandomAccessFile(location, "rw");
-             FileChannel channel = file.getChannel())
+            FileChannel channel = file.getChannel())
         {
             mappedByteBuffer = channel.map(READ_WRITE, offset, length);
         }
