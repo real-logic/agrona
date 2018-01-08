@@ -50,6 +50,7 @@ public final class Int2ObjectCache<V>
     @DoNotSub private int size;
     @DoNotSub private final int capacity;
     @DoNotSub private final int setSize;
+    @DoNotSub private final int setSizeShift;
     @DoNotSub private final int mask;
 
     private final int[] keys;
@@ -66,6 +67,7 @@ public final class Int2ObjectCache<V>
         final Consumer<V> evictionConsumer)
     {
         validatePositivePowerOfTwo(numSets);
+        validatePositivePowerOfTwo(setSize);
         requireNonNull(evictionConsumer, "Null values are not permitted");
 
         if (((long)numSets) * setSize > (Integer.MAX_VALUE - 8))
@@ -75,7 +77,8 @@ public final class Int2ObjectCache<V>
         }
 
         this.setSize = setSize;
-        capacity = numSets * setSize;
+        this.setSizeShift = Integer.numberOfTrailingZeros(setSize);
+        capacity = numSets << setSizeShift;
         mask = numSets - 1;
 
         keys = new int[capacity];
@@ -167,7 +170,7 @@ public final class Int2ObjectCache<V>
     {
         boolean found = false;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
-        @DoNotSub final int setBeginIndex = setNumber * setSize;
+        @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
         for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
@@ -226,7 +229,7 @@ public final class Int2ObjectCache<V>
     {
         V value = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
-        @DoNotSub final int setBeginIndex = setNumber * setSize;
+        @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
         for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
@@ -301,7 +304,7 @@ public final class Int2ObjectCache<V>
 
         V evictedValue = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
-        @DoNotSub final int setBeginIndex = setNumber * setSize;
+        @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
         @DoNotSub int i = setBeginIndex;
 
         for (@DoNotSub int nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
@@ -363,7 +366,7 @@ public final class Int2ObjectCache<V>
     {
         V value = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
-        @DoNotSub final int setBeginIndex = setNumber * setSize;
+        @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
         for (@DoNotSub int i = setBeginIndex, nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
         {
