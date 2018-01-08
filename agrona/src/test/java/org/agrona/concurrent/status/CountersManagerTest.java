@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import static java.nio.ByteBuffer.allocateDirect;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.agrona.concurrent.status.CountersReader.MAX_LABEL_LENGTH;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -41,11 +42,16 @@ import static org.agrona.concurrent.status.CountersReader.METADATA_LENGTH;
 public class CountersManagerTest
 {
     private static final int NUMBER_OF_COUNTERS = 4;
+    private static final long FREE_TO_REUSE_TIMEOUT = 1000;
+
+    private long currentTimestamp = 0;
 
     private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
     private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
     private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
-    private CountersReader otherManager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
+    private CountersReader reader = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
+    private CountersManager managerWithCooldown =
+        new CountersManager(labelsBuffer, counterBuffer, US_ASCII, () -> currentTimestamp, FREE_TO_REUSE_TIMEOUT);
 
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
@@ -65,7 +71,7 @@ public class CountersManagerTest
         final String label = sb.toString();
         final int counterId = manager.allocate(label);
 
-        otherManager.forEach(consumer);
+        reader.forEach(consumer);
         verify(consumer).accept(counterId, label.substring(0, MAX_LABEL_LENGTH));
     }
 
@@ -101,7 +107,7 @@ public class CountersManagerTest
     public void shouldStoreLabels()
     {
         final int counterId = manager.allocate("abc");
-        otherManager.forEach(consumer);
+        reader.forEach(consumer);
         verify(consumer).accept(counterId, "abc");
     }
 
@@ -112,7 +118,7 @@ public class CountersManagerTest
         final int def = manager.allocate("def");
         final int ghi = manager.allocate("ghi");
 
-        otherManager.forEach(consumer);
+        reader.forEach(consumer);
 
         final InOrder inOrder = Mockito.inOrder(consumer);
         inOrder.verify(consumer).accept(abc, "abc");
@@ -130,7 +136,7 @@ public class CountersManagerTest
 
         manager.free(def);
 
-        otherManager.forEach(consumer);
+        reader.forEach(consumer);
 
         final InOrder inOrder = Mockito.inOrder(consumer);
         inOrder.verify(consumer).accept(abc, "abc");
@@ -138,6 +144,32 @@ public class CountersManagerTest
         inOrder.verifyNoMoreInteractions();
 
         assertThat(manager.allocate("the next label"), is(def));
+    }
+
+    @Test
+    public void shouldFreeAndNotReuseCountersThatHaveCooldown()
+    {
+        final int abc = managerWithCooldown.allocate("abc");
+        final int def = managerWithCooldown.allocate("def");
+        final int ghi = managerWithCooldown.allocate("ghi");
+
+        managerWithCooldown.free(def);
+
+        currentTimestamp += FREE_TO_REUSE_TIMEOUT - 1;
+        assertThat(managerWithCooldown.allocate("the next label"), is(greaterThan(ghi)));
+    }
+
+    @Test
+    public void shouldFreeAndReuseCountersAfterCooldown()
+    {
+        final int abc = managerWithCooldown.allocate("abc");
+        final int def = managerWithCooldown.allocate("def");
+        final int ghi = managerWithCooldown.allocate("ghi");
+
+        managerWithCooldown.free(def);
+
+        currentTimestamp += FREE_TO_REUSE_TIMEOUT;
+        assertThat(managerWithCooldown.allocate("the next label"), is(def));
     }
 
     @Test(expected = IllegalStateException.class)

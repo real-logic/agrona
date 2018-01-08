@@ -20,6 +20,7 @@ import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.collections.IntArrayList;
 import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import java.nio.charset.Charset;
@@ -59,7 +60,10 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                      120 bytes for key                       ...
+ *  |                   Free-for-reuse Deadline                     |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                      112 bytes for key                       ...
  * ...                                                              |
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
@@ -82,6 +86,37 @@ public class CountersManager extends CountersReader
 
     private int idHighWaterMark = -1;
     private final IntArrayList freeList = new IntArrayList();
+    private final EpochClock epochClock;
+    private final long freeToReuseTimeout;
+
+    /**
+     * Create a new counter buffer manager over two buffers.
+     *
+     * @param metaDataBuffer     containing the types, keys, and labels for the counters.
+     * @param valuesBuffer       containing the values of the counters themselves.
+     * @param labelCharset       for the label encoding.
+     * @param epochClock         to use for determining time for keep counter from being reused after being freed.
+     * @param freeToReuseTimeout timeout (in milliseconds) to keep counter from being reused after being freed.
+     */
+    public CountersManager(
+        final AtomicBuffer metaDataBuffer,
+        final AtomicBuffer valuesBuffer,
+        final Charset labelCharset,
+        final EpochClock epochClock,
+        final long freeToReuseTimeout)
+    {
+        super(metaDataBuffer, valuesBuffer, labelCharset);
+
+        valuesBuffer.verifyAlignment();
+        this.epochClock = epochClock;
+        this.freeToReuseTimeout = freeToReuseTimeout;
+
+        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
+        {
+            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
+        }
+    }
+
 
     /**
      * Create a new counter buffer manager over two buffers.
@@ -94,6 +129,8 @@ public class CountersManager extends CountersReader
         super(metaDataBuffer, valuesBuffer);
 
         valuesBuffer.verifyAlignment();
+        this.epochClock = () -> 0;
+        this.freeToReuseTimeout = 0;
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
@@ -111,14 +148,7 @@ public class CountersManager extends CountersReader
     public CountersManager(
         final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
-        super(metaDataBuffer, valuesBuffer, labelCharset);
-
-        valuesBuffer.verifyAlignment();
-
-        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
-        {
-            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
-        }
+        this(metaDataBuffer, valuesBuffer, labelCharset, () -> 0, 0);
     }
 
     /**
@@ -150,6 +180,7 @@ public class CountersManager extends CountersReader
         try
         {
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
+            metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
             putLabel(recordOffset, label);
 
             metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
@@ -186,6 +217,7 @@ public class CountersManager extends CountersReader
         {
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
             keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
+            metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
             putLabel(recordOffset, label);
 
             metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
@@ -231,6 +263,7 @@ public class CountersManager extends CountersReader
         try
         {
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
+            metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
 
             if (null != keyBuffer)
             {
@@ -326,8 +359,12 @@ public class CountersManager extends CountersReader
      */
     public void free(final int counterId)
     {
-        metaDataBuffer.putIntOrdered(metaDataOffset(counterId), RECORD_RECLAIMED);
-        freeList.pushInt(counterId);
+        final int recordOffset = metaDataOffset(counterId);
+
+        metaDataBuffer.putLong(
+            recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeout);
+        metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
+        freeList.add(counterId);
     }
 
     /**
@@ -353,15 +390,25 @@ public class CountersManager extends CountersReader
 
     private int nextCounterId()
     {
-        if (freeList.isEmpty())
+        final long nowMs = epochClock.time();
+
+        for (int i = 0, size = freeList.size(); i < size; i++)
         {
-            return ++idHighWaterMark;
+            final int counterId = freeList.get(i);
+
+            final long deadline =
+                metaDataBuffer.getLongVolatile(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
+
+            if (nowMs >= deadline)
+            {
+                freeList.remove(i);
+                valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
+
+                return counterId;
+            }
         }
 
-        final int counterId = freeList.popInt();
-        valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
-
-        return counterId;
+        return ++idHighWaterMark;
     }
 
     private void putLabel(final int recordOffset, final String label)

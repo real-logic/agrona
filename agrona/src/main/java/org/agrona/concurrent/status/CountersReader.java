@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
 import static org.agrona.BitUtil.SIZE_OF_INT;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Reads the counters metadata and values buffers.
@@ -58,7 +59,10 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                      120 bytes for key                       ...
+ *  |                   Free-for-reuse Deadline                     |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                      112 bytes for key                       ...
  * ...                                                              |
  *  +-+-------------------------------------------------------------+
  *  |R|                      Label Length                           |
@@ -112,14 +116,24 @@ public class CountersReader
     public static final int RECORD_LINGERING = -2;
 
     /**
+     * Deadline to indicate counter is not free to be reused.
+     */
+    public static final long NOT_FREE_TO_REUSE = Long.MAX_VALUE;
+
+    /**
      * Offset in the record at which the type id field is stored.
      */
     public static final int TYPE_ID_OFFSET = SIZE_OF_INT;
 
     /**
+     * Offset in the record at which the deadline (in milliseconds) for when counter may be reused.
+     */
+    public static final int FREE_FOR_REUSE_DEADLINE_OFFSET = TYPE_ID_OFFSET + SIZE_OF_INT;
+
+    /**
      * Offset in the record at which the key is stored.
      */
-    public static final int KEY_OFFSET = TYPE_ID_OFFSET + SIZE_OF_INT;
+    public static final int KEY_OFFSET = FREE_FOR_REUSE_DEADLINE_OFFSET + SIZE_OF_LONG;
 
     /**
      * Offset in the record at which the label is stored.
@@ -139,7 +153,7 @@ public class CountersReader
     /**
      * Maximum length a key can be.
      */
-    public static final int MAX_KEY_LENGTH = (CACHE_LINE_LENGTH * 2) - (SIZE_OF_INT * 2);
+    public static final int MAX_KEY_LENGTH = (CACHE_LINE_LENGTH * 2) - (SIZE_OF_INT * 2) - SIZE_OF_LONG;
 
     /**
      * Length of a meta data record in bytes.
@@ -331,6 +345,20 @@ public class CountersReader
         validateCounterId(counterId);
 
         return metaDataBuffer.getIntVolatile(metaDataOffset(counterId));
+    }
+
+    /**
+     * Get the deadline (in milliseconds) for when a given counter id may be reused.
+     *
+     * @param counterId to be read.
+     * @return deadline (in milliseconds) for when a given counter id may be reused or {@link #NOT_FREE_TO_REUSE} if
+     * currently in use.
+     */
+    public long getFreeForReuseDeadline(final int counterId)
+    {
+        validateCounterId(counterId);
+
+        return metaDataBuffer.getLongVolatile(counterOffset(counterId));
     }
 
     /**
