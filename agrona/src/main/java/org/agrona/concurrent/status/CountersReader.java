@@ -358,7 +358,7 @@ public class CountersReader
     {
         validateCounterId(counterId);
 
-        return metaDataBuffer.getLongVolatile(counterOffset(counterId));
+        return metaDataBuffer.getLongVolatile(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
     }
 
     /**
