@@ -461,7 +461,7 @@ public final class Int2ObjectCache<V>
     /**
      * {@inheritDoc}
      */
-    public Collection<V> values()
+    public ValueCollection<V> values()
     {
         if (null == valueCollection)
         {
@@ -575,7 +575,7 @@ public final class Int2ObjectCache<V>
     // Internal Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public class KeySet extends AbstractSet<Integer>
+    public final class KeySet extends AbstractSet<Integer>
     {
         private final KeyIterator iterator = new KeyIterator();
 
@@ -612,7 +612,7 @@ public final class Int2ObjectCache<V>
         }
     }
 
-    class ValueCollection<T> extends AbstractCollection<T>
+    public final class ValueCollection<T> extends AbstractCollection<T>
     {
         private final ValueIterator<T> iterator = new ValueIterator<>();
 
@@ -639,7 +639,7 @@ public final class Int2ObjectCache<V>
         }
     }
 
-    class EntrySet<T> extends AbstractSet<Entry<Integer, T>>
+    public final class EntrySet<T> extends AbstractSet<Entry<Integer, T>>
     {
         private final EntryIterator<T> iterator = new EntryIterator<>();
 
@@ -714,7 +714,7 @@ public final class Int2ObjectCache<V>
         }
     }
 
-    public class ValueIterator<T> extends AbstractIterator<T>
+    public final class ValueIterator<T> extends AbstractIterator<T>
     {
         @SuppressWarnings("unchecked")
         public T next()
@@ -725,7 +725,7 @@ public final class Int2ObjectCache<V>
         }
     }
 
-    public class KeyIterator extends AbstractIterator<Integer>
+    public final class KeyIterator extends AbstractIterator<Integer>
     {
         public Integer next()
         {
@@ -741,7 +741,7 @@ public final class Int2ObjectCache<V>
     }
 
     @SuppressWarnings("unchecked")
-    public class EntryIterator<T>
+    public final  class EntryIterator<T>
         extends AbstractIterator<Entry<Integer, T>>
         implements Entry<Integer, T>
     {
@@ -753,6 +753,11 @@ public final class Int2ObjectCache<V>
         }
 
         public Integer getKey()
+        {
+            return getIntKey();
+        }
+
+        public Integer getIntKey()
         {
             return keys[position()];
         }
