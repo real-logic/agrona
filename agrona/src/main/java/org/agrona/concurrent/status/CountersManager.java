@@ -361,20 +361,9 @@ public class CountersManager extends CountersReader
     {
         final int recordOffset = metaDataOffset(counterId);
 
-        metaDataBuffer.putLong(
-            recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeout);
+        metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeout);
         metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
-        freeList.add(counterId);
-    }
-
-    /**
-     * Linger the counter identified by counterId.
-     *
-     * @param counterId the counter to linger
-     */
-    public void linger(final int counterId)
-    {
-        metaDataBuffer.putIntOrdered(metaDataOffset(counterId), RECORD_LINGERING);
+        freeList.addInt(counterId);
     }
 
     /**
@@ -394,12 +383,12 @@ public class CountersManager extends CountersReader
 
         for (int i = 0, size = freeList.size(); i < size; i++)
         {
-            final int counterId = freeList.get(i);
+            final int counterId = freeList.getInt(i);
 
-            final long deadline =
-                metaDataBuffer.getLongVolatile(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
+            final long deadlineMs = metaDataBuffer.getLongVolatile(
+                metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
 
-            if (nowMs >= deadline)
+            if (nowMs >= deadlineMs)
             {
                 freeList.remove(i);
                 valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
@@ -422,17 +411,10 @@ public class CountersManager extends CountersReader
         else
         {
             final byte[] bytes = label.getBytes(labelCharset);
+            final int length = Math.min(bytes.length, MAX_LABEL_LENGTH);
 
-            if (bytes.length > MAX_LABEL_LENGTH)
-            {
-                metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, MAX_LABEL_LENGTH);
-                metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes, 0, MAX_LABEL_LENGTH);
-            }
-            else
-            {
-                metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, bytes.length);
-                metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes);
-            }
+            metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, length);
+            metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes, 0, length);
         }
     }
 

@@ -111,11 +111,6 @@ public class CountersReader
     public static final int RECORD_RECLAIMED = -1;
 
     /**
-     * Record was active and now lingering before being reclaimed.
-     */
-    public static final int RECORD_LINGERING = -2;
-
-    /**
      * Deadline to indicate counter is not free to be reused.
      */
     public static final long NOT_FREE_TO_REUSE = Long.MAX_VALUE;
@@ -337,7 +332,6 @@ public class CountersReader
      * @return the current state of the counter.
      * @see #RECORD_UNUSED
      * @see #RECORD_ALLOCATED
-     * @see #RECORD_LINGERING
      * @see #RECORD_RECLAIMED
      */
     public int getCounterState(final int counterId)
