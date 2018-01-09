@@ -84,32 +84,32 @@ public class CountersManager extends CountersReader
      */
     public static final int DEFAULT_TYPE_ID = 0;
 
+    private final long freeToReuseTimeoutMs;
     private int idHighWaterMark = -1;
     private final IntArrayList freeList = new IntArrayList();
     private final EpochClock epochClock;
-    private final long freeToReuseTimeout;
 
     /**
      * Create a new counter buffer manager over two buffers.
      *
-     * @param metaDataBuffer     containing the types, keys, and labels for the counters.
-     * @param valuesBuffer       containing the values of the counters themselves.
-     * @param labelCharset       for the label encoding.
-     * @param epochClock         to use for determining time for keep counter from being reused after being freed.
-     * @param freeToReuseTimeout timeout (in milliseconds) to keep counter from being reused after being freed.
+     * @param metaDataBuffer       containing the types, keys, and labels for the counters.
+     * @param valuesBuffer         containing the values of the counters themselves.
+     * @param labelCharset         for the label encoding.
+     * @param epochClock           to use for determining time for keep counter from being reused after being freed.
+     * @param freeToReuseTimeoutMs timeout (in milliseconds) to keep counter from being reused after being freed.
      */
     public CountersManager(
         final AtomicBuffer metaDataBuffer,
         final AtomicBuffer valuesBuffer,
         final Charset labelCharset,
         final EpochClock epochClock,
-        final long freeToReuseTimeout)
+        final long freeToReuseTimeoutMs)
     {
         super(metaDataBuffer, valuesBuffer, labelCharset);
 
         valuesBuffer.verifyAlignment();
         this.epochClock = epochClock;
-        this.freeToReuseTimeout = freeToReuseTimeout;
+        this.freeToReuseTimeoutMs = freeToReuseTimeoutMs;
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
@@ -130,7 +130,7 @@ public class CountersManager extends CountersReader
 
         valuesBuffer.verifyAlignment();
         this.epochClock = () -> 0;
-        this.freeToReuseTimeout = 0;
+        this.freeToReuseTimeoutMs = 0;
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
@@ -361,7 +361,8 @@ public class CountersManager extends CountersReader
     {
         final int recordOffset = metaDataOffset(counterId);
 
-        metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeout);
+        metaDataBuffer.putLong(
+            recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
         metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
         freeList.addInt(counterId);
     }
