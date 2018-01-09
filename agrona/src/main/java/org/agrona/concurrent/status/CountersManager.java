@@ -117,7 +117,6 @@ public class CountersManager extends CountersReader
         }
     }
 
-
     /**
      * Create a new counter buffer manager over two buffers.
      *
@@ -423,7 +422,7 @@ public class CountersManager extends CountersReader
     {
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalStateException("Unable to allocated counter, values buffer is full");
+            throw new IllegalStateException("Unable to allocate counter, values buffer is full");
         }
     }
 
@@ -431,7 +430,7 @@ public class CountersManager extends CountersReader
     {
         if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
         {
-            throw new IllegalStateException("Unable to allocate counter, labels buffer is full");
+            throw new IllegalStateException("Unable to allocate counter, metadata buffer is full");
         }
     }
 }
