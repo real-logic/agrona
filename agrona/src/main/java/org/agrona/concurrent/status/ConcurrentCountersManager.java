@@ -18,6 +18,7 @@ package org.agrona.concurrent.status;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.EpochClock;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,6 +45,16 @@ public class ConcurrentCountersManager extends CountersManager
         super(metaDataBuffer, valuesBuffer, labelCharset);
     }
 
+    public ConcurrentCountersManager(
+        final AtomicBuffer metaDataBuffer,
+        final AtomicBuffer valuesBuffer,
+        final Charset labelCharset,
+        final EpochClock epochClock,
+        final long freeToReuseTimeoutMs)
+    {
+        super(metaDataBuffer, valuesBuffer, labelCharset, epochClock, freeToReuseTimeoutMs);
+    }
+
     public int allocate(final String label, final int typeId)
     {
         lock.lock();
@@ -56,7 +67,6 @@ public class ConcurrentCountersManager extends CountersManager
             lock.unlock();
         }
     }
-
 
     public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
     {
