@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Real Logic Ltd.
+ * Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -705,10 +705,8 @@ public class Int2ObjectHashMap<V>
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
         private boolean isPositionValid = false;
-        protected int[] keys;
-        protected Object[] values;
 
-        @DoNotSub protected int position()
+        @DoNotSub protected final int position()
         {
             return posCounter & (values.length - 1);
         }
@@ -723,8 +721,9 @@ public class Int2ObjectHashMap<V>
             return remaining > 0;
         }
 
-        protected void findNext()
+        protected final void findNext()
         {
+            final Object[] values = Int2ObjectHashMap.this.values;
             @DoNotSub final int mask = values.length - 1;
             isPositionValid = false;
 
@@ -763,11 +762,10 @@ public class Int2ObjectHashMap<V>
             }
         }
 
-        void reset()
+        final void reset()
         {
             remaining = Int2ObjectHashMap.this.size;
-            keys = Int2ObjectHashMap.this.keys;
-            values = Int2ObjectHashMap.this.values;
+            final Object[] values = Int2ObjectHashMap.this.values;
             @DoNotSub final int capacity = values.length;
 
             @DoNotSub int i = capacity;

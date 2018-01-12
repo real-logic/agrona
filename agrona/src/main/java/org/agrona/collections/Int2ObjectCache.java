@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Real Logic Ltd.
+ * Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -670,7 +670,7 @@ public final class Int2ObjectCache<V>
         @DoNotSub private int remaining;
         @DoNotSub private int position = -1;
 
-        @DoNotSub protected int position()
+        @DoNotSub protected final int position()
         {
             return position;
         }
@@ -680,9 +680,11 @@ public final class Int2ObjectCache<V>
             return remaining > 0;
         }
 
-        protected void findNext()
+        protected final void findNext()
         {
             boolean found = false;
+            final Object[] values = Int2ObjectCache.this.values;
+
             for (@DoNotSub int i = position + 1; i < capacity; i++)
             {
                 if (null != values[i])

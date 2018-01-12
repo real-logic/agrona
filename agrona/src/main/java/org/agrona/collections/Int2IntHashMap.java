@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ *  Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -639,7 +639,7 @@ public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
 
-        void reset()
+        final void reset()
         {
             isPositionValid = false;
             remaining = Int2IntHashMap.this.size;
@@ -664,7 +664,7 @@ public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             positionCounter = keyIndex + capacity;
         }
 
-        @DoNotSub protected int keyPosition()
+        @DoNotSub protected final int keyPosition()
         {
             return positionCounter & entries.length - 1;
         }
@@ -679,7 +679,7 @@ public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return remaining > 0;
         }
 
-        protected void findNext()
+        protected final void findNext()
         {
             final int[] entries = Int2IntHashMap.this.entries;
             final int missingValue = Int2IntHashMap.this.missingValue;
@@ -784,11 +784,6 @@ public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             findNext();
 
             return this;
-        }
-
-        void reset()
-        {
-            super.reset();
         }
 
         /**
