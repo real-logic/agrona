@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ *  Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -615,12 +615,12 @@ public class IntHashSetTest
     {
         addTwoElements(testSet);
 
-        final IntIterator intIterator = testSet.iterator();
-        while (intIterator.hasNext())
+        final IntHashSet.IntIterator iterator = testSet.iterator();
+        while (iterator.hasNext())
         {
-            if (intIterator.nextValue() == 1)
+            if (iterator.nextValue() == 1)
             {
-                intIterator.remove();
+                iterator.remove();
             }
         }
 
@@ -753,7 +753,7 @@ public class IntHashSetTest
         testSet.add(MISSING_VALUE);
 
         int missingValueCount = 0;
-        final IntIterator iterator = testSet.iterator();
+        final IntHashSet.IntIterator iterator = testSet.iterator();
         while (iterator.hasNext())
         {
             if (iterator.nextValue() == MISSING_VALUE)
@@ -771,7 +771,7 @@ public class IntHashSetTest
         addTwoElements(testSet);
         testSet.add(MISSING_VALUE);
 
-        final IntIterator iterator = testSet.iterator();
+        final IntHashSet.IntIterator iterator = testSet.iterator();
         while (iterator.hasNext())
         {
             if (iterator.nextValue() == MISSING_VALUE)
@@ -883,7 +883,7 @@ public class IntHashSetTest
 
     private void exhaustIterator()
     {
-        final IntIterator iterator = testSet.iterator();
+        final Iterator iterator = testSet.iterator();
         iterator.next();
         iterator.next();
         iterator.next();

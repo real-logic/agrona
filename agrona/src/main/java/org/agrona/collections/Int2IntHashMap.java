@@ -669,6 +669,11 @@ public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return positionCounter & entries.length - 1;
         }
 
+        @DoNotSub public int remaining()
+        {
+            return remaining;
+        }
+
         public boolean hasNext()
         {
             return remaining > 0;

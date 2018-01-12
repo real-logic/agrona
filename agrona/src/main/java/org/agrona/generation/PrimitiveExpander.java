@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 Real Logic Ltd.
+ * Copyright 2013-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ public final class PrimitiveExpander
     {
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIntConsumer");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntArrayList");
-        expandPrimitiveSpecialisedClass(COLLECTIONS, "IntIterator");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntHashMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2IntCounterMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntHashSet");

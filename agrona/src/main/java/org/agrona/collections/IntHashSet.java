@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ *  Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
     @DoNotSub private int sizeOfArrayValues;
 
     private int[] values;
-    private IntHashSetIterator iterator;
+    private IntIterator iterator;
 
     /**
      * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR},
@@ -525,19 +525,17 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
      */
     public IntIterator iterator()
     {
-        IntHashSetIterator iterator = this.iterator;
+        IntIterator iterator = this.iterator;
         if (null == iterator)
         {
-            iterator = new IntHashSetIterator();
+            iterator = new IntIterator();
             if (shouldCacheIterator)
             {
                 this.iterator = iterator;
             }
         }
 
-        iterator.reset(values, containsMissingValue, size());
-
-        return iterator;
+        return iterator.reset();
     }
 
     public void copy(final IntHashSet that)
@@ -695,19 +693,88 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
         return hashCode;
     }
 
-    public final class IntHashSetIterator extends IntIterator
+    public final class IntIterator implements Iterator<Integer>, Serializable
     {
+        @DoNotSub private int remaining;
+        @DoNotSub private int positionCounter;
+        @DoNotSub private int stopCounter;
+        private boolean isPositionValid = false;
+
+        IntIterator reset()
+        {
+            this.remaining = size();
+
+            final int[] values = IntHashSet.this.values;
+            @DoNotSub final int length = values.length;
+            @DoNotSub int i = length;
+
+            if (values[length - 1] != IntHashSet.MISSING_VALUE)
+            {
+                for (i = 0; i < length; i++)
+                {
+                    if (values[i] == IntHashSet.MISSING_VALUE)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            stopCounter = i;
+            positionCounter = i + length;
+            isPositionValid = false;
+
+            return this;
+        }
+
+        public boolean hasNext()
+        {
+            return remaining > 0;
+        }
+
+        @DoNotSub public int remaining()
+        {
+            return remaining;
+        }
+
+        public Integer next()
+        {
+            return nextValue();
+        }
+
+        /**
+         * Strongly typed alternative of {@link Iterator#next()} to avoid boxing.
+         *
+         * @return the next int value.
+         */
+        public int nextValue()
+        {
+            if (remaining == 1 && containsMissingValue)
+            {
+                remaining = 0;
+                isPositionValid = true;
+
+                return IntHashSet.MISSING_VALUE;
+            }
+
+            findNext();
+
+            final int[] values = IntHashSet.this.values;
+
+            return values[position(values)];
+        }
+
         public void remove()
         {
             if (isPositionValid)
             {
-                if (remaining() == 1 && containsMissingValue)
+                if (0 == remaining && containsMissingValue)
                 {
                     containsMissingValue = false;
                 }
                 else
                 {
-                    @DoNotSub final int position = position();
+                    final int[] values = IntHashSet.this.values;
+                    @DoNotSub final int position = position(values);
                     values[position] = MISSING_VALUE;
                     --sizeOfArrayValues;
 
@@ -720,6 +787,33 @@ public final class IntHashSet extends AbstractSet<Integer> implements Serializab
             {
                 throw new IllegalStateException();
             }
+        }
+
+        private void findNext()
+        {
+            final int[] values = IntHashSet.this.values;
+            @DoNotSub final int mask = values.length - 1;
+            isPositionValid = true;
+
+            for (@DoNotSub int i = positionCounter - 1; i >= stopCounter; i--)
+            {
+                @DoNotSub final int index = i & mask;
+                if (values[index] != IntHashSet.MISSING_VALUE)
+                {
+                    positionCounter = i;
+                    --remaining;
+                    return;
+                }
+            }
+
+            isPositionValid = false;
+            throw new NoSuchElementException();
+        }
+
+        @DoNotSub private int position(
+            final int[] values)
+        {
+            return positionCounter & (values.length - 1);
         }
     }
 }

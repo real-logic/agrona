@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ *  Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
      */
     public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
-    private static final Object MISSING_VALUE = null;
+    static final Object MISSING_VALUE = null;
 
     private final boolean shouldCacheIterator;
     private final float loadFactor;
@@ -52,7 +52,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     private int size;
 
     private T[] values;
-    private ObjectHashSetIterator iterator;
+    private ObjectIterator iterator;
     private IntConsumer resizeNotifier;
 
     /**
@@ -458,12 +458,12 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
     /**
      * {@inheritDoc}
      */
-    public ObjectIterator<T> iterator()
+    public ObjectIterator iterator()
     {
-        ObjectHashSetIterator iterator = this.iterator;
+        ObjectIterator iterator = this.iterator;
         if (null == iterator)
         {
-            iterator = new ObjectHashSetIterator();
+            iterator = new ObjectIterator();
 
             if (shouldCacheIterator)
             {
@@ -471,9 +471,7 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
             }
         }
 
-        iterator.reset(values, size);
-
-        return iterator;
+        return iterator.reset();
     }
 
     public void copy(final ObjectHashSet<T> that)
@@ -605,14 +603,88 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
         return hashCode;
     }
 
-    public final class ObjectHashSetIterator extends ObjectIterator<T>
+    public final class ObjectIterator implements Iterator<T>, Serializable
     {
+        private int remaining;
+        private int positionCounter;
+        private int stopCounter;
+        private boolean isPositionValid = false;
+
+        ObjectIterator reset()
+        {
+            this.remaining = size;
+            final T[] values = ObjectHashSet.this.values;
+            final int length = values.length;
+            int i = length;
+
+            if (values[length - 1] != MISSING_VALUE)
+            {
+                i = 0;
+                for (; i < length; i++)
+                {
+                    if (values[i] == MISSING_VALUE)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            stopCounter = i;
+            positionCounter = i + length;
+            isPositionValid = false;
+
+            return this;
+        }
+
+        public int remaining()
+        {
+            return remaining;
+        }
+
+        public boolean hasNext()
+        {
+            return remaining > 0;
+        }
+
+        public T next()
+        {
+            return nextValue();
+        }
+
+        /**
+         * @return the next int value.
+         */
+        @SuppressWarnings("unchecked")
+        public T nextValue()
+        {
+            final T[] values = ObjectHashSet.this.values;
+            final int mask = values.length - 1;
+            isPositionValid = false;
+
+            for (int i = positionCounter - 1; i >= stopCounter; i--)
+            {
+                final int index = i & mask;
+                final Object value = values[index];
+                if (value != MISSING_VALUE)
+                {
+                    positionCounter = i;
+                    isPositionValid = true;
+                    --remaining;
+
+                    return (T)value;
+                }
+            }
+
+            throw new NoSuchElementException();
+        }
+
         @SuppressWarnings("unchecked")
         public void remove()
         {
             if (isPositionValid)
             {
-                final int position = position();
+                final T[] values = ObjectHashSet.this.values;
+                final int position = position(values);
                 values[position] = (T)MISSING_VALUE;
                 --size;
 
@@ -624,6 +696,11 @@ public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializab
             {
                 throw new IllegalStateException();
             }
+        }
+
+        private int position(final T[] values)
+        {
+            return positionCounter & (values.length - 1);
         }
     }
 }

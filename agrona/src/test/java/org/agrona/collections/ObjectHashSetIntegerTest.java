@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2017 Real Logic Ltd.
+ *  Copyright 2014-2018 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -565,7 +565,7 @@ public class ObjectHashSetIntegerTest
     {
         addTwoElements(testSet);
 
-        final ObjectIterator intIterator = testSet.iterator();
+        final ObjectHashSet.ObjectIterator intIterator = testSet.iterator();
         //noinspection Java8CollectionRemoveIf
         while (intIterator.hasNext())
         {
@@ -606,7 +606,7 @@ public class ObjectHashSetIntegerTest
             testSet.add(i);
         }
 
-        final ObjectIterator<Integer> iter = testSet.iterator();
+        final ObjectHashSet.ObjectIterator iter = testSet.iterator();
         for (int i = 0; i < 20; i++)
         {
             assertTrue(iter.hasNext());
@@ -680,7 +680,7 @@ public class ObjectHashSetIntegerTest
 
     private void exhaustIterator()
     {
-        final ObjectIterator iterator = testSet.iterator();
+        final ObjectHashSet.ObjectIterator iterator = testSet.iterator();
         iterator.next();
         iterator.next();
         iterator.next();

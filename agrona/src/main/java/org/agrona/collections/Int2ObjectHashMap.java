@@ -713,6 +713,11 @@ public class Int2ObjectHashMap<V>
             return posCounter & (values.length - 1);
         }
 
+        @DoNotSub public int remaining()
+        {
+            return remaining;
+        }
+
         public boolean hasNext()
         {
             return remaining > 0;
