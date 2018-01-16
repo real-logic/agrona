@@ -209,7 +209,7 @@ public final class IntArrayList extends AbstractList<Integer> implements List<In
 
         if (index < size)
         {
-            System.arraycopy(elements, index, elements, index + 1, requiredSize - index);
+            System.arraycopy(elements, index, elements, index + 1, size - index);
         }
 
         elements[index] = element;

@@ -78,6 +78,20 @@ public class IntArrayListTest
     }
 
     @Test
+    public void shouldAddValueAtIndexWithNearlyFullCapacity()
+    {
+        final int count = IntArrayList.INITIAL_CAPACITY - 1;
+        final int value = count + 1;
+        IntStream.range(0, count).forEachOrdered(list::addInt);
+
+        list.addInt(0, value);
+
+        assertThat(list.size(), is(count + 1));
+        assertThat(list.getInt(0), is(value));
+        assertThat(list.getInt(count), is(count - 1));
+    }
+
+    @Test
     public void shouldSetIntValue()
     {
         list.addInt(7);
