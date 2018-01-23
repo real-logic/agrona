@@ -54,4 +54,11 @@ public final class SleepingIdleStrategy implements IdleStrategy
     public void reset()
     {
     }
+
+    public String toString()
+    {
+        return "SleepingIdleStrategy{" +
+            "sleepPeriodNs=" + sleepPeriodNs +
+            '}';
+    }
 }

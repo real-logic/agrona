@@ -47,4 +47,9 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     public void reset()
     {
     }
+
+    public String toString()
+    {
+        return "BusySpinIdleStrategy{}";
+    }
 }

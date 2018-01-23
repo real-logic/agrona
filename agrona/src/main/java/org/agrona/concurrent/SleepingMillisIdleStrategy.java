@@ -66,4 +66,11 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     public void reset()
     {
     }
+
+    public String toString()
+    {
+        return "SleepingMillisIdleStrategy{" +
+            "sleepPeriodMs=" + sleepPeriodMs +
+            '}';
+    }
 }

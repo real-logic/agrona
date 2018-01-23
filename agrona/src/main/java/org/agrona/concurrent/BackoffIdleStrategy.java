@@ -134,7 +134,18 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     {
         spins = 0;
         yields = 0;
+        parkPeriodNs = minParkPeriodNs;
         state = NOT_IDLE;
+    }
+
+    public String toString()
+    {
+        return "BackoffIdleStrategy{" +
+            "maxSpins=" + maxSpins +
+            ", maxYields=" + maxYields +
+            ", minParkPeriodNs=" + minParkPeriodNs +
+            ", maxParkPeriodNs=" + maxParkPeriodNs +
+            '}';
     }
 }
 

@@ -28,7 +28,7 @@ public class ControllableIdleStrategy implements IdleStrategy
     public static final int YIELD = 3;
     public static final int PARK = 4;
 
-    private static final long PARK_PERIOD_NANOSECONDS = 100;
+    private static final long PARK_PERIOD_NANOSECONDS = 1000;
 
     private final StatusIndicatorReader statusIndicatorReader;
 
@@ -85,5 +85,12 @@ public class ControllableIdleStrategy implements IdleStrategy
      */
     public void reset()
     {
+    }
+
+    public String toString()
+    {
+        return "ControllableIdleStrategy{" +
+            "statusIndicatorReader=" + statusIndicatorReader +
+            '}';
     }
 }

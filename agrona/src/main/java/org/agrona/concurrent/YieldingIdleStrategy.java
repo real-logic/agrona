@@ -38,4 +38,9 @@ public final class YieldingIdleStrategy implements IdleStrategy
     public void reset()
     {
     }
+
+    public String toString()
+    {
+        return "YieldingIdleStrategy{}";
+    }
 }

@@ -42,4 +42,9 @@ public final class NoOpIdleStrategy implements IdleStrategy
     public void reset()
     {
     }
+
+    public String toString()
+    {
+        return "NoOpIdleStrategy{}";
+    }
 }
