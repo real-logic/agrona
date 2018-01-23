@@ -202,6 +202,44 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     */
+    public boolean proposeMax(final long proposedValue)
+    {
+        boolean updated = false;
+
+        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
+        {
+            UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, proposedValue);
+            updated = true;
+        }
+
+        return updated;
+    }
+
+    /**
+     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     */
+    public boolean proposeMaxOrdered(final long proposedValue)
+    {
+        boolean updated = false;
+
+        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
+        {
+            UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, proposedValue);
+            updated = true;
+        }
+
+        return updated;
+    }
+
+    /**
      * Free the counter slot for reuse.
      */
     public void close()
