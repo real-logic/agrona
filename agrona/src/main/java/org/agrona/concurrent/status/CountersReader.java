@@ -96,6 +96,11 @@ public class CountersReader
     }
 
     /**
+     * Can be used to representing a null counter id when passed as a argument.
+     */
+    public static final int NULL_COUNTER_ID = -1;
+
+    /**
      * Record has not been used.
      */
     public static final int RECORD_UNUSED = 0;
