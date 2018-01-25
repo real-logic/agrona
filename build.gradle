@@ -89,6 +89,12 @@ def projectPom = {
     }
 }
 
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
 jar.enabled = false
 
 subprojects {
@@ -100,10 +106,6 @@ subprojects {
 
     group = agronaGroup
     version = agronaVersion
-
-    repositories {
-        mavenCentral()
-    }
 
     jar.enabled = true
 
@@ -204,9 +206,9 @@ project(':agrona') {
         from sourceSets.generated.output
 
         manifest.attributes(
-                'Implementation-Title': 'Agrona',
-                'Implementation-Version': "${agronaVersion}",
-                'Implementation-Vendor': 'Real Logic Limited'
+            'Implementation-Title': 'Agrona',
+            'Implementation-Version': "${agronaVersion}",
+            'Implementation-Vendor': 'Real Logic Limited'
         )
     }
 
@@ -238,13 +240,13 @@ project(':agrona-agent') {
 
     jar {
         manifest.attributes(
-                'Implementation-Title': 'Agrona',
-                'Implementation-Version': "${agronaVersion}",
-                'Implementation-Vendor': 'Real Logic Limited',
-                'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                'Can-Redefine-Classes': 'true',
-                'Can-Retransform-Classes': 'true')
+            'Implementation-Title': 'Agrona',
+            'Implementation-Version': "${agronaVersion}",
+            'Implementation-Vendor': 'Real Logic Limited',
+            'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
+            'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
+            'Can-Redefine-Classes': 'true',
+            'Can-Retransform-Classes': 'true')
     }
 
     shadowJar {
@@ -253,13 +255,13 @@ project(':agrona-agent') {
         }
 
         manifest.attributes(
-                'Implementation-Title': 'Agrona',
-                'Implementation-Version': "${agronaVersion}",
-                'Implementation-Vendor': 'Real Logic Limited',
-                'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
-                'Can-Redefine-Classes': 'true',
-                'Can-Retransform-Classes': 'true')
+            'Implementation-Title': 'Agrona',
+            'Implementation-Version': "${agronaVersion}",
+            'Implementation-Vendor': 'Real Logic Limited',
+            'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
+            'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
+            'Can-Redefine-Classes': 'true',
+            'Can-Retransform-Classes': 'true')
     }
 
     uploadArchives {
@@ -330,6 +332,6 @@ task uploadToMavenCentral {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4'
+    gradleVersion = '4.5'
     distributionType = 'ALL'
 }
