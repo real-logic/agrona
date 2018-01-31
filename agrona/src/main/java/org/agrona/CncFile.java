@@ -27,6 +27,8 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Interface for managing Command-n-Control files.
+ *
+ * The version and timestamp fields are assumed to be longs in size.
  */
 public class CncFile implements AutoCloseable
 {
