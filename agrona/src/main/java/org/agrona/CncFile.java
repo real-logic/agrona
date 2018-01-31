@@ -98,20 +98,18 @@ public class CncFile implements AutoCloseable
      * If mappedCncBuffer is not null, then it will be unmapped upon {@link #close()}.
      *
      * @param mappedCncBuffer      for the CnC fields
-     * @param cncBuffer            for the CnC fields
      * @param versionFieldOffset   for the version field
      * @param timestampFieldOffset for the timestamp field
      */
     public CncFile(
         final MappedByteBuffer mappedCncBuffer,
-        final UnsafeBuffer cncBuffer,
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
         this.cncDir = null;
         this.cncFile = null;
         this.mappedCncBuffer = mappedCncBuffer;
-        this.cncBuffer = cncBuffer;
+        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
@@ -128,7 +126,12 @@ public class CncFile implements AutoCloseable
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
-        this(null, cncBuffer, versionFieldOffset, timestampFieldOffset);
+        this.cncDir = null;
+        this.cncFile = null;
+        this.mappedCncBuffer = null;
+        this.cncBuffer = cncBuffer;
+        this.versionFieldOffset = versionFieldOffset;
+        this.timestampFieldOffset = timestampFieldOffset;
     }
 
     public boolean isClosed()
