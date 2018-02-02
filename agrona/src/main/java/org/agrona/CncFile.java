@@ -21,14 +21,16 @@ import org.agrona.concurrent.UnsafeBuffer;
 import java.io.File;
 import java.nio.MappedByteBuffer;
 import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import java.util.function.IntConsumer;
 
+import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Interface for managing Command-n-Control files.
  *
- * The version and timestamp fields are assumed to be longs in size.
+ * The assumptions are: (1) the version field is an int in size, (2) the timestamp field is a long in size,
+ * and (3) the version field comes before the timestamp field.
  */
 public class CncFile implements AutoCloseable
 {
@@ -69,9 +71,11 @@ public class CncFile implements AutoCloseable
         final int totalFileLength,
         final long timeoutMs,
         final EpochClock epochClock,
-        final LongConsumer versionCheck,
+        final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
+        validateOffsets(versionFieldOffset, timestampFieldOffset);
+
         ensureDirectoryExists(
             directory,
             filename,
@@ -93,6 +97,41 @@ public class CncFile implements AutoCloseable
     }
 
     /**
+     * Map a pre-existing CnC file if one present and is active.
+     *
+     * Total length of CnC file will be mapped until {@link #close()} is called.
+     *
+     * @param directory             for the CnC file
+     * @param filename              of the CnC file
+     * @param versionFieldOffset    to use for version field access
+     * @param timestampFieldOffset  to use for timestamp field access
+     * @param timeoutMs             for the activity check (in milliseconds) and for how long to wait for file to exist
+     * @param epochClock            to use for time checks
+     * @param versionCheck          to use for existing CnC file and version field
+     * @param logger                to use to signal progress or null
+     */
+    public CncFile(
+        final File directory,
+        final String filename,
+        final int versionFieldOffset,
+        final int timestampFieldOffset,
+        final long timeoutMs,
+        final EpochClock epochClock,
+        final IntConsumer versionCheck,
+        final Consumer<String> logger)
+    {
+        validateOffsets(versionFieldOffset, timestampFieldOffset);
+
+        this.cncDir = directory;
+        this.cncFile = new File(directory, filename);
+        this.mappedCncBuffer = mapExistingCncFile(
+            cncFile, versionFieldOffset, timestampFieldOffset, timeoutMs, epochClock, versionCheck, logger);
+        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.versionFieldOffset = versionFieldOffset;
+        this.timestampFieldOffset = timestampFieldOffset;
+    }
+
+    /**
      * Manage a CnC file given a mapped file and offsets of version and timestamp.
      *
      * If mappedCncBuffer is not null, then it will be unmapped upon {@link #close()}.
@@ -106,6 +145,8 @@ public class CncFile implements AutoCloseable
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
+        validateOffsets(versionFieldOffset, timestampFieldOffset);
+
         this.cncDir = null;
         this.cncFile = null;
         this.mappedCncBuffer = mappedCncBuffer;
@@ -126,6 +167,8 @@ public class CncFile implements AutoCloseable
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
+        validateOffsets(versionFieldOffset, timestampFieldOffset);
+
         this.cncDir = null;
         this.cncFile = null;
         this.mappedCncBuffer = null;
@@ -152,19 +195,19 @@ public class CncFile implements AutoCloseable
         }
     }
 
-    public void signalCncReady(final long version)
+    public void signalCncReady(final int version)
     {
-        cncBuffer.putLongOrdered(versionFieldOffset, version);
+        cncBuffer.putIntOrdered(versionFieldOffset, version);
     }
 
-    public long versionVolatile()
+    public int versionVolatile()
     {
-        return cncBuffer.getLongVolatile(versionFieldOffset);
+        return cncBuffer.getIntVolatile(versionFieldOffset);
     }
 
     public long versionWeak()
     {
-        return cncBuffer.getLong(versionFieldOffset);
+        return cncBuffer.getInt(versionFieldOffset);
     }
 
     public void timestampOrdered(final long timestamp)
@@ -211,7 +254,7 @@ public class CncFile implements AutoCloseable
         final int timestampFieldOffset,
         final long timeoutMs,
         final EpochClock epochClock,
-        final LongConsumer versionCheck,
+        final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
         final File cncFile =  new File(directory, filename);
@@ -256,6 +299,73 @@ public class CncFile implements AutoCloseable
         IoUtil.ensureDirectoryExists(directory, directory.toString());
     }
 
+    public static MappedByteBuffer mapExistingCncFile(
+        final File cncFile,
+        final int versionFieldOffset,
+        final int timestampFieldOffset,
+        final long timeoutMs,
+        final EpochClock epochClock,
+        final IntConsumer versionCheck,
+        final Consumer<String> logger)
+    {
+        final long startTimeMs = epochClock.time();
+
+        while (true)
+        {
+            while (!cncFile.exists())
+            {
+                if (epochClock.time() > (startTimeMs + timeoutMs))
+                {
+                    throw new IllegalStateException("CnC file not found: " + cncFile.getName());
+                }
+
+                sleep(16);
+            }
+
+            final MappedByteBuffer cncByteBuffer = mapExistingFile(cncFile, logger);
+            final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
+
+            int cncVersion;
+            while (0 == (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
+            {
+                if (epochClock.time() > (startTimeMs + timeoutMs))
+                {
+                    throw new IllegalStateException("CnC file is created but not initialised.");
+                }
+
+                sleep(1);
+            }
+
+            versionCheck.accept(cncVersion);
+
+            while (0 == cncBuffer.getLongVolatile(timestampFieldOffset))
+            {
+                if (epochClock.time() > (startTimeMs + timeoutMs))
+                {
+                    throw new IllegalStateException("No non-0 timestamp detected.");
+                }
+
+                sleep(1);
+            }
+
+            final long timeMs = epochClock.time();
+            if (cncBuffer.getLongVolatile(timestampFieldOffset) < (timeMs - timeoutMs))
+            {
+                if (timeMs > (startTimeMs + timeoutMs))
+                {
+                    throw new IllegalStateException("No non-0 timestamp detected.");
+                }
+
+                IoUtil.unmap(cncByteBuffer);
+
+                sleep(100);
+                continue;
+            }
+
+            return cncByteBuffer;
+        }
+    }
+
     public static MappedByteBuffer mapExistingFile(
         final File cncFile, final Consumer<String> logger, final long offset, final long length)
     {
@@ -298,7 +408,7 @@ public class CncFile implements AutoCloseable
         final long timeoutMs,
         final int versionFieldOffset,
         final int timestampFieldOffset,
-        final LongConsumer versionCheck,
+        final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
         if (null == cncByteBuffer)
@@ -309,8 +419,8 @@ public class CncFile implements AutoCloseable
         final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
 
         final long startTimeMs = epochClock.time();
-        long cncVersion;
-        while (0 == (cncVersion = cncBuffer.getLongVolatile(versionFieldOffset)))
+        int cncVersion;
+        while (0 == (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
         {
             if (epochClock.time() > (startTimeMs + timeoutMs))
             {
@@ -332,6 +442,14 @@ public class CncFile implements AutoCloseable
         }
 
         return timestampAge <= timeoutMs;
+    }
+
+    private static void validateOffsets(final int versionFieldOffset, final int timestampFieldOffset)
+    {
+        if ((versionFieldOffset + SIZE_OF_INT) > timestampFieldOffset)
+        {
+            throw new IllegalArgumentException("version field must precede the timestamp field");
+        }
     }
 
     static void sleep(final long durationMs)
