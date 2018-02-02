@@ -205,7 +205,7 @@ public class CncFile implements AutoCloseable
         return cncBuffer.getIntVolatile(versionFieldOffset);
     }
 
-    public long versionWeak()
+    public int versionWeak()
     {
         return cncBuffer.getInt(versionFieldOffset);
     }
