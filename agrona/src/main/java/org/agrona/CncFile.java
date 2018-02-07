@@ -240,6 +240,11 @@ public class CncFile implements AutoCloseable
         return cncFile;
     }
 
+    public MappedByteBuffer mappedByteBuffer()
+    {
+        return mappedCncBuffer;
+    }
+
     public UnsafeBuffer buffer()
     {
         return cncBuffer;
