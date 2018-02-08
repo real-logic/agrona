@@ -20,9 +20,11 @@ import org.agrona.concurrent.UnsafeBuffer;
 
 import java.io.File;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+import static java.nio.file.StandardOpenOption.*;
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
@@ -45,7 +47,8 @@ public class CncFile implements AutoCloseable
     private volatile boolean isClosed = false;
 
     /**
-     * Create a CnC directory and file if none present. Checking if an active CnC file exists and is active.
+     * Create a CnC directory and file if none present. Checking if an active CnC file exists and is active. Old CnC
+     * file is deleted and recreated if not active.
      *
      * Total length of CnC file will be mapped until {@link #close()} is called.
      *
@@ -91,6 +94,51 @@ public class CncFile implements AutoCloseable
         this.cncDir = directory;
         this.cncFile = new File(directory, filename);
         this.mappedCncBuffer = mapNewFile(cncFile, totalFileLength);
+        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.versionFieldOffset = versionFieldOffset;
+        this.timestampFieldOffset = timestampFieldOffset;
+    }
+
+    /**
+     * Create a CnC file if none present. Checking if an active CnC file exists and is active. Existing CnC file
+     * is used if not active.
+     *
+     * Total length of CnC file will be mapped until {@link #close()} is called.
+     *
+     * @param cncFile               to use
+     * @param versionFieldOffset    to use for version field access
+     * @param timestampFieldOffset  to use for timestamp field access
+     * @param totalFileLength       to allocate when creating new CnC file
+     * @param timeoutMs             for the activity check (in milliseconds)
+     * @param epochClock            to use for time checks
+     * @param versionCheck          to use for existing CnC file and version field
+     * @param logger                to use to signal progress or null
+     */
+
+    public CncFile(
+        final File cncFile,
+        final int versionFieldOffset,
+        final int timestampFieldOffset,
+        final int totalFileLength,
+        final long timeoutMs,
+        final EpochClock epochClock,
+        final IntConsumer versionCheck,
+        final Consumer<String> logger)
+    {
+        validateOffsets(versionFieldOffset, timestampFieldOffset);
+
+        this.cncDir = cncFile.getParentFile();
+        this.cncFile = cncFile;
+        this.mappedCncBuffer = mapNewOrExistingCncFile(
+            cncFile,
+            versionFieldOffset,
+            timestampFieldOffset,
+            totalFileLength,
+            timeoutMs,
+            epochClock,
+            versionCheck,
+            logger);
+
         this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
@@ -290,7 +338,6 @@ public class CncFile implements AutoCloseable
                     {
                         throw new IllegalStateException("Active CnC file detected");
                     }
-
                 }
                 finally
                 {
@@ -369,6 +416,62 @@ public class CncFile implements AutoCloseable
 
             return cncByteBuffer;
         }
+    }
+
+    public static MappedByteBuffer mapNewOrExistingCncFile(
+        final File cncFile,
+        final int versionFieldOffset,
+        final int timestampFieldOffset,
+        final long totalFileLength,
+        final long timeoutMs,
+        final EpochClock epochClock,
+        final IntConsumer versionCheck,
+        final Consumer<String> logger)
+    {
+        MappedByteBuffer cncByteBuffer = null;
+
+        try (FileChannel channel = FileChannel.open(cncFile.toPath(), CREATE, READ, WRITE, SPARSE))
+        {
+            cncByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, totalFileLength);
+            final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
+            final int cncVersion;
+
+            // assume if version not 0 that file existed
+            if (0 != (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
+            {
+                if (null != logger)
+                {
+                    logger.accept("INFO: CnC file exists (non-0 version): " + cncFile);
+                }
+
+                versionCheck.accept(cncVersion);
+
+                final long timestamp = cncBuffer.getLongVolatile(timestampFieldOffset);
+                final long now = epochClock.time();
+                final long timestampAge = now - timestamp;
+
+                if (null != logger)
+                {
+                    logger.accept("INFO: heartbeat is (ms): " + timestampAge);
+                }
+
+                if (timestampAge < timeoutMs)
+                {
+                    throw new IllegalStateException("Active CnC file detected");
+                }
+            }
+        }
+        catch (final Exception ex)
+        {
+            if (null != cncByteBuffer)
+            {
+                IoUtil.unmap(cncByteBuffer);
+            }
+
+            throw new RuntimeException(ex);
+        }
+
+        return cncByteBuffer;
     }
 
     public static MappedByteBuffer mapExistingFile(
