@@ -106,6 +106,7 @@ public class CncFile implements AutoCloseable
      * Total length of CnC file will be mapped until {@link #close()} is called.
      *
      * @param cncFile               to use
+     * @param shouldPreExist        or not
      * @param versionFieldOffset    to use for version field access
      * @param timestampFieldOffset  to use for timestamp field access
      * @param totalFileLength       to allocate when creating new CnC file
@@ -117,6 +118,7 @@ public class CncFile implements AutoCloseable
 
     public CncFile(
         final File cncFile,
+        final boolean shouldPreExist,
         final int versionFieldOffset,
         final int timestampFieldOffset,
         final int totalFileLength,
@@ -131,6 +133,7 @@ public class CncFile implements AutoCloseable
         this.cncFile = cncFile;
         this.mappedCncBuffer = mapNewOrExistingCncFile(
             cncFile,
+            shouldPreExist,
             versionFieldOffset,
             timestampFieldOffset,
             totalFileLength,
@@ -420,6 +423,7 @@ public class CncFile implements AutoCloseable
 
     public static MappedByteBuffer mapNewOrExistingCncFile(
         final File cncFile,
+        final boolean shouldPreExist,
         final int versionFieldOffset,
         final int timestampFieldOffset,
         final long totalFileLength,
@@ -434,14 +438,14 @@ public class CncFile implements AutoCloseable
         {
             cncByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, totalFileLength);
             final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
-            final int cncVersion;
 
-            // assume if version not 0 that file existed
-            if (0 != (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
+            if (shouldPreExist)
             {
+                final int cncVersion = cncBuffer.getIntVolatile(versionFieldOffset);
+
                 if (null != logger)
                 {
-                    logger.accept("INFO: CnC file exists (non-0 version): " + cncFile);
+                    logger.accept("INFO: CnC file exists: " + cncFile);
                 }
 
                 versionCheck.accept(cncVersion);
