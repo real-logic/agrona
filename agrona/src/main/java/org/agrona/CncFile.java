@@ -403,20 +403,6 @@ public class CncFile implements AutoCloseable
                 sleep(1);
             }
 
-            final long timeMs = epochClock.time();
-            if (cncBuffer.getLongVolatile(timestampFieldOffset) < (timeMs - timeoutMs))
-            {
-                if (timeMs > (startTimeMs + timeoutMs))
-                {
-                    throw new IllegalStateException("No non-0 timestamp detected.");
-                }
-
-                IoUtil.unmap(cncByteBuffer);
-
-                sleep(100);
-                continue;
-            }
-
             return cncByteBuffer;
         }
     }
