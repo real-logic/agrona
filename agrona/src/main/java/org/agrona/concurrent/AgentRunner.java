@@ -150,7 +150,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
             catch (final Throwable throwable)
             {
-                handleError(throwable);
+                errorHandler.onError(throwable);
                 isRunning = false;
             }
 
@@ -168,7 +168,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
             catch (final Throwable throwable)
             {
-                handleError(throwable);
+                errorHandler.onError(throwable);
             }
         }
         finally
@@ -194,7 +194,7 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
             catch (final Throwable throwable)
             {
-                handleError(throwable);
+                errorHandler.onError(throwable);
             }
         }
         else if (TOMBSTONE != thread)

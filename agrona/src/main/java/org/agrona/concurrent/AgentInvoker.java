@@ -119,7 +119,7 @@ public class AgentInvoker implements AutoCloseable
         }
         catch (final Throwable throwable)
         {
-            handleError(throwable);
+            errorHandler.onError(throwable);
             close();
         }
     }
@@ -181,7 +181,7 @@ public class AgentInvoker implements AutoCloseable
         }
         catch (final Throwable throwable)
         {
-            handleError(throwable);
+            errorHandler.onError(throwable);
         }
     }
 
