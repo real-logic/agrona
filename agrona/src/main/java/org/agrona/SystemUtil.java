@@ -37,7 +37,7 @@ public class SystemUtil
      * PID value if a process id could not be determined. This value should be equal to a kernel only process
      * id for the platform so that it does not indicate a real process id.
      */
-    public static final int PID_COULD_NOT_BE_FOUND = 0;
+    public static final long PID_NOT_FOUND = 0;
 
     private static final long MAX_G_VALUE = 8589934591L;
     private static final long MAX_M_VALUE = 8796093022207L;
@@ -331,28 +331,28 @@ public class SystemUtil
     /**
      * Return the current process id from the OS.
      *
-     * @return current process id or {@link #PID_COULD_NOT_BE_FOUND} if PID was not able to be found.
-     * @see #PID_COULD_NOT_BE_FOUND
+     * @return current process id or {@link #PID_NOT_FOUND} if PID was not able to be found.
+     * @see #PID_NOT_FOUND
      */
-    public static int getpid()
+    public static long getPid()
     {
         try
         {
             // TODO: if Java 9, then use ProcessHandle.
-            final String pidPorpertyValue = System.getProperty(SUN_PID_PROP_NAME);
+            final String pidPropertyValue = System.getProperty(SUN_PID_PROP_NAME);
 
-            if (null != pidPorpertyValue)
+            if (null != pidPropertyValue)
             {
-                return Integer.parseInt(pidPorpertyValue);
+                return Long.parseLong(pidPropertyValue);
             }
 
             final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
 
-            return Integer.parseInt(jvmName.split("@")[0]);
+            return Long.parseLong(jvmName.split("@")[0]);
         }
         catch (final Throwable ex)
         {
-            return PID_COULD_NOT_BE_FOUND;
+            return PID_NOT_FOUND;
         }
     }
 }
