@@ -34,7 +34,8 @@ public class AgentRunner implements Runnable, AutoCloseable
      * Indicates that the runner is being closed.
      */
     public static final Thread TOMBSTONE = new Thread();
-    private static final int RETRY_CLOSE_TIMEOUT_MS = 3000;
+
+    private static final int RETRY_CLOSE_TIMEOUT_MS = 5000;
 
     private volatile boolean isRunning = true;
     private volatile boolean isClosed = false;
