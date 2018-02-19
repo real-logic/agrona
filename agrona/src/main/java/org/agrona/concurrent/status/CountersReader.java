@@ -101,6 +101,13 @@ public class CountersReader
     @FunctionalInterface
     public interface CounterConsumer
     {
+        /**
+         * Accept the value for a counter.
+         *
+         * @param value     of the counter.
+         * @param counterId of the counter
+         * @param label     for the counter.
+         */
         void accept(long value, int counterId, String label);
     }
 
