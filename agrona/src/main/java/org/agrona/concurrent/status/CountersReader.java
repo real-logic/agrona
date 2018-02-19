@@ -96,6 +96,15 @@ public class CountersReader
     }
 
     /**
+     * Callback function for consuming basic counter details and value.
+     */
+    @FunctionalInterface
+    public interface CounterConsumer
+    {
+        void accept(long value, int counterId, String label);
+    }
+
+    /**
      * Can be used to representing a null counter id when passed as a argument.
      */
     public static final int NULL_COUNTER_ID = -1;
@@ -276,8 +285,33 @@ public class CountersReader
 
             if (RECORD_ALLOCATED == recordStatus)
             {
-                final String label = labelValue(i);
-                consumer.accept(counterId, label);
+                consumer.accept(counterId, labelValue(i));
+            }
+            else if (RECORD_UNUSED == recordStatus)
+            {
+                break;
+            }
+
+            counterId++;
+        }
+    }
+
+    /**
+     * Iterate over the counters and provide the value and basic metadata.
+     *
+     * @param consumer for each allocated counter.
+     */
+    public void forEach(final CounterConsumer consumer)
+    {
+        int counterId = 0;
+
+        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
+        {
+            final int recordStatus = metaDataBuffer.getIntVolatile(i);
+
+            if (RECORD_ALLOCATED == recordStatus)
+            {
+                consumer.accept(valuesBuffer.getLongVolatile(counterOffset(counterId)), counterId, labelValue(i));
             }
             else if (RECORD_UNUSED == recordStatus)
             {
