@@ -29,42 +29,42 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
- * Interface for managing Command-n-Control files.
+ * A {@link MarkFile} is used to mark the presence of a running component and to track liveness.
  *
  * The assumptions are: (1) the version field is an int in size, (2) the timestamp field is a long in size,
  * and (3) the version field comes before the timestamp field.
  */
-public class CncFile implements AutoCloseable
+public class MarkFile implements AutoCloseable
 {
     private final int versionFieldOffset;
     private final int timestampFieldOffset;
 
-    private final File cncDir;
-    private final File cncFile;
-    private final MappedByteBuffer mappedCncBuffer;
-    private final UnsafeBuffer cncBuffer;
+    private final File parentDir;
+    private final File markFile;
+    private final MappedByteBuffer mappedBuffer;
+    private final UnsafeBuffer buffer;
 
     private volatile boolean isClosed = false;
 
     /**
-     * Create a CnC directory and file if none present. Checking if an active CnC file exists and is active. Old CnC
-     * file is deleted and recreated if not active.
+     * Create a directory and mark file if none present. Checking if an active Mark file exists and is active.
+     * Old Mark file is deleted and recreated if not active.
      *
-     * Total length of CnC file will be mapped until {@link #close()} is called.
+     * Total length of Mark file will be mapped until {@link #close()} is called.
      *
-     * @param directory             for the CnC file
-     * @param filename              of the CnC file
+     * @param directory             for the Mark file
+     * @param filename              of the Mark file
      * @param warnIfDirectoryExists for logging purposes
      * @param dirDeleteOnStart      if desired
      * @param versionFieldOffset    to use for version field access
      * @param timestampFieldOffset  to use for timestamp field access
-     * @param totalFileLength       to allocate when creating new CnC file
+     * @param totalFileLength       to allocate when creating new Mark file
      * @param timeoutMs             for the activity check (in milliseconds)
      * @param epochClock            to use for time checks
-     * @param versionCheck          to use for existing CnC file and version field
+     * @param versionCheck          to use for existing Mark file and version field
      * @param logger                to use to signal progress or null
      */
-    public CncFile(
+    public MarkFile(
         final File directory,
         final String filename,
         final boolean warnIfDirectoryExists,
@@ -91,33 +91,33 @@ public class CncFile implements AutoCloseable
             versionCheck,
             logger);
 
-        this.cncDir = directory;
-        this.cncFile = new File(directory, filename);
-        this.mappedCncBuffer = mapNewFile(cncFile, totalFileLength);
-        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.parentDir = directory;
+        this.markFile = new File(directory, filename);
+        this.mappedBuffer = mapNewFile(markFile, totalFileLength);
+        this.buffer = new UnsafeBuffer(mappedBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
 
     /**
-     * Create a CnC file if none present. Checking if an active CnC file exists and is active. Existing CnC file
-     * is used if not active.
+     * Create a {@link MarkFile} if none present. Checking if an active {@link MarkFile} exists and is active.
+     * Existing {@link MarkFile} is used if not active.
      *
-     * Total length of CnC file will be mapped until {@link #close()} is called.
+     * Total length of Mark file will be mapped until {@link #close()} is called.
      *
-     * @param cncFile               to use
-     * @param shouldPreExist        or not
-     * @param versionFieldOffset    to use for version field access
-     * @param timestampFieldOffset  to use for timestamp field access
-     * @param totalFileLength       to allocate when creating new CnC file
-     * @param timeoutMs             for the activity check (in milliseconds)
-     * @param epochClock            to use for time checks
-     * @param versionCheck          to use for existing CnC file and version field
-     * @param logger                to use to signal progress or null
+     * @param markFile             to use
+     * @param shouldPreExist       or not
+     * @param versionFieldOffset   to use for version field access
+     * @param timestampFieldOffset to use for timestamp field access
+     * @param totalFileLength      to allocate when creating new {@link MarkFile}
+     * @param timeoutMs            for the activity check (in milliseconds)
+     * @param epochClock           to use for time checks
+     * @param versionCheck         to use for existing {@link MarkFile} and version field
+     * @param logger               to use to signal progress or null
      */
 
-    public CncFile(
-        final File cncFile,
+    public MarkFile(
+        final File markFile,
         final boolean shouldPreExist,
         final int versionFieldOffset,
         final int timestampFieldOffset,
@@ -129,10 +129,10 @@ public class CncFile implements AutoCloseable
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 
-        this.cncDir = cncFile.getParentFile();
-        this.cncFile = cncFile;
-        this.mappedCncBuffer = mapNewOrExistingCncFile(
-            cncFile,
+        this.parentDir = markFile.getParentFile();
+        this.markFile = markFile;
+        this.mappedBuffer = mapNewOrExistingMarkFile(
+            markFile,
             shouldPreExist,
             versionFieldOffset,
             timestampFieldOffset,
@@ -142,26 +142,26 @@ public class CncFile implements AutoCloseable
             versionCheck,
             logger);
 
-        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.buffer = new UnsafeBuffer(mappedBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
 
     /**
-     * Map a pre-existing CnC file if one present and is active.
+     * Map a pre-existing {@link MarkFile} if one present and is active.
      *
-     * Total length of CnC file will be mapped until {@link #close()} is called.
+     * Total length of {@link MarkFile}will be mapped until {@link #close()} is called.
      *
-     * @param directory             for the CnC file
-     * @param filename              of the CnC file
-     * @param versionFieldOffset    to use for version field access
-     * @param timestampFieldOffset  to use for timestamp field access
-     * @param timeoutMs             for the activity check (in milliseconds) and for how long to wait for file to exist
-     * @param epochClock            to use for time checks
-     * @param versionCheck          to use for existing CnC file and version field
-     * @param logger                to use to signal progress or null
+     * @param directory            for the {@link MarkFile} file
+     * @param filename             of the {@link MarkFile} file
+     * @param versionFieldOffset   to use for version field access
+     * @param timestampFieldOffset to use for timestamp field access
+     * @param timeoutMs            for the activity check (in milliseconds) and for how long to wait for file to exist
+     * @param epochClock           to use for time checks
+     * @param versionCheck         to use for existing {@link MarkFile} file and version field
+     * @param logger               to use to signal progress or null
      */
-    public CncFile(
+    public MarkFile(
         final File directory,
         final String filename,
         final int versionFieldOffset,
@@ -173,57 +173,57 @@ public class CncFile implements AutoCloseable
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 
-        this.cncDir = directory;
-        this.cncFile = new File(directory, filename);
-        this.mappedCncBuffer = mapExistingCncFile(
-            cncFile, versionFieldOffset, timestampFieldOffset, timeoutMs, epochClock, versionCheck, logger);
-        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.parentDir = directory;
+        this.markFile = new File(directory, filename);
+        this.mappedBuffer = mapExistingMarkFile(
+            markFile, versionFieldOffset, timestampFieldOffset, timeoutMs, epochClock, versionCheck, logger);
+        this.buffer = new UnsafeBuffer(mappedBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
 
     /**
-     * Manage a CnC file given a mapped file and offsets of version and timestamp.
+     * Manage a {@link MarkFile} given a mapped file and offsets of version and timestamp.
      *
-     * If mappedCncBuffer is not null, then it will be unmapped upon {@link #close()}.
+     * If mappedBuffer is not null, then it will be unmapped upon {@link #close()}.
      *
-     * @param mappedCncBuffer      for the CnC fields
+     * @param mappedBuffer         for the {@link MarkFile} fields
      * @param versionFieldOffset   for the version field
      * @param timestampFieldOffset for the timestamp field
      */
-    public CncFile(
-        final MappedByteBuffer mappedCncBuffer,
+    public MarkFile(
+        final MappedByteBuffer mappedBuffer,
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 
-        this.cncDir = null;
-        this.cncFile = null;
-        this.mappedCncBuffer = mappedCncBuffer;
-        this.cncBuffer = new UnsafeBuffer(mappedCncBuffer);
+        this.parentDir = null;
+        this.markFile = null;
+        this.mappedBuffer = mappedBuffer;
+        this.buffer = new UnsafeBuffer(mappedBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
 
     /**
-     * Manage a CnC file given a buffer and offsets of version and timestamp.
+     * Manage a {@link MarkFile} given a buffer and offsets of version and timestamp.
      *
-     * @param cncBuffer            for the CnC fields
+     * @param buffer               for the {@link MarkFile} fields
      * @param versionFieldOffset   for the version field
      * @param timestampFieldOffset for the timestamp field
      */
-    public CncFile(
-        final UnsafeBuffer cncBuffer,
+    public MarkFile(
+        final UnsafeBuffer buffer,
         final int versionFieldOffset,
         final int timestampFieldOffset)
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 
-        this.cncDir = null;
-        this.cncFile = null;
-        this.mappedCncBuffer = null;
-        this.cncBuffer = cncBuffer;
+        this.parentDir = null;
+        this.markFile = null;
+        this.mappedBuffer = null;
+        this.buffer = buffer;
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
     }
@@ -237,68 +237,68 @@ public class CncFile implements AutoCloseable
     {
         if (!isClosed)
         {
-            if (null != mappedCncBuffer)
+            if (null != mappedBuffer)
             {
-                IoUtil.unmap(mappedCncBuffer);
+                IoUtil.unmap(mappedBuffer);
             }
 
             isClosed = true;
         }
     }
 
-    public void signalCncReady(final int version)
+    public void signalReady(final int version)
     {
-        cncBuffer.putIntOrdered(versionFieldOffset, version);
+        buffer.putIntOrdered(versionFieldOffset, version);
     }
 
     public int versionVolatile()
     {
-        return cncBuffer.getIntVolatile(versionFieldOffset);
+        return buffer.getIntVolatile(versionFieldOffset);
     }
 
     public int versionWeak()
     {
-        return cncBuffer.getInt(versionFieldOffset);
+        return buffer.getInt(versionFieldOffset);
     }
 
     public void timestampOrdered(final long timestamp)
     {
-        cncBuffer.putLongOrdered(timestampFieldOffset, timestamp);
+        buffer.putLongOrdered(timestampFieldOffset, timestamp);
     }
 
     public long timestampVolatile()
     {
-        return cncBuffer.getLongVolatile(timestampFieldOffset);
+        return buffer.getLongVolatile(timestampFieldOffset);
     }
 
     public long timestampWeak()
     {
-        return cncBuffer.getLong(timestampFieldOffset);
+        return buffer.getLong(timestampFieldOffset);
     }
 
     public void deleteDirectory(final boolean ignoreFailures)
     {
-        IoUtil.delete(cncDir, ignoreFailures);
+        IoUtil.delete(parentDir, ignoreFailures);
     }
 
-    public File cncDirectory()
+    public File parentDirectory()
     {
-        return cncDir;
+        return parentDir;
     }
 
-    public File cncFile()
+    public File markFile()
     {
-        return cncFile;
+        return markFile;
     }
 
     public MappedByteBuffer mappedByteBuffer()
     {
-        return mappedCncBuffer;
+        return mappedBuffer;
     }
 
     public UnsafeBuffer buffer()
     {
-        return cncBuffer;
+        return buffer;
     }
 
     public static void ensureDirectoryExists(
@@ -313,7 +313,7 @@ public class CncFile implements AutoCloseable
         final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
-        final File cncFile =  new File(directory, filename);
+        final File markFile = new File(directory, filename);
 
         if (directory.isDirectory())
         {
@@ -326,12 +326,12 @@ public class CncFile implements AutoCloseable
             {
                 final int offset = Math.min(versionFieldOffset, timestampFieldOffset);
                 final int length = Math.max(versionFieldOffset, timestampFieldOffset) + SIZE_OF_LONG - offset;
-                final MappedByteBuffer cncByteBuffer = mapExistingFile(cncFile, logger, offset, length);
+                final MappedByteBuffer byteBuffer = mapExistingFile(markFile, logger, offset, length);
 
                 try
                 {
                     if (isActive(
-                        cncByteBuffer,
+                        byteBuffer,
                         epochClock,
                         timeoutMs,
                         versionFieldOffset,
@@ -339,12 +339,12 @@ public class CncFile implements AutoCloseable
                         versionCheck,
                         logger))
                     {
-                        throw new IllegalStateException("Active CnC file detected");
+                        throw new IllegalStateException("Active Mark file detected");
                     }
                 }
                 finally
                 {
-                    IoUtil.unmap(cncByteBuffer);
+                    IoUtil.unmap(byteBuffer);
                 }
             }
 
@@ -354,8 +354,8 @@ public class CncFile implements AutoCloseable
         IoUtil.ensureDirectoryExists(directory, directory.toString());
     }
 
-    public static MappedByteBuffer mapExistingCncFile(
-        final File cncFile,
+    public static MappedByteBuffer mapExistingMarkFile(
+        final File markFile,
         final int versionFieldOffset,
         final int timestampFieldOffset,
         final long timeoutMs,
@@ -365,50 +365,47 @@ public class CncFile implements AutoCloseable
     {
         final long startTimeMs = epochClock.time();
 
-        while (true)
+        while (!markFile.exists())
         {
-            while (!cncFile.exists())
+            if (epochClock.time() > (startTimeMs + timeoutMs))
             {
-                if (epochClock.time() > (startTimeMs + timeoutMs))
-                {
-                    throw new IllegalStateException("CnC file not found: " + cncFile.getName());
-                }
-
-                sleep(16);
+                throw new IllegalStateException("Mark file not found: " + markFile.getName());
             }
 
-            final MappedByteBuffer cncByteBuffer = mapExistingFile(cncFile, logger);
-            final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
-
-            int cncVersion;
-            while (0 == (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
-            {
-                if (epochClock.time() > (startTimeMs + timeoutMs))
-                {
-                    throw new IllegalStateException("CnC file is created but not initialised.");
-                }
-
-                sleep(1);
-            }
-
-            versionCheck.accept(cncVersion);
-
-            while (0 == cncBuffer.getLongVolatile(timestampFieldOffset))
-            {
-                if (epochClock.time() > (startTimeMs + timeoutMs))
-                {
-                    throw new IllegalStateException("No non-0 timestamp detected.");
-                }
-
-                sleep(1);
-            }
-
-            return cncByteBuffer;
+            sleep(16);
         }
+
+        final MappedByteBuffer byteBuffer = mapExistingFile(markFile, logger);
+        final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
+
+        int version;
+        while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
+        {
+            if (epochClock.time() > (startTimeMs + timeoutMs))
+            {
+                throw new IllegalStateException("Mark file is created but not initialised.");
+            }
+
+            sleep(1);
+        }
+
+        versionCheck.accept(version);
+
+        while (0 == buffer.getLongVolatile(timestampFieldOffset))
+        {
+            if (epochClock.time() > (startTimeMs + timeoutMs))
+            {
+                throw new IllegalStateException("No non-0 timestamp detected.");
+            }
+
+            sleep(1);
+        }
+
+        return byteBuffer;
     }
 
-    public static MappedByteBuffer mapNewOrExistingCncFile(
-        final File cncFile,
+    public static MappedByteBuffer mapNewOrExistingMarkFile(
+        final File markFile,
         final boolean shouldPreExist,
         final int versionFieldOffset,
         final int timestampFieldOffset,
@@ -418,25 +415,25 @@ public class CncFile implements AutoCloseable
         final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
-        MappedByteBuffer cncByteBuffer = null;
+        MappedByteBuffer byteBuffer = null;
 
-        try (FileChannel channel = FileChannel.open(cncFile.toPath(), CREATE, READ, WRITE, SPARSE))
+        try (FileChannel channel = FileChannel.open(markFile.toPath(), CREATE, READ, WRITE, SPARSE))
         {
-            cncByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, totalFileLength);
-            final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
+            byteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, totalFileLength);
+            final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
             if (shouldPreExist)
             {
-                final int cncVersion = cncBuffer.getIntVolatile(versionFieldOffset);
+                final int version = buffer.getIntVolatile(versionFieldOffset);
 
                 if (null != logger)
                 {
-                    logger.accept("INFO: CnC file exists: " + cncFile);
+                    logger.accept("INFO: Mark file exists: " + markFile);
                 }
 
-                versionCheck.accept(cncVersion);
+                versionCheck.accept(version);
 
-                final long timestamp = cncBuffer.getLongVolatile(timestampFieldOffset);
+                final long timestamp = buffer.getLongVolatile(timestampFieldOffset);
                 final long now = epochClock.time();
                 final long timestampAge = now - timestamp;
 
@@ -447,61 +444,62 @@ public class CncFile implements AutoCloseable
 
                 if (timestampAge < timeoutMs)
                 {
-                    throw new IllegalStateException("Active CnC file detected");
+                    throw new IllegalStateException("Active Mark file detected");
                 }
             }
         }
         catch (final Exception ex)
         {
-            if (null != cncByteBuffer)
+            if (null != byteBuffer)
             {
-                IoUtil.unmap(cncByteBuffer);
+                IoUtil.unmap(byteBuffer);
             }
 
             throw new RuntimeException(ex);
         }
 
-        return cncByteBuffer;
+        return byteBuffer;
     }
 
     public static MappedByteBuffer mapExistingFile(
-        final File cncFile, final Consumer<String> logger, final long offset, final long length)
+        final File markFile, final Consumer<String> logger, final long offset, final long length)
     {
-        if (cncFile.exists())
+        if (markFile.exists())
         {
             if (null != logger)
             {
-                logger.accept("INFO: CnC file exists: " + cncFile);
+                logger.accept("INFO: Mark file exists: " + markFile);
             }
 
-            return IoUtil.mapExistingFile(cncFile, cncFile.toString(), offset, length);
+            return IoUtil.mapExistingFile(markFile, markFile.toString(), offset, length);
         }
 
         return null;
     }
 
-    public static MappedByteBuffer mapExistingFile(final File cncFile, final Consumer<String> logger)
+    public static MappedByteBuffer mapExistingFile(final File markFile, final Consumer<String> logger)
     {
-        if (cncFile.exists())
+        if (markFile.exists())
         {
             if (null != logger)
             {
-                logger.accept("INFO: CnC file exists: " + cncFile);
+                logger.accept("INFO: Mark" +
+                    " file exists: " + markFile);
             }
 
-            return IoUtil.mapExistingFile(cncFile, cncFile.toString());
+            return IoUtil.mapExistingFile(markFile, markFile.toString());
         }
 
         return null;
     }
 
-    public static MappedByteBuffer mapNewFile(final File cncFile, final long length)
+    public static MappedByteBuffer mapNewFile(final File markFile, final long length)
     {
-        return IoUtil.mapNewFile(cncFile, length);
+        return IoUtil.mapNewFile(markFile, length);
     }
 
     public static boolean isActive(
-        final MappedByteBuffer cncByteBuffer,
+        final MappedByteBuffer byteBuffer,
         final EpochClock epochClock,
         final long timeoutMs,
         final int versionFieldOffset,
@@ -509,37 +507,37 @@ public class CncFile implements AutoCloseable
         final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
-        if (null == cncByteBuffer)
+        if (null == byteBuffer)
         {
             return false;
         }
 
-        final UnsafeBuffer cncBuffer = new UnsafeBuffer(cncByteBuffer);
+        final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
         final long startTimeMs = epochClock.time();
-        int cncVersion;
-        while (0 == (cncVersion = cncBuffer.getIntVolatile(versionFieldOffset)))
+        int version;
+        while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
         {
             if (epochClock.time() > (startTimeMs + timeoutMs))
             {
-                throw new IllegalStateException("CnC file is created but not initialised.");
+                throw new IllegalStateException("Mark file is created but not initialised.");
             }
 
             sleep(1);
         }
 
-        versionCheck.accept(cncVersion);
+        versionCheck.accept(version);
 
-        final long timestamp = cncBuffer.getLongVolatile(timestampFieldOffset);
-        final long now = epochClock.time();
-        final long timestampAge = now - timestamp;
+        final long timestampMs = buffer.getLongVolatile(timestampFieldOffset);
+        final long nowMs = epochClock.time();
+        final long timestampAgeMs = nowMs - timestampMs;
 
         if (null != logger)
         {
-            logger.accept("INFO: heartbeat is (ms): " + timestampAge);
+            logger.accept("INFO: heartbeat is (ms): " + timestampAgeMs);
         }
 
-        return timestampAge <= timeoutMs;
+        return timestampAgeMs <= timeoutMs;
     }
 
     private static void validateOffsets(final int versionFieldOffset, final int timestampFieldOffset)
