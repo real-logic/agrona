@@ -26,7 +26,7 @@ public class BufferAlignmentInterceptor
     {
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer, final int alignment)
         {
-            int alignmentOffset = (int)(buffer.addressOffset() + index) % alignment;
+            final int alignmentOffset = (int)(buffer.addressOffset() + index) % alignment;
             if (alignmentOffset != 0)
             {
                 final String message = String.format(
