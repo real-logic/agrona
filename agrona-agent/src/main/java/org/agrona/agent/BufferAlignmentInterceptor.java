@@ -26,11 +26,12 @@ public class BufferAlignmentInterceptor
     {
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer, final int alignment)
         {
-            if ((buffer.addressOffset() + index) % alignment != 0)
+            int alignmentOffset = (int)(buffer.addressOffset() + index) % alignment;
+            if (alignmentOffset != 0)
             {
                 final String message = String.format(
                     "Unaligned %d-byte access (Index=%d, Buffer Alignment Offset=%d)",
-                    alignment, index, (int)(buffer.addressOffset() % alignment));
+                    alignment, index, alignmentOffset);
 
                 throw new BufferAlignmentException(message);
             }
