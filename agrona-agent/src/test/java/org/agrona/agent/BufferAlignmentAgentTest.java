@@ -16,12 +16,22 @@
 package org.agrona.agent;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
-import static org.agrona.BitUtil.*;
+import static org.agrona.BitUtil.SIZE_OF_BYTE;
+import static org.agrona.BitUtil.SIZE_OF_CHAR;
+import static org.agrona.BitUtil.SIZE_OF_DOUBLE;
+import static org.agrona.BitUtil.SIZE_OF_FLOAT;
+import static org.agrona.BitUtil.SIZE_OF_INT;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BitUtil.SIZE_OF_SHORT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
@@ -40,6 +50,7 @@ public class BufferAlignmentAgentTest
     private static final String TEST_STRING = "BufferAlignmentTest";
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET % 8;
+    private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
 
     @BeforeClass
     public static void installAgent()
@@ -321,6 +332,14 @@ public class BufferAlignmentAgentTest
         }
         catch (final BufferAlignmentException ignore)
         {
+            final Matcher m = EXCEPTION_MESSAGE_PATTERN.matcher(ignore.getMessage());
+            m.find();
+            m.find();
+            final int indexFound = Integer.parseInt(m.group());
+            m.find();
+            final int offsetFound = Integer.parseInt(m.group());
+            assertEquals("BufferAlignmentException reported wrong index", index, indexFound);
+            assertNotEquals("BufferAlignmentException reported wrong offset", 0, offsetFound);
             return;
         }
 
