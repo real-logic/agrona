@@ -35,7 +35,7 @@ import org.agrona.generation.DoNotSub;
  *
  * @param <K> type of keys stored in the {@link java.util.Map}
  */
-public final class Object2IntHashMap<K>
+public class Object2IntHashMap<K>
     implements Map<K, Integer>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;

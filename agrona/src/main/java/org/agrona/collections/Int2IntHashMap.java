@@ -29,7 +29,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * A open addressing with linear probing hash map specialised for primitive key and value pairs.
  */
-public final class Int2IntHashMap implements Map<Integer, Integer>, Serializable
+public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
 

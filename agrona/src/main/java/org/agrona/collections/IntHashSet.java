@@ -39,7 +39,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see IntIterator
  * @see Set
  */
-public final class IntHashSet extends AbstractSet<Integer> implements Serializable
+public class IntHashSet extends AbstractSet<Integer> implements Serializable
 {
     /**
      * The initial capacity used when none is specified in the constructor.

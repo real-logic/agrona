@@ -28,7 +28,7 @@ import static org.agrona.collections.Hashing.compoundKey;
  *
  * @param <V> type of the object stored in the map.
  */
-public final class BiInt2ObjectMap<V> implements Serializable
+public class BiInt2ObjectMap<V> implements Serializable
 {
     /**
      * Handler for a map entry

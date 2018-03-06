@@ -40,7 +40,7 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
  *
  * @param <V> type of values stored in the {@link Map}
  */
-public final class Int2ObjectCache<V>
+public class Int2ObjectCache<V>
     implements Map<Integer, V>, Serializable
 {
     private long cachePuts = 0;

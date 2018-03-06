@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
  */
-public final class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess, Serializable
+public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess, Serializable
 {
     /**
      * The default value that will be used in place of null for an element.

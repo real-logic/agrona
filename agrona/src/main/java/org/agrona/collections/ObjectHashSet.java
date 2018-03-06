@@ -37,7 +37,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see ObjectIterator
  * @see Set
  */
-public final class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
+public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
 {
     /**
      * The initial capacity used when none is specified in the constructor.
