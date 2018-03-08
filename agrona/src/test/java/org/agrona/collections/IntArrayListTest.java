@@ -139,6 +139,18 @@ public class IntArrayListTest
     }
 
     @Test
+    public void shouldFastRemoveUnorderedAtIndex()
+    {
+        final int count = 20;
+        IntStream.range(0, count).forEachOrdered(list::addInt);
+
+        assertThat(list.fastUnorderedRemove(10), is(10));
+
+        assertThat(list.size(), is(count - 1));
+        assertThat(list.getInt(10), is(19));
+    }
+
+    @Test
     public void shouldForEachOrderedInt()
     {
         final List<Integer> expected = new ArrayList<>();
