@@ -15,7 +15,7 @@
  */
 package org.agrona.collections;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 
 /**
  * Utility functions for working with {@link ArrayList}s.
@@ -31,7 +31,7 @@ public class ArrayListUtil
      * @param <T>   element type.
      * @throws IndexOutOfBoundsException if index is out of bounds.
      */
-    public static <T> void fastUnorderedRemove(final ArrayList<T> list, final int index)
+    public static <T> void fastUnorderedRemove(final AbstractList<T> list, final int index)
     {
         final int lastIndex = list.size() - 1;
         if (index != lastIndex)
@@ -54,7 +54,7 @@ public class ArrayListUtil
      * @param <T>       element type.
      * @throws IndexOutOfBoundsException if index or lastIndex are out of bounds.
      */
-    public static <T> void fastUnorderedRemove(final ArrayList<T> list, final int index, final int lastIndex)
+    public static <T> void fastUnorderedRemove(final AbstractList<T> list, final int index, final int lastIndex)
     {
         if (index != lastIndex)
         {
@@ -75,7 +75,7 @@ public class ArrayListUtil
      * @param <T>  element type.
      * @return true if found and removed, false otherwise.
      */
-    public static <T> boolean fastUnorderedRemove(final ArrayList<T> list, final T e)
+    public static <T> boolean fastUnorderedRemove(final AbstractList<T> list, final T e)
     {
         for (int i = 0, size = list.size(); i < size; i++)
         {
