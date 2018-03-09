@@ -320,6 +320,36 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * Removes element at index, but instead of copying all elements to the
+     * left, moves into the same slot the last element. This avoids the copy
+     * costs, but spoils the list order. If index is the last element it is just
+     * removed.
+     *
+     * @param index
+     *            of the element to be removed.
+     * @return the existing value at this index.
+     * @throws IndexOutOfBoundsException
+     *             if index is out of bounds.
+     */
+    public int fastUnorderedRemove(
+        @DoNotSub final int index)
+    {
+        checkIndex(index);
+
+        final int value = elements[index];
+
+        @DoNotSub final int moveCount = size - index - 1;
+        if (moveCount > 0)
+        {
+            elements[index] = elements[size - 1];
+        }
+
+        size--;
+
+        return value;
+    }
+
+    /**
      * Remove the first instance of a value if found in the list.
      *
      * @param value to be removed.
