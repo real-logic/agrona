@@ -139,6 +139,16 @@ public class IntArrayListTest
     }
 
     @Test
+    public void shouldRemoveAtIndexForListLengthOne()
+    {
+        list.addInt(1);
+
+        assertThat(list.fastUnorderedRemove(0), is(1));
+
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
     public void shouldFastRemoveUnorderedAtIndex()
     {
         final int count = 20;
@@ -148,6 +158,18 @@ public class IntArrayListTest
 
         assertThat(list.size(), is(count - 1));
         assertThat(list.getInt(10), is(19));
+    }
+
+    @Test
+    public void shouldFastRemoveUnorderedByValue()
+    {
+        final int count = 20;
+        IntStream.range(0, count).forEachOrdered((value) -> list.addInt(value * 10));
+
+        assertTrue(list.fastUnorderedRemoveInt(10));
+
+        assertThat(list.size(), is(count - 1));
+        assertThat(list.getInt(1), is(190));
     }
 
     @Test

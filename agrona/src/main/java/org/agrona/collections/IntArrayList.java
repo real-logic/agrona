@@ -334,14 +334,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         checkIndex(index);
 
         final int value = elements[index];
-
-        @DoNotSub final int moveCount = size - index - 1;
-        if (moveCount > 0)
-        {
-            elements[index] = elements[size - 1];
-        }
-
-        size--;
+        elements[index] = elements[--size];
 
         return value;
     }
@@ -358,6 +351,26 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         if (-1 != index)
         {
             remove(index);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Remove the first instance of a value if found in the list and replaces it with the last item
+     * in the list. This saves a copy down of all items at the expense of not preserving list order.
+     *
+     * @param value to be removed.
+     * @return true if successful otherwise false.
+     */
+    public boolean fastUnorderedRemoveInt(final int value)
+    {
+        @DoNotSub final int index = indexOf(value);
+        if (-1 != index)
+        {
+            elements[index] = elements[--size];
 
             return true;
         }
