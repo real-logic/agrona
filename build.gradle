@@ -211,6 +211,12 @@ project(':agrona') {
         )
     }
 
+    javadoc {
+        source += sourceSets.main.allJava
+        source += sourceSets.generated.allJava
+        classpath = configurations.compile
+    }
+
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
