@@ -1,6 +1,8 @@
 Agrona
 ======
 
+[![Javadocs](http://www.javadoc.io/badge/org.agrona/agrona.svg)](http://www.javadoc.io/doc/org.agrona/agrona)
+
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
 applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
 efficient reliable UDP unicast, multicast, and IPC message transport and provides high-performance buffer implementations
