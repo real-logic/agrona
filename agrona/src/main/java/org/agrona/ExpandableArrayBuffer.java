@@ -811,7 +811,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
         }
 
         return tally;
@@ -825,7 +825,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         long tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
         }
 
         return tally;
@@ -847,7 +847,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
         }
 
         if (first == MINUS_SIGN)
@@ -871,10 +871,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             i++;
         }
 
-        long  tally = 0;
+        long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
         }
 
         if (first == MINUS_SIGN)
@@ -883,11 +883,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         }
 
         return tally;
-    }
-
-    private int getDigit(final int index)
-    {
-        return AsciiEncodingHelper.getDigit(index, byteArray[index]);
     }
 
     public int putIntAscii(final int index, final int value)

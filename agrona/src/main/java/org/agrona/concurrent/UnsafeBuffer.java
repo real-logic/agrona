@@ -1374,7 +1374,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         return tally;
@@ -1391,7 +1391,7 @@ public class UnsafeBuffer implements AtomicBuffer
         long tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         return tally;
@@ -1416,7 +1416,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         if (first == MINUS_SIGN)
@@ -1443,10 +1443,10 @@ public class UnsafeBuffer implements AtomicBuffer
             i++;
         }
 
-        long  tally = 0;
+        long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         if (first == MINUS_SIGN)
@@ -1455,11 +1455,6 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         return tally;
-    }
-
-    private int getDigit(final int index)
-    {
-        return AsciiEncodingHelper.getDigit(index, getByteWithoutBoundsCheck(index));
     }
 
     public int putIntAscii(final int index, final int value)

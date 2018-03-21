@@ -245,7 +245,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
         }
 
         return tally;
@@ -259,7 +259,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0L;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
         }
 
         return tally;
@@ -280,7 +280,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
         }
 
         if (first == MINUS_SIGN)
@@ -303,10 +303,10 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             i++;
         }
 
-        long  tally = 0;
+        long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + getDigit(i);
+            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
         }
 
         if (first == MINUS_SIGN)
@@ -315,12 +315,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         }
 
         return tally;
-    }
-
-    private int getDigit(final int index)
-    {
-        final byte value = getByte(index);
-        return AsciiEncodingHelper.getDigit(index, value);
     }
 
     public void putInt(final int index, final int value)
