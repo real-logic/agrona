@@ -22,7 +22,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.AsciiEncodingHelper.*;
+import static org.agrona.AsciiEncoding.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
@@ -245,7 +245,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
         }
 
         return tally;
@@ -259,7 +259,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0L;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
         }
 
         return tally;
@@ -280,7 +280,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
         }
 
         if (first == MINUS_SIGN)
@@ -306,7 +306,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
         }
 
         if (first == MINUS_SIGN)

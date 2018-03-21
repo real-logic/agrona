@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.AsciiEncodingHelper.*;
+import static org.agrona.AsciiEncoding.*;
 
 /**
  * Expandable {@link MutableDirectBuffer} that is backed by an array. When values are put into the buffer beyond its
@@ -811,7 +811,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
         }
 
         return tally;
@@ -825,7 +825,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         long tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
         }
 
         return tally;
@@ -847,7 +847,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
         }
 
         if (first == MINUS_SIGN)
@@ -874,7 +874,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
         }
 
         if (first == MINUS_SIGN)

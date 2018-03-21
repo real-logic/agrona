@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.AsciiEncodingHelper;
+import org.agrona.AsciiEncoding;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -28,7 +28,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.AsciiEncodingHelper.*;
+import static org.agrona.AsciiEncoding.*;
 import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
@@ -1374,7 +1374,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         return tally;
@@ -1391,7 +1391,7 @@ public class UnsafeBuffer implements AtomicBuffer
         long tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         return tally;
@@ -1416,7 +1416,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         if (first == MINUS_SIGN)
@@ -1446,7 +1446,7 @@ public class UnsafeBuffer implements AtomicBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncodingHelper.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
         }
 
         if (first == MINUS_SIGN)
