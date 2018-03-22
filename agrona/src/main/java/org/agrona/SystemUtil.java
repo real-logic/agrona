@@ -207,13 +207,14 @@ public class SystemUtil
      */
     public static long parseSize(final String propertyName, final String propertyValue)
     {
-        final char lastCharacter = propertyValue.charAt(propertyValue.length() - 1);
+        final int lengthMinusSuffix = propertyValue.length() - 1;
+        final char lastCharacter = propertyValue.charAt(lengthMinusSuffix);
         if (Character.isDigit(lastCharacter))
         {
             return Long.valueOf(propertyValue);
         }
 
-        final long value = Long.valueOf(propertyValue.substring(0, propertyValue.length() - 1));
+        final long value = AsciiEncoding.parseLongAscii(propertyValue, 0, lengthMinusSuffix);
 
         switch (lastCharacter)
         {
@@ -303,10 +304,11 @@ public class SystemUtil
         final char secondLastCharacter = propertyValue.charAt(propertyValue.length() - 2);
         if (Character.isDigit(secondLastCharacter))
         {
-            return TimeUnit.SECONDS.toNanos(Long.valueOf(propertyValue.substring(0, propertyValue.length() - 1)));
+            final long value = AsciiEncoding.parseLongAscii(propertyValue, 0, propertyValue.length() - 1);
+            return TimeUnit.SECONDS.toNanos(value);
         }
 
-        final long value = Long.valueOf(propertyValue.substring(0, propertyValue.length() - 2));
+        final long value = AsciiEncoding.parseLongAscii(propertyValue, 0, propertyValue.length() - 2);
 
         switch (secondLastCharacter)
         {
