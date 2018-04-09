@@ -531,24 +531,29 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public String toString()
     {
-        if (isEmpty())
-        {
-            return "{}";
-        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
 
-        final EntryIterator entryIterator = (EntryIterator)entrySet().iterator();
-
-        final StringBuilder sb = new StringBuilder().append('{');
-        while (true)
+        for (@DoNotSub int i = 1, length = entries.length; i < length; i += 2)
         {
-            entryIterator.next();
-            sb.append(entryIterator.getIntKey()).append('=').append(entryIterator.getIntValue());
-            if (!entryIterator.hasNext())
+            final int value = entries[i];
+            if (value != missingValue)
             {
-                return sb.append('}').toString();
+                sb.append(entries[i - 1]);
+                sb.append('=');
+                sb.append(value);
+                sb.append(", ");
             }
-            sb.append(',').append(' ');
         }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
     }
 
     /**
