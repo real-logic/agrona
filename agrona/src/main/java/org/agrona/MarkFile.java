@@ -365,11 +365,11 @@ public class MarkFile implements AutoCloseable
     {
         final long startTimeMs = epochClock.time();
 
-        while (!markFile.exists())
+        while (!markFile.exists() || markFile.length() <= 0)
         {
             if (epochClock.time() > (startTimeMs + timeoutMs))
             {
-                throw new IllegalStateException("Mark file not found: " + markFile.getName());
+                throw new IllegalStateException("Mark file not created: " + markFile.getName());
             }
 
             sleep(16);
@@ -395,7 +395,7 @@ public class MarkFile implements AutoCloseable
         {
             if (epochClock.time() > (startTimeMs + timeoutMs))
             {
-                throw new IllegalStateException("No non-0 timestamp detected.");
+                throw new IllegalStateException("No non zero timestamp detected.");
             }
 
             sleep(1);
@@ -483,8 +483,7 @@ public class MarkFile implements AutoCloseable
         {
             if (null != logger)
             {
-                logger.accept("INFO: Mark" +
-                    " file exists: " + markFile);
+                logger.accept("INFO: Mark" + " file exists: " + markFile);
             }
 
             return IoUtil.mapExistingFile(markFile, markFile.toString());
