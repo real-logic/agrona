@@ -523,7 +523,10 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         final int size = this.size;
         final T1[] arrayCopy = into.length >= size ? into : (T1[])Array.newInstance(componentType, size);
         copyValues(arrayCopy);
-
+        if (arrayCopy.length > size)
+        {
+            arrayCopy[size] = null;
+        }
         return arrayCopy;
     }
 
@@ -657,6 +660,11 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         @SuppressWarnings("unchecked")
         public T nextValue()
         {
+            if (!hasNext())
+            {
+                throw new NoSuchElementException();
+            }
+
             final T[] values = ObjectHashSet.this.values;
             final int mask = values.length - 1;
             isPositionValid = false;
@@ -675,7 +683,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
                 }
             }
 
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
         }
 
         @SuppressWarnings("unchecked")

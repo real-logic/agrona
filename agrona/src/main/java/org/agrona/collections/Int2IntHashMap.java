@@ -31,12 +31,13 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  */
 public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
-    @DoNotSub private static final int MIN_CAPACITY = 8;
+    @DoNotSub static final int MIN_CAPACITY = 8;
 
     @DoNotSub private final float loadFactor;
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size = 0;
+    @DoNotSub private final boolean shouldCacheIterator;
 
     private int[] entries;
     private KeySet keySet;
@@ -54,10 +55,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         @DoNotSub final float loadFactor,
         final int missingValue)
     {
+        this(initialCapacity, loadFactor, missingValue, true);
+    }
+
+    public Int2IntHashMap(
+        @DoNotSub final int initialCapacity,
+        @DoNotSub final float loadFactor,
+        final int missingValue,
+        final boolean shouldCacheIterator)
+    {
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
+        this.shouldCacheIterator = shouldCacheIterator;
 
         capacity(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity)));
     }
@@ -520,29 +531,24 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append('{');
-
-        for (@DoNotSub int i = 1, length = entries.length; i < length; i += 2)
+        if (isEmpty())
         {
-            final int value = entries[i];
-            if (value != missingValue)
+            return "{}";
+        }
+
+        final EntryIterator entryIterator = (EntryIterator)entrySet().iterator();
+
+        final StringBuilder sb = new StringBuilder().append('{');
+        while (true)
+        {
+            entryIterator.next();
+            sb.append(entryIterator.getIntKey()).append('=').append(entryIterator.getIntValue());
+            if (!entryIterator.hasNext())
             {
-                sb.append(entries[i - 1]);
-                sb.append('=');
-                sb.append(value);
-                sb.append(", ");
+                return sb.append('}').toString();
             }
+            sb.append(',').append(' ');
         }
-
-        if (sb.length() > 1)
-        {
-            sb.setLength(sb.length() - 2);
-        }
-
-        sb.append('}');
-
-        return sb.toString();
     }
 
     /**
@@ -681,6 +687,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         protected final void findNext()
         {
+            if (!hasNext())
+            {
+                throw new NoSuchElementException();
+            }
+
             final int[] entries = Int2IntHashMap.this.entries;
             final int missingValue = Int2IntHashMap.this.missingValue;
             @DoNotSub final int mask = entries.length - 1;
@@ -698,7 +709,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             }
 
             isPositionValid = false;
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
         }
 
         public void remove()
@@ -776,14 +787,80 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         public Integer setValue(final Integer value)
         {
-            throw new UnsupportedOperationException();
+            if (!isPositionValid)
+            {
+                throw new IllegalStateException();
+            }
+
+            if (missingValue == value.intValue())
+            {
+                throw new IllegalArgumentException();
+            }
+
+            @DoNotSub final int keyPosition = keyPosition();
+            final int prevValue = entries[keyPosition + 1];
+            entries[keyPosition + 1] = value;
+            return prevValue == missingValue ? null : prevValue;
         }
 
         public Entry<Integer, Integer> next()
         {
             findNext();
 
-            return this;
+            if (shouldCacheIterator)
+            {
+                return this;
+            }
+
+            return allocateDuplicateEntry();
+        }
+
+        private Entry<Integer, Integer> allocateDuplicateEntry()
+        {
+            final int k = getIntKey();
+            final int v = getIntValue();
+
+            return new Entry<Integer, Integer>()
+            {
+                @Override
+                public Integer getKey()
+                {
+                    return k;
+                }
+
+                @Override
+                public Integer getValue()
+                {
+                    return v;
+                }
+
+                @Override
+                public Integer setValue(final Integer value)
+                {
+                    return Int2IntHashMap.this.put(k, value.intValue());
+                }
+
+                @Override
+                @DoNotSub public int hashCode()
+                {
+                    return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
+                }
+
+                @Override
+                @DoNotSub public boolean equals(final Object o)
+                {
+                    final Map.Entry e = (Entry)o;
+                    return o != null &&
+                        (e.getKey() != null && e.getValue() != null) &&
+                        (e.getKey().equals(k) && e.getValue().equals(v));
+                }
+
+                @Override
+                public String toString()
+                {
+                    return k + "=" + v;
+                }
+            };
         }
 
         /**
@@ -816,15 +893,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
-        private final KeyIterator keyIterator = new KeyIterator();
+        private final KeyIterator keyIterator = shouldCacheIterator ? new KeyIterator() : null;
 
         /**
          * {@inheritDoc}
          */
         public KeyIterator iterator()
         {
-            keyIterator.reset();
+            KeyIterator keyIterator = this.keyIterator;
+            if (null == keyIterator)
+            {
+                keyIterator = new KeyIterator();
+            }
 
+            keyIterator.reset();
             return keyIterator;
         }
 
@@ -868,15 +950,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public final class Values extends AbstractCollection<Integer>
     {
-        private final ValueIterator valueIterator = new ValueIterator();
+        private final ValueIterator valueIterator = shouldCacheIterator ? new ValueIterator() : null;
 
         /**
          * {@inheritDoc}
          */
         public ValueIterator iterator()
         {
-            valueIterator.reset();
+            ValueIterator valueIterator = this.valueIterator;
+            if (null == valueIterator)
+            {
+                valueIterator = new ValueIterator();
+            }
 
+            valueIterator.reset();
             return valueIterator;
         }
 
@@ -904,15 +991,20 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     private final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
     {
-        private final EntryIterator entryIterator = new EntryIterator();
+        private final EntryIterator entryIterator = shouldCacheIterator ? new EntryIterator() : null;
 
         /**
          * {@inheritDoc}
          */
         public EntryIterator iterator()
         {
-            entryIterator.reset();
+            EntryIterator entryIterator = this.entryIterator;
+            if (null == entryIterator)
+            {
+                entryIterator = new EntryIterator();
+            }
 
+            entryIterator.reset();
             return entryIterator;
         }
 
@@ -945,7 +1037,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          */
         public boolean contains(final Object o)
         {
-            return containsKey(((Entry)o).getKey());
+            final Entry entry = (Entry)o;
+            final Integer val = get(entry.getKey());
+            return val == null ? false : val.equals(entry.getValue());
         }
     }
 }
