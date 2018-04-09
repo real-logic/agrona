@@ -30,10 +30,12 @@ public class ObjectHashSetConformanceTest
     {
         public Set<String> create(final Object... elements)
         {
-            final ObjectHashSet set = new ObjectHashSet(elements.length * 2, Hashing.DEFAULT_LOAD_FACTOR, false);
+            final ObjectHashSet<String> set = new ObjectHashSet<>(
+                elements.length * 2, Hashing.DEFAULT_LOAD_FACTOR, false);
+
             for (final Object o : elements)
             {
-                set.add(o);
+                set.add((String)o);
             }
 
             return set;

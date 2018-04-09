@@ -601,12 +601,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             return true;
         }
-        if (o == null || !(o instanceof Map))
+        if (!(o instanceof Map))
         {
             return false;
         }
 
-        final Map<?, ?> that = (Map<?, ?>)o;
+        final Map<Integer, Integer> that = (Map<Integer, Integer>)o;
 
         return size == that.size() && entrySet().equals(that.entrySet());
 
@@ -792,7 +792,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 throw new IllegalStateException();
             }
 
-            if (missingValue == value.intValue())
+            if (missingValue == value)
             {
                 throw new IllegalArgumentException();
             }
@@ -822,40 +822,39 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
             return new Entry<Integer, Integer>()
             {
-                @Override
                 public Integer getKey()
                 {
                     return k;
                 }
 
-                @Override
                 public Integer getValue()
                 {
                     return v;
                 }
 
-                @Override
                 public Integer setValue(final Integer value)
                 {
                     return Int2IntHashMap.this.put(k, value.intValue());
                 }
 
-                @Override
                 @DoNotSub public int hashCode()
                 {
                     return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
                 }
 
-                @Override
                 @DoNotSub public boolean equals(final Object o)
                 {
+                    if (!(o instanceof Entry))
+                    {
+                        return false;
+                    }
+
                     final Map.Entry e = (Entry)o;
-                    return o != null &&
-                        (e.getKey() != null && e.getValue() != null) &&
+
+                    return (e.getKey() != null && e.getValue() != null) &&
                         (e.getKey().equals(k) && e.getValue().equals(v));
                 }
 
-                @Override
                 public String toString()
                 {
                     return k + "=" + v;
@@ -880,7 +879,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             {
                 return true;
             }
-            if (o == null || !(o instanceof Entry))
+            if (!(o instanceof Entry))
             {
                 return false;
             }
@@ -1039,7 +1038,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             final Entry entry = (Entry)o;
             final Integer val = get(entry.getKey());
-            return val == null ? false : val.equals(entry.getValue());
+            return val != null && val.equals(entry.getValue());
         }
     }
 }
