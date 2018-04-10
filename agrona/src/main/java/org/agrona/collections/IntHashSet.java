@@ -48,7 +48,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
 
     static final int MISSING_VALUE = -1;
 
-    private final boolean shouldCacheIterator;
+    private final boolean shouldAvoidAllocation;
     private boolean containsMissingValue;
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
@@ -95,18 +95,18 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     /**
      * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
      *
-     * @param proposedCapacity    for the initial capacity of the set.
-     * @param loadFactor          to be used for resizing.
-     * @param shouldCacheIterator should the iterator be cached to avoid further allocation.
+     * @param proposedCapacity      for the initial capacity of the set.
+     * @param loadFactor            to be used for resizing.
+     * @param shouldAvoidAllocation should the iterator be cached to avoid further allocation.
      */
     public IntHashSet(
         @DoNotSub final int proposedCapacity,
         final float loadFactor,
-        final boolean shouldCacheIterator)
+        final boolean shouldAvoidAllocation)
     {
         validateLoadFactor(loadFactor);
 
-        this.shouldCacheIterator = shouldCacheIterator;
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
         this.loadFactor = loadFactor;
         sizeOfArrayValues = 0;
         @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
@@ -529,7 +529,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         if (null == iterator)
         {
             iterator = new IntIterator();
-            if (shouldCacheIterator)
+            if (shouldAvoidAllocation)
             {
                 this.iterator = iterator;
             }

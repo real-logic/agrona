@@ -475,7 +475,7 @@ public class Object2IntHashMap<K>
             return true;
         }
 
-        if (o == null || !(o instanceof Map))
+        if (!(o instanceof Map))
         {
             return false;
         }

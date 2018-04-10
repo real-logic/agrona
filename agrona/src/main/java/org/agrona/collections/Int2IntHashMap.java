@@ -37,7 +37,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size = 0;
-    @DoNotSub private final boolean shouldCacheIterator;
+    @DoNotSub private final boolean shouldAvoidAllocation;
 
     private int[] entries;
     private KeySet keySet;
@@ -58,17 +58,23 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         this(initialCapacity, loadFactor, missingValue, true);
     }
 
+    /**
+     * @param initialCapacity       for the map to override {@link #MIN_CAPACITY}
+     * @param loadFactor            for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
+     * @param missingValue          for the map that represents null.
+     * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
+     */
     public Int2IntHashMap(
         @DoNotSub final int initialCapacity,
         @DoNotSub final float loadFactor,
         final int missingValue,
-        final boolean shouldCacheIterator)
+        final boolean shouldAvoidAllocation)
     {
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
         this.missingValue = missingValue;
-        this.shouldCacheIterator = shouldCacheIterator;
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
 
         capacity(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity)));
     }
@@ -812,7 +818,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             findNext();
 
-            if (shouldCacheIterator)
+            if (shouldAvoidAllocation)
             {
                 return this;
             }
@@ -897,7 +903,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
-        private final KeyIterator keyIterator = shouldCacheIterator ? new KeyIterator() : null;
+        private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
          * {@inheritDoc}
@@ -954,7 +960,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public final class Values extends AbstractCollection<Integer>
     {
-        private final ValueIterator valueIterator = shouldCacheIterator ? new ValueIterator() : null;
+        private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
          * {@inheritDoc}
@@ -995,7 +1001,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     private final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
     {
-        private final EntryIterator entryIterator = shouldCacheIterator ? new EntryIterator() : null;
+        private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**
          * {@inheritDoc}

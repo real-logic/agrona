@@ -446,7 +446,7 @@ public class Int2ObjectHashMap<V>
             return true;
         }
 
-        if (o == null || !(o instanceof Map))
+        if (!(o instanceof Map))
         {
             return false;
         }
@@ -464,7 +464,7 @@ public class Int2ObjectHashMap<V>
             if (null != thisValue)
             {
                 final Object thatValue = that.get(keys[i]);
-                if (null == thatValue || !thisValue.equals(thatValue))
+                if (!thisValue.equals(thatValue))
                 {
                     return false;
                 }

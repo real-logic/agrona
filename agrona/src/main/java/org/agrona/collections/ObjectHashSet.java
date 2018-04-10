@@ -46,7 +46,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
 
     static final Object MISSING_VALUE = null;
 
-    private final boolean shouldCacheIterator;
+    private final boolean shouldAvoidAllocation;
     private final float loadFactor;
     private int resizeThreshold;
     private int size;
@@ -91,14 +91,14 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      *
      * @param proposedCapacity    for the initial capacity of the set.
      * @param loadFactor          to be used for resizing.
-     * @param shouldCacheIterator should the iterator be cached to avoid further allocation.
+     * @param shouldAvoidAllocation should the iterator be cached to avoid further allocation.
      */
     @SuppressWarnings("unchecked")
-    public ObjectHashSet(final int proposedCapacity, final float loadFactor, final boolean shouldCacheIterator)
+    public ObjectHashSet(final int proposedCapacity, final float loadFactor, final boolean shouldAvoidAllocation)
     {
         validateLoadFactor(loadFactor);
 
-        this.shouldCacheIterator = shouldCacheIterator;
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
         this.loadFactor = loadFactor;
         size = 0;
 
@@ -465,7 +465,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         {
             iterator = new ObjectIterator();
 
-            if (shouldCacheIterator)
+            if (shouldAvoidAllocation)
             {
                 this.iterator = iterator;
             }
