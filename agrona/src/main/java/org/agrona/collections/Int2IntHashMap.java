@@ -329,8 +329,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public Integer get(final Object key)
     {
-        final int value = get((int)key);
-        return value == missingValue ? null : value;
+        return valOrNull(get((int)key));
     }
 
     /**
@@ -338,8 +337,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public Integer put(final Integer key, final Integer value)
     {
-        final int existingValue = put((int)key, (int)value);
-        return existingValue == missingValue ? null : existingValue;
+        return valOrNull(put((int)key, (int)value));
     }
 
     /**
@@ -421,8 +419,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public Integer remove(final Object key)
     {
-        final int value = remove((int)key);
-        return value == missingValue ? null : value;
+        return valOrNull(remove((int)key));
     }
 
     public int remove(final int key)
@@ -643,6 +640,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         Arrays.fill(entries, missingValue);
     }
 
+    private Integer valOrNull(final int value)
+    {
+        return value == missingValue ? null : value;
+    }
+
     // ---------------- Utility Classes ----------------
 
     abstract class AbstractIterator implements Serializable
@@ -807,7 +809,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             @DoNotSub final int keyPosition = keyPosition();
             final int prevValue = entries[keyPosition + 1];
             entries[keyPosition + 1] = value;
-            return prevValue == missingValue ? null : prevValue;
+            return prevValue;
         }
 
         public Entry<Integer, Integer> next()
