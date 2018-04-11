@@ -232,6 +232,13 @@ project(':agrona') {
         archives sourcesJar
         archives javadocJar
     }
+
+    sourceSets {
+        test {
+            compileClasspath += generated.output
+            runtimeClasspath += generated.output
+        }
+    }
 }
 
 project(':agrona-agent') {

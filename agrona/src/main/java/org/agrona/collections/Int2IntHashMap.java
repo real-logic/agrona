@@ -537,29 +537,25 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append('{');
-
-        for (@DoNotSub int i = 1, length = entries.length; i < length; i += 2)
+        if (isEmpty())
         {
-            final int value = entries[i];
-            if (value != missingValue)
+            return "{}";
+        }
+
+        final EntryIterator entryIterator = new EntryIterator();
+        entryIterator.reset();
+
+        final StringBuilder sb = new StringBuilder().append('{');
+        while (true)
+        {
+            entryIterator.next();
+            sb.append(entryIterator.getIntKey()).append('=').append(entryIterator.getIntValue());
+            if (!entryIterator.hasNext())
             {
-                sb.append(entries[i - 1]);
-                sb.append('=');
-                sb.append(value);
-                sb.append(", ");
+                return sb.append('}').toString();
             }
+            sb.append(',').append(' ');
         }
-
-        if (sb.length() > 1)
-        {
-            sb.setLength(sb.length() - 2);
-        }
-
-        sb.append('}');
-
-        return sb.toString();
     }
 
     /**
@@ -668,7 +664,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             if (entries[capacity - 1] != missingValue)
             {
                 keyIndex = 0;
-                for (@DoNotSub int size = capacity; keyIndex < size; keyIndex += 2)
+                for (; keyIndex < capacity; keyIndex += 2)
                 {
                     if (entries[keyIndex + 1] == missingValue)
                     {

@@ -15,6 +15,9 @@
  */
 package org.agrona.collections;
 
+import org.agrona.collections.Int2IntHashMap.EntryIterator;
+import org.agrona.collections.Int2IntHashMap.KeyIterator;
+import org.agrona.collections.Int2IntHashMap.ValueIterator;
 import org.agrona.generation.DoNotSub;
 
 import java.io.Serializable;
@@ -34,34 +37,44 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public class Int2ObjectHashMap<V>
     implements Map<Integer, V>, Serializable
 {
-    @DoNotSub private static final int MIN_CAPACITY = 8;
+    @DoNotSub static final int MIN_CAPACITY = 8;
 
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size;
+    @DoNotSub private final boolean shouldAvoidAllocation;
 
     private int[] keys;
     private Object[] values;
 
-    private ValueCollection<V> valueCollection;
+    private ValueCollection valueCollection;
     private KeySet keySet;
-    private EntrySet<V> entrySet;
+    private EntrySet entrySet;
 
     public Int2ObjectHashMap()
     {
-        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR);
+        this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, true);
     }
 
-    /**
-     * Construct a new map allowing a configuration for initial capacity and load factor.
-     *
-     * @param initialCapacity for the backing array
-     * @param loadFactor      limit for resizing on puts
-     */
     public Int2ObjectHashMap(
         @DoNotSub final int initialCapacity,
         final float loadFactor)
     {
+        this(initialCapacity, loadFactor, true);
+    }
+
+    /**
+     * Construct a new map allowing a configuration for initial capacity and load factor.
+     * @param initialCapacity       for the backing array
+     * @param loadFactor            limit for resizing on puts
+     * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
+     */
+    public Int2ObjectHashMap(
+        @DoNotSub final int initialCapacity,
+        final float loadFactor,
+        final boolean shouldAvoidAllocation)
+    {
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
@@ -82,6 +95,7 @@ public class Int2ObjectHashMap<V>
         this.loadFactor = mapToCopy.loadFactor;
         this.resizeThreshold = mapToCopy.resizeThreshold;
         this.size = mapToCopy.size;
+        this.shouldAvoidAllocation = mapToCopy.shouldAvoidAllocation;
 
         keys = mapToCopy.keys.clone();
         values = mapToCopy.values.clone();
@@ -387,7 +401,7 @@ public class Int2ObjectHashMap<V>
     {
         if (null == valueCollection)
         {
-            valueCollection = new ValueCollection<>();
+            valueCollection = new ValueCollection();
         }
 
         return valueCollection;
@@ -400,7 +414,7 @@ public class Int2ObjectHashMap<V>
     {
         if (null == entrySet)
         {
-            entrySet = new EntrySet<>();
+            entrySet = new EntrySet();
         }
 
         return entrySet;
@@ -411,29 +425,25 @@ public class Int2ObjectHashMap<V>
      */
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append('{');
-
-        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
+        if (isEmpty())
         {
-            final Object value = values[i];
-            if (null != value)
+            return "{}";
+        }
+
+        final EntryIterator entryIterator = new EntryIterator();
+        entryIterator.reset();
+
+        final StringBuilder sb = new StringBuilder().append('{');
+        while (true)
+        {
+            entryIterator.next();
+            sb.append(entryIterator.getIntKey()).append('=').append(entryIterator.getValue());
+            if (!entryIterator.hasNext())
             {
-                sb.append(keys[i]);
-                sb.append('=');
-                sb.append(value);
-                sb.append(", ");
+                return sb.append('}').toString();
             }
+            sb.append(',').append(' ');
         }
-
-        if (sb.length() > 1)
-        {
-            sb.setLength(sb.length() - 2);
-        }
-
-        sb.append('}');
-
-        return sb.toString();
     }
 
     /**
@@ -606,7 +616,22 @@ public class Int2ObjectHashMap<V>
 
     public class KeySet extends AbstractSet<Integer> implements Serializable
     {
-        private final KeyIterator iterator = new KeyIterator();
+        private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
+
+        /**
+         * {@inheritDoc}
+         */
+        public KeyIterator iterator()
+        {
+            KeyIterator keyIterator = this.keyIterator;
+            if (null == keyIterator)
+            {
+                keyIterator = new KeyIterator();
+            }
+
+            keyIterator.reset();
+            return keyIterator;
+        }
 
         @DoNotSub public int size()
         {
@@ -621,13 +646,6 @@ public class Int2ObjectHashMap<V>
         public boolean contains(final int key)
         {
             return Int2ObjectHashMap.this.containsKey(key);
-        }
-
-        public KeyIterator iterator()
-        {
-            iterator.reset();
-
-            return iterator;
         }
 
         public boolean remove(final Object o)
@@ -646,9 +664,24 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    class ValueCollection<T> extends AbstractCollection<T> implements Serializable
+    class ValueCollection extends AbstractCollection<V> implements Serializable
     {
-        private final ValueIterator<T> iterator = new ValueIterator<>();
+        private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
+
+        /**
+         * {@inheritDoc}
+         */
+        public ValueIterator iterator()
+        {
+            ValueIterator valueIterator = this.valueIterator;
+            if (null == valueIterator)
+            {
+                valueIterator = new ValueIterator();
+            }
+
+            valueIterator.reset();
+            return valueIterator;
+        }
 
         @DoNotSub public int size()
         {
@@ -660,33 +693,34 @@ public class Int2ObjectHashMap<V>
             return Int2ObjectHashMap.this.containsValue(o);
         }
 
-        public ValueIterator<T> iterator()
-        {
-            iterator.reset();
-
-            return iterator;
-        }
-
         public void clear()
         {
             Int2ObjectHashMap.this.clear();
         }
     }
 
-    class EntrySet<T> extends AbstractSet<Entry<Integer, T>> implements Serializable
+    class EntrySet extends AbstractSet<Entry<Integer, V>> implements Serializable
     {
-        private final EntryIterator<T> iterator = new EntryIterator<>();
+        private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
+
+        /**
+         * {@inheritDoc}
+         */
+        public EntryIterator iterator()
+        {
+            EntryIterator entryIterator = this.entryIterator;
+            if (null == entryIterator)
+            {
+                entryIterator = new EntryIterator();
+            }
+
+            entryIterator.reset();
+            return entryIterator;
+        }
 
         @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
-        }
-
-        public Iterator<Entry<Integer, T>> iterator()
-        {
-            iterator.reset();
-
-            return iterator;
         }
 
         public void clear()
@@ -704,7 +738,7 @@ public class Int2ObjectHashMap<V>
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
-        private boolean isPositionValid = false;
+        boolean isPositionValid = false;
 
         @DoNotSub protected final int position()
         {
@@ -723,9 +757,13 @@ public class Int2ObjectHashMap<V>
 
         protected final void findNext()
         {
+            if (!hasNext())
+            {
+                throw new NoSuchElementException();
+            }
+
             final Object[] values = Int2ObjectHashMap.this.values;
             @DoNotSub final int mask = values.length - 1;
-            isPositionValid = false;
 
             for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
             {
@@ -739,7 +777,8 @@ public class Int2ObjectHashMap<V>
                 }
             }
 
-            throw new NoSuchElementException();
+            isPositionValid = false;
+            throw new IllegalStateException();
         }
 
         public abstract T next();
@@ -786,14 +825,14 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    public class ValueIterator<T> extends AbstractIterator<T>
+    public class ValueIterator extends AbstractIterator<V>
     {
         @SuppressWarnings("unchecked")
-        public T next()
+        public V next()
         {
             findNext();
 
-            return (T)values[position()];
+            return (V)values[position()];
         }
     }
 
@@ -813,36 +852,97 @@ public class Int2ObjectHashMap<V>
     }
 
     @SuppressWarnings("unchecked")
-    public class EntryIterator<T>
-        extends AbstractIterator<Entry<Integer, T>>
-        implements Entry<Integer, T>
+    public class EntryIterator
+        extends AbstractIterator<Entry<Integer, V>>
+        implements Entry<Integer, V>
     {
-        public Entry<Integer, T> next()
+        public Entry<Integer, V> next()
         {
             findNext();
+            if (shouldAvoidAllocation)
+            {
+                return this;
+            }
 
-            return this;
+            return allocateDuplicateEntry();
+        }
+
+        private Entry<Integer, V> allocateDuplicateEntry()
+        {
+            final int k = getIntKey();
+            final V v = getValue();
+
+            return new Entry<Integer, V>()
+            {
+                public Integer getKey()
+                {
+                    return k;
+                }
+
+                public V getValue()
+                {
+                    return v;
+                }
+
+                public V setValue(final V value)
+                {
+                    return Int2ObjectHashMap.this.put(k, value);
+                }
+
+                @DoNotSub public int hashCode()
+                {
+                    return Integer.hashCode(getIntKey()) ^ v.hashCode();
+                }
+
+                @DoNotSub public boolean equals(final Object o)
+                {
+                    if (!(o instanceof Entry))
+                    {
+                        return false;
+                    }
+
+                    final Map.Entry e = (Entry)o;
+
+                    return (e.getKey() != null && e.getValue() != null) &&
+                        (e.getKey().equals(k) && e.getValue().equals(v));
+                }
+
+                public String toString()
+                {
+                    return k + "=" + v;
+                }
+            };
         }
 
         public Integer getKey()
         {
+            return getIntKey();
+        }
+
+        public int getIntKey()
+        {
             return keys[position()];
         }
 
-        public T getValue()
+        public V getValue()
         {
-            return (T)values[position()];
+            return (V)values[position()];
         }
 
-        public T setValue(final T value)
+        public V setValue(final V value)
         {
             requireNonNull(value);
+
+            if (!this.isPositionValid)
+            {
+                throw new IllegalStateException();
+            }
 
             @DoNotSub final int pos = position();
             final Object oldValue = values[pos];
             values[pos] = value;
 
-            return (T)oldValue;
+            return (V)oldValue;
         }
     }
 }
