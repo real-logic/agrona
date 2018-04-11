@@ -728,6 +728,16 @@ public class Int2ObjectHashMap<V>
         {
             Int2ObjectHashMap.this.clear();
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean contains(final Object o)
+        {
+            final Entry entry = (Entry)o;
+            final V val = get(entry.getKey());
+            return val != null && val.equals(entry.getValue());
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

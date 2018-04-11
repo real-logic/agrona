@@ -765,6 +765,16 @@ public class Object2IntHashMap<K>
         {
             Object2IntHashMap.this.clear();
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean contains(final Object o)
+        {
+            final Entry entry = (Entry)o;
+            final Integer val = get(entry.getKey());
+            return val != null && val.equals(entry.getValue());
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
