@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotEquals;
 
 public class Int2ObjectHashMapNotAvoidingAllocationTest extends Int2ObjectHashMapTest
 {
-    @Override
     Int2ObjectHashMap<String> newMap(final float loadFactor, final int initialCapacity)
     {
         return new Int2ObjectHashMap<>(initialCapacity, loadFactor, false);

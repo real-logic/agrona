@@ -65,7 +65,7 @@ public class Long2LongHashMapConformanceTest
             {
                 return insertionOrder;
             }
-        }, Int2ObjectHashMap.class.getSimpleName());
+        }, Long2LongHashMap.class.getSimpleName());
     }
 
     private static <T> TestSuite mapTestSuite(final TestMapGenerator<T, T> testMapGenerator, final String name)
