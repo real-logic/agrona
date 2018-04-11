@@ -79,7 +79,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      * Construct a hash set with a proposed initial capacity, load factor, and iterator caching support.
      *
      * @param proposedCapacity for the initial capacity of the set.
-     * @param loadFactor to be used for resizing.
+     * @param loadFactor       to be used for resizing.
      */
     public ObjectHashSet(final int proposedCapacity, final float loadFactor)
     {
@@ -89,8 +89,8 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     /**
      * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
      *
-     * @param proposedCapacity    for the initial capacity of the set.
-     * @param loadFactor          to be used for resizing.
+     * @param proposedCapacity      for the initial capacity of the set.
+     * @param loadFactor            to be used for resizing.
      * @param shouldAvoidAllocation should the iterator be cached to avoid further allocation.
      */
     @SuppressWarnings("unchecked")
