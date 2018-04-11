@@ -42,7 +42,7 @@ public class Int2ObjectHashMap<V>
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size;
-    @DoNotSub private final boolean shouldAvoidAllocation;
+    private final boolean shouldAvoidAllocation;
 
     private int[] keys;
     private Object[] values;
@@ -74,10 +74,11 @@ public class Int2ObjectHashMap<V>
         final float loadFactor,
         final boolean shouldAvoidAllocation)
     {
-        this.shouldAvoidAllocation = shouldAvoidAllocation;
         validateLoadFactor(loadFactor);
 
         this.loadFactor = loadFactor;
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
+
         /* @DoNotSub */ final int capacity = findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity));
         /* @DoNotSub */ resizeThreshold = (int)(capacity * loadFactor);
 

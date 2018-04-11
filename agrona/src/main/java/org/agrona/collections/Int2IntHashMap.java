@@ -33,11 +33,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
 
-    @DoNotSub private final float loadFactor;
+    private final float loadFactor;
     private final int missingValue;
     @DoNotSub private int resizeThreshold;
     @DoNotSub private int size = 0;
-    @DoNotSub private final boolean shouldAvoidAllocation;
+    private final boolean shouldAvoidAllocation;
 
     private int[] entries;
     private KeySet keySet;
