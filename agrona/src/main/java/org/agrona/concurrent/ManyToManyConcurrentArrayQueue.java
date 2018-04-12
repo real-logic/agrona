@@ -70,11 +70,13 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
         final long[] sequences = new long[capacity];
 
-        for (int i = 0, size = capacity; i < size; i++)
+        for (int i = 0; i < capacity; i++)
         {
-            final long sequenceOffset = sequenceArrayOffset(i, size - 1);
-            UNSAFE.putOrderedLong(sequences, sequenceOffset, i);
+            sequences[i] = i;
         }
+
+        UNSAFE.putOrderedLong(sequences, sequenceArrayOffset(0, sequences.length - 1), 0);
+
 
         this.sequences = sequences;
     }
