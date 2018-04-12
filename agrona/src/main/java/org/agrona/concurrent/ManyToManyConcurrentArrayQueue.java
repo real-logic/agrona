@@ -89,7 +89,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         final long mask = this.capacity - 1;
         final long[] sequences = this.sequences;
 
-        do
+        while (true)
         {
             final long currentTail = tail;
             final long sequenceOffset = sequenceArrayOffset(currentTail, mask);
@@ -108,7 +108,6 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 return true;
             }
         }
-        while (true);
     }
 
     @SuppressWarnings("unchecked")
@@ -117,7 +116,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         final long[] sequences = this.sequences;
         final long mask = this.capacity - 1;
 
-        do
+        while (true)
         {
             final long currentHead = head;
             final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
@@ -140,7 +139,6 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 return (E)e;
             }
         }
-        while (true);
     }
 
     public int drain(final Consumer<E> elementHandler)
