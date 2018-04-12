@@ -65,7 +65,8 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
         if (requestedCapacity < 2)
         {
-            throw new IllegalArgumentException("requestCapacity must be >= 2: requestedCapacity=" + requestedCapacity);
+            throw new IllegalArgumentException(
+                "requestedCapacity must be >= 2: requestedCapacity=" + requestedCapacity);
         }
 
         final long[] sequences = new long[capacity];
