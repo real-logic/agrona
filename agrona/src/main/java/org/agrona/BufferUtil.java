@@ -15,8 +15,7 @@
  */
 package org.agrona;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.*;
 import java.nio.charset.StandardCharsets;
 
 import static org.agrona.BitUtil.isPowerOfTwo;
@@ -32,6 +31,7 @@ public class BufferUtil
     public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
     public static final long BYTE_BUFFER_HB_FIELD_OFFSET;
     public static final long BYTE_BUFFER_OFFSET_FIELD_OFFSET;
+    public static final long BYTE_BUFFER_ADDRESS_FIELD_OFFSET;
 
     static
     {
@@ -39,8 +39,11 @@ public class BufferUtil
         {
             BYTE_BUFFER_HB_FIELD_OFFSET = UNSAFE.objectFieldOffset(
                 ByteBuffer.class.getDeclaredField("hb"));
+
             BYTE_BUFFER_OFFSET_FIELD_OFFSET = UNSAFE.objectFieldOffset(
                 ByteBuffer.class.getDeclaredField("offset"));
+
+            BYTE_BUFFER_ADDRESS_FIELD_OFFSET = UNSAFE.objectFieldOffset(Buffer.class.getDeclaredField("address"));
         }
         catch (final Exception ex)
         {
@@ -90,7 +93,12 @@ public class BufferUtil
      */
     public static long address(final ByteBuffer buffer)
     {
-        return ((sun.nio.ch.DirectBuffer)buffer).address();
+        if (!buffer.isDirect())
+        {
+            throw new IllegalArgumentException("buffer.isDirect() must be true");
+        }
+
+        return UNSAFE.getLong(buffer, BYTE_BUFFER_ADDRESS_FIELD_OFFSET);
     }
 
     /**
@@ -101,6 +109,11 @@ public class BufferUtil
      */
     public static byte[] array(final ByteBuffer buffer)
     {
+        if (buffer.isDirect())
+        {
+            throw new IllegalArgumentException("buffer must wrap an array");
+        }
+
         return (byte[])UNSAFE.getObject(buffer, BYTE_BUFFER_HB_FIELD_OFFSET);
     }
 
