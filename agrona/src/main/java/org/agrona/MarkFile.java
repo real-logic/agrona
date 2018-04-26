@@ -375,7 +375,20 @@ public class MarkFile implements AutoCloseable
             sleep(16);
         }
 
-        final MappedByteBuffer byteBuffer = mapExistingFile(markFile, logger);
+        MappedByteBuffer byteBuffer = null;
+        int bufferLength = 0;
+        while (bufferLength < markFile.length() || bufferLength < 4)
+        {
+            if (epochClock.time() > (startTimeMs + timeoutMs))
+            {
+                throw new IllegalStateException("Mark file is created but not populated.");
+            }
+
+            sleep(1);
+            byteBuffer = mapExistingFile(markFile, logger);
+            bufferLength = byteBuffer.capacity();
+        }
+
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
         int version;
