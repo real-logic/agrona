@@ -132,7 +132,6 @@ subprojects {
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
-
     
     compileTestJava {
         sourceCompatibility = '1.8'
