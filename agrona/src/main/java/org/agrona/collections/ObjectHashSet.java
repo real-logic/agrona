@@ -368,7 +368,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      * avoids boxing and allocations
      *
      * @param coll containing the values to be added.
-     * @return <tt>true</tt> if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call
      */
     public boolean addAll(final ObjectHashSet<T> coll)
     {
@@ -426,7 +426,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      * avoids boxing and allocations
      *
      * @param coll containing the values to be removed.
-     * @return <tt>true</tt> if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call
      */
     public boolean removeAll(final ObjectHashSet<T> coll)
     {
