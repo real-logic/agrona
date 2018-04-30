@@ -19,8 +19,10 @@ import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -375,6 +377,8 @@ public class MarkFile implements AutoCloseable
             sleep(16);
         }
 
+        waitForFileChannelContents(markFile, timeoutMs, epochClock, startTimeMs);
+
         final MappedByteBuffer byteBuffer = mapExistingFile(markFile, logger);
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
@@ -544,6 +548,30 @@ public class MarkFile implements AutoCloseable
         if ((versionFieldOffset + SIZE_OF_INT) > timestampFieldOffset)
         {
             throw new IllegalArgumentException("version field must precede the timestamp field");
+        }
+    }
+
+    private static void waitForFileChannelContents(
+        final File markFile,
+        final long timeoutMs,
+        final EpochClock epochClock,
+        final long startTimeMs)
+    {
+        try (FileChannel markFileChannel = FileChannel.open(markFile.toPath(), StandardOpenOption.READ))
+        {
+            while (markFileChannel.size() < 4)
+            {
+                if (epochClock.time() > (startTimeMs + timeoutMs))
+                {
+                    throw new IllegalStateException("Mark file is created but not populated.");
+                }
+
+                sleep(16);
+            }
+        }
+        catch (final IOException e)
+        {
+            throw new IllegalStateException("Cannot open mark file for reading.");
         }
     }
 
