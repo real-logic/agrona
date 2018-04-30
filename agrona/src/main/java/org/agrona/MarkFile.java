@@ -22,10 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.nio.file.StandardOpenOption.*;
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
@@ -95,7 +95,7 @@ public class MarkFile implements AutoCloseable
 
         this.parentDir = directory;
         this.markFile = new File(directory, filename);
-        this.mappedBuffer = mapNewFile(markFile, totalFileLength);
+        this.mappedBuffer = IoUtil.mapNewFile(markFile, totalFileLength);
         this.buffer = new UnsafeBuffer(mappedBuffer);
         this.versionFieldOffset = versionFieldOffset;
         this.timestampFieldOffset = timestampFieldOffset;
@@ -152,7 +152,7 @@ public class MarkFile implements AutoCloseable
     /**
      * Map a pre-existing {@link MarkFile} if one present and is active.
      *
-     * Total length of {@link MarkFile}will be mapped until {@link #close()} is called.
+     * Total length of {@link MarkFile} will be mapped until {@link #close()} is called.
      *
      * @param directory            for the {@link MarkFile} file
      * @param filename             of the {@link MarkFile} file
@@ -366,10 +366,11 @@ public class MarkFile implements AutoCloseable
         final Consumer<String> logger)
     {
         final long startTimeMs = epochClock.time();
+        final long deadlineMs = startTimeMs + timeoutMs;
 
         while (!markFile.exists() || markFile.length() <= 0)
         {
-            if (epochClock.time() > (startTimeMs + timeoutMs))
+            if (epochClock.time() > deadlineMs)
             {
                 throw new IllegalStateException("Mark file not created: " + markFile.getName());
             }
@@ -377,17 +378,15 @@ public class MarkFile implements AutoCloseable
             sleep(16);
         }
 
-        waitForFileChannelContents(markFile, timeoutMs, epochClock, startTimeMs);
-
-        final MappedByteBuffer byteBuffer = mapExistingFile(markFile, logger);
+        final MappedByteBuffer byteBuffer = waitForFileMapping(logger, markFile, deadlineMs, epochClock);
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
         int version;
         while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
         {
-            if (epochClock.time() > (startTimeMs + timeoutMs))
+            if (epochClock.time() > deadlineMs)
             {
-                throw new IllegalStateException("Mark file is created but not initialised.");
+                throw new IllegalStateException("Mark file is created but not initialised");
             }
 
             sleep(1);
@@ -397,9 +396,9 @@ public class MarkFile implements AutoCloseable
 
         while (0 == buffer.getLongVolatile(timestampFieldOffset))
         {
-            if (epochClock.time() > (startTimeMs + timeoutMs))
+            if (epochClock.time() > deadlineMs)
             {
-                throw new IllegalStateException("No non zero timestamp detected.");
+                throw new IllegalStateException("No non zero timestamp detected");
             }
 
             sleep(1);
@@ -437,16 +436,16 @@ public class MarkFile implements AutoCloseable
 
                 versionCheck.accept(version);
 
-                final long timestamp = buffer.getLongVolatile(timestampFieldOffset);
-                final long now = epochClock.time();
-                final long timestampAge = now - timestamp;
+                final long timestampMs = buffer.getLongVolatile(timestampFieldOffset);
+                final long nowMs = epochClock.time();
+                final long timestampAgeMs = nowMs - timestampMs;
 
                 if (null != logger)
                 {
-                    logger.accept("INFO: heartbeat is (ms): " + timestampAge);
+                    logger.accept("INFO: heartbeat is (ms): " + timestampAgeMs);
                 }
 
-                if (timestampAge < timeoutMs)
+                if (timestampAgeMs < timeoutMs)
                 {
                     throw new IllegalStateException("Active Mark file detected");
                 }
@@ -481,26 +480,6 @@ public class MarkFile implements AutoCloseable
         return null;
     }
 
-    public static MappedByteBuffer mapExistingFile(final File markFile, final Consumer<String> logger)
-    {
-        if (markFile.exists())
-        {
-            if (null != logger)
-            {
-                logger.accept("INFO: Mark" + " file exists: " + markFile);
-            }
-
-            return IoUtil.mapExistingFile(markFile, markFile.toString());
-        }
-
-        return null;
-    }
-
-    public static MappedByteBuffer mapNewFile(final File markFile, final long length)
-    {
-        return IoUtil.mapNewFile(markFile, length);
-    }
-
     public static boolean isActive(
         final MappedByteBuffer byteBuffer,
         final EpochClock epochClock,
@@ -518,12 +497,13 @@ public class MarkFile implements AutoCloseable
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
         final long startTimeMs = epochClock.time();
+        final long deadlineMs = startTimeMs + timeoutMs;
         int version;
         while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
         {
-            if (epochClock.time() > (startTimeMs + timeoutMs))
+            if (epochClock.time() > deadlineMs)
             {
-                throw new IllegalStateException("Mark file is created but not initialised.");
+                throw new IllegalStateException("Mark file is created but not initialised");
             }
 
             sleep(1);
@@ -551,27 +531,34 @@ public class MarkFile implements AutoCloseable
         }
     }
 
-    private static void waitForFileChannelContents(
+    private static MappedByteBuffer waitForFileMapping(
+        final Consumer<String> logger,
         final File markFile,
-        final long timeoutMs,
-        final EpochClock epochClock,
-        final long startTimeMs)
+        final long deadlineMs,
+        final EpochClock epochClock)
     {
-        try (FileChannel markFileChannel = FileChannel.open(markFile.toPath(), StandardOpenOption.READ))
+        try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
         {
-            while (markFileChannel.size() < 4)
+            while (fileChannel.size() < 4)
             {
-                if (epochClock.time() > (startTimeMs + timeoutMs))
+                if (epochClock.time() > deadlineMs)
                 {
-                    throw new IllegalStateException("Mark file is created but not populated.");
+                    throw new IllegalStateException("Mark file is created but not populated");
                 }
 
                 sleep(16);
             }
+
+            if (null != logger)
+            {
+                logger.accept("INFO: Mark file exists: " + markFile);
+            }
+
+            return fileChannel.map(READ_WRITE, 0, fileChannel.size());
         }
-        catch (final IOException e)
+        catch (final IOException ex)
         {
-            throw new IllegalStateException("Cannot open mark file for reading.");
+            throw new IllegalStateException("cannot open mark file for reading", ex);
         }
     }
 
