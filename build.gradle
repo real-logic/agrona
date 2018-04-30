@@ -27,7 +27,7 @@ plugins {
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '0.9.17-SNAPSHOT'
+def agronaVersion = '0.9.18-SNAPSHOT'
 
 group = agronaGroup
 version = agronaVersion
@@ -114,13 +114,6 @@ subprojects {
 
     jar.enabled = true
 
-    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
-    compileJava {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
-    }
-
     dependencies {
         checkstyle 'com.puppycrawl.tools:checkstyle:8.9'
 
@@ -128,6 +121,26 @@ subprojects {
         testCompile 'org.mockito:mockito-core:2.18.3'
         testCompile 'org.hamcrest:hamcrest-library:1.3'
         testCompile 'com.google.guava:guava-testlib:23.5-jre'
+    }
+    
+    compileJava {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+        options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
+        options.fork = true
+        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
+        options.encoding = 'UTF-8'
+        options.deprecation = true
+    }
+    
+    compileTestJava {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+        options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
+        options.fork = true
+        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
+        options.encoding = 'UTF-8'
+        options.deprecation = true
     }
 
     test {
@@ -145,6 +158,9 @@ subprojects {
     javadoc {
         title = '<h1>Agrona</h1>'
         options.bottom = '<i>Copyright &#169; 2014-2018 Real Logic Ltd. All Rights Reserved.</i>'
+        if (JavaVersion.current() == JavaVersion.VERSION_1_10) {
+            options.addBooleanOption 'html5', true
+        }
     }
 
     signing {
@@ -158,13 +174,6 @@ project(':agrona') {
 
     if (null == System.getenv("JAVA_HOME")) {
         throw new GradleException('JAVA_HOME environment variable required')
-    }
-
-    compileJava {
-        // Suppress warnings about using Unsafe and sun.misc
-        options.compilerArgs << '-XDignore.symbol.file'
-        options.fork = true
-        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
     }
 
     uploadArchives {
@@ -243,13 +252,6 @@ project(':agrona') {
 
 project(':agrona-agent') {
     apply plugin: 'com.github.johnrengelman.shadow'
-
-    compileTestJava {
-        // Suppress warnings about using Unsafe and sun.misc
-        options.compilerArgs << '-XDignore.symbol.file'
-        options.fork = true
-        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
-    }
 
     dependencies {
         compile project(':agrona')
@@ -350,6 +352,6 @@ task uploadToMavenCentral {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
     distributionType = 'ALL'
 }

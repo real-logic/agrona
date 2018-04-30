@@ -15,8 +15,6 @@
  */
 package org.agrona;
 
-import sun.nio.ch.FileChannelImpl;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -465,10 +463,10 @@ public class IoUtil
         Method method = null;
         try
         {
-            method = FileChannelImpl.class.getDeclaredMethod(name, parameterTypes);
+            method = Class.forName("sun.nio.ch.FileChannelImpl").getDeclaredMethod(name, parameterTypes);
             method.setAccessible(true);
         }
-        catch (final NoSuchMethodException ex)
+        catch (final Exception ex)
         {
             LangUtil.rethrowUnchecked(ex);
         }

@@ -34,7 +34,7 @@ public class HighResolutionTimer
         {
             final Class<?> mediaProviderClass = Class.forName("com.sun.media.sound.MidiOutDeviceProvider");
             final Method getDeviceInfoMethod = mediaProviderClass.getMethod("getDeviceInfo");
-            final MidiDeviceProvider provider = (MidiDeviceProvider)mediaProviderClass.newInstance();
+            final MidiDeviceProvider provider = (MidiDeviceProvider)mediaProviderClass.getConstructor().newInstance();
             final MidiDevice.Info[] info = (MidiDevice.Info[])getDeviceInfoMethod.invoke(provider);
 
             midiDevice = info.length > 0 ? provider.getDevice(info[0]) : null;
