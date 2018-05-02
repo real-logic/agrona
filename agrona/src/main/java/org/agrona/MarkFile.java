@@ -356,6 +356,37 @@ public class MarkFile implements AutoCloseable
         IoUtil.ensureDirectoryExists(directory, directory.toString());
     }
 
+    public static MappedByteBuffer waitForFileMapping(
+        final Consumer<String> logger,
+        final File markFile,
+        final long deadlineMs,
+        final EpochClock epochClock)
+    {
+        try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
+        {
+            while (fileChannel.size() < 4)
+            {
+                if (epochClock.time() > deadlineMs)
+                {
+                    throw new IllegalStateException("Mark file is created but not populated");
+                }
+
+                sleep(16);
+            }
+
+            if (null != logger)
+            {
+                logger.accept("INFO: Mark file exists: " + markFile);
+            }
+
+            return fileChannel.map(READ_WRITE, 0, fileChannel.size());
+        }
+        catch (final IOException ex)
+        {
+            throw new IllegalStateException("cannot open mark file for reading", ex);
+        }
+    }
+
     public static MappedByteBuffer mapExistingMarkFile(
         final File markFile,
         final int versionFieldOffset,
@@ -528,37 +559,6 @@ public class MarkFile implements AutoCloseable
         if ((versionFieldOffset + SIZE_OF_INT) > timestampFieldOffset)
         {
             throw new IllegalArgumentException("version field must precede the timestamp field");
-        }
-    }
-
-    private static MappedByteBuffer waitForFileMapping(
-        final Consumer<String> logger,
-        final File markFile,
-        final long deadlineMs,
-        final EpochClock epochClock)
-    {
-        try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
-        {
-            while (fileChannel.size() < 4)
-            {
-                if (epochClock.time() > deadlineMs)
-                {
-                    throw new IllegalStateException("Mark file is created but not populated");
-                }
-
-                sleep(16);
-            }
-
-            if (null != logger)
-            {
-                logger.accept("INFO: Mark file exists: " + markFile);
-            }
-
-            return fileChannel.map(READ_WRITE, 0, fileChannel.size());
-        }
-        catch (final IOException ex)
-        {
-            throw new IllegalStateException("cannot open mark file for reading", ex);
         }
     }
 
