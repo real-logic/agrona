@@ -25,10 +25,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.AdditionalAnswers.answersWithDelay;
 import static org.mockito.Mockito.*;
 
@@ -160,16 +159,16 @@ public class AgentRunnerTest
         Thread.sleep(100);
 
         final AtomicInteger closeTimeoutCalls = new AtomicInteger();
-        runner.close(1, (t) ->
-        {
-            closeTimeoutCalls.incrementAndGet();
-            assertTrue(t == agentRunnerThread);
-        });
+        runner.close(
+            1,
+            (t) ->
+            {
+                closeTimeoutCalls.incrementAndGet();
+                assertSame(t, agentRunnerThread);
+            });
 
-        assertTrue(closeTimeoutCalls.get() > 0);
+        assertThat(closeTimeoutCalls.get(), greaterThan(0));
     }
-
-
 
     private void assertExceptionNotReported() throws Exception
     {

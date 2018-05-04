@@ -204,19 +204,11 @@ public class AgentRunner implements Runnable, AutoCloseable
      * is written to standard output. Please note  that a retry close timeout of
      * zero waits indefinitely, therefore the close timeout action is never called.
      *
-     * @param retryCloseTimeoutMillis
-     *            how long to wait before retrying
-     * @param onCloseTimeout
-     *            action to invoke before retrying after close timeout
+     * @param retryCloseTimeoutMs    how long to wait before retrying
+     * @param onCloseTimeoutFunction function to invoke before retrying after close timeout
      */
-    public final void close(final int retryCloseTimeoutMillis, final Consumer<Thread> onCloseTimeout)
+    public final void close(final int retryCloseTimeoutMs, final Consumer<Thread> onCloseTimeoutFunction)
     {
-        final Consumer<Thread> onCloseTimeoutAction = onCloseTimeout == null ? (thread) ->
-        {
-            System.err.println("Timeout waiting for agent '" + agent.roleName() +
-                "' to close, Retrying...");
-        } : onCloseTimeout;
-
         isRunning = false;
 
         final Thread thread = this.thread.getAndSet(TOMBSTONE);
@@ -238,14 +230,22 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 try
                 {
-                    thread.join(retryCloseTimeoutMillis);
+                    thread.join(retryCloseTimeoutMs);
 
                     if (!thread.isAlive() || isClosed)
                     {
                         return;
                     }
 
-                    onCloseTimeoutAction.accept(thread);
+                    if (null == onCloseTimeoutFunction)
+                    {
+                        System.err.println(
+                            "Timeout waiting for agent '" + agent.roleName() + "' to close, " + "Retrying...");
+                    }
+                    else
+                    {
+                        onCloseTimeoutFunction.accept(thread);
+                    }
 
                     if (!thread.isInterrupted())
                     {
