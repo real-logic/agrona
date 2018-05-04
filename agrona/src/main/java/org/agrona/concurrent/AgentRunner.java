@@ -22,6 +22,7 @@ import java.nio.channels.ClosedByInterruptException;
 import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * Agent runner containing an {@link Agent} which is run on a {@link Thread}.
@@ -179,10 +180,43 @@ public class AgentRunner implements Runnable, AutoCloseable
     }
 
     /**
-     * Stop the running Agent and cleanup. This will wait for the work loop to exit.
+     * Stop the running Agent and cleanup.
+     * <p>
+     * This is equivalent to calling {@link AgentRunner#close(int, Consumer)}
+     * using the default {@link AgentRunner#RETRY_CLOSE_TIMEOUT_MS} value and a
+     * null action.
      */
     public final void close()
     {
+        close(RETRY_CLOSE_TIMEOUT_MS, null);
+    }
+
+    /**
+     * Stop the running Agent and cleanup.
+     * <p>
+     * This will wait for the work loop to exit. The close timeout parameter
+     * controls how long we should wait before retrying to stop the agent by
+     * interrupting the thread.
+     * <p>
+     * An optional action can be invoked whenever we time out while waiting
+     * which accepts the agent runner thread as the parameter (e.g. to obtain
+     * and log a stack trace from the thread). If the action is null, a message
+     * is written to standard output. Please note  that a retry close timeout of
+     * zero waits indefinitely, therefore the close timeout action is never called.
+     *
+     * @param retryCloseTimeoutMillis
+     *            how long to wait before retrying
+     * @param onCloseTimeout
+     *            action to invoke before retrying after close timeout
+     */
+    public final void close(final int retryCloseTimeoutMillis, final Consumer<Thread> onCloseTimeout)
+    {
+        final Consumer<Thread> onCloseTimeoutAction = onCloseTimeout == null ? (thread) ->
+        {
+            System.err.println("Timeout waiting for agent '" + agent.roleName() +
+                "' to close, Retrying...");
+        } : onCloseTimeout;
+
         isRunning = false;
 
         final Thread thread = this.thread.getAndSet(TOMBSTONE);
@@ -204,14 +238,14 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 try
                 {
-                    thread.join(RETRY_CLOSE_TIMEOUT_MS);
+                    thread.join(retryCloseTimeoutMillis);
 
                     if (!thread.isAlive() || isClosed)
                     {
                         return;
                     }
 
-                    System.err.println("Timeout waiting for agent '" + agent.roleName() + "' to close, Retrying...");
+                    onCloseTimeoutAction.accept(thread);
 
                     if (!thread.isInterrupted())
                     {

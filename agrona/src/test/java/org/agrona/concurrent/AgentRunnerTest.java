@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -147,6 +148,28 @@ public class AgentRunnerTest
 
         assertTrue(Thread.interrupted());
     }
+
+    @Test
+    public void shouldInvokeActionOnRetryCloseTimeout() throws Exception
+    {
+        when(mockAgent.doWork()).then(answersWithDelay(500, RETURNS_DEFAULTS));
+
+        final Thread agentRunnerThread = new Thread(runner);
+        agentRunnerThread.start();
+
+        Thread.sleep(100);
+
+        final AtomicInteger closeTimeoutCalls = new AtomicInteger();
+        runner.close(1, (t) ->
+        {
+            closeTimeoutCalls.incrementAndGet();
+            assertTrue(t == agentRunnerThread);
+        });
+
+        assertTrue(closeTimeoutCalls.get() > 0);
+    }
+
+
 
     private void assertExceptionNotReported() throws Exception
     {
