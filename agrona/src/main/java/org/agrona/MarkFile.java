@@ -570,7 +570,7 @@ public class MarkFile implements AutoCloseable
         }
         catch (final InterruptedException ignore)
         {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
         }
     }
 }

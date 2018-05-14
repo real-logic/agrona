@@ -47,7 +47,7 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         }
         catch (final InterruptedException ignore)
         {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -59,7 +59,7 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         }
         catch (final InterruptedException ignore)
         {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
         }
     }
 
