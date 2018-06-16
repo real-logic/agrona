@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.CloseHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,8 +33,8 @@ import static org.junit.Assert.*;
 public class MappedResizeableBufferTest
 {
     private static final long SIZE = 2 * (long)Integer.MAX_VALUE;
-    private static final String PATH = IoUtil.tmpDirName() + "/eg-buffer";
     private static final int VALUE = 4;
+    private static final String PATH = IoUtil.tmpDirName() + "/eg-buffer";
 
     private static FileChannel channel;
 
@@ -45,6 +46,19 @@ public class MappedResizeableBufferTest
         final RandomAccessFile file = new RandomAccessFile(PATH, "rw");
         file.setLength(SIZE);
         channel = file.getChannel();
+    }
+
+    @After
+    public void close()
+    {
+        CloseHelper.close(buffer);
+    }
+
+    @AfterClass
+    public static void tearDown()
+    {
+        CloseHelper.close(channel);
+        IoUtil.deleteIfExists(new File(PATH));
     }
 
     @Test
@@ -121,21 +135,5 @@ public class MappedResizeableBufferTest
     {
         buffer.putInt(index, VALUE);
         assertEquals(VALUE, buffer.getInt(index));
-    }
-
-    @After
-    public void close()
-    {
-        if (null != buffer)
-        {
-            buffer.close();
-        }
-    }
-
-    @AfterClass
-    public static void tearDown() throws IOException
-    {
-        channel.close();
-        IoUtil.deleteIfExists(new File(PATH));
     }
 }
