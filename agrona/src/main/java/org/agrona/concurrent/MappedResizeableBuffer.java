@@ -749,7 +749,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         }
 
         UNSAFE.copyMemory(
-            null,
+            srcBuffer.byteArray(),
             srcBuffer.addressOffset() + srcIndex,
             null,
             addressOffset + index,

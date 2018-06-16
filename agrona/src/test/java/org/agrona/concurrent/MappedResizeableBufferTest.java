@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class MappedResizeableBufferTest
 {
@@ -99,6 +99,22 @@ public class MappedResizeableBufferTest
 
         assertTrue(channel.isOpen());
         buffer = null;
+    }
+
+    @Test
+    public void shouldPutBytesFromDirectBuffer()
+    {
+        buffer = new MappedResizeableBuffer(channel, 0, 100);
+        final long value = 0x5555555555555555L;
+
+        final UnsafeBuffer onHeapDirectBuffer =  new UnsafeBuffer(new byte[24]);
+        onHeapDirectBuffer.putLong(16, value);
+        buffer.putBytes(24, onHeapDirectBuffer, 16, 8);
+        assertThat(buffer.getLong(24), is(value));
+
+        final UnsafeBuffer offHeapDirectBuffer = new UnsafeBuffer(buffer.addressOffset(), (int)buffer.capacity());
+        buffer.putBytes(96, offHeapDirectBuffer, 24, 4);
+        assertThat(buffer.getInt(96), is((int)value));
     }
 
     private void exchangeDataAt(final long index)
