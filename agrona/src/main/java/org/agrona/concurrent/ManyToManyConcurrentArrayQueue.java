@@ -76,9 +76,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             sequences[i] = i;
         }
 
-        UNSAFE.putOrderedLong(sequences, sequenceArrayOffset(0, sequences.length - 1), 0);
-
-
+        UNSAFE.putLongVolatile(sequences, sequenceArrayOffset(0, sequences.length - 1), 0);
         this.sequences = sequences;
     }
 
