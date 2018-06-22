@@ -20,6 +20,8 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 
+import java.nio.ByteBuffer;
+
 /**
  * Atomic counter that is backed by an {@link AtomicBuffer} that can be read across threads and processes.
  */
@@ -28,10 +30,11 @@ public class AtomicCounter implements AutoCloseable
     private boolean isClosed = false;
     private final int id;
     private final long addressOffset;
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final AtomicBuffer buffer;
     private final byte[] byteArray;
     private final CountersManager countersManager;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**
      * Map a counter over a buffer. This version will NOT free the counter on close.
@@ -55,7 +58,7 @@ public class AtomicCounter implements AutoCloseable
     {
         this.id = counterId;
         this.countersManager = countersManager;
-        this.buffer = buffer;
+        this.byteBuffer = buffer.byteBuffer();
         this.byteArray = buffer.byteArray();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
