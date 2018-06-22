@@ -18,13 +18,18 @@ package org.agrona.concurrent.status;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 
+import java.nio.ByteBuffer;
+
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;
     private final long addressOffset;
-    private final byte[] buffer;
+    private final byte[] byteArray;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**
      * Map a status indicator over a buffer.
@@ -35,7 +40,8 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
     public UnsafeBufferStatusIndicator(final AtomicBuffer buffer, final int counterId)
     {
         this.counterId = counterId;
-        this.buffer = buffer.byteArray();
+        this.byteArray = buffer.byteArray();
+        this.byteBuffer = buffer.byteBuffer();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
         buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
@@ -49,11 +55,11 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
 
     public void setOrdered(final long value)
     {
-        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
     }
 
     public long getVolatile()
     {
-        return UnsafeAccess.UNSAFE.getLongVolatile(buffer, addressOffset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
     }
 }

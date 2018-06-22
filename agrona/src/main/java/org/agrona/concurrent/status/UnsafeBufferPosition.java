@@ -18,6 +18,8 @@ package org.agrona.concurrent.status;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import java.nio.ByteBuffer;
+
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
@@ -28,8 +30,11 @@ public class UnsafeBufferPosition extends Position
     private boolean isClosed = false;
     private final int counterId;
     private final long addressOffset;
-    private final byte[] buffer;
+    private final byte[] byteArray;
     private final CountersManager countersManager;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**
      * Map a position over a buffer.
@@ -53,7 +58,8 @@ public class UnsafeBufferPosition extends Position
     {
         this.counterId = counterId;
         this.countersManager = countersManager;
-        this.buffer = buffer.byteArray();
+        this.byteArray = buffer.byteArray();
+        this.byteBuffer = buffer.byteBuffer();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
         buffer.boundsCheck(counterOffset, SIZE_OF_LONG);
@@ -72,36 +78,36 @@ public class UnsafeBufferPosition extends Position
 
     public long get()
     {
-        return UnsafeAccess.UNSAFE.getLong(buffer, addressOffset);
+        return UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset);
     }
 
     public long getVolatile()
     {
-        return UnsafeAccess.UNSAFE.getLongVolatile(buffer, addressOffset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
     }
 
     public void set(final long value)
     {
-        UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, value);
+        UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, value);
     }
 
     public void setOrdered(final long value)
     {
-        UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
     }
 
     public void setVolatile(final long value)
     {
-        UnsafeAccess.UNSAFE.putLongVolatile(buffer, addressOffset, value);
+        UnsafeAccess.UNSAFE.putLongVolatile(byteArray, addressOffset, value);
     }
 
     public boolean proposeMax(final long proposedValue)
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putLong(buffer, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, proposedValue);
             updated = true;
         }
 
@@ -112,9 +118,9 @@ public class UnsafeBufferPosition extends Position
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(buffer, addressOffset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putOrderedLong(buffer, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, proposedValue);
             updated = true;
         }
 
