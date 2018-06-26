@@ -195,7 +195,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     /**
      * Size can be considered an approximation on a moving list.
      * It is only really stable when the consumer is inactive.
-     * If you want to check for size() == 0 then {@link #isEmpty()} is a better alternative.
+     * If you want to check for {@code queue.size() == 0} then {@link #isEmpty()} is a better alternative.
      * <p>
      * This operation is O(n) on the length of the linked chain.
      *
