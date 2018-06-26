@@ -97,9 +97,11 @@ class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQue
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue">
  * MPSC linked queue</a>.
  * <p>
- * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no node
- * available but is not empty. This is a conflated design issue in the Queue implementation. If you wish to check for
- * empty then call {@link ManyToOneConcurrentLinkedQueue#isEmpty()}.
+ * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no item
+ * available but size could be greater than zero if an offer is in progress. This is a conflated design issue in the
+ * {@link java.util.Queue} implementation.
+ * <p>
+ * If you wish to check for empty then call {@link #isEmpty()} rather than {@link #size()} checking for zero.
  *
  * @param <E> element type in the queue.
  */
