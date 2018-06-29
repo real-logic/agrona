@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent.broadcast;
 
+import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
 
@@ -31,7 +32,26 @@ public class CopyBroadcastReceiver
     public static final int SCRATCH_BUFFER_LENGTH = 4096;
 
     private final BroadcastReceiver receiver;
-    private final UnsafeBuffer scratchBuffer;
+    private final MutableDirectBuffer scratchBuffer;
+
+    /**
+     * Wrap a {@link BroadcastReceiver} to simplify the API for receiving messages.
+     *
+     * @param receiver      to be wrapped.
+     * @param scratchBuffer to be used for copying receive buffers.
+     */
+    public CopyBroadcastReceiver(final BroadcastReceiver receiver, final MutableDirectBuffer scratchBuffer)
+    {
+        this.receiver = receiver;
+        this.scratchBuffer = scratchBuffer;
+
+        while (receiver.receiveNext())
+        {
+            // If we're reconnecting to a broadcast buffer then we need to
+            // scan ourselves up to date, otherwise we risk "falling behind"
+            // the buffer due to the time taken to catchup.
+        }
+    }
 
     /**
      * Wrap a {@link BroadcastReceiver} to simplify the API for receiving messages.
@@ -83,7 +103,7 @@ public class CopyBroadcastReceiver
 
             final int length = receiver.length();
             final int capacity = scratchBuffer.capacity();
-            if (length > capacity)
+            if (length > capacity && !scratchBuffer.isExpandable())
             {
                 throw new IllegalStateException(
                     "Buffer required length of " + length + " but only has " + capacity);
