@@ -1565,7 +1565,7 @@ public class UnsafeBuffer implements AtomicBuffer
             return 1;
         }
 
-        if (value == Integer.MIN_VALUE)
+        if (value == Long.MIN_VALUE)
         {
             putBytes(index, MIN_LONG_VALUE);
             return MIN_LONG_VALUE.length;
