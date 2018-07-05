@@ -96,8 +96,8 @@ public class DistinctErrorLog
     private int nextOffset = 0;
     private final EpochClock clock;
     private final AtomicBuffer buffer;
-    private volatile DistinctObservation[] distinctObservations = new DistinctObservation[0];
-    private final Lock newObservationLock = new ReentrantLock();
+    private DistinctObservation[] distinctObservations = new DistinctObservation[0];
+    private final Lock observationsLock = new ReentrantLock();
 
     /**
      * Create a new error log that will be written to a provided {@link AtomicBuffer}.
@@ -123,24 +123,24 @@ public class DistinctErrorLog
     public boolean record(final Throwable observation)
     {
         final long timestamp = clock.time();
-        final DistinctObservation[] existingObservations = distinctObservations;
-        DistinctObservation existingObservation = find(existingObservations, observation);
+        DistinctObservation existingObservation;
 
-        if (null == existingObservation)
+        observationsLock.lock();
+        try
         {
-            newObservationLock.lock();
-            try
+            existingObservation = find(distinctObservations, observation);
+            if (null == existingObservation)
             {
-                existingObservation = newObservation(timestamp, existingObservations, observation);
+                existingObservation = newObservation(timestamp, distinctObservations, observation);
                 if (INSUFFICIENT_SPACE == existingObservation)
                 {
                     return false;
                 }
             }
-            finally
-            {
-                newObservationLock.unlock();
-            }
+        }
+        finally
+        {
+            observationsLock.unlock();
         }
 
         final int offset = existingObservation.offset;
