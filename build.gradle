@@ -136,9 +136,6 @@ subprojects {
     compileTestJava {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
-        options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
-        options.fork = true
-        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
         options.encoding = 'UTF-8'
         options.deprecation = true
     }

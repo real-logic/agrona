@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.AfterClass;
@@ -43,13 +44,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import sun.misc.Unsafe;
 
 public class BufferAlignmentAgentTest
 {
     private static final String TEST_STRING = "BufferAlignmentTest";
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
-    private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET % 8;
+    private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
 
     @BeforeClass
@@ -330,16 +330,18 @@ public class BufferAlignmentAgentTest
         {
             methodUnderTest.accept(index);
         }
-        catch (final BufferAlignmentException ignore)
+        catch (final BufferAlignmentException ex)
         {
-            final Matcher m = EXCEPTION_MESSAGE_PATTERN.matcher(ignore.getMessage());
-            m.find();
-            m.find();
-            final int indexFound = Integer.parseInt(m.group());
-            m.find();
-            final int offsetFound = Integer.parseInt(m.group());
+            final Matcher matcher = EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage());
+            matcher.find();
+            matcher.find();
+            final int indexFound = Integer.parseInt(matcher.group());
+            matcher.find();
+            final int offsetFound = Integer.parseInt(matcher.group());
+
             assertEquals("BufferAlignmentException reported wrong index", index, indexFound);
             assertNotEquals("BufferAlignmentException reported wrong offset", 0, offsetFound);
+
             return;
         }
 
