@@ -21,8 +21,6 @@ import org.agrona.concurrent.EpochClock;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.SIZE_OF_INT;
@@ -37,7 +35,7 @@ import static org.agrona.BitUtil.align;
  * The provided {@link AtomicBuffer} can wrap a memory-mapped file so logging can be out of process. This provides
  * the benefit that if a crash or lockup occurs then the log can be read externally without loss of data.
  * <p>
- * This class is threadsafe to be used from multiple logging threads.
+ * <b>Note:</b> This class is threadsafe to be used from multiple logging threads.
  * <p>
  * The error records are recorded to the memory mapped buffer in the following format.
  * <pre>
@@ -97,7 +95,6 @@ public class DistinctErrorLog
     private final EpochClock clock;
     private final AtomicBuffer buffer;
     private DistinctObservation[] distinctObservations = new DistinctObservation[0];
-    private final Lock observationsLock = new ReentrantLock();
 
     /**
      * Create a new error log that will be written to a provided {@link AtomicBuffer}.
@@ -125,8 +122,7 @@ public class DistinctErrorLog
         final long timestamp = clock.time();
         DistinctObservation distinctObservation;
 
-        observationsLock.lock();
-        try
+        synchronized (this)
         {
             distinctObservation = find(distinctObservations, observation);
             if (null == distinctObservation)
@@ -137,10 +133,6 @@ public class DistinctErrorLog
                     return false;
                 }
             }
-        }
-        finally
-        {
-            observationsLock.unlock();
         }
 
         final int offset = distinctObservation.offset;
