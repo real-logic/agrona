@@ -123,16 +123,16 @@ public class DistinctErrorLog
     public boolean record(final Throwable observation)
     {
         final long timestamp = clock.time();
-        DistinctObservation existingObservation;
+        DistinctObservation distinctObservation;
 
         observationsLock.lock();
         try
         {
-            existingObservation = find(distinctObservations, observation);
-            if (null == existingObservation)
+            distinctObservation = find(distinctObservations, observation);
+            if (null == distinctObservation)
             {
-                existingObservation = newObservation(timestamp, distinctObservations, observation);
-                if (INSUFFICIENT_SPACE == existingObservation)
+                distinctObservation = newObservation(timestamp, observation);
+                if (INSUFFICIENT_SPACE == distinctObservation)
                 {
                     return false;
                 }
@@ -143,7 +143,7 @@ public class DistinctErrorLog
             observationsLock.unlock();
         }
 
-        final int offset = existingObservation.offset;
+        final int offset = distinctObservation.offset;
         buffer.getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
         buffer.putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
 
@@ -220,41 +220,29 @@ public class DistinctErrorLog
         return true;
     }
 
-    private DistinctObservation newObservation(
-        final long timestamp, final DistinctObservation[] existingObservations, final Throwable observation)
+    private DistinctObservation newObservation(final long timestamp, final Throwable observation)
     {
-        DistinctObservation existingObservation = null;
+        final StringWriter stringWriter = new StringWriter();
+        observation.printStackTrace(new PrintWriter(stringWriter));
+        final byte[] encodedError = stringWriter.toString().getBytes(UTF_8);
 
-        if (existingObservations != distinctObservations)
+        final int length = ENCODED_ERROR_OFFSET + encodedError.length;
+        final int offset = nextOffset;
+
+        if ((offset + length) > buffer.capacity())
         {
-            existingObservation = find(distinctObservations, observation);
+            return INSUFFICIENT_SPACE;
         }
 
-        if (null == existingObservation)
-        {
-            final StringWriter stringWriter = new StringWriter();
-            observation.printStackTrace(new PrintWriter(stringWriter));
-            final byte[] encodedError = stringWriter.toString().getBytes(UTF_8);
+        buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedError);
+        buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
+        nextOffset = align(offset + length, RECORD_ALIGNMENT);
 
-            final int length = ENCODED_ERROR_OFFSET + encodedError.length;
-            final int offset = nextOffset;
+        final DistinctObservation distinctObservation = new DistinctObservation(observation, offset);
+        distinctObservations = prepend(distinctObservations, distinctObservation);
+        buffer.putIntOrdered(offset + LENGTH_OFFSET, length);
 
-            if ((offset + length) > buffer.capacity())
-            {
-                return INSUFFICIENT_SPACE;
-            }
-
-            buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedError);
-            buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
-            nextOffset = align(offset + length, RECORD_ALIGNMENT);
-
-            existingObservation = new DistinctObservation(observation, offset);
-            distinctObservations = prepend(distinctObservations, existingObservation);
-
-            buffer.putIntOrdered(offset + LENGTH_OFFSET, length);
-        }
-
-        return existingObservation;
+        return distinctObservation;
     }
 
     private static DistinctObservation[] prepend(
