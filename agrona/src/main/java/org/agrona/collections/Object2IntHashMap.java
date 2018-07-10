@@ -371,6 +371,7 @@ public class Object2IntHashMap<K>
         {
             if (key.equals(keys[index]))
             {
+                keys[index] = null;
                 values[index] = missingValue;
                 --size;
 
@@ -390,6 +391,7 @@ public class Object2IntHashMap<K>
     public void clear()
     {
         size = 0;
+        Arrays.fill(keys, null);
         Arrays.fill(values, missingValue);
     }
 

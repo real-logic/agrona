@@ -338,6 +338,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             if (entries[keyIndex] == key || entries[keyIndex].equals(key))
             {
                 oldValue = entries[keyIndex + 1];
+                entries[keyIndex] = null;
                 entries[keyIndex + 1] = null;
                 size--;
 
