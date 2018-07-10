@@ -651,6 +651,7 @@ public class Object2IntHashMap<K>
                 keys[deleteIndex] = keys[index];
                 values[deleteIndex] = values[index];
 
+                keys[index] = null;
                 values[index] = missingValue;
                 deleteIndex = index;
             }

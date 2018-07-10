@@ -379,6 +379,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                 entries[deleteKeyIndex] = entries[keyIndex];
                 entries[deleteKeyIndex + 1] = entries[keyIndex + 1];
 
+                entries[keyIndex] = null;
                 entries[keyIndex + 1] = null;
                 deleteKeyIndex = keyIndex;
             }
