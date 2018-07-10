@@ -16,7 +16,6 @@
 package org.agrona.collections;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -350,7 +349,6 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    @Ignore
     public void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
@@ -360,7 +358,7 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{12=12, 11=11, 7=7, 3=3, 19=19, 1=1}";
+        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
 

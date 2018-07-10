@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class Object2IntHashMapTest
@@ -406,7 +405,6 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    @Ignore
     public void shouldGenerateStringRepresentation()
     {
         final Object2IntHashMap<ControlledHash> objectToIntMap = new Object2IntHashMap<>(MISSING_VALUE);
@@ -418,7 +416,7 @@ public class Object2IntHashMapTest
             objectToIntMap.put(testEntry, testEntry.value);
         }
 
-        final String mapAsAString = "{12=12, 11=11, 7=7, 3=3, 19=19, 1=1}";
+        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
         assertThat(objectToIntMap.toString(), equalTo(mapAsAString));
     }
 

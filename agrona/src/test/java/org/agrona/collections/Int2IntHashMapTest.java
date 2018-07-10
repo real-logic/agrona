@@ -15,7 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
 
@@ -603,7 +602,6 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    @Ignore
     public void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
@@ -613,7 +611,7 @@ public class Int2IntHashMapTest
             map.put(testEntry, testEntry + 1000);
         }
 
-        final String mapAsAString = "{1=1001, 3=1003, 19=1019, 7=1007, 11=1011, 12=1012}";
+        final String mapAsAString = "{12=1012, 11=1011, 7=1007, 19=1019, 3=1003, 1=1001}";
         assertThat(map.toString(), equalTo(mapAsAString));
     }
 
