@@ -361,8 +361,11 @@ public class Int2IntCounterMap implements Serializable
      */
     public void clear()
     {
-        Arrays.fill(entries, initialValue);
-        size = 0;
+        if (size > 0)
+        {
+            Arrays.fill(entries, initialValue);
+            size = 0;
+        }
     }
 
     /**

@@ -335,8 +335,11 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      */
     public void clear()
     {
-        Arrays.fill(values, MISSING_VALUE);
-        size = 0;
+        if (size > 0)
+        {
+            Arrays.fill(values, MISSING_VALUE);
+            size = 0;
+        }
     }
 
     /**

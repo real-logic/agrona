@@ -357,8 +357,11 @@ public class Int2ObjectHashMap<V>
      */
     public void clear()
     {
-        size = 0;
-        Arrays.fill(values, null);
+        if (size > 0)
+        {
+            Arrays.fill(values, null);
+            size = 0;
+        }
     }
 
     /**
@@ -569,14 +572,14 @@ public class Int2ObjectHashMap<V>
             if (null != value)
             {
                 final int key = keys[i];
-                @DoNotSub int newHash = Hashing.hash(key, mask);
-                while (null != tempValues[newHash])
+                @DoNotSub int index = Hashing.hash(key, mask);
+                while (null != tempValues[index])
                 {
-                    newHash = ++newHash & mask;
+                    index = ++index & mask;
                 }
 
-                tempKeys[newHash] = key;
-                tempValues[newHash] = value;
+                tempKeys[index] = key;
+                tempValues[index] = value;
             }
         }
 

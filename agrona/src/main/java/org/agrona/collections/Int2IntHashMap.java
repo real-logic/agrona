@@ -286,8 +286,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public void clear()
     {
-        Arrays.fill(entries, missingValue);
-        size = 0;
+        if (size > 0)
+        {
+            Arrays.fill(entries, missingValue);
+            size = 0;
+        }
     }
 
     /**

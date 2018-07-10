@@ -232,8 +232,11 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public void clear()
     {
-        Arrays.fill(entries, null);
-        size = 0;
+        if (size > 0)
+        {
+            Arrays.fill(entries, null);
+            size = 0;
+        }
     }
 
     /**

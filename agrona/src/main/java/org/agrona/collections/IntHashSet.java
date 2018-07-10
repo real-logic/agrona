@@ -374,9 +374,12 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
      */
     public void clear()
     {
-        Arrays.fill(values, MISSING_VALUE);
-        sizeOfArrayValues = 0;
-        containsMissingValue = false;
+        if (size() > 0)
+        {
+            Arrays.fill(values, MISSING_VALUE);
+            sizeOfArrayValues = 0;
+            containsMissingValue = false;
+        }
     }
 
     /**

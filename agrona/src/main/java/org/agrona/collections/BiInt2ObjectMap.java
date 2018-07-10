@@ -135,8 +135,11 @@ public class BiInt2ObjectMap<V> implements Serializable
      */
     public void clear()
     {
-        size = 0;
-        Arrays.fill(values, null);
+        if (size > 0)
+        {
+            Arrays.fill(values, null);
+            size = 0;
+        }
     }
 
     /**
