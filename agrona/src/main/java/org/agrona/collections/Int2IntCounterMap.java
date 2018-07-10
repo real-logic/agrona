@@ -571,7 +571,6 @@ public class Int2IntCounterMap implements Serializable
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         entries = new int[entriesLength];
-        size = 0;
         Arrays.fill(entries, initialValue);
     }
 
@@ -593,12 +592,24 @@ public class Int2IntCounterMap implements Serializable
 
         capacity(newCapacity);
 
+        final int[] newEntries = entries;
+        @DoNotSub final int mask = entries.length - 1;
+
         for (@DoNotSub int i = 0; i < length; i += 2)
         {
-            final int key = oldEntries[i];
-            if (oldEntries[i + 1] != initialValue)
+            final int value = oldEntries[i + 1];
+            if (value != initialValue)
             {
-                put(key, oldEntries[i + 1]);
+                final int key = oldEntries[i];
+                @DoNotSub int index = Hashing.evenHash(key, mask);
+
+                while (entries[index + 1] != initialValue)
+                {
+                    index = next(index, mask);
+                }
+
+                newEntries[index] = key;
+                newEntries[index + 1] = value;
             }
         }
     }
