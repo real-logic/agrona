@@ -100,6 +100,16 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
+     * Get the total capacity for the map to which the load factor will be a fraction of.
+     *
+     * @return the total capacity for the map.
+     */
+    @DoNotSub public int capacity()
+    {
+        return entries.length >> 2;
+    }
+
+    /**
      * Get the actual threshold which when reached the map will resize.
      * This is a function of the current capacity and load factor.
      *
@@ -211,11 +221,24 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         capacity(newCapacity);
 
+        final int[] newEntries = entries;
+        @DoNotSub final int mask = entries.length - 1;
+
         for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            if (oldEntries[keyIndex + 1] != missingValue)
+            final int value = oldEntries[keyIndex + 1];
+            if (value != missingValue)
             {
-                put(oldEntries[keyIndex], oldEntries[keyIndex + 1]);
+                final int key = oldEntries[keyIndex];
+                @DoNotSub int index = Hashing.evenHash(key, mask);
+
+                while (newEntries[index + 1] != missingValue)
+                {
+                    index = next(index, mask);
+                }
+
+                newEntries[index] = key;
+                newEntries[index + 1] = value;
             }
         }
     }
@@ -639,7 +662,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         entries = new int[entriesLength];
-        size = 0;
         Arrays.fill(entries, missingValue);
     }
 

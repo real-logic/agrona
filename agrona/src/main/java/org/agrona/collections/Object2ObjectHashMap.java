@@ -93,6 +93,16 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     }
 
     /**
+     * Get the total capacity for the map to which the load factor will be a fraction of.
+     *
+     * @return the total capacity for the map.
+     */
+    public int capacity()
+    {
+        return entries.length >> 2;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public int size()
@@ -191,11 +201,24 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         capacity(newCapacity);
 
+        final Object[] newEntries = entries;
+        final int mask = entries.length - 1;
+
         for (int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            if (oldEntries[keyIndex + 1] != null)
+            final Object value = oldEntries[keyIndex + 1];
+            if (value != null)
             {
-                put(oldEntries[keyIndex], oldEntries[keyIndex + 1]);
+                final Object key = oldEntries[keyIndex];
+                int index = Hashing.evenHash(key.hashCode(), mask);
+
+                while (newEntries[index + 1] != null)
+                {
+                    index = next(index, mask);
+                }
+
+                newEntries[index] = key;
+                newEntries[index + 1] = value;
             }
         }
     }
@@ -454,7 +477,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         entries = new Object[entriesLength];
-        size = 0;
         Arrays.fill(entries, null);
     }
 

@@ -95,6 +95,16 @@ public class Int2IntCounterMap implements Serializable
     }
 
     /**
+     * Get the total capacity for the map to which the load factor will be a fraction of.
+     *
+     * @return the total capacity for the map.
+     */
+    @DoNotSub public int capacity()
+    {
+        return entries.length >> 2;
+    }
+
+    /**
      * The current size of the map which at not at {@link #initialValue()}.
      *
      * @return map size, counters at {@link #initialValue()} are not counted

@@ -140,7 +140,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     }
 
     /**
-     * Add a Consumer that will be called when the collection is resized.
+     * Add a Consumer that will be called when the collection is re-sized.
      *
      * @param resizeNotifier IntConsumer containing the new resizeThreshold
      */
