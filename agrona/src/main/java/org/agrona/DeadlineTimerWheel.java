@@ -47,13 +47,13 @@ public class DeadlineTimerWheel
     private static final int INITIAL_TICK_ALLOCATION = 16;
 
     private final long[][] wheel;
-    private final long startTime;
     private final int tickResolution;
     private final int wheelMask;
     private final int resolutionBitsToShift;
     private final TimeUnit timeUnit;
 
     private long timerCount;
+    private long startTime;
     private int currentTick;
     private int pollIndex;
 
@@ -178,6 +178,24 @@ public class DeadlineTimerWheel
     }
 
     /**
+     * Reset the start time of the wheel.
+     *
+     * @param startTime to set the wheel to.
+     * @exception IllegalStateException if wheel has any active timers.
+     */
+    public void resetStartTime(final long startTime)
+    {
+        if (timerCount > 0)
+        {
+            throw new IllegalStateException("can not set startTime with active timers");
+        }
+
+        this.startTime = startTime;
+        this.currentTick = 0;
+        this.pollIndex = 0;
+    }
+
+    /**
      * Schedule a timer for a given absolute time as a deadline in {@link #timeUnit()}s. A timerId will be assigned
      * and returned for future reference.
      *
@@ -284,6 +302,11 @@ public class DeadlineTimerWheel
             {
                 pollIndex = 0;
             }
+        }
+        else if (currentTickTime() <= now)
+        {
+            currentTick++;
+            pollIndex = 0;
         }
 
         return timersExpired;
