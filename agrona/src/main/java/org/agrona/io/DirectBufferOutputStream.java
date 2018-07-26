@@ -129,13 +129,24 @@ public class DirectBufferOutputStream extends OutputStream
     public void write(final byte[] srcBytes, final int srcOffset, final int length)
     {
         final long resultingOffset = position + ((long)length);
-        if (resultingOffset >= this.length)
+        if (resultingOffset > this.length)
         {
             throw new IllegalStateException("insufficient capacity in the buffer");
         }
 
         buffer.putBytes(offset + position, srcBytes, srcOffset, length);
         position += length;
+    }
+
+    /**
+     * Write a byte[] to the buffer.
+     *
+     * @param srcBytes  to write
+     * @throws IllegalStateException if insufficient capacity remains in the buffer.
+     */
+    public void write(final byte[] srcBytes)
+    {
+        write(srcBytes, 0, srcBytes.length);
     }
 
     public void close()
