@@ -15,9 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.agrona.collections.Int2IntHashMap.EntryIterator;
-import org.agrona.collections.Int2IntHashMap.KeyIterator;
-import org.agrona.collections.Int2IntHashMap.ValueIterator;
 import org.agrona.generation.DoNotSub;
 
 import java.io.Serializable;
@@ -738,8 +735,8 @@ public class Int2ObjectHashMap<V>
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final V val = get(entry.getKey());
-            return val != null && val.equals(entry.getValue());
+            final V value = get(entry.getKey());
+            return value != null && value.equals(entry.getValue());
         }
     }
 

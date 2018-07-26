@@ -1071,8 +1071,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final Integer val = get(entry.getKey());
-            return val != null && val.equals(entry.getValue());
+            final Integer value = get(entry.getKey());
+            return value != null && value.equals(entry.getValue());
         }
     }
 }
