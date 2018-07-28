@@ -17,6 +17,7 @@ package org.agrona.io;
 
 import org.agrona.MutableDirectBuffer;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -149,6 +150,16 @@ public class DirectBufferOutputStream extends OutputStream
         write(srcBytes, 0, srcBytes.length);
     }
 
+    /**
+     * Override to remove {@link IOException}. This method does nothing.
+     */
+    public void flush()
+    {
+    }
+
+    /**
+     * Override to remove {@link IOException}. This method does nothing.
+     */
     public void close()
     {
     }
