@@ -119,9 +119,12 @@ public class ErrorLogReaderTest
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
+        assertFalse(ErrorLogReader.hasErrors(buffer));
+
         log.record(errorOne);
         log.record(errorTwo);
 
+        assertTrue(ErrorLogReader.hasErrors(buffer));
         assertThat(ErrorLogReader.read(buffer, consumer, timestampTwo), is(1));
 
         verify(consumer).accept(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));

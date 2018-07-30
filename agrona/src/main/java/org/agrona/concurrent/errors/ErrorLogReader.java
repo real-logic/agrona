@@ -28,6 +28,17 @@ import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 public class ErrorLogReader
 {
     /**
+     * Has the error buffer any recorded errors?
+     *
+     * @param buffer containing the {@link DistinctErrorLog}.
+     * @return true if there is at least one error.
+     */
+    public static boolean hasErrors(final AtomicBuffer buffer)
+    {
+        return 0 != buffer.getIntVolatile(LENGTH_OFFSET);
+    }
+
+    /**
      * Read all the errors in a log since the creation of the log.
      *
      * @param buffer   containing the {@link DistinctErrorLog}.
