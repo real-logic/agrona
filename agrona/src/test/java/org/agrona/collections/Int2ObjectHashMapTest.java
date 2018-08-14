@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -374,6 +376,55 @@ public class Int2ObjectHashMapTest
 
         final Int2ObjectHashMap<String> mapCopy = new Int2ObjectHashMap<>(intToObjectMap);
         assertThat(mapCopy, is(intToObjectMap));
+    }
+
+    @Test
+    public void shouldAllowNullValuesWithNullMapping()
+    {
+        final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<String>()
+        {
+            private final Object nullRef = new Object();
+
+            @Override
+            protected Object mapNullValue(final Object value)
+            {
+                return value == null ? nullRef : value;
+            }
+
+            @Override
+            protected String unmapNullValue(final Object value)
+            {
+                return value == nullRef ? null : (String)value;
+            }
+        };
+
+        map.put(0, null);
+        map.put(1, "one");
+
+        assertThat(map.get(0), nullValue());
+        assertThat(map.get(1), is("one"));
+        assertThat(map.get(-1), nullValue());
+
+        assertThat(map.containsKey(0), is(true));
+        assertThat(map.containsKey(1), is(true));
+        assertThat(map.containsKey(-1), is(false));
+
+        assertThat(map.values(), containsInAnyOrder(null, "one"));
+        assertThat(map.keySet(), containsInAnyOrder(0, 1));
+
+        assertThat(map.size(), is(2));
+
+        map.remove(0);
+
+        assertThat(map.get(0), nullValue());
+        assertThat(map.get(1), is("one"));
+        assertThat(map.get(-1), nullValue());
+
+        assertThat(map.containsKey(0), is(false));
+        assertThat(map.containsKey(1), is(true));
+        assertThat(map.containsKey(-1), is(false));
+
+        assertThat(map.size(), is(1));
     }
 }
 
