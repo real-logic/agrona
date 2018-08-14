@@ -25,6 +25,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
  * A open addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
+ *
+ * Does allow {@code null} values.
  */
 public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 {
@@ -118,8 +120,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         return size == 0;
     }
 
-    @SuppressWarnings("unchecked")
     public V get(final Object key)
+    {
+        return unmapNullValue(getMapped(key));
+    }
+
+    @SuppressWarnings("unchecked")
+    private V getMapped(final Object key)
     {
         Objects.requireNonNull(key);
 
@@ -153,7 +160,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     @SuppressWarnings("unchecked")
     public V put(final Object key, final Object value)
     {
-        requireNonNull(value, "Value cannot be null");
+        final Object val = mapNullValue(value);
+        requireNonNull(val, "Value cannot be null");
 
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
@@ -177,11 +185,11 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             entries[index] = key;
         }
 
-        entries[index + 1] = value;
+        entries[index + 1] = val;
 
         increaseCapacity();
 
-        return (V)oldValue;
+        return unmapNullValue(oldValue);
     }
 
     private void increaseCapacity()
@@ -231,15 +239,16 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public boolean containsValue(final Object value)
     {
+        final Object val = mapNullValue(value);
         boolean found = false;
-        if (value != null)
+        if (val != null)
         {
             final Object[] entries = this.entries;
             final int length = entries.length;
 
             for (int valueIndex = 1; valueIndex < length; valueIndex += 2)
             {
-                if (value == entries[valueIndex] || value.equals(entries[valueIndex]))
+                if (val == entries[valueIndex] || val.equals(entries[valueIndex]))
                 {
                     found = true;
                     break;
@@ -285,7 +294,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         {
             if (entries[keyIndex + 1] != null)
             {
-                consumer.accept((K)entries[keyIndex], (V)entries[keyIndex + 1]);
+                consumer.accept((K)entries[keyIndex], unmapNullValue(entries[keyIndex + 1]));
             }
         }
     }
@@ -295,7 +304,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public boolean containsKey(final Object key)
     {
-        return get(key) != null;
+        return getMapped(key) != null;
     }
 
     /**
@@ -376,7 +385,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             keyIndex = next(keyIndex, mask);
         }
 
-        return (V)oldValue;
+        return unmapNullValue(oldValue);
     }
 
     @SuppressWarnings("FinalParameters")
@@ -426,7 +435,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         while (true)
         {
             entryIterator.next();
-            sb.append(entryIterator.getKey()).append('=').append(entryIterator.getValue());
+            sb.append(entryIterator.getKey()).append('=').append(unmapNullValue(entryIterator.getValue()));
             if (!entryIterator.hasNext())
             {
                 return sb.append('}').toString();
@@ -460,6 +469,16 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     public int hashCode()
     {
         return entrySet().hashCode();
+    }
+
+    private Object mapNullValue(final Object value)
+    {
+        return value == null ? NullReference.INSTANCE : value;
+    }
+
+    private V unmapNullValue(final Object value)
+    {
+        return value == NullReference.INSTANCE ? null : (V)value;
     }
 
     private static int next(final int index, final int mask)
@@ -591,7 +610,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         {
             findNext();
 
-            return (V)entries[keyPosition() + 1];
+            return unmapNullValue(entries[keyPosition() + 1]);
         }
     }
 
@@ -608,26 +627,28 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         @SuppressWarnings("unchecked")
         public V getValue()
         {
-            return (V)entries[keyPosition() + 1];
+            return unmapNullValue(entries[keyPosition() + 1]);
         }
 
         @SuppressWarnings("unchecked")
         public V setValue(final V value)
         {
+            final V val = (V)mapNullValue(value);
+
             if (!isPositionValid)
             {
                 throw new IllegalStateException();
             }
 
-            if (null == value)
+            if (null == val)
             {
                 throw new IllegalArgumentException();
             }
 
             final int keyPosition = keyPosition();
             final Object prevValue = entries[keyPosition + 1];
-            entries[keyPosition + 1] = value;
-            return (V)prevValue;
+            entries[keyPosition + 1] = val;
+            return unmapNullValue(prevValue);
         }
 
         public Entry<K, V> next()
@@ -666,7 +687,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
                 public int hashCode()
                 {
-                    return getKey().hashCode() ^ getValue().hashCode();
+                    final V v = getValue();
+                    return getKey().hashCode() ^ (v != null ? v.hashCode() : 0);
                 }
 
                 public boolean equals(final Object o)
@@ -678,8 +700,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
                     final Entry e = (Entry)o;
 
-                    return (e.getKey() != null && e.getValue() != null) &&
-                        (e.getKey().equals(k) && e.getValue().equals(v));
+                    return (e.getKey() != null && e.getKey().equals(k)) &&
+                        ((e.getValue() == null && v == null) || e.getValue().equals(v));
                 }
 
                 public String toString()
@@ -854,8 +876,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final V value = get(entry.getKey());
-            return value != null && value.equals(entry.getValue());
+            final V value = getMapped(entry.getKey());
+            return value != null && value.equals(mapNullValue(entry.getValue()));
         }
     }
 }

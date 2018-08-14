@@ -29,6 +29,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * {@link java.util.Map} implementation specialised for int keys using open addressing and
  * linear probing for cache efficient access.
  *
+ * Does allow {@code null} values.
+ *
  * @param <V> type of values stored in the {@link java.util.Map}
  */
 public class Int2ObjectHashMap<V>
@@ -186,11 +188,12 @@ public class Int2ObjectHashMap<V>
     public boolean containsValue(final Object value)
     {
         boolean found = false;
-        if (null != value)
+        final Object val = mapNullValue(value);
+        if (null != val)
         {
             for (final Object v : values)
             {
-                if (value.equals(v))
+                if (val.equals(v))
                 {
                     found = true;
                     break;
@@ -215,8 +218,13 @@ public class Int2ObjectHashMap<V>
      * @param key for indexing the {@link Map}
      * @return the value if found otherwise null
      */
-    @SuppressWarnings("unchecked")
     public V get(final int key)
+    {
+        return unmapNullValue(getMapped(key));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected V getMapped(final int key)
     {
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
@@ -247,7 +255,7 @@ public class Int2ObjectHashMap<V>
      */
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
-        V value = get(key);
+        V value = getMapped(key);
         if (value == null)
         {
             value = mappingFunction.apply(key);
@@ -255,6 +263,10 @@ public class Int2ObjectHashMap<V>
             {
                 put(key, value);
             }
+        }
+        else
+        {
+            value = unmapNullValue(value);
         }
 
         return value;
@@ -278,7 +290,8 @@ public class Int2ObjectHashMap<V>
     @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
     {
-        requireNonNull(value, "Value cannot be null");
+        final V val = (V)mapNullValue(value);
+        requireNonNull(val, "Value cannot be null");
 
         V oldValue = null;
         @DoNotSub final int mask = values.length - 1;
@@ -301,14 +314,14 @@ public class Int2ObjectHashMap<V>
             keys[index] = key;
         }
 
-        values[index] = value;
+        values[index] = val;
 
         if (size > resizeThreshold)
         {
             increaseCapacity();
         }
 
-        return oldValue;
+        return unmapNullValue(oldValue);
     }
 
     /**
@@ -346,7 +359,7 @@ public class Int2ObjectHashMap<V>
             index = ++index & mask;
         }
 
-        return (V)value;
+        return unmapNullValue(value);
     }
 
     /**
@@ -438,7 +451,7 @@ public class Int2ObjectHashMap<V>
         while (true)
         {
             entryIterator.next();
-            sb.append(entryIterator.getIntKey()).append('=').append(entryIterator.getValue());
+            sb.append(entryIterator.getIntKey()).append('=').append(unmapNullValue(entryIterator.getValue()));
             if (!entryIterator.hasNext())
             {
                 return sb.append('}').toString();
@@ -475,7 +488,7 @@ public class Int2ObjectHashMap<V>
             if (null != thisValue)
             {
                 final Object thatValue = that.get(keys[i]);
-                if (!thisValue.equals(thatValue))
+                if (!thisValue.equals(mapNullValue(thatValue)))
                 {
                     return false;
                 }
@@ -502,6 +515,16 @@ public class Int2ObjectHashMap<V>
         }
 
         return result;
+    }
+
+    private Object mapNullValue(final Object value)
+    {
+        return value == null ? NullReference.INSTANCE : value;
+    }
+
+    private V unmapNullValue(final Object value)
+    {
+        return value == NullReference.INSTANCE ? null : (V)value;
     }
 
     /**
@@ -534,7 +557,7 @@ public class Int2ObjectHashMap<V>
     public boolean replace(final int key, final V oldValue, final V newValue)
     {
         final Object curValue = get(key);
-        if (curValue == null || !Objects.equals(curValue, oldValue))
+        if (curValue == null || !Objects.equals(unmapNullValue(curValue), oldValue))
         {
             return false;
         }
@@ -735,8 +758,9 @@ public class Int2ObjectHashMap<V>
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final V value = get(entry.getKey());
-            return value != null && value.equals(entry.getValue());
+            final int key = ((Integer)entry.getKey()).intValue();
+            final V value = getMapped(key);
+            return value != null && value.equals(mapNullValue(entry.getValue()));
         }
     }
 
@@ -843,7 +867,7 @@ public class Int2ObjectHashMap<V>
         {
             findNext();
 
-            return (V)values[position()];
+            return unmapNullValue(values[position()]);
         }
     }
 
@@ -902,7 +926,7 @@ public class Int2ObjectHashMap<V>
 
                 @DoNotSub public int hashCode()
                 {
-                    return Integer.hashCode(getIntKey()) ^ v.hashCode();
+                    return Integer.hashCode(getIntKey()) ^ (v != null ? v.hashCode() : 0);
                 }
 
                 @DoNotSub public boolean equals(final Object o)
@@ -914,8 +938,8 @@ public class Int2ObjectHashMap<V>
 
                     final Map.Entry e = (Entry)o;
 
-                    return (e.getKey() != null && e.getValue() != null) &&
-                        (e.getKey().equals(k) && e.getValue().equals(v));
+                    return (e.getKey() != null && e.getKey().equals(k)) &&
+                        ((e.getValue() == null && v == null) || e.getValue().equals(v));
                 }
 
                 public String toString()
@@ -937,12 +961,13 @@ public class Int2ObjectHashMap<V>
 
         public V getValue()
         {
-            return (V)values[position()];
+            return unmapNullValue(values[position()]);
         }
 
         public V setValue(final V value)
         {
-            requireNonNull(value);
+            final V val = (V)mapNullValue(value);
+            requireNonNull(val, "Value cannot be null");
 
             if (!this.isPositionValid)
             {
@@ -951,7 +976,7 @@ public class Int2ObjectHashMap<V>
 
             @DoNotSub final int pos = position();
             final Object oldValue = values[pos];
-            values[pos] = value;
+            values[pos] = val;
 
             return (V)oldValue;
         }
