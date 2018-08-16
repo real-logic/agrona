@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
@@ -122,31 +121,29 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
     public V get(final Object key)
     {
-        return unmapNullValue(getMapped(key));
-    }
-
-    @SuppressWarnings("unchecked")
-    private V getMapped(final Object key)
-    {
         Objects.requireNonNull(key);
 
+        final int index = getIndex(key);
+
+        return index >= 0 ? (V)this.entries[index + 1] : null;
+    }
+
+    private int getIndex(final Object key)
+    {
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int index = Hashing.evenHash(key.hashCode(), mask);
 
-        Object value = null;
-        while (entries[index + 1] != null)
+        while (entries[index] != null)
         {
             if (entries[index] == key || entries[index].equals(key))
             {
-                value = entries[index + 1];
-                break;
+                return index;
             }
 
             index = next(index, mask);
         }
-
-        return (V)value;
+        return -1;
     }
 
     /**
@@ -160,36 +157,32 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     @SuppressWarnings("unchecked")
     public V put(final Object key, final Object value)
     {
-        final Object val = mapNullValue(value);
-        requireNonNull(val, "Value cannot be null");
-
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int index = Hashing.evenHash(key.hashCode(), mask);
-        Object oldValue = null;
 
-        while (entries[index + 1] != null)
+        while (entries[index] != null)
         {
             if (entries[index] == key || entries[index].equals(key))
             {
-                oldValue = entries[index + 1];
                 break;
             }
 
             index = next(index, mask);
         }
 
-        if (oldValue == null)
+        if (entries[index] == null)
         {
             ++size;
             entries[index] = key;
         }
 
-        entries[index + 1] = val;
+        final Object oldValue = entries[index + 1];
+        entries[index + 1] = value;
 
         increaseCapacity();
 
-        return unmapNullValue(oldValue);
+        return (V)oldValue;
     }
 
     private void increaseCapacity()
@@ -214,10 +207,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         for (int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            final Object value = oldEntries[keyIndex + 1];
-            if (value != null)
+            final Object key = oldEntries[keyIndex];
+            if (key != null)
             {
-                final Object key = oldEntries[keyIndex];
                 int index = Hashing.evenHash(key.hashCode(), mask);
 
                 while (newEntries[index + 1] != null)
@@ -226,7 +218,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                 }
 
                 newEntries[index] = key;
-                newEntries[index + 1] = value;
+                newEntries[index + 1] = oldEntries[keyIndex + 1];
             }
         }
     }
@@ -239,16 +231,28 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public boolean containsValue(final Object value)
     {
-        final Object val = mapNullValue(value);
         boolean found = false;
-        if (val != null)
-        {
-            final Object[] entries = this.entries;
-            final int length = entries.length;
 
+        final Object[] entries = this.entries;
+        final int length = entries.length;
+
+        if (value != null)
+        {
             for (int valueIndex = 1; valueIndex < length; valueIndex += 2)
             {
-                if (val == entries[valueIndex] || val.equals(entries[valueIndex]))
+                final Object v = entries[valueIndex];
+                if (value == v || value.equals(v))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for (int valueIndex = 1; valueIndex < length; valueIndex += 2)
+            {
+                if (null == entries[valueIndex] && entries[valueIndex - 1] != null)
                 {
                     found = true;
                     break;
@@ -292,9 +296,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         for (int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            if (entries[keyIndex + 1] != null)
+            if (entries[keyIndex] != null)
             {
-                consumer.accept((K)entries[keyIndex], unmapNullValue(entries[keyIndex + 1]));
+                consumer.accept((K)entries[keyIndex], (V)entries[keyIndex + 1]);
             }
         }
     }
@@ -304,7 +308,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public boolean containsKey(final Object key)
     {
-        return getMapped(key) != null;
+        Objects.requireNonNull(key);
+
+        return getIndex(key) >= 0;
     }
 
     /**
@@ -368,7 +374,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         int keyIndex = Hashing.evenHash(key.hashCode(), mask);
 
         Object oldValue = null;
-        while (entries[keyIndex + 1] != null)
+        while (entries[keyIndex] != null)
         {
             if (entries[keyIndex] == key || entries[keyIndex].equals(key))
             {
@@ -385,7 +391,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             keyIndex = next(keyIndex, mask);
         }
 
-        return unmapNullValue(oldValue);
+        return (V)oldValue;
     }
 
     @SuppressWarnings("FinalParameters")
@@ -398,7 +404,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         while (true)
         {
             keyIndex = next(keyIndex, mask);
-            if (entries[keyIndex + 1] == null)
+            if (entries[keyIndex] == null)
             {
                 break;
             }
@@ -435,7 +441,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         while (true)
         {
             entryIterator.next();
-            sb.append(entryIterator.getKey()).append('=').append(unmapNullValue(entryIterator.getValue()));
+            sb.append(entryIterator.getKey()).append('=').append(entryIterator.getValue());
             if (!entryIterator.hasNext())
             {
                 return sb.append('}').toString();
@@ -469,16 +475,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     public int hashCode()
     {
         return entrySet().hashCode();
-    }
-
-    private Object mapNullValue(final Object value)
-    {
-        return value == null ? NullReference.INSTANCE : value;
-    }
-
-    private V unmapNullValue(final Object value)
-    {
-        return value == NullReference.INSTANCE ? null : (V)value;
     }
 
     private static int next(final int index, final int mask)
@@ -521,7 +517,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                 keyIndex = 0;
                 for (; keyIndex < capacity; keyIndex += 2)
                 {
-                    if (entries[keyIndex + 1] == null)
+                    if (entries[keyIndex] == null)
                     {
                         break;
                     }
@@ -560,7 +556,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             for (int keyIndex = positionCounter - 2; keyIndex >= stopCounter; keyIndex -= 2)
             {
                 final int index = keyIndex & mask;
-                if (entries[index + 1] != null)
+                if (entries[index] != null)
                 {
                     isPositionValid = true;
                     positionCounter = keyIndex;
@@ -578,6 +574,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             if (isPositionValid)
             {
                 final int position = keyPosition();
+                entries[position] = null;
                 entries[position + 1] = null;
                 --size;
 
@@ -610,7 +607,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         {
             findNext();
 
-            return unmapNullValue(entries[keyPosition() + 1]);
+            return (V)entries[keyPosition() + 1];
         }
     }
 
@@ -627,28 +624,21 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         @SuppressWarnings("unchecked")
         public V getValue()
         {
-            return unmapNullValue(entries[keyPosition() + 1]);
+            return (V)entries[keyPosition() + 1];
         }
 
         @SuppressWarnings("unchecked")
         public V setValue(final V value)
         {
-            final V val = (V)mapNullValue(value);
-
             if (!isPositionValid)
             {
                 throw new IllegalStateException();
             }
 
-            if (null == val)
-            {
-                throw new IllegalArgumentException();
-            }
-
             final int keyPosition = keyPosition();
             final Object prevValue = entries[keyPosition + 1];
-            entries[keyPosition + 1] = val;
-            return unmapNullValue(prevValue);
+            entries[keyPosition + 1] = value;
+            return (V)prevValue;
         }
 
         public Entry<K, V> next()
@@ -876,8 +866,15 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final V value = getMapped(entry.getKey());
-            return value != null && value.equals(mapNullValue(entry.getValue()));
+            final int index = getIndex(entry.getKey());
+            if (index < 0)
+            {
+                return false;
+            }
+
+            final Object entryValue = entry.getValue();
+            final Object value = entries[index + 1];
+            return value == entryValue || (value != null && value.equals(entryValue));
         }
     }
 }
