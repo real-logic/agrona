@@ -43,20 +43,7 @@ public class Long2NullableObjectHashMapConformanceTest
             public Map<Long, Long> create(final Object... entries)
             {
                 final Long2NullableObjectHashMap<Long> map = new Long2NullableObjectHashMap<Long>(
-                    entries.length * 2, Hashing.DEFAULT_LOAD_FACTOR, false)
-                {
-                    private final Object nullRef = new Object();
-
-                    protected Object mapNullValue(final Object value)
-                    {
-                        return value == null ? nullRef : value;
-                    }
-
-                    protected Long unmapNullValue(final Object value)
-                    {
-                        return value == nullRef ? null : (Long)value;
-                    }
-                };
+                    entries.length * 2, Hashing.DEFAULT_LOAD_FACTOR, false);
 
                 for (final Object o : entries)
                 {
@@ -91,7 +78,6 @@ public class Long2NullableObjectHashMapConformanceTest
         }.withFeatures(
             MapFeature.GENERAL_PURPOSE,
             MapFeature.ALLOWS_NULL_VALUES,
-            MapFeature.ALLOWS_NULL_VALUE_QUERIES,
             CollectionSize.ANY,
             CollectionFeature.SUPPORTS_ITERATOR_REMOVE)
             .named(name)
