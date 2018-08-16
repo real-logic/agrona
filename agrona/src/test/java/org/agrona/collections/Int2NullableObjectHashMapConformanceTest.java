@@ -12,7 +12,6 @@ import junit.framework.TestSuite;
 import java.util.List;
 import java.util.Map;
 
-
 public class Int2NullableObjectHashMapConformanceTest
 {
     // Generated suite to test conformity to the java.util.Set interface
@@ -42,7 +41,7 @@ public class Int2NullableObjectHashMapConformanceTest
 
             public Map<Integer, Integer> create(final Object... entries)
             {
-                final Int2NullableObjectHashMap<Integer> map = new Int2NullableObjectHashMap<Integer>(
+                final Int2NullableObjectHashMap<Integer> map = new Int2NullableObjectHashMap<>(
                     entries.length * 2, Hashing.DEFAULT_LOAD_FACTOR, false);
 
                 for (final Object o : entries)

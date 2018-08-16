@@ -141,6 +141,7 @@ public class Int2ObjectCacheTest
 
         for (final String s : cache.values())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(s);
         }
 
@@ -191,6 +192,7 @@ public class Int2ObjectCacheTest
         final Collection<Integer> copyToSet = new HashSet<>();
         for (final Integer aInteger : cache.keySet())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(aInteger);
         }
 

@@ -314,6 +314,7 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArrayCopiesElementsIntoSufficientlySizedArray()
     {
         addTwoElements(testSet);
@@ -324,6 +325,7 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArrayCopiesElementsIntoNewArray()
     {
         addTwoElements(testSet);
@@ -334,6 +336,7 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArraySupportsEmptyCollection()
     {
         final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
@@ -666,6 +669,7 @@ public class IntHashSetTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArrayCopiesElementsIntoNewArrayIncludingMissingValue()
     {
         addTwoElements(testSet);

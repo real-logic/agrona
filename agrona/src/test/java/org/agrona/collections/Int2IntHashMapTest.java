@@ -463,6 +463,7 @@ public class Int2IntHashMapTest
     public void emptyMapsShouldBeEqual()
     {
         assertEquals(map, new Int2IntHashMap(MISSING_VALUE));
+        //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals(map, new HashMap<Integer, Integer>());
     }
 

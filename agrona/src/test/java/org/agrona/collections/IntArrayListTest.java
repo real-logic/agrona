@@ -212,7 +212,7 @@ public class IntArrayListTest
         final int[] copy = new int[count];
         final int[] result = list.toIntArray(copy);
 
-        assertTrue(copy == result);
+        assertSame(copy, result);
         assertArrayEquals(expected, result);
     }
 

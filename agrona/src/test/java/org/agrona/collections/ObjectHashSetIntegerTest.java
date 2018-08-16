@@ -33,8 +33,8 @@ public class ObjectHashSetIntegerTest
     public static Iterable<ObjectHashSet<Integer>> data()
     {
         return Arrays.asList(
-            new ObjectHashSet<Integer>(INITIAL_CAPACITY),
-            new ObjectHashSet<Integer>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false));
+            new ObjectHashSet<>(INITIAL_CAPACITY),
+            new ObjectHashSet<>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false));
     }
 
     private static final int INITIAL_CAPACITY = 100;

@@ -246,6 +246,7 @@ public class Object2IntHashMapTest
 
         for (final Integer key : objectToIntMap.values())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(key);
         }
 
@@ -274,6 +275,7 @@ public class Object2IntHashMapTest
         final Collection<String> copyToSet = new HashSet<>();
         for (final String aInteger : objectToIntMap.keySet())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(aInteger);
         }
 

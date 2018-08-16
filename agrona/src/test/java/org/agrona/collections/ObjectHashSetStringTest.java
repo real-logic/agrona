@@ -270,6 +270,7 @@ public class ObjectHashSetStringTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArrayCopiesElementsIntoSufficientlySizedArray()
     {
         addTwoElements(testSet);
@@ -280,6 +281,7 @@ public class ObjectHashSetStringTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArrayCopiesElementsIntoNewArray()
     {
         addTwoElements(testSet);
@@ -290,6 +292,7 @@ public class ObjectHashSetStringTest
     }
 
     @Test
+    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
     public void toArraySupportsEmptyCollection()
     {
         final String[] result = testSet.toArray(new String[testSet.size()]);
