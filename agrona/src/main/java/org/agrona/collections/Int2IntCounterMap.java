@@ -164,7 +164,7 @@ public class Int2IntCounterMap implements Serializable
     {
         if (value == initialValue)
         {
-            throw new IllegalArgumentException("Cannot accept initialValue");
+            throw new IllegalArgumentException("cannot accept initialValue");
         }
 
         final int[] entries = this.entries;
@@ -566,7 +566,7 @@ public class Int2IntCounterMap implements Serializable
         @DoNotSub final int entriesLength = newCapacity * 2;
         if (entriesLength < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);

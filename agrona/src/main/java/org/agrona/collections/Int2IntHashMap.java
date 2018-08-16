@@ -170,7 +170,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         if (value == missingValue)
         {
-            throw new IllegalArgumentException("Cannot accept missingValue");
+            throw new IllegalArgumentException("cannot accept missingValue");
         }
 
         final int[] entries = this.entries;
@@ -657,7 +657,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         @DoNotSub final int entriesLength = newCapacity * 2;
         if (entriesLength < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);

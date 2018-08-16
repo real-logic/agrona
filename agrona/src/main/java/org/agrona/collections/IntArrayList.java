@@ -98,13 +98,13 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         if (initialSize < 0 || initialSize > initialElements.length)
         {
             throw new IllegalArgumentException(
-                "Illegal initial size " + initialSize + " for array length of " + initialElements.length);
+                "illegal initial size " + initialSize + " for array length of " + initialElements.length);
         }
 
         if (initialElements.length < INITIAL_CAPACITY)
         {
             throw new IllegalArgumentException(
-                "Illegal initial array length " + initialElements.length + ", minimum required is " + INITIAL_CAPACITY);
+                "illegal initial array length " + initialElements.length + ", minimum required is " + INITIAL_CAPACITY);
         }
 
         elements = initialElements;
@@ -603,7 +603,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
             {
                 if (currentCapacity == MAX_CAPACITY)
                 {
-                    throw new IllegalStateException("Max capacity reached: " + MAX_CAPACITY);
+                    throw new IllegalStateException("max capacity reached: " + MAX_CAPACITY);
                 }
 
                 newCapacity = MAX_CAPACITY;

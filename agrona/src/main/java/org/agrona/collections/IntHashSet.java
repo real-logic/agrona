@@ -200,7 +200,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         @DoNotSub final int newCapacity = values.length * 2;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size());
+            throw new IllegalStateException("max capacity reached at size=" + size());
         }
 
         rehash(newCapacity);
@@ -545,7 +545,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     {
         if (this.values.length != that.values.length)
         {
-            throw new IllegalArgumentException("Cannot copy object: masks not equal");
+            throw new IllegalArgumentException("cannot copy object: masks not equal");
         }
 
         System.arraycopy(that.values, 0, this.values, 0, this.values.length);
@@ -595,7 +595,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         final Class<?> componentType = into.getClass().getComponentType();
         if (!componentType.isAssignableFrom(Integer.class))
         {
-            throw new ArrayStoreException("Cannot store Integers in array of type " + componentType);
+            throw new ArrayStoreException("cannot store Integers in array of type " + componentType);
         }
 
         @DoNotSub final int size = size();

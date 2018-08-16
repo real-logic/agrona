@@ -191,7 +191,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         final int newCapacity = values.length * 2;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         rehash(newCapacity);
@@ -481,7 +481,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     {
         if (this.values.length != that.values.length)
         {
-            throw new IllegalArgumentException("Cannot copy object: lengths not equal");
+            throw new IllegalArgumentException("cannot copy object: lengths not equal");
         }
 
         System.arraycopy(that.values, 0, this.values, 0, this.values.length);
@@ -660,7 +660,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         /**
          * @return the next int value.
          */
-        @SuppressWarnings("unchecked")
         public T nextValue()
         {
             if (!hasNext())
@@ -675,14 +674,14 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
             for (int i = positionCounter - 1; i >= stopCounter; i--)
             {
                 final int index = i & mask;
-                final Object value = values[index];
+                final T value = values[index];
                 if (value != MISSING_VALUE)
                 {
                     positionCounter = i;
                     isPositionValid = true;
                     --remaining;
 
-                    return (T)value;
+                    return value;
                 }
             }
 

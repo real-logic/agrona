@@ -311,7 +311,7 @@ public class Object2IntHashMap<K>
     {
         if (value == missingValue)
         {
-            throw new IllegalArgumentException("Cannot accept missingValue");
+            throw new IllegalArgumentException("cannot accept missingValue");
         }
 
         int oldValue = missingValue;
@@ -592,7 +592,7 @@ public class Object2IntHashMap<K>
         @DoNotSub final int newCapacity = values.length << 1;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         rehash(newCapacity);
@@ -989,7 +989,7 @@ public class Object2IntHashMap<K>
         {
             if (value == missingValue)
             {
-                throw new IllegalArgumentException("Cannot accept missingValue");
+                throw new IllegalArgumentException("cannot accept missingValue");
             }
 
             @DoNotSub final int pos = position();

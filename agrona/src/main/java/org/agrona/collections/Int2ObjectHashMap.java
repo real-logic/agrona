@@ -928,7 +928,7 @@ public class Int2ObjectHashMap<V>
                     return Integer.hashCode(getIntKey()) ^ (v != null ? v.hashCode() : 0);
                 }
 
-                @DoNotSub public boolean equals(final Object o)
+                public boolean equals(final Object o)
                 {
                     if (!(o instanceof Entry))
                     {

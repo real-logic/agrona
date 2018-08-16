@@ -404,7 +404,7 @@ public class BiInt2ObjectMap<V> implements Serializable
         final int newCapacity = values.length << 1;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         rehash(newCapacity);

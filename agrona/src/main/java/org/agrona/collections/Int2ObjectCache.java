@@ -68,12 +68,12 @@ public class Int2ObjectCache<V>
     {
         validatePositivePowerOfTwo(numSets);
         validatePositivePowerOfTwo(setSize);
-        requireNonNull(evictionConsumer, "Null values are not permitted");
+        requireNonNull(evictionConsumer, "null values are not permitted");
 
         if (((long)numSets) * setSize > (Integer.MAX_VALUE - 8))
         {
             throw new IllegalArgumentException(
-                "Total capacity must be <= max array size: numSets=" + numSets + " setSize=" + setSize);
+                "total capacity must be <= max array size: numSets=" + numSets + " setSize=" + setSize);
         }
 
         this.setSize = setSize;

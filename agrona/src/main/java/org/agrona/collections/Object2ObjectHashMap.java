@@ -159,7 +159,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     public V put(final Object key, final Object value)
     {
         final Object val = mapNullValue(value);
-        requireNonNull(val, "Value cannot be null");
+        requireNonNull(val, "value cannot be null");
 
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
@@ -490,7 +490,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         final int entriesLength = newCapacity * 2;
         if (entriesLength < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
