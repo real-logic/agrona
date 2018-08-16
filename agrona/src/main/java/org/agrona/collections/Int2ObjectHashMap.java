@@ -289,7 +289,7 @@ public class Int2ObjectHashMap<V>
     public V put(final int key, final V value)
     {
         final V val = (V)mapNullValue(value);
-        requireNonNull(val, "Value cannot be null");
+        requireNonNull(val, "value cannot be null");
 
         V oldValue = null;
         @DoNotSub final int mask = values.length - 1;
@@ -520,6 +520,7 @@ public class Int2ObjectHashMap<V>
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
         return (V)value;
@@ -570,7 +571,7 @@ public class Int2ObjectHashMap<V>
         @DoNotSub final int newCapacity = values.length << 1;
         if (newCapacity < 0)
         {
-            throw new IllegalStateException("Max capacity reached at size=" + size);
+            throw new IllegalStateException("max capacity reached at size=" + size);
         }
 
         rehash(newCapacity);
@@ -756,7 +757,7 @@ public class Int2ObjectHashMap<V>
         public boolean contains(final Object o)
         {
             final Entry entry = (Entry)o;
-            final int key = ((Integer)entry.getKey()).intValue();
+            final int key = (Integer)entry.getKey();
             final V value = getMapped(key);
             return value != null && value.equals(mapNullValue(entry.getValue()));
         }
@@ -965,7 +966,7 @@ public class Int2ObjectHashMap<V>
         public V setValue(final V value)
         {
             final V val = (V)mapNullValue(value);
-            requireNonNull(val, "Value cannot be null");
+            requireNonNull(val, "value cannot be null");
 
             if (!this.isPositionValid)
             {

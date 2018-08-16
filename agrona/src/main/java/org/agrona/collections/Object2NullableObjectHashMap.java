@@ -24,9 +24,7 @@ public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, 
     {
     }
 
-    public Object2NullableObjectHashMap(
-        final int initialCapacity,
-        final float loadFactor)
+    public Object2NullableObjectHashMap(final int initialCapacity, final float loadFactor)
     {
         super(initialCapacity, loadFactor);
     }
@@ -37,20 +35,17 @@ public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, 
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
      */
     public Object2NullableObjectHashMap(
-        final int initialCapacity,
-        final float loadFactor,
-        final boolean shouldAvoidAllocation)
+        final int initialCapacity, final float loadFactor, final boolean shouldAvoidAllocation)
     {
         super(initialCapacity, loadFactor, shouldAvoidAllocation);
     }
 
-    @Override
     protected Object mapNullValue(final Object value)
     {
         return value == null ? NullReference.INSTANCE : value;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
         return value == NullReference.INSTANCE ? null : (V)value;

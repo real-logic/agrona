@@ -223,6 +223,7 @@ public class Int2ObjectHashMapTest
 
         for (final String s : intToObjectMap.values())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(s);
         }
 
@@ -273,6 +274,7 @@ public class Int2ObjectHashMapTest
         final Collection<Integer> copyToSet = new HashSet<>();
         for (final Integer aInteger : intToObjectMap.keySet())
         {
+            //noinspection UseBulkOperation
             copyToSet.add(aInteger);
         }
 
@@ -385,13 +387,11 @@ public class Int2ObjectHashMapTest
         {
             private final Object nullRef = new Object();
 
-            @Override
             protected Object mapNullValue(final Object value)
             {
                 return value == null ? nullRef : value;
             }
 
-            @Override
             protected String unmapNullValue(final Object value)
             {
                 return value == nullRef ? null : (String)value;

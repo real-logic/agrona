@@ -29,8 +29,7 @@ public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
     }
 
     public Int2NullableObjectHashMap(
-        @DoNotSub final int initialCapacity,
-        final float loadFactor)
+        @DoNotSub final int initialCapacity, final float loadFactor)
     {
         super(initialCapacity, loadFactor);
     }
@@ -42,9 +41,7 @@ public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
      */
     public Int2NullableObjectHashMap(
-        @DoNotSub final int initialCapacity,
-        final float loadFactor,
-        final boolean shouldAvoidAllocation)
+        @DoNotSub final int initialCapacity, final float loadFactor, final boolean shouldAvoidAllocation)
     {
         super(initialCapacity, loadFactor, shouldAvoidAllocation);
     }
@@ -59,13 +56,12 @@ public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
         super(mapToCopy);
     }
 
-    @Override
     protected Object mapNullValue(final Object value)
     {
         return value == null ? NullReference.INSTANCE : value;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
         return value == NullReference.INSTANCE ? null : (V)value;

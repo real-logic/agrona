@@ -474,6 +474,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
         return (V)value;
