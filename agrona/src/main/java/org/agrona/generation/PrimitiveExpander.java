@@ -45,6 +45,7 @@ public final class PrimitiveExpander
         expandPrimitiveSpecialisedClass(COLLECTIONS, "IntLruCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectCache");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2ObjectHashMap");
+        expandPrimitiveSpecialisedClass(COLLECTIONS, "Int2NullableObjectHashMap");
         expandPrimitiveSpecialisedClass(COLLECTIONS, "Object2IntHashMap");
     }
 
