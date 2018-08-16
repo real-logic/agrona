@@ -44,7 +44,7 @@ public class BroadcastTransmitter
      *
      * @param buffer via which messages will be exchanged.
      * @throws IllegalStateException if the buffer capacity is not a power of 2
-     *                               plus {@link BroadcastBufferDescriptor#TRAILER_LENGTH} in capacity.
+     * plus {@link BroadcastBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
     public BroadcastTransmitter(final AtomicBuffer buffer)
     {
@@ -88,7 +88,7 @@ public class BroadcastTransmitter
      * @param srcIndex  srcIndex in the source buffer at which the encoded message begins.
      * @param length    in bytes of the encoded message.
      * @throws IllegalArgumentException of the msgTypeId is not valid,
-     *                                  or if the message length is greater than {@link #maxMsgLength()}.
+     * or if the message length is greater than {@link #maxMsgLength()}.
      */
     public void transmit(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
@@ -142,7 +142,7 @@ public class BroadcastTransmitter
         if (length > maxMsgLength)
         {
             throw new IllegalArgumentException(
-                "Encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
+                "encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
         }
     }
 }

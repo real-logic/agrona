@@ -98,7 +98,7 @@ public class CopyBroadcastReceiver
         {
             if (lastSeenLappedCount != receiver.lappedCount())
             {
-                throw new IllegalStateException("Unable to keep up with broadcast buffer");
+                throw new IllegalStateException("unable to keep up with broadcast buffer");
             }
 
             final int length = receiver.length();
@@ -106,7 +106,7 @@ public class CopyBroadcastReceiver
             if (length > capacity && !scratchBuffer.isExpandable())
             {
                 throw new IllegalStateException(
-                    "Buffer required length of " + length + " but only has " + capacity);
+                    "buffer required length of " + length + " but only has " + capacity);
             }
 
             final int msgTypeId = receiver.typeId();
@@ -114,7 +114,7 @@ public class CopyBroadcastReceiver
 
             if (!receiver.validate())
             {
-                throw new IllegalStateException("Unable to keep up with broadcast buffer");
+                throw new IllegalStateException("unable to keep up with broadcast buffer");
             }
 
             handler.onMessage(msgTypeId, scratchBuffer, 0, length);

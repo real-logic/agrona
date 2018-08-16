@@ -55,7 +55,7 @@ public class BroadcastReceiver
      *
      * @param buffer via which messages will be exchanged.
      * @throws IllegalStateException if the buffer capacity is not a power of 2
-     *                               plus {@link BroadcastBufferDescriptor#TRAILER_LENGTH} in capacity.
+     * plus {@link BroadcastBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
     public BroadcastReceiver(final AtomicBuffer buffer)
     {

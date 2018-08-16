@@ -116,7 +116,7 @@ public class RecordDescriptor
     {
         if (msgTypeId < 1)
         {
-            final String msg = "Type id must be greater than zero, msgTypeId=" + msgTypeId;
+            final String msg = "type id must be greater than zero, msgTypeId=" + msgTypeId;
             throw new IllegalArgumentException(msg);
         }
     }
