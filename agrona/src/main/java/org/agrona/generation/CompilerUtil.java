@@ -15,6 +15,7 @@
  */
 package org.agrona.generation;
 
+import org.agrona.IoUtil;
 import org.agrona.LangUtil;
 
 import javax.tools.*;
@@ -36,7 +37,7 @@ public class CompilerUtil
     /**
      * Temporary directory for files.
      */
-    private static final String TEMP_DIR_NAME = System.getProperty("java.io.tmpdir");
+    private static final String TEMP_DIR_NAME = IoUtil.tmpDirName();
 
     /**
      * Compile a {@link Map} of source files in-memory resulting in a {@link Class} which is named.
@@ -85,8 +86,7 @@ public class CompilerUtil
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null))
         {
-            final ArrayList<String> options = new ArrayList<>();
-            options.addAll(Arrays.asList(
+            final ArrayList<String> options = new ArrayList<>(Arrays.asList(
                 "-classpath", System.getProperty("java.class.path") + File.pathSeparator + TEMP_DIR_NAME));
 
             final Collection<File> files = persist(sources);
@@ -162,12 +162,10 @@ public class CompilerUtil
             final int indexOfLastDot = fqClassName.lastIndexOf('.');
             if (indexOfLastDot != -1)
             {
-                className = fqClassName.substring(indexOfLastDot + 1, fqClassName.length());
+                className = fqClassName.substring(indexOfLastDot + 1);
 
                 path = Paths.get(
-                    TEMP_DIR_NAME +
-                    File.separatorChar +
-                    fqClassName.substring(0, indexOfLastDot).replace('.', File.separatorChar));
+                    TEMP_DIR_NAME + fqClassName.substring(0, indexOfLastDot).replace('.', File.separatorChar));
                 Files.createDirectories(path);
             }
 

@@ -95,8 +95,7 @@ public final class PrimitiveExpander
         {
             return
                 (contents.contains("@DoNotSub") || contents.contains("interface") || contents.contains("Interface")) ?
-                    contents :
-                    substitute(contents);
+                    contents : substitute(contents);
         }
     }
 }
