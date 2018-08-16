@@ -321,7 +321,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         if (length > maxMsgLength)
         {
             throw new IllegalArgumentException(
-                "Encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
+                "encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
         }
     }
 
