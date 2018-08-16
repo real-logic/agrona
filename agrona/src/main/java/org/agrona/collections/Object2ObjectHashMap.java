@@ -559,6 +559,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             if (isPositionValid)
             {
                 final int position = keyPosition();
+                entries[position] = null;
                 entries[position + 1] = null;
                 --size;
 

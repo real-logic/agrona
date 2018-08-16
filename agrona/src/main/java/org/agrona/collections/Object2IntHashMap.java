@@ -839,6 +839,7 @@ public class Object2IntHashMap<K>
             {
                 @DoNotSub final int position = position();
                 values[position] = missingValue;
+                keys[position] = null;
                 --size;
 
                 compactChain(position);
