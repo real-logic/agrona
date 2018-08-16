@@ -51,8 +51,8 @@ public class OneToOneRingBuffer implements RingBuffer
      * for the {@link RingBufferDescriptor#TRAILER_LENGTH}.
      *
      * @param buffer via which events will be exchanged.
-     * @throws IllegalStateException if the buffer capacity is not a power of 2
-     *                               plus {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
+     * @throws IllegalStateException if the buffer capacity is not a power of 2 plus
+     * {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
     public OneToOneRingBuffer(final AtomicBuffer buffer)
     {
@@ -137,13 +137,16 @@ public class OneToOneRingBuffer implements RingBuffer
         if (0 != padding)
         {
             buffer.putLong(0, 0L);
-            buffer.putLongOrdered(recordIndex, makeHeader(padding, PADDING_MSG_TYPE_ID));
+            buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(recordIndex), padding);
             recordIndex = 0;
         }
 
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
         buffer.putLong(recordIndex + alignedRecordLength, 0L);
-        buffer.putLongOrdered(recordIndex, makeHeader(recordLength, msgTypeId));
+
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
+        buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
         buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
 
         return true;
@@ -178,9 +181,7 @@ public class OneToOneRingBuffer implements RingBuffer
             while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
-                final long header = buffer.getLongVolatile(recordIndex);
-
-                final int recordLength = recordLength(header);
+                final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
                 if (recordLength <= 0)
                 {
                     break;
@@ -188,7 +189,7 @@ public class OneToOneRingBuffer implements RingBuffer
 
                 bytesRead += align(recordLength, ALIGNMENT);
 
-                final int messageTypeId = messageTypeId(header);
+                final int messageTypeId = buffer.getInt(typeOffset(recordIndex));
                 if (PADDING_MSG_TYPE_ID == messageTypeId)
                 {
                     continue;

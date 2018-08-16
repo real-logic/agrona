@@ -30,8 +30,8 @@ public class RecordDescriptor
      *   0                   1                   2                   3
      *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *  |R|                         Length                              |
-     *  +-+-------------------------------------------------------------+
+     *  |                           Length                              |
+     *  +---------------------------------------------------------------+
      *  |                            Type                               |
      *  +---------------------------------------------------------------+
      *  |                       Encoded Message                        ...
@@ -80,34 +80,6 @@ public class RecordDescriptor
     }
 
     /**
-     * Make a 64-bit header from the length and message type id.
-     *
-     * @param length    length of the record
-     * @param msgTypeId of the message stored in the record
-     * @return the fields combined into a long.
-     */
-    public static long makeHeader(final int length, final int msgTypeId)
-    {
-        return ((msgTypeId & 0xFFFF_FFFFL) << 32) | (length & 0xFFFF_FFFFL);
-    }
-
-    /**
-     * Extract the record length field from a word representing the header.
-     *
-     * @param header containing both fields.
-     * @return the length field from the header.
-     */
-    public static int recordLength(final long header)
-    {
-        return (int)header;
-    }
-
-    public static int messageTypeId(final long header)
-    {
-        return (int)(header >>> 32);
-    }
-
-    /**
      * Check that and message id is in the valid range.
      *
      * @param msgTypeId to be checked.
@@ -117,7 +89,7 @@ public class RecordDescriptor
     {
         if (msgTypeId < 1)
         {
-            final String msg = "Message type id must be greater than zero, msgTypeId=" + msgTypeId;
+            final String msg = "message type id must be greater than zero, msgTypeId=" + msgTypeId;
             throw new IllegalArgumentException(msg);
         }
     }

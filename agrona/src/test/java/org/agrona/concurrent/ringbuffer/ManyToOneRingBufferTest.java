@@ -69,7 +69,8 @@ public class ManyToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(-recordLength, MSG_TYPE_ID));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), -recordLength);
+        inOrder.verify(buffer).putInt(typeOffset((int)tail), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(encodedMsgOffset((int)tail), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), recordLength);
     }
@@ -135,9 +136,12 @@ public class ManyToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(HEADER_LENGTH, PADDING_MSG_TYPE_ID));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), -HEADER_LENGTH);
+        inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
-        inOrder.verify(buffer).putLongOrdered(0, makeHeader(-recordLength, MSG_TYPE_ID));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(0), -recordLength);
+        inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putIntOrdered(lengthOffset(0), recordLength);
     }
@@ -162,9 +166,12 @@ public class ManyToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putLongOrdered((int)tail, makeHeader(HEADER_LENGTH, PADDING_MSG_TYPE_ID));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), -HEADER_LENGTH);
+        inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
-        inOrder.verify(buffer).putLongOrdered(0, makeHeader(-recordLength, MSG_TYPE_ID));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(0), -recordLength);
+        inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putIntOrdered(lengthOffset(0), recordLength);
     }
@@ -199,7 +206,7 @@ public class ManyToOneRingBufferTest
         assertThat(times[0], is(0));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer, times(1)).getLongVolatile(headIndex);
+        inOrder.verify(buffer, times(1)).getIntVolatile(lengthOffset(headIndex));
         inOrder.verify(buffer, times(0)).setMemory(headIndex, 0, (byte)0);
         inOrder.verify(buffer, times(0)).putLongOrdered(HEAD_COUNTER_INDEX, headIndex);
     }
@@ -215,9 +222,10 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
-        when(buffer.getLongVolatile(headIndex + alignedRecordLength))
-            .thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -241,7 +249,8 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
 
         final int[] times = new int[1];
         final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
@@ -267,8 +276,10 @@ public class ManyToOneRingBufferTest
         final int headIndex = (int)head;
 
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
-        when(buffer.getLongVolatile(headIndex)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
-        when(buffer.getLongVolatile(headIndex + alignedRecordLength)).thenReturn(makeHeader(recordLength, MSG_TYPE_ID));
+        when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
 
         final int[] times = new int[1];
         final MessageHandler handler =
@@ -319,7 +330,9 @@ public class ManyToOneRingBufferTest
 
         assertTrue(ringBuffer.unblock());
 
-        verify(buffer).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(messageLength), messageLength);
     }
 
     @Test
@@ -332,7 +345,9 @@ public class ManyToOneRingBufferTest
 
         assertTrue(ringBuffer.unblock());
 
-        verify(buffer).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(messageLength), messageLength);
     }
 
     @Test
@@ -344,7 +359,7 @@ public class ManyToOneRingBufferTest
         when(buffer.getIntVolatile(messageLength * 2)).thenReturn(0).thenReturn(messageLength);
 
         assertFalse(ringBuffer.unblock());
-        verify(buffer, never()).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        verify(buffer, never()).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
     }
 
     @Test
@@ -357,7 +372,7 @@ public class ManyToOneRingBufferTest
         when(buffer.getIntVolatile(messageLength * 2 + ALIGNMENT)).thenReturn(7);
 
         assertFalse(ringBuffer.unblock());
-        verify(buffer, never()).putLongOrdered(messageLength, makeHeader(messageLength, PADDING_MSG_TYPE_ID));
+        verify(buffer, never()).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
     }
 
     @Test

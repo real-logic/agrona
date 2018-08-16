@@ -98,9 +98,10 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         if (INSUFFICIENT_CAPACITY != recordIndex)
         {
-            buffer.putLongOrdered(recordIndex, makeHeader(-recordLength, msgTypeId));
+            buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
             UnsafeAccess.UNSAFE.storeFence();
 
+            buffer.putInt(typeOffset(recordIndex), msgTypeId);
             buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
             buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
 
@@ -138,9 +139,7 @@ public class ManyToOneRingBuffer implements RingBuffer
             while ((bytesRead < maxBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
-                final long header = buffer.getLongVolatile(recordIndex);
-
-                final int recordLength = recordLength(header);
+                final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
                 if (recordLength <= 0)
                 {
                     break;
@@ -148,7 +147,7 @@ public class ManyToOneRingBuffer implements RingBuffer
 
                 bytesRead += align(recordLength, ALIGNMENT);
 
-                final int messageTypeId = messageTypeId(header);
+                final int messageTypeId = buffer.getInt(typeOffset(recordIndex));
                 if (PADDING_MSG_TYPE_ID == messageTypeId)
                 {
                     continue;
@@ -265,7 +264,8 @@ public class ManyToOneRingBuffer implements RingBuffer
         int length = buffer.getIntVolatile(consumerIndex);
         if (length < 0)
         {
-            buffer.putLongOrdered(consumerIndex, makeHeader(-length, PADDING_MSG_TYPE_ID));
+            buffer.putInt(typeOffset(consumerIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(consumerIndex), -length);
             unblocked = true;
         }
         else if (0 == length)
@@ -282,7 +282,8 @@ public class ManyToOneRingBuffer implements RingBuffer
                 {
                     if (scanBackToConfirmStillZeroed(buffer, i, consumerIndex))
                     {
-                        buffer.putLongOrdered(consumerIndex, makeHeader(i - consumerIndex, PADDING_MSG_TYPE_ID));
+                        buffer.putInt(typeOffset(consumerIndex), PADDING_MSG_TYPE_ID);
+                        buffer.putIntOrdered(lengthOffset(consumerIndex), i - consumerIndex);
                         unblocked = true;
                     }
 
@@ -380,7 +381,11 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         if (0 != padding)
         {
-            buffer.putLongOrdered(tailIndex, makeHeader(padding, PADDING_MSG_TYPE_ID));
+            buffer.putIntOrdered(lengthOffset(tailIndex), -padding);
+            UnsafeAccess.UNSAFE.storeFence();
+
+            buffer.putInt(typeOffset(tailIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(tailIndex), padding);
             tailIndex = 0;
         }
 
