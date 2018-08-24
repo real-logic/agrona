@@ -310,7 +310,8 @@ public class IntHashSetTest
     @SuppressWarnings("ConstantConditions")
     public void toArrayThrowsNullPointerExceptionForNullArgument()
     {
-        testSet.toArray(null);
+        final Integer[] into = null;
+        testSet.toArray(into);
     }
 
     @Test
