@@ -29,8 +29,8 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * <p>
  * Not Threadsafe.
  * <p>
- * This HashSet caches its iterator object by default, so nested iteration is not supported. You can override this
- * behaviour at construction by indicating that the iterator should not be cached.
+ * This HashSet caches its iterator object by default, which can be overridden, so nested iteration is not supported.
+ * You can override this behaviour at construction by indicating that the iterator should not be cached.
  *
  * @param <T> type of values stored in the {@link java.util.Set}
  * @see ObjectIterator
