@@ -16,7 +16,6 @@
 package org.agrona.collections;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
@@ -513,45 +512,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         sb.append('}');
 
         return sb.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public <T1> T1[] toArray(final T1[] into)
-    {
-        final Class<?> componentType = into.getClass().getComponentType();
-
-        final int size = this.size;
-        final T1[] arrayCopy = into.length >= size ? into : (T1[])Array.newInstance(componentType, size);
-        copyValues(arrayCopy);
-        if (arrayCopy.length > size)
-        {
-            arrayCopy[size] = null;
-        }
-
-        return arrayCopy;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object[] toArray()
-    {
-        final Object[] arrayCopy = new Object[size];
-        copyValues(arrayCopy);
-
-        return arrayCopy;
-    }
-
-    private void copyValues(final Object[] arrayCopy)
-    {
-        final ObjectIterator iterator = iterator();
-        for (int i = 0; iterator.hasNext(); i++)
-        {
-            arrayCopy[i] = iterator.next();
-        }
     }
 
     /**
