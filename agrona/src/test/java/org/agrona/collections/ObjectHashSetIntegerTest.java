@@ -333,8 +333,8 @@ public class ObjectHashSetIntegerTest
     @Test(expected = NullPointerException.class)
     public void toArrayThrowsNullPointerExceptionForNullArgument()
     {
-        //noinspection ConstantConditions
-        testSet.toArray(null);
+        final Integer[] into = null;
+        testSet.toArray(into);
     }
 
     @Test

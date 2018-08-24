@@ -530,6 +530,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         {
             arrayCopy[size] = null;
         }
+
         return arrayCopy;
     }
 
