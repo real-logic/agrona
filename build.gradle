@@ -197,8 +197,14 @@ project(':agrona') {
         generated.java.srcDir generatedDir
     }
 
-    compileGeneratedJava.dependsOn 'generatePrimitiveExpansions'
-    compileGeneratedJava.classpath += sourceSets.main.runtimeClasspath
+    compileGeneratedJava {
+        dependsOn 'generatePrimitiveExpansions'
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+        options.encoding = 'UTF-8'
+        options.deprecation = true
+        classpath += sourceSets.main.runtimeClasspath
+    }
 
     task generatePrimitiveExpansions(type: JavaExec) {
         main = 'org.agrona.generation.PrimitiveExpander'
