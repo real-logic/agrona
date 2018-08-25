@@ -25,7 +25,7 @@ public class CompositeAgent implements Agent
 {
     private final Agent[] agents;
     private final String roleName;
-    private int workIndex = 0;
+    private int agentIndex = 0;
 
     /**
      * @param agents the parts of this composite, at least one agent and no null agents allowed
@@ -46,7 +46,7 @@ public class CompositeAgent implements Agent
     {
         if (agents.length == 0)
         {
-            throw new IllegalArgumentException("CompositeAgent requires at least one sub-agent");
+            throw new IllegalArgumentException("requires at least one sub-agent");
         }
 
         this.agents = new Agent[agents.length];
@@ -56,7 +56,7 @@ public class CompositeAgent implements Agent
         int i = 0;
         for (final Agent agent : agents)
         {
-            Objects.requireNonNull(agent, "Agent cannot be null");
+            Objects.requireNonNull(agent, "agent cannot be null");
             sb.append(agent.roleName()).append(',');
             this.agents[i++] = agent;
         }
@@ -91,7 +91,7 @@ public class CompositeAgent implements Agent
             {
                 if (ce == null)
                 {
-                    ce = new RuntimeException("CompositeAgent: underlying agent error on start");
+                    ce = new RuntimeException(getClass().getName() + ": underlying agent error on start");
                 }
                 ce.addSuppressed(ex);
             }
@@ -108,14 +108,13 @@ public class CompositeAgent implements Agent
         int workCount = 0;
 
         final Agent[] agents = this.agents;
-        while (workIndex < agents.length)
+        while (agentIndex < agents.length)
         {
-            final Agent agent = agents[workIndex++];
+            final Agent agent = agents[agentIndex++];
             workCount += agent.doWork();
-
         }
 
-        workIndex = 0;
+        agentIndex = 0;
 
         return workCount;
     }
@@ -141,7 +140,7 @@ public class CompositeAgent implements Agent
             {
                 if (ce == null)
                 {
-                    ce = new RuntimeException("CompositeAgent: underlying agent error on close");
+                    ce = new RuntimeException(getClass().getName() + ": underlying agent error on close");
                 }
 
                 ce.addSuppressed(ex);

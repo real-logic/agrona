@@ -50,6 +50,7 @@ public class DynamicCompositeAgent implements Agent
 
     private static final Agent[] EMPTY_AGENTS = new Agent[0];
 
+    private int agentIndex = 0;
     private volatile Status status = Status.INIT;
     private Agent[] agents;
     private final String roleName;
@@ -80,7 +81,7 @@ public class DynamicCompositeAgent implements Agent
         int i = 0;
         for (final Agent agent : agents)
         {
-            Objects.requireNonNull(agent, "Agent cannot be null");
+            Objects.requireNonNull(agent, "agent cannot be null");
             this.agents[i++] = agent;
         }
     }
@@ -108,7 +109,7 @@ public class DynamicCompositeAgent implements Agent
         int i = 0;
         for (final Agent agent : agents)
         {
-            Objects.requireNonNull(agent, "Agent cannot be null");
+            Objects.requireNonNull(agent, "agent cannot be null");
             this.agents[i++] = agent;
         }
     }
@@ -144,10 +145,14 @@ public class DynamicCompositeAgent implements Agent
             remove(agentToRemove);
         }
 
-        for (final Agent agent : agents)
+        final Agent[] agents = this.agents;
+        while (agentIndex < agents.length)
         {
+            final Agent agent = agents[agentIndex++];
             workCount += agent.doWork();
         }
+
+        agentIndex = 0;
 
         return workCount;
     }
@@ -155,18 +160,39 @@ public class DynamicCompositeAgent implements Agent
     /**
      * {@inheritDoc}
      * <p>
-     * Note that one agent throwing an exception on close may result in other agents not being closed.
+     * Note that one agent throwing an exception on close will not prevent other agents from being closed.
+     *
+     * @throws RuntimeException if any sub-agent throws an exception onClose. The agents exceptions are collected as
+     * suppressed exceptions in the thrown exception.
      */
     public void onClose()
     {
         status = Status.CLOSED;
 
+        RuntimeException ce = null;
         for (final Agent agent : agents)
         {
-            agent.onClose();
+            try
+            {
+                agent.onClose();
+            }
+            catch (final Exception ex)
+            {
+                if (ce == null)
+                {
+                    ce = new RuntimeException(getClass().getName() + ": underlying agent error on close");
+                }
+
+                ce.addSuppressed(ex);
+            }
         }
 
         agents = EMPTY_AGENTS;
+
+        if (ce != null)
+        {
+            throw ce;
+        }
     }
 
     public String roleName()
@@ -189,11 +215,11 @@ public class DynamicCompositeAgent implements Agent
      */
     public boolean tryAdd(final Agent agent)
     {
-        Objects.requireNonNull(agent, "Agent cannot be null");
+        Objects.requireNonNull(agent, "agent cannot be null");
 
         if (Status.ACTIVE != status)
         {
-            throw new IllegalStateException("Add called when not active");
+            throw new IllegalStateException("add called when not active");
         }
 
         return addAgent.compareAndSet(null, agent);
@@ -209,7 +235,7 @@ public class DynamicCompositeAgent implements Agent
     {
         if (Status.ACTIVE != status)
         {
-            throw new IllegalStateException("Agent is not active");
+            throw new IllegalStateException("agent is not active");
         }
 
         return null == addAgent.get();
@@ -229,11 +255,11 @@ public class DynamicCompositeAgent implements Agent
      */
     public boolean tryRemove(final Agent agent)
     {
-        Objects.requireNonNull(agent, "Agent cannot be null");
+        Objects.requireNonNull(agent, "agent cannot be null");
 
         if (Status.ACTIVE != status)
         {
-            throw new IllegalStateException("Remove called when not active");
+            throw new IllegalStateException("remove called when not active");
         }
 
         return removeAgent.compareAndSet(null, agent);
@@ -249,7 +275,7 @@ public class DynamicCompositeAgent implements Agent
     {
         if (Status.ACTIVE != status)
         {
-            throw new IllegalStateException("Agent is not active");
+            throw new IllegalStateException("agent is not active");
         }
 
         return null == removeAgent.get();
@@ -275,7 +301,6 @@ public class DynamicCompositeAgent implements Agent
     private void remove(final Agent agent)
     {
         removeAgent.lazySet(null);
-
         final Agent[] newAgents = ArrayUtil.remove(agents, agent);
 
         try
