@@ -121,7 +121,7 @@ public class MappedResizeableBufferTest
         buffer = new MappedResizeableBuffer(channel, 0, 100);
         final long value = 0x5555555555555555L;
 
-        final UnsafeBuffer onHeapDirectBuffer =  new UnsafeBuffer(new byte[24]);
+        final UnsafeBuffer onHeapDirectBuffer = new UnsafeBuffer(new byte[24]);
         onHeapDirectBuffer.putLong(16, value);
         buffer.putBytes(24, onHeapDirectBuffer, 16, 8);
         assertThat(buffer.getLong(24), is(value));

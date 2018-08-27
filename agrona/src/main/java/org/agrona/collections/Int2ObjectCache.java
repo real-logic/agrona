@@ -743,7 +743,7 @@ public class Int2ObjectCache<V>
     }
 
     @SuppressWarnings("unchecked")
-    public final  class EntryIterator<T>
+    public final class EntryIterator<T>
         extends AbstractIterator<Entry<Integer, T>>
         implements Entry<Integer, T>
     {
@@ -771,7 +771,7 @@ public class Int2ObjectCache<V>
 
         public T setValue(final T value)
         {
-            throw new UnsupportedOperationException("Cannot set on this iterator");
+            throw new UnsupportedOperationException("no set on this iterator");
         }
     }
 }
