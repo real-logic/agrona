@@ -495,7 +495,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         /*@DoNotSub*/ resizeThreshold = (int)(newCapacity * loadFactor);
         entries = new Object[entriesLength];
-        Arrays.fill(entries, null);
     }
 
     // ---------------- Utility Classes ----------------

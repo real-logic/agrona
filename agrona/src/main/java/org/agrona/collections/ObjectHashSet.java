@@ -104,7 +104,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
         resizeThreshold = (int)(capacity * loadFactor);
         values = (T[])new Object[capacity];
-        Arrays.fill(values, MISSING_VALUE);
     }
 
     /**
