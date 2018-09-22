@@ -18,9 +18,9 @@ package org.agrona.concurrent;
 import java.util.Queue;
 
 /**
- * Composed interface for concurrent queues and sequenced containers.
+ * Composed interface for concurrent {@link Queue} and {@link Pipe}.
  *
- * @param <E> type of the elements stored in the {@link java.util.Queue}.
+ * @param <E> type of the elements stored in the {@link Queue}.
  */
 public interface QueuedPipe<E> extends Queue<E>, Pipe<E>
 {
