@@ -3,15 +3,14 @@ language: java
 sudo: false
 
 jdk:
-  - oraclejdk8
+- oraclejdk8
 
 script:
-  - ./gradlew
-
+- ./gradlew
 
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
   directories:
