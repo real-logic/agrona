@@ -135,7 +135,7 @@ public class BitUtil
      */
     public static int align(final int value, final int alignment)
     {
-        return (value + (alignment - 1)) & ~(alignment - 1);
+        return (value + (alignment - 1)) & -alignment;
     }
 
     /**
