@@ -2,6 +2,7 @@ Agrona
 ======
 
 [![Javadocs](http://www.javadoc.io/badge/org.agrona/agrona.svg)](http://www.javadoc.io/doc/org.agrona/agrona)
+[![Build Status](https://travis-ci.org/real-logic/agrona.svg?branch=master)](https://travis-ci.org/real-logic/agrona)
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
 applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
