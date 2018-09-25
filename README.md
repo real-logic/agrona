@@ -26,11 +26,11 @@ Utilities Included:
 * Ring/Broadcast Buffers - implemented off-heap for IPC communication.
 * Basic Agent framework.
 * Signal handling to support "Ctrl + c" in a server application.
-* Scalable Timer Wheel.
+* Scalable Timer Wheel - For scheduling timers at a given deadline with O(1) register and cancel time.
 * Basic code generation from annotated implementations that can vary on primitive types.
 * Off-heap counters implementation for application telemetry and position tracking.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
-* DistinctErrorLog: A log of distinct errors to avoid filling disks with existing logging approaches.
+* DistinctErrorLog - A log of distinct errors to avoid filling disks with existing logging approaches.
 
 Build
 -----
