@@ -290,9 +290,10 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         for (int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            if (entries[keyIndex + 1] != null)
+            if (entries[keyIndex + 1] != null) // lgtm [java/index-out-of-bounds]
             {
-                consumer.accept((K)entries[keyIndex], unmapNullValue(entries[keyIndex + 1]));
+                consumer.accept(
+                    (K)entries[keyIndex], unmapNullValue(entries[keyIndex + 1])); // lgtm [java/index-out-of-bounds]
             }
         }
     }
@@ -519,7 +520,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                 keyIndex = 0;
                 for (; keyIndex < capacity; keyIndex += 2)
                 {
-                    if (entries[keyIndex + 1] == null)
+                    if (entries[keyIndex + 1] == null) // lgtm [java/index-out-of-bounds]
                     {
                         break;
                     }

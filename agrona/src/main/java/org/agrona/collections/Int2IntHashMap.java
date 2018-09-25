@@ -259,9 +259,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            if (entries[keyIndex + 1] != missingValue)
+            if (entries[keyIndex + 1] != missingValue) // lgtm [java/index-out-of-bounds]
             {
-                consumer.accept(entries[keyIndex], entries[keyIndex + 1]);
+                consumer.accept(entries[keyIndex], entries[keyIndex + 1]); // lgtm [java/index-out-of-bounds]
             }
         }
     }
@@ -693,7 +693,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 keyIndex = 0;
                 for (; keyIndex < capacity; keyIndex += 2)
                 {
-                    if (entries[keyIndex + 1] == missingValue)
+                    if (entries[keyIndex + 1] == missingValue) // lgtm [java/index-out-of-bounds]
                     {
                         break;
                     }

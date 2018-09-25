@@ -319,9 +319,9 @@ public class Int2IntCounterMap implements Serializable
 
         for (@DoNotSub int i = 0; i < length; i += 2)
         {
-            if (entries[i + 1] != initialValue)
+            if (entries[i + 1] != initialValue) // lgtm [java/index-out-of-bounds]
             {
-                consumer.accept(entries[i], entries[i + 1]);
+                consumer.accept(entries[i], entries[i + 1]); // lgtm [java/index-out-of-bounds]
             }
         }
     }
@@ -508,11 +508,11 @@ public class Int2IntCounterMap implements Serializable
 
         for (@DoNotSub int i = 0; i < length; i += 2)
         {
-            if (entries[i + 1] != initialValue)
+            if (entries[i + 1] != initialValue) // lgtm [java/index-out-of-bounds]
             {
                 sb.append(entries[i]);
                 sb.append('=');
-                sb.append(entries[i + 1]);
+                sb.append(entries[i + 1]); // lgtm [java/index-out-of-bounds]
                 sb.append(", ");
             }
         }
