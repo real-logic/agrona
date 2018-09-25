@@ -307,8 +307,7 @@ public class BitUtil
     }
 
     /**
-     * Generate a randomised integer over [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}] suitable for
-     * use as an Aeron Id.
+     * Generate a randomised integer over [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}].
      *
      * @return randomised integer suitable as an Id.
      */
@@ -323,7 +322,7 @@ public class BitUtil
      * @param address   to be tested.
      * @param alignment boundary the address is tested against.
      * @return true if the address is on the aligned boundary otherwise false.
-     * @throws IllegalArgumentException if the alignment is not a power of 2`
+     * @throws IllegalArgumentException if the alignment is not a power of 2.
      */
     public static boolean isAligned(final long address, final int alignment)
     {
