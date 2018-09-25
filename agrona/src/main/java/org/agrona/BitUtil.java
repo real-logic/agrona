@@ -15,8 +15,9 @@
  */
 package org.agrona;
 
-import java.nio.charset.Charset;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Miscellaneous useful functions for dealing with low level bits and bytes.
@@ -49,7 +50,7 @@ public class BitUtil
     public static final int SIZE_OF_INT = 4;
 
     /**
-     * Size of a a float in bytes
+     * Size of a float in bytes
      */
     public static final int SIZE_OF_FLOAT = 4;
 
@@ -105,7 +106,6 @@ public class BitUtil
 
     private static final int LAST_DIGIT_MASK = 0b1;
 
-    private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
     /**
      * Fast method of finding the next power of 2 greater than or equal to the supplied value.
@@ -141,8 +141,8 @@ public class BitUtil
     /**
      * Generate a byte array from the hex representation of the given byte array.
      *
-     * @param buffer to convert from a hex representation (in Big Endian)
-     * @return new byte array that is decimal representation of the passed array
+     * @param buffer to convert from a hex representation (in Big Endian).
+     * @return new byte array that is decimal representation of the passed array.
      */
     public static byte[] fromHexByteArray(final byte[] buffer)
     {
@@ -161,8 +161,8 @@ public class BitUtil
     /**
      * Generate a byte array that is a hex representation of a given byte array.
      *
-     * @param buffer to convert to a hex representation
-     * @return new byte array that is hex representation (in Big Endian) of the passed array
+     * @param buffer to convert to a hex representation.
+     * @return new byte array that is hex representation (in Big Endian) of the passed array.
      */
     public static byte[] toHexByteArray(final byte[] buffer)
     {
@@ -172,10 +172,10 @@ public class BitUtil
     /**
      * Generate a byte array that is a hex representation of a given byte array.
      *
-     * @param buffer to convert to a hex representation
-     * @param offset the offset into the buffer
-     * @param length the number of bytes to convert
-     * @return new byte array that is hex representation (in Big Endian) of the passed array
+     * @param buffer to convert to a hex representation.
+     * @param offset the offset into the buffer.
+     * @param length the number of bytes to convert.
+     * @return new byte array that is hex representation (in Big Endian) of the passed array.
      */
     public static byte[] toHexByteArray(final byte[] buffer, final int offset, final int length)
     {
@@ -195,36 +195,36 @@ public class BitUtil
     /**
      * Generate a byte array from a string that is the hex representation of the given byte array.
      *
-     * @param string to convert from a hex representation (in Big Endian)
-     * @return new byte array holding the decimal representation of the passed array
+     * @param string to convert from a hex representation (in Big Endian).
+     * @return new byte array holding the decimal representation of the passed array.
      */
     public static byte[] fromHex(final String string)
     {
-        return fromHexByteArray(string.getBytes(UTF8_CHARSET));
+        return fromHexByteArray(string.getBytes(UTF_8));
     }
 
     /**
      * Generate a string that is the hex representation of a given byte array.
      *
-     * @param buffer to convert to a hex representation
-     * @param offset the offset into the buffer
-     * @param length the number of bytes to convert
-     * @return new String holding the hex representation (in Big Endian) of the passed array
+     * @param buffer to convert to a hex representation.
+     * @param offset the offset into the buffer.
+     * @param length the number of bytes to convert.
+     * @return new String holding the hex representation (in Big Endian) of the passed array.
      */
     public static String toHex(final byte[] buffer, final int offset, final int length)
     {
-        return new String(toHexByteArray(buffer, offset, length), UTF8_CHARSET);
+        return new String(toHexByteArray(buffer, offset, length), UTF_8);
     }
 
     /**
      * Generate a string that is the hex representation of a given byte array.
      *
-     * @param buffer to convert to a hex representation
-     * @return new String holding the hex representation (in Big Endian) of the passed array
+     * @param buffer to convert to a hex representation.
+     * @return new String holding the hex representation (in Big Endian) of the passed array.
      */
     public static String toHex(final byte[] buffer)
     {
-        return new String(toHexByteArray(buffer), UTF8_CHARSET);
+        return new String(toHexByteArray(buffer), UTF_8);
     }
 
     /**
@@ -239,10 +239,10 @@ public class BitUtil
     }
 
     /**
-     * Is a value a positive power of two.
+     * Is a value a positive power of 2.
      *
      * @param value to be checked.
-     * @return true if the number is a positive power of two otherwise false.
+     * @return true if the number is a positive power of 2, otherwise false.
      */
     public static boolean isPowerOfTwo(final int value)
     {
@@ -272,7 +272,7 @@ public class BitUtil
      *
      * @param current value to be decremented.
      * @param max     value of the cycle.
-     * @return the next value, or max - 1 if current is zero
+     * @return the next value, or max - 1 if current is zero.
      */
     public static int previous(final int current, final int max)
     {
@@ -302,15 +302,15 @@ public class BitUtil
         }
         else
         {
-            throw new IllegalArgumentException("Unknown pointer size");
+            throw new IllegalArgumentException("unknown pointer size");
         }
     }
 
     /**
-     * Generate a randomized integer over [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}] suitable for
+     * Generate a randomised integer over [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}] suitable for
      * use as an Aeron Id.
      *
-     * @return randomized integer suitable as an Id.
+     * @return randomised integer suitable as an Id.
      */
     public static int generateRandomisedId()
     {
@@ -329,7 +329,7 @@ public class BitUtil
     {
         if (!BitUtil.isPowerOfTwo(alignment))
         {
-            throw new IllegalArgumentException("Alignment must be a power of 2: alignment=" + alignment);
+            throw new IllegalArgumentException("alignment must be a power of 2: alignment=" + alignment);
         }
 
         return (address & (alignment - 1)) == 0;
