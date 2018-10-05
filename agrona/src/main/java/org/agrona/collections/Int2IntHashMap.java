@@ -1022,7 +1022,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
-    private final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
+    public final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
