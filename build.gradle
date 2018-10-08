@@ -28,6 +28,7 @@ defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '0.9.26-SNAPSHOT'
+def agronaJavaVersion = '1.8'
 
 group = agronaGroup
 version = agronaVersion
@@ -128,8 +129,8 @@ subprojects {
     }
 
     compileJava {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = agronaJavaVersion
+        targetCompatibility = agronaJavaVersion
         options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
         options.fork = true
         options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
@@ -138,8 +139,8 @@ subprojects {
     }
 
     compileTestJava {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = agronaJavaVersion
+        targetCompatibility = agronaJavaVersion
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
@@ -199,8 +200,8 @@ project(':agrona') {
 
     compileGeneratedJava {
         dependsOn 'generatePrimitiveExpansions'
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = agronaJavaVersion
+        targetCompatibility = agronaJavaVersion
         options.encoding = 'UTF-8'
         options.deprecation = true
         classpath += sourceSets.main.runtimeClasspath
