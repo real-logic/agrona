@@ -35,20 +35,6 @@ public interface MessageFlyweight extends Flyweight
     int sbeTemplateId();
 
     /**
-     * The SBE Schema identifier containing the message declaration.
-     *
-     * @return the SBE Schema identifier containing the message declaration.
-     */
-    int sbeSchemaId();
-
-    /**
-     * The version number of the SBE Schema containing the message.
-     *
-     * @return the version number of the SBE Schema containing the message.
-     */
-    int sbeSchemaVersion();
-
-    /**
      * The semantic type of the message which is typically the semantic equivalent in the FIX repository.
      *
      * @return the semantic type of the message which is typically the semantic equivalent in the FIX repository.

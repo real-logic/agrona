@@ -21,6 +21,20 @@ package org.agrona.sbe;
 public interface Flyweight
 {
     /**
+     * The SBE Schema identifier containing the message declaration.
+     *
+     * @return the SBE Schema identifier containing the message declaration.
+     */
+    int sbeSchemaId();
+
+    /**
+     * The version number of the SBE Schema containing the message.
+     *
+     * @return the version number of the SBE Schema containing the message.
+     */
+    int sbeSchemaVersion();
+
+    /**
      * The length of the encoded type in bytes.
      *
      * @return the length of the encoded type in bytes.
