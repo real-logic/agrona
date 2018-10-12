@@ -36,19 +36,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
-    private static final int SEQUENCES_ARRAY_BASE;
-
-    static
-    {
-        try
-        {
-            SEQUENCES_ARRAY_BASE = UNSAFE.arrayBaseOffset(long[].class);
-        }
-        catch (final Exception ex)
-        {
-            throw new RuntimeException(ex);
-        }
-    }
+    private static final int SEQUENCES_ARRAY_BASE = UNSAFE.arrayBaseOffset(long[].class);
 
     private final long[] sequences;
 
