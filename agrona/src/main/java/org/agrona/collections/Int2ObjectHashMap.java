@@ -409,7 +409,7 @@ public class Int2ObjectHashMap<V>
     /**
      * {@inheritDoc}
      */
-    public Collection<V> values()
+    public ValueCollection values()
     {
         if (null == valueCollection)
         {
@@ -422,7 +422,7 @@ public class Int2ObjectHashMap<V>
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<Integer, V>> entrySet()
+    public EntrySet entrySet()
     {
         if (null == entrySet)
         {
@@ -637,7 +637,7 @@ public class Int2ObjectHashMap<V>
     // Internal Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public class KeySet extends AbstractSet<Integer> implements Serializable
+    public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
@@ -687,7 +687,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    class ValueCollection extends AbstractCollection<V> implements Serializable
+    public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
@@ -722,7 +722,7 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    class EntrySet extends AbstractSet<Entry<Integer, V>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
@@ -885,7 +885,6 @@ public class Int2ObjectHashMap<V>
         }
     }
 
-    @SuppressWarnings("unchecked")
     public class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>
@@ -963,6 +962,7 @@ public class Int2ObjectHashMap<V>
             return unmapNullValue(values[position()]);
         }
 
+        @SuppressWarnings("unchecked")
         public V setValue(final V value)
         {
             final V val = (V)mapNullValue(value);

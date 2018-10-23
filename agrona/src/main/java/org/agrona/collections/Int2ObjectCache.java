@@ -57,9 +57,9 @@ public class Int2ObjectCache<V>
     private final Object[] values;
     private final Consumer<V> evictionConsumer;
 
-    private ValueCollection<V> valueCollection;
+    private ValueCollection valueCollection;
     private KeySet keySet;
-    private EntrySet<V> entrySet;
+    private EntrySet entrySet;
 
     public Int2ObjectCache(
         @DoNotSub final int numSets,
@@ -461,11 +461,11 @@ public class Int2ObjectCache<V>
     /**
      * {@inheritDoc}
      */
-    public ValueCollection<V> values()
+    public ValueCollection values()
     {
         if (null == valueCollection)
         {
-            valueCollection = new ValueCollection<>();
+            valueCollection = new ValueCollection();
         }
 
         return valueCollection;
@@ -474,11 +474,11 @@ public class Int2ObjectCache<V>
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<Integer, V>> entrySet()
+    public EntrySet entrySet()
     {
         if (null == entrySet)
         {
-            entrySet = new EntrySet<>();
+            entrySet = new EntrySet();
         }
 
         return entrySet;
@@ -612,9 +612,9 @@ public class Int2ObjectCache<V>
         }
     }
 
-    public final class ValueCollection<T> extends AbstractCollection<T>
+    public final class ValueCollection extends AbstractCollection<V>
     {
-        private final ValueIterator<T> iterator = new ValueIterator<>();
+        private final ValueIterator iterator = new ValueIterator();
 
         @DoNotSub public int size()
         {
@@ -626,7 +626,7 @@ public class Int2ObjectCache<V>
             return Int2ObjectCache.this.containsValue(o);
         }
 
-        public ValueIterator<T> iterator()
+        public ValueIterator iterator()
         {
             iterator.reset();
 
@@ -639,16 +639,16 @@ public class Int2ObjectCache<V>
         }
     }
 
-    public final class EntrySet<T> extends AbstractSet<Entry<Integer, T>>
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
-        private final EntryIterator<T> iterator = new EntryIterator<>();
+        private final EntryIterator iterator = new EntryIterator();
 
         @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
 
-        public Iterator<Entry<Integer, T>> iterator()
+        public EntryIterator iterator()
         {
             iterator.reset();
 
@@ -716,14 +716,14 @@ public class Int2ObjectCache<V>
         }
     }
 
-    public final class ValueIterator<T> extends AbstractIterator<T>
+    public final class ValueIterator extends AbstractIterator<V>
     {
         @SuppressWarnings("unchecked")
-        public T next()
+        public V next()
         {
             findNext();
 
-            return (T)values[position()];
+            return (V)values[position()];
         }
     }
 
@@ -743,11 +743,11 @@ public class Int2ObjectCache<V>
     }
 
     @SuppressWarnings("unchecked")
-    public final class EntryIterator<T>
-        extends AbstractIterator<Entry<Integer, T>>
-        implements Entry<Integer, T>
+    public final class EntryIterator
+        extends AbstractIterator<Entry<Integer, V>>
+        implements Entry<Integer, V>
     {
-        public Entry<Integer, T> next()
+        public Entry<Integer, V> next()
         {
             findNext();
 
@@ -764,12 +764,12 @@ public class Int2ObjectCache<V>
             return keys[position()];
         }
 
-        public T getValue()
+        public V getValue()
         {
-            return (T)values[position()];
+            return (V)values[position()];
         }
 
-        public T setValue(final T value)
+        public V setValue(final V value)
         {
             throw new UnsupportedOperationException("no set on this iterator");
         }

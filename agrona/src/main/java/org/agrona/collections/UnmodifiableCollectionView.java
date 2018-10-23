@@ -50,12 +50,12 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> impl
     /**
      * {@inheritDoc}
      */
-    public Iterator<V> iterator()
+    public ReusableIterator iterator()
     {
         return iterator.reset();
     }
 
-    private class ReusableIterator implements Iterator<V>, Serializable
+    public final class ReusableIterator implements Iterator<V>, Serializable
     {
         private Iterator<E> delegate;
 

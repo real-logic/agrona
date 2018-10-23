@@ -422,7 +422,7 @@ public class Object2IntHashMap<K>
     /**
      * {@inheritDoc}
      */
-    public Set<K> keySet()
+    public KeySet keySet()
     {
         if (null == keySet)
         {
@@ -448,7 +448,7 @@ public class Object2IntHashMap<K>
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<K, Integer>> entrySet()
+    public EntrySet entrySet()
     {
         if (null == entrySet)
         {
@@ -743,7 +743,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    public final class EntrySet extends AbstractSet<Entry<K, Integer>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 

@@ -41,7 +41,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     private int[] entries;
     private KeySet keySet;
-    private Values values;
+    private ValueCollection values;
     private EntrySet entrySet;
 
     public Int2IntHashMap(final int missingValue)
@@ -417,11 +417,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * {@inheritDoc}
      */
-    public Values values()
+    public ValueCollection values()
     {
         if (null == values)
         {
-            values = new Values();
+            values = new ValueCollection();
         }
 
         return values;
@@ -430,7 +430,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<Integer, Integer>> entrySet()
+    public EntrySet entrySet()
     {
         if (null == entrySet)
         {
@@ -981,7 +981,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
-    public final class Values extends AbstractCollection<Integer>
+    public final class ValueCollection extends AbstractCollection<Integer>
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
@@ -1022,7 +1022,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
-    public final class EntrySet extends AbstractSet<Entry<Integer, Integer>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 

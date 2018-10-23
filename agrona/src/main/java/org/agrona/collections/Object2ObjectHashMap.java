@@ -37,7 +37,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
     private Object[] entries;
     private KeySet keySet;
-    private Values values;
+    private ValueCollection valueCollection;
     private EntrySet entrySet;
 
     public Object2ObjectHashMap()
@@ -333,20 +333,20 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     /**
      * {@inheritDoc}
      */
-    public Values values()
+    public ValueCollection values()
     {
-        if (null == values)
+        if (null == valueCollection)
         {
-            values = new Values();
+            valueCollection = new ValueCollection();
         }
 
-        return values;
+        return valueCollection;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Set<Entry<K, V>> entrySet()
+    public EntrySet entrySet()
     {
         if (null == entrySet)
         {
@@ -442,7 +442,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             sb.append(',').append(' ');
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -592,7 +591,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
-    final class KeyIterator extends AbstractIterator implements Iterator<K>
+    public final class KeyIterator extends AbstractIterator implements Iterator<K>
     {
         @SuppressWarnings("unchecked")
         public K next()
@@ -791,7 +790,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
-    public final class Values extends AbstractCollection<V>
+    public final class ValueCollection extends AbstractCollection<V>
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
@@ -827,7 +826,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
-    private final class EntrySet extends AbstractSet<Entry<K, V>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<K, V>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
