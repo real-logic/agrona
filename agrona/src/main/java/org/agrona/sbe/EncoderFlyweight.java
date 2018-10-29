@@ -23,6 +23,13 @@ import org.agrona.MutableDirectBuffer;
 public interface EncoderFlyweight extends Flyweight
 {
     /**
+     * Buffer in which the flyweight is encoded.
+     *
+     * @return buffer in which the flyweight is encoded.
+     */
+    MutableDirectBuffer buffer();
+
+    /**
      * Wrap a buffer for encoding at a given offset.
      *
      * @param buffer to be wrapped and into which the type will be encoded.
