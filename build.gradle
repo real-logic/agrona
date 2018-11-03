@@ -20,7 +20,7 @@ buildscript {
 }
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'com.github.johnrengelman.shadow' version '4.0.1' apply false
 }
 
@@ -104,7 +104,7 @@ allprojects {
 jar.enabled = false
 
 subprojects {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
     apply plugin: 'signing'
