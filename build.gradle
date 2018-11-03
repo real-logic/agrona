@@ -20,8 +20,8 @@ buildscript {
 }
 
 plugins {
-    id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '4.0.1' apply false
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '4.0.2' apply false
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
@@ -104,7 +104,7 @@ allprojects {
 jar.enabled = false
 
 subprojects {
-    apply plugin: 'java-library'
+    apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
     apply plugin: 'signing'
@@ -118,10 +118,10 @@ subprojects {
     dependencies {
         checkstyle 'com.puppycrawl.tools:checkstyle:8.14'
 
-        testImplementation 'junit:junit:4.12'
-        testImplementation 'org.mockito:mockito-core:2.23.0'
-        testImplementation 'org.hamcrest:hamcrest-library:1.3'
-        testImplementation 'com.google.guava:guava-testlib:27.0-jre'
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:2.23.0'
+        testCompile 'org.hamcrest:hamcrest-library:1.3'
+        testCompile 'com.google.guava:guava-testlib:27.0-jre'
     }
 
     checkstyle {
@@ -257,8 +257,8 @@ project(':agrona-agent') {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
-        implementation project(':agrona')
-        implementation "net.bytebuddy:byte-buddy:1.9.0"
+        compile project(':agrona')
+        compile "net.bytebuddy:byte-buddy:1.9.0"
     }
 
     jar {
