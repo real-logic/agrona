@@ -91,4 +91,37 @@ public class AsciiSequenceViewTest
 
         assertThat(subSequenceView.toString(), is("little"));
     }
+
+    @Test
+    public void shouldReturnEmptyStringWhenBufferIsNull()
+    {
+        assertEquals(0, asciiSequenceView.length());
+        assertEquals("", asciiSequenceView.toString());
+    }
+
+    @Test(expected = StringIndexOutOfBoundsException.class)
+    public void shouldThrowIndexOutOfBoundsExceptionWhenCharNotPresentAtGivenPosition()
+    {
+        final String data = "foo";
+        buffer.putStringWithoutLengthAscii(INDEX, data);
+        asciiSequenceView.wrap(buffer, INDEX, data.length());
+
+        asciiSequenceView.charAt(4);
+    }
+
+    @Test(expected = StringIndexOutOfBoundsException.class)
+    public void shouldThrowExceptionWhenCharAtCalledWithNoBuffer()
+    {
+        asciiSequenceView.charAt(0);
+    }
+
+    @Test(expected = StringIndexOutOfBoundsException.class)
+    public void shouldThrowExceptionWhenCharAtCalledWithNegativeIndex()
+    {
+        final String data = "foo";
+        buffer.putStringWithoutLengthAscii(INDEX, data);
+        asciiSequenceView.wrap(buffer, INDEX, data.length());
+
+        asciiSequenceView.charAt(-1);
+    }
 }

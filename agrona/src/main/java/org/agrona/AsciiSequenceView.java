@@ -55,6 +55,11 @@ public class AsciiSequenceView implements CharSequence
      */
     public char charAt(final int index)
     {
+        if (index < 0 || index >= length)
+        {
+            throw new StringIndexOutOfBoundsException("index=" + index + " length=" + length);
+        }
+
         return (char)buffer.getByte(offset + index);
     }
 
@@ -115,6 +120,11 @@ public class AsciiSequenceView implements CharSequence
 
     public String toString()
     {
+        if (null == buffer)
+        {
+            return "";
+        }
+
         return buffer.getStringWithoutLengthAscii(offset, length);
     }
 }
