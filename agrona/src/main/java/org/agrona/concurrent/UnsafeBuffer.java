@@ -152,8 +152,12 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         addressOffset = ARRAY_BASE_OFFSET;
         capacity = buffer.length;
-        byteArray = buffer;
         byteBuffer = null;
+
+        if (buffer != byteArray)
+        {
+            byteArray = buffer;
+        }
     }
 
     public void wrap(final byte[] buffer, final int offset, final int length)
@@ -175,13 +179,20 @@ public class UnsafeBuffer implements AtomicBuffer
 
         addressOffset = ARRAY_BASE_OFFSET + offset;
         capacity = length;
-        byteArray = buffer;
         byteBuffer = null;
+
+        if (buffer != byteArray)
+        {
+            byteArray = buffer;
+        }
     }
 
     public void wrap(final ByteBuffer buffer)
     {
-        byteBuffer = buffer;
+        if (buffer != byteBuffer)
+        {
+            byteBuffer = buffer;
+        }
 
         if (buffer.isDirect())
         {
@@ -190,8 +201,8 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            byteArray = array(byteBuffer);
-            addressOffset = ARRAY_BASE_OFFSET + arrayOffset(byteBuffer);
+            byteArray = array(buffer);
+            addressOffset = ARRAY_BASE_OFFSET + arrayOffset(buffer);
         }
 
         capacity = buffer.capacity();
@@ -214,7 +225,10 @@ public class UnsafeBuffer implements AtomicBuffer
             }
         }
 
-        byteBuffer = buffer;
+        if (buffer != byteBuffer)
+        {
+            byteBuffer = buffer;
+        }
 
         if (buffer.isDirect())
         {
@@ -234,8 +248,18 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         addressOffset = buffer.addressOffset();
         capacity = buffer.capacity();
-        byteArray = buffer.byteArray();
-        byteBuffer = buffer.byteBuffer();
+
+        final byte[] byteArray = buffer.byteArray();
+        if (byteArray != this.byteArray)
+        {
+            this.byteArray = byteArray;
+        }
+
+        final ByteBuffer byteBuffer = buffer.byteBuffer();
+        if (byteBuffer != this.byteBuffer)
+        {
+            this.byteBuffer = byteBuffer;
+        }
     }
 
     public void wrap(final DirectBuffer buffer, final int offset, final int length)
@@ -257,8 +281,18 @@ public class UnsafeBuffer implements AtomicBuffer
 
         addressOffset = buffer.addressOffset() + offset;
         capacity = length;
-        byteArray = buffer.byteArray();
-        byteBuffer = buffer.byteBuffer();
+
+        final byte[] byteArray = buffer.byteArray();
+        if (byteArray != this.byteArray)
+        {
+            this.byteArray = byteArray;
+        }
+
+        final ByteBuffer byteBuffer = buffer.byteBuffer();
+        if (byteBuffer != this.byteBuffer)
+        {
+            this.byteBuffer = byteBuffer;
+        }
     }
 
     public void wrap(final long address, final int length)
