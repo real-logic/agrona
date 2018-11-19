@@ -4,8 +4,8 @@ Agrona
 [![Javadocs](http://www.javadoc.io/badge/org.agrona/agrona.svg)](http://www.javadoc.io/doc/org.agrona/agrona)
 [![Build Status](https://travis-ci.org/real-logic/agrona.svg?branch=master)](https://travis-ci.org/real-logic/agrona)
 [![GitHub](https://img.shields.io/github/license/real-logic/Agrona.svg)](https://github.com/real-logic/agrona/blob/master/LICENSE)
-[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/real-logic/Agrona.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/real-logic/Agrona/context:java)
-[![Total Alerts](https://img.shields.io/lgtm/alerts/g/real-logic/Agrona.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/real-logic/Agrona/alerts)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/real-logic/Agrona.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/real-logic/agrona/context:java)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/real-logic/Agrona.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/real-logic/agrona/alerts)
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
 applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
