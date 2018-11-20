@@ -31,23 +31,44 @@ import static java.lang.System.getProperty;
  */
 public class SystemUtil
 {
-    public static final String SUN_PID_PROP_NAME = "sun.java.launcher.pid";
-
     /**
      * PID value if a process id could not be determined. This value should be equal to a kernel only process
      * id for the platform so that it does not indicate a real process id.
      */
     public static final long PID_NOT_FOUND = 0;
 
+    private static final String SUN_PID_PROP_NAME = "sun.java.launcher.pid";
     private static final long MAX_G_VALUE = 8589934591L;
     private static final long MAX_M_VALUE = 8796093022207L;
     private static final long MAX_K_VALUE = 9007199254739968L;
 
     private static final String OS_NAME;
+    private static final long PID;
 
     static
     {
         OS_NAME = System.getProperty("os.name").toLowerCase();
+
+        long pid = PID_NOT_FOUND;
+        try
+        {
+            // TODO: if Java 9, then use ProcessHandle.
+            final String pidPropertyValue = System.getProperty(SUN_PID_PROP_NAME);
+            if (null != pidPropertyValue)
+            {
+                pid = Long.parseLong(pidPropertyValue);
+            }
+            else
+            {
+                final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+                pid = Long.parseLong(jvmName.split("@")[0]);
+            }
+        }
+        catch (final Throwable ignore)
+        {
+        }
+
+        PID = pid;
     }
 
     /**
@@ -60,6 +81,17 @@ public class SystemUtil
     public static String osName()
     {
         return OS_NAME;
+    }
+
+    /**
+     * Return the current process id from the OS.
+     *
+     * @return current process id or {@link #PID_NOT_FOUND} if PID was not able to be found.
+     * @see #PID_NOT_FOUND
+     */
+    public static long getPid()
+    {
+        return PID;
     }
 
     /**
@@ -327,34 +359,6 @@ public class SystemUtil
             default:
                 throw new NumberFormatException(
                     propertyName + ": " + propertyValue + " should end with: s, ms, us, or ns.");
-        }
-    }
-
-    /**
-     * Return the current process id from the OS.
-     *
-     * @return current process id or {@link #PID_NOT_FOUND} if PID was not able to be found.
-     * @see #PID_NOT_FOUND
-     */
-    public static long getPid()
-    {
-        try
-        {
-            // TODO: if Java 9, then use ProcessHandle.
-            final String pidPropertyValue = System.getProperty(SUN_PID_PROP_NAME);
-
-            if (null != pidPropertyValue)
-            {
-                return Long.parseLong(pidPropertyValue);
-            }
-
-            final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-
-            return Long.parseLong(jvmName.split("@")[0]);
-        }
-        catch (final Throwable ex)
-        {
-            return PID_NOT_FOUND;
         }
     }
 }
