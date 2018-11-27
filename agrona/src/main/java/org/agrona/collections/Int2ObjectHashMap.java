@@ -336,7 +336,6 @@ public class Int2ObjectHashMap<V>
      * @param key for indexing the {@link Map}
      * @return the value if found otherwise null
      */
-    @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
         @DoNotSub final int mask = values.length - 1;
@@ -861,7 +860,6 @@ public class Int2ObjectHashMap<V>
 
     public class ValueIterator extends AbstractIterator<V>
     {
-        @SuppressWarnings("unchecked")
         public V next()
         {
             findNext();

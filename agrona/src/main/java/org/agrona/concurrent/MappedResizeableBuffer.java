@@ -26,8 +26,6 @@ import java.nio.channels.FileChannel;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.BufferUtil.array;
-import static org.agrona.BufferUtil.arrayOffset;
 import static org.agrona.UnsafeAccess.UNSAFE;
 import static org.agrona.concurrent.UnsafeBuffer.*;
 

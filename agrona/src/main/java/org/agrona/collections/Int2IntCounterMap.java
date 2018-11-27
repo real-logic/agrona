@@ -49,7 +49,6 @@ public class Int2IntCounterMap implements Serializable
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, initialValue);
     }
 
-    @SuppressWarnings("unchecked")
     public Int2IntCounterMap(
         @DoNotSub final int initialCapacity,
         @DoNotSub final float loadFactor,

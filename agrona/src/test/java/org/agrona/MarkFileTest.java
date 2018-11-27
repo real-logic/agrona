@@ -9,14 +9,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import org.agrona.concurrent.SystemEpochClock;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class MarkFileTest
 {
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    public final TemporaryFolder tmpDir = new TemporaryFolder();
 
     @Test(expected = IllegalStateException.class)
     public void shouldWaitForMarkFileToContainEnoughDataForVersionCheck() throws IOException

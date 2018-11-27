@@ -33,9 +33,9 @@ public class UnsafeBufferTest
     private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
 
-    private byte[] wibbleBytes = "Wibble".getBytes(US_ASCII);
-    private byte[] wobbleBytes = "Wobble".getBytes(US_ASCII);
-    private byte[] wibbleBytes2 = "Wibble2".getBytes(US_ASCII);
+    private final byte[] wibbleBytes = "Wibble".getBytes(US_ASCII);
+    private final byte[] wobbleBytes = "Wobble".getBytes(US_ASCII);
+    private final byte[] wibbleBytes2 = "Wibble2".getBytes(US_ASCII);
 
     @Test
     public void shouldEqualOnInstance()

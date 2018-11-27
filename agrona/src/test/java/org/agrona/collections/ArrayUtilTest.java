@@ -27,7 +27,7 @@ public class ArrayUtilTest
     private static final Integer TWO = valueOf(2);
     private static final Integer THREE = valueOf(3);
 
-    private Integer[] values = { ONE, TWO };
+    private final Integer[] values = { ONE, TWO };
 
     @Test
     public void shouldNotRemoveMissingElement()

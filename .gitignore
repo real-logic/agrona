@@ -1,7 +1,4 @@
 target
-GTAGS
-GRTAGS
-GPATH
 prop
 out
 
@@ -26,34 +23,6 @@ out
 build-local.properties
 .gradle
 build
-
-# cpp build linux
-cppbuild/CMakeCache.txt
-cppbuild/CMakeFiles/
-cppbuild/CTestTestfile.cmake
-cppbuild/Makefile
-cppbuild/Testing/
-cppbuild/aeron-common/
-cppbuild/aeron-samples/
-cppbuild/binaries/
-cppbuild/cmake_install.cmake
-
-# cpp build windows
-cppbuild/*.opensdf
-cppbuild/*.sdf
-cppbuild/*.sln
-cppbuild/*.suo
-cppbuild/*.vcxproj
-cppbuild/*.filters
-cppbuild/*.lastbuildstate
-cppbuild/*.tlog
-cppbuild/*.log
-cppbuild/*.cache
-cppbuild/Debug
-cppbuild/Release
-cppbuild/Win32
-
-
 
 # Benchmark timings
 timings.log

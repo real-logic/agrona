@@ -342,7 +342,7 @@ public class ObjectHashSetIntegerTest
     {
         addTwoElements(testSet);
 
-        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
+        final Integer[] result = testSet.toArray(new Integer[0]);
 
         assertArrayContainingElements(result);
     }
@@ -352,7 +352,7 @@ public class ObjectHashSetIntegerTest
     {
         addTwoElements(testSet);
 
-        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
+        final Integer[] result = testSet.toArray(new Integer[0]);
 
         assertArrayContainingElements(result);
     }
@@ -360,7 +360,7 @@ public class ObjectHashSetIntegerTest
     @Test
     public void toArraySupportsEmptyCollection()
     {
-        final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
+        final Integer[] result = testSet.toArray(new Integer[0]);
 
         assertArrayEquals(result, new Integer[]{});
     }
@@ -617,7 +617,6 @@ public class ObjectHashSetIntegerTest
     }
 
     @Test
-    @SuppressWarnings("AssertEqualsBetweenInconvertibleTypes")
     public void shouldHaveCompatibleEqualsAndHashcode()
     {
         final HashSet<Integer> compatibleSet = new HashSet<>();

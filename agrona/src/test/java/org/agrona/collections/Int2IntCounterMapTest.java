@@ -32,7 +32,7 @@ public class Int2IntCounterMapTest
 {
     public static final int INITIAL_VALUE = 0;
 
-    private Int2IntCounterMap map = new Int2IntCounterMap(INITIAL_VALUE);
+    private final Int2IntCounterMap map = new Int2IntCounterMap(INITIAL_VALUE);
 
     @Test
     public void shouldInitiallyBeEmpty()
@@ -250,7 +250,6 @@ public class Int2IntCounterMapTest
         new Int2IntHashMap(4, 1, 0);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void correctSizeAfterRehash()
     {

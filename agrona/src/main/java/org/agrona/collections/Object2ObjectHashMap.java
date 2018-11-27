@@ -45,7 +45,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
-    @SuppressWarnings("unchecked")
     public Object2ObjectHashMap(
         final int initialCapacity,
         final float loadFactor)
@@ -155,7 +154,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      * @return current value associated with key, or null if none found
      * @throws IllegalArgumentException if value is null
      */
-    @SuppressWarnings("unchecked")
     public V put(final Object key, final Object value)
     {
         final Object val = mapNullValue(value);
@@ -359,7 +357,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public V remove(final Object key)
     {
         final Object[] entries = this.entries;
@@ -604,7 +601,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
     public final class ValueIterator extends AbstractIterator implements Iterator<V>
     {
-        @SuppressWarnings("unchecked")
         public V next()
         {
             findNext();
@@ -623,7 +619,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return (K)entries[keyPosition()];
         }
 
-        @SuppressWarnings("unchecked")
         public V getValue()
         {
             return unmapNullValue(entries[keyPosition() + 1]);

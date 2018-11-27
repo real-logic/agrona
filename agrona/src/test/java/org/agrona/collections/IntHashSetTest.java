@@ -813,7 +813,6 @@ public class IntHashSetTest
     }
 
     @Test
-    @SuppressWarnings("AssertEqualsBetweenInconvertibleTypes")
     public void shouldHaveCompatibleEqualsAndHashcode()
     {
         final HashSet<Integer> compatibleSet = new HashSet<>();

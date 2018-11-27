@@ -46,11 +46,11 @@ public class CountersManagerTest
 
     private long currentTimestamp = 0;
 
-    private UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
-    private UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
-    private CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
-    private CountersReader reader = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
-    private CountersManager managerWithCooldown =
+    private final UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
+    private final UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
+    private final CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
+    private final CountersReader reader = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
+    private final CountersManager managerWithCooldown =
         new CountersManager(labelsBuffer, counterBuffer, US_ASCII, () -> currentTimestamp, FREE_TO_REUSE_TIMEOUT);
 
     @SuppressWarnings("unchecked")

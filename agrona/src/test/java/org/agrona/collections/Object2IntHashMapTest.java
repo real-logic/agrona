@@ -355,7 +355,7 @@ public class Object2IntHashMapTest
 
     private static class ControlledHash
     {
-        private int value;
+        private final int value;
 
         public static ControlledHash[] create(final int... values)
         {
@@ -364,6 +364,7 @@ public class Object2IntHashMapTest
             {
                 result[i] = new ControlledHash(values[i]);
             }
+
             return result;
         }
 

@@ -30,11 +30,11 @@ public class IntLruCacheTest
     public static final int CAPACITY = 2;
 
     @SuppressWarnings("unchecked")
-    private IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);
+    private final IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);
     @SuppressWarnings("unchecked")
-    private Consumer<AutoCloseable> mockCloser = mock(Consumer.class);
+    private final Consumer<AutoCloseable> mockCloser = mock(Consumer.class);
 
-    private IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory, mockCloser);
+    private final IntLruCache<AutoCloseable> cache = new IntLruCache<>(CAPACITY, mockFactory, mockCloser);
 
     private AutoCloseable lastValue;
 

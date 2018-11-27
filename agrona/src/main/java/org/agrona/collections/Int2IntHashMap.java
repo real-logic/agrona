@@ -49,7 +49,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
     }
 
-    @SuppressWarnings("unchecked")
     public Int2IntHashMap(
         @DoNotSub final int initialCapacity,
         @DoNotSub final float loadFactor,

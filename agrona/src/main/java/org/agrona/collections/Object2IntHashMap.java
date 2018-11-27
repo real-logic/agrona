@@ -66,7 +66,6 @@ public class Object2IntHashMap<K>
      * @param loadFactor      limit for resizing on puts
      * @param missingValue    value to be used as a null marker in the map
      */
-    @SuppressWarnings("unchecked")
     public Object2IntHashMap(
         @DoNotSub final int initialCapacity,
         final float loadFactor,
@@ -893,7 +892,6 @@ public class Object2IntHashMap<K>
 
     public final class KeyIterator extends AbstractIterator<K>
     {
-        @SuppressWarnings("unchecked")
         public K next()
         {
             findNext();
@@ -902,7 +900,6 @@ public class Object2IntHashMap<K>
         }
     }
 
-    @SuppressWarnings("unchecked")
     public final class EntryIterator
         extends AbstractIterator<Entry<K, Integer>>
         implements Entry<K, Integer>

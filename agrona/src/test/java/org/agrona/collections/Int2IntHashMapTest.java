@@ -463,7 +463,6 @@ public class Int2IntHashMapTest
     public void emptyMapsShouldBeEqual()
     {
         assertEquals(map, new Int2IntHashMap(MISSING_VALUE));
-        //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals(map, new HashMap<Integer, Integer>());
     }
 
@@ -629,7 +628,7 @@ public class Int2IntHashMapTest
         });
 
         final Map<Integer, Integer> actual = new HashMap<>();
-        final Int2IntHashMap.EntryIterator iter = (Int2IntHashMap.EntryIterator)map.entrySet().iterator();
+        final Int2IntHashMap.EntryIterator iter = map.entrySet().iterator();
         while (iter.hasNext())
         {
             iter.next();
