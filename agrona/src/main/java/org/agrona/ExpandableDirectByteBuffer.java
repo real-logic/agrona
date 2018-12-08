@@ -140,6 +140,17 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         }
     }
 
+    public void copyMemory(final int index, final long fromAddress,
+                           final int length)
+    {
+        lengthCheck(length);
+        ensureCapacity(index, length);
+
+        final long indexOffset = address + index;
+
+        UNSAFE.copyMemory(fromAddress, indexOffset, length);
+    }
+
     public int capacity()
     {
         return capacity;
