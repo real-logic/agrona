@@ -250,15 +250,18 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public boolean unblock()
     {
-        final AtomicBuffer buffer = this.buffer;
-        final int mask = capacity - 1;
-        final int consumerIndex = (int)(buffer.getLongVolatile(headPositionIndex) & mask);
-        final int producerIndex = (int)(buffer.getLongVolatile(tailPositionIndex) & mask);
+        final long headPosition = buffer.getLongVolatile(headPositionIndex);
+        final long tailPosition = buffer.getLongVolatile(tailPositionIndex);
 
-        if (producerIndex == consumerIndex)
+        if (headPosition == tailPosition)
         {
             return false;
         }
+
+        final int mask = capacity - 1;
+        final int consumerIndex = (int)(headPosition & mask);
+        final int producerIndex = (int)(tailPosition & mask);
+        final AtomicBuffer buffer = this.buffer;
 
         boolean unblocked = false;
         int length = buffer.getIntVolatile(consumerIndex);

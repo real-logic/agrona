@@ -336,6 +336,36 @@ public class ManyToOneRingBufferTest
     }
 
     @Test
+    public void shouldUnblockWhenFullWithHeader()
+    {
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength + CAPACITY);
+        when(buffer.getIntVolatile(messageLength)).thenReturn(-messageLength);
+
+        assertTrue(ringBuffer.unblock());
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(messageLength), messageLength);
+    }
+
+    @Test
+    public void shouldUnblockWhenFullWithoutHeader()
+    {
+        final int messageLength = ALIGNMENT * 4;
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn((long)messageLength);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn((long)messageLength + CAPACITY);
+        when(buffer.getIntVolatile(messageLength * 2)).thenReturn(messageLength);
+
+        assertTrue(ringBuffer.unblock());
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putInt(typeOffset(messageLength), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(messageLength), messageLength);
+    }
+
+    @Test
     public void shouldUnblockGapWithZeros()
     {
         final int messageLength = ALIGNMENT * 4;
