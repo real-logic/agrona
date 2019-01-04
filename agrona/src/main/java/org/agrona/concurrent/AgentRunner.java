@@ -216,12 +216,15 @@ public class AgentRunner implements Runnable, AutoCloseable
         {
             try
             {
-                isClosed = true;
                 agent.onClose();
             }
             catch (final Throwable throwable)
             {
                 errorHandler.onError(throwable);
+            }
+            finally
+            {
+                isClosed = true;
             }
         }
         else if (TOMBSTONE != thread)
@@ -240,7 +243,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                     if (null == onCloseTimeoutFunction)
                     {
                         System.err.println(
-                            "Timeout waiting for agent '" + agent.roleName() + "' to close, " + "Retrying...");
+                            "timeout waiting for agent '" + agent.roleName() + "' to close, " + "retrying...");
                     }
                     else
                     {
