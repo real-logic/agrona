@@ -17,6 +17,7 @@ package org.agrona.concurrent;
 
 import org.agrona.ErrorHandler;
 import org.agrona.LangUtil;
+import org.agrona.collections.MutableBoolean;
 import org.agrona.concurrent.status.AtomicCounter;
 import org.junit.Test;
 
@@ -24,6 +25,7 @@ import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -140,12 +142,19 @@ public class AgentRunnerTest
 
         new Thread(runner).start();
 
-        Thread.sleep(100);
+        while (runner.thread() == null)
+        {
+            Thread.yield();
+        }
 
         Thread.currentThread().interrupt();
-        runner.close();
+
+        final MutableBoolean actionCalled = new MutableBoolean();
+        final Consumer<Thread> failedCloseAction = (ignore) -> actionCalled.set(true);
+        runner.close(AgentRunner.RETRY_CLOSE_TIMEOUT_MS, failedCloseAction);
 
         assertTrue(Thread.interrupted());
+        assertTrue(actionCalled.get());
     }
 
     @Test

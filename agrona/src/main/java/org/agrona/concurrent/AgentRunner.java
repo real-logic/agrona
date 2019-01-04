@@ -36,7 +36,10 @@ public class AgentRunner implements Runnable, AutoCloseable
      */
     public static final Thread TOMBSTONE = new Thread();
 
-    private static final int RETRY_CLOSE_TIMEOUT_MS = 5000;
+    /**
+     * Default retry timeout for closing.
+     */
+    public static final int RETRY_CLOSE_TIMEOUT_MS = 5000;
 
     private volatile boolean isRunning = true;
     private volatile boolean isClosed = false;
@@ -196,18 +199,20 @@ public class AgentRunner implements Runnable, AutoCloseable
      * <p>
      * This will wait for the work loop to exit. The close timeout parameter
      * controls how long we should wait before retrying to stop the agent by
-     * interrupting the thread.
+     * interrupting the thread. If the calling thread has its interrupt flag
+     * set then this method can return early before waiting for the running
+     * agent to close.
      * <p>
      * An optional action can be invoked whenever we time out while waiting
      * which accepts the agent runner thread as the parameter (e.g. to obtain
      * and log a stack trace from the thread). If the action is null, a message
-     * is written to standard output. Please note  that a retry close timeout of
-     * zero waits indefinitely, therefore the close timeout action is never called.
+     * is written to stderr. Please note  that a retry close timeout of zero
+     * waits indefinitely, therefore the fail action is only called on interrupt.
      *
-     * @param retryCloseTimeoutMs    how long to wait before retrying
-     * @param onCloseTimeoutFunction function to invoke before retrying after close timeout
+     * @param retryCloseTimeoutMs how long to wait before retrying
+     * @param closeFailAction     function to invoke before retrying after close timeout
      */
-    public final void close(final int retryCloseTimeoutMs, final Consumer<Thread> onCloseTimeoutFunction)
+    public final void close(final int retryCloseTimeoutMs, final Consumer<Thread> closeFailAction)
     {
         isRunning = false;
 
@@ -240,14 +245,14 @@ public class AgentRunner implements Runnable, AutoCloseable
                         return;
                     }
 
-                    if (null == onCloseTimeoutFunction)
+                    if (null == closeFailAction)
                     {
                         System.err.println(
                             "timeout waiting for agent '" + agent.roleName() + "' to close, " + "retrying...");
                     }
                     else
                     {
-                        onCloseTimeoutFunction.accept(thread);
+                        closeFailAction.accept(thread);
                     }
 
                     if (!thread.isInterrupted())
@@ -257,6 +262,16 @@ public class AgentRunner implements Runnable, AutoCloseable
                 }
                 catch (final InterruptedException ignore)
                 {
+                    if (null == closeFailAction)
+                    {
+                        System.err.println(
+                            "close failed for agent '" + agent.roleName() + "' due to InterruptedException");
+                    }
+                    else
+                    {
+                        closeFailAction.accept(thread);
+                    }
+
                     Thread.currentThread().interrupt();
                     return;
                 }
