@@ -207,7 +207,7 @@ public class AgentRunner implements Runnable, AutoCloseable
      * which accepts the agent runner thread as the parameter (e.g. to obtain
      * and log a stack trace from the thread). If the action is null, a message
      * is written to stderr. Please note  that a retry close timeout of zero
-     * waits indefinitely, therefore the fail action is only called on interrupt.
+     * waits indefinitely, in which case the fail action is only called on interrupt.
      *
      * @param retryCloseTimeoutMs how long to wait before retrying
      * @param closeFailAction     function to invoke before retrying after close timeout
