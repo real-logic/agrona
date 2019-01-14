@@ -44,13 +44,6 @@ public class CopyBroadcastReceiver
     {
         this.receiver = receiver;
         this.scratchBuffer = scratchBuffer;
-
-        while (receiver.receiveNext())
-        {
-            // If we're reconnecting to a broadcast buffer then we need to
-            // scan ourselves up to date, otherwise we risk "falling behind"
-            // the buffer due to the time taken to catchup.
-        }
     }
 
     /**
@@ -73,13 +66,6 @@ public class CopyBroadcastReceiver
     {
         this.receiver = receiver;
         scratchBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(scratchBufferLength));
-
-        while (receiver.receiveNext())
-        {
-            // If we're reconnecting to a broadcast buffer then we need to
-            // scan ourselves up to date, otherwise we risk "falling behind"
-            // the buffer due to the time taken to catchup.
-        }
     }
 
     /**

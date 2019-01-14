@@ -36,9 +36,9 @@ import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
  */
 public class BroadcastReceiver
 {
-    private long cursor = 0;
-    private long nextRecord = 0;
-    private int recordOffset = 0;
+    private long cursor;
+    private long nextRecord;
+    private int recordOffset;
 
     private final int capacity;
     private final int tailIntentCounterIndex;
@@ -65,9 +65,12 @@ public class BroadcastReceiver
         checkCapacity(capacity);
         buffer.verifyAlignment();
 
-        this.tailIntentCounterIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
-        this.tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
-        this.latestCounterIndex = capacity + LATEST_COUNTER_OFFSET;
+        tailIntentCounterIndex = capacity + TAIL_INTENT_COUNTER_OFFSET;
+        tailCounterIndex = capacity + TAIL_COUNTER_OFFSET;
+        latestCounterIndex = capacity + LATEST_COUNTER_OFFSET;
+
+        cursor = nextRecord = buffer.getLongVolatile(latestCounterIndex);
+        recordOffset = (int)cursor & (capacity - 1);
     }
 
     /**
@@ -146,7 +149,7 @@ public class BroadcastReceiver
         boolean isAvailable = false;
         final AtomicBuffer buffer = this.buffer;
         final long tail = buffer.getLongVolatile(tailCounterIndex);
-        long cursor = this.nextRecord;
+        long cursor = nextRecord;
 
         if (tail > cursor)
         {
@@ -187,7 +190,7 @@ public class BroadcastReceiver
      */
     public boolean validate()
     {
-        UNSAFE.loadFence(); // Needed to prevent older loads being moved ahead of the validate, see j.u.c.StampedLock.
+        UNSAFE.loadFence();
 
         return validate(cursor);
     }
