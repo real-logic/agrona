@@ -22,7 +22,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import java.nio.ByteBuffer;
 
 /**
- * Receiver that copies messages that have been broadcast to enable a simpler API for the client.
+ * Receiver that copies messages which have been broadcast to enable a simpler API for the client.
  */
 public class CopyBroadcastReceiver
 {
@@ -51,6 +51,16 @@ public class CopyBroadcastReceiver
             // scan ourselves up to date, otherwise we risk "falling behind"
             // the buffer due to the time taken to catchup.
         }
+    }
+
+    /**
+     * Get the underlying {@link BroadcastReceiver} which this is wrapping and copying out of.
+     *
+     * @return the underlying {@link BroadcastReceiver} which this is wrapping and copying out of.
+     */
+    public BroadcastReceiver broadcastReceiver()
+    {
+        return receiver;
     }
 
     /**
@@ -98,7 +108,7 @@ public class CopyBroadcastReceiver
         {
             if (lastSeenLappedCount != receiver.lappedCount())
             {
-                throw new IllegalStateException("unable to keep up with broadcast buffer");
+                throw new IllegalStateException("unable to keep up with broadcast");
             }
 
             final int length = receiver.length();
@@ -114,7 +124,7 @@ public class CopyBroadcastReceiver
 
             if (!receiver.validate())
             {
-                throw new IllegalStateException("unable to keep up with broadcast buffer");
+                throw new IllegalStateException("unable to keep up with broadcast");
             }
 
             handler.onMessage(msgTypeId, scratchBuffer, 0, length);
