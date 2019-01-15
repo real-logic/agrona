@@ -99,7 +99,6 @@ public class Object2IntHashMap<K>
         keys = (K[])new Object[capacity];
         values = new int[capacity];
         Arrays.fill(values, missingValue);
-
     }
 
     /**

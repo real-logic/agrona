@@ -341,6 +341,34 @@ public class BiInt2ObjectMap<V> implements Serializable
         return 0 == size;
     }
 
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+
+        for (int i = 0, size = values.length; i < size; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
+            {
+                final long compoundKey = keys[i];
+                final int keyPartA = (int)(compoundKey >>> 32);
+                final int keyPartB = (int)(compoundKey & 0xFFFF_FFFFL);
+
+                sb.append(keyPartA).append('&').append(keyPartB).append('=').append(value).append(", ");
+            }
+        }
+
+        if (sb.length() > 1)
+        {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
     private void rehash(final int newCapacity)
     {
         final int mask = newCapacity - 1;

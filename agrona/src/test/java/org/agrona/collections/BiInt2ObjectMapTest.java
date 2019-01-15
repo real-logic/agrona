@@ -132,6 +132,20 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
+    public void shouldToString()
+    {
+        final int count = 7;
+
+        for (int i = 0; i < count; i++)
+        {
+            final String value = String.valueOf(i);
+            map.put(i, i + 97, value);
+        }
+
+        assertThat(map.toString(), is("{1&98=1, 3&100=3, 2&99=2, 5&102=5, 6&103=6, 4&101=4, 0&97=0}"));
+    }
+
+    @Test
     public void shouldPutAndGetKeysOfNegativeValue()
     {
         map.put(721632679, 333118496, "a");

@@ -577,8 +577,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
             final int value = elements[i];
             if (value != nullValue)
             {
-                sb.append(value);
-                sb.append(", ");
+                sb.append(value).append(", ");
             }
         }
 

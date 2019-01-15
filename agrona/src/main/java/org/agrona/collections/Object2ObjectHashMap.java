@@ -45,9 +45,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
-    public Object2ObjectHashMap(
-        final int initialCapacity,
-        final float loadFactor)
+    public Object2ObjectHashMap(final int initialCapacity, final float loadFactor)
     {
         this(initialCapacity, loadFactor, true);
     }
@@ -57,10 +55,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      * @param loadFactor            for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
      */
-    public Object2ObjectHashMap(
-        final int initialCapacity,
-        final float loadFactor,
-        final boolean shouldAvoidAllocation)
+    public Object2ObjectHashMap(final int initialCapacity, final float loadFactor, final boolean shouldAvoidAllocation)
     {
         validateLoadFactor(loadFactor);
 

@@ -44,8 +44,8 @@ public final class IntLruCache<E> implements AutoCloseable, Serializable
      * Constructor.
      *
      * @param capacity this is the fixed capacity of the cache.
-     * @param factory a function for constructing new elements based upon keys.
-     * @param closer a function for cleaning up resources associated with elements.
+     * @param factory  a function for constructing new elements based upon keys.
+     * @param closer   a function for cleaning up resources associated with elements.
      */
     public IntLruCache(
         @DoNotSub final int capacity,
@@ -62,8 +62,8 @@ public final class IntLruCache<E> implements AutoCloseable, Serializable
     }
 
     /**
-     * Looks up an element in the cache, creating a new element if it doesn't exist and evicting the least recently used
-     * element if there's no space left in the cache.
+     * Looks up an element in the cache, creating a new element if it doesn't exist and evicting the least recently
+     * used element if there's no space left in the cache.
      *
      * @param key the key to lookup the element by.
      * @return the element associated with this key.

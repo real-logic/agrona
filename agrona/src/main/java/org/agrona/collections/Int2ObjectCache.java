@@ -497,10 +497,7 @@ public class Int2ObjectCache<V>
             final Object value = values[i];
             if (null != value)
             {
-                sb.append(keys[i]);
-                sb.append('=');
-                sb.append(value);
-                sb.append(", ");
+                sb.append(keys[i]).append('=').append(value).append(", ");
             }
         }
 

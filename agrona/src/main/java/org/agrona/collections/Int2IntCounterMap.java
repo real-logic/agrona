@@ -507,12 +507,10 @@ public class Int2IntCounterMap implements Serializable
 
         for (@DoNotSub int i = 0; i < length; i += 2)
         {
-            if (entries[i + 1] != initialValue) // lgtm [java/index-out-of-bounds]
+            final int value = entries[i + 1]; // lgtm [java/index-out-of-bounds]
+            if (value != initialValue)
             {
-                sb.append(entries[i]);
-                sb.append('=');
-                sb.append(entries[i + 1]); // lgtm [java/index-out-of-bounds]
-                sb.append(", ");
+                sb.append(entries[i]).append('=').append(value).append(", ");
             }
         }
 

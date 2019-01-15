@@ -565,15 +565,13 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         {
             if (value != MISSING_VALUE)
             {
-                sb.append(value);
-                sb.append(", ");
+                sb.append(value).append(", ");
             }
         }
 
         if (containsMissingValue)
         {
-            sb.append(MISSING_VALUE);
-            sb.append(", ");
+            sb.append(MISSING_VALUE).append(", ");
         }
 
         if (sb.length() > 1)

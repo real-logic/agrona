@@ -498,8 +498,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         {
             if (value != MISSING_VALUE)
             {
-                sb.append(value);
-                sb.append(", ");
+                sb.append(value).append(", ");
             }
         }
 
