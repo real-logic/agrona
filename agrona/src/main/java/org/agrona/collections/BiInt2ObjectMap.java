@@ -355,7 +355,7 @@ public class BiInt2ObjectMap<V> implements Serializable
                 final int keyPartA = (int)(compoundKey >>> 32);
                 final int keyPartB = (int)(compoundKey & 0xFFFF_FFFFL);
 
-                sb.append(keyPartA).append('&').append(keyPartB).append('=').append(value).append(", ");
+                sb.append(keyPartA).append('_').append(keyPartB).append('=').append(value).append(", ");
             }
         }
 

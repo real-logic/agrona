@@ -142,7 +142,7 @@ public class BiInt2ObjectMapTest
             map.put(i, i + 97, value);
         }
 
-        assertThat(map.toString(), is("{1&98=1, 3&100=3, 2&99=2, 5&102=5, 6&103=6, 4&101=4, 0&97=0}"));
+        assertThat(map.toString(), is("{1_98=1, 3_100=3, 2_99=2, 5_102=5, 6_103=6, 4_101=4, 0_97=0}"));
     }
 
     @Test
