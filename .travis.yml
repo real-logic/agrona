@@ -9,10 +9,6 @@ matrix:
       jdk: oraclejdk8
       os: linux
 
-    - name: "Oracle Java 11"
-      jdk: oraclejdk11
-      os: linux
-
     - name: "OpenJDK Java 8"
       jdk: openjdk8
       os: linux
