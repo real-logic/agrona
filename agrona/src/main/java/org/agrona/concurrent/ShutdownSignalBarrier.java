@@ -17,6 +17,7 @@ package org.agrona.concurrent;
 
 import sun.misc.Signal;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -29,6 +30,15 @@ public class ShutdownSignalBarrier
      * Signals the barrier will be registered for.
      */
     public static final String[] SIGNAL_NAMES = { "INT", "TERM" };
+    private static final ArrayList<CountDownLatch> LATCHES = new ArrayList<>();
+
+    static
+    {
+        for (final String signalName : SIGNAL_NAMES)
+        {
+            Signal.handle(new Signal(signalName), (signal) -> LATCHES.forEach(CountDownLatch::countDown));
+        }
+    }
 
     private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -37,9 +47,9 @@ public class ShutdownSignalBarrier
      */
     public ShutdownSignalBarrier()
     {
-        for (final String signalName : SIGNAL_NAMES)
+        synchronized (this)
         {
-            Signal.handle(new Signal(signalName), (signal) -> signal());
+            LATCHES.add(latch);
         }
     }
 
@@ -48,7 +58,22 @@ public class ShutdownSignalBarrier
      */
     public void signal()
     {
-        latch.countDown();
+        synchronized (this)
+        {
+            LATCHES.remove(latch);
+            latch.countDown();
+        }
+    }
+
+    /**
+     * Remove the barrier from the shutdown signals.
+     */
+    public void remove()
+    {
+        synchronized (this)
+        {
+            LATCHES.remove(latch);
+        }
     }
 
     /**
