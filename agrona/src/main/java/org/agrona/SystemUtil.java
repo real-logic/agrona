@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -112,6 +114,31 @@ public class SystemUtil
         }
 
         return false;
+    }
+
+    /**
+     * Get a formatted dump of all threads with associated state and stack traces.
+     *
+     * @return a formatted dump of all threads with associated state and stack traces.
+     */
+    public static String threadDump()
+    {
+        final StringBuilder sb = new StringBuilder();
+        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+
+        for (final ThreadInfo info : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), Integer.MAX_VALUE))
+        {
+            sb.append('"').append(info.getThreadName()).append("\": ").append(info.getThreadState());
+
+            for (final StackTraceElement stackTraceElement : info.getStackTrace())
+            {
+                sb.append("\n    at ").append(stackTraceElement.toString());
+            }
+
+            sb.append("\n\n");
+        }
+
+        return sb.toString();
     }
 
     /**
