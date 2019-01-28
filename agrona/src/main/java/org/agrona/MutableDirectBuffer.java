@@ -20,6 +20,9 @@ import java.nio.ByteOrder;
 
 /**
  * Abstraction over a range of buffer types that allows fields to be written in native typed fashion.
+ * <p>
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link MutableDirectBuffer};
+ * To control {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
  */
 public interface MutableDirectBuffer extends DirectBuffer
 {
@@ -300,25 +303,25 @@ public interface MutableDirectBuffer extends DirectBuffer
     /**
      * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
      *
-     * @param index          at which the String should be encoded.
-     * @param value          of the String to be encoded.
-     * @param maxEncodedSize to be checked before writing to the buffer.
+     * @param index            at which the String should be encoded.
+     * @param value            of the String to be encoded.
+     * @param maxEncodedLength to be checked before writing to the buffer.
      * @return the number of bytes put to the buffer.
-     * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedSize.
+     * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedLength.
      */
-    int putStringUtf8(int index, String value, int maxEncodedSize);
+    int putStringUtf8(int index, String value, int maxEncodedLength);
 
     /**
      * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
      *
-     * @param index          at which the String should be encoded.
-     * @param value          of the String to be encoded.
-     * @param byteOrder      for the length prefix.
-     * @param maxEncodedSize to be checked before writing to the buffer.
+     * @param index            at which the String should be encoded.
+     * @param value            of the String to be encoded.
+     * @param byteOrder        for the length prefix.
+     * @param maxEncodedLength to be checked before writing to the buffer.
      * @return the number of bytes put to the buffer.
-     * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedSize.
+     * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedLength.
      */
-    int putStringUtf8(int index, String value, ByteOrder byteOrder, int maxEncodedSize);
+    int putStringUtf8(int index, String value, ByteOrder byteOrder, int maxEncodedLength);
 
     /**
      * Encode a String as UTF-8 bytes in the buffer without a length prefix.

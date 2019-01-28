@@ -37,11 +37,11 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * byte[], one of the various {@link ByteBuffer} implementations, or an off Java heap memory address.
  * <p>
  * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
- * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate accessor method
+ * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate method
  * with the {@link ByteOrder} overload.
  * <p>
  * <b>Note:</b> This class has a natural ordering that is inconsistent with equals.
- * Types my be different but equal on buffer contents.
+ * Types may be different but equal on buffer contents.
  * <p>
  * <b>Note:</b> The wrap methods on this class are not thread safe. Concurrent access should only happen after a
  * successful wrap.
@@ -1286,12 +1286,12 @@ public class UnsafeBuffer implements AtomicBuffer
         return putStringUtf8(index, value, byteOrder, Integer.MAX_VALUE);
     }
 
-    public int putStringUtf8(final int index, final String value, final int maxEncodedSize)
+    public int putStringUtf8(final int index, final String value, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        if (bytes.length > maxEncodedSize)
+        if (bytes.length > maxEncodedLength)
         {
-            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
         if (SHOULD_BOUNDS_CHECK)
@@ -1305,12 +1305,12 @@ public class UnsafeBuffer implements AtomicBuffer
         return SIZE_OF_INT + bytes.length;
     }
 
-    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
+    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        if (bytes.length > maxEncodedSize)
+        if (bytes.length > maxEncodedLength)
         {
-            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
         if (SHOULD_BOUNDS_CHECK)

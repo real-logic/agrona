@@ -20,6 +20,9 @@ import java.nio.ByteOrder;
 
 /**
  * Abstraction over a range of buffer types that allows fields to be read in native typed fashion.
+ * <p>
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link DirectBuffer};
+ * To control {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
  */
 public interface DirectBuffer extends Comparable<DirectBuffer>
 {
@@ -41,14 +44,14 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
-     * heap based or direct.
-     *
+     * heap based or direct. The {@link ByteBuffer#order()} is not relevant for accessing the wrapped buffer.
+     * <p>
      * When using this method to wrap the view of the ByteBuffer the entire ByteBuffer gets wrapped
      * between index 0 and capacity. If you want to just wrap the ByteBuffer between the position
      * and the limit then you should use the {@link #wrap(ByteBuffer, int, int)} method, eg:
      *
      * <code>
-     *     directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
+     * directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
      * </code>
      *
      * @param buffer to which the view is attached.
@@ -57,6 +60,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Attach a view to a {@link ByteBuffer} for providing direct access.
+     * <p>
+     * The {@link ByteBuffer#order()} is not relevant for accessing the wrapped buffer.
      *
      * @param buffer to which the view is attached.
      * @param offset at which the view begins.
@@ -411,7 +416,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get the adjustment in indices between an index in this buffer and the wrapped object.
-     * The wrapped object might be a bytebuffer or a byte[].
+     * The wrapped object might be a {@link ByteBuffer} or a byte[].
      * <p>
      * You only need to use this adjustment if you plan to perform operations on the underlying
      * byte array or byte buffer that rely on their indices.

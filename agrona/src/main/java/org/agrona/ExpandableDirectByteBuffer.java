@@ -32,8 +32,11 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * Put operations will expand the capacity as necessary up to {@link #MAX_BUFFER_LENGTH}. Get operations will throw
  * a {@link IndexOutOfBoundsException} if past current capacity.
  * <p>
- * Note: this class has a natural ordering that is inconsistent with equals.
- * Types my be different but equal on buffer contents.
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link ExpandableDirectByteBuffer};
+ * To control {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
+ * <p>
+ * <b>Note:</b> this class has a natural ordering that is inconsistent with equals.
+ * Types may be different but equal on buffer contents.
  */
 public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 {
@@ -935,12 +938,12 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return putStringUtf8(index, value, byteOrder, Integer.MAX_VALUE);
     }
 
-    public int putStringUtf8(final int index, final String value, final int maxEncodedSize)
+    public int putStringUtf8(final int index, final String value, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        if (bytes.length > maxEncodedSize)
+        if (bytes.length > maxEncodedLength)
         {
-            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
         ensureCapacity(index, SIZE_OF_INT + bytes.length);
@@ -951,12 +954,12 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return SIZE_OF_INT + bytes.length;
     }
 
-    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
+    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
-        if (bytes.length > maxEncodedSize)
+        if (bytes.length > maxEncodedLength)
         {
-            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedSize);
+            throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
         ensureCapacity(index, SIZE_OF_INT + bytes.length);
