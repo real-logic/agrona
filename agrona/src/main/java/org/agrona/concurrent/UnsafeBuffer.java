@@ -36,9 +36,9 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer. The buffer can be a
  * byte[], one of the various {@link ByteBuffer} implementations, or an off Java heap memory address.
  * <p>
- * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}; {@link UnsafeBuffer}s are
- * stateless and can be used concurrently. To control {@link ByteOrder} use the appropriate method
- * with the {@link ByteOrder} overload.
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}. {@link UnsafeBuffer}s are
+ * effectively stateless and can be used concurrently, with the exception of wrapping. To control {@link ByteOrder}
+ * use the appropriate method with the {@link ByteOrder} overload.
  * <p>
  * <b>Note:</b> This class has a natural ordering that is inconsistent with equals.
  * Types may be different but equal on buffer contents.
@@ -329,7 +329,7 @@ public class UnsafeBuffer implements AtomicBuffer
         if (0 == (indexOffset & 1) && length > 64)
         {
             // This horrible filth is to encourage the JVM to call memset() when address is even.
-            // TODO: check if this still applies when Java 9 is out!!!
+            // TODO: check if this still applies for versions beyond Java 11.
             UNSAFE.putByte(byteArray, indexOffset, value);
             UNSAFE.setMemory(byteArray, indexOffset + 1, length - 1, value);
         }
