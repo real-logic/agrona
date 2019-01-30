@@ -95,6 +95,29 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putNaturalIntAscii(int index, int value);
 
     /**
+     * Encode a natural number with a specified maximum length.
+     *
+     * If ascii encoding of the number is less than the specified length then the start will be
+     * pre-padded with zeros, if the value takes up more space than the allowed length then a
+     * <code>{@link NumberFormatException}</code> will be thrown.
+     *
+     * @param index the offset to start encoding at
+     * @param length the maximum length to encode.
+     * @param value the value to encode
+     * @throws NumberFormatException if the value won't fit within the length.
+     */
+    void putNaturalPaddedIntAscii(int index, int length, int value) throws NumberFormatException;
+
+    /**
+     * Encode a natural number starting at its end position.
+     *
+     * @param value        the natural number to encode
+     * @param endExclusive index after the last character encoded
+     * @return startInclusive index of first character encoded
+     */
+    int putNaturalIntAsciiFromEnd(int value, int endExclusive);
+
+    /**
      * Puts an ASCII encoded long sized natural number into the buffer
      *
      * @param index the offset at which to put the int

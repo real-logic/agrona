@@ -15,9 +15,15 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.MutableDirectBuffer;
 import org.junit.Test;
+import org.junit.experimental.theories.DataPoints;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.CoreMatchers.is;
@@ -27,6 +33,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+@RunWith(Theories.class)
 public class UnsafeBufferTest
 {
     private static final byte VALUE = 42;
@@ -227,5 +234,40 @@ public class UnsafeBufferTest
     private void putAscii(final UnsafeBuffer buffer, final String value)
     {
         buffer.putBytes(INDEX, value.getBytes(US_ASCII));
+    }
+
+    @DataPoints
+    public static int[][] valuesAndLengths()
+    {
+        return new int[][]
+            {
+                {1, 1},
+                {10, 2},
+                {100, 3},
+                {1000, 4},
+                {12, 2},
+                {123, 3},
+                {2345, 4},
+                {9, 1},
+                {99, 2},
+                {999, 3},
+                {9999, 4},
+            };
+    }
+
+    @Theory
+    public void shouldPutNaturalFromEnd(final int[] valueAndLength)
+    {
+        final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
+        final int value = valueAndLength[0];
+        final int length = valueAndLength[1];
+
+        final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
+        assertEquals("for " + Arrays.toString(valueAndLength), 0, start);
+
+        assertEquals(
+            "for " + Arrays.toString(valueAndLength),
+            String.valueOf(value),
+            buffer.getStringWithoutLengthAscii(0, length));
     }
 }
