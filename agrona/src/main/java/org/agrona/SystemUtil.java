@@ -151,7 +151,8 @@ public class SystemUtil
      */
     public static void loadPropertiesFile(final String filenameOrUrl)
     {
-        final Properties properties = new Properties(System.getProperties());
+        final Properties properties = new Properties();
+        System.getProperties().forEach(properties::put);
 
         final URL resource = ClassLoader.getSystemClassLoader().getResource(filenameOrUrl);
         if (null != resource)
