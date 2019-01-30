@@ -394,6 +394,38 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return length;
     }
 
+    public void putNaturalPaddedIntAscii(final int offset, final int length, final int value)
+    {
+        final int end = offset + length;
+        int remainder = value;
+        for (int index = end - 1; index >= offset; index--)
+        {
+            final int digit = remainder % 10;
+            remainder = remainder / 10;
+            putByte(index, (byte)(ZERO + digit));
+        }
+
+        if (remainder != 0)
+        {
+            throw new NumberFormatException(String.format("Cannot write %d in %d bytes", value, length));
+        }
+    }
+
+    public int putNaturalIntAsciiFromEnd(final int value, final int endExclusive)
+    {
+        int remainder = value;
+        int index = endExclusive;
+        while (remainder > 0)
+        {
+            index--;
+            final int digit = remainder % 10;
+            remainder = remainder / 10;
+            putByte(index, (byte)(ZERO + digit));
+        }
+
+        return index;
+    }
+
     public int putNaturalLongAscii(final int index, final long value)
     {
         if (value == 0L)
