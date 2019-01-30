@@ -15,12 +15,12 @@
  */
 package org.agrona;
 
-import org.hamcrest.Matchers;
-import org.junit.Test;
-
 import static org.agrona.SystemUtil.parseDuration;
 import static org.agrona.SystemUtil.parseSize;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
 
 public class SystemUtilTest
 {
@@ -67,5 +67,33 @@ public class SystemUtilTest
     public void shouldThrowWhenParseSizeOverflows()
     {
         parseSize("", 8589934592L + "g");
+    }
+
+    @Test
+    public void shouldDoNothingToSystemPropsWhenLoadingFileWhichDoesNotExist() {
+        final int originalSystemPropSize = System.getProperties().size();
+        SystemUtil.loadPropertiesFile("$unknown-file$");
+        assertThat(originalSystemPropSize, Matchers.equalTo(System.getProperties().size()));
+    }
+
+    @Test
+    public void shouldMergeMultiplePropFilesTogether() {
+        assertThat(System.getProperty("TestFileA.foo"), Matchers.isEmptyOrNullString());
+        assertThat(System.getProperty("TestFileB.foo"), Matchers.isEmptyOrNullString());
+
+        SystemUtil.loadPropertiesFiles(new String[]{"TestFileA.properties", "TestFileB.properties"});
+
+        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("AAA"));
+        assertThat(System.getProperty("TestFileB.foo"), Matchers.equalTo("BBB"));
+    }
+
+    @Test
+    public void shouldOverrideSystemPropertiesWithConfigFromPropFile() {
+        System.setProperty("TestFileA.foo", "ToBeOverridden");
+        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("ToBeOverridden"));
+
+        SystemUtil.loadPropertiesFile("TestFileA.properties");
+
+        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("AAA"));
     }
 }
