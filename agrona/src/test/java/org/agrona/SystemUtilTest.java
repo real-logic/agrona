@@ -17,9 +17,10 @@ package org.agrona;
 
 import static org.agrona.SystemUtil.parseDuration;
 import static org.agrona.SystemUtil.parseSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 public class SystemUtilTest
@@ -27,28 +28,28 @@ public class SystemUtilTest
     @Test
     public void shouldParseSizesWithSuffix()
     {
-        assertThat(parseSize("", "1"), Matchers.equalTo(1L));
-        assertThat(parseSize("", "1k"), Matchers.equalTo(1024L));
-        assertThat(parseSize("", "1K"), Matchers.equalTo(1024L));
-        assertThat(parseSize("", "1m"), Matchers.equalTo(1024L * 1024));
-        assertThat(parseSize("", "1M"), Matchers.equalTo(1024L * 1024));
-        assertThat(parseSize("", "1g"), Matchers.equalTo(1024L * 1024 * 1024));
-        assertThat(parseSize("", "1G"), Matchers.equalTo(1024L * 1024 * 1024));
+        assertThat(parseSize("", "1"), is(1L));
+        assertThat(parseSize("", "1k"), is(1024L));
+        assertThat(parseSize("", "1K"), is(1024L));
+        assertThat(parseSize("", "1m"), is(1024L * 1024));
+        assertThat(parseSize("", "1M"), is(1024L * 1024));
+        assertThat(parseSize("", "1g"), is(1024L * 1024 * 1024));
+        assertThat(parseSize("", "1G"), is(1024L * 1024 * 1024));
     }
 
     @Test
     public void shouldParseTimesWithSuffix()
     {
-        assertThat(parseDuration("", "1"), Matchers.equalTo(1L));
-        assertThat(parseDuration("", "1ns"), Matchers.equalTo(1L));
-        assertThat(parseDuration("", "1NS"), Matchers.equalTo(1L));
-        assertThat(parseDuration("", "1us"), Matchers.equalTo(1000L));
-        assertThat(parseDuration("", "1US"), Matchers.equalTo(1000L));
-        assertThat(parseDuration("", "1ms"), Matchers.equalTo(1000L * 1000));
-        assertThat(parseDuration("", "1MS"), Matchers.equalTo(1000L * 1000));
-        assertThat(parseDuration("", "1s"), Matchers.equalTo(1000L * 1000 * 1000));
-        assertThat(parseDuration("", "1S"), Matchers.equalTo(1000L * 1000 * 1000));
-        assertThat(parseDuration("", "12s"), Matchers.equalTo(12L * 1000 * 1000 * 1000));
+        assertThat(parseDuration("", "1"), is(1L));
+        assertThat(parseDuration("", "1ns"), is(1L));
+        assertThat(parseDuration("", "1NS"), is(1L));
+        assertThat(parseDuration("", "1us"), is(1000L));
+        assertThat(parseDuration("", "1US"), is(1000L));
+        assertThat(parseDuration("", "1ms"), is(1000L * 1000));
+        assertThat(parseDuration("", "1MS"), is(1000L * 1000));
+        assertThat(parseDuration("", "1s"), is(1000L * 1000 * 1000));
+        assertThat(parseDuration("", "1S"), is(1000L * 1000 * 1000));
+        assertThat(parseDuration("", "12s"), is(12L * 1000 * 1000 * 1000));
     }
 
     @Test(expected = NumberFormatException.class)
@@ -70,30 +71,37 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldDoNothingToSystemPropsWhenLoadingFileWhichDoesNotExist() {
+    public void shouldDoNothingToSystemPropsWhenLoadingFileWhichDoesNotExist()
+    {
         final int originalSystemPropSize = System.getProperties().size();
+
         SystemUtil.loadPropertiesFile("$unknown-file$");
-        assertThat(originalSystemPropSize, Matchers.equalTo(System.getProperties().size()));
+
+        assertThat(originalSystemPropSize, is(System.getProperties().size()));
     }
 
     @Test
-    public void shouldMergeMultiplePropFilesTogether() {
-        assertThat(System.getProperty("TestFileA.foo"), Matchers.isEmptyOrNullString());
-        assertThat(System.getProperty("TestFileB.foo"), Matchers.isEmptyOrNullString());
+    public void shouldMergeMultiplePropFilesTogether()
+    {
+        assertThat(System.getProperty("TestFileA.foo"), isEmptyOrNullString());
+        assertThat(System.getProperty("TestFileB.foo"), isEmptyOrNullString());
 
-        SystemUtil.loadPropertiesFiles(new String[]{"TestFileA.properties", "TestFileB.properties"});
+        SystemUtil.loadPropertiesFiles(new String[]{ "TestFileA.properties", "TestFileB.properties" });
 
-        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("AAA"));
-        assertThat(System.getProperty("TestFileB.foo"), Matchers.equalTo("BBB"));
+        assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
+        assertThat(System.getProperty("TestFileB.foo"), is("BBB"));
     }
 
     @Test
-    public void shouldOverrideSystemPropertiesWithConfigFromPropFile() {
+    public void shouldOverrideSystemPropertiesWithConfigFromPropFile()
+    {
         System.setProperty("TestFileA.foo", "ToBeOverridden");
-        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("ToBeOverridden"));
+        assertThat(System.getProperty("TestFileA.foo"), is("ToBeOverridden"));
 
         SystemUtil.loadPropertiesFile("TestFileA.properties");
 
-        assertThat(System.getProperty("TestFileA.foo"), Matchers.equalTo("AAA"));
+        assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
+
+        System.clearProperty("TestFileA.foo");
     }
 }
