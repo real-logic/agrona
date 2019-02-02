@@ -225,7 +225,8 @@ project(':agrona') {
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': "${agronaVersion}",
-            'Implementation-Vendor': 'Real Logic Limited'
+            'Implementation-Vendor': 'Real Logic Limited',
+            'Automatic-Module-Name': 'org.agrona.core'
         )
     }
 
@@ -269,7 +270,9 @@ project(':agrona-agent') {
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Can-Redefine-Classes': 'true',
-            'Can-Retransform-Classes': 'true')
+            'Can-Retransform-Classes': 'true',
+            'Automatic-Module-Name': 'org.agrona.agent'
+        )
     }
 
     shadowJar {
@@ -284,7 +287,9 @@ project(':agrona-agent') {
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Can-Redefine-Classes': 'true',
-            'Can-Retransform-Classes': 'true')
+            'Can-Retransform-Classes': 'true',
+            'Automatic-Module-Name': 'org.agrona.agent.all'
+        )
     }
 
     uploadArchives {
