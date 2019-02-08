@@ -22,6 +22,8 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -30,8 +32,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @RunWith(Theories.class)
 public class UnsafeBufferTest
@@ -234,6 +235,25 @@ public class UnsafeBufferTest
     private void putAscii(final UnsafeBuffer buffer, final String value)
     {
         buffer.putBytes(INDEX, value.getBytes(US_ASCII));
+    }
+
+    @Test
+    public void shouldSkipArrayContentPrintout() throws Exception
+    {
+        final Field settingField = UnsafeBuffer.class.getDeclaredField("SHOULD_PRINT_ARRAY_CONTENT");
+        settingField.setAccessible(true);
+        final Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(settingField, settingField.getModifiers() & ~Modifier.FINAL);
+
+        final byte[] backingArray = new byte[10];
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(backingArray);
+
+        settingField.set(null, true);
+        assertTrue(unsafeBuffer.toString().contains(Arrays.toString(backingArray)));
+
+        settingField.set(null, false);
+        assertFalse(unsafeBuffer.toString().contains(Arrays.toString(backingArray)));
     }
 
     @DataPoints
