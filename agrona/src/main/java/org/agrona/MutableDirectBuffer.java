@@ -26,6 +26,12 @@ import java.nio.ByteOrder;
  */
 public interface MutableDirectBuffer extends DirectBuffer
 {
+
+    /**
+     * Don't print the content of the array while calling toString() on buffer instance.
+     */
+    String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
+
     /**
      * Is this buffer expandable to accommodate putting data into it beyond the current capacity?
      *
