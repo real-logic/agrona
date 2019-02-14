@@ -562,7 +562,7 @@ public class MarkFile implements AutoCloseable
         }
     }
 
-    static void sleep(final long durationMs)
+    protected static void sleep(final long durationMs)
     {
         try
         {
