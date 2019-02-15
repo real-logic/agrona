@@ -47,7 +47,7 @@ public class ShutdownSignalBarrier
      */
     public ShutdownSignalBarrier()
     {
-        synchronized (this)
+        synchronized (LATCHES)
         {
             LATCHES.add(latch);
         }
@@ -58,10 +58,22 @@ public class ShutdownSignalBarrier
      */
     public void signal()
     {
-        synchronized (this)
+        synchronized (LATCHES)
         {
             LATCHES.remove(latch);
             latch.countDown();
+        }
+    }
+
+    /**
+     * Programmatically signal all awaiting threads.
+     */
+    public void signalAll()
+    {
+        synchronized (LATCHES)
+        {
+            LATCHES.forEach(CountDownLatch::countDown);
+            LATCHES.clear();
         }
     }
 
@@ -70,7 +82,7 @@ public class ShutdownSignalBarrier
      */
     public void remove()
     {
-        synchronized (this)
+        synchronized (LATCHES)
         {
             LATCHES.remove(latch);
         }
