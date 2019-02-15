@@ -54,6 +54,12 @@ public class SemanticVersionTest
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void shouldDetectZeroPatch()
+    {
+        SemanticVersion.compose(0, 0, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void shouldDetectExcessiveMajor()
     {
         SemanticVersion.compose(256, 1, 1);
