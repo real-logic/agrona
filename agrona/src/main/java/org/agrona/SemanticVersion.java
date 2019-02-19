@@ -81,5 +81,16 @@ public class SemanticVersion
     {
         return version & 0xFF;
     }
+
+    /**
+     * Generate a {@link String} representation of the semantic version in the format {@code major.minor.patch}.
+     *
+     * @param version to be converted to a string.
+     * @return the {@link String} representation of the semantic version in the format {@code major.minor.patch}.
+     */
+    public static String toString(final int version)
+    {
+        return major(version) + "." + minor(version) + "." + patch(version);
+    }
 }
 

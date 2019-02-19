@@ -76,4 +76,16 @@ public class SemanticVersionTest
     {
         SemanticVersion.compose(1, 1, 256);
     }
+
+    @Test
+    public void shouldConvertToString()
+    {
+        final int major = 17;
+        final int minor = 9;
+        final int patch = 127;
+
+        final int version = SemanticVersion.compose(major, minor, patch);
+
+        assertEquals("17.9.127", SemanticVersion.toString(version));
+    }
 }
