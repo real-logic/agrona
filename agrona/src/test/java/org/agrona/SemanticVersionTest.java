@@ -54,7 +54,7 @@ public class SemanticVersionTest
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldDetectZeroPatch()
+    public void shouldDetectZeroVersion()
     {
         SemanticVersion.compose(0, 0, 0);
     }

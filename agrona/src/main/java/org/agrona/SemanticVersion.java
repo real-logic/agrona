@@ -22,10 +22,11 @@ public class SemanticVersion
 {
     /**
      * Compose a 4-byte integer with major, minor, and patch version stored in the least significant 3 bytes.
+     * The sum of the components must be greater than zero.
      *
      * @param major version in the range 0-255.
      * @param minor version in the range 0-255
-     * @param patch version in the range 1-255.
+     * @param patch version in the range 0-255.
      * @return the semantic version made from the three components.
      * @throws IllegalArgumentException if the values are outside acceptable range.
      */
@@ -41,9 +42,14 @@ public class SemanticVersion
             throw new IllegalArgumentException("minor must be 0-255: " + minor);
         }
 
-        if (patch < 1 || patch > 255)
+        if (patch < 0 || patch > 255)
         {
-            throw new IllegalArgumentException("patch must be 1-255: " + patch);
+            throw new IllegalArgumentException("patch must be 0-255: " + patch);
+        }
+
+        if (major + minor + patch == 0)
+        {
+            throw new IllegalArgumentException("all parts cannot be zero");
         }
 
         return (major << 16) | (minor << 8) | patch;
