@@ -42,9 +42,10 @@ public class MappedResizeableBuffer implements AutoCloseable
     private long addressOffset;
     private long capacity;
     private FileChannel fileChannel;
+    private FileChannel.MapMode mapMode;
 
     /**
-     * Attach a view to an off-heap memory region by address.
+     * Attach a view to an off-heap memory region by address. Defaults to {@link FileChannel.MapMode#READ_WRITE}.
      *
      * @param fileChannel   the file to map
      * @param offset        the offset of the file to start the mapping
@@ -53,6 +54,23 @@ public class MappedResizeableBuffer implements AutoCloseable
     public MappedResizeableBuffer(final FileChannel fileChannel, final long offset, final long initialLength)
     {
         this.fileChannel = fileChannel;
+        this.mapMode = FileChannel.MapMode.READ_WRITE;
+        map(offset, initialLength);
+    }
+
+    /**
+     * Attach a view to an off-heap memory region by address.
+     *
+     * @param fileChannel   the file to map
+     * @param mapMode       for the mapping
+     * @param offset        the offset of the file to start the mapping
+     * @param initialLength of the buffer from the given address
+     */
+    public MappedResizeableBuffer(
+        final FileChannel fileChannel, final FileChannel.MapMode mapMode, final long offset, final long initialLength)
+    {
+        this.fileChannel = fileChannel;
+        this.mapMode = mapMode;
         map(offset, initialLength);
     }
 
@@ -89,7 +107,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     }
 
     /**
-     * Remap the buffer based on a new file, offset and a length
+     * Remap the buffer based on a new file, offset, and a length
      *
      * @param fileChannel the file to map
      * @param offset      the offset of the file to start the mapping
@@ -99,6 +117,23 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         unmap();
         this.fileChannel = fileChannel;
+        map(offset, length);
+    }
+
+    /**
+     * Remap the buffer based on a new file, mapping mode, offset, and a length
+     *
+     * @param fileChannel the file to map
+     * @param mapMode     for the file when mapping.
+     * @param offset      the offset of the file to start the mapping
+     * @param length      of the buffer from the given address
+     */
+    public void wrap(
+        final FileChannel fileChannel, final FileChannel.MapMode mapMode, final long offset, final long length)
+    {
+        unmap();
+        this.fileChannel = fileChannel;
+        this.mapMode = mapMode;
         map(offset, length);
     }
 
@@ -120,6 +155,16 @@ public class MappedResizeableBuffer implements AutoCloseable
     public FileChannel fileChannel()
     {
         return fileChannel;
+    }
+
+    /**
+     * The {@link FileChannel.MapMode} that will be used when mapping the file.
+     *
+     * @return {@link FileChannel.MapMode} that will be used when mapping the file.
+     */
+    public FileChannel.MapMode mapMode()
+    {
+        return mapMode;
     }
 
     public void setMemory(final long index, final int length, final byte value)
@@ -934,7 +979,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     private void map(final long offset, final long length)
     {
         capacity = length;
-        addressOffset = IoUtil.map(fileChannel, FileChannel.MapMode.READ_WRITE, offset, length);
+        addressOffset = IoUtil.map(fileChannel, mapMode, offset, length);
     }
 
     private void unmap()
