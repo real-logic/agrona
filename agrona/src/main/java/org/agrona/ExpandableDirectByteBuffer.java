@@ -1140,7 +1140,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         final int thisCapacity = this.capacity();
         final int thatCapacity = that.capacity();
-        final byte[] thisByteArray = null;
         final byte[] thatByteArray = that.byteArray();
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
@@ -1148,7 +1147,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++)
         {
             final int cmp = Byte.compare(
-                UNSAFE.getByte(thisByteArray, thisOffset + i),
+                UNSAFE.getByte(null, thisOffset + i),
                 UNSAFE.getByte(thatByteArray, thatOffset + i));
 
             if (0 != cmp)

@@ -986,4 +986,14 @@ public class MappedResizeableBuffer implements AutoCloseable
     {
         IoUtil.unmap(fileChannel, addressOffset, capacity);
     }
+
+    public String toString()
+    {
+        return "MappedResizeableBuffer{" +
+            "addressOffset=" + addressOffset +
+            ", capacity=" + capacity +
+            ", fileChannel=" + fileChannel +
+            ", mapMode=" + mapMode +
+            '}';
+    }
 }

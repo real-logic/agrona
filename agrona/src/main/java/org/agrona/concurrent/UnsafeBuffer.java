@@ -1754,8 +1754,7 @@ public class UnsafeBuffer implements AtomicBuffer
         return "UnsafeBuffer{" +
             "addressOffset=" + addressOffset +
             ", capacity=" + capacity +
-            ", byteArray=" + (SHOULD_PRINT_ARRAY_CONTENT ?
-                Arrays.toString(byteArray) : byteArray) +
+            ", byteArray=" + (SHOULD_PRINT_ARRAY_CONTENT ? Arrays.toString(byteArray) : byteArray) +
             ", byteBuffer=" + byteBuffer +
             '}';
     }
