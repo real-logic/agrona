@@ -21,7 +21,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '4.0.4' apply false
+    id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
     id "io.freefair.javadoc-links" version "3.1.4"
 }
 
@@ -170,7 +170,6 @@ subprojects {
 }
 
 project(':agrona') {
-    apply plugin: 'osgi'
 
     if (null == System.getenv("JAVA_HOME")) {
         throw new GradleException('JAVA_HOME environment variable required')
@@ -363,6 +362,6 @@ task uploadToMavenCentral {
 }
 
 wrapper {
-    gradleVersion = '4.10.3'
+    gradleVersion = '5.2.1'
     distributionType = 'ALL'
 }
