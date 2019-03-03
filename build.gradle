@@ -170,7 +170,6 @@ subprojects {
 }
 
 project(':agrona') {
-
     if (null == System.getenv("JAVA_HOME")) {
         throw new GradleException('JAVA_HOME environment variable required')
     }
@@ -216,7 +215,7 @@ project(':agrona') {
     }
 
     task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
     }
@@ -239,7 +238,7 @@ project(':agrona') {
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
+        archiveClassifier = 'javadoc'
         from javadoc.destinationDir
     }
 
@@ -337,12 +336,12 @@ project(':agrona-agent') {
     }
 
     task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
+        archiveClassifier = 'javadoc'
         from javadoc.destinationDir
     }
 
