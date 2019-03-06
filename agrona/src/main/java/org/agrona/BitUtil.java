@@ -300,10 +300,8 @@ public class BitUtil
         {
             return 3;
         }
-        else
-        {
-            throw new IllegalArgumentException("unknown pointer size");
-        }
+
+        throw new IllegalArgumentException("unknown pointer size for scale=" + scale);
     }
 
     /**
