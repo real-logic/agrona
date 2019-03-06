@@ -153,9 +153,10 @@ public class BroadcastReceiver
 
         if (tail > cursor)
         {
+            final int capacity = this.capacity;
             int recordOffset = (int)cursor & (capacity - 1);
 
-            if (!validate(cursor))
+            if (!validate(cursor, buffer, capacity))
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
 
@@ -192,10 +193,10 @@ public class BroadcastReceiver
     {
         UNSAFE.loadFence();
 
-        return validate(cursor);
+        return validate(cursor, buffer, capacity);
     }
 
-    private boolean validate(final long cursor)
+    private boolean validate(final long cursor, final AtomicBuffer buffer, final int capacity)
     {
         return (cursor + capacity) > buffer.getLongVolatile(tailIntentCounterIndex);
     }

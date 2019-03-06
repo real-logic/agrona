@@ -127,6 +127,7 @@ public class ManyToOneRingBuffer implements RingBuffer
         int messagesRead = 0;
 
         final AtomicBuffer buffer = this.buffer;
+        final int headPositionIndex = this.headPositionIndex;
         final long head = buffer.getLong(headPositionIndex);
 
         final int capacity = this.capacity;
@@ -230,6 +231,9 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public int size()
     {
+        final AtomicBuffer buffer = this.buffer;
+        final int headPositionIndex = this.headPositionIndex;
+        final int tailPositionIndex = this.tailPositionIndex;
         long headBefore;
         long tail;
         long headAfter = buffer.getLongVolatile(headPositionIndex);
@@ -250,6 +254,7 @@ public class ManyToOneRingBuffer implements RingBuffer
      */
     public boolean unblock()
     {
+        final AtomicBuffer buffer = this.buffer;
         final long headPosition = buffer.getLongVolatile(headPositionIndex);
         final long tailPosition = buffer.getLongVolatile(tailPositionIndex);
 
@@ -261,7 +266,6 @@ public class ManyToOneRingBuffer implements RingBuffer
         final int mask = capacity - 1;
         final int consumerIndex = (int)(headPosition & mask);
         final int producerIndex = (int)(tailPosition & mask);
-        final AtomicBuffer buffer = this.buffer;
 
         boolean unblocked = false;
         int length = buffer.getIntVolatile(consumerIndex);

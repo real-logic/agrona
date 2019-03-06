@@ -286,13 +286,14 @@ public class CountersReader
     {
         int counterId = 0;
 
+        final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
 
             if (RECORD_ALLOCATED == recordStatus)
             {
-                consumer.accept(counterId, labelValue(i));
+                consumer.accept(counterId, labelValue(metaDataBuffer, i));
             }
             else if (RECORD_UNUSED == recordStatus)
             {
@@ -312,13 +313,17 @@ public class CountersReader
     {
         int counterId = 0;
 
+        final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+        final AtomicBuffer valuesBuffer = this.valuesBuffer;
+
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
 
             if (RECORD_ALLOCATED == recordStatus)
             {
-                consumer.accept(valuesBuffer.getLongVolatile(counterOffset(counterId)), counterId, labelValue(i));
+                consumer.accept(
+                    valuesBuffer.getLongVolatile(counterOffset(counterId)), counterId, labelValue(metaDataBuffer, i));
             }
             else if (RECORD_UNUSED == recordStatus)
             {
@@ -338,13 +343,15 @@ public class CountersReader
     {
         int counterId = 0;
 
+        final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
             if (RECORD_ALLOCATED == recordStatus)
             {
                 final int typeId = metaDataBuffer.getInt(i + TYPE_ID_OFFSET);
-                final String label = labelValue(i);
+                final String label = labelValue(metaDataBuffer, i);
                 final DirectBuffer keyBuffer = new UnsafeBuffer(metaDataBuffer, i + KEY_OFFSET, MAX_KEY_LENGTH);
 
                 metaData.accept(counterId, typeId, keyBuffer, label);
@@ -411,7 +418,7 @@ public class CountersReader
     {
         validateCounterId(counterId);
 
-        return labelValue(metaDataOffset(counterId));
+        return labelValue(metaDataBuffer, metaDataOffset(counterId));
     }
 
     private void validateCounterId(final int counterId)
@@ -423,7 +430,7 @@ public class CountersReader
         }
     }
 
-    private String labelValue(final int recordOffset)
+    private String labelValue(final AtomicBuffer metaDataBuffer, final int recordOffset)
     {
         final int labelLength = metaDataBuffer.getInt(recordOffset + LABEL_OFFSET);
         final byte[] stringInBytes = new byte[labelLength];

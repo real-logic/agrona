@@ -117,6 +117,22 @@ public class SystemUtil
     }
 
     /**
+     * Return the system property for java.io.tmpdir ensuring a {@link File#separator} is at the end.
+     *
+     * @return tmp directory for the runtime
+     */
+    public static String tmpDirName()
+    {
+        String tmpDirName = System.getProperty("java.io.tmpdir");
+        if (!tmpDirName.endsWith(File.separator))
+        {
+            tmpDirName += File.separator;
+        }
+
+        return tmpDirName;
+    }
+
+    /**
      * Get a formatted dump of all threads with associated state and stack traces.
      *
      * @return a formatted dump of all threads with associated state and stack traces.

@@ -168,6 +168,7 @@ public class OneToOneRingBuffer implements RingBuffer
         int messagesRead = 0;
 
         final AtomicBuffer buffer = this.buffer;
+        final int headPositionIndex = this.headPositionIndex;
         final long head = buffer.getLong(headPositionIndex);
 
         int bytesRead = 0;
@@ -271,6 +272,9 @@ public class OneToOneRingBuffer implements RingBuffer
      */
     public int size()
     {
+        final AtomicBuffer buffer = this.buffer;
+        final int headPositionIndex = this.headPositionIndex;
+        final int tailPositionIndex = this.tailPositionIndex;
         long headBefore;
         long tail;
         long headAfter = buffer.getLongVolatile(headPositionIndex);
