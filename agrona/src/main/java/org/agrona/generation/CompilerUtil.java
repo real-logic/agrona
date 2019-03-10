@@ -15,8 +15,8 @@
  */
 package org.agrona.generation;
 
-import org.agrona.IoUtil;
 import org.agrona.LangUtil;
+import org.agrona.SystemUtil;
 
 import javax.tools.*;
 import java.io.File;
@@ -37,7 +37,7 @@ public class CompilerUtil
     /**
      * Temporary directory for files.
      */
-    private static final String TEMP_DIR_NAME = IoUtil.tmpDirName();
+    private static final String TEMP_DIR_NAME = SystemUtil.tmpDirName();
 
     /**
      * Compile a {@link Map} of source files in-memory resulting in a {@link Class} which is named.
