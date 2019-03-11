@@ -1,7 +1,7 @@
 Agrona
 ======
 
-[![Javadocs](http://www.javadoc.io/badge/org.agrona/agrona.svg)](http://www.javadoc.io/doc/org.agrona/agrona)
+[![Javadocs](https://www.javadoc.io/badge/org.agrona/agrona.svg)](https://www.javadoc.io/doc/org.agrona/agrona)
 [![Build Status](https://travis-ci.org/real-logic/agrona.svg?branch=master)](https://travis-ci.org/real-logic/agrona)
 [![GitHub](https://img.shields.io/github/license/real-logic/Agrona.svg)](https://github.com/real-logic/agrona/blob/master/LICENSE)
 [![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/real-logic/Agrona.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/real-logic/agrona/context:java)
