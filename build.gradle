@@ -21,6 +21,7 @@ buildscript {
 
 plugins {
     id 'java'
+    id 'java-library'
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
     id "io.freefair.javadoc-links" version "3.1.4" apply false
 }
@@ -106,6 +107,7 @@ jar.enabled = false
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
     apply plugin: 'signing'
@@ -120,10 +122,9 @@ subprojects {
     dependencies {
         checkstyle 'com.puppycrawl.tools:checkstyle:8.18'
 
-        testCompile 'junit:junit:4.12'
-        testCompile 'org.mockito:mockito-core:2.25.0'
-        testCompile 'org.hamcrest:hamcrest-library:1.3'
-        testCompile 'com.google.guava:guava-testlib:27.0.1-jre'
+        testImplementation 'junit:junit:4.12'
+        testImplementation 'org.mockito:mockito-core:2.25.0'
+        testImplementation 'org.hamcrest:hamcrest-library:1.3'
     }
 
     checkstyle {
@@ -171,6 +172,10 @@ subprojects {
 project(':agrona') {
     if (null == System.getenv("JAVA_HOME")) {
         throw new GradleException('JAVA_HOME environment variable required')
+    }
+
+    dependencies {
+        testImplementation 'com.google.guava:guava-testlib:27.0.1-jre'
     }
 
     uploadArchives {
@@ -258,8 +263,8 @@ project(':agrona-agent') {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
-        compile project(':agrona')
-        compile "net.bytebuddy:byte-buddy:1.9.7"
+        implementation project(':agrona')
+        implementation "net.bytebuddy:byte-buddy:1.9.7"
     }
 
     jar {
@@ -290,6 +295,8 @@ project(':agrona-agent') {
             'Can-Retransform-Classes': 'true',
             'Automatic-Module-Name': 'org.agrona.agent.all'
         )
+        
+        relocate 'net.bytebuddy', 'org.agrona.shadow.net.bytebuddy'
     }
 
     uploadArchives {
