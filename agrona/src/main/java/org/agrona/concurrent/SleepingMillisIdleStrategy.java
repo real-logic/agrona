@@ -34,6 +34,9 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         this.sleepPeriodMs = sleepPeriodMs;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle(final int workCount)
     {
         if (workCount > 0)
@@ -51,6 +54,9 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle()
     {
         try
@@ -63,6 +69,9 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void reset()
     {
     }

@@ -27,7 +27,7 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     * @see org.agrona.concurrent.IdleStrategy#idle(int)
+     *  {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -39,11 +39,17 @@ public final class BusySpinIdleStrategy implements IdleStrategy
         idle();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle()
     {
         ThreadHints.onSpinWait();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void reset()
     {
     }

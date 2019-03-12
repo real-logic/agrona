@@ -93,6 +93,9 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle()
     {
         switch (state)
@@ -130,6 +133,9 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void reset()
     {
         spins = 0;

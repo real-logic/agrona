@@ -36,6 +36,9 @@ public final class SleepingIdleStrategy implements IdleStrategy
         this.sleepPeriodNs = sleepPeriodNs;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle(final int workCount)
     {
         if (workCount > 0)
@@ -46,11 +49,17 @@ public final class SleepingIdleStrategy implements IdleStrategy
         LockSupport.parkNanos(sleepPeriodNs);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle()
     {
         LockSupport.parkNanos(sleepPeriodNs);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void reset()
     {
     }

@@ -53,6 +53,8 @@ public final class NoOpLock implements Lock
     /**
      * Always succeeds.
      *
+     * @param time which is ignored.
+     * @param unit which is ignored.
      * @return always true.
      */
     public boolean tryLock(final long time, final TimeUnit unit)
