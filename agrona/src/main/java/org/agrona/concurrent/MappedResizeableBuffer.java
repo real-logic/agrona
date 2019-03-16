@@ -45,7 +45,8 @@ public class MappedResizeableBuffer implements AutoCloseable
     private FileChannel.MapMode mapMode;
 
     /**
-     * Attach a view to an off-heap memory region by address. Defaults to {@link FileChannel.MapMode#READ_WRITE}.
+     * Attach a view to an off-heap memory region by address. Defaults to
+     * {@link java.nio.channels.FileChannel.MapMode#READ_WRITE}.
      *
      * @param fileChannel   the file to map
      * @param offset        the offset of the file to start the mapping
@@ -158,9 +159,9 @@ public class MappedResizeableBuffer implements AutoCloseable
     }
 
     /**
-     * The {@link FileChannel.MapMode} that will be used when mapping the file.
+     * The {@link java.nio.channels.FileChannel.MapMode} that will be used when mapping the file.
      *
-     * @return {@link FileChannel.MapMode} that will be used when mapping the file.
+     * @return {@link java.nio.channels.FileChannel.MapMode} that will be used when mapping the file.
      */
     public FileChannel.MapMode mapMode()
     {

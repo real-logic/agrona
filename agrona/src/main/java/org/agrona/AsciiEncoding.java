@@ -75,7 +75,7 @@ public class AsciiEncoding
     }
 
     /**
-     * Get the digit value of an ASCII encoded {@link byte}.
+     * Get the digit value of an ASCII encoded {@code byte}.
      *
      * @param index within the string the value is encoded.
      * @param value of the encoding in ASCII.
@@ -93,7 +93,7 @@ public class AsciiEncoding
     }
 
     /**
-     * Get the digit value of an ASCII encoded {@link char}.
+     * Get the digit value of an ASCII encoded {@code char}.
      *
      * @param index within the string the value is encoded.
      * @param value of the encoding in ASCII.

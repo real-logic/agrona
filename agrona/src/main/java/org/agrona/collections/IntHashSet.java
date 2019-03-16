@@ -327,7 +327,11 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     }
 
     /**
-     * {@inheritDoc}
+     * Contains method that does not box values.
+     *
+     * @param value to be check for if the set contains it.
+     * @return true if the value is contained in the set otherwise false.
+     * @see Collection#contains(Object)
      */
     public boolean contains(final int value)
     {
