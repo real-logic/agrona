@@ -30,7 +30,7 @@ defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '0.9.35-SNAPSHOT'
-def agronaJavaVersion = '1.8'
+def agronaJavaVersion = JavaVersion.VERSION_1_8
 
 group = agronaGroup
 version = agronaVersion
@@ -113,7 +113,7 @@ subprojects {
     apply plugin: 'signing'
     apply plugin: 'eclipse'
     apply plugin: 'io.freefair.javadoc-links'
-    
+
     group = agronaGroup
     version = agronaVersion
 
@@ -295,7 +295,7 @@ project(':agrona-agent') {
             'Can-Retransform-Classes': 'true',
             'Automatic-Module-Name': 'org.agrona.agent.all'
         )
-        
+
         relocate 'net.bytebuddy', 'org.agrona.shadow.net.bytebuddy'
     }
 
