@@ -247,7 +247,8 @@ public class IoUtil
     }
 
     /**
-     * Check that file exists, open file, and return MappedByteBuffer for entire file
+     * Check that file exists, open file, and return MappedByteBuffer for entire file as
+     * {@link java.nio.channels.FileChannel.MapMode#READ_WRITE}.
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
@@ -257,24 +258,12 @@ public class IoUtil
      */
     public static MappedByteBuffer mapExistingFile(final File location, final String descriptionLabel)
     {
-        checkFileExists(location, descriptionLabel);
-
-        MappedByteBuffer mappedByteBuffer = null;
-        try (RandomAccessFile file = new RandomAccessFile(location, "rw");
-            FileChannel channel = file.getChannel())
-        {
-            mappedByteBuffer = channel.map(READ_WRITE, 0, channel.size());
-        }
-        catch (final IOException ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
-        }
-
-        return mappedByteBuffer;
+        return mapExistingFile(location, READ_WRITE, descriptionLabel);
     }
 
     /**
-     * Check that file exists, open file, and return MappedByteBuffer for only region specified
+     * Check that file exists, open file, and return MappedByteBuffer for only region specified as
+     * {@link java.nio.channels.FileChannel.MapMode#READ_WRITE}.
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
@@ -287,13 +276,68 @@ public class IoUtil
     public static MappedByteBuffer mapExistingFile(
         final File location, final String descriptionLabel, final long offset, final long length)
     {
+        return mapExistingFile(location, READ_WRITE, descriptionLabel, offset, length);
+    }
+
+    /**
+     * Check that file exists, open file, and return MappedByteBuffer for entire file for a given
+     * {@link java.nio.channels.FileChannel.MapMode}.
+     * <p>
+     * The file itself will be closed, but the mapping will persist.
+     *
+     * @param location         of the file to map
+     * @param mapMode          for the mapping
+     * @param descriptionLabel to be associated for any exceptions
+     * @return {@link java.nio.MappedByteBuffer} for the file
+     */
+    public static MappedByteBuffer mapExistingFile(
+        final File location,
+        final FileChannel.MapMode mapMode,
+        final String descriptionLabel)
+    {
         checkFileExists(location, descriptionLabel);
 
         MappedByteBuffer mappedByteBuffer = null;
         try (RandomAccessFile file = new RandomAccessFile(location, "rw");
             FileChannel channel = file.getChannel())
         {
-            mappedByteBuffer = channel.map(READ_WRITE, offset, length);
+            mappedByteBuffer = channel.map(mapMode, 0, channel.size());
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return mappedByteBuffer;
+    }
+
+    /**
+     * Check that file exists, open file, and return MappedByteBuffer for only region specified for a given
+     * {@link java.nio.channels.FileChannel.MapMode}
+     * <p>
+     * The file itself will be closed, but the mapping will persist.
+     *
+     * @param location         of the file to map
+     * @param mapMode          for the mapping
+     * @param descriptionLabel to be associated for an exceptions
+     * @param offset           offset to start mapping at
+     * @param length           length to map region
+     * @return {@link java.nio.MappedByteBuffer} for the file
+     */
+    public static MappedByteBuffer mapExistingFile(
+        final File location,
+        final FileChannel.MapMode mapMode,
+        final String descriptionLabel,
+        final long offset,
+        final long length)
+    {
+        checkFileExists(location, descriptionLabel);
+
+        MappedByteBuffer mappedByteBuffer = null;
+        try (RandomAccessFile file = new RandomAccessFile(location, "rw");
+            FileChannel channel = file.getChannel())
+        {
+            mappedByteBuffer = channel.map(mapMode, offset, length);
         }
         catch (final IOException ex)
         {
@@ -361,7 +405,7 @@ public class IoUtil
     {
         if (!file.exists())
         {
-            final String msg = "Missing file for " + name + " : " + file.getAbsolutePath();
+            final String msg = "missing file for " + name + " : " + file.getAbsolutePath();
             throw new IllegalStateException(msg);
         }
     }
