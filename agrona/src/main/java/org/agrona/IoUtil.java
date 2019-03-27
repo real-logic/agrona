@@ -34,7 +34,7 @@ import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
- * Collection of IO utilities.
+ * Collection of IO utilities for dealing with files, especially mapping and un-mapping.
  */
 public class IoUtil
 {
@@ -44,20 +44,41 @@ public class IoUtil
     public static final int BLOCK_SIZE = 4 * 1024;
 
     private static final byte[] FILLER = new byte[BLOCK_SIZE];
-
     private static final int MAP_READ_ONLY = 0;
     private static final int MAP_READ_WRITE = 1;
     private static final int MAP_PRIVATE = 2;
 
-    private static final Method MAP_ADDRESS;
-    private static final Method UNMAP_ADDRESS;
-    private static final Method UNMAP_BUFFER;
-
-    static
+    static class MappingMethods
     {
-        MAP_ADDRESS = getFileChannelMethod("map0", int.class, long.class, long.class);
-        UNMAP_ADDRESS = getFileChannelMethod("unmap0", long.class, long.class);
-        UNMAP_BUFFER = getFileChannelMethod("unmap", MappedByteBuffer.class);
+        static final Method MAP_ADDRESS;
+        static final Method UNMAP_ADDRESS;
+        static final Method UNMAP_BUFFER;
+
+        static
+        {
+            try
+            {
+                final Class<?> fileChannelClass = Class.forName("sun.nio.ch.FileChannelImpl");
+
+                MAP_ADDRESS = getFileChannelMethod(fileChannelClass, "map0", int.class, long.class, long.class);
+                UNMAP_ADDRESS = getFileChannelMethod(fileChannelClass, "unmap0", long.class, long.class);
+                UNMAP_BUFFER = getFileChannelMethod(fileChannelClass, "unmap", MappedByteBuffer.class);
+            }
+            catch (final Exception ex)
+            {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        private static Method getFileChannelMethod(
+            final Class<?> fileChannelClass, final String name, final Class<?>... parameterTypes)
+            throws NoSuchMethodException
+        {
+            final Method method = fileChannelClass.getDeclaredMethod(name, parameterTypes);
+            method.setAccessible(true);
+
+            return method;
+        }
     }
 
     /**
@@ -421,7 +442,7 @@ public class IoUtil
         {
             try
             {
-                UNMAP_BUFFER.invoke(null, buffer);
+                MappingMethods.UNMAP_BUFFER.invoke(null, buffer);
             }
             catch (final Exception ex)
             {
@@ -444,7 +465,7 @@ public class IoUtil
     {
         try
         {
-            return (long)MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
+            return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
         }
         catch (final IllegalAccessException | InvocationTargetException ex)
         {
@@ -465,7 +486,7 @@ public class IoUtil
     {
         try
         {
-            UNMAP_ADDRESS.invoke(fileChannel, address, length);
+            MappingMethods.UNMAP_ADDRESS.invoke(fileChannel, address, length);
         }
         catch (final IllegalAccessException | InvocationTargetException ex)
         {
@@ -500,22 +521,6 @@ public class IoUtil
         }
 
         return tmpDirName;
-    }
-
-    private static Method getFileChannelMethod(final String name, final Class<?>... parameterTypes)
-    {
-        Method method = null;
-        try
-        {
-            method = Class.forName("sun.nio.ch.FileChannelImpl").getDeclaredMethod(name, parameterTypes);
-            method.setAccessible(true);
-        }
-        catch (final Exception ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
-        }
-
-        return method;
     }
 
     private static int getMode(final FileChannel.MapMode mode)
