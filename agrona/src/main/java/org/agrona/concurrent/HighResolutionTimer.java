@@ -15,38 +15,12 @@
  */
 package org.agrona.concurrent;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.spi.MidiDeviceProvider;
-import java.lang.reflect.Method;
-
 /**
- * Control the supporting of high resolution timers for scheduled events by enabling the {@link MidiDevice}.
+ * Control the supporting of high resolution timers by a bit of hackery.
  */
 public class HighResolutionTimer
 {
-    private static final MidiDevice MIDI_DEVICE;
-
-    static
-    {
-        MidiDevice midiDevice = null;
-        try
-        {
-            final Class<?> mediaProviderClass = Class.forName("com.sun.media.sound.MidiOutDeviceProvider");
-            final Method getDeviceInfoMethod = mediaProviderClass.getMethod("getDeviceInfo");
-            final MidiDeviceProvider provider = (MidiDeviceProvider)mediaProviderClass.getConstructor().newInstance();
-            final MidiDevice.Info[] info = (MidiDevice.Info[])getDeviceInfoMethod.invoke(provider);
-
-            midiDevice = info.length > 0 ? provider.getDevice(info[0]) : null;
-        }
-        catch (final Exception ignore)
-        {
-        }
-
-        MIDI_DEVICE = midiDevice;
-    }
-
-    private static volatile boolean isEnabled = false;
+    private static Thread thread;
 
     /**
      * Has the high resolution timer been enabled?
@@ -55,40 +29,45 @@ public class HighResolutionTimer
      */
     public static boolean isEnabled()
     {
-        return isEnabled;
+        return null != thread;
     }
 
     /**
-     * Attempt to enable the {@link MidiDevice} which requires the high resolution timer.
+     * Attempt to enable high resolution timers.
      */
     public static synchronized void enable()
     {
-        if (null != MIDI_DEVICE && !MIDI_DEVICE.isOpen())
+        if (null != thread)
         {
-            try
-            {
-                MIDI_DEVICE.open();
-            }
-            catch (final MidiUnavailableException ignore)
-            {
-                isEnabled = false;
-                return;
-            }
-
-            isEnabled = true;
+            thread = new Thread(HighResolutionTimer::run);
+            thread.setDaemon(true);
+            thread.setName("high-resolution-timer-hack");
+            thread.start();
         }
     }
 
     /**
-     * Attempt to disable the high resolution timer by closing the {@link MidiDevice}.
+     * Attempt to disable the high resolution timers.
      */
     public static synchronized void disable()
     {
-        if (MIDI_DEVICE != null && MIDI_DEVICE.isOpen())
+        if (null != thread)
         {
-            MIDI_DEVICE.close();
+            thread.interrupt();
+            thread = null;
+        }
+    }
+
+    private static void run()
+    {
+        try
+        {
+            Thread.sleep(Long.MAX_VALUE);
+        }
+        catch (final InterruptedException ignore)
+        {
         }
 
-        isEnabled = false;
+        thread = null;
     }
 }
