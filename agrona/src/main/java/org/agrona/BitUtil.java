@@ -119,7 +119,7 @@ public class BitUtil
      */
     public static int findNextPositivePowerOfTwo(final int value)
     {
-        return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
+        return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(value - 1));
     }
 
     /**
