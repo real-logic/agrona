@@ -15,7 +15,7 @@
  */
 package org.agrona.nio;
 
-import org.agrona.BitUtil;
+import org.agrona.collections.ArrayUtil;
 
 import java.nio.channels.SelectionKey;
 import java.util.AbstractSet;
@@ -24,12 +24,12 @@ import java.util.Iterator;
 import java.util.function.ToIntFunction;
 
 /**
- * Try to fix handling of HashSet for {@link java.nio.channels.Selector}. Akin to netty's SelectedSelectionKeySet.
+ * Try to fix handling of HashSet for {@link java.nio.channels.Selector}.
  * Assumes single threaded usage.
  */
 public class NioSelectedKeySet extends AbstractSet<SelectionKey>
 {
-    private static final int INITIAL_CAPACITY = 16;
+    private static final int INITIAL_CAPACITY = 10;
 
     private SelectionKey[] keys;
     private int size = 0;
@@ -49,7 +49,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public NioSelectedKeySet(final int initialCapacity)
     {
-        keys = new SelectionKey[BitUtil.findNextPositivePowerOfTwo(initialCapacity)];
+        keys = new SelectionKey[initialCapacity];
     }
 
     /**
@@ -157,9 +157,21 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
                 "Insufficient capacity: length=" + keys.length + " required=" + requiredCapacity);
         }
 
-        if (requiredCapacity > keys.length)
+        final int currentCapacity = keys.length;
+        if (requiredCapacity > currentCapacity)
         {
-            final int newCapacity = BitUtil.findNextPositivePowerOfTwo(requiredCapacity);
+            int newCapacity = currentCapacity + (currentCapacity >> 1);
+
+            if (newCapacity < 0 || newCapacity > ArrayUtil.MAX_CAPACITY)
+            {
+                if (currentCapacity == ArrayUtil.MAX_CAPACITY)
+                {
+                    throw new IllegalStateException("max capacity reached: " + ArrayUtil.MAX_CAPACITY);
+                }
+
+                newCapacity = ArrayUtil.MAX_CAPACITY;
+            }
+
             keys = Arrays.copyOf(keys, newCapacity);
         }
     }

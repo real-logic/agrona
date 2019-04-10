@@ -37,11 +37,6 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     @DoNotSub public static final int INITIAL_CAPACITY = 10;
 
-    /**
-     * Maximum capacity to which the array can grow.
-     */
-    @DoNotSub public static final int MAX_CAPACITY = Integer.MAX_VALUE - 8;
-
     private final int nullValue;
     @DoNotSub private int size = 0;
     private int[] elements;
@@ -598,14 +593,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         {
             @DoNotSub int newCapacity = currentCapacity + (currentCapacity >> 1);
 
-            if (newCapacity < 0 || newCapacity > MAX_CAPACITY)
+            if (newCapacity < 0 || newCapacity > ArrayUtil.MAX_CAPACITY)
             {
-                if (currentCapacity == MAX_CAPACITY)
+                if (currentCapacity == ArrayUtil.MAX_CAPACITY)
                 {
-                    throw new IllegalStateException("max capacity reached: " + MAX_CAPACITY);
+                    throw new IllegalStateException("max capacity reached: " + ArrayUtil.MAX_CAPACITY);
                 }
 
-                newCapacity = MAX_CAPACITY;
+                newCapacity = ArrayUtil.MAX_CAPACITY;
             }
 
             final int[] newElements = new int[newCapacity];

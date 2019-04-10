@@ -52,6 +52,11 @@ public final class ArrayUtil
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     /**
+     * Maximum capacity to which an array can grow.
+     */
+    public static final int MAX_CAPACITY = Integer.MAX_VALUE - 8;
+
+    /**
      * Add an element to an array resulting in a new array.
      *
      * @param oldElements  to have the new element added.
