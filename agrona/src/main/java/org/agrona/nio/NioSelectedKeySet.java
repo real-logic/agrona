@@ -49,7 +49,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public NioSelectedKeySet(final int initialCapacity)
     {
-        keys = new SelectionKey[initialCapacity];
+        keys = new SelectionKey[Math.max(initialCapacity, INITIAL_CAPACITY)];
     }
 
     /**
