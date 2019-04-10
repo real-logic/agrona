@@ -39,7 +39,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public NioSelectedKeySet()
     {
-        this(INITIAL_CAPACITY);
+        keys = new SelectionKey[INITIAL_CAPACITY];
     }
 
     /**
@@ -49,6 +49,11 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public NioSelectedKeySet(final int initialCapacity)
     {
+        if (initialCapacity < 0 || initialCapacity > ArrayUtil.MAX_CAPACITY)
+        {
+            throw new IllegalArgumentException("invalid initial capacity: " + initialCapacity);
+        }
+
         keys = new SelectionKey[Math.max(initialCapacity, INITIAL_CAPACITY)];
     }
 
