@@ -18,12 +18,29 @@ package org.agrona.concurrent.status;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * {@link Position} that is backed by an {@link AtomicLong} that is useful for tests.
+ * {@link Position} that is backed by an {@link AtomicLong} which is useful for tests.
  */
 public class AtomicLongPosition extends Position
 {
     private boolean isClosed = false;
-    private final AtomicLong value = new AtomicLong();
+    private final int id;
+    private final AtomicLong value;
+
+    public AtomicLongPosition()
+    {
+        this(0, 0L);
+    }
+
+    public AtomicLongPosition(final int id)
+    {
+        this(id, 0L);
+    }
+
+    public AtomicLongPosition(final int id, final long initialValue)
+    {
+        this.id = id;
+        this.value = new AtomicLong(initialValue);
+    }
 
     public boolean isClosed()
     {
@@ -32,7 +49,7 @@ public class AtomicLongPosition extends Position
 
     public int id()
     {
-        return 0;
+        return id;
     }
 
     public long get()
