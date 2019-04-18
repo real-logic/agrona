@@ -158,7 +158,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
-     * Put a key value pair into the map.
+     * Put a key value pair in the map.
      *
      * @param key   lookup key
      * @param value new value, must not be initialValue
@@ -246,7 +246,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      * Primitive specialised forEach implementation.
      * <p>
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
-     * expression, which doesn't interplay well with type inference in lambda expressions.
+     * expression, which doesn't play well with type inference in lambda expressions.
      *
      * @param consumer a callback called for each key/value pair in the map.
      */

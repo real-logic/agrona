@@ -592,16 +592,16 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(final T[] into)
+    public <T> T[] toArray(final T[] a)
     {
-        final Class<?> componentType = into.getClass().getComponentType();
+        final Class<?> componentType = a.getClass().getComponentType();
         if (!componentType.isAssignableFrom(Integer.class))
         {
             throw new ArrayStoreException("cannot store Integers in array of type " + componentType);
         }
 
         @DoNotSub final int size = size();
-        final T[] arrayCopy = into.length >= size ? into : (T[])Array.newInstance(componentType, size);
+        final T[] arrayCopy = a.length >= size ? a : (T[])Array.newInstance(componentType, size);
         copyValues(arrayCopy);
 
         return arrayCopy;

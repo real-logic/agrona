@@ -181,7 +181,7 @@ public class CountersReader
      */
     public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
-    protected int maxCounterId;
+    protected final int maxCounterId;
     protected final AtomicBuffer metaDataBuffer;
     protected final AtomicBuffer valuesBuffer;
     protected final Charset labelCharset;

@@ -152,7 +152,7 @@ public class Int2IntCounterMap implements Serializable
     }
 
     /**
-     * Put the value for a key into the map.
+     * Put the value for a key in the map.
      *
      * @param key   lookup key
      * @param value new value, must not be initialValue

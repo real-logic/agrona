@@ -61,7 +61,7 @@ public class TransportPoller implements AutoCloseable
         }
     }
 
-    protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();;
+    protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();
     protected final Selector selector;
 
     public TransportPoller()
