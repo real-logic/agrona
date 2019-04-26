@@ -21,7 +21,7 @@ package org.agrona;
  *
  * This is code adapted from <a href="https://netty.io/">the Netty project</a> adopted to support {@link DirectBuffer}.
  */
-public final class PrintBufferUtil
+public class PrintBufferUtil
 {
     private static final String NEWLINE = System.lineSeparator();
     private static final String EMPTY_STRING = "";
@@ -164,7 +164,7 @@ public final class PrintBufferUtil
         return BYTE2HEX_PAD[value & 0xff];
     }
 
-    private static final class HexUtil
+    static final class HexUtil
     {
         private static final char[] BYTE2CHAR = new char[256];
         private static final char[] HEXDUMP_TABLE = new char[256 * 4];
@@ -244,7 +244,7 @@ public final class PrintBufferUtil
             return (short)(buffer.getByte(index) & 0xFF);
         }
 
-        private static String hexDump(final DirectBuffer buffer, final int fromIndex, final int length)
+        static String hexDump(final DirectBuffer buffer, final int fromIndex, final int length)
         {
             if (length < 0)
             {
@@ -269,7 +269,7 @@ public final class PrintBufferUtil
             return new String(buf);
         }
 
-        private static String hexDump(final byte[] array, final int fromIndex, final int length)
+        static String hexDump(final byte[] array, final int fromIndex, final int length)
         {
             if (length < 0)
             {
@@ -294,7 +294,7 @@ public final class PrintBufferUtil
             return new String(buf);
         }
 
-        private static String prettyHexDump(final DirectBuffer buffer, final int offset, final int length)
+        static String prettyHexDump(final DirectBuffer buffer, final int offset, final int length)
         {
             if (length == 0)
             {
@@ -319,12 +319,12 @@ public final class PrintBufferUtil
          * @return {@code true} if the requested {@code index} and {@code length} will fit within {@code capacity}.
          * {@code false} if this would result in an index out of bounds exception.
          */
-        public static boolean isOutOfBounds(final int index, final int length, final int capacity)
+        static boolean isOutOfBounds(final int index, final int length, final int capacity)
         {
             return (index | length | (index + length) | (capacity - (index + length))) < 0;
         }
 
-        private static void appendPrettyHexDump(
+        static void appendPrettyHexDump(
             final StringBuilder dump, final DirectBuffer buffer, final int offset, final int length)
         {
             if (isOutOfBounds(offset, length, buffer.capacity()))
@@ -401,7 +401,7 @@ public final class PrintBufferUtil
                 .append("+--------+-------------------------------------------------+----------------+");
         }
 
-        private static void appendHexDumpRowPrefix(final StringBuilder dump, final int row, final int rowStartIndex)
+        static void appendHexDumpRowPrefix(final StringBuilder dump, final int row, final int rowStartIndex)
         {
             if (row < HEXDUMP_ROW_PREFIXES.length)
             {
@@ -415,9 +415,5 @@ public final class PrintBufferUtil
                 dump.append('|');
             }
         }
-    }
-
-    private PrintBufferUtil()
-    {
     }
 }
