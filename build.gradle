@@ -47,6 +47,13 @@ ext {
     if (!project.hasProperty('ossrhPassword')) {
         ossrhPassword = ''
     }
+
+    if (null == System.getenv("JAVA_HOME")) {
+        logger.warn("JAVA_HOME is not set! It will be used a default jdk");
+        externalJdk = false
+    } else {
+        externalJdk = true
+    }
 }
 
 def projectPom = {
@@ -135,8 +142,12 @@ subprojects {
         sourceCompatibility = agronaJavaVersion
         targetCompatibility = agronaJavaVersion
         options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
-        options.fork = true
-        options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
+        if (externalJdk) {
+            options.fork = true
+            options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
+        } else {
+            logger.warn("fork options for compilation are disabled because JAVA_HOME is not set")
+        }
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
@@ -175,10 +186,6 @@ subprojects {
 }
 
 project(':agrona') {
-    if (null == System.getenv("JAVA_HOME")) {
-        throw new GradleException('JAVA_HOME environment variable required')
-    }
-
     dependencies {
         testImplementation 'com.google.guava:guava-testlib:27.0.1-jre'
     }
