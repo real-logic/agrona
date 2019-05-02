@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent;
 
-import static org.agrona.UnsafeAccess.UNSAFE;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * Pad out a cacheline to the left of a value to prevent false sharing.
@@ -41,45 +41,27 @@ class CachedEpochClockValue extends CachedEpochClockPadding
  */
 public class CachedEpochClock extends CachedEpochClockValue implements EpochClock
 {
-    private static final long VALUE_OFFSET;
-
-    static
-    {
-        try
-        {
-            VALUE_OFFSET = UNSAFE.objectFieldOffset(CachedEpochClockValue.class.getDeclaredField("timeMs"));
-        }
-        catch (final Exception ex)
-        {
-            throw new RuntimeException(ex);
-        }
-    }
+    private static final AtomicLongFieldUpdater<CachedEpochClockValue> FIELD_UPDATER =
+        AtomicLongFieldUpdater.newUpdater(CachedEpochClockValue.class, "timeMs");
 
     @SuppressWarnings("unused")
     protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
 
+    /**
+     * {@inheritDoc}
+     */
     public long time()
     {
         return timeMs;
     }
 
     /**
-     * Update the value of the timestamp in with ordered semantics.
+     * Update the value of the timestamp in with release ordered semantics.
      *
      * @param timeMs value to update the timestamp.
      */
     public void update(final long timeMs)
     {
-        UNSAFE.putOrderedLong(this, VALUE_OFFSET, timeMs);
-    }
-
-    /**
-     * Update the value of the timestamp in with weak ordering semantics.
-     *
-     * @param timeMs value to update the timestamp.
-     */
-    public void updateWeak(final long timeMs)
-    {
-        UNSAFE.putLong(this, VALUE_OFFSET, timeMs);
+        FIELD_UPDATER.lazySet(this, timeMs);
     }
 }
