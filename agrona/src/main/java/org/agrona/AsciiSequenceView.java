@@ -51,6 +51,26 @@ public class AsciiSequenceView implements CharSequence
     }
 
     /**
+     * Gets the underlying buffer which this is a view over.
+     *
+     * @return the underlying buffer which this is a view over.
+     */
+    public DirectBuffer buffer()
+    {
+        return buffer;
+    }
+
+    /**
+     * Gets the offset into the underlying buffer.
+     *
+     * @return the offset into the underlying buffer.
+     */
+    public int offset()
+    {
+        return offset;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public char charAt(final int index)
