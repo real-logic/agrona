@@ -17,7 +17,7 @@ package org.agrona;
 
 import static org.agrona.SystemUtil.parseDuration;
 import static org.agrona.SystemUtil.parseSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -83,8 +83,8 @@ public class SystemUtilTest
     @Test
     public void shouldMergeMultiplePropFilesTogether()
     {
-        assertThat(System.getProperty("TestFileA.foo"), isEmptyOrNullString());
-        assertThat(System.getProperty("TestFileB.foo"), isEmptyOrNullString());
+        assertThat(System.getProperty("TestFileA.foo"), is(emptyOrNullString()));
+        assertThat(System.getProperty("TestFileB.foo"), is(emptyOrNullString()));
 
         SystemUtil.loadPropertiesFiles(new String[]{ "TestFileA.properties", "TestFileB.properties" });
 

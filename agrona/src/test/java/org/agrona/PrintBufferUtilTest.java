@@ -17,7 +17,7 @@ package org.agrona;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 public class PrintBufferUtilTest
