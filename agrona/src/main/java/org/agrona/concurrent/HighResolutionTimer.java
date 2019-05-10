@@ -16,7 +16,7 @@
 package org.agrona.concurrent;
 
 /**
- * Control the supporting of high resolution timers by a bit of hackery.
+ * Control the supporting of high resolution timers on Windows by a bit of hackery.
  */
 public class HighResolutionTimer
 {
@@ -37,7 +37,7 @@ public class HighResolutionTimer
      */
     public static synchronized void enable()
     {
-        if (null != thread)
+        if (null == thread)
         {
             thread = new Thread(HighResolutionTimer::run);
             thread.setDaemon(true);
