@@ -18,7 +18,7 @@ package org.agrona;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class AsciiEncodingTest
 {
@@ -40,5 +40,17 @@ public class AsciiEncodingTest
         assertThat(AsciiEncoding.parseLongAscii("7", 0, 1), is(7L));
         assertThat(AsciiEncoding.parseLongAscii("-7", 0, 2), is(-7L));
         assertThat(AsciiEncoding.parseLongAscii("3333", 1, 2), is(33L));
+    }
+
+    @Test(expected = AsciiNumberFormatException.class)
+    public void shouldThrowExceptionWhenDecodingCharNonAsciiValue()
+    {
+        AsciiEncoding.getDigit(0, 'a');
+    }
+
+    @Test(expected = AsciiNumberFormatException.class)
+    public void shouldThrowExceptionWhenDecodingByteNonAsciiValue()
+    {
+        AsciiEncoding.getDigit(0, (byte)'a');
     }
 }
