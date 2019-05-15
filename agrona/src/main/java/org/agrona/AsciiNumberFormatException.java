@@ -2,8 +2,8 @@ package org.agrona;
 
 public class AsciiNumberFormatException extends NumberFormatException
 {
-    public AsciiNumberFormatException(final String s)
+    public AsciiNumberFormatException(final String message)
     {
-        super(s);
+        super(message);
     }
 }
