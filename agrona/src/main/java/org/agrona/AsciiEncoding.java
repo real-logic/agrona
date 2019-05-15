@@ -80,13 +80,13 @@ public class AsciiEncoding
      * @param index within the string the value is encoded.
      * @param value of the encoding in ASCII.
      * @return the digit value of the encoded ASCII.
-     * @throws NumberFormatException if the value is not a digit.
+     * @throws AsciiNumberFormatException if the value is not a digit.
      */
     public static int getDigit(final int index, final byte value)
     {
         if (value < 0x30 || value > 0x39)
         {
-            throw new NumberFormatException("'" + ((char)value) + "' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("'" + ((char)value) + "' is not a valid digit @ " + index);
         }
 
         return value - 0x30;
@@ -98,13 +98,13 @@ public class AsciiEncoding
      * @param index within the string the value is encoded.
      * @param value of the encoding in ASCII.
      * @return the digit value of the encoded ASCII.
-     * @throws NumberFormatException if the value is not a digit.
+     * @throws AsciiNumberFormatException if the value is not a digit.
      */
     public static int getDigit(final int index, final char value)
     {
         if (value < 0x30 || value > 0x39)
         {
-            throw new NumberFormatException("'" + value + "' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("'" + value + "' is not a valid digit @ " + index);
         }
 
         return value - 0x30;
