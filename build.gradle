@@ -23,7 +23,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
-    id "io.freefair.javadoc-links" version "3.5.4" apply false
+    id "io.freefair.javadoc-links" version "3.6.1" apply false
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
