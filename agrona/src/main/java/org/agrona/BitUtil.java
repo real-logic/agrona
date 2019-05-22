@@ -106,13 +106,13 @@ public class BitUtil
 
     private static final int LAST_DIGIT_MASK = 0b1;
 
-
     /**
      * Fast method of finding the next power of 2 greater than or equal to the supplied value.
      * <p>
      * If the value is &lt;= 0 then 1 will be returned.
      * <p>
-     * This method is not suitable for {@link Integer#MIN_VALUE} or numbers greater than 2^30.
+     * This method is not suitable for {@link Integer#MIN_VALUE} or numbers greater than 2^30. When provided
+     * then {@link Integer#MIN_VALUE} will be returned.
      *
      * @param value from which to search for next power of 2
      * @return The next power of 2 or the value itself if it is a power of 2
