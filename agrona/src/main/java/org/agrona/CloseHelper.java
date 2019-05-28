@@ -75,7 +75,7 @@ public class CloseHelper
             return;
         }
 
-        final List<Exception> exceptions = new ArrayList<>();
+        List<Exception> exceptions = null;
         for (final AutoCloseable closeable : closeables)
         {
             if (closeable != null)
@@ -86,12 +86,16 @@ public class CloseHelper
                 }
                 catch (final Exception ex)
                 {
+                    if (exceptions == null)
+                    {
+                        exceptions = new ArrayList<>();
+                    }
                     exceptions.add(ex);
                 }
             }
         }
 
-        if (!exceptions.isEmpty())
+        if (exceptions != null)
         {
             final Exception exception = exceptions.remove(0);
             exceptions.forEach(exception::addSuppressed);
