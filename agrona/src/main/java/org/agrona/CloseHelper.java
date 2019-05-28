@@ -15,6 +15,10 @@
  */
 package org.agrona;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class CloseHelper
 {
     /**
@@ -55,5 +59,59 @@ public class CloseHelper
         {
             LangUtil.rethrowUnchecked(e);
         }
+    }
+
+    /**
+     * Close all closeables in closeables. If any of them throw then throw that exception.
+     * If multiple closeables throw an exception when being closed, then throw an exception that contains
+     * all of them as suppressed exceptions.
+     *
+     * @param closeables to be closed.
+     */
+    public static void closeAll(final List<? extends AutoCloseable> closeables)
+    {
+        if (closeables == null)
+        {
+            return;
+        }
+
+        List<Exception> exceptions = null;
+        for (final AutoCloseable closeable : closeables)
+        {
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ex)
+                {
+                    if (exceptions == null)
+                    {
+                        exceptions = new ArrayList<>();
+                    }
+                    exceptions.add(ex);
+                }
+            }
+        }
+
+        if (exceptions != null)
+        {
+            final Exception exception = exceptions.remove(0);
+            exceptions.forEach(exception::addSuppressed);
+            LangUtil.rethrowUnchecked(exception);
+        }
+    }
+
+    /**
+     * Close all closeables in closeables. If any of them throw then throw that exception.
+     * If multiple closeables throw an exception when being closed, then throw an exception that contains
+     * all of them as suppressed exceptions.
+     *
+     * @param closeables to be closed.
+     */
+    public static void closeAll(final AutoCloseable... closeables)
+    {
+        closeAll(Arrays.asList(closeables));
     }
 }
