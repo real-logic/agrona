@@ -41,6 +41,44 @@ public class CloseHelper
     }
 
     /**
+     * Close all closeables in closeables. All exceptions and nulls will be ignored.
+     *
+     * @param closeables to be closed.
+     */
+    public static void quietCloseAll(final List<? extends AutoCloseable> closeables)
+    {
+        if (closeables == null)
+        {
+            return;
+        }
+
+        for (int i = 0, size = closeables.size(); i < size; i++)
+        {
+            final AutoCloseable closeable = closeables.get(i);
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ignore)
+                {
+                }
+            }
+        }
+    }
+
+    /**
+     * Close all closeables in closeables. All exceptions and nulls will be ignored.
+     *
+     * @param closeables to be closed.
+     */
+    public static void quietCloseAll(final AutoCloseable... closeables)
+    {
+        quietCloseAll(Arrays.asList(closeables));
+    }
+
+    /**
      * Close a {@link java.lang.AutoCloseable} dealing with nulls and exceptions.
      * This version re-throws exceptions as runtime exceptions.
      *
@@ -76,8 +114,9 @@ public class CloseHelper
         }
 
         List<Exception> exceptions = null;
-        for (final AutoCloseable closeable : closeables)
+        for (int i = 0, size = closeables.size(); i < size; i++)
         {
+            final AutoCloseable closeable = closeables.get(i);
             if (closeable != null)
             {
                 try
