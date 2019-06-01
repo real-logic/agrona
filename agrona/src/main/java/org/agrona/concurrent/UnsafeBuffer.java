@@ -1151,7 +1151,8 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
             {
-                appendable.append((char)UNSAFE.getByte(byteArray, addressOffset + i));
+                final char c = (char)UNSAFE.getByte(byteArray, addressOffset + i);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)
@@ -1242,7 +1243,8 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             for (int i = index, limit = index + length; i < limit; i++)
             {
-                appendable.append((char)UNSAFE.getByte(byteArray, addressOffset + i));
+                final char c = (char)UNSAFE.getByte(byteArray, addressOffset + i);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)

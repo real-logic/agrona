@@ -604,7 +604,8 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         {
             for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
             {
-                appendable.append((char)UNSAFE.getByte(null, address + i));
+                final char c = (char)UNSAFE.getByte(null, address + i);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)
@@ -683,7 +684,8 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         {
             for (int i = index, limit = index + length; i < limit; i++)
             {
-                appendable.append((char)UNSAFE.getByte(null, address + i));
+                final char c = (char)UNSAFE.getByte(null, address + i);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)

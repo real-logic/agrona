@@ -577,7 +577,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
             {
-                appendable.append((char)byteArray[i]);
+                final char c = (char)(byteArray[i]);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)
@@ -652,7 +653,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             for (int i = index, limit = index + length; i < limit; i++)
             {
-                appendable.append((char)byteArray[i]);
+                final char c = (char)(byteArray[i]);
+                appendable.append(c > 127 ? '?' : c);
             }
         }
         catch (final IOException ex)

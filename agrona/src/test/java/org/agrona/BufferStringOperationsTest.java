@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(Theories.class)
 public class BufferStringOperationsTest
 {
-    private static final int BUFFER_CAPACITY = 1024;
+    private static final int BUFFER_CAPACITY = 256;
     private static final int INDEX = 8;
 
     @DataPoint
@@ -183,17 +183,33 @@ public class BufferStringOperationsTest
     }
 
     @Theory
-    public void shouldGetAsciiToAppendableWithoutLength(final MutableDirectBuffer buffer)
+    public void shouldAppendWithInvalidChar(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
         buffer.putStringAscii(INDEX, value);
+        buffer.putByte(INDEX + SIZE_OF_INT + 5, (byte)163);
+
+        final Appendable appendable = new StringBuilder();
+        final int encodedLength = buffer.getStringAscii(INDEX, appendable);
+
+        assertThat(encodedLength, is(value.length()));
+        assertThat(appendable.toString(), is("Hello?World"));
+    }
+
+    @Theory
+    public void shouldAppendWithInvalidCharWithoutLength(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World";
+
+        buffer.putStringAscii(INDEX, value);
+        buffer.putByte(INDEX + SIZE_OF_INT + 3, (byte)163);
 
         final int length = 5;
         final Appendable appendable = new StringBuilder();
         final int encodedLength = buffer.getStringWithoutLengthAscii(INDEX + SIZE_OF_INT, length, appendable);
 
         assertThat(encodedLength, is(length));
-        assertThat(appendable.toString(), is(value.substring(0, length)));
+        assertThat(appendable.toString(), is("Hel?o"));
     }
 }
