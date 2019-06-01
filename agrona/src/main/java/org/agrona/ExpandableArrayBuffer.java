@@ -15,6 +15,7 @@
  */
 package org.agrona;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -38,12 +39,11 @@ import static org.agrona.AsciiEncoding.*;
  */
 public class ExpandableArrayBuffer implements MutableDirectBuffer
 {
-
     private static final boolean SHOULD_PRINT_ARRAY_CONTENT =
         !Boolean.getBoolean(DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME);
 
     /**
-     * Maximum length to which the underlying buffer can grow. Some JVMs set bits in the last few bytes.
+     * Maximum length to which the underlying buffer can grow. Some JVMs store state in the last few bytes.
      */
     public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8;
 
@@ -524,6 +524,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        final int length = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
         boundsCheck0(index, SIZE_OF_INT);
@@ -539,12 +548,44 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        int bits = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        final int length = bits;
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final int length)
     {
         final byte[] stringInBytes = new byte[length];
         System.arraycopy(byteArray, index + SIZE_OF_INT, stringInBytes, 0, length);
 
         return new String(stringInBytes, US_ASCII);
+    }
+
+    public int getStringAscii(final int index, final int length, final Appendable appendable)
+    {
+        try
+        {
+            for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
+            {
+                appendable.append((char)byteArray[i]);
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
     }
 
     public int putStringAscii(final int index, final String value)
@@ -605,6 +646,23 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         return new String(stringInBytes, US_ASCII);
     }
 
+    public int getStringWithoutLengthAscii(final int index, final int length, final Appendable appendable)
+    {
+        try
+        {
+            for (int i = index, limit = index + length; i < limit; i++)
+            {
+                appendable.append((char)byteArray[i]);
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
+    }
+
     public int putStringWithoutLengthAscii(final int index, final String value)
     {
         final int length = value != null ? value.length() : 0;
@@ -644,8 +702,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         return len;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     public String getStringUtf8(final int index)
     {
@@ -742,67 +798,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         System.arraycopy(bytes, 0, byteArray, index, bytes.length);
 
         return bytes.length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void ensureCapacity(final int index, final int length)
-    {
-        if (index < 0)
-        {
-            throw new IndexOutOfBoundsException("index cannot be negative: index=" + index);
-        }
-
-        final long resultingPosition = index + (long)length;
-        final int currentArrayLength = byteArray.length;
-        if (resultingPosition > currentArrayLength)
-        {
-            if (currentArrayLength >= MAX_ARRAY_LENGTH)
-            {
-                throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
-            }
-
-            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, (int)resultingPosition));
-        }
-    }
-
-    private int calculateExpansion(final int currentLength, final int requiredLength)
-    {
-        long value = currentLength;
-
-        while (value < requiredLength)
-        {
-            value = value + (value >> 1);
-
-            if (value > Integer.MAX_VALUE)
-            {
-                value = MAX_ARRAY_LENGTH;
-            }
-        }
-
-        return (int)value;
-    }
-
-    private void boundsCheck0(final int index, final int length)
-    {
-        final int currentArrayLength = byteArray.length;
-        final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > currentArrayLength)
-        {
-            throw new IndexOutOfBoundsException(
-                "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
-        }
-    }
-
-    public void boundsCheck(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-    }
-
-    public int wrapAdjustment()
-    {
-        return 0;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1053,6 +1048,67 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         }
 
         return length;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    private void ensureCapacity(final int index, final int length)
+    {
+        if (index < 0)
+        {
+            throw new IndexOutOfBoundsException("index cannot be negative: index=" + index);
+        }
+
+        final long resultingPosition = index + (long)length;
+        final int currentArrayLength = byteArray.length;
+        if (resultingPosition > currentArrayLength)
+        {
+            if (currentArrayLength >= MAX_ARRAY_LENGTH)
+            {
+                throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
+            }
+
+            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, (int)resultingPosition));
+        }
+    }
+
+    private int calculateExpansion(final int currentLength, final int requiredLength)
+    {
+        long value = currentLength;
+
+        while (value < requiredLength)
+        {
+            value = value + (value >> 1);
+
+            if (value > Integer.MAX_VALUE)
+            {
+                value = MAX_ARRAY_LENGTH;
+            }
+        }
+
+        return (int)value;
+    }
+
+    private void boundsCheck0(final int index, final int length)
+    {
+        final int currentArrayLength = byteArray.length;
+        final long resultingPosition = index + (long)length;
+        if (index < 0 || resultingPosition > currentArrayLength)
+        {
+            throw new IndexOutOfBoundsException(
+                "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
+        }
+    }
+
+    public void boundsCheck(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+    }
+
+    public int wrapAdjustment()
+    {
+        return 0;
     }
 
     ///////////////////////////////////////////////////////////////////////////

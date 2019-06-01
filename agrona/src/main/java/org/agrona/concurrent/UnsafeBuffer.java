@@ -15,11 +15,9 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.AsciiEncoding;
-import org.agrona.BufferUtil;
-import org.agrona.DirectBuffer;
-import org.agrona.MutableDirectBuffer;
+import org.agrona.*;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -1087,6 +1085,15 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1105,6 +1112,21 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        final int length = bits;
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1116,6 +1138,28 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(byteArray, addressOffset + index + SIZE_OF_INT, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
+    }
+
+    public int getStringAscii(final int index, final int length, final Appendable appendable)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length + SIZE_OF_INT);
+        }
+
+        try
+        {
+            for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
+            {
+                appendable.append((char)UNSAFE.getByte(byteArray, addressOffset + i));
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
     }
 
     public int putStringAscii(final int index, final String value)
@@ -1185,6 +1229,28 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
+    }
+
+    public int getStringWithoutLengthAscii(final int index, final int length, final Appendable appendable)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
+
+        try
+        {
+            for (int i = index, limit = index + length; i < limit; i++)
+            {
+                appendable.append((char)UNSAFE.getByte(byteArray, addressOffset + i));
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
     }
 
     public int putStringWithoutLengthAscii(final int index, final String value)
@@ -1356,45 +1422,6 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
 
         return bytes.length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void boundsCheck(final int index)
-    {
-        if (index < 0 || index >= capacity)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
-        }
-    }
-
-    private void boundsCheck0(final int index, final int length)
-    {
-        final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > capacity)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
-        }
-    }
-
-    public void boundsCheck(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-    }
-
-    private void lengthCheck(final int length)
-    {
-        if (length < 0)
-        {
-            throw new IllegalArgumentException("Length " + length + " should not be < 0");
-        }
-    }
-
-    public int wrapAdjustment()
-    {
-        final long offset = byteArray != null ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
-
-        return (int)(addressOffset - offset);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1667,6 +1694,45 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         return length;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    private void boundsCheck(final int index)
+    {
+        if (index < 0 || index >= capacity)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
+        }
+    }
+
+    private void boundsCheck0(final int index, final int length)
+    {
+        final long resultingPosition = index + (long)length;
+        if (index < 0 || resultingPosition > capacity)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
+        }
+    }
+
+    public void boundsCheck(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+    }
+
+    private void lengthCheck(final int length)
+    {
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("Length " + length + " should not be < 0");
+        }
+    }
+
+    public int wrapAdjustment()
+    {
+        final long offset = byteArray != null ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
+
+        return (int)(addressOffset - offset);
     }
 
     ///////////////////////////////////////////////////////////////////////////

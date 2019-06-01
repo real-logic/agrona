@@ -31,23 +31,20 @@ import static org.junit.Assert.assertThat;
 @RunWith(Theories.class)
 public class BufferStringOperationsTest
 {
-    private static final int BUFFER_CAPACITY = 4096;
+    private static final int BUFFER_CAPACITY = 1024;
     private static final int INDEX = 8;
 
     @DataPoint
-    public static final MutableDirectBuffer ARRAY_BUFFER = new UnsafeBuffer(
-        new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY);
+    public static final MutableDirectBuffer ARRAY_BUFFER = new UnsafeBuffer(new byte[BUFFER_CAPACITY]);
 
     @DataPoint
-    public static final MutableDirectBuffer DIRECT_BYTE_BUFFER = new UnsafeBuffer(
-        ByteBuffer.allocateDirect(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
+    public static final MutableDirectBuffer BYTE_BUFFER = new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
 
     @DataPoint
     public static final MutableDirectBuffer EXPANDABLE_ARRAY_BUFFER = new ExpandableArrayBuffer(BUFFER_CAPACITY);
 
     @DataPoint
-    public static final MutableDirectBuffer EXPANDABLE_DIRECT_BYTE_BUFFER =
-        new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
+    public static final MutableDirectBuffer EXPANDABLE_BYTE_BUFFER = new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
 
     @Theory
     public void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
@@ -112,7 +109,6 @@ public class BufferStringOperationsTest
         assertThat(buffer.getStringWithoutLengthAscii(INDEX, value.length()), is(value));
     }
 
-
     @Theory
     public void shouldRoundTripUtf8StringNativeLength(final MutableDirectBuffer buffer)
     {
@@ -141,5 +137,63 @@ public class BufferStringOperationsTest
         final int encodedLength = buffer.putStringWithoutLengthUtf8(INDEX, value);
 
         assertThat(buffer.getStringWithoutLengthUtf8(INDEX, encodedLength), is(value));
+    }
+
+    @Theory
+    public void shouldGetAsciiToAppendable(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World";
+
+        buffer.putStringAscii(INDEX, value);
+
+        final Appendable appendable = new StringBuilder();
+        final int encodedLength = buffer.getStringAscii(INDEX, appendable);
+
+        assertThat(encodedLength, is(value.length()));
+        assertThat(appendable.toString(), is(value));
+    }
+
+    @Theory
+    public void shouldGetAsciiWithByteOrderToAppendable(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World";
+
+        buffer.putStringAscii(INDEX, value, ByteOrder.BIG_ENDIAN);
+
+        final Appendable appendable = new StringBuilder();
+        final int encodedLength = buffer.getStringAscii(INDEX, appendable, ByteOrder.BIG_ENDIAN);
+
+        assertThat(encodedLength, is(value.length()));
+        assertThat(appendable.toString(), is(value));
+    }
+
+    @Theory
+    public void shouldGetAsciiToAppendableForLength(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World";
+
+        buffer.putStringAscii(INDEX, value);
+
+        final int length = 5;
+        final Appendable appendable = new StringBuilder();
+        final int encodedLength = buffer.getStringAscii(INDEX, length, appendable);
+
+        assertThat(encodedLength, is(length));
+        assertThat(appendable.toString(), is(value.substring(0, length)));
+    }
+
+    @Theory
+    public void shouldGetAsciiToAppendableWithoutLength(final MutableDirectBuffer buffer)
+    {
+        final String value = "Hello World";
+
+        buffer.putStringAscii(INDEX, value);
+
+        final int length = 5;
+        final Appendable appendable = new StringBuilder();
+        final int encodedLength = buffer.getStringWithoutLengthAscii(INDEX + SIZE_OF_INT, length, appendable);
+
+        assertThat(encodedLength, is(length));
+        assertThat(appendable.toString(), is(value.substring(0, length)));
     }
 }

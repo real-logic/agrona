@@ -344,6 +344,15 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     String getStringAscii(int index);
 
     /**
+     * Get a String from bytes encoded in ASCII format that is length prefixed and append to an {@link Appendable}.
+     *
+     * @param index      at which the String begins.
+     * @param appendable to append the chars to.
+     * @return the number of bytes copied.
+     */
+    int getStringAscii(int index, Appendable appendable);
+
+    /**
      * Get a String from bytes encoded in ASCII format that is length prefixed.
      *
      * @param index     at which the String begins.
@@ -353,13 +362,34 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     String getStringAscii(int index, ByteOrder byteOrder);
 
     /**
-     * Get part of String from bytes encoded in ASCII format that is length prefixed.
+     * Get a String from bytes encoded in ASCII format that is length prefixed and append to an {@link Appendable}.
+     *
+     * @param index      at which the String begins.
+     * @param appendable to append the chars to.
+     * @param byteOrder  for the length at the beginning of the String.
+     * @return the number of bytes copied.
+     */
+    int getStringAscii(int index, Appendable appendable, ByteOrder byteOrder);
+
+    /**
+     * Get part of a String from bytes encoded in ASCII format that is length prefixed.
      *
      * @param index  at which the String begins.
      * @param length of the String in bytes to decode.
      * @return the String as represented by the ASCII encoded bytes.
      */
     String getStringAscii(int index, int length);
+
+    /**
+     * Get part of a String from bytes encoded in ASCII format that is length prefixed and append to an
+     * {@link Appendable}.
+     *
+     * @param index      at which the String begins.
+     * @param length     of the String in bytes to decode.
+     * @param appendable to append the chars to.
+     * @return the number of bytes copied.
+     */
+    int getStringAscii(int index, int length, Appendable appendable);
 
     /**
      * Get an encoded ASCII String from the buffer that does not have a length prefix.
@@ -369,6 +399,17 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * @return the String as represented by the Ascii encoded bytes.
      */
     String getStringWithoutLengthAscii(int index, int length);
+
+    /**
+     * Get an encoded ASCII String from the buffer that does not have a length prefix and append to an
+     * {@link Appendable}.
+     *
+     * @param index      at which the String begins.
+     * @param length     of the String in bytes to decode.
+     * @param appendable to append the chars to.
+     * @return the number of bytes copied.
+     */
+    int getStringWithoutLengthAscii(int index, int length, Appendable appendable);
 
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.

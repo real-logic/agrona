@@ -15,6 +15,7 @@
  */
 package org.agrona;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -238,259 +239,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         boundsCheck0(index, SIZE_OF_INT);
 
         return UNSAFE.getInt(null, address + index);
-    }
-
-    public int parseNaturalIntAscii(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-
-        final int end = index + length;
-        int tally = 0;
-        for (int i = index; i < end; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
-        }
-
-        return tally;
-    }
-
-    public long parseNaturalLongAscii(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-
-        final int end = index + length;
-        long tally = 0L;
-        for (int i = index; i < end; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
-        }
-
-        return tally;
-    }
-
-    public int parseIntAscii(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-
-        final int endExclusive = index + length;
-        final int first = getByte(index);
-        int i = index;
-        if (first == MINUS_SIGN)
-        {
-            i++;
-        }
-
-        int tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
-    }
-
-    public long parseLongAscii(final int index, final int length)
-    {
-        boundsCheck0(index, length);
-
-        final int endExclusive = index + length;
-        final int first = getByte(index);
-        int i = index;
-        if (first == MINUS_SIGN)
-        {
-            i++;
-        }
-
-        long tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
-    }
-
-    public void putInt(final int index, final int value)
-    {
-        ensureCapacity(index, SIZE_OF_INT);
-
-        UNSAFE.putInt(null, address + index, value);
-    }
-
-    public int putIntAscii(final int index, final int value)
-    {
-        if (value == 0)
-        {
-            putByte(index, ZERO);
-            return 1;
-        }
-
-        if (value == Integer.MIN_VALUE)
-        {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
-        }
-
-        int start = index;
-        int quotient = value;
-        int length = 1;
-        if (value < 0)
-        {
-            putByte(index, MINUS_SIGN);
-            start++;
-            length++;
-            quotient = -quotient;
-        }
-
-        int i = endOffset(quotient);
-        length += i;
-
-        ensureCapacity(index, length);
-
-        while (i >= 0)
-        {
-            final int remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + start, (byte)(ZERO + remainder));
-            i--;
-        }
-
-        return length;
-    }
-
-    public int putNaturalIntAscii(final int index, final int value)
-    {
-        if (value == 0)
-        {
-            putByte(index, ZERO);
-            return 1;
-        }
-
-        int i = endOffset(value);
-        final int length = i + 1;
-
-        ensureCapacity(index, length);
-
-        int quotient = value;
-        while (i >= 0)
-        {
-            final int remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + index, (byte)(ZERO + remainder));
-
-            i--;
-        }
-
-        return length;
-    }
-
-    public void putNaturalPaddedIntAscii(final int offset, final int length, final int value)
-    {
-        final int end = offset + length;
-        int remainder = value;
-        for (int index = end - 1; index >= offset; index--)
-        {
-            final int digit = remainder % 10;
-            remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
-        }
-
-        if (remainder != 0)
-        {
-            throw new NumberFormatException(String.format("Cannot write %d in %d bytes", value, length));
-        }
-    }
-
-    public int putNaturalIntAsciiFromEnd(final int value, final int endExclusive)
-    {
-        int remainder = value;
-        int index = endExclusive;
-        while (remainder > 0)
-        {
-            index--;
-            final int digit = remainder % 10;
-            remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
-        }
-
-        return index;
-    }
-
-    public int putNaturalLongAscii(final int index, final long value)
-    {
-        if (value == 0L)
-        {
-            putByte(index, ZERO);
-            return 1;
-        }
-
-        int i = endOffset(value);
-        final int length = i + 1;
-
-        ensureCapacity(index, length);
-
-        long quotient = value;
-        while (i >= 0)
-        {
-            final long remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + index, (byte)(ZERO + remainder));
-
-            i--;
-        }
-
-        return length;
-    }
-
-    public int putLongAscii(final int index, final long value)
-    {
-        if (value == 0)
-        {
-            putByte(index, ZERO);
-            return 1;
-        }
-
-        if (value == Long.MIN_VALUE)
-        {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
-        }
-
-        int start = index;
-        long quotient = value;
-        int length = 1;
-        if (value < 0)
-        {
-            putByte(index, MINUS_SIGN);
-            start++;
-            length++;
-            quotient = -quotient;
-        }
-
-        int i = endOffset(quotient);
-        length += i;
-
-        ensureCapacity(index, length);
-
-        while (i >= 0)
-        {
-            final long remainder = quotient % 10L;
-            quotient = quotient / 10L;
-            byteBuffer.put(i + start, (byte)(ZERO + remainder));
-            i--;
-        }
-
-        return length;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -799,6 +547,15 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        final int length = UNSAFE.getInt(null, address + index);
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
         boundsCheck0(index, SIZE_OF_INT);
@@ -814,6 +571,21 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return getStringAscii(index, length);
     }
 
+    public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
+    {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        int bits = UNSAFE.getInt(null, address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        final int length = bits;
+
+        return getStringAscii(index, length, appendable);
+    }
+
     public String getStringAscii(final int index, final int length)
     {
         boundsCheck0(index + SIZE_OF_INT, length);
@@ -822,6 +594,25 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.copyMemory(null, address + index + SIZE_OF_INT, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
+    }
+
+    public int getStringAscii(final int index, final int length, final Appendable appendable)
+    {
+        boundsCheck0(index, length + SIZE_OF_INT);
+
+        try
+        {
+            for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
+            {
+                appendable.append((char)UNSAFE.getByte(null, address + i));
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
     }
 
     public int putStringAscii(final int index, final String value)
@@ -882,6 +673,25 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.copyMemory(null, address + index, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
+    }
+
+    public int getStringWithoutLengthAscii(final int index, final int length, final Appendable appendable)
+    {
+        boundsCheck0(index, length);
+
+        try
+        {
+            for (int i = index, limit = index + length; i < limit; i++)
+            {
+                appendable.append((char)UNSAFE.getByte(null, address + i));
+            }
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+        }
+
+        return length;
     }
 
     public int putStringWithoutLengthAscii(final int index, final String value)
@@ -1026,6 +836,261 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, address + index, bytes.length);
 
         return bytes.length;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public int parseNaturalIntAscii(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+
+        final int end = index + length;
+        int tally = 0;
+        for (int i = index; i < end; i++)
+        {
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+        }
+
+        return tally;
+    }
+
+    public long parseNaturalLongAscii(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+
+        final int end = index + length;
+        long tally = 0L;
+        for (int i = index; i < end; i++)
+        {
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+        }
+
+        return tally;
+    }
+
+    public int parseIntAscii(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+
+        final int endExclusive = index + length;
+        final int first = getByte(index);
+        int i = index;
+        if (first == MINUS_SIGN)
+        {
+            i++;
+        }
+
+        int tally = 0;
+        for (; i < endExclusive; i++)
+        {
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+        }
+
+        if (first == MINUS_SIGN)
+        {
+            tally = -tally;
+        }
+
+        return tally;
+    }
+
+    public long parseLongAscii(final int index, final int length)
+    {
+        boundsCheck0(index, length);
+
+        final int endExclusive = index + length;
+        final int first = getByte(index);
+        int i = index;
+        if (first == MINUS_SIGN)
+        {
+            i++;
+        }
+
+        long tally = 0;
+        for (; i < endExclusive; i++)
+        {
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+        }
+
+        if (first == MINUS_SIGN)
+        {
+            tally = -tally;
+        }
+
+        return tally;
+    }
+
+    public void putInt(final int index, final int value)
+    {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UNSAFE.putInt(null, address + index, value);
+    }
+
+    public int putIntAscii(final int index, final int value)
+    {
+        if (value == 0)
+        {
+            putByte(index, ZERO);
+            return 1;
+        }
+
+        if (value == Integer.MIN_VALUE)
+        {
+            putBytes(index, MIN_INTEGER_VALUE);
+            return MIN_INTEGER_VALUE.length;
+        }
+
+        int start = index;
+        int quotient = value;
+        int length = 1;
+        if (value < 0)
+        {
+            putByte(index, MINUS_SIGN);
+            start++;
+            length++;
+            quotient = -quotient;
+        }
+
+        int i = endOffset(quotient);
+        length += i;
+
+        ensureCapacity(index, length);
+
+        while (i >= 0)
+        {
+            final int remainder = quotient % 10;
+            quotient = quotient / 10;
+            byteBuffer.put(i + start, (byte)(ZERO + remainder));
+            i--;
+        }
+
+        return length;
+    }
+
+    public int putNaturalIntAscii(final int index, final int value)
+    {
+        if (value == 0)
+        {
+            putByte(index, ZERO);
+            return 1;
+        }
+
+        int i = endOffset(value);
+        final int length = i + 1;
+
+        ensureCapacity(index, length);
+
+        int quotient = value;
+        while (i >= 0)
+        {
+            final int remainder = quotient % 10;
+            quotient = quotient / 10;
+            byteBuffer.put(i + index, (byte)(ZERO + remainder));
+
+            i--;
+        }
+
+        return length;
+    }
+
+    public void putNaturalPaddedIntAscii(final int offset, final int length, final int value)
+    {
+        final int end = offset + length;
+        int remainder = value;
+        for (int index = end - 1; index >= offset; index--)
+        {
+            final int digit = remainder % 10;
+            remainder = remainder / 10;
+            putByte(index, (byte)(ZERO + digit));
+        }
+
+        if (remainder != 0)
+        {
+            throw new NumberFormatException(String.format("Cannot write %d in %d bytes", value, length));
+        }
+    }
+
+    public int putNaturalIntAsciiFromEnd(final int value, final int endExclusive)
+    {
+        int remainder = value;
+        int index = endExclusive;
+        while (remainder > 0)
+        {
+            index--;
+            final int digit = remainder % 10;
+            remainder = remainder / 10;
+            putByte(index, (byte)(ZERO + digit));
+        }
+
+        return index;
+    }
+
+    public int putNaturalLongAscii(final int index, final long value)
+    {
+        if (value == 0L)
+        {
+            putByte(index, ZERO);
+            return 1;
+        }
+
+        int i = endOffset(value);
+        final int length = i + 1;
+
+        ensureCapacity(index, length);
+
+        long quotient = value;
+        while (i >= 0)
+        {
+            final long remainder = quotient % 10;
+            quotient = quotient / 10;
+            byteBuffer.put(i + index, (byte)(ZERO + remainder));
+
+            i--;
+        }
+
+        return length;
+    }
+
+    public int putLongAscii(final int index, final long value)
+    {
+        if (value == 0)
+        {
+            putByte(index, ZERO);
+            return 1;
+        }
+
+        if (value == Long.MIN_VALUE)
+        {
+            putBytes(index, MIN_LONG_VALUE);
+            return MIN_LONG_VALUE.length;
+        }
+
+        int start = index;
+        long quotient = value;
+        int length = 1;
+        if (value < 0)
+        {
+            putByte(index, MINUS_SIGN);
+            start++;
+            length++;
+            quotient = -quotient;
+        }
+
+        int i = endOffset(quotient);
+        length += i;
+
+        ensureCapacity(index, length);
+
+        while (i >= 0)
+        {
+            final long remainder = quotient % 10L;
+            quotient = quotient / 10L;
+            byteBuffer.put(i + start, (byte)(ZERO + remainder));
+            i--;
+        }
+
+        return length;
     }
 
     ///////////////////////////////////////////////////////////////////////////
