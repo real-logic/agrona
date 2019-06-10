@@ -1711,7 +1711,7 @@ public class UnsafeBuffer implements AtomicBuffer
     private void boundsCheck0(final int index, final int length)
     {
         final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > capacity)
+        if (index < 0 || length < 0 || resultingPosition > capacity)
         {
             throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
         }
@@ -1726,7 +1726,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (length < 0)
         {
-            throw new IllegalArgumentException("Length " + length + " should not be < 0");
+            throw new IllegalArgumentException("negative length: " + length);
         }
     }
 

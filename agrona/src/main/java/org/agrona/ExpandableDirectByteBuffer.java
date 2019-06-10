@@ -1099,9 +1099,9 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
     private void ensureCapacity(final int index, final int length)
     {
-        if (index < 0)
+        if (index < 0 || length < 0)
         {
-            throw new IndexOutOfBoundsException("index cannot be negative: index=" + index);
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
         }
 
         final long resultingPosition = index + (long)length;
@@ -1146,7 +1146,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         final int currentCapacity = capacity;
         final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > currentCapacity)
+        if (index < 0 || length < 0 || resultingPosition > currentCapacity)
         {
             throw new IndexOutOfBoundsException(
                 "index=" + index + " length=" + length + " capacity=" + currentCapacity);
@@ -1157,7 +1157,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         if (length < 0)
         {
-            throw new IllegalArgumentException("Length " + length + " should not be < 0");
+            throw new IllegalArgumentException("negative length: " + length);
         }
     }
 

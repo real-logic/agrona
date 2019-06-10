@@ -1056,9 +1056,9 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
     private void ensureCapacity(final int index, final int length)
     {
-        if (index < 0)
+        if (index < 0 || length < 0)
         {
-            throw new IndexOutOfBoundsException("index cannot be negative: index=" + index);
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
         }
 
         final long resultingPosition = index + (long)length;
@@ -1083,7 +1083,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             value = value + (value >> 1);
 
-            if (value > Integer.MAX_VALUE)
+            if (value > MAX_ARRAY_LENGTH)
             {
                 value = MAX_ARRAY_LENGTH;
             }
@@ -1096,7 +1096,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         final int currentArrayLength = byteArray.length;
         final long resultingPosition = index + (long)length;
-        if (index < 0 || resultingPosition > currentArrayLength)
+        if (index < 0 || length < 0 || resultingPosition > currentArrayLength)
         {
             throw new IndexOutOfBoundsException(
                 "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
