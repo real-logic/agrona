@@ -45,6 +45,20 @@ public interface RingBuffer
     boolean write(int msgTypeId, DirectBuffer srcBuffer, int srcIndex, int length);
 
     /**
+     * Non-blocking write of a message to an underlying ring-buffer. Instead of a the buffer writing a
+     * {@link DirectBuffer} to the underlying ring-buffer, this method calls a {@link WriteHandler}.
+     * This way you don't have to serialize or copy data until there is enough space in the buffer.
+     *
+     * @param msgTypeId type of the message encoding.
+     * @param length of the encoded message in bytes.
+     * @param writerHandler a write handler that is called when there is the requested space.
+     * @param t The object to write to the ring-buffer.
+     * @param <T> The type of Object to write to the ring-buffer.
+     * @return true if written to the ring-buffer, or false if insufficient space exists.
+     */
+    <T> boolean write(int msgTypeId, int length, WriteHandler<T> writerHandler, T t);
+
+    /**
      * Read as many messages as are available to the end of the ring buffer.
      * <p>
      * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation

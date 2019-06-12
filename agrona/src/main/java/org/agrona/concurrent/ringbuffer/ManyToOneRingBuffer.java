@@ -114,6 +114,36 @@ public class ManyToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
+    public <T> boolean write(final int msgTypeId, final int length, final WriteHandler<T> writerHandler, final T t)
+    {
+        checkTypeId(msgTypeId);
+        checkMsgLength(length);
+
+        boolean isSuccessful = false;
+
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = length + HEADER_LENGTH;
+        final int requiredCapacity = align(recordLength, ALIGNMENT);
+        final int recordIndex = claimCapacity(buffer, requiredCapacity);
+
+        if (INSUFFICIENT_CAPACITY != recordIndex)
+        {
+            buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+            UnsafeAccess.UNSAFE.storeFence();
+
+            buffer.putInt(typeOffset(recordIndex), msgTypeId);
+            writerHandler.handle(buffer, encodedMsgOffset(recordIndex), t);
+            buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+
+            isSuccessful = true;
+        }
+
+        return isSuccessful;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int read(final MessageHandler handler)
     {
         return read(handler, Integer.MAX_VALUE);

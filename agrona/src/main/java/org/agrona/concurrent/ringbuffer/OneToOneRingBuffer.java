@@ -81,6 +81,80 @@ public class OneToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
+    public <T> boolean write(final int msgTypeId, final int length, final WriteHandler<T> writerHandler, final T t)
+    {
+        checkTypeId(msgTypeId);
+        checkMsgLength(length);
+
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = length + HEADER_LENGTH;
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
+        final int requiredCapacity = alignedRecordLength + HEADER_LENGTH;
+        final int capacity = this.capacity;
+        final int tailPositionIndex = this.tailPositionIndex;
+        final int headCachePositionIndex = this.headCachePositionIndex;
+        final int mask = capacity - 1;
+
+        long head = buffer.getLong(headCachePositionIndex);
+        final long tail = buffer.getLong(tailPositionIndex);
+        final int availableCapacity = capacity - (int)(tail - head);
+
+        if (requiredCapacity > availableCapacity)
+        {
+            head = buffer.getLongVolatile(headPositionIndex);
+
+            if (requiredCapacity > (capacity - (int)(tail - head)))
+            {
+                return false;
+            }
+
+            buffer.putLong(headCachePositionIndex, head);
+        }
+
+        int padding = 0;
+        int recordIndex = (int)tail & mask;
+        final int toBufferEndLength = capacity - recordIndex;
+
+        if (requiredCapacity > toBufferEndLength)
+        {
+            int headIndex = (int)head & mask;
+
+            if (requiredCapacity > headIndex)
+            {
+                head = buffer.getLongVolatile(headPositionIndex);
+                headIndex = (int)head & mask;
+                if (requiredCapacity > headIndex)
+                {
+                    return false;
+                }
+
+                buffer.putLong(headCachePositionIndex, head);
+            }
+
+            padding = toBufferEndLength;
+        }
+
+        if (0 != padding)
+        {
+            buffer.putLong(0, 0L);
+            buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(recordIndex), padding);
+            recordIndex = 0;
+        }
+
+        writerHandler.handle(buffer, encodedMsgOffset(recordIndex), t);
+        buffer.putLong(recordIndex + alignedRecordLength, 0L);
+
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
+        buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean write(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
         checkTypeId(msgTypeId);
