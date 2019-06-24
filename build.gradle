@@ -23,7 +23,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
-    id "io.freefair.javadoc-links" version "3.6.6" apply false
+    id "io.freefair.javadoc-links" version "3.7.5" apply false
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
@@ -49,7 +49,7 @@ ext {
     }
 
     if (null == System.getenv("JAVA_HOME")) {
-        logger.warn("JAVA_HOME is not set! It will be use default JDK");
+        logger.warn("JAVA_HOME is not set! Default JDK will be used.")
         externalJdk = false
     }
     else {
