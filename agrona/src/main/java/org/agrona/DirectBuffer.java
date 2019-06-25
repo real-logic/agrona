@@ -27,6 +27,11 @@ import java.nio.ByteOrder;
 public interface DirectBuffer extends Comparable<DirectBuffer>
 {
     /**
+     * Don't print the content of the array while calling toString() on buffer instance.
+     */
+    String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
+
+    /**
      * Attach a view to a byte[] for providing direct access.
      *
      * @param buffer to which the view is attached.
@@ -65,7 +70,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param buffer to which the view is attached.
      * @param offset at which the view begins.
-     * @param length of the buffer included in the view
+     * @param length of the buffer included in the view.
      */
     void wrap(ByteBuffer buffer, int offset, int length);
 
@@ -81,15 +86,15 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param buffer to which the view is attached.
      * @param offset at which the view begins.
-     * @param length of the buffer included in the view
+     * @param length of the buffer included in the view.
      */
     void wrap(DirectBuffer buffer, int offset, int length);
 
     /**
      * Attach a view to an off-heap memory region by address.
      *
-     * @param address where the memory begins off-heap
-     * @param length  of the buffer from the given address
+     * @param address where the memory begins off-heap.
+     * @param length  of the buffer from the given address.
      */
     void wrap(long address, int length);
 
@@ -142,7 +147,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param index     in bytes from which to get.
      * @param byteOrder of the value to be read.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     long getLong(int index, ByteOrder byteOrder);
 
@@ -150,7 +155,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the value at a given index.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     long getLong(int index);
 
@@ -167,7 +172,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the value at a given index.
      *
      * @param index in bytes from which to get.
-     * @return the value for a given index
+     * @return the value for a given index.
      */
     int getInt(int index);
 
@@ -175,8 +180,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the ASCII encoded int sized natural value at a given index.
      *
      * @param index  in bytes from which to get.
-     * @param length the length in bytes to parse
-     * @return the value at a given index
+     * @param length the length in bytes to parse.
+     * @return the value at a given index.
      */
     int parseNaturalIntAscii(int index, int length);
 
@@ -184,8 +189,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the ASCII encoded long sized natural value at a given index.
      *
      * @param index  in bytes from which to get.
-     * @param length the length in bytes to parse
-     * @return the value at a given index
+     * @param length the length in bytes to parse.
+     * @return the value at a given index.
      */
     long parseNaturalLongAscii(int index, int length);
 
@@ -193,8 +198,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the ASCII encoded integer value at a given index.
      *
      * @param index  in bytes from which to get.
-     * @param length the length in bytes to parse
-     * @return the value at a given index
+     * @param length the length in bytes to parse.
+     * @return the value at a given index.
      */
     int parseIntAscii(int index, int length);
 
@@ -202,8 +207,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Get the ASCII encoded long integer value at a given index.
      *
      * @param index  in bytes from which to get.
-     * @param length the length in bytes to parse
-     * @return the value at a given index
+     * @param length the length in bytes to parse.
+     * @return the value at a given index.
      */
     long parseLongAscii(int index, int length);
 
@@ -297,7 +302,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param index  in the underlying buffer to start from.
      * @param dst    into which the bytes will be copied.
-     * @param offset in the supplied buffer to start the copy
+     * @param offset in the supplied buffer to start the copy.
      * @param length of the supplied buffer to use.
      */
     void getBytes(int index, byte[] dst, int offset, int length);

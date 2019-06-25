@@ -114,8 +114,8 @@ public class BitUtil
      * This method is not suitable for {@link Integer#MIN_VALUE} or numbers greater than 2^30. When provided
      * then {@link Integer#MIN_VALUE} will be returned.
      *
-     * @param value from which to search for next power of 2
-     * @return The next power of 2 or the value itself if it is a power of 2
+     * @param value from which to search for next power of 2.
+     * @return The next power of 2 or the value itself if it is a power of 2.
      */
     public static int findNextPositivePowerOfTwo(final int value)
     {
@@ -250,7 +250,7 @@ public class BitUtil
     }
 
     /**
-     * Cycles indices of an array one at a time in a forward fashion
+     * Cycles indices of an array one at a time in a forward fashion.
      *
      * @param current value to be incremented.
      * @param max     value for the cycle.
@@ -268,7 +268,7 @@ public class BitUtil
     }
 
     /**
-     * Cycles indices of an array one at a time in a backwards fashion
+     * Cycles indices of an array one at a time in a backwards fashion.
      *
      * @param current value to be decremented.
      * @param max     value of the cycle.

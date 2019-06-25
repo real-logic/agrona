@@ -21,17 +21,11 @@ import java.nio.ByteOrder;
 /**
  * Abstraction over a range of buffer types that allows fields to be written in native typed fashion.
  * <p>
- * {@link ByteOrder} of a wrapped buffer is not applied to the {@link MutableDirectBuffer};
- * To control {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link MutableDirectBuffer}.
+ * To control {@link ByteOrder} use the appropriate method with a {@link ByteOrder} overload.
  */
 public interface MutableDirectBuffer extends DirectBuffer
 {
-
-    /**
-     * Don't print the content of the array while calling toString() on buffer instance.
-     */
-    String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
-
     /**
      * Is this buffer expandable to accommodate putting data into it beyond the current capacity?
      *
@@ -52,8 +46,8 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     for at a given index
-     * @param byteOrder of the value when written
+     * @param value     for at a given index.
+     * @param byteOrder of the value when written.
      */
     void putLong(int index, long value, ByteOrder byteOrder);
 
@@ -61,7 +55,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putLong(int index, long value);
 
@@ -69,8 +63,8 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     to be written
-     * @param byteOrder of the value when written
+     * @param value     to be written.
+     * @param byteOrder of the value when written.
      */
     void putInt(int index, int value, ByteOrder byteOrder);
 
@@ -78,25 +72,25 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putInt(int index, int value);
 
     /**
-     * Puts an ASCII encoded int into the buffer
+     * Puts an ASCII encoded int into the buffer.
      *
-     * @param index the offset at which to put the int
-     * @param value the int to write
-     * @return the number of bytes that the int took up encoded
+     * @param index the offset at which to put the int.
+     * @param value the int to write.
+     * @return the number of bytes that the int took up encoded.
      */
     int putIntAscii(int index, int value);
 
     /**
-     * Puts an ASCII encoded int sized natural number into the buffer
+     * Puts an ASCII encoded int sized natural number into the buffer.
      *
-     * @param index the offset at which to put the int
-     * @param value the int to write
-     * @return the number of bytes that the int took up encoded
+     * @param index the offset at which to put the int.
+     * @param value the int to write.
+     * @return the number of bytes that the int took up encoded.
      */
     int putNaturalIntAscii(int index, int value);
 
@@ -107,9 +101,9 @@ public interface MutableDirectBuffer extends DirectBuffer
      * pre-padded with zeros, if the value takes up more space than the allowed length then a
      * <code>{@link NumberFormatException}</code> will be thrown.
      *
-     * @param index the offset to start encoding at
+     * @param index the offset to start encoding at.
      * @param length the maximum length to encode.
-     * @param value the value to encode
+     * @param value the value to encode.
      * @throws NumberFormatException if the value won't fit within the length.
      */
     void putNaturalPaddedIntAscii(int index, int length, int value) throws NumberFormatException;
@@ -117,27 +111,27 @@ public interface MutableDirectBuffer extends DirectBuffer
     /**
      * Encode a natural number starting at its end position.
      *
-     * @param value        the natural number to encode
-     * @param endExclusive index after the last character encoded
-     * @return startInclusive index of first character encoded
+     * @param value        the natural number to encode.
+     * @param endExclusive index after the last character encoded.
+     * @return startInclusive index of first character encoded.
      */
     int putNaturalIntAsciiFromEnd(int value, int endExclusive);
 
     /**
-     * Puts an ASCII encoded long sized natural number into the buffer
+     * Puts an ASCII encoded long sized natural number into the buffer.
      *
-     * @param index the offset at which to put the int
-     * @param value the int to write
-     * @return the number of bytes that the int took up encoded
+     * @param index the offset at which to put the int.
+     * @param value the int to write.
+     * @return the number of bytes that the int took up encoded.
      */
     int putNaturalLongAscii(int index, long value);
 
     /**
-     * Puts an ASCII encoded long integer into the buffer
+     * Puts an ASCII encoded long integer into the buffer.
      *
-     * @param index the offset at which to put the int
-     * @param value the int to write
-     * @return the number of bytes that the int took up encoded
+     * @param index the offset at which to put the int.
+     * @param value the int to write.
+     * @return the number of bytes that the int took up encoded.
      */
     int putLongAscii(int index, long value);
 
@@ -145,7 +139,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     to be written
+     * @param value     to be written.
      * @param byteOrder of the value when written.
      */
     void putDouble(int index, double value, ByteOrder byteOrder);
@@ -154,7 +148,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value to be written
+     * @param value to be written.
      */
     void putDouble(int index, double value);
 
@@ -162,7 +156,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     to be written
+     * @param value     to be written.
      * @param byteOrder of the value when written.
      */
     void putFloat(int index, float value, ByteOrder byteOrder);
@@ -171,7 +165,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value to be written
+     * @param value to be written.
      */
     void putFloat(int index, float value);
 
@@ -179,7 +173,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     to be written
+     * @param value     to be written.
      * @param byteOrder of the value when written.
      */
     void putShort(int index, short value, ByteOrder byteOrder);
@@ -188,7 +182,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value to be written
+     * @param value to be written.
      */
     void putShort(int index, short value);
 
@@ -196,7 +190,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index     in bytes for where to put.
-     * @param value     to be written
+     * @param value     to be written.
      * @param byteOrder of the value when written.
      */
     void putChar(int index, char value, ByteOrder byteOrder);
@@ -205,7 +199,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value to be written
+     * @param value to be written.
      */
     void putChar(int index, char value);
 
@@ -213,7 +207,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
-     * @param value to be written
+     * @param value to be written.
      */
     void putByte(int index, byte value);
 

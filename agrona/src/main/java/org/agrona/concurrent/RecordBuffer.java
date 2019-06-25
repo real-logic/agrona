@@ -67,13 +67,13 @@ public class RecordBuffer
     private static final int SIZE_OF_POSITION_FIELD = SIZE_OF_INT;
 
     /**
-     * Status field is an int rather than a byte so that it can be CAS'd
+     * Status field is an int rather than a byte so that it can be CAS'd.
      */
     private static final int SIZE_OF_STATUS_FIELD = SIZE_OF_INT;
     private static final int SIZE_OF_KEY_FIELD = SIZE_OF_INT;
     private static final int SIZE_OF_RECORD_FRAME = SIZE_OF_STATUS_FIELD + SIZE_OF_KEY_FIELD;
 
-    private static final long PAUSE_TIME_NS = MICROSECONDS.toNanos(1);
+    private static final long PAUSE_TIME_NS = MICROSECONDS.toNanos(1000);
 
     private final AtomicBuffer buffer;
     private final int positionFieldOffset;
@@ -90,8 +90,8 @@ public class RecordBuffer
         /**
          * Called once for each committed record in the buffer.
          *
-         * @param key    the key for the record in question
-         * @param offset the offset within the buffer that the record starts at
+         * @param key    the key for the record in question.
+         * @param offset the offset within the buffer that the record starts at.
          */
         void onRecord(int key, int offset);
     }
@@ -120,7 +120,7 @@ public class RecordBuffer
     }
 
     /**
-     * Initialise the buffer if you're the first thread to begin writing
+     * Initialise the buffer if you're the first thread to begin writing.
      */
     public void initialise()
     {
@@ -163,8 +163,8 @@ public class RecordBuffer
      * Search for the first record with the specified key.
      *
      * @param key the key to search for.
-     * @return the offset of the start of the record within the buffer or {@code DID_NOT_CLAIM_RECORD} if no record with
-     * the specified key.
+     * @return the offset of the start of the record within the buffer or {@code DID_NOT_CLAIM_RECORD} if no record
+     * with the specified key.
      */
     public int get(final int key)
     {
@@ -187,7 +187,7 @@ public class RecordBuffer
     /**
      * High level and safe way of writing a record to the buffer.
      *
-     * @param key    the key to associate the record with
+     * @param key    the key to associate the record with.
      * @param writer the callback which is passed the record to write.
      * @return whether the write succeeded or not.
      */

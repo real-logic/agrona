@@ -133,9 +133,17 @@ public class AsciiSequenceView implements CharSequence
         this.length = 0;
     }
 
-    public void getBytes(final MutableDirectBuffer dstBuffer, final int dstOffset)
+    /**
+     * Copy the bytes from a view into a provided buffer.
+     *
+     * @param dstBuffer into which the bytes will be copied.
+     * @param dstOffset offset in the destination buffer to begin the copy.
+     * @return the number of bytes copied.
+     */
+    public int getBytes(final MutableDirectBuffer dstBuffer, final int dstOffset)
     {
         dstBuffer.putBytes(dstOffset, this.buffer, offset, length);
+        return length;
     }
 
     public String toString()

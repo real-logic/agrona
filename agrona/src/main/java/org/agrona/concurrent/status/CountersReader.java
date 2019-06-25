@@ -426,7 +426,7 @@ public class CountersReader
         if (counterId < 0 || counterId > maxCounterId)
         {
             throw new IllegalArgumentException(
-                "Counter id " + counterId + " out of range: maxCounterId=" + maxCounterId);
+                "counter id " + counterId + " out of range: maxCounterId=" + maxCounterId);
         }
     }
 

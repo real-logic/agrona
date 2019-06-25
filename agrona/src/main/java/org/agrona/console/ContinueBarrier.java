@@ -38,7 +38,7 @@ public class ContinueBarrier
     /**
      * Await for input that matches the provided command.
      *
-     * @return true if y otherwise false
+     * @return true if y otherwise false.
      */
     public boolean await()
     {

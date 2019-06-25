@@ -77,7 +77,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Start the given agent runner on a new thread.
      *
-     * @param runner the agent runner to start
+     * @param runner the agent runner to start.
      * @return the new thread that has been started.
      */
     public static Thread startOnThread(final AgentRunner runner)
@@ -102,7 +102,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     }
 
     /**
-     * The {@link Agent} which is contained
+     * The {@link Agent} which is contained.
      *
      * @return {@link Agent} being contained.
      */

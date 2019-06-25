@@ -38,9 +38,7 @@ public class ConcurrentCountersManager extends CountersManager
     }
 
     public ConcurrentCountersManager(
-        final AtomicBuffer metaDataBuffer,
-        final AtomicBuffer valuesBuffer,
-        final Charset labelCharset)
+        final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
         super(metaDataBuffer, valuesBuffer, labelCharset);
     }
@@ -55,6 +53,9 @@ public class ConcurrentCountersManager extends CountersManager
         super(metaDataBuffer, valuesBuffer, labelCharset, epochClock, freeToReuseTimeoutMs);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int allocate(final String label, final int typeId)
     {
         lock.lock();
@@ -68,6 +69,9 @@ public class ConcurrentCountersManager extends CountersManager
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
     {
         lock.lock();
@@ -81,6 +85,9 @@ public class ConcurrentCountersManager extends CountersManager
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int allocate(
         final int typeId,
         final DirectBuffer keyBuffer,
@@ -101,6 +108,9 @@ public class ConcurrentCountersManager extends CountersManager
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void free(final int counterId)
     {
         lock.lock();

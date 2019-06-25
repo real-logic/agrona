@@ -119,7 +119,7 @@ public class SystemUtil
     /**
      * Return the system property for java.io.tmpdir ensuring a {@link File#separator} is at the end.
      *
-     * @return tmp directory for the runtime
+     * @return tmp directory for the runtime.
      */
     public static String tmpDirName()
     {
@@ -163,7 +163,7 @@ public class SystemUtil
      * File is first searched for in resources using the system {@link ClassLoader},
      * then file system, then URL. All are loaded if multiples found.
      *
-     * @param filenameOrUrl that holds properties
+     * @param filenameOrUrl that holds properties.
      */
     public static void loadPropertiesFile(final String filenameOrUrl)
     {
@@ -208,7 +208,7 @@ public class SystemUtil
     /**
      * Load system properties from a given set of filenames or URLs.
      *
-     * @param filenamesOrUrls that holds properties
+     * @param filenamesOrUrls that holds properties.
      * @see #loadPropertiesFile(String)
      */
     public static void loadPropertiesFiles(final String[] filenamesOrUrls)

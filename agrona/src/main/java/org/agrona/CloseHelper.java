@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Utility functions to help with using {@link java.lang.AutoCloseable} resources.
+ */
 public class CloseHelper
 {
     /**

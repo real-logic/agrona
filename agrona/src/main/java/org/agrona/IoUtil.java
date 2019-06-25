@@ -84,7 +84,7 @@ public class IoUtil
     /**
      * Fill a region of a file with a given byte value.
      *
-     * @param fileChannel to fill
+     * @param fileChannel to fill.
      * @param position    at which to start writing.
      * @param length      of the region to write.
      * @param value       to fill the region with.
@@ -206,7 +206,7 @@ public class IoUtil
     /**
      * Delete file only if it already exists.
      *
-     * @param file to delete
+     * @param file to delete.
      */
     public static void deleteIfExists(final File file)
     {
@@ -224,11 +224,11 @@ public class IoUtil
     }
 
     /**
-     * Create an empty file, fill with 0s, and return the {@link FileChannel}
+     * Create an empty file, fill with 0s, and return the {@link FileChannel}.
      *
-     * @param file   to create
-     * @param length of the file to create
-     * @return {@link java.nio.channels.FileChannel} for the file
+     * @param file   to create.
+     * @param length of the file to create.
+     * @return {@link java.nio.channels.FileChannel} for the file.
      */
     public static FileChannel createEmptyFile(final File file, final long length)
     {
@@ -236,12 +236,12 @@ public class IoUtil
     }
 
     /**
-     * Create an empty file, and optionally fill with 0s, and return the {@link FileChannel}
+     * Create an empty file, and optionally fill with 0s, and return the {@link FileChannel}.
      *
-     * @param file          to create
-     * @param length        of the file to create
+     * @param file          to create.
+     * @param length        of the file to create.
      * @param fillWithZeros to the length of the file to force allocation.
-     * @return {@link java.nio.channels.FileChannel} for the file
+     * @return {@link java.nio.channels.FileChannel} for the file.
      */
     public static FileChannel createEmptyFile(final File file, final long length, final boolean fillWithZeros)
     {
@@ -273,9 +273,9 @@ public class IoUtil
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location         of the file to map
-     * @param descriptionLabel to be associated for any exceptions
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location         of the file to map.
+     * @param descriptionLabel to be associated for any exceptions.
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapExistingFile(final File location, final String descriptionLabel)
     {
@@ -288,11 +288,11 @@ public class IoUtil
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location         of the file to map
-     * @param descriptionLabel to be associated for an exceptions
-     * @param offset           offset to start mapping at
-     * @param length           length to map region
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location         of the file to map.
+     * @param descriptionLabel to be associated for an exceptions.
+     * @param offset           offset to start mapping at.
+     * @param length           length to map region.
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapExistingFile(
         final File location, final String descriptionLabel, final long offset, final long length)
@@ -306,15 +306,13 @@ public class IoUtil
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location         of the file to map
-     * @param mapMode          for the mapping
-     * @param descriptionLabel to be associated for any exceptions
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location         of the file to map.
+     * @param mapMode          for the mapping.
+     * @param descriptionLabel to be associated for any exceptions.
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapExistingFile(
-        final File location,
-        final FileChannel.MapMode mapMode,
-        final String descriptionLabel)
+        final File location, final FileChannel.MapMode mapMode, final String descriptionLabel)
     {
         checkFileExists(location, descriptionLabel);
 
@@ -334,16 +332,16 @@ public class IoUtil
 
     /**
      * Check that file exists, open file, and return MappedByteBuffer for only region specified for a given
-     * {@link java.nio.channels.FileChannel.MapMode}
+     * {@link java.nio.channels.FileChannel.MapMode}.
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location         of the file to map
-     * @param mapMode          for the mapping
-     * @param descriptionLabel to be associated for an exceptions
-     * @param offset           offset to start mapping at
-     * @param length           length to map region
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location         of the file to map.
+     * @param mapMode          for the mapping.
+     * @param descriptionLabel to be associated for an exceptions.
+     * @param offset           offset to start mapping at.
+     * @param length           length to map region.
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapExistingFile(
         final File location,
@@ -373,9 +371,9 @@ public class IoUtil
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location of the file to create and map
-     * @param length   of the file to create and map
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location of the file to create and map.
+     * @param length   of the file to create and map.
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapNewFile(final File location, final long length)
     {
@@ -387,10 +385,10 @@ public class IoUtil
      * <p>
      * The file itself will be closed, but the mapping will persist.
      *
-     * @param location      of the file to create and map
-     * @param length        of the file to create and map
-     * @param fillWithZeros to force allocation.
-     * @return {@link java.nio.MappedByteBuffer} for the file
+     * @param location      of the file to create and map.
+     * @param length        of the file to create and map.
+     * @param fillWithZeros to force allocation..
+     * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapNewFile(final File location, final long length, final boolean fillWithZeros)
     {
@@ -420,7 +418,7 @@ public class IoUtil
      * Check that a file exists and throw an exception if not.
      *
      * @param file to check existence of.
-     * @param name to associate for the exception
+     * @param name to associate for the exception.
      */
     public static void checkFileExists(final File file, final String name)
     {
@@ -510,7 +508,7 @@ public class IoUtil
     /**
      * Return the system property for java.io.tmpdir ensuring a {@link File#separator} is at the end.
      *
-     * @return tmp directory for the runtime
+     * @return tmp directory for the runtime.
      */
     public static String tmpDirName()
     {

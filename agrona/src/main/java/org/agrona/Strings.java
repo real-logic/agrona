@@ -34,7 +34,7 @@ public class Strings
     /**
      * Parse an int from a String. If the String is null then return the defaultValue.
      *
-     * @param value        to be parsed
+     * @param value        to be parsed.
      * @param defaultValue to be used if the String value is null.
      * @return the int value of the string or the default on null.
      */

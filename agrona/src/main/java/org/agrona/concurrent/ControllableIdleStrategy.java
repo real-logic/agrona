@@ -20,6 +20,12 @@ import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.locks.LockSupport;
 
+/**
+ * {@link IdleStrategy} which can be controlled by a counter so its mode of operation can be switched between
+ * doing nothing (NOOP), busy spinning by calling {@link ThreadHints#onSpinWait()}, yielding by calling
+ * {@link Thread#yield()}, or sleeping for the minimum period by calling {@link LockSupport#parkNanos(long)} when
+ * work count is zero so it idles.
+ */
 public class ControllableIdleStrategy implements IdleStrategy
 {
     public static final int NOT_CONTROLLED = 0;
@@ -30,11 +36,11 @@ public class ControllableIdleStrategy implements IdleStrategy
 
     private static final long PARK_PERIOD_NANOSECONDS = 1000;
 
-    private final StatusIndicatorReader statusIndicatorReader;
+    private final StatusIndicatorReader statusIndicator;
 
-    public ControllableIdleStrategy(final StatusIndicatorReader statusIndicatorReader)
+    public ControllableIdleStrategy(final StatusIndicatorReader statusIndicator)
     {
-        this.statusIndicatorReader = statusIndicatorReader;
+        this.statusIndicator = statusIndicator;
     }
 
     /**
@@ -58,7 +64,7 @@ public class ControllableIdleStrategy implements IdleStrategy
      */
     public void idle()
     {
-        final int status = (int)statusIndicatorReader.getVolatile();
+        final int status = (int)statusIndicator.getVolatile();
 
         switch (status)
         {
@@ -90,7 +96,7 @@ public class ControllableIdleStrategy implements IdleStrategy
     public String toString()
     {
         return "ControllableIdleStrategy{" +
-            "statusIndicatorReader=" + statusIndicatorReader +
+            "statusIndicator=" + statusIndicator +
             '}';
     }
 }

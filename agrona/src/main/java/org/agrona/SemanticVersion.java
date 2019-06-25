@@ -99,4 +99,3 @@ public class SemanticVersion
         return major(version) + "." + minor(version) + "." + patch(version);
     }
 }
-

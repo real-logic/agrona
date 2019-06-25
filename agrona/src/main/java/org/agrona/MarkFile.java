@@ -54,17 +54,17 @@ public class MarkFile implements AutoCloseable
      *
      * Total length of Mark file will be mapped until {@link #close()} is called.
      *
-     * @param directory             for the Mark file
-     * @param filename              of the Mark file
-     * @param warnIfDirectoryExists for logging purposes
-     * @param dirDeleteOnStart      if desired
-     * @param versionFieldOffset    to use for version field access
-     * @param timestampFieldOffset  to use for timestamp field access
-     * @param totalFileLength       to allocate when creating new Mark file
-     * @param timeoutMs             for the activity check (in milliseconds)
-     * @param epochClock            to use for time checks
-     * @param versionCheck          to use for existing Mark file and version field
-     * @param logger                to use to signal progress or null
+     * @param directory             for the Mark file.
+     * @param filename              of the Mark file.
+     * @param warnIfDirectoryExists for logging purposes.
+     * @param dirDeleteOnStart      if desired.
+     * @param versionFieldOffset    to use for version field access.
+     * @param timestampFieldOffset  to use for timestamp field access.
+     * @param totalFileLength       to allocate when creating new Mark file.
+     * @param timeoutMs             for the activity check (in milliseconds).
+     * @param epochClock            to use for time checks.
+     * @param versionCheck          to use for existing Mark file and version field.
+     * @param logger                to use to signal progress or null.
      */
     public MarkFile(
         final File directory,
@@ -107,15 +107,15 @@ public class MarkFile implements AutoCloseable
      *
      * Total length of Mark file will be mapped until {@link #close()} is called.
      *
-     * @param markFile             to use
-     * @param shouldPreExist       or not
-     * @param versionFieldOffset   to use for version field access
-     * @param timestampFieldOffset to use for timestamp field access
-     * @param totalFileLength      to allocate when creating new {@link MarkFile}
-     * @param timeoutMs            for the activity check (in milliseconds)
-     * @param epochClock           to use for time checks
-     * @param versionCheck         to use for existing {@link MarkFile} and version field
-     * @param logger               to use to signal progress or null
+     * @param markFile             to use.
+     * @param shouldPreExist       or not.
+     * @param versionFieldOffset   to use for version field access.
+     * @param timestampFieldOffset to use for timestamp field access.
+     * @param totalFileLength      to allocate when creating new {@link MarkFile}.
+     * @param timeoutMs            for the activity check (in milliseconds).
+     * @param epochClock           to use for time checks.
+     * @param versionCheck         to use for existing {@link MarkFile} and version field.
+     * @param logger               to use to signal progress or null.
      */
 
     public MarkFile(
@@ -154,14 +154,14 @@ public class MarkFile implements AutoCloseable
      *
      * Total length of {@link MarkFile} will be mapped until {@link #close()} is called.
      *
-     * @param directory            for the {@link MarkFile} file
-     * @param filename             of the {@link MarkFile} file
-     * @param versionFieldOffset   to use for version field access
-     * @param timestampFieldOffset to use for timestamp field access
-     * @param timeoutMs            for the activity check (in milliseconds) and for how long to wait for file to exist
-     * @param epochClock           to use for time checks
-     * @param versionCheck         to use for existing {@link MarkFile} file and version field
-     * @param logger               to use to signal progress or null
+     * @param directory            for the {@link MarkFile} file.
+     * @param filename             of the {@link MarkFile} file.
+     * @param versionFieldOffset   to use for version field access.
+     * @param timestampFieldOffset to use for timestamp field access.
+     * @param timeoutMs            for the activity check (in milliseconds) and for how long to wait for file to exist.
+     * @param epochClock           to use for time checks.
+     * @param versionCheck         to use for existing {@link MarkFile} file and version field.
+     * @param logger               to use to signal progress or null.
      */
     public MarkFile(
         final File directory,
@@ -189,14 +189,11 @@ public class MarkFile implements AutoCloseable
      *
      * If mappedBuffer is not null, then it will be unmapped upon {@link #close()}.
      *
-     * @param mappedBuffer         for the {@link MarkFile} fields
-     * @param versionFieldOffset   for the version field
-     * @param timestampFieldOffset for the timestamp field
+     * @param mappedBuffer         for the {@link MarkFile} fields.
+     * @param versionFieldOffset   for the version field.
+     * @param timestampFieldOffset for the timestamp field.
      */
-    public MarkFile(
-        final MappedByteBuffer mappedBuffer,
-        final int versionFieldOffset,
-        final int timestampFieldOffset)
+    public MarkFile(final MappedByteBuffer mappedBuffer, final int versionFieldOffset, final int timestampFieldOffset)
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 
@@ -215,10 +212,7 @@ public class MarkFile implements AutoCloseable
      * @param versionFieldOffset   for the version field
      * @param timestampFieldOffset for the timestamp field
      */
-    public MarkFile(
-        final UnsafeBuffer buffer,
-        final int versionFieldOffset,
-        final int timestampFieldOffset)
+    public MarkFile(final UnsafeBuffer buffer, final int versionFieldOffset, final int timestampFieldOffset)
     {
         validateOffsets(versionFieldOffset, timestampFieldOffset);
 

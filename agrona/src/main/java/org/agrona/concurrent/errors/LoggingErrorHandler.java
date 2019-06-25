@@ -79,7 +79,7 @@ public class LoggingErrorHandler implements ErrorHandler
     {
         if (!log.record(throwable))
         {
-            errorOverflow.println("Error Log is full, consider increasing length of error buffer");
+            errorOverflow.println("error Log is full, consider increasing length of error buffer");
             throwable.printStackTrace(errorOverflow);
         }
     }

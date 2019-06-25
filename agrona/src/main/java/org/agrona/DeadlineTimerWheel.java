@@ -87,9 +87,9 @@ public class DeadlineTimerWheel
      * Construct timer wheel with given parameters.
      *
      * @param timeUnit       for the values used to express the time.
-     * @param startTime      for the wheel (in given {@link TimeUnit})
+     * @param startTime      for the wheel (in given {@link TimeUnit}).
      * @param tickResolution for the wheel, i.e. how many {@link TimeUnit}s per tick.
-     * @param ticksPerWheel  for the wheel (must be power of 2)
+     * @param ticksPerWheel  for the wheel (must be power of 2).
      */
     public DeadlineTimerWheel(
         final TimeUnit timeUnit, final long startTime, final int tickResolution, final int ticksPerWheel)
@@ -101,9 +101,9 @@ public class DeadlineTimerWheel
      * Construct timer wheel with given parameters.
      *
      * @param timeUnit              for the values used to express the time.
-     * @param startTime             for the wheel (in given {@link TimeUnit})
+     * @param startTime             for the wheel (in given {@link TimeUnit}).
      * @param tickResolution        for the wheel, i.e. how many {@link TimeUnit}s per tick.
-     * @param ticksPerWheel         for the wheel (must be power of 2)
+     * @param ticksPerWheel         for the wheel (must be power of 2).
      * @param initialTickAllocation space allocated in the wheel.
      */
     public DeadlineTimerWheel(
@@ -200,7 +200,7 @@ public class DeadlineTimerWheel
      * and returned for future reference.
      *
      * @param deadline after which the timer should expire.
-     * @return timerId for the scheduled timer
+     * @return timerId for the scheduled timer.
      */
     public long scheduleTimer(final long deadline)
     {

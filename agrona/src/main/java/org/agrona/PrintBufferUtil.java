@@ -52,8 +52,8 @@ public class PrintBufferUtil
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
      * of the specified buffer's readable bytes.
      *
-     * @param buffer dumped buffer
-     * @return hex dump in a string representation
+     * @param buffer dumped buffer.
+     * @return hex dump in a string representation.
      */
     public static String hexDump(final DirectBuffer buffer)
     {
@@ -64,10 +64,10 @@ public class PrintBufferUtil
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
      * of the specified buffer's sub-region.
      *
-     * @param buffer    dumped buffer
-     * @param fromIndex where should we start to print
-     * @param length    how much should we print
-     * @return hex dump in a string representation
+     * @param buffer    dumped buffer.
+     * @param fromIndex where should we start to print.
+     * @param length    how much should we print.
+     * @return hex dump in a string representation.
      */
     public static String hexDump(final DirectBuffer buffer, final int fromIndex, final int length)
     {
@@ -78,8 +78,8 @@ public class PrintBufferUtil
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
      * of the specified byte array.
      *
-     * @param array dumped array
-     * @return hex dump in a string representation
+     * @param array dumped array.
+     * @return hex dump in a string representation.
      */
     public static String hexDump(final byte[] array)
     {
@@ -90,10 +90,10 @@ public class PrintBufferUtil
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
      * of the specified byte array's sub-region.
      *
-     * @param array     dumped array
-     * @param fromIndex where should we start to print
-     * @param length    how much should we print
-     * @return hex dump in a string representation
+     * @param array     dumped array.
+     * @param fromIndex where should we start to print.
+     * @param length    how much should we print.
+     * @return hex dump in a string representation.
      */
     public static String hexDump(final byte[] array, final int fromIndex, final int length)
     {
@@ -103,8 +103,8 @@ public class PrintBufferUtil
     /**
      * Returns a hexadecimal dump of the specified {@link DirectBuffer} that is easy to read by humans.
      *
-     * @param buffer dumped buffer
-     * @return pretty hex dump in a string representation
+     * @param buffer dumped buffer.
+     * @return pretty hex dump in a string representation.
      */
     public static String prettyHexDump(final DirectBuffer buffer)
     {
@@ -115,10 +115,10 @@ public class PrintBufferUtil
      * Returns a hexadecimal dump of the specified {@link DirectBuffer} that is easy to read by humans,
      * starting at the given {@code offset} using the given {@code length}.
      *
-     * @param buffer dumped buffer
-     * @param offset where should we start to print
-     * @param length how much should we print
-     * @return pretty hex dump in a string representation
+     * @param buffer dumped buffer.
+     * @param offset where should we start to print.
+     * @param length how much should we print.
+     * @return pretty hex dump in a string representation.
      */
     public static String prettyHexDump(final DirectBuffer buffer, final int offset, final int length)
     {
@@ -129,8 +129,8 @@ public class PrintBufferUtil
      * Appends the prettified multi-line hexadecimal dump of the specified {@link DirectBuffer} to the specified
      * {@link StringBuilder} that is easy to read by humans.
      *
-     * @param dump   where should we append string representation of the buffer
-     * @param buffer dumped buffer
+     * @param dump   where should we append string representation of the buffer.
+     * @param buffer dumped buffer.
      */
     public static void appendPrettyHexDump(final StringBuilder dump, final DirectBuffer buffer)
     {
@@ -142,10 +142,10 @@ public class PrintBufferUtil
      * {@link StringBuilder} that is easy to read by humans, starting at the given {@code offset} using
      * the given {@code length}.
      *
-     * @param dump   where should we append string representation of the buffer
-     * @param buffer dumped buffer
-     * @param offset where should we start to print
-     * @param length how much should we print
+     * @param dump   where should we append string representation of the buffer.
+     * @param buffer dumped buffer.
+     * @param offset where should we start to print.
+     * @param length how much should we print.
      */
     public static void appendPrettyHexDump(
         final StringBuilder dump, final DirectBuffer buffer, final int offset, final int length)
@@ -156,8 +156,8 @@ public class PrintBufferUtil
     /**
      * Converts the specified byte value into a 2-digit hexadecimal integer.
      *
-     * @param value converted value
-     * @return hex representation of the value
+     * @param value converted value.
+     * @return hex representation of the value.
      */
     public static String byteToHexStringPadded(final int value)
     {
@@ -235,9 +235,9 @@ public class PrintBufferUtil
         /**
          * Gets an unsigned byte at the specified absolute {@code index} in a buffer.
          *
-         * @param buffer the source of value
+         * @param buffer the source of value.
          * @param index the absolute {@code index} in the buffer.
-         * @return unsigned byte value
+         * @return unsigned byte value.
          */
         static short getUnsignedByte(final DirectBuffer buffer, final int index)
         {

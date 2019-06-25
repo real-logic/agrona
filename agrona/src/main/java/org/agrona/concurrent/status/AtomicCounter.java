@@ -259,4 +259,13 @@ public class AtomicCounter implements AutoCloseable
             }
         }
     }
+
+    public String toString()
+    {
+        return "AtomicCounter{" +
+            "isClosed=" + isClosed() +
+            ", id=" + id +
+            ", value=" + get() +
+            '}';
+    }
 }

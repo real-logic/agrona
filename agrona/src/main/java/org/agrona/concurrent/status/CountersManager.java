@@ -113,7 +113,7 @@ public class CountersManager extends CountersReader
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
-            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
+            throw new IllegalArgumentException("metadata buffer not sufficiently large");
         }
     }
 
@@ -133,7 +133,7 @@ public class CountersManager extends CountersReader
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
-            throw new IllegalArgumentException("Meta data buffer not sufficiently large");
+            throw new IllegalArgumentException("metadata buffer not sufficiently large");
         }
     }
 
@@ -422,7 +422,7 @@ public class CountersManager extends CountersReader
     {
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalStateException("Unable to allocate counter, values buffer is full");
+            throw new IllegalStateException("unable to allocate counter, values buffer is full");
         }
     }
 
@@ -430,7 +430,7 @@ public class CountersManager extends CountersReader
     {
         if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
         {
-            throw new IllegalStateException("Unable to allocate counter, metadata buffer is full");
+            throw new IllegalStateException("unable to allocate counter, metadata buffer is full");
         }
     }
 }

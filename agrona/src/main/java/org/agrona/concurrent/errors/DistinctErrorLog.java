@@ -249,12 +249,12 @@ public class DistinctErrorLog
         return newObservations;
     }
 
-    public static final class DistinctObservation
+    static final class DistinctObservation
     {
         public final Throwable throwable;
         public final int offset;
 
-        public DistinctObservation(final Throwable throwable, final int offset)
+        DistinctObservation(final Throwable throwable, final int offset)
         {
             this.throwable = throwable;
             this.offset = offset;

@@ -22,6 +22,10 @@ import java.nio.ByteBuffer;
 
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
+/**
+ * {@link StatusIndicator} which wraps an {@link AtomicBuffer} with a given counter id.
+ * @see CountersManager
+ */
 public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;
@@ -48,18 +52,35 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
         this.addressOffset = buffer.addressOffset() + counterOffset;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int id()
     {
         return counterId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setOrdered(final long value)
     {
         UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getVolatile()
     {
         return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
+    }
+
+    public String toString()
+    {
+        return "UnsafeBufferStatusIndicator{" +
+            "counterId=" + counterId +
+            "value=" + getVolatile() +
+            '}';
     }
 }

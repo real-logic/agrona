@@ -54,7 +54,7 @@ public interface Pipe<E>
     /**
      * Get the remaining capacity for elements in the container given the current size.
      *
-     * @return remaining capacity of the container
+     * @return remaining capacity of the container.
      */
     int remainingCapacity();
 
@@ -63,8 +63,8 @@ public interface Pipe<E>
      * <p>
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
-     * @param elementConsumer {@link Consumer} for processing elements
-     * @return the number of elements drained
+     * @param elementConsumer {@link Consumer} for processing elements.
+     * @return the number of elements drained.
      */
     int drain(Consumer<E> elementConsumer);
 
@@ -73,9 +73,9 @@ public interface Pipe<E>
      * <p>
      * If possible, implementations should use smart batching to best handle burst traffic.
      *
-     * @param elementConsumer {@link Consumer} for processing elements
+     * @param elementConsumer {@link Consumer} for processing elements.
      * @param limit           maximum number of elements to be drained in a drain operation.
-     * @return the number of elements drained
+     * @return the number of elements drained.
      */
     int drain(Consumer<E> elementConsumer, int limit);
 

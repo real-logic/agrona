@@ -15,6 +15,10 @@
  */
 package org.agrona.concurrent.status;
 
+/**
+ * Reads the value of a counter to indicate current status and what abstraction should be taken.
+ * @see CountersReader
+ */
 public abstract class StatusIndicatorReader
 {
     /**

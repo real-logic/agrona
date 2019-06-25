@@ -138,4 +138,13 @@ public class UnsafeBufferPosition extends Position
             }
         }
     }
+
+    public String toString()
+    {
+        return "UnsafeBufferPosition{" +
+            "isClosed=" + isClosed() +
+            ", counterId=" + counterId +
+            ", value=" + getVolatile() +
+            '}';
+    }
 }

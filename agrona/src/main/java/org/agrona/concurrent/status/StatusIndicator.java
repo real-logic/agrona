@@ -15,6 +15,10 @@
  */
 package org.agrona.concurrent.status;
 
+/**
+ * Extends a {@link StatusIndicatorReader} with the ability to set the value so other readers can take action.
+ * @see CountersManager
+ */
 public abstract class StatusIndicator extends StatusIndicatorReader
 {
     /**

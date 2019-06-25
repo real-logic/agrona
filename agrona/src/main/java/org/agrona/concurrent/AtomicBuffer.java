@@ -33,7 +33,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     long getLongVolatile(int index);
 
@@ -41,7 +41,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with volatile semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putLongVolatile(int index, long value);
 
@@ -49,7 +49,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with ordered store semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putLongOrdered(int index, long value);
 
@@ -58,7 +58,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
-     * @return the previous value at the index
+     * @return the previous value at the index.
      */
     long addLongOrdered(int index, long increment);
 
@@ -66,9 +66,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Atomic compare and set of a long given an expected value.
      *
      * @param index         in bytes for where to put.
-     * @param expectedValue at to be compared
-     * @param updateValue   to be exchanged
-     * @return set successful or not
+     * @param expectedValue at to be compared.
+     * @param updateValue   to be exchanged.
+     * @return set successful or not.
      */
     boolean compareAndSetLong(int index, long expectedValue, long updateValue);
 
@@ -76,8 +76,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Atomically exchange a value at a location returning the previous contents.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
-     * @return previous value at the index
+     * @param value for at a given index.
+     * @return previous value at the index.
      */
     long getAndSetLong(int index, long value);
 
@@ -86,8 +86,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * To decrement a negative delta can be provided.
      *
      * @param index in bytes for where to put.
-     * @param delta to be added to the value at the index
-     * @return previous value
+     * @param delta to be added to the value at the index.
+     * @return previous value.
      */
     long getAndAddLong(int index, long delta);
 
@@ -95,7 +95,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     int getIntVolatile(int index);
 
@@ -103,7 +103,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with volatile semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putIntVolatile(int index, int value);
 
@@ -111,7 +111,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with ordered semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putIntOrdered(int index, int value);
 
@@ -120,7 +120,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
-     * @return the previous value at the index
+     * @return the previous value at the index.
      */
     int addIntOrdered(int index, int increment);
 
@@ -128,9 +128,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Atomic compare and set of a int given an expected value.
      *
      * @param index         in bytes for where to put.
-     * @param expectedValue at to be compared
-     * @param updateValue   to be exchanged
-     * @return successful or not
+     * @param expectedValue at to be compared.
+     * @param updateValue   to be exchanged.
+     * @return successful or not.
      */
     boolean compareAndSetInt(int index, int expectedValue, int updateValue);
 
@@ -138,8 +138,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Atomically exchange a value at a location returning the previous contents.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
-     * @return previous value
+     * @param value for at a given index.
+     * @return previous value.
      */
     int getAndSetInt(int index, int value);
 
@@ -148,8 +148,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * To decrement a negative delta can be provided.
      *
      * @param index in bytes for where to put.
-     * @param delta to be added to the value at the index
-     * @return previous value
+     * @param delta to be added to the value at the index.
+     * @return previous value.
      */
     int getAndAddInt(int index, int delta);
 
@@ -157,7 +157,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     short getShortVolatile(int index);
 
@@ -165,7 +165,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with volatile semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putShortVolatile(int index, short value);
 
@@ -173,7 +173,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     char getCharVolatile(int index);
 
@@ -181,7 +181,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with volatile semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putCharVolatile(int index, char value);
 
@@ -189,7 +189,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Get the value at a given index with volatile semantics.
      *
      * @param index in bytes from which to get.
-     * @return the value for at a given index
+     * @return the value for at a given index.
      */
     byte getByteVolatile(int index);
 
@@ -197,7 +197,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Put a value to a given index with volatile semantics.
      *
      * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param value for at a given index.
      */
     void putByteVolatile(int index, byte value);
 }
