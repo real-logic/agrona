@@ -65,7 +65,7 @@ public class ManyToOneRingBuffer implements RingBuffer
 
         buffer.verifyAlignment();
 
-        maxMsgLength = capacity / 8;
+        maxMsgLength = capacity >> 3;
         tailPositionIndex = capacity + TAIL_POSITION_OFFSET;
         headCachePositionIndex = capacity + HEAD_CACHE_POSITION_OFFSET;
         headPositionIndex = capacity + HEAD_POSITION_OFFSET;
