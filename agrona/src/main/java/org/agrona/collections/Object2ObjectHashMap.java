@@ -149,7 +149,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      * @return current value associated with key, or null if none found
      * @throws IllegalArgumentException if value is null
      */
-    public V put(final Object key, final Object value)
+    public V put(final K key, final V value)
     {
         final Object val = mapNullValue(value);
         requireNonNull(val, "value cannot be null");
