@@ -16,7 +16,6 @@
 package org.agrona;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -78,7 +77,24 @@ public class CloseHelper
      */
     public static void quietCloseAll(final AutoCloseable... closeables)
     {
-        quietCloseAll(Arrays.asList(closeables));
+        if (closeables == null)
+        {
+            return;
+        }
+
+        for (final AutoCloseable closeable : closeables)
+        {
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ignore)
+                {
+                }
+            }
+        }
     }
 
     /**
@@ -154,6 +170,36 @@ public class CloseHelper
      */
     public static void closeAll(final AutoCloseable... closeables)
     {
-        closeAll(Arrays.asList(closeables));
+        if (closeables == null)
+        {
+            return;
+        }
+
+        List<Exception> exceptions = null;
+        for (final AutoCloseable closeable : closeables)
+        {
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ex)
+                {
+                    if (exceptions == null)
+                    {
+                        exceptions = new ArrayList<>();
+                    }
+                    exceptions.add(ex);
+                }
+            }
+        }
+
+        if (exceptions != null)
+        {
+            final Exception exception = exceptions.remove(0);
+            exceptions.forEach(exception::addSuppressed);
+            LangUtil.rethrowUnchecked(exception);
+        }
     }
 }
