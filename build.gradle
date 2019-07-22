@@ -24,6 +24,7 @@ plugins {
     id 'java-library'
     id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
     id "io.freefair.javadoc-links" version "3.8.0" apply false
+    id 'biz.aQute.bnd.builder' version '4.2.0' apply false
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
@@ -238,15 +239,24 @@ project(':agrona') {
         from sourceSets.generated.allSource
     }
 
+    apply plugin: 'biz.aQute.bnd.builder'
+
     jar {
         from sourceSets.generated.output
 
-        manifest.attributes(
-            'Implementation-Title': 'Agrona',
-            'Implementation-Version': "${agronaVersion}",
-            'Implementation-Vendor': 'Real Logic Limited',
-            'Automatic-Module-Name': 'org.agrona.core'
-        )
+        bnd """
+            Automatic-Module-Name:  org.agrona.core
+            Bundle-Name:            org.agrona.core
+            Bundle-SymbolicName:    org.agrona.core
+            Implementation-Title:   Agrona
+            Implementation-Vendor:  Real Logic Limited
+            Implementation-Version: ${agronaVersion}
+
+            -exportcontents: org.agrona, org.agrona.*
+
+            # Suppress headers that reduce reproducibility.
+            -removeheaders: Bnd-LastModified, Tool, Private-Package, Created-By
+        """
     }
 
     javadoc {
