@@ -255,7 +255,8 @@ project(':agrona') {
             -exportcontents: org.agrona, org.agrona.*
 
             # Suppress headers that reduce reproducibility.
-            -removeheaders: Bnd-LastModified, Tool, Private-Package, Created-By
+            -reproducible: true
+            -noextraheaders: true
         """
     }
 
