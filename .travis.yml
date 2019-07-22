@@ -2,18 +2,20 @@ language: java
 
 sudo: false
 
+dist: xenial
+
 matrix:
   include:
 
     - name: "OpenJDK Java 8"
       jdk: openjdk8
       os: linux
+      script: ./gradlew --stacktrace
 
     - name: "OpenJDK Java 11"
       jdk: openjdk11
       os: linux
-
-script: ./gradlew --stacktrace
+      script: ./gradlew --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
