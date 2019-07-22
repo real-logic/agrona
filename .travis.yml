@@ -16,8 +16,6 @@ matrix:
       os: linux
       script: ./gradlew
 
-install: ./gradlew assemble --stacktrace
-
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
