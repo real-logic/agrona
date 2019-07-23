@@ -25,7 +25,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Ring buffer for storing messages which can expand to accommodate the messages written into it. Message are written
- * and read in a FIFO order with capacity up to {@link #MAX_CAPACITY}. Messages can be iterated via for-each methods
+ * and read in a FIFO order with capacity up to {@link #maxCapacity()}. Messages can be iterated via for-each methods
  * without consuming and having the option to iterate from an offset from the current {@link #head()} position.
  * <p>
  * <b>Note:</b> This class is not thread safe.
