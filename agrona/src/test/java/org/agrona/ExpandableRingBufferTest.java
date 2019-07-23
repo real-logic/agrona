@@ -48,7 +48,7 @@ public class ExpandableRingBufferTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldExceptionForOverMaxInitialCapacity()
     {
-        new ExpandableRingBuffer(ExpandableRingBuffer.MAX_CAPACITY + 1, ExpandableRingBuffer.MAX_CAPACITY , true);
+        new ExpandableRingBuffer(ExpandableRingBuffer.MAX_CAPACITY + 1, ExpandableRingBuffer.MAX_CAPACITY, true);
     }
 
     @Test
