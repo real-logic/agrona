@@ -377,34 +377,28 @@ class ExpandableRingBuffer
         final int tailOffset = (int)tail & mask;
         final int alignedLength = BitUtil.align(HEADER_LENGTH + srcLength, HEADER_ALIGNMENT);
 
-        if (tailOffset >= headOffset)
+        final int totalRemaining = capacity - (int)(tail - head);
+        if (alignedLength > totalRemaining)
+        {
+            resize(alignedLength);
+        }
+        else if (tailOffset >= headOffset)
         {
             final int toEndRemaining = capacity - tailOffset;
-            if (alignedLength > toEndRemaining)
+            if (alignedLength > toEndRemaining && alignedLength <= (totalRemaining - toEndRemaining))
             {
-                if (headOffset >= alignedLength)
-                {
-                    buffer.putInt(tailOffset + MESSAGE_LENGTH_OFFSET, toEndRemaining);
-                    buffer.putInt(tailOffset + MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_PADDING);
-                    tail += toEndRemaining;
-                }
-                else if (size() < maxCapacity)
-                {
-                    resize(alignedLength);
-                }
+                buffer.putInt(tailOffset + MESSAGE_LENGTH_OFFSET, toEndRemaining);
+                buffer.putInt(tailOffset + MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_PADDING);
+                tail += toEndRemaining;
             }
-        }
-        else
-        {
-            final int totalRemaining = capacity - size();
-            if (alignedLength > totalRemaining && size() < maxCapacity)
+            else
             {
                 resize(alignedLength);
             }
         }
 
-        final int totalRemaining = capacity - size();
-        if (alignedLength > totalRemaining)
+        final int newTotalRemaining = capacity - (int)(tail - head);
+        if (alignedLength > newTotalRemaining)
         {
             return false;
         }
