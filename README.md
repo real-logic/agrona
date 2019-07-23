@@ -27,10 +27,10 @@ Utilities Included:
 * Clocks - Clock implementations to abstract system clocks, allow caching, and enable testing.
 * Queues - Lock-less implementations for low-latency applications.
 * Ring/Broadcast Buffers - implemented off-heap for IPC communication.
-* Basic Agent framework for concurrent services.
+* Simple Agent framework for concurrent services.
 * Signal handling to support "Ctrl + c" in a server application.
 * Scalable Timer Wheel - For scheduling timers at a given deadline with O(1) register and cancel time.
-* Basic code generation from annotated implementations that can vary on primitive types.
+* Code generation from annotated implementations specialised for primitive types.
 * Off-heap counters implementation for application telemetry, position tracking, and coordination.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
 * DistinctErrorLog - A log of distinct errors to avoid filling disks with existing logging approaches.
