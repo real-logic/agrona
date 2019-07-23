@@ -71,6 +71,7 @@ class ExpandableRingBuffer
     private static final int MESSAGE_TYPE_PADDING = 0;
     private static final int MESSAGE_TYPE_DATA = 1;
 
+    private final int maxCapacity;
     private int capacity;
     private int mask;
     private long head;
@@ -83,18 +84,25 @@ class ExpandableRingBuffer
      */
     ExpandableRingBuffer()
     {
-        this(0, true);
+        this(0, MAX_CAPACITY, true);
     }
 
     /**
      * Create a new ring buffer with an initial capacity.
      *
      * @param initialCapacity required in the buffer.
+     * @param maxCapacity     the the buffer can expand to.
      * @param isDirect        is the {@link ByteBuffer} allocated direct or heap based.
      */
-    ExpandableRingBuffer(final int initialCapacity, final boolean isDirect)
+    ExpandableRingBuffer(final int initialCapacity, final int maxCapacity, final boolean isDirect)
     {
         this.isDirect = isDirect;
+        this.maxCapacity = maxCapacity;
+
+        if (maxCapacity < 0 || maxCapacity > MAX_CAPACITY || !BitUtil.isPowerOfTwo(maxCapacity))
+        {
+            throw new IllegalArgumentException("illegal max capacity: " + maxCapacity);
+        }
 
         if (0 == initialCapacity)
         {
@@ -104,7 +112,7 @@ class ExpandableRingBuffer
 
         if (initialCapacity < 0)
         {
-            throw new IllegalArgumentException("initial capacity <= 0 : " + initialCapacity);
+            throw new IllegalArgumentException("initial capacity < 0 : " + initialCapacity);
         }
 
         capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
@@ -125,6 +133,16 @@ class ExpandableRingBuffer
     public boolean isDirect()
     {
         return isDirect;
+    }
+
+    /**
+     * The maximum capacity to which the buffer can expand.
+     *
+     * @return maximum capacity to which the buffer can expand.
+     */
+    public int maxCapacity()
+    {
+        return maxCapacity;
     }
 
     /**
@@ -195,6 +213,12 @@ class ExpandableRingBuffer
         if (newCapacity < 0)
         {
             throw new IllegalArgumentException("invalid required capacity: " + requiredCapacity);
+        }
+
+        if (newCapacity > maxCapacity)
+        {
+            throw new IllegalArgumentException(
+                "requiredCapacity=" + requiredCapacity + " > maxCapacity=" + maxCapacity);
         }
 
         if (newCapacity != capacity)
@@ -345,9 +369,9 @@ class ExpandableRingBuffer
      * @param srcBuffer containing the encoded message.
      * @param srcOffset within the buffer at which the message begins.
      * @param srcLength of the encoded message in the buffer.
-     * @throws IllegalStateException if the maximum capacity is reached.
+     * @return true if successful otherwise false if {@link #maxCapacity()} is reached.
      */
-    public void append(final DirectBuffer srcBuffer, final int srcOffset, final int srcLength)
+    public boolean append(final DirectBuffer srcBuffer, final int srcOffset, final int srcLength)
     {
         final int headOffset = (int)head & mask;
         final int tailOffset = (int)tail & mask;
@@ -364,7 +388,7 @@ class ExpandableRingBuffer
                     buffer.putInt(tailOffset + MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_PADDING);
                     tail += toEndRemaining;
                 }
-                else
+                else if (size() < maxCapacity)
                 {
                     resize(alignedLength);
                 }
@@ -372,25 +396,27 @@ class ExpandableRingBuffer
         }
         else
         {
-            final int totalRemaining = capacity - (int)(tail - head);
-            if (alignedLength > totalRemaining)
+            final int totalRemaining = capacity - size();
+            if (alignedLength > totalRemaining && size() < maxCapacity)
             {
                 resize(alignedLength);
             }
         }
 
+        final int totalRemaining = capacity - size();
+        if (alignedLength > totalRemaining)
+        {
+            return false;
+        }
+
         writeMessage(srcBuffer, srcOffset, srcLength);
         tail += alignedLength;
+        return true;
     }
 
     private void resize(final int newMessageLength)
     {
         final int newCapacity = BitUtil.findNextPositivePowerOfTwo(capacity + newMessageLength);
-        if (newCapacity < 0 || newCapacity < capacity)
-        {
-            throw new IllegalStateException("max capacity reached: " + MAX_CAPACITY);
-        }
-
         final UnsafeBuffer tempBuffer = new UnsafeBuffer(
             isDirect ? ByteBuffer.allocateDirect(newCapacity) : ByteBuffer.allocate(newCapacity));
 
