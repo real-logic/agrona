@@ -219,7 +219,7 @@ project(':agrona') {
     }
 
     compileGeneratedJava {
-        dependsOn 'generatePrimitiveExpansions'
+        dependsOn 'generatePrimitiveSpecialisations'
         sourceCompatibility = agronaJavaVersion
         targetCompatibility = agronaJavaVersion
         options.encoding = 'UTF-8'
@@ -227,8 +227,8 @@ project(':agrona') {
         classpath += sourceSets.main.runtimeClasspath
     }
 
-    task generatePrimitiveExpansions(type: JavaExec) {
-        main = 'org.agrona.generation.PrimitiveExpander'
+    task generatePrimitiveSpecialisations(type: JavaExec) {
+        main = 'org.agrona.generation.SpecialisationGenerator'
         classpath = sourceSets.main.runtimeClasspath
         outputs.dir generatedDir
     }
