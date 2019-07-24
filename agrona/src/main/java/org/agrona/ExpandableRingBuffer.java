@@ -411,7 +411,7 @@ class ExpandableRingBuffer
     private void resize(final int newMessageLength)
     {
         final int newCapacity = BitUtil.findNextPositivePowerOfTwo(capacity + newMessageLength);
-        if (newCapacity < 0 || newCapacity < capacity || newCapacity > maxCapacity)
+        if (newCapacity < capacity || newCapacity > maxCapacity)
         {
             return;
         }
