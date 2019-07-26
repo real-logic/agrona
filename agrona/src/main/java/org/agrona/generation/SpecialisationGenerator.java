@@ -42,6 +42,7 @@ public final class SpecialisationGenerator
     {
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntIntConsumer", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayList", SRC_DIR, DST_DIR);
+        specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayQueue", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2IntHashMap", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2IntCounterMap", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntHashSet", SRC_DIR, DST_DIR);
