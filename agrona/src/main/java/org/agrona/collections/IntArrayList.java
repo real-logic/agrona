@@ -19,6 +19,7 @@ import org.agrona.generation.DoNotSub;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
@@ -116,11 +117,17 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         return nullValue;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public @DoNotSub int size()
     {
         return size;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clear()
     {
         size = 0;
@@ -405,13 +412,13 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     /**
      * For each element in order provide the int value to a {@link IntConsumer}.
      *
-     * @param consumer for each element.
+     * @param action to be taken for each element.
      */
-    public void forEachOrderedInt(final IntConsumer consumer)
+    public void forEachOrderedInt(final IntConsumer action)
     {
         for (@DoNotSub int i = 0; i < size; i++)
         {
-            consumer.accept(elements[i]);
+            action.accept(elements[i]);
         }
     }
 
@@ -562,6 +569,31 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     /**
      * {@inheritDoc}
      */
+    public void forEach(final Consumer<? super Integer> action)
+    {
+        for (@DoNotSub int i = 0; i < size; i++)
+        {
+            final int value = elements[i];
+            action.accept(value != nullValue ? value : null);
+        }
+    }
+
+    /**
+     * Iterate over the collection without boxing.
+     *
+     * @param action to be taken for each element.
+     */
+    public void forEach(final IntConsumer action)
+    {
+        for (@DoNotSub int i = 0; i < size; i++)
+        {
+            action.accept(elements[i]);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();
@@ -570,10 +602,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         for (@DoNotSub int i = 0; i < size; i++)
         {
             final int value = elements[i];
-            if (value != nullValue)
-            {
-                sb.append(value).append(", ");
-            }
+            sb.append(value != nullValue ? value : null).append(", ");
         }
 
         if (sb.length() > 1)
