@@ -523,7 +523,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         {
             final List<?> that = (List<?>)other;
 
-            if (this.size == ((List)other).size())
+            if (this.size == that.size())
             {
                 isEqual = true;
                 @DoNotSub int i = 0;
@@ -559,7 +559,6 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         for (@DoNotSub int i = 0; i < size; i++)
         {
             final int value = elements[i];
-
             hashCode = 31 * hashCode + (value == nullValue ? 0 : Hashing.hash(value));
         }
 

@@ -307,7 +307,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
         {
             final Queue<?> that = (Queue<?>)other;
 
-            if (this.size() == ((List)other).size())
+            if (this.size() == that.size())
             {
                 isEqual = true;
                 @DoNotSub int i = this.head;
