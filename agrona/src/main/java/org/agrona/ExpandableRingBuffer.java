@@ -26,7 +26,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 /**
  * Ring buffer for storing messages which can expand to accommodate the messages written into it. Message are written
  * and read in a FIFO order with capacity up to {@link #maxCapacity()}. Messages can be iterated via for-each methods
- * without consuming and having the option to iterate from an offset from the current {@link #head()} position.
+ * without consuming and having the option to begin iteration an offset from the current {@link #head()} position.
  * <p>
  * <b>Note:</b> This class is not thread safe.
  */
@@ -80,7 +80,7 @@ public class ExpandableRingBuffer
     private final boolean isDirect;
 
     /**
-     * Create a new ring buffer which is initial compact and empty, has potential for {@link #MAX_CAPACITY},
+     * Create a new ring buffer which is initially compact and empty, has potential for {@link #MAX_CAPACITY},
      * and using a direct {@link ByteBuffer}.
      */
     ExpandableRingBuffer()
@@ -89,7 +89,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Create a new ring buffer with an initial capacity.
+     * Create a new ring buffer providing configuration for initial and max capacity, plus whether it is direct or not.
      *
      * @param initialCapacity required in the buffer.
      * @param maxCapacity     the the buffer can expand to.
@@ -127,7 +127,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Is the {@link ByteBuffer} used for storage direct, that is off Java heap, or not.
+     * Is the {@link ByteBuffer} used for backing storage direct, that is off Java heap, or not.
      *
      * @return return true if direct {@link ByteBuffer} or false for heap based {@link ByteBuffer}.
      */
@@ -157,9 +157,9 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Size of the ring buffer currently used in bytes.
+     * Size of the ring buffer currently populated in bytes.
      *
-     * @return size of the ring buffer currently used in bytes.
+     * @return size of the ring buffer currently populated in bytes.
      */
     public int size()
     {
@@ -167,7 +167,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Is the ring buffer empty.
+     * Is the ring buffer currently empty.
      *
      * @return true if the ring buffer is empty otherwise false.
      */
@@ -177,9 +177,9 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Head position in the buffer from which bytes are consumed forward to {@link #tail()}.
+     * Head position in the buffer from which bytes are consumed forward toward the {@link #tail()}.
      *
-     * @return head position in the buffer from which bytes are consumed forward to {@link #tail()}.
+     * @return head position in the buffer from which bytes are consumed forward towards the {@link #tail()}.
      * @see #consume(MessageConsumer, int)
      */
     public long head()
@@ -188,9 +188,9 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Tail position in the buffer at which new bytes are added.
+     * Tail position in the buffer at which new bytes are appended.
      *
-     * @return tail position in the buffer at which new bytes are added.
+     * @return tail position in the buffer at which new bytes are appended.
      * @see #append(DirectBuffer, int, int)
      */
     public long tail()
@@ -199,7 +199,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Reset the buffer with a new capacity and setting it to the empty state. Buffer will grow or shrink as necessary.
+     * Reset the buffer with a new capacity and empty state. Buffer capacity will grow or shrink as necessary.
      *
      * @param requiredCapacity for the ring buffer. If the same as exiting capacity then no adjustment is made.
      */
@@ -234,7 +234,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Iterate messages and pass them to the {@link MessageConsumer} which can stop by returning false.
+     * Iterate encoded contents and pass messages to the {@link MessageConsumer} which can stop by returning false.
      *
      * @param messageConsumer to which the encoded messages are passed.
      * @param limit           for the number of entries to iterate over.
@@ -270,9 +270,9 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Iterate messages and pass them to the {@link MessageConsumer} which can stop by returning false.
+     * Iterate encoded contents and pass messages to the {@link MessageConsumer} which can stop by returning false.
      *
-     * @param headOffset      offset from {@link #head} &lt;= {@link #tail()}, plus it must be the start a message.
+     * @param headOffset      offset from {@link #head} which must be &lt;= {@link #tail()}, and be the start a message.
      * @param messageConsumer to which the encoded messages are passed.
      * @param limit           for the number of entries to iterate over.
      * @return count of bytes iterated.
@@ -365,7 +365,7 @@ public class ExpandableRingBuffer
     }
 
     /**
-     * Append a message into the ring buffer expanding the buffer if required.
+     * Append a message into the ring buffer, expanding the buffer if required.
      *
      * @param srcBuffer containing the encoded message.
      * @param srcOffset within the buffer at which the message begins.
