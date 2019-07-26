@@ -116,6 +116,19 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     /**
      * {@inheritDoc}
      */
+    public void clear()
+    {
+        if (head != tail)
+        {
+            Arrays.fill(elements, nullValue);
+            head = 0;
+            tail = 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean offer(final Integer element)
     {
         return offerInt(element);
@@ -138,7 +151,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
 
         if ((tail & (elements.length - 1)) == head)
         {
-            expand();
+            increaseCapacity();
         }
 
         return true;
@@ -420,12 +433,15 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<Integer> iterator()
     {
         return null;
     }
 
-    private void expand()
+    private void increaseCapacity()
     {
         @DoNotSub final int oldHead = head;
         @DoNotSub final int oldCapacity = elements.length;
@@ -438,6 +454,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
         }
 
         final int[] array = new int[newCapacity];
+        Arrays.fill(array, oldCapacity, newCapacity, nullValue);
         System.arraycopy(elements, oldHead, array, 0, toEndOfArray);
         System.arraycopy(elements, 0, array, toEndOfArray, oldHead);
 

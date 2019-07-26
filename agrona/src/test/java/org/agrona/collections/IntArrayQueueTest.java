@@ -63,6 +63,21 @@ public class IntArrayQueueTest
     }
 
     @Test
+    public void shouldClear()
+    {
+        final IntArrayQueue queue = new IntArrayQueue();
+
+        for (int i = 0; i < 7; i++)
+        {
+            queue.offerInt(i);
+        }
+        queue.removeInt();
+
+        queue.clear();
+        assertEquals(0, queue.size());
+    }
+
+    @Test
     public void shouldOfferThenPollWithoutBoxing()
     {
         final IntArrayQueue queue = new IntArrayQueue();
