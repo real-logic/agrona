@@ -583,7 +583,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      *
      * @param action to be taken for each element.
      */
-    public void forEach(final IntConsumer action)
+    public void forEachInt(final IntConsumer action)
     {
         for (@DoNotSub int i = 0; i < size; i++)
         {
