@@ -568,6 +568,9 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         return hashCode;
     }
 
+    /**
+     * Iterator over the set which can be optionally cached to avoid allocation.
+     */
     public final class ObjectIterator implements Iterator<T>, Serializable
     {
         private int remaining;

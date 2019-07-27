@@ -24,6 +24,12 @@ public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, 
     {
     }
 
+    /**
+     * Defaults to avoiding allocation.
+     *
+     * @param initialCapacity for the map to override {@link #MIN_CAPACITY}
+     * @param loadFactor      for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
+     */
     public Object2NullableObjectHashMap(final int initialCapacity, final float loadFactor)
     {
         super(initialCapacity, loadFactor);

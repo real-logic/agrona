@@ -636,6 +636,9 @@ public class Int2ObjectHashMap<V>
     // Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Set of keys which supports optionally cached iterators to avoid allocation.
+     */
     public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
@@ -686,6 +689,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
+    /**
+     * Collection of values which supports optionally cached iterators to avoid allocation.
+     */
     public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
@@ -721,6 +727,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
+    /**
+     * Set of entries which supports access via an optionally cached iterator to avoid allocation.
+     */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
@@ -858,6 +867,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
+    /**
+     * Iterator over values.
+     */
     public class ValueIterator extends AbstractIterator<V>
     {
         public V next()
@@ -868,6 +880,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
+    /**
+     * Iterator over keys which supports access to unboxed keys.
+     */
     public class KeyIterator extends AbstractIterator<Integer>
     {
         public Integer next()
@@ -883,6 +898,9 @@ public class Int2ObjectHashMap<V>
         }
     }
 
+    /**
+     * Iterator over entries which supports access to unboxed keys and values.
+     */
     public class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>

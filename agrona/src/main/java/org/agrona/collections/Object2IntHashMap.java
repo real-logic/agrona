@@ -665,6 +665,9 @@ public class Object2IntHashMap<K>
     // Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Set of keys that can optionally cache iterators to avoid allocation.
+     */
     public final class KeySet extends AbstractSet<K> implements Serializable
     {
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
@@ -706,6 +709,9 @@ public class Object2IntHashMap<K>
         }
     }
 
+    /**
+     * Collection of values which can optionally cache iterators to avoid allocation.
+     */
     public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
@@ -741,6 +747,9 @@ public class Object2IntHashMap<K>
         }
     }
 
+    /**
+     * Set of entries which can optionally cache iterators to avoid allocation.
+     */
     public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
@@ -874,6 +883,9 @@ public class Object2IntHashMap<K>
         }
     }
 
+    /**
+     * Iterator over values providing unboxed access.
+     */
     public final class ValueIterator extends AbstractIterator<Integer>
     {
         public Integer next()
@@ -889,6 +901,9 @@ public class Object2IntHashMap<K>
         }
     }
 
+    /**
+     * Iterator over keys.
+     */
     public final class KeyIterator extends AbstractIterator<K>
     {
         public K next()
@@ -899,6 +914,9 @@ public class Object2IntHashMap<K>
         }
     }
 
+    /**
+     * Iterator over entries which can provide unboxed access and optionally avoid allocation.
+     */
     public final class EntryIterator
         extends AbstractIterator<Entry<K, Integer>>
         implements Entry<K, Integer>

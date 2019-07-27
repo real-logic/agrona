@@ -453,7 +453,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         final Map<K, V> that = (Map<K, V>)o;
 
         return size == that.size() && entrySet().equals(that.entrySet());
-
     }
 
     public int hashCode()

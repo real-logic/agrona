@@ -698,6 +698,9 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         return hashCode;
     }
 
+    /**
+     * Iterator which supports unboxed access to values.
+     */
     public final class IntIterator implements Iterator<Integer>, Serializable
     {
         @DoNotSub private int remaining;

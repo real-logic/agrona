@@ -764,6 +764,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Iterator over keys which supports access to unboxed keys.
+     */
     public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
         public Integer next()
@@ -779,6 +782,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Iterator over values which supports access to unboxed values.
+     */
     public final class ValueIterator extends AbstractIterator implements Iterator<Integer>
     {
         public Integer next()
@@ -794,6 +800,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Iterator over entries which supports access to unboxed keys and values.
+     */
     public final class EntryIterator
         extends AbstractIterator
         implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
@@ -923,6 +932,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Set of keys which supports optional cached iterators to avoid allocation.
+     */
     public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
@@ -980,6 +992,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Collection of values which supports optionally cached iterators to avoid allocation.
+     */
     public final class ValueCollection extends AbstractCollection<Integer>
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
@@ -1021,6 +1036,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
     }
 
+    /**
+     * Set of entries which supports optionally cached iterators to avoid allocation.
+     */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, Integer>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
