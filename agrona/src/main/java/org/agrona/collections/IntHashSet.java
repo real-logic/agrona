@@ -707,7 +707,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
 
         IntIterator reset()
         {
-            this.remaining = size();
+            remaining = size();
 
             final int[] values = IntHashSet.this.values;
             @DoNotSub final int length = values.length;

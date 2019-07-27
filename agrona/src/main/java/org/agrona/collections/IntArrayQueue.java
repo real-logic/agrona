@@ -25,7 +25,9 @@ import java.util.function.IntConsumer;
 
 /**
  * Queue of ints which stores the elements without boxing. Null is represented by a special {@link #nullValue()}.
- *
+ * <p>
+ * The {@link IntIterator} is cached by default to avoid allocation unless directed to do so in the constructor.
+ * <p>
  * <b>Note:</b> This class is not threadsafe.
  */
 public class IntArrayQueue extends AbstractQueue<Integer> implements Serializable
@@ -40,27 +42,60 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
      */
     @DoNotSub public static final int MIN_CAPACITY = 8;
 
+    private final boolean shouldAvoidAllocation;
     @DoNotSub private int head;
     @DoNotSub private int tail;
     @DoNotSub private int capacity;
     private final int nullValue;
     private int[] elements;
+    private IntIterator iterator;
 
+    /**
+     * Construct a new queue defaulting to {@link #MIN_CAPACITY} capacity, {@link #DEFAULT_NULL_VALUE}
+     * and cached iterators.
+     */
     public IntArrayQueue()
     {
-        this(MIN_CAPACITY, DEFAULT_NULL_VALUE);
+        this(MIN_CAPACITY, DEFAULT_NULL_VALUE, true);
     }
 
+    /**
+     * Construct a new queue defaulting to {@link #MIN_CAPACITY} capacity and cached iterators.
+     *
+     * @param nullValue cannot be stored in the queue and used as a sentinel.
+     */
     public IntArrayQueue(final int nullValue)
     {
-        this(MIN_CAPACITY, nullValue);
+        this(MIN_CAPACITY, nullValue, true);
     }
 
+    /**
+     * Construct a new queue default to cached iterators.
+     *
+     * @param initialCapacity for the queue which will be rounded up to the nearest power of 2.
+     * @param nullValue       which cannot be stored in the queue and used as a sentinel.
+     */
     public IntArrayQueue(
         @DoNotSub final int initialCapacity,
         final int nullValue)
     {
+        this(initialCapacity, nullValue, true);
+    }
+
+    /**
+     * Construct a new queue providing all the config options.
+     *
+     * @param initialCapacity       for the queue which will be rounded up to the nearest power of 2.
+     * @param nullValue             which cannot be stored in the queue and used as a sentinel.
+     * @param shouldAvoidAllocation true to cache the iterator otherwise false to allocate a new iterator each time.
+     */
+    public IntArrayQueue(
+        @DoNotSub final int initialCapacity,
+        final int nullValue,
+        final boolean shouldAvoidAllocation)
+    {
         this.nullValue = nullValue;
+        this.shouldAvoidAllocation = shouldAvoidAllocation;
 
         if (initialCapacity < MIN_CAPACITY)
         {
@@ -436,9 +471,19 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     /**
      * {@inheritDoc}
      */
-    public Iterator<Integer> iterator()
+    public IntIterator iterator()
     {
-        return null;
+        IntIterator iterator = this.iterator;
+        if (null == iterator)
+        {
+            iterator = new IntIterator();
+            if (shouldAvoidAllocation)
+            {
+                this.iterator = iterator;
+            }
+        }
+
+        return iterator.reset();
     }
 
     private void increaseCapacity()
@@ -461,5 +506,47 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
         elements = array;
         head = 0;
         tail = oldCapacity;
+    }
+
+    /**
+     * Specialised {@link Iterator} from which the value can be retrieved without boxing via {@link #nextValue()}.
+     */
+    public final class IntIterator implements Iterator<Integer>, Serializable
+    {
+        @DoNotSub private int index;
+
+        IntIterator reset()
+        {
+            index = IntArrayQueue.this.head;
+            return this;
+        }
+
+        public boolean hasNext()
+        {
+            return index != tail;
+        }
+
+        public Integer next()
+        {
+            return nextValue();
+        }
+
+        /**
+         * Get the next value from the iterator without boxing.
+         *
+         * @return the next value from the queue.
+         */
+        public int nextValue()
+        {
+            if (index == tail)
+            {
+                throw new NoSuchElementException();
+            }
+
+            final int element = elements[index];
+            index = (index + 1) & (elements.length - 1);
+
+            return element;
+        }
     }
 }

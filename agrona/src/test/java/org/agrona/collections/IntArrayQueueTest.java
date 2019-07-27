@@ -124,4 +124,46 @@ public class IntArrayQueueTest
         queue.offerInt(element);
         assertEquals(element, queue.peekInt());
     }
+
+    @Test
+    public void shouldIterate()
+    {
+        final IntArrayQueue queue = new IntArrayQueue();
+        final int count = 20;
+
+        for (int i = 0; i < count; i++)
+        {
+            queue.offerInt(i);
+        }
+
+        final IntArrayQueue.IntIterator iterator = queue.iterator();
+        for (int i = 0; i < count; i++)
+        {
+            assertTrue(iterator.hasNext());
+            assertEquals(Integer.valueOf(i), iterator.next());
+        }
+
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void shouldIterateWithoutBoxing()
+    {
+        final IntArrayQueue queue = new IntArrayQueue();
+        final int count = 20;
+
+        for (int i = 0; i < count; i++)
+        {
+            queue.offerInt(i);
+        }
+
+        final IntArrayQueue.IntIterator iterator = queue.iterator();
+        for (int i = 0; i < count; i++)
+        {
+            assertTrue(iterator.hasNext());
+            assertEquals(i, iterator.nextValue());
+        }
+
+        assertFalse(iterator.hasNext());
+    }
 }
