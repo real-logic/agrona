@@ -83,7 +83,7 @@ public class ExpandableRingBuffer
      * Create a new ring buffer which is initially compact and empty, has potential for {@link #MAX_CAPACITY},
      * and using a direct {@link ByteBuffer}.
      */
-    ExpandableRingBuffer()
+    public ExpandableRingBuffer()
     {
         this(0, MAX_CAPACITY, true);
     }
@@ -95,7 +95,7 @@ public class ExpandableRingBuffer
      * @param maxCapacity     the the buffer can expand to.
      * @param isDirect        is the {@link ByteBuffer} allocated direct or heap based.
      */
-    ExpandableRingBuffer(final int initialCapacity, final int maxCapacity, final boolean isDirect)
+    public ExpandableRingBuffer(final int initialCapacity, final int maxCapacity, final boolean isDirect)
     {
         this.isDirect = isDirect;
         this.maxCapacity = maxCapacity;
