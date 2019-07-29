@@ -126,6 +126,16 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * The current capacity for the collection.
+     *
+     * @return the current capacity for the collection.
+     */
+    @DoNotSub public int capacity()
+    {
+        return elements.length;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public void clear()

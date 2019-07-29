@@ -45,7 +45,6 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     private final boolean shouldAvoidAllocation;
     @DoNotSub private int head;
     @DoNotSub private int tail;
-    @DoNotSub private int capacity;
     private final int nullValue;
     private int[] elements;
     private IntIterator iterator;
@@ -102,7 +101,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
             throw new IllegalArgumentException("initial capacity < MIN_INITIAL_CAPACITY : " + initialCapacity);
         }
 
-        capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
+        @DoNotSub final int capacity = BitUtil.findNextPositivePowerOfTwo(initialCapacity);
         if (capacity < MIN_CAPACITY)
         {
             throw new IllegalArgumentException("invalid initial capacity: " + initialCapacity);
@@ -123,13 +122,13 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     }
 
     /**
-     * The current capacity for the collection
+     * The current capacity for the collection.
      *
-     * @return the current capacity for the collection
+     * @return the current capacity for the collection.
      */
-    public int capacity()
+    @DoNotSub public int capacity()
     {
-        return capacity;
+        return elements.length;
     }
 
     /**
