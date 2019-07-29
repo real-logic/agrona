@@ -555,11 +555,11 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     @DoNotSub public int hashCode()
     {
-        @DoNotSub int hashCode = 0;
+        @DoNotSub int hashCode = 1;
         for (@DoNotSub int i = 0; i < size; i++)
         {
             final int value = elements[i];
-            hashCode = 31 * hashCode + (value == nullValue ? 0 : Hashing.hash(value));
+            hashCode = 31 * hashCode + (value == nullValue ? 0 : Integer.hashCode(value));
         }
 
         return hashCode;

@@ -272,6 +272,23 @@ public class IntArrayListTest
     }
 
     @Test
+    public void shouldEqualsAndHashcode()
+    {
+        final ArrayList<Integer> genericList = new ArrayList<>();
+        final int count = 20;
+
+        for (int i = 0; i < count; i++)
+        {
+            list.addInt(i);
+            genericList.add(i);
+        }
+
+        assertEquals(genericList.hashCode(), list.hashCode());
+        assertTrue(genericList.equals(list));
+        assertTrue(list.equals(genericList));
+    }
+
+    @Test
     public void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
