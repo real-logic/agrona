@@ -15,9 +15,16 @@
  */
 package org.agrona.collections;
 
+/**
+ * Sentinel value used in collections supporting null value references.
+ */
 public final class NullReference
 {
     public static final NullReference INSTANCE = new NullReference();
+
+    private NullReference()
+    {
+    }
 
     public int hashCode()
     {

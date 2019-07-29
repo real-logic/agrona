@@ -15,6 +15,9 @@
  */
 package org.agrona.concurrent;
 
+/**
+ * Clock representing the time in microseconds since 1 Jan 1970 UTC.
+ */
 @FunctionalInterface
 public interface EpochMicroClock
 {
