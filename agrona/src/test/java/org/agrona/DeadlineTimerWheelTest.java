@@ -22,10 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class DeadlineTimerWheelTest
@@ -46,6 +45,19 @@ public class DeadlineTimerWheelTest
         new DeadlineTimerWheel(TimeUnit.NANOSECONDS, 0, 17, 8);
     }
 
+    @Test
+    public void shouldDefaultConfigure()
+    {
+        final int startTime = 0;
+        final int tickResolution = 16;
+        final int ticksPerWheel = 8;
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, startTime, tickResolution, ticksPerWheel);
+
+        assertEquals(wheel.timeUnit(), TIME_UNIT);
+        assertEquals(wheel.tickResolution(), tickResolution);
+        assertEquals(wheel.ticksPerWheel(), ticksPerWheel);
+    }
+
     @Test(timeout = 1000)
     public void shouldBeAbleToScheduleTimerOnEdgeOfTick()
     {
@@ -53,7 +65,9 @@ public class DeadlineTimerWheelTest
         final MutableLong firedTimestamp = new MutableLong(-1);
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
-        final long id = wheel.scheduleTimer(5 * wheel.tickResolution());
+        final long deadline = 5 * wheel.tickResolution();
+        final long id = wheel.scheduleTimer(deadline);
+        assertEquals(wheel.deadline(id), deadline);
 
         do
         {
@@ -132,7 +146,6 @@ public class DeadlineTimerWheelTest
         // this is the first tick after the timer, so it should be on this edge
         assertThat(firedTimestamp.value, is(6 * wheel.tickResolution()));
     }
-
 
     @Test(timeout = 1000)
     public void shouldHandleMultipleRounds()
@@ -214,8 +227,7 @@ public class DeadlineTimerWheelTest
     {
         long controlTimestamp = 0;
         final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel =
-            new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
 
         final long id = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
 
@@ -527,5 +539,33 @@ public class DeadlineTimerWheelTest
         assertThat(timerIdByDeadlineMap.size(), is(2));
         assertThat(timerIdByDeadlineMap.get(deadline1), is(id1));
         assertThat(timerIdByDeadlineMap.get(deadline2), is(id2));
+    }
+
+    @Test
+    public void shouldClearOutScheduledTimers()
+    {
+        final long controlTimestamp = 0;
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+        final long deadline1 = controlTimestamp + (15 * wheel.tickResolution());
+        final long deadline2 = controlTimestamp + ((15 + 7) * wheel.tickResolution());
+
+        final long id1 = wheel.scheduleTimer(deadline1);
+        final long id2 = wheel.scheduleTimer(deadline2);
+
+        wheel.clear();
+
+        assertThat(wheel.timerCount(), is(0L));
+        assertThat(wheel.deadline(id1), is(DeadlineTimerWheel.NULL_TIMER));
+        assertThat(wheel.deadline(id2), is(DeadlineTimerWheel.NULL_TIMER));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotAllowResetWhenTimersActive()
+    {
+        final long controlTimestamp = 0;
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+        wheel.scheduleTimer(controlTimestamp + 100);
+        wheel.resetStartTime(controlTimestamp + 1);
     }
 }
