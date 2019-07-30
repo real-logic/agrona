@@ -248,8 +248,8 @@ public class DeadlineTimerWheel
      */
     public long scheduleTimer(final long deadline)
     {
-        final long ticks = Math.max((deadline - startTime) >> resolutionBitsToShift, currentTick);
-        final int spokeIndex = (int)(ticks & tickMask);
+        final long deadlineTick = Math.max((deadline - startTime) >> resolutionBitsToShift, currentTick);
+        final int spokeIndex = (int)(deadlineTick & tickMask);
         final long[] tickArray = wheel[spokeIndex];
 
         for (int i = 0; i < tickArray.length; i++)
@@ -302,12 +302,12 @@ public class DeadlineTimerWheel
     /**
      * Poll for timers expired by the deadline passing.
      *
-     * @param now               current time to compare deadlines against.
-     * @param handler           to call for each expired timer.
-     * @param maxTimersToExpire to process in one poll operation.
+     * @param now         current time to compare deadlines against.
+     * @param handler     to call for each expired timer.
+     * @param expiryLimit to process in one poll operation.
      * @return number of expired timers.
      */
-    public int poll(final long now, final TimerHandler handler, final int maxTimersToExpire)
+    public int poll(final long now, final TimerHandler handler, final int expiryLimit)
     {
         int timersExpired = 0;
 
@@ -315,7 +315,7 @@ public class DeadlineTimerWheel
         {
             final long[] tickArray = wheel[currentTick & tickMask];
 
-            for (int i = 0, length = tickArray.length; i < length && maxTimersToExpire > timersExpired; i++)
+            for (int i = 0, length = tickArray.length; i < length && expiryLimit > timersExpired; i++)
             {
                 final long deadline = tickArray[pollIndex];
 
@@ -337,7 +337,7 @@ public class DeadlineTimerWheel
                 pollIndex = (pollIndex + 1) >= length ? 0 : (pollIndex + 1);
             }
 
-            if (maxTimersToExpire > timersExpired && currentTickTime() <= now)
+            if (expiryLimit > timersExpired && currentTickTime() <= now)
             {
                 currentTick++;
                 pollIndex = 0;

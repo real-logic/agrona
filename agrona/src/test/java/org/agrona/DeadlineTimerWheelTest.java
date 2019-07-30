@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -567,5 +568,34 @@ public class DeadlineTimerWheelTest
 
         wheel.scheduleTimer(controlTimestamp + 100);
         wheel.resetStartTime(controlTimestamp + 1);
+    }
+
+    @Test(timeout = 1000)
+    public void shouldScheduleDeadlineInThePast()
+    {
+        long controlTimestamp = 100 * RESOLUTION;
+        final MutableLong firedTimestamp = new MutableLong(-1);
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+
+        final long deadline = controlTimestamp - 3;
+        final long id = wheel.scheduleTimer(deadline);
+
+        do
+        {
+            wheel.poll(
+                controlTimestamp,
+                (timeUnit, now, timerId) ->
+                {
+                    assertThat(timerId, is(id));
+                    firedTimestamp.value = now;
+                    return true;
+                },
+                Integer.MAX_VALUE);
+
+            controlTimestamp += wheel.tickResolution();
+        }
+        while (-1 == firedTimestamp.value);
+
+        assertThat(firedTimestamp.value, greaterThan(deadline));
     }
 }
