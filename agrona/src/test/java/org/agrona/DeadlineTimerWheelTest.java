@@ -49,7 +49,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldDefaultConfigure()
     {
-        final int startTime = 0;
+        final int startTime = 7;
         final int tickResolution = 16;
         final int ticksPerWheel = 8;
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, startTime, tickResolution, ticksPerWheel);
@@ -57,6 +57,7 @@ public class DeadlineTimerWheelTest
         assertEquals(wheel.timeUnit(), TIME_UNIT);
         assertEquals(wheel.tickResolution(), tickResolution);
         assertEquals(wheel.ticksPerWheel(), ticksPerWheel);
+        assertEquals(wheel.startTime(), startTime);
     }
 
     @Test(timeout = 1000)

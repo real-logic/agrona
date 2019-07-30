@@ -171,6 +171,16 @@ public class DeadlineTimerWheel
     }
 
     /**
+     * The start time tick for the wheel from which it advances.
+     *
+     * @return start time tick for the wheel from which it advances.
+     */
+    public long startTime()
+    {
+        return startTime;
+    }
+
+    /**
      * Time of current tick of the wheel in {@link #timeUnit()}s.
      *
      * @return time of the current tick of the wheel in {@link #timeUnit()}s.
