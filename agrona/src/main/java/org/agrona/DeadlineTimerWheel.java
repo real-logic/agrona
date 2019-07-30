@@ -49,16 +49,19 @@ public class DeadlineTimerWheel
 
     private static final int INITIAL_TICK_ALLOCATION = 16;
 
+    private final TimeUnit timeUnit;
+    private final int ticksPerWheel;
     private final int tickResolution;
     private final int tickMask;
     private final int resolutionBitsToShift;
+    private int tickAllocation;
+    private int allocationBitsToShift;
     private int currentTick;
     private int pollIndex;
     private long startTime;
     private long timerCount;
 
-    private final long[][] wheel;
-    private final TimeUnit timeUnit;
+    private long[] wheel;
 
     /**
      * Handler for processing expired timers.
@@ -122,22 +125,22 @@ public class DeadlineTimerWheel
     {
         checkTicksPerWheel(ticksPerWheel);
         checkResolution(tickResolution);
+        checkTickAllocation(initialTickAllocation);
 
         this.timeUnit = timeUnit;
+        this.ticksPerWheel = ticksPerWheel;
+        this.tickAllocation = initialTickAllocation;
         this.tickMask = ticksPerWheel - 1;
         this.tickResolution = tickResolution;
         this.resolutionBitsToShift = Integer.numberOfTrailingZeros(tickResolution);
+        this.allocationBitsToShift = Integer.numberOfTrailingZeros(initialTickAllocation);
         this.startTime = startTime;
         this.timerCount = 0;
         this.pollIndex = 0;
 
-        wheel = new long[ticksPerWheel][];
+        wheel = new long[ticksPerWheel * initialTickAllocation];
 
-        for (int i = 0; i < wheel.length; i++)
-        {
-            wheel[i] = new long[initialTickAllocation];
-            Arrays.fill(wheel[i], NULL_DEADLINE);
-        }
+        Arrays.fill(wheel, NULL_DEADLINE);
     }
 
     /**
@@ -167,7 +170,7 @@ public class DeadlineTimerWheel
      */
     public int ticksPerWheel()
     {
-        return wheel.length;
+        return ticksPerWheel;
     }
 
     /**
@@ -229,21 +232,16 @@ public class DeadlineTimerWheel
             return;
         }
 
-        for (int j = currentTick, end = currentTick + wheel.length; j <= end; j++)
+        for (int i = 0; i < wheel.length; i++)
         {
-            final long[] tickArray = wheel[j & tickMask];
-
-            for (int i = 0, length = tickArray.length; i < length; i++)
+            if (NULL_DEADLINE != wheel[i])
             {
-                if (NULL_DEADLINE != tickArray[i])
-                {
-                    tickArray[i] = NULL_DEADLINE;
+                wheel[i] = NULL_DEADLINE;
 
-                    if (--remainingTimers <= 0)
-                    {
-                        timerCount = 0;
-                        return;
-                    }
+                if (--remainingTimers <= 0)
+                {
+                    timerCount = 0;
+                    return;
                 }
             }
         }
@@ -260,26 +258,49 @@ public class DeadlineTimerWheel
     {
         final long deadlineTick = Math.max((deadline - startTime) >> resolutionBitsToShift, currentTick);
         final int spokeIndex = (int)(deadlineTick & tickMask);
-        final long[] tickArray = wheel[spokeIndex];
+        final int tickStartIndex = spokeIndex << allocationBitsToShift;
 
-        for (int i = 0; i < tickArray.length; i++)
+        for (int i = 0; i < tickAllocation; i++)
         {
-            if (NULL_DEADLINE == tickArray[i])
+            final int index = tickStartIndex + i;
+
+            if (NULL_DEADLINE == wheel[index])
             {
-                tickArray[i] = deadline;
+                wheel[index] = deadline;
                 timerCount++;
 
                 return timerIdForSlot(spokeIndex, i);
             }
         }
 
-        final long[] newArray = Arrays.copyOf(tickArray, tickArray.length + 1);
-        newArray[tickArray.length] = deadline;
+        final int newTickAllocation = this.tickAllocation << 1;
+        final int newAllcationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
+        final long[] newWheel = new long[ticksPerWheel * newTickAllocation];
 
-        wheel[spokeIndex] = newArray;
+        for (int j = 0; j < ticksPerWheel; j++)
+        {
+            final int oldTickStartIndex = j << allocationBitsToShift;
+            final int newTickStartIndex = j << newAllcationBitsToShift;
+
+            System.arraycopy(wheel, oldTickStartIndex, newWheel, newTickStartIndex, tickAllocation);
+
+            Arrays.fill(
+                newWheel,
+                newTickStartIndex + tickAllocation,
+                newTickStartIndex + newTickAllocation,
+                NULL_DEADLINE);
+        }
+
+        newWheel[(spokeIndex << newAllcationBitsToShift) + tickAllocation] = deadline;
         timerCount++;
 
-        return timerIdForSlot(spokeIndex, tickArray.length);
+        final long timerId = timerIdForSlot(spokeIndex, tickAllocation);
+
+        this.tickAllocation = newTickAllocation;
+        this.allocationBitsToShift = newAllcationBitsToShift;
+        this.wheel = newWheel;
+
+        return timerId;
     }
 
     /**
@@ -292,14 +313,13 @@ public class DeadlineTimerWheel
     {
         final int spokeIndex = tickForTimerId(timerId);
         final int tickIndex = indexInTickArray(timerId);
+        final int wheelIndex = (spokeIndex << this.allocationBitsToShift) + tickIndex;
 
-        if (spokeIndex < wheel.length)
+        if (spokeIndex < ticksPerWheel)
         {
-            final long[] tickArray = wheel[spokeIndex];
-
-            if (tickIndex < tickArray.length && NULL_DEADLINE != tickArray[tickIndex])
+            if (tickIndex < tickAllocation && NULL_DEADLINE != wheel[wheelIndex])
             {
-                tickArray[tickIndex] = NULL_DEADLINE;
+                wheel[wheelIndex] = NULL_DEADLINE;
                 timerCount--;
 
                 return true;
@@ -323,21 +343,22 @@ public class DeadlineTimerWheel
 
         if (timerCount > 0)
         {
-            final long[] tickArray = wheel[currentTick & tickMask];
+            final int spokeIndex = currentTick & tickMask;
 
-            for (int i = 0, length = tickArray.length; i < length && expiryLimit > timersExpired; i++)
+            for (int i = 0, length = tickAllocation; i < length && expiryLimit > timersExpired; i++)
             {
-                final long deadline = tickArray[pollIndex];
+                final int wheelIndex = (spokeIndex << allocationBitsToShift) + pollIndex;
+                final long deadline = wheel[wheelIndex];
 
                 if (deadline <= now)
                 {
-                    tickArray[pollIndex] = NULL_DEADLINE;
+                    wheel[wheelIndex] = NULL_DEADLINE;
                     timerCount--;
                     timersExpired++;
 
-                    if (!handler.onTimerExpiry(timeUnit, now, timerIdForSlot(currentTick & tickMask, pollIndex)))
+                    if (!handler.onTimerExpiry(timeUnit, now, timerIdForSlot(spokeIndex, pollIndex)))
                     {
-                        tickArray[pollIndex] = deadline;
+                        wheel[wheelIndex] = deadline;
                         timerCount++;
 
                         return timersExpired;
@@ -352,7 +373,7 @@ public class DeadlineTimerWheel
                 currentTick++;
                 pollIndex = 0;
             }
-            else if (pollIndex >= tickArray.length)
+            else if (pollIndex >= tickAllocation)
             {
                 pollIndex = 0;
             }
@@ -375,22 +396,17 @@ public class DeadlineTimerWheel
     {
         long timersRemaining = timerCount;
 
-        for (int j = currentTick, end = currentTick + wheel.length; j <= end; j++)
+        for (int i = 0; i < wheel.length; i++)
         {
-            final long[] tickArray = wheel[j & tickMask];
+            final long deadline = wheel[i];
 
-            for (int i = 0, length = tickArray.length; i < length; i++)
+            if (NULL_DEADLINE != deadline)
             {
-                final long deadline = tickArray[i];
+                consumer.accept(deadline, timerIdForSlot(i >> allocationBitsToShift, i & tickMask));
 
-                if (NULL_DEADLINE != deadline)
+                if (--timersRemaining <= 0)
                 {
-                    consumer.accept(deadline, timerIdForSlot(j & tickMask, i));
-
-                    if (--timersRemaining <= 0)
-                    {
-                        return;
-                    }
+                    return;
                 }
             }
         }
@@ -406,14 +422,13 @@ public class DeadlineTimerWheel
     {
         final int spokeIndex = tickForTimerId(timerId);
         final int tickIndex = indexInTickArray(timerId);
+        final int wheelIndex = (spokeIndex << this.allocationBitsToShift) + tickIndex;
 
-        if (spokeIndex < wheel.length)
+        if (spokeIndex < ticksPerWheel)
         {
-            final long[] tickArray = wheel[spokeIndex];
-
-            if (tickIndex < tickArray.length)
+            if (tickIndex < tickAllocation)
             {
-                return tickArray[tickIndex];
+                return wheel[wheelIndex];
             }
         }
 
@@ -463,6 +478,14 @@ public class DeadlineTimerWheel
         if (!BitUtil.isPowerOfTwo(tickResolution))
         {
             throw new IllegalArgumentException("tick resolution must be a power of 2: " + tickResolution);
+        }
+    }
+
+    private static void checkTickAllocation(final int tickAllocation)
+    {
+        if (!BitUtil.isPowerOfTwo(tickAllocation))
+        {
+            throw new IllegalArgumentException("tick allocation must be a power of 2: " + tickAllocation);
         }
     }
 }
