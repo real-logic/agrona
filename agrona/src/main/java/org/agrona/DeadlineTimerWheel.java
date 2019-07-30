@@ -45,7 +45,7 @@ public class DeadlineTimerWheel
     /**
      * Represents a deadline not set in the wheel.
      */
-    public static final long NULL_TIMER = Long.MAX_VALUE;
+    public static final long NULL_DEADLINE = Long.MAX_VALUE;
 
     private static final int INITIAL_TICK_ALLOCATION = 16;
 
@@ -136,7 +136,7 @@ public class DeadlineTimerWheel
         for (int i = 0; i < wheel.length; i++)
         {
             wheel[i] = new long[initialTickAllocation];
-            Arrays.fill(wheel[i], NULL_TIMER);
+            Arrays.fill(wheel[i], NULL_DEADLINE);
         }
     }
 
@@ -225,9 +225,9 @@ public class DeadlineTimerWheel
 
             for (int i = 0, length = tickArray.length; i < length; i++)
             {
-                if (tickArray[i] != NULL_TIMER)
+                if (NULL_DEADLINE != tickArray[i])
                 {
-                    tickArray[i] = NULL_TIMER;
+                    tickArray[i] = NULL_DEADLINE;
 
                     if (--remainingTimers <= 0)
                     {
@@ -254,7 +254,7 @@ public class DeadlineTimerWheel
 
         for (int i = 0; i < tickArray.length; i++)
         {
-            if (NULL_TIMER == tickArray[i])
+            if (NULL_DEADLINE == tickArray[i])
             {
                 tickArray[i] = deadline;
                 timerCount++;
@@ -287,9 +287,9 @@ public class DeadlineTimerWheel
         {
             final long[] tickArray = wheel[spokeIndex];
 
-            if (tickIndex < tickArray.length && NULL_TIMER != tickArray[tickIndex])
+            if (tickIndex < tickArray.length && NULL_DEADLINE != tickArray[tickIndex])
             {
-                tickArray[tickIndex] = NULL_TIMER;
+                tickArray[tickIndex] = NULL_DEADLINE;
                 timerCount--;
 
                 return true;
@@ -321,7 +321,7 @@ public class DeadlineTimerWheel
 
                 if (deadline <= now)
                 {
-                    tickArray[pollIndex] = NULL_TIMER;
+                    tickArray[pollIndex] = NULL_DEADLINE;
                     timerCount--;
                     timersExpired++;
 
@@ -373,7 +373,7 @@ public class DeadlineTimerWheel
             {
                 final long deadline = tickArray[i];
 
-                if (deadline != NULL_TIMER)
+                if (NULL_DEADLINE != deadline)
                 {
                     consumer.accept(deadline, timerIdForSlot(j & tickMask, i));
 
@@ -390,7 +390,7 @@ public class DeadlineTimerWheel
      * Get the deadline for the given timerId.
      *
      * @param timerId of the timer to return the deadline of.
-     * @return deadline for the given timerId or {@link #NULL_TIMER} if timerId is not running.
+     * @return deadline for the given timerId or {@link #NULL_DEADLINE} if timerId is not running.
      */
     public long deadline(final long timerId)
     {
@@ -407,7 +407,7 @@ public class DeadlineTimerWheel
             }
         }
 
-        return NULL_TIMER;
+        return NULL_DEADLINE;
     }
 
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)

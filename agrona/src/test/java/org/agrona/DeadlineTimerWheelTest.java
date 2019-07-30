@@ -556,8 +556,8 @@ public class DeadlineTimerWheelTest
         wheel.clear();
 
         assertThat(wheel.timerCount(), is(0L));
-        assertThat(wheel.deadline(id1), is(DeadlineTimerWheel.NULL_TIMER));
-        assertThat(wheel.deadline(id2), is(DeadlineTimerWheel.NULL_TIMER));
+        assertThat(wheel.deadline(id1), is(DeadlineTimerWheel.NULL_DEADLINE));
+        assertThat(wheel.deadline(id2), is(DeadlineTimerWheel.NULL_DEADLINE));
     }
 
     @Test(expected = IllegalStateException.class)
