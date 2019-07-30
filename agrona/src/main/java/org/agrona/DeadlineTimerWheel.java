@@ -420,6 +420,21 @@ public class DeadlineTimerWheel
         return NULL_DEADLINE;
     }
 
+    /**
+     * Wind the wheel forward by setting the current tick of the wheel to examine on the next {@link #poll}.
+     *
+     * If the time passed in is less than the current time, nothing is changed.
+     * No timers will be expired when winding forward and thus are still in the wheel and will be expired as
+     * encountered in the wheel during {@link #poll} operations. No guarantee of order for past timers is assumed when
+     * expired later.
+     *
+     * @param now current time to wind forward to or stay at current time if now in the past.
+     */
+    public void windForward(final long now)
+    {
+        currentTick = (int)Math.max((now - startTime) >> resolutionBitsToShift, currentTick);
+    }
+
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)
     {
         return ((long)tickOnWheel << 32) | tickArrayIndex;
