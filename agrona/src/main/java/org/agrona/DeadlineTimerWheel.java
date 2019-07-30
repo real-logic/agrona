@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class DeadlineTimerWheel
 {
     /**
-     * Represents a timer value not set in the wheel.
+     * Represents a deadline not set in the wheel.
      */
     public static final long NULL_TIMER = Long.MAX_VALUE;
 
