@@ -298,7 +298,7 @@ public class DeadlineTimerWheel
     {
         final int spokeIndex = tickForTimerId(timerId);
         final int tickIndex = indexInTickArray(timerId);
-        final int wheelIndex = (spokeIndex << this.allocationBitsToShift) + tickIndex;
+        final int wheelIndex = (spokeIndex << allocationBitsToShift) + tickIndex;
 
         if (spokeIndex < ticksPerWheel)
         {
@@ -407,7 +407,7 @@ public class DeadlineTimerWheel
     {
         final int spokeIndex = tickForTimerId(timerId);
         final int tickIndex = indexInTickArray(timerId);
-        final int wheelIndex = (spokeIndex << this.allocationBitsToShift) + tickIndex;
+        final int wheelIndex = (spokeIndex << allocationBitsToShift) + tickIndex;
 
         if (spokeIndex < ticksPerWheel)
         {
@@ -445,9 +445,9 @@ public class DeadlineTimerWheel
         final long timerId = timerIdForSlot(spokeIndex, tickAllocation);
         timerCount++;
 
-        this.tickAllocation = newTickAllocation;
-        this.allocationBitsToShift = newAllocationBitsToShift;
-        this.wheel = newWheel;
+        tickAllocation = newTickAllocation;
+        allocationBitsToShift = newAllocationBitsToShift;
+        wheel = newWheel;
 
         return timerId;
     }
