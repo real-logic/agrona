@@ -181,9 +181,10 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
             throw new NullPointerException(); // @DoNotSub
         }
 
-        elements[tail++] = element;
+        elements[tail] = element;
+        tail = (tail + 1) & (elements.length - 1);
 
-        if ((tail & (elements.length - 1)) == head)
+        if (tail == head)
         {
             increaseCapacity();
         }

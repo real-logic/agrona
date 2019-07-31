@@ -166,4 +166,27 @@ public class IntArrayQueueTest
 
         assertFalse(iterator.hasNext());
     }
+
+    @Test
+    public void shouldIterateEmptyQueue()
+    {
+        final IntArrayQueue queue = new IntArrayQueue();
+
+        for (final int i : queue)
+        {
+            fail("Should be empty");
+        }
+
+        final int count = 20;
+        for (int i = 0; i < count; i++)
+        {
+            queue.offerInt(i);
+            queue.removeInt();
+        }
+
+        for (final int i : queue)
+        {
+            fail("Should be empty");
+        }
+    }
 }
