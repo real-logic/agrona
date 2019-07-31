@@ -56,9 +56,9 @@ public class DeadlineTimerWheel
     private final int resolutionBitsToShift;
     private int tickAllocation;
     private int allocationBitsToShift;
-    private int currentTick;
     private int pollIndex;
     private long startTime;
+    private long currentTick;
     private long timerCount;
 
     private long[] wheel;
@@ -230,7 +230,7 @@ public class DeadlineTimerWheel
      */
     public void currentTickTime(final long now)
     {
-        currentTick = (int)Math.max((now - startTime) >> resolutionBitsToShift, currentTick);
+        currentTick = Math.max((now - startTime) >> resolutionBitsToShift, currentTick);
     }
 
     /**
@@ -328,7 +328,7 @@ public class DeadlineTimerWheel
 
         if (timerCount > 0)
         {
-            final int spokeIndex = currentTick & tickMask;
+            final int spokeIndex = (int)currentTick & tickMask;
 
             for (int i = 0, length = tickAllocation; i < length && expiryLimit > timersExpired; i++)
             {
@@ -422,7 +422,7 @@ public class DeadlineTimerWheel
 
     private long increaseCapacity(final long deadline, final int spokeIndex)
     {
-        final int newTickAllocation = this.tickAllocation << 1;
+        final int newTickAllocation = tickAllocation << 1;
         final int newAllocationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
 
         final long newCapacity = (long)ticksPerWheel * newTickAllocation;
