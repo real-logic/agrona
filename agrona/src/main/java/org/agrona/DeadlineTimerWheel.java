@@ -184,16 +184,6 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Time of current tick of the wheel in {@link #timeUnit()}s.
-     *
-     * @return time of the current tick of the wheel in {@link #timeUnit()}s.
-     */
-    public long currentTickTime()
-    {
-        return ((currentTick + 1L) << resolutionBitsToShift) + startTime;
-    }
-
-    /**
      * Number of active timers.
      *
      * @return number of active timers.
@@ -222,6 +212,31 @@ public class DeadlineTimerWheel
     }
 
     /**
+     * Time of current tick of the wheel in {@link #timeUnit()}s.
+     *
+     * @return time of the current tick of the wheel in {@link #timeUnit()}s.
+     */
+    public long currentTickTime()
+    {
+        return ((currentTick + 1L) << resolutionBitsToShift) + startTime;
+    }
+
+    /**
+     * Set the current tick of the wheel to examine on the next {@link #poll}.
+     *
+     * If the time passed in is less than the current time, nothing is changed.
+     * No timers will be expired when winding forward and thus are still in the wheel and will be expired as
+     * encountered in the wheel during {@link #poll} operations. No guarantee of order for expired timers is
+     * assumed when later polled.
+     *
+     * @param now current time to advance to or stay at current time.
+     */
+    public void currentTickTime(final long now)
+    {
+        currentTick = (int)Math.max((now - startTime) >> resolutionBitsToShift, currentTick);
+    }
+
+    /**
      * Clear out all active timers in the wheel.
      */
     public void clear()
@@ -232,7 +247,7 @@ public class DeadlineTimerWheel
             return;
         }
 
-        for (int i = 0; i < wheel.length; i++)
+        for (int i = 0, length = wheel.length; i < length; i++)
         {
             if (NULL_DEADLINE != wheel[i])
             {
@@ -274,30 +289,25 @@ public class DeadlineTimerWheel
         }
 
         final int newTickAllocation = this.tickAllocation << 1;
-        final int newAllcationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
+        final int newAllocationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
         final long[] newWheel = new long[ticksPerWheel * newTickAllocation];
+        Arrays.fill(newWheel, NULL_DEADLINE);
 
         for (int j = 0; j < ticksPerWheel; j++)
         {
             final int oldTickStartIndex = j << allocationBitsToShift;
-            final int newTickStartIndex = j << newAllcationBitsToShift;
+            final int newTickStartIndex = j << newAllocationBitsToShift;
 
             System.arraycopy(wheel, oldTickStartIndex, newWheel, newTickStartIndex, tickAllocation);
-
-            Arrays.fill(
-                newWheel,
-                newTickStartIndex + tickAllocation,
-                newTickStartIndex + newTickAllocation,
-                NULL_DEADLINE);
         }
 
-        newWheel[(spokeIndex << newAllcationBitsToShift) + tickAllocation] = deadline;
+        newWheel[(spokeIndex << newAllocationBitsToShift) + tickAllocation] = deadline;
         timerCount++;
 
         final long timerId = timerIdForSlot(spokeIndex, tickAllocation);
 
         this.tickAllocation = newTickAllocation;
-        this.allocationBitsToShift = newAllcationBitsToShift;
+        this.allocationBitsToShift = newAllocationBitsToShift;
         this.wheel = newWheel;
 
         return timerId;
@@ -361,7 +371,7 @@ public class DeadlineTimerWheel
                         wheel[wheelIndex] = deadline;
                         timerCount++;
 
-                        return timersExpired;
+                        return --timersExpired;
                     }
                 }
 
@@ -396,7 +406,7 @@ public class DeadlineTimerWheel
     {
         long timersRemaining = timerCount;
 
-        for (int i = 0; i < wheel.length; i++)
+        for (int i = 0, length = wheel.length; i < length; i++)
         {
             final long deadline = wheel[i];
 
@@ -433,21 +443,6 @@ public class DeadlineTimerWheel
         }
 
         return NULL_DEADLINE;
-    }
-
-    /**
-     * Wind the wheel forward by setting the current tick of the wheel to examine on the next {@link #poll}.
-     *
-     * If the time passed in is less than the current time, nothing is changed.
-     * No timers will be expired when winding forward and thus are still in the wheel and will be expired as
-     * encountered in the wheel during {@link #poll} operations. No guarantee of order for past timers is assumed when
-     * expired later.
-     *
-     * @param now current time to wind forward to or stay at current time if now in the past.
-     */
-    public void windForward(final long now)
-    {
-        currentTick = (int)Math.max((now - startTime) >> resolutionBitsToShift, currentTick);
     }
 
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)

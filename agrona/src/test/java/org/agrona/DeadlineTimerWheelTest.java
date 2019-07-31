@@ -469,7 +469,7 @@ public class DeadlineTimerWheelTest
 
         assertThat(firedTimestamp1.value, is(17 * wheel.tickResolution()));
         assertThat(firedTimestamp2.value, is(17 * wheel.tickResolution()));
-        assertThat(numExpired, is(3));
+        assertThat(numExpired, is(2));
     }
 
     @Test(timeout = 1000)
@@ -569,6 +569,20 @@ public class DeadlineTimerWheelTest
 
         wheel.scheduleTimer(controlTimestamp + 100);
         wheel.resetStartTime(controlTimestamp + 1);
+    }
+
+    @Test
+    public void shouldAdvanceWheelToLaterTime()
+    {
+        final long startTime = 0;
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, startTime, RESOLUTION, 8);
+
+        wheel.scheduleTimer(startTime + 100000);
+
+        final long currentTickTime = wheel.currentTickTime();
+        wheel.currentTickTime(currentTickTime * 5);
+
+        assertThat(wheel.currentTickTime(), is(currentTickTime * 6));
     }
 
     @Test(timeout = 1000)
