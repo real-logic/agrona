@@ -135,11 +135,8 @@ public class DeadlineTimerWheel
         this.resolutionBitsToShift = Integer.numberOfTrailingZeros(tickResolution);
         this.allocationBitsToShift = Integer.numberOfTrailingZeros(initialTickAllocation);
         this.startTime = startTime;
-        this.timerCount = 0;
-        this.pollIndex = 0;
 
         wheel = new long[ticksPerWheel * initialTickAllocation];
-
         Arrays.fill(wheel, NULL_DEADLINE);
     }
 
@@ -288,29 +285,7 @@ public class DeadlineTimerWheel
             }
         }
 
-        final int newTickAllocation = this.tickAllocation << 1;
-        final int newAllocationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
-        final long[] newWheel = new long[ticksPerWheel * newTickAllocation];
-        Arrays.fill(newWheel, NULL_DEADLINE);
-
-        for (int j = 0; j < ticksPerWheel; j++)
-        {
-            final int oldTickStartIndex = j << allocationBitsToShift;
-            final int newTickStartIndex = j << newAllocationBitsToShift;
-
-            System.arraycopy(wheel, oldTickStartIndex, newWheel, newTickStartIndex, tickAllocation);
-        }
-
-        newWheel[(spokeIndex << newAllocationBitsToShift) + tickAllocation] = deadline;
-        timerCount++;
-
-        final long timerId = timerIdForSlot(spokeIndex, tickAllocation);
-
-        this.tickAllocation = newTickAllocation;
-        this.allocationBitsToShift = newAllocationBitsToShift;
-        this.wheel = newWheel;
-
-        return timerId;
+        return increaseCapacity(deadline, spokeIndex);
     }
 
     /**
@@ -443,6 +418,38 @@ public class DeadlineTimerWheel
         }
 
         return NULL_DEADLINE;
+    }
+
+    private long increaseCapacity(final long deadline, final int spokeIndex)
+    {
+        final int newTickAllocation = this.tickAllocation << 1;
+        final int newAllocationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
+
+        final long newCapacity = (long)ticksPerWheel * newTickAllocation;
+        if (newCapacity > 1 << 30)
+        {
+            throw new IllegalStateException("max capacity reached at tickAllocation=" + tickAllocation);
+        }
+
+        final long[] newWheel = new long[(int)newCapacity];
+        Arrays.fill(newWheel, NULL_DEADLINE);
+
+        for (int j = 0; j < ticksPerWheel; j++)
+        {
+            final int oldTickStartIndex = j << allocationBitsToShift;
+            final int newTickStartIndex = j << newAllocationBitsToShift;
+            System.arraycopy(wheel, oldTickStartIndex, newWheel, newTickStartIndex, tickAllocation);
+        }
+
+        newWheel[(spokeIndex << newAllocationBitsToShift) + tickAllocation] = deadline;
+        final long timerId = timerIdForSlot(spokeIndex, tickAllocation);
+        timerCount++;
+
+        this.tickAllocation = newTickAllocation;
+        this.allocationBitsToShift = newAllocationBitsToShift;
+        this.wheel = newWheel;
+
+        return timerId;
     }
 
     private static long timerIdForSlot(final int tickOnWheel, final int tickArrayIndex)

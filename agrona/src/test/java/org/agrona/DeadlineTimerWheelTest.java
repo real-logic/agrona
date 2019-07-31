@@ -37,13 +37,13 @@ public class DeadlineTimerWheelTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldExceptionOnNonPowerOfTwoTicksPerWheel()
     {
-        new DeadlineTimerWheel(TimeUnit.NANOSECONDS, 0, 16, 10);
+        new DeadlineTimerWheel(TIME_UNIT, 0, 16, 10);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldExceptionOnNonPowerOfTwoResolution()
     {
-        new DeadlineTimerWheel(TimeUnit.NANOSECONDS, 0, 17, 8);
+        new DeadlineTimerWheel(TIME_UNIT, 0, 17, 8);
     }
 
     @Test
@@ -612,5 +612,40 @@ public class DeadlineTimerWheelTest
         while (-1 == firedTimestamp.value);
 
         assertThat(firedTimestamp.value, greaterThan(deadline));
+    }
+
+    @Test
+    public void shouldExpandTickAllocation()
+    {
+        final int tickAllocation = 4;
+        final int ticksPerWheel = 8;
+        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(
+            TIME_UNIT, 0, RESOLUTION, ticksPerWheel, tickAllocation);
+
+        final int timerCount = tickAllocation + 1;
+        final long[] timerIds = new long[timerCount];
+
+        for (int i = 0; i < timerCount; i++)
+        {
+            timerIds[i] = wheel.scheduleTimer(i + 1L);
+        }
+
+        for (int i = 0; i < timerCount; i++)
+        {
+            assertThat(wheel.deadline(timerIds[i]), is(i + 1L));
+        }
+
+        final Map<Long, Long> deadlineByTimerId = new HashMap<>();
+        final int expiredCount = wheel.poll(
+            timerCount + 1L,
+            (timeUnit, now, timerId) ->
+            {
+                deadlineByTimerId.put(timerId, now);
+                return true;
+            },
+            timerCount);
+
+        assertThat(expiredCount, is(timerCount));
+        assertThat(deadlineByTimerId.size(), is(timerCount));
     }
 }
