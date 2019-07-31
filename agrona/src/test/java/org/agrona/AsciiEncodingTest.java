@@ -43,14 +43,44 @@ public class AsciiEncodingTest
     }
 
     @Test(expected = AsciiNumberFormatException.class)
-    public void shouldThrowExceptionWhenDecodingCharNonAsciiValue()
+    public void shouldThrowExceptionWhenDecodingCharNonNumericValue()
     {
         AsciiEncoding.getDigit(0, 'a');
     }
 
     @Test(expected = AsciiNumberFormatException.class)
-    public void shouldThrowExceptionWhenDecodingByteNonAsciiValue()
+    public void shouldThrowExceptionWhenDecodingByteNonNumericValue()
     {
         AsciiEncoding.getDigit(0, (byte)'a');
+    }
+
+    @Test(expected = AsciiNumberFormatException.class)
+    public void shouldThrowExceptionWhenParsingLongContainingLoneMinusSign()
+    {
+        AsciiEncoding.parseLongAscii("-", 0, 1);
+    }
+
+    @Test(expected = AsciiNumberFormatException.class)
+    public void shouldThrowExceptionWhenParsingIntegerContainingLoneMinusSign()
+    {
+        AsciiEncoding.parseIntAscii("-", 0, 1);
+    }
+
+    @Test(expected = AsciiNumberFormatException.class)
+    public void shouldThrowExceptionWhenParsingLongContainingLonePlusSign()
+    {
+        AsciiEncoding.parseLongAscii("+", 0, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void shouldThrowExceptionWhenParsingEmptyLong()
+    {
+        AsciiEncoding.parseLongAscii("", 0, 0);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void shouldThrowExceptionWhenParsingEmptyInteger()
+    {
+        AsciiEncoding.parseIntAscii("", 0, 0);
     }
 }
