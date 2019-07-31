@@ -114,7 +114,7 @@ public class DeadlineTimerWheel
      * @param startTime             for the wheel (in given {@link TimeUnit}).
      * @param tickResolution        for the wheel, i.e. how many {@link TimeUnit}s per tick.
      * @param ticksPerWheel         or spokes, for the wheel (must be power of 2).
-     * @param initialTickAllocation space allocated in the wheel.
+     * @param initialTickAllocation space allocated per tick of the wheel (must be power of 2).
      */
     public DeadlineTimerWheel(
         final TimeUnit timeUnit,
@@ -125,7 +125,7 @@ public class DeadlineTimerWheel
     {
         checkTicksPerWheel(ticksPerWheel);
         checkResolution(tickResolution);
-        checkTickAllocation(initialTickAllocation);
+        checkInitialTickAllocation(initialTickAllocation);
 
         this.timeUnit = timeUnit;
         this.ticksPerWheel = ticksPerWheel;
@@ -481,7 +481,7 @@ public class DeadlineTimerWheel
         }
     }
 
-    private static void checkTickAllocation(final int tickAllocation)
+    private static void checkInitialTickAllocation(final int tickAllocation)
     {
         if (!BitUtil.isPowerOfTwo(tickAllocation))
         {
