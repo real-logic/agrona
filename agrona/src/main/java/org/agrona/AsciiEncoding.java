@@ -116,6 +116,8 @@ public class AsciiEncoding
      * @param cs     to parse.
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
+     * @throws AsciiNumberFormatException if <code>cs</code> is not an int value
+     * @throws IndexOutOfBoundsException if <code>cs</code> is empty
      * @return the parsed value.
      */
     public static int parseIntAscii(final CharSequence cs, final int index, final int length)
@@ -124,7 +126,7 @@ public class AsciiEncoding
         final int first = cs.charAt(index);
         int i = index;
 
-        if (first == MINUS_SIGN)
+        if (first == MINUS_SIGN && length > 1)
         {
             i++;
         }
@@ -149,6 +151,8 @@ public class AsciiEncoding
      * @param cs     to parse.
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
+     * @throws AsciiNumberFormatException if <code>cs</code> is not a long value
+     * @throws IndexOutOfBoundsException if <code>cs</code> is empty
      * @return the parsed value.
      */
     public static long parseLongAscii(final CharSequence cs, final int index, final int length)
@@ -157,7 +161,7 @@ public class AsciiEncoding
         final int first = cs.charAt(index);
         int i = index;
 
-        if (first == MINUS_SIGN)
+        if (first == MINUS_SIGN && length > 1)
         {
             i++;
         }
