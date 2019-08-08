@@ -45,7 +45,11 @@ public class CountedErrorHandler implements ErrorHandler
 
     public void onError(final Throwable throwable)
     {
-        errorCounter.increment();
+        if (!errorCounter.isClosed())
+        {
+            errorCounter.increment();
+        }
+
         errorHandler.onError(throwable);
     }
 }
