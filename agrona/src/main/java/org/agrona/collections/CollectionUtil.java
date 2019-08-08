@@ -15,6 +15,8 @@
  */
 package org.agrona.collections;
 
+import org.agrona.BitUtil;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -94,9 +96,9 @@ public class CollectionUtil
      */
     public static void validatePositivePowerOfTwo(final int value)
     {
-        if (value > 0 && 1 == (value & (value - 1)))
+        if (!BitUtil.isPowerOfTwo(value))
         {
-            throw new IllegalStateException("value must be a positive power of two");
+            throw new IllegalArgumentException("value must be a positive power of two: " + value);
         }
     }
 

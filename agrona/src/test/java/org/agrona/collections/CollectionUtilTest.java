@@ -57,8 +57,8 @@ public class CollectionUtilTest
     @Test
     public void getOrDefaultUsesSupplier()
     {
-        final Map<Integer, Integer> ints = new HashMap<>();
-        final Integer result = CollectionUtil.getOrDefault(ints, 0, (x) -> x + 1);
+        final Map<Integer, Integer> values = new HashMap<>();
+        final Integer result = CollectionUtil.getOrDefault(values, 0, (x) -> x + 1);
 
         assertThat(result, is(1));
     }
@@ -66,10 +66,10 @@ public class CollectionUtilTest
     @Test
     public void getOrDefaultDoesNotCreateNewValueWhenOneExists()
     {
-        final Map<Integer, Integer> ints = new HashMap<>();
-        ints.put(0, 0);
+        final Map<Integer, Integer> values = new HashMap<>();
+        values.put(0, 0);
         final Integer result = CollectionUtil.getOrDefault(
-            ints,
+            values,
             0,
             (x) ->
             {
@@ -78,5 +78,31 @@ public class CollectionUtilTest
             });
 
         assertThat(result, is(0));
+    }
+
+    @Test
+    public void validatePositivePowerOfTwo()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(1);
+        CollectionUtil.validatePositivePowerOfTwo(2);
+        CollectionUtil.validatePositivePowerOfTwo(64);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwoFailWith3()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwoFailWith15()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(15);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwFailWith33()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(33);
     }
 }
