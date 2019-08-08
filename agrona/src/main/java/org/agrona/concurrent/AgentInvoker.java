@@ -185,7 +185,7 @@ public class AgentInvoker implements AutoCloseable
 
     private void handleError(final Throwable throwable)
     {
-        if (null != errorCounter && isRunning)
+        if (null != errorCounter && isRunning && !errorCounter.isClosed())
         {
             errorCounter.increment();
         }

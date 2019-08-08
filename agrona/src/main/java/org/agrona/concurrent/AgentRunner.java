@@ -300,12 +300,9 @@ public class AgentRunner implements Runnable, AutoCloseable
 
     private void handleError(final Throwable throwable)
     {
-        if (isRunning)
+        if (null != errorCounter && isRunning && !errorCounter.isClosed())
         {
-            if (null != errorCounter)
-            {
-                errorCounter.increment();
-            }
+            errorCounter.increment();
         }
 
         errorHandler.onError(throwable);
