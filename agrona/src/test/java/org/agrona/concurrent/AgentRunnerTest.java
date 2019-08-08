@@ -72,7 +72,7 @@ public class AgentRunnerTest
 
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
-        verify(mockAtomicCounter).increment();
+        verify(mockAtomicCounter, never()).increment();
         verify(mockAgent, times(1)).onClose();
         assertTrue(runner.isClosed());
     }
@@ -89,7 +89,8 @@ public class AgentRunnerTest
             {
                 latch.countDown();
                 return null;
-            }).when(mockErrorHandler).onError(expectedException);
+            })
+            .when(mockErrorHandler).onError(expectedException);
 
         new Thread(runner).start();
 

@@ -48,10 +48,7 @@ public class AgentInvoker implements AutoCloseable
      * @param errorCounter to be incremented each time an exception is encountered. This may be null.
      * @param agent        to be run in this thread.
      */
-    public AgentInvoker(
-        final ErrorHandler errorHandler,
-        final AtomicCounter errorCounter,
-        final Agent agent)
+    public AgentInvoker(final ErrorHandler errorHandler, final AtomicCounter errorCounter, final Agent agent)
     {
         Objects.requireNonNull(errorHandler, "errorHandler");
         Objects.requireNonNull(agent, "agent");
@@ -151,6 +148,7 @@ public class AgentInvoker implements AutoCloseable
             }
             catch (final AgentTerminationException ex)
             {
+                isRunning = false;
                 handleError(ex);
                 close();
             }
@@ -187,7 +185,7 @@ public class AgentInvoker implements AutoCloseable
 
     private void handleError(final Throwable throwable)
     {
-        if (null != errorCounter)
+        if (null != errorCounter && isRunning)
         {
             errorCounter.increment();
         }

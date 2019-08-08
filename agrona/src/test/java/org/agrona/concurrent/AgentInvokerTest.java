@@ -129,7 +129,7 @@ public class AgentInvokerTest
 
         verify(mockAgent).doWork();
         verify(mockErrorHandler).onError(expectedException);
-        verify(mockAtomicCounter).increment();
+        verify(mockAtomicCounter, never()).increment();
         verify(mockAgent).onClose();
         assertTrue(invoker.isClosed());
 

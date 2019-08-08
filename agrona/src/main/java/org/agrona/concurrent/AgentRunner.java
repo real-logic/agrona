@@ -161,10 +161,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
             while (isRunning)
             {
-                if (doDutyCycle(idleStrategy, agent))
-                {
-                    break;
-                }
+                doDutyCycle(idleStrategy, agent);
             }
 
             try
@@ -279,7 +276,7 @@ public class AgentRunner implements Runnable, AutoCloseable
         }
     }
 
-    private boolean doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)
+    private void doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)
     {
         try
         {
@@ -287,20 +284,18 @@ public class AgentRunner implements Runnable, AutoCloseable
         }
         catch (final InterruptedException | ClosedByInterruptException ignore)
         {
+            isRunning = false;
             Thread.currentThread().interrupt();
-            return true;
         }
         catch (final AgentTerminationException ex)
         {
+            isRunning = false;
             handleError(ex);
-            return true;
         }
         catch (final Throwable throwable)
         {
             handleError(throwable);
         }
-
-        return false;
     }
 
     private void handleError(final Throwable throwable)
@@ -311,8 +306,8 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 errorCounter.increment();
             }
-
-            errorHandler.onError(throwable);
         }
+
+        errorHandler.onError(throwable);
     }
 }
