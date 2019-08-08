@@ -94,9 +94,9 @@ public class CollectionUtil
      */
     public static void validatePositivePowerOfTwo(final int value)
     {
-        if (value > 0 && 1 == (value & (value - 1)))
+        if (value > 0 && 0 != (value & (value - 1)))
         {
-            throw new IllegalStateException("value must be a positive power of two");
+            throw new IllegalArgumentException("value must be a positive power of two");
         }
     }
 

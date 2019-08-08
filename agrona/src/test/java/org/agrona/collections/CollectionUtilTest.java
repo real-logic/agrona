@@ -79,4 +79,31 @@ public class CollectionUtilTest
 
         assertThat(result, is(0));
     }
+
+    @Test
+    public void validatePositivePowerOfTwo_passed()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(0);
+        CollectionUtil.validatePositivePowerOfTwo(1);
+        CollectionUtil.validatePositivePowerOfTwo(2);
+        CollectionUtil.validatePositivePowerOfTwo(64);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwo_failed_3()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwo_failed_15()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(15);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validatePositivePowerOfTwo_failed_33()
+    {
+        CollectionUtil.validatePositivePowerOfTwo(33);
+    }
 }
