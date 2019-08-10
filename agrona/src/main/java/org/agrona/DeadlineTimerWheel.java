@@ -49,18 +49,18 @@ public class DeadlineTimerWheel
 
     private static final int INITIAL_TICK_ALLOCATION = 16;
 
-    private final TimeUnit timeUnit;
+    private final long tickResolution;
+    private long startTime;
+    private long currentTick;
+    private long timerCount;
     private final int ticksPerWheel;
-    private final int tickResolution;
     private final int tickMask;
     private final int resolutionBitsToShift;
     private int tickAllocation;
     private int allocationBitsToShift;
     private int pollIndex;
-    private long startTime;
-    private long currentTick;
-    private long timerCount;
 
+    private final TimeUnit timeUnit;
     private long[] wheel;
 
     /**
@@ -102,7 +102,7 @@ public class DeadlineTimerWheel
      * @param ticksPerWheel  or spokes, for the wheel (must be power of 2).
      */
     public DeadlineTimerWheel(
-        final TimeUnit timeUnit, final long startTime, final int tickResolution, final int ticksPerWheel)
+        final TimeUnit timeUnit, final long startTime, final long tickResolution, final int ticksPerWheel)
     {
         this(timeUnit, startTime, tickResolution, ticksPerWheel, INITIAL_TICK_ALLOCATION);
     }
@@ -119,7 +119,7 @@ public class DeadlineTimerWheel
     public DeadlineTimerWheel(
         final TimeUnit timeUnit,
         final long startTime,
-        final int tickResolution,
+        final long tickResolution,
         final int ticksPerWheel,
         final int initialTickAllocation)
     {
@@ -132,7 +132,7 @@ public class DeadlineTimerWheel
         this.tickAllocation = initialTickAllocation;
         this.tickMask = ticksPerWheel - 1;
         this.tickResolution = tickResolution;
-        this.resolutionBitsToShift = Integer.numberOfTrailingZeros(tickResolution);
+        this.resolutionBitsToShift = Long.numberOfTrailingZeros(tickResolution);
         this.allocationBitsToShift = Integer.numberOfTrailingZeros(initialTickAllocation);
         this.startTime = startTime;
 
@@ -475,7 +475,7 @@ public class DeadlineTimerWheel
         }
     }
 
-    private static void checkResolution(final int tickResolution)
+    private static void checkResolution(final long tickResolution)
     {
         if (!BitUtil.isPowerOfTwo(tickResolution))
         {

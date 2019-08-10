@@ -250,6 +250,17 @@ public class BitUtil
     }
 
     /**
+     * Is a value a positive power of 2.
+     *
+     * @param value to be checked.
+     * @return true if the number is a positive power of 2, otherwise false.
+     */
+    public static boolean isPowerOfTwo(final long value)
+    {
+        return value > 0 && ((value & (~value + 1)) == value);
+    }
+
+    /**
      * Cycles indices of an array one at a time in a forward fashion.
      *
      * @param current value to be incremented.
