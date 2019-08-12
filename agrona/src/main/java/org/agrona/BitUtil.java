@@ -123,6 +123,22 @@ public class BitUtil
     }
 
     /**
+     * Fast method of finding the next power of 2 greater than or equal to the supplied value.
+     * <p>
+     * If the value is &lt;= 0 then 1 will be returned.
+     * <p>
+     * This method is not suitable for {@link Long#MIN_VALUE} or numbers greater than 2^62. When provided
+     * then {@link Long#MIN_VALUE} will be returned.
+     *
+     * @param value from which to search for next power of 2.
+     * @return The next power of 2 or the value itself if it is a power of 2.
+     */
+    public static long findNextPositivePowerOfTwo(final long value)
+    {
+        return 1L << (Long.SIZE - Long.numberOfLeadingZeros(value - 1));
+    }
+
+    /**
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
      * <p>
@@ -228,12 +244,23 @@ public class BitUtil
     }
 
     /**
-     * Is a number even.
+     * Is a int value even.
      *
      * @param value to check.
      * @return true if the number is even otherwise false.
      */
     public static boolean isEven(final int value)
+    {
+        return (value & LAST_DIGIT_MASK) == 0;
+    }
+
+    /**
+     * Is a long value even.
+     *
+     * @param value to check.
+     * @return true if the number is even otherwise false.
+     */
+    public static boolean isEven(final long value)
     {
         return (value & LAST_DIGIT_MASK) == 0;
     }
