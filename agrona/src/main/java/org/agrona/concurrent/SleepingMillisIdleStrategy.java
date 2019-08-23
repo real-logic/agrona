@@ -22,7 +22,20 @@ package org.agrona.concurrent;
  */
 public final class SleepingMillisIdleStrategy implements IdleStrategy
 {
+    /**
+     * Default sleep period when the default constructor is used.
+     */
+    public static final long DEFAULT_SLEEP_PERIOD_MS = 1L;
+
     private final long sleepPeriodMs;
+
+    /**
+     * Default constructor that uses {@link #DEFAULT_SLEEP_PERIOD_MS}.
+     */
+    public SleepingMillisIdleStrategy()
+    {
+        sleepPeriodMs = DEFAULT_SLEEP_PERIOD_MS;
+    }
 
     /**
      * Constructed a new strategy that will sleep for a given period when idle.

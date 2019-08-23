@@ -61,8 +61,22 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
  */
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
+    public static final long DEFAULT_MAX_SPINS = 10L;
+    public static final long DEFAULT_MAX_YIELDS = 5L;
+    public static final long DEFAULT_MIN_PARK_PERIOD_NS = 1000L;
+    public static final long DEFAULT_MAX_PARK_PERIOD_NS = 1_000_000L;
+
     @SuppressWarnings("unused")
     long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
+
+    /**
+     * Default constructor using {@link #DEFAULT_MAX_SPINS}, {@link #DEFAULT_MAX_YIELDS},
+     * {@link #DEFAULT_MIN_PARK_PERIOD_NS}, and {@link #DEFAULT_MAX_YIELDS}.
+     */
+    public BackoffIdleStrategy()
+    {
+        super(DEFAULT_MAX_SPINS, DEFAULT_MAX_YIELDS, DEFAULT_MIN_PARK_PERIOD_NS, DEFAULT_MAX_PARK_PERIOD_NS);
+    }
 
     /**
      * Create a set of state tracking idle behavior
