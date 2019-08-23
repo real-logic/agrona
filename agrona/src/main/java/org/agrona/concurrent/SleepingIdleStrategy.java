@@ -24,7 +24,20 @@ import java.util.concurrent.locks.LockSupport;
  */
 public final class SleepingIdleStrategy implements IdleStrategy
 {
+    /**
+     * Default sleep period that tends to work as the likely minimum on Linux to be effective.
+     */
+    public static final long DEFAULT_SLEEP_PERIOD_NS = 1000L;
+
     private final long sleepPeriodNs;
+
+    /**
+     * Default constructor using {@link #DEFAULT_SLEEP_PERIOD_NS}.
+     */
+    public SleepingIdleStrategy()
+    {
+        sleepPeriodNs = DEFAULT_SLEEP_PERIOD_NS;
+    }
 
     /**
      * Constructed a new strategy that will sleep for a given period when idle.
