@@ -17,7 +17,7 @@ package org.agrona;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**
  * Miscellaneous useful functions for dealing with low level bits and bytes.
@@ -209,6 +209,29 @@ public class BitUtil
     }
 
     /**
+     * Generate a byte array that is a hex representation of a given byte array.
+     *
+     * @param charSequence to convert to a hex representation.
+     * @param offset       the offset into the buffer.
+     * @param length       the number of bytes to convert.
+     * @return new byte array that is hex representation (in Big Endian) of the passed array.
+     */
+    public static byte[] toHexByteArray(final CharSequence charSequence, final int offset, final int length)
+    {
+        final byte[] outputBuffer = new byte[length << 1];
+
+        for (int i = 0; i < (length << 1); i += 2)
+        {
+            final byte b = (byte)charSequence.charAt(offset + (i >> 1));
+
+            outputBuffer[i] = HEX_DIGIT_TABLE[(b >> 4) & 0x0F];
+            outputBuffer[i + 1] = HEX_DIGIT_TABLE[b & 0x0F];
+        }
+
+        return outputBuffer;
+    }
+
+    /**
      * Generate a byte array from a string that is the hex representation of the given byte array.
      *
      * @param string to convert from a hex representation (in Big Endian).
@@ -216,7 +239,15 @@ public class BitUtil
      */
     public static byte[] fromHex(final String string)
     {
-        return fromHexByteArray(string.getBytes(UTF_8));
+        final int length = string.length();
+        final byte[] bytes = new byte[length];
+
+        for (int i = 0; i < length; i++)
+        {
+            bytes[i] = (byte)string.charAt(i);
+        }
+
+        return fromHexByteArray(bytes);
     }
 
     /**
@@ -229,7 +260,7 @@ public class BitUtil
      */
     public static String toHex(final byte[] buffer, final int offset, final int length)
     {
-        return new String(toHexByteArray(buffer, offset, length), UTF_8);
+        return new String(toHexByteArray(buffer, offset, length), US_ASCII);
     }
 
     /**
@@ -240,7 +271,7 @@ public class BitUtil
      */
     public static String toHex(final byte[] buffer)
     {
-        return new String(toHexByteArray(buffer), UTF_8);
+        return new String(toHexByteArray(buffer), US_ASCII);
     }
 
     /**
