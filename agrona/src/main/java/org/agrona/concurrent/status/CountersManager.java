@@ -360,9 +360,10 @@ public class CountersManager extends CountersReader
     {
         final int recordOffset = metaDataOffset(counterId);
 
+        metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
+        metaDataBuffer.setMemory(recordOffset + KEY_OFFSET, MAX_KEY_LENGTH, (byte)0);
         metaDataBuffer.putLong(
             recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
-        metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
         freeList.addInt(counterId);
     }
 
