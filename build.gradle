@@ -187,7 +187,7 @@ subprojects {
 
 project(':agrona') {
     dependencies {
-        testImplementation 'com.google.guava:guava-testlib:28.0-jre'
+        testImplementation 'com.google.guava:guava-testlib:28.1-jre'
     }
 
     uploadArchives {
