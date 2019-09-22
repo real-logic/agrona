@@ -284,8 +284,8 @@ public class IntArrayListTest
         }
 
         assertEquals(genericList.hashCode(), list.hashCode());
-        assertTrue(genericList.equals(list));
-        assertTrue(list.equals(genericList));
+        assertEquals(genericList, list);
+        assertEquals(list, genericList);
     }
 
     @Test
@@ -300,5 +300,17 @@ public class IntArrayListTest
 
         final String mapAsAString = "[3, 1, -1, 19, 7, 11, 12, 7]";
         assertThat(list.toString(), equalTo(mapAsAString));
+    }
+
+    @Test
+    public void shouldWrapLessThanInitialCapacityThenGrow()
+    {
+        final int[] array = new int[]{ 1, 2, 3 };
+        final IntArrayList list = new IntArrayList();
+
+        list.wrap(array, array.length);
+
+        list.addInt(7);
+        assertThat(list.capacity(), is(IntArrayList.INITIAL_CAPACITY));
     }
 }

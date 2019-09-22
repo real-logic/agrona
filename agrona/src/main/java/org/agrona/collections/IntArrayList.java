@@ -79,13 +79,11 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
     /**
      * Wrap an existing array without copying it.
-     * <p>
-     * The array length must be greater than or equal to {@link #INITIAL_CAPACITY}.
      *
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
-     * @throws IllegalArgumentException if the initialSize is is less than {@link #INITIAL_CAPACITY} or greater than
-     * the length of the initial array.
+     * @throws IllegalArgumentException if the initialSize is is less than 0 or greater than the length of the
+     * initial array.
      */
     public void wrap(
         final int[] initialElements,
@@ -95,12 +93,6 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         {
             throw new IllegalArgumentException(
                 "illegal initial size " + initialSize + " for array length of " + initialElements.length);
-        }
-
-        if (initialElements.length < INITIAL_CAPACITY)
-        {
-            throw new IllegalArgumentException(
-                "illegal initial array length " + initialElements.length + ", minimum required is " + INITIAL_CAPACITY);
         }
 
         elements = initialElements;
@@ -629,16 +621,21 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int currentCapacity = elements.length;
         if (requiredCapacity > currentCapacity)
         {
-            @DoNotSub int newCapacity = currentCapacity + (currentCapacity >> 1);
-
-            if (newCapacity < 0 || newCapacity > ArrayUtil.MAX_CAPACITY)
+            if (requiredCapacity > ArrayUtil.MAX_CAPACITY)
             {
-                if (currentCapacity == ArrayUtil.MAX_CAPACITY)
-                {
-                    throw new IllegalStateException("max capacity reached: " + ArrayUtil.MAX_CAPACITY);
-                }
+                throw new IllegalStateException("max capacity: " + ArrayUtil.MAX_CAPACITY);
+            }
 
-                newCapacity = ArrayUtil.MAX_CAPACITY;
+            @DoNotSub int newCapacity = currentCapacity > INITIAL_CAPACITY ? currentCapacity : INITIAL_CAPACITY;
+
+            while (newCapacity < requiredCapacity)
+            {
+                newCapacity = newCapacity + (newCapacity >> 1);
+
+                if (newCapacity < 0 || newCapacity >= ArrayUtil.MAX_CAPACITY)
+                {
+                    newCapacity = ArrayUtil.MAX_CAPACITY;
+                }
             }
 
             final int[] newElements = new int[newCapacity];
