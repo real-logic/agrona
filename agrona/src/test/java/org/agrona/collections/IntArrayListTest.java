@@ -313,4 +313,15 @@ public class IntArrayListTest
         list.addInt(7);
         assertThat(list.capacity(), is(IntArrayList.INITIAL_CAPACITY));
     }
+
+    @Test
+    public void shouldWrapLessZeroLengthArrayThenGrow()
+    {
+        final IntArrayList list = new IntArrayList();
+
+        list.wrap(new int[0], 0);
+
+        list.addInt(7);
+        assertThat(list.capacity(), is(IntArrayList.INITIAL_CAPACITY));
+    }
 }
