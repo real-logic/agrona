@@ -126,6 +126,25 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     }
 
     /**
+     * Reset for next iteration, having only processed a subset of the selection keys.
+     *
+     * The <code>NioSelectedKeySet</code> will still contain the keys representing IO events after
+     * the numberOfProcessedKeys and these events can be processed in a future iteration.
+     *
+     * @param numberOfProcessedKeys the number of keys that have been processed.
+     */
+    public void reset(final int numberOfProcessedKeys)
+    {
+        final SelectionKey[] keys = this.keys;
+        final int initialSize = this.size;
+        final int newSize = initialSize - numberOfProcessedKeys;
+
+        System.arraycopy(keys, numberOfProcessedKeys, keys, 0, newSize);
+
+        this.size = newSize;
+    }
+
+    /**
      * Iterate over the key set and apply the given function.
      *
      * @param function to apply to each {@link java.nio.channels.SelectionKey}
