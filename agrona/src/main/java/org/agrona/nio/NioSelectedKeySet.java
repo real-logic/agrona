@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.function.ToIntFunction;
 
 /**
- * Try to fix handling of HashSet for {@link java.nio.channels.Selector}.
+ * Try to fix handling of HashSet for {@link java.nio.channels.Selector} to avoid excessive allocation.
  * Assumes single threaded usage.
  */
 public class NioSelectedKeySet extends AbstractSet<SelectionKey>
@@ -108,9 +108,9 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     }
 
     /**
-     * Return selected keys.
+     * Return selected keys for direct processing which is valid up to {@link #size()} index.
      *
-     * @return selected keys
+     * @return selected keys for direct processing which is valid up to {@link #size()} index.
      */
     public SelectionKey[] keys()
     {
@@ -122,33 +122,45 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public void reset()
     {
-        size = 0;
+        if (0 != size)
+        {
+            Arrays.fill(keys, 0, size, null);
+            size = 0;
+        }
     }
 
     /**
      * Reset for next iteration, having only processed a subset of the selection keys.
+     * <p>
+     * The {@link NioSelectedKeySet} will still contain the keys representing IO events after
+     * the skip Count have been removed, the remaining events can be processed in a future iteration.
      *
-     * The <code>NioSelectedKeySet</code> will still contain the keys representing IO events after
-     * the numberOfProcessedKeys and these events can be processed in a future iteration.
-     *
-     * @param numberOfProcessedKeys the number of keys that have been processed.
+     * @param skipCount the number of keys to be skipped over that have already been processed.
      */
-    public void reset(final int numberOfProcessedKeys)
+    public void reset(final int skipCount)
     {
-        final SelectionKey[] keys = this.keys;
-        final int initialSize = this.size;
-        final int newSize = initialSize - numberOfProcessedKeys;
+        if (skipCount > size)
+        {
+            throw new IllegalArgumentException("skipCount " + skipCount + " > size " + size);
+        }
 
-        System.arraycopy(keys, numberOfProcessedKeys, keys, 0, newSize);
+        if (0 != size)
+        {
+            final SelectionKey[] keys = this.keys;
+            final int newSize = size - skipCount;
 
-        this.size = newSize;
+            System.arraycopy(keys, skipCount, keys, 0, newSize);
+            Arrays.fill(keys, newSize, size, null);
+
+            size = newSize;
+        }
     }
 
     /**
      * Iterate over the key set and apply the given function.
      *
      * @param function to apply to each {@link java.nio.channels.SelectionKey}
-     * @return number of handled frames
+     * @return number of handled frames.
      */
     public int forEach(final ToIntFunction<SelectionKey> function)
     {
@@ -160,7 +172,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
             handledFrames += function.applyAsInt(keys[i]);
         }
 
-        size = 0;
+        reset();
 
         return handledFrames;
     }
