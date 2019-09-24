@@ -96,14 +96,14 @@ public class TransportPoller implements AutoCloseable
     }
 
     /**
-     * Explicit call to selectNow but without processing of selected keys.
+     * Explicit call to {@link Selector#selectNow()} followed by clearing out the set without processing.
      */
     public void selectNowWithoutProcessing()
     {
         try
         {
             selector.selectNow();
-            selectedKeySet.reset();
+            selectedKeySet.clear();
         }
         catch (final IOException ex)
         {

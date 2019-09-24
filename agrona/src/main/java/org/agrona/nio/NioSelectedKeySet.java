@@ -126,6 +126,15 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     }
 
     /**
+     * Null out the keys and set size to 0.
+     */
+    public void clear()
+    {
+        Arrays.fill(keys, null);
+        size = 0;
+    }
+
+    /**
      * Reset for next iteration, having only processed a subset of the selection keys.
      * <p>
      * The {@link NioSelectedKeySet} will still contain the keys representing IO events after
