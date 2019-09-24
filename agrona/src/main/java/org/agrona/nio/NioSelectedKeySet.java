@@ -122,11 +122,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public void reset()
     {
-        if (0 != size)
-        {
-            Arrays.fill(keys, 0, size, null);
-            size = 0;
-        }
+        size = 0;
     }
 
     /**
@@ -150,7 +146,6 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
             final int newSize = size - skipCount;
 
             System.arraycopy(keys, skipCount, keys, 0, newSize);
-            Arrays.fill(keys, newSize, size, null);
 
             size = newSize;
         }
@@ -172,7 +167,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
             handledFrames += function.applyAsInt(keys[i]);
         }
 
-        reset();
+        size = 0;
 
         return handledFrames;
     }
