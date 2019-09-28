@@ -27,6 +27,11 @@ import java.util.concurrent.locks.Lock;
 public final class NoOpLock implements Lock
 {
     /**
+     * As there is no instance state then this object can be used to safe on allocation.
+     */
+    public static final NoOpLock INSTANCE = new NoOpLock();
+
+    /**
      * Proceeds as if the lock has been acquired.
      */
     public void lock()

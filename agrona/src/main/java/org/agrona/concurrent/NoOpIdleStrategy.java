@@ -22,6 +22,11 @@ package org.agrona.concurrent;
 public final class NoOpIdleStrategy implements IdleStrategy
 {
     /**
+     * As there is no instance state then this object can be used to safe on allocation.
+     */
+    public static final NoOpIdleStrategy INSTANCE = new NoOpIdleStrategy();
+
+    /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
      *  {@inheritDoc}

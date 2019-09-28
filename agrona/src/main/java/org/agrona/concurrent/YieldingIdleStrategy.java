@@ -20,6 +20,11 @@ package org.agrona.concurrent;
  */
 public final class YieldingIdleStrategy implements IdleStrategy
 {
+    /**
+     * As there is no instance state then this object can be used to safe on allocation.
+     */
+    public static final YieldingIdleStrategy INSTANCE = new YieldingIdleStrategy();
+
     public void idle(final int workCount)
     {
         if (workCount > 0)
