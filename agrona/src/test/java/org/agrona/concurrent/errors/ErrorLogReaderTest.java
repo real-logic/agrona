@@ -42,7 +42,7 @@ public class ErrorLogReaderTest
 
         assertThat(ErrorLogReader.read(buffer, consumer), is(0));
 
-        verifyZeroInteractions(consumer);
+        verifyNoInteractions(consumer);
     }
 
     @Test
