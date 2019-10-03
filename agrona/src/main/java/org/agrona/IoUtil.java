@@ -317,7 +317,7 @@ public class IoUtil
         checkFileExists(location, descriptionLabel);
 
         MappedByteBuffer mappedByteBuffer = null;
-        try (RandomAccessFile file = new RandomAccessFile(location, "rw");
+        try (RandomAccessFile file = new RandomAccessFile(location, getFileMode(mapMode));
             FileChannel channel = file.getChannel())
         {
             mappedByteBuffer = channel.map(mapMode, 0, channel.size());
@@ -353,7 +353,7 @@ public class IoUtil
         checkFileExists(location, descriptionLabel);
 
         MappedByteBuffer mappedByteBuffer = null;
-        try (RandomAccessFile file = new RandomAccessFile(location, "rw");
+        try (RandomAccessFile file = new RandomAccessFile(location, getFileMode(mapMode));
             FileChannel channel = file.getChannel())
         {
             mappedByteBuffer = channel.map(mapMode, offset, length);
@@ -519,6 +519,18 @@ public class IoUtil
         }
 
         return tmpDirName;
+    }
+
+    private static String getFileMode(final FileChannel.MapMode mode)
+    {
+        if (mode == READ_ONLY)
+        {
+            return "r";
+        }
+        else
+        {
+            return "rw";
+        }
     }
 
     private static int getMode(final FileChannel.MapMode mode)
