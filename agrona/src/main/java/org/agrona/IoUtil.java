@@ -521,6 +521,28 @@ public class IoUtil
         return tmpDirName;
     }
 
+    /**
+     * Remove trailing slash characters from a builder leaving the remaining characters.
+     *
+     * @param builder to remove trailing slash characters from.
+     */
+    public static void removeTrailingSlashes(final StringBuilder builder)
+    {
+        while (builder.length() > 1)
+        {
+            final int lastCharIndex = builder.length() - 1;
+            final char c = builder.charAt(lastCharIndex);
+            if ('/' == c || '\\' == c)
+            {
+                builder.setLength(lastCharIndex);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     private static String getFileMode(final FileChannel.MapMode mode)
     {
         if (mode == READ_ONLY)
