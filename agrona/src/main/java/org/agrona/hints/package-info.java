@@ -1,5 +1,6 @@
 /*
- *  Copyright 2016 Gil Tene
+ * Copyright 2016 Gil Tene
+ * Copyright 2014-2019 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,5 +69,4 @@
  * example onSpinWait capability discussed above can be added in such a way to
  * Java SE 6, 7, 8 by JDKs who wish to do so.
  */
-
 package org.agrona.hints;
