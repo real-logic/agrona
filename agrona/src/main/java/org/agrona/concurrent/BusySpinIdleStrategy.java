@@ -25,7 +25,7 @@ import org.agrona.hints.ThreadHints;
 public final class BusySpinIdleStrategy implements IdleStrategy
 {
     /**
-     * As there is no instance state then this object can be used to safe on allocation.
+     * As there is no instance state then this object can be used to save on allocation.
      */
     public static final BusySpinIdleStrategy INSTANCE = new BusySpinIdleStrategy();
 
