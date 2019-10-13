@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 class CachedNanoClockPadding
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
+    protected long p1, p2, p3, p4, p5, p6, p7;
 }
 
 /**
@@ -45,7 +45,7 @@ public class CachedNanoClock extends CachedNanoClockValue implements NanoClock
         AtomicLongFieldUpdater.newUpdater(CachedNanoClockValue.class, "timeNs");
 
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
+    protected long p1, p2, p3, p4, p5, p6, p7;
 
     /**
      * {@inheritDoc}

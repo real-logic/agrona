@@ -22,7 +22,7 @@ import java.util.concurrent.locks.LockSupport;
 abstract class BackoffIdleStrategyPrePad
 {
     @SuppressWarnings("unused")
-    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
+    long p01, p02, p03, p04, p05, p06, p07;
 }
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
@@ -67,7 +67,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     public static final long DEFAULT_MAX_PARK_PERIOD_NS = 1_000_000L;
 
     @SuppressWarnings("unused")
-    long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
+    long p01, p02, p03, p04, p05, p06, p07;
 
     /**
      * Default constructor using {@link #DEFAULT_MAX_SPINS}, {@link #DEFAULT_MAX_YIELDS},
