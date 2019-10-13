@@ -22,10 +22,11 @@ import java.util.Objects;
 
 /**
  * A logging {@link ErrorHandler} that records to a {@link DistinctErrorLog} and if the log is full then overflows
- * to a {@link PrintStream}.
+ * to a {@link PrintStream}. If closed then error will be sent to {@link #errorOverflow()}.
  */
-public class LoggingErrorHandler implements ErrorHandler
+public class LoggingErrorHandler implements ErrorHandler, AutoCloseable
 {
+    private volatile boolean isClosed;
     private final DistinctErrorLog log;
     private final PrintStream errorOverflow;
 
@@ -56,6 +57,24 @@ public class LoggingErrorHandler implements ErrorHandler
     }
 
     /**
+     * Close error handler so that is does not attempt to write to underlying storage which may be unmapped.
+     */
+    public void close()
+    {
+        isClosed = true;
+    }
+
+    /**
+     * Is this {@link LoggingErrorHandler} closed.
+     *
+     * @return true if {@link #close()} has been called otherwise false.
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
+    /**
      * The wrapped log.
      *
      * @return the wrapped log.
@@ -77,9 +96,14 @@ public class LoggingErrorHandler implements ErrorHandler
 
     public void onError(final Throwable throwable)
     {
-        if (!log.record(throwable))
+        if (isClosed)
         {
-            errorOverflow.println("error Log is full, consider increasing length of error buffer");
+            errorOverflow.println("error log is closed");
+            throwable.printStackTrace(errorOverflow);
+        }
+        else if (!log.record(throwable))
+        {
+            errorOverflow.println("error log is full, consider increasing length of error buffer");
             throwable.printStackTrace(errorOverflow);
         }
     }
