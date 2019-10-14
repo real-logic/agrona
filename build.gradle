@@ -127,14 +127,14 @@ subprojects {
     jar.enabled = true
 
     dependencies {
-        checkstyle 'com.puppycrawl.tools:checkstyle:8.24'
+        checkstyle 'com.puppycrawl.tools:checkstyle:8.25'
 
         testImplementation 'org.hamcrest:hamcrest:2.1'
         testImplementation 'org.mockito:mockito-core:3.1.0'
         testImplementation 'junit:junit:4.12'
     }
 
-    checkstyle.toolVersion = '8.24'
+    checkstyle.toolVersion = '8.25'
 
     compileJava {
         sourceCompatibility = agronaJavaVersion
