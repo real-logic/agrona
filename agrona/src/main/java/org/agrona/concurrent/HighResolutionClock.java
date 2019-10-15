@@ -21,6 +21,10 @@ import java.time.Instant;
  * Clock that provides the number of time units since the 1 Jan 1970 UTC.
  * <p>
  * This implementation my be replaced on some platforms for greater performance.
+ * <p>
+ * <b>Note:</b> The actual provided resolution may be a higher granularity than the possible precision.
+ * For example, on Java 8 many JVMs will only advance a millisecond per tick so when requesting micros or nanos
+ * then the returned time may be a multiple of milliseconds. Later JVMs tend to improve on this.
  */
 public class HighResolutionClock
 {
