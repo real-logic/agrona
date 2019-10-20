@@ -27,7 +27,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 class AbstractConcurrentArrayQueuePadding1
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7;
 }
 
 /**
@@ -46,7 +46,7 @@ class AbstractConcurrentArrayQueueProducer extends AbstractConcurrentArrayQueueP
 class AbstractConcurrentArrayQueuePadding2 extends AbstractConcurrentArrayQueueProducer
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7;
 }
 
 /**
@@ -63,7 +63,7 @@ class AbstractConcurrentArrayQueueConsumer extends AbstractConcurrentArrayQueueP
 class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentArrayQueueConsumer
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7;
 }
 
 /**

@@ -62,7 +62,7 @@ class ManyToOneConcurrentLinkedQueuePadding1
     }
 
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7, p8;
 }
 
 /**
@@ -79,7 +79,7 @@ class ManyToOneConcurrentLinkedQueueTail<E> extends ManyToOneConcurrentLinkedQue
 class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinkedQueueTail<E>
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7, p8;
 }
 
 /**
@@ -108,7 +108,7 @@ class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQue
 public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinkedQueueHead<E> implements Queue<E>
 {
     @SuppressWarnings("unused")
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    long p1, p2, p3, p4, p5, p6, p7, p8;
 
     private final Node<E> empty = new Node<>(null);
 
