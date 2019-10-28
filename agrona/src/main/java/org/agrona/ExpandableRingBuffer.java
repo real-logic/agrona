@@ -386,19 +386,15 @@ public class ExpandableRingBuffer
         else if (tailOffset >= headOffset)
         {
             final int toEndRemaining = capacity - tailOffset;
-
-            if (alignedLength > toEndRemaining)
+            if (alignedLength > toEndRemaining && alignedLength <= (totalRemaining - toEndRemaining))
             {
-                if (alignedLength <= (totalRemaining - toEndRemaining))
-                {
-                    buffer.putInt(tailOffset + MESSAGE_LENGTH_OFFSET, toEndRemaining);
-                    buffer.putInt(tailOffset + MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_PADDING);
-                    tail += toEndRemaining;
-                }
-                else
-                {
-                    resize(alignedLength);
-                }
+                buffer.putInt(tailOffset + MESSAGE_LENGTH_OFFSET, toEndRemaining);
+                buffer.putInt(tailOffset + MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_PADDING);
+                tail += toEndRemaining;
+            }
+            else
+            {
+                resize(alignedLength);
             }
         }
 

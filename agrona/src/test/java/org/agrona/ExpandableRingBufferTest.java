@@ -182,25 +182,6 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendMessagesWithinCapacityWithoutExpanding()
-    {
-        final int initialCapacity = 1024;
-        final int maxCapacity = 2048;
-
-        final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer(initialCapacity, maxCapacity, false);
-
-        final ExpandableRingBuffer.MessageConsumer mockConsumer = mock(ExpandableRingBuffer.MessageConsumer.class);
-        when(mockConsumer.onMessage(any(), anyInt(), anyInt(), anyInt())).thenReturn(Boolean.TRUE);
-
-        assertThat(ringBuffer.capacity(), is(initialCapacity));
-
-        final int messageLength = 32;
-        ringBuffer.append(TEST_MSG, 0, messageLength);
-
-        assertThat(ringBuffer.capacity(), is(initialCapacity));
-    }
-
-    @Test
     public void shouldAppendMessagesWithPaddingWithoutExpanding()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
