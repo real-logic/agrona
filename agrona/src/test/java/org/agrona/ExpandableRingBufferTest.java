@@ -17,7 +17,6 @@ package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -183,7 +182,6 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    @Ignore
     public void shouldAppendMessagesWithinCapacityWithoutExpanding()
     {
         final int initialCapacity = 1024;
