@@ -32,6 +32,7 @@ defaultTasks 'clean', 'build', 'shadowJar', 'install'
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.0.11-SNAPSHOT'
 def agronaJavaVersion = JavaVersion.VERSION_1_8
+def agronaJavaReleaseVersion = '8'
 def externalJdk = true
 
 if (null == System.getenv("JAVA_HOME")) {
@@ -137,8 +138,13 @@ subprojects {
     checkstyle.toolVersion = '8.25'
 
     compileJava {
-        sourceCompatibility = agronaJavaVersion
-        targetCompatibility = agronaJavaVersion
+        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
+            options.compilerArgs.addAll(['--release', agronaJavaReleaseVersion])
+        }
+        else {
+            sourceCompatibility = agronaJavaVersion
+            targetCompatibility = agronaJavaVersion
+        }
         options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
         if (externalJdk) {
             options.fork = true
@@ -152,8 +158,13 @@ subprojects {
     }
 
     compileTestJava {
-        sourceCompatibility = agronaJavaVersion
-        targetCompatibility = agronaJavaVersion
+        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
+            options.compilerArgs.addAll(['--release', agronaJavaReleaseVersion])
+        }
+        else {
+            sourceCompatibility = agronaJavaVersion
+            targetCompatibility = agronaJavaVersion
+        }
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
