@@ -378,6 +378,17 @@ public class CountersManager extends CountersReader
         valuesBuffer.putLongOrdered(counterOffset(counterId), value);
     }
 
+    /**
+     * Set an {@link AtomicCounter} label based on counterId.
+     *
+     * @param counterId to be set.
+     * @param label     to set for the counter.
+     */
+    public void setCounterLabel(final int counterId, final String label)
+    {
+        putLabel(metaDataOffset(counterId), label);
+    }
+
     private int nextCounterId()
     {
         final long nowMs = epochClock.time();
@@ -407,15 +418,15 @@ public class CountersManager extends CountersReader
         {
             final int length = metaDataBuffer.putStringWithoutLengthAscii(
                 recordOffset + LABEL_OFFSET + SIZE_OF_INT, label, 0, MAX_LABEL_LENGTH);
-            metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, length);
+            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, length);
         }
         else
         {
             final byte[] bytes = label.getBytes(labelCharset);
             final int length = Math.min(bytes.length, MAX_LABEL_LENGTH);
 
-            metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, length);
             metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes, 0, length);
+            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, length);
         }
     }
 
