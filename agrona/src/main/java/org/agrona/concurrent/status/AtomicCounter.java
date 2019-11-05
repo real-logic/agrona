@@ -87,6 +87,16 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Return the label for the counter within the {@link CountersManager}.
+     *
+     * @return the label for the counter within the {@link CountersManager}.
+     */
+    public String label()
+    {
+        return null != countersManager ? countersManager.getCounterLabel(id) : null;
+    }
+
+    /**
      * Update the label for the counter within the {@link CountersManager}.
      *
      * @param label for the counter within the {@link CountersManager}.
