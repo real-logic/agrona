@@ -638,6 +638,28 @@ public class Int2IntHashMapTest
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void shouldIterateEntriesBySpecialisedTypeAndSetValue()
+    {
+        final Map<Integer, Integer> expected = new HashMap<>();
+        final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
+
+        IntStream.range(1, 10).forEachOrdered((i) ->
+        {
+            map.put(i, -i);
+            expected.put(i, -i * 10);
+        });
+
+        final Int2IntHashMap.EntryIterator iter = map.entrySet().iterator();
+        while (iter.hasNext())
+        {
+            iter.next();
+            iter.setValue(iter.getValue() * 10);
+        }
+
+        assertEquals(expected, map);
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());
