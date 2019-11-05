@@ -654,7 +654,7 @@ public class Int2IntHashMapTest
         while (iter.hasNext())
         {
             iter.next();
-            iter.setValue(iter.getValue() * 10);
+            iter.setValue(iter.getIntValue() * 10);
         }
 
         assertEquals(expected, map);
