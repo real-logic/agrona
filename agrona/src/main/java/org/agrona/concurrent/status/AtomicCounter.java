@@ -87,6 +87,29 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Return the label for the counter within the {@link CountersManager}.
+     *
+     * @return the label for the counter within the {@link CountersManager}.
+     */
+    public String label()
+    {
+        return null != countersManager ? countersManager.getCounterLabel(id) : null;
+    }
+
+    /**
+     * Update the label for the counter within the {@link CountersManager}.
+     *
+     * @param label for the counter within the {@link CountersManager}.
+     */
+    public void updateLabel(final String label)
+    {
+        if (null != countersManager)
+        {
+            countersManager.setCounterLabel(id, label);
+        }
+    }
+
+    /**
      * Perform an atomic increment that will not lose updates across threads.
      *
      * @return the previous value of the counter

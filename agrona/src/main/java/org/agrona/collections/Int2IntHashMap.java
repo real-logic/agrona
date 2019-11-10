@@ -829,6 +829,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         public Integer setValue(final Integer value)
         {
+            return setValue(value.intValue());
+        }
+
+        public int setValue(final int value)
+        {
             if (!isPositionValid)
             {
                 throw new IllegalStateException();
@@ -921,6 +926,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             {
                 return true;
             }
+
             if (!(o instanceof Entry))
             {
                 return false;
@@ -951,6 +957,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             }
 
             keyIterator.reset();
+
             return keyIterator;
         }
 
@@ -1011,6 +1018,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             }
 
             valueIterator.reset();
+
             return valueIterator;
         }
 
@@ -1055,6 +1063,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             }
 
             entryIterator.reset();
+
             return entryIterator;
         }
 
@@ -1089,6 +1098,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             final Entry entry = (Entry)o;
             final Integer value = get(entry.getKey());
+
             return value != null && value.equals(entry.getValue());
         }
     }

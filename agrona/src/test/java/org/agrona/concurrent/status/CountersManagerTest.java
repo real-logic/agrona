@@ -274,4 +274,14 @@ public class CountersManagerTest
 
         assertThat(manager.getCounterValue(counterId), is(value));
     }
+
+    @Test
+    public void shouldBeAbleToGetAndUpdateCounterLabel()
+    {
+        final AtomicCounter counter = manager.newCounter("original label");
+
+        assertThat(counter.label(), is("original label"));
+        counter.updateLabel(counter.label() + " with update");
+        assertThat(counter.label(), is("original label with update"));
+    }
 }

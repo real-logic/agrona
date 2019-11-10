@@ -766,6 +766,7 @@ public class Object2IntHashMap<K>
             }
 
             entryIterator.reset();
+
             return entryIterator;
         }
 
@@ -786,6 +787,7 @@ public class Object2IntHashMap<K>
         {
             final Entry entry = (Entry)o;
             final Integer value = get(entry.getKey());
+
             return value != null && value.equals(entry.getValue());
         }
     }

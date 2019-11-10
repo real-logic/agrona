@@ -30,7 +30,7 @@ plugins {
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '1.0.11-SNAPSHOT'
+def agronaVersion = '1.0.12-SNAPSHOT'
 def agronaJavaVersion = JavaVersion.VERSION_1_8
 def externalJdk = true
 
@@ -291,14 +291,14 @@ project(':agrona-agent') {
 
     jar {
         manifest.attributes(
-            'Implementation-Title': 'Agrona',
-            'Implementation-Version': "${agronaVersion}",
-            'Implementation-Vendor': 'Real Logic Limited',
-            'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
-            'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
-            'Can-Redefine-Classes': 'true',
-            'Can-Retransform-Classes': 'true',
-            'Automatic-Module-Name': 'org.agrona.agent'
+        'Implementation-Title': 'Agrona',
+        'Implementation-Version': "${agronaVersion}",
+        'Implementation-Vendor': 'Real Logic Limited',
+        'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
+        'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
+        'Can-Redefine-Classes': 'true',
+        'Can-Retransform-Classes': 'true',
+        'Automatic-Module-Name': 'org.agrona.agent'
         )
     }
 
@@ -308,14 +308,14 @@ project(':agrona-agent') {
         }
 
         manifest.attributes(
-            'Implementation-Title': 'Agrona',
-            'Implementation-Version': "${agronaVersion}",
-            'Implementation-Vendor': 'Real Logic Limited',
-            'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
-            'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
-            'Can-Redefine-Classes': 'true',
-            'Can-Retransform-Classes': 'true',
-            'Automatic-Module-Name': 'org.agrona.agent.all'
+        'Implementation-Title': 'Agrona',
+        'Implementation-Version': "${agronaVersion}",
+        'Implementation-Vendor': 'Real Logic Limited',
+        'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
+        'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
+        'Can-Redefine-Classes': 'true',
+        'Can-Retransform-Classes': 'true',
+        'Automatic-Module-Name': 'org.agrona.agent.all'
         )
 
         relocate 'net.bytebuddy', 'org.agrona.shadow.net.bytebuddy'
