@@ -8,6 +8,8 @@ out
 # intellij
 .idea
 *.iml
+*.ipr
+*.iws
 
 # eclipse
 .project
