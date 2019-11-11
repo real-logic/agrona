@@ -20,6 +20,11 @@ package org.agrona.concurrent;
  */
 public class SystemEpochClock implements EpochClock
 {
+    /**
+     * As there is no instance state then this object can be used to save on allocation.
+     */
+    public static final SystemEpochClock INSTANCE = new SystemEpochClock();
+
     public long time()
     {
         return System.currentTimeMillis();
