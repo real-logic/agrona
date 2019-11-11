@@ -371,7 +371,12 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public void putByte(final int index, final byte value)
     {
         ensureCapacity(index, SIZE_OF_BYTE);
+        byteArray[index] = value;
+    }
 
+    private void putByte0(final int index, final byte value)
+    {
+        ensureCapacity(index, SIZE_OF_BYTE);
         byteArray[index] = value;
     }
 
@@ -837,7 +842,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         boundsCheck0(index, length);
 
         final int endExclusive = index + length;
-        final int first = getByte(index);
+        final int first = byteArray[index];
         int i = index;
 
         if (first == MINUS_SIGN)
@@ -864,7 +869,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         boundsCheck0(index, length);
 
         final int endExclusive = index + length;
-        final int first = getByte(index);
+        final int first = byteArray[index];
         int i = index;
 
         if (first == MINUS_SIGN)
@@ -890,7 +895,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -905,7 +910,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int length = 1;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
+            putByte0(index, MINUS_SIGN);
             start++;
             length++;
             quotient = -quotient;
@@ -931,7 +936,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -961,7 +966,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
+            putByte0(index, (byte)(ZERO + digit));
         }
 
         if (remainder != 0)
@@ -979,7 +984,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             index--;
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
+            putByte0(index, (byte)(ZERO + digit));
         }
 
         return index;
@@ -989,7 +994,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -1015,7 +1020,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -1030,7 +1035,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         int length = 1;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
+            putByte0(index, MINUS_SIGN);
             start++;
             length++;
             quotient = -quotient;

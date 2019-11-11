@@ -824,11 +824,6 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index);
         }
 
-        return getByteWithoutBoundsCheck(index);
-    }
-
-    private byte getByteWithoutBoundsCheck(final int index)
-    {
         return UNSAFE.getByte(byteArray, addressOffset + index);
     }
 
@@ -839,11 +834,6 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck(index);
         }
 
-        putByteWithoutBoundsCheck(index, value);
-    }
-
-    private void putByteWithoutBoundsCheck(final int index, final byte value)
-    {
         UNSAFE.putByte(byteArray, addressOffset + index, value);
     }
 
@@ -1439,7 +1429,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
         }
 
         return tally;
@@ -1456,7 +1446,7 @@ public class UnsafeBuffer implements AtomicBuffer
         long tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
         }
 
         return tally;
@@ -1470,7 +1460,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         final int endExclusive = index + length;
-        final int first = getByteWithoutBoundsCheck(index);
+        final int first = UNSAFE.getByte(byteArray, addressOffset + index);
         int i = index;
 
         if (first == MINUS_SIGN)
@@ -1481,7 +1471,7 @@ public class UnsafeBuffer implements AtomicBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
         }
 
         if (first == MINUS_SIGN)
@@ -1500,7 +1490,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         final int endExclusive = index + length;
-        final int first = getByteWithoutBoundsCheck(index);
+        final int first = UNSAFE.getByte(byteArray, addressOffset + index);
         int i = index;
 
         if (first == MINUS_SIGN)
@@ -1511,7 +1501,7 @@ public class UnsafeBuffer implements AtomicBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByteWithoutBoundsCheck(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
         }
 
         if (first == MINUS_SIGN)
@@ -1559,7 +1549,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             final int remainder = quotient % 10;
             quotient = quotient / 10;
-            putByteWithoutBoundsCheck(i + start, (byte)(ZERO + remainder));
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + remainder));
             i--;
         }
 
@@ -1587,7 +1577,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             final int remainder = quotient % 10;
             quotient = quotient / 10;
-            putByteWithoutBoundsCheck(i + index, (byte)(ZERO + remainder));
+            UNSAFE.putByte(byteArray, addressOffset + i + index, (byte)(ZERO + remainder));
             i--;
         }
 
@@ -1647,7 +1637,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             final long remainder = quotient % 10;
             quotient = quotient / 10;
-            putByteWithoutBoundsCheck(i + index, (byte)(ZERO + remainder));
+            UNSAFE.putByte(byteArray, addressOffset + i + index, (byte)(ZERO + remainder));
             i--;
         }
 
@@ -1691,7 +1681,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             final long remainder = quotient % 10L;
             quotient = quotient / 10L;
-            putByteWithoutBoundsCheck(i + start, (byte)(ZERO + remainder));
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + remainder));
             i--;
         }
 

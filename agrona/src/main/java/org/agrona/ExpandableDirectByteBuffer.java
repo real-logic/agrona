@@ -380,14 +380,24 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     public byte getByte(final int index)
     {
         boundsCheck0(index, SIZE_OF_BYTE);
+        return UNSAFE.getByte(null, address + index);
+    }
 
+    private byte getByte0(final int index)
+    {
+        boundsCheck0(index, SIZE_OF_BYTE);
         return UNSAFE.getByte(null, address + index);
     }
 
     public void putByte(final int index, final byte value)
     {
         ensureCapacity(index, SIZE_OF_BYTE);
+        UNSAFE.putByte(null, address + index, value);
+    }
 
+    private void putByte0(final int index, final byte value)
+    {
+        ensureCapacity(index, SIZE_OF_BYTE);
         UNSAFE.putByte(null, address + index, value);
     }
 
@@ -850,7 +860,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
         }
 
         return tally;
@@ -864,7 +874,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0L;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
         }
 
         return tally;
@@ -875,7 +885,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         boundsCheck0(index, length);
 
         final int endExclusive = index + length;
-        final int first = getByte(index);
+        final int first = getByte0(index);
         int i = index;
         if (first == MINUS_SIGN)
         {
@@ -885,7 +895,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
         }
 
         if (first == MINUS_SIGN)
@@ -901,7 +911,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         boundsCheck0(index, length);
 
         final int endExclusive = index + length;
-        final int first = getByte(index);
+        final int first = getByte0(index);
         int i = index;
         if (first == MINUS_SIGN)
         {
@@ -911,7 +921,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
         }
 
         if (first == MINUS_SIGN)
@@ -933,7 +943,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -948,7 +958,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int length = 1;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
+            putByte0(index, MINUS_SIGN);
             start++;
             length++;
             quotient = -quotient;
@@ -974,7 +984,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -1004,7 +1014,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         {
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
+            putByte0(index, (byte)(ZERO + digit));
         }
 
         if (remainder != 0)
@@ -1022,7 +1032,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             index--;
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte(index, (byte)(ZERO + digit));
+            putByte0(index, (byte)(ZERO + digit));
         }
 
         return index;
@@ -1032,7 +1042,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         if (value == 0L)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -1058,7 +1068,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         if (value == 0)
         {
-            putByte(index, ZERO);
+            putByte0(index, ZERO);
             return 1;
         }
 
@@ -1073,7 +1083,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int length = 1;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
+            putByte0(index, MINUS_SIGN);
             start++;
             length++;
             quotient = -quotient;
