@@ -97,15 +97,38 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Update the label for the counter within the {@link CountersManager}.
+     * Update the label for the counter constructed with a {@link CountersManager}.
      *
-     * @param label for the counter within the {@link CountersManager}.
+     * @param newLabel for the counter with a {@link CountersManager}.
+     * @throws IllegalStateException is not constructed {@link CountersManager}.
      */
-    public void updateLabel(final String label)
+    public void updateLabel(final String newLabel)
     {
         if (null != countersManager)
         {
-            countersManager.setCounterLabel(id, label);
+            countersManager.setCounterLabel(id, newLabel);
+        }
+        else
+        {
+            throw new IllegalStateException("Not constructed with CountersManager");
+        }
+    }
+
+    /**
+     * Append to the label for a counter constructed with a {@link CountersManager}.
+     *
+     * @param suffix for the counter within a {@link CountersManager}.
+     * @throws IllegalStateException is not constructed {@link CountersManager}.
+     */
+    public void appendToLabel(final String suffix)
+    {
+        if (null != countersManager)
+        {
+            countersManager.appendToLabel(id, suffix);
+        }
+        else
+        {
+            throw new IllegalStateException("Not constructed with CountersManager");
         }
     }
 

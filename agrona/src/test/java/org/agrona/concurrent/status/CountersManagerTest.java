@@ -284,4 +284,14 @@ public class CountersManagerTest
         counter.updateLabel(counter.label() + " with update");
         assertThat(counter.label(), is("original label with update"));
     }
+
+    @Test
+    public void shouldBeAbleToAppendLabel()
+    {
+        final AtomicCounter counter = manager.newCounter("original label");
+
+        assertThat(counter.label(), is("original label"));
+        counter.appendToLabel(" with update");
+        assertThat(counter.label(), is("original label with update"));
+    }
 }
