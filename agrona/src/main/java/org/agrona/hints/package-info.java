@@ -58,7 +58,9 @@
  * used to conditionally make this call was specifically designed and tested for
  * efficient inlining and by common JVMs, such that there is no extra no overhead
  * associated with making the hint call: in JIT'ted code it becomes either an nop
- * or an efficient, inlined intrinsic.
+ * or an efficient inlined intrinsic. The implementation can be disabled by setting
+ * the {@link org.agrona.hints.ThreadHints#DISABLE_ON_SPIN_WAIT_PROP_NAME} system
+ * property to <code>true</code>.
  * </p>
  * <p>
  * In addition, JDKs that wish to introduce support for newer hinting capabilities
@@ -67,6 +69,6 @@
  * org.agrona.hints hinting methods will then benefit from potential
  * performance improvements even on prior java SE versions. E.g. the
  * example onSpinWait capability discussed above can be added in such a way to
- * Java SE 6, 7, 8 by JDKs who wish to do so.
+ * Java SE 6, 7, and 8 by JDKs who wish to do so.
  */
 package org.agrona.hints;

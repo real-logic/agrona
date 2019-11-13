@@ -1,5 +1,6 @@
 /*
- *  Copyright 2016 Gil Tene
+ * Copyright 2016 Gil Tene
+ * Copyright 2014-2019 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +30,27 @@ import static java.lang.invoke.MethodType.methodType;
  */
 public final class ThreadHints
 {
+    /**
+     * Set this system property to true to disable {@link #onSpinWait()}.
+     */
+    public static final String DISABLE_ON_SPIN_WAIT_PROP_NAME = "org.agrona.hints.disable.onSpinWait";
+
     private static final MethodHandle ON_SPIN_WAIT_METHOD_HANDLE;
 
     static
     {
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
         MethodHandle methodHandle = null;
-        try
+
+        if (!Boolean.getBoolean(DISABLE_ON_SPIN_WAIT_PROP_NAME))
         {
-            methodHandle = lookup.findStatic(Thread.class, "onSpinWait", methodType(void.class));
-        }
-        catch (final Exception ignore)
-        {
+            try
+            {
+                final MethodHandles.Lookup lookup = MethodHandles.lookup();
+                methodHandle = lookup.findStatic(Thread.class, "onSpinWait", methodType(void.class));
+            }
+            catch (final Exception ignore)
+            {
+            }
         }
 
         ON_SPIN_WAIT_METHOD_HANDLE = methodHandle;
