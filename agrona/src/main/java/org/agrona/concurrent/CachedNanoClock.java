@@ -64,4 +64,14 @@ public class CachedNanoClock extends CachedNanoClockValue implements NanoClock
     {
         FIELD_UPDATER.lazySet(this, timeNs);
     }
+
+    /**
+     * Advance the value of the timestamp in with release ordered semantics.
+     *
+     * @param nanos to advance the timestamp.
+     */
+    public void advance(final long nanos)
+    {
+        FIELD_UPDATER.lazySet(this, timeNs + nanos);
+    }
 }

@@ -64,4 +64,14 @@ public class CachedEpochClock extends CachedEpochClockValue implements EpochCloc
     {
         FIELD_UPDATER.lazySet(this, timeMs);
     }
+
+    /**
+     * Advance the value of the timestamp in with release ordered semantics.
+     *
+     * @param millis to advance the timestamp.
+     */
+    public void advance(final long millis)
+    {
+        FIELD_UPDATER.lazySet(this, timeMs + millis);
+    }
 }
