@@ -97,6 +97,7 @@ public class AsciiSequenceViewTest
     {
         assertEquals(0, asciiSequenceView.length());
         assertEquals("", asciiSequenceView.toString());
+        assertEquals(0, asciiSequenceView.getBytes(new UnsafeBuffer(new byte[128]), 16));
     }
 
     @Test(expected = StringIndexOutOfBoundsException.class)
