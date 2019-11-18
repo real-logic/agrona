@@ -95,7 +95,7 @@ public class AsciiSequenceView implements CharSequence
 
         if (end > length)
         {
-            throw new StringIndexOutOfBoundsException("end=" + end);
+            throw new StringIndexOutOfBoundsException("end=" + end + " length=" + length);
         }
 
         if (end - start < 0)
@@ -146,7 +146,9 @@ public class AsciiSequenceView implements CharSequence
         {
             return 0;
         }
+
         dstBuffer.putBytes(dstOffset, buffer, offset, length);
+
         return length;
     }
 
