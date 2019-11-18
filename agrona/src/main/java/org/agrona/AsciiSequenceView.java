@@ -142,13 +142,17 @@ public class AsciiSequenceView implements CharSequence
      */
     public int getBytes(final MutableDirectBuffer dstBuffer, final int dstOffset)
     {
-        dstBuffer.putBytes(dstOffset, this.buffer, offset, length);
+        if (null == buffer || length <= 0)
+        {
+            return 0;
+        }
+        dstBuffer.putBytes(dstOffset, buffer, offset, length);
         return length;
     }
 
     public String toString()
     {
-        if (null == buffer)
+        if (null == buffer || length <= 0)
         {
             return "";
         }
