@@ -35,7 +35,7 @@ public class ErrorLogReader
      */
     public static boolean hasErrors(final AtomicBuffer buffer)
     {
-        return 0 != buffer.getIntVolatile(LENGTH_OFFSET);
+        return buffer.capacity() > 0 && 0 != buffer.getIntVolatile(LENGTH_OFFSET);
     }
 
     /**
