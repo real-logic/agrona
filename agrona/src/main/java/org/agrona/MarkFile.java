@@ -15,13 +15,19 @@
  */
 package org.agrona;
 
+import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.concurrent.errors.ErrorConsumer;
+import org.agrona.concurrent.errors.ErrorLogReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -548,12 +554,21 @@ public class MarkFile implements AutoCloseable
         return timestampAgeMs <= timeoutMs;
     }
 
-    private static void validateOffsets(final int versionFieldOffset, final int timestampFieldOffset)
+    public static int printErrorLog(final AtomicBuffer errorBuffer, final PrintStream out)
     {
-        if ((versionFieldOffset + SIZE_OF_INT) > timestampFieldOffset)
-        {
-            throw new IllegalArgumentException("version field must precede the timestamp field");
-        }
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        final ErrorConsumer errorConsumer = (count, firstTimestamp, lastTimestamp, ex) ->
+            out.format(
+            "***%n%d observations from %s to %s for:%n %s%n",
+            count,
+            dateFormat.format(new Date(firstTimestamp)),
+            dateFormat.format(new Date(lastTimestamp)),
+            ex);
+
+        final int distinctErrorCount = ErrorLogReader.read(errorBuffer, errorConsumer);
+        out.format("%n%d distinct errors observed.%n", distinctErrorCount);
+
+        return distinctErrorCount;
     }
 
     protected static void sleep(final long durationMs)
@@ -565,6 +580,14 @@ public class MarkFile implements AutoCloseable
         catch (final InterruptedException ignore)
         {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private static void validateOffsets(final int versionFieldOffset, final int timestampFieldOffset)
+    {
+        if ((versionFieldOffset + SIZE_OF_INT) > timestampFieldOffset)
+        {
+            throw new IllegalArgumentException("version field must precede the timestamp field");
         }
     }
 }
