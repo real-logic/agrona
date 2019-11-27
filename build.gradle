@@ -24,12 +24,18 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
-    id 'io.freefair.javadoc-links' version '4.1.4' apply false
-    id 'biz.aQute.bnd.builder' version '4.2.0' apply false
+    id 'io.freefair.javadoc-links' version '4.1.5' apply false
+    id 'biz.aQute.bnd.builder' version '4.3.1' apply false
     id "com.github.ben-manes.versions" version "0.27.0"
 }
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
+
+def byteBuddyVersion = '1.10.3'
+def checkstyleVersion = '8.26'
+def hamcrestVersion = '2.2'
+def mockitoVersion = '3.1.0'
+def junitVersion = '4.12'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.1.1-SNAPSHOT'
@@ -128,14 +134,14 @@ subprojects {
     jar.enabled = true
 
     dependencies {
-        checkstyle 'com.puppycrawl.tools:checkstyle:8.26'
+        checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
 
-        testImplementation 'org.hamcrest:hamcrest:2.2'
-        testImplementation 'org.mockito:mockito-core:3.1.0'
-        testImplementation 'junit:junit:4.12'
+        testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
+        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "junit:junit:${junitVersion}"
     }
 
-    checkstyle.toolVersion = '8.26'
+    checkstyle.toolVersion = "${checkstyleVersion}"
 
     compileJava {
         if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
@@ -299,7 +305,7 @@ project(':agrona-agent') {
 
     dependencies {
         implementation project(':agrona')
-        implementation "net.bytebuddy:byte-buddy:1.10.2"
+        implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
     }
 
     jar {
