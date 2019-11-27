@@ -196,6 +196,8 @@ subprojects {
 }
 
 project(':agrona') {
+    apply plugin: 'biz.aQute.bnd.builder'
+
     dependencies {
         testImplementation 'com.google.guava:guava-testlib:28.1-jre'
     }
@@ -248,8 +250,6 @@ project(':agrona') {
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
     }
-
-    apply plugin: 'biz.aQute.bnd.builder'
 
     jar {
         from sourceSets.generated.output
@@ -316,6 +316,8 @@ project(':agrona-agent') {
     }
 
     shadowJar {
+        mustRunAfter jar
+
         dependencies {
             exclude(project(':agrona'))
         }
