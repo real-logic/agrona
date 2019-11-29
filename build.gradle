@@ -34,7 +34,7 @@ defaultTasks 'clean', 'build', 'shadowJar', 'install'
 def byteBuddyVersion = '1.10.4'
 def checkstyleVersion = '8.26'
 def hamcrestVersion = '2.2'
-def mockitoVersion = '3.1.0'
+def mockitoVersion = '3.2.0'
 def junitVersion = '4.12'
 
 def agronaGroup = 'org.agrona'
