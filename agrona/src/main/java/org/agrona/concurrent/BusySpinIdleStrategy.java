@@ -41,7 +41,7 @@ public final class BusySpinIdleStrategy implements IdleStrategy
             return;
         }
 
-        idle();
+        ThreadHints.onSpinWait();
     }
 
     /**
