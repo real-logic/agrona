@@ -26,7 +26,7 @@ import java.util.concurrent.locks.LockSupport;
  * {@link Thread#yield()}, or sleeping for the minimum period by calling {@link LockSupport#parkNanos(long)} when
  * work count is zero so it idles.
  */
-public class ControllableIdleStrategy implements IdleStrategy
+public final class ControllableIdleStrategy implements IdleStrategy
 {
     public static final int NOT_CONTROLLED = 0;
     public static final int NOOP = 1;
