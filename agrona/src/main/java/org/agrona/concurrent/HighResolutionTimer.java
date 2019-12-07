@@ -20,7 +20,7 @@ package org.agrona.concurrent;
  */
 public class HighResolutionTimer
 {
-    private static Thread thread;
+    private static volatile Thread thread;
 
     /**
      * Has the high resolution timer been enabled?
