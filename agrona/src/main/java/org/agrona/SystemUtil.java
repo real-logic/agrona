@@ -76,7 +76,7 @@ public class SystemUtil
     /**
      * Get the name of the operating system as a lower case String.
      * <p>
-     * This is what is returned from System.getProperty("os.name").toLowerCase().
+     * This is what is returned from {@code System.getProperty("os.name").toLowerCase()}.
      *
      * @return the name of the operating system as a lower case String.
      */
@@ -94,6 +94,26 @@ public class SystemUtil
     public static long getPid()
     {
         return PID;
+    }
+
+    /**
+     * Is the operating system likely to be Windows based on {@link #osName()}.
+     *
+     * @return true if the operating system is likely to be Windows based on {@link #osName()}.
+     */
+    public static boolean isWindows()
+    {
+        return OS_NAME.startsWith("win");
+    }
+
+    /**
+     * Is the operating system likely to be Linux based on {@link #osName()}.
+     *
+     * @return true if the operating system is likely to be Linux based on {@link #osName()}.
+     */
+    public static boolean isLinux()
+    {
+        return OS_NAME.contains("linux");
     }
 
     /**
