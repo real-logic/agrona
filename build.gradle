@@ -31,7 +31,7 @@ plugins {
 
 defaultTasks 'clean', 'build', 'shadowJar', 'install'
 
-def byteBuddyVersion = '1.10.4'
+def byteBuddyVersion = '1.10.5'
 def checkstyleVersion = '8.27'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.0'
