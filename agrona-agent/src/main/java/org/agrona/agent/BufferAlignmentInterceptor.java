@@ -20,6 +20,7 @@ import org.agrona.DirectBuffer;
 
 import net.bytebuddy.asm.Advice;
 
+@SuppressWarnings("unused")
 public class BufferAlignmentInterceptor
 {
     abstract static class Verifier

@@ -333,10 +333,10 @@ public class BufferAlignmentAgentTest
         catch (final BufferAlignmentException ex)
         {
             final Matcher matcher = EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage());
-            matcher.find();
-            matcher.find();
+            assertTrue(matcher.find());
+            assertTrue(matcher.find());
             final int indexFound = Integer.parseInt(matcher.group());
-            matcher.find();
+            assertTrue(matcher.find());
             final int offsetFound = Integer.parseInt(matcher.group());
 
             assertEquals("BufferAlignmentException reported wrong index", index, indexFound);

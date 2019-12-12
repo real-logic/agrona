@@ -75,7 +75,7 @@ public class BufferAlignmentAgent
             .or(nameMatches(".*String[^W].*").and(not(ElementMatchers.takesArguments(int.class, int.class))));
 
         alignmentTransformer = new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED))
-            .with(LISTENER)
+            .with(new AgentBuilderListener())
             .disableClassFormatChanges()
             .with(shouldRedefine ?
                 AgentBuilder.RedefinitionStrategy.RETRANSFORMATION :
@@ -91,7 +91,20 @@ public class BufferAlignmentAgent
             .installOn(instrumentation);
     }
 
-    private static final AgentBuilder.Listener LISTENER = new AgentBuilder.Listener()
+    public static synchronized void removeTransformer()
+    {
+        if (alignmentTransformer != null)
+        {
+            instrumentation.removeTransformer(alignmentTransformer);
+            instrumentation.removeTransformer(new AgentBuilder.Default()
+                .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
+                .transform(AgentBuilder.Transformer.NoOp.INSTANCE).installOn(instrumentation));
+            alignmentTransformer = null;
+            instrumentation = null;
+        }
+    }
+
+    static class AgentBuilderListener implements AgentBuilder.Listener
     {
         public void onDiscovery(
             final String typeName,
@@ -125,8 +138,8 @@ public class BufferAlignmentAgent
             final boolean loaded,
             final Throwable throwable)
         {
-            System.out.println("ERROR " + typeName);
-            throwable.printStackTrace(System.out);
+            System.err.println("ERROR " + typeName);
+            throwable.printStackTrace(System.err);
         }
 
         public void onComplete(
@@ -135,19 +148,6 @@ public class BufferAlignmentAgent
             final JavaModule module,
             final boolean loaded)
         {
-        }
-    };
-
-    public static synchronized void removeTransformer()
-    {
-        if (alignmentTransformer != null)
-        {
-            instrumentation.removeTransformer(alignmentTransformer);
-            instrumentation.removeTransformer(new AgentBuilder.Default()
-                .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
-                .transform(AgentBuilder.Transformer.NoOp.INSTANCE).installOn(instrumentation));
-            alignmentTransformer = null;
-            instrumentation = null;
         }
     }
 }
