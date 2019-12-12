@@ -199,6 +199,10 @@ subprojects {
         required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
     }
+
+    install {
+        repositories.mavenInstaller.pom.project(projectPom)
+    }
 }
 
 project(':agrona') {
@@ -410,6 +414,6 @@ task uploadToMavenCentral {
 }
 
 wrapper {
-    gradleVersion = '5.6.3'
+    gradleVersion = '6.0.1'
     distributionType = 'ALL'
 }
