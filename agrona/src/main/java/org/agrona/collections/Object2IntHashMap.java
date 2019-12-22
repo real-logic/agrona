@@ -210,6 +210,12 @@ public class Object2IntHashMap<K>
         return containsValue(((Integer)value).intValue());
     }
 
+    /**
+     * Overloaded version to avoid boxing.
+     *
+     * @param value to check.
+     * @return true if the collection contains the value.
+     */
     public boolean containsValue(final int value)
     {
         if (value == missingValue)
@@ -236,7 +242,7 @@ public class Object2IntHashMap<K>
     @SuppressWarnings("unchecked")
     public Integer get(final Object key)
     {
-        return valOrNull(getValue((K)key));
+        return valueOrNull(getValue((K)key));
     }
 
     /**
@@ -295,7 +301,7 @@ public class Object2IntHashMap<K>
      */
     public Integer put(final K key, final Integer value)
     {
-        return valOrNull(put(key, value.intValue()));
+        return valueOrNull(put(key, value.intValue()));
     }
 
     /**
@@ -349,11 +355,11 @@ public class Object2IntHashMap<K>
     @SuppressWarnings("unchecked")
     public Integer remove(final Object key)
     {
-        return valOrNull(removeKey(((K)key)));
+        return valueOrNull(removeKey(((K)key)));
     }
 
     /**
-     * Overloaded version of {@link Map#remove(Object)} that takes a primitive int key.
+     * Overloaded version of {@link Map#remove(Object)} that takes a key and returns a primitive int value.
      * Due to type erasure have to rename the method
      *
      * @param key for indexing the {@link Map}
@@ -656,7 +662,7 @@ public class Object2IntHashMap<K>
         }
     }
 
-    private Integer valOrNull(final int value)
+    private Integer valueOrNull(final int value)
     {
         return value == missingValue ? null : value;
     }
@@ -785,7 +791,12 @@ public class Object2IntHashMap<K>
          */
         public boolean contains(final Object o)
         {
-            final Entry entry = (Entry)o;
+            if (!(o instanceof Entry))
+            {
+                return false;
+            }
+
+            @SuppressWarnings("rawtypes") final Entry entry = (Entry)o;
             final Integer value = get(entry.getKey());
 
             return value != null && value.equals(entry.getValue());
@@ -898,7 +909,6 @@ public class Object2IntHashMap<K>
         public int nextInt()
         {
             findNext();
-
             return values[position()];
         }
     }
@@ -911,7 +921,6 @@ public class Object2IntHashMap<K>
         public K next()
         {
             findNext();
-
             return keys[position()];
         }
     }
@@ -968,7 +977,7 @@ public class Object2IntHashMap<K>
                         return false;
                     }
 
-                    final Map.Entry e = (Entry)o;
+                    @SuppressWarnings("rawtypes") final Map.Entry e = (Entry)o;
 
                     return (e.getKey() != null && e.getValue() != null) &&
                         (e.getKey().equals(k) && e.getValue().equals(v));

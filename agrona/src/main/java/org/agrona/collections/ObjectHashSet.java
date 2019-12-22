@@ -524,8 +524,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
 
         if (other instanceof ObjectHashSet)
         {
-            final ObjectHashSet otherSet = (ObjectHashSet)other;
-
+            final ObjectHashSet<?> otherSet = (ObjectHashSet<?>)other;
             return otherSet.size == size && containsAll(otherSet);
         }
 

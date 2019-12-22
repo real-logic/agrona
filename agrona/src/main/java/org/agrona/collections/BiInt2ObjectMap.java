@@ -48,14 +48,14 @@ public class BiInt2ObjectMap<V> implements Serializable
     }
 
     /**
-     * Creates new values based upon keys
+     * Creates a new value based upon keys.
      *
-     * @param <V> type of the value
+     * @param <V> type of the value.
      */
     public interface EntryFunction<V>
     {
         /**
-         * A map entry
+         * A map entry.
          *
          * @param keyPartA for the key
          * @param keyPartB for the key
@@ -74,7 +74,7 @@ public class BiInt2ObjectMap<V> implements Serializable
     private Object[] values;
 
     /**
-     * Construct an empty map
+     * Construct an empty map.
      */
     public BiInt2ObjectMap()
     {

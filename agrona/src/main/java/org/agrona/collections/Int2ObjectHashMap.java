@@ -535,13 +535,13 @@ public class Int2ObjectHashMap<V>
      */
     public V replace(final int key, final V value)
     {
-        V curValue = get(key);
-        if (curValue != null)
+        V currentValue = get(key);
+        if (currentValue != null)
         {
-            curValue = put(key, value);
+            currentValue = put(key, value);
         }
 
-        return curValue;
+        return currentValue;
     }
 
     /**
@@ -764,7 +764,12 @@ public class Int2ObjectHashMap<V>
          */
         public boolean contains(final Object o)
         {
-            final Entry entry = (Entry)o;
+            if (!(o instanceof Entry))
+            {
+                return false;
+            }
+
+            final Entry<?, ?> entry = (Entry<?, ?>)o;
             final int key = (Integer)entry.getKey();
             final V value = getMapped(key);
             return value != null && value.equals(mapNullValue(entry.getValue()));
@@ -950,7 +955,7 @@ public class Int2ObjectHashMap<V>
                         return false;
                     }
 
-                    final Map.Entry e = (Entry)o;
+                    final Map.Entry<?, ?> e = (Entry<?, ?>)o;
 
                     return (e.getKey() != null && e.getKey().equals(k)) &&
                         ((e.getValue() == null && v == null) || e.getValue().equals(v));

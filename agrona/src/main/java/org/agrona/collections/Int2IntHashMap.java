@@ -590,13 +590,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public int replace(final int key, final int value)
     {
-        int curValue = get(key);
-        if (curValue != missingValue)
+        int currentValue = get(key);
+        if (currentValue != missingValue)
         {
-            curValue = put(key, value);
+            currentValue = put(key, value);
         }
 
-        return curValue;
+        return currentValue;
     }
 
     /**
@@ -623,7 +623,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -635,7 +634,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return false;
         }
 
-        final Map<Integer, Integer> that = (Map<Integer, Integer>)o;
+        final Map<?, ?> that = (Map<?, ?>)o;
 
         return size == that.size() && entrySet().equals(that.entrySet());
 
@@ -777,7 +776,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         public int nextValue()
         {
             findNext();
-
             return entries[keyPosition()];
         }
     }
@@ -795,7 +793,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         public int nextValue()
         {
             findNext();
-
             return entries[keyPosition() + 1];
         }
     }
@@ -896,7 +893,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                         return false;
                     }
 
-                    final Map.Entry e = (Entry)o;
+                    final Map.Entry<?, ?> e = (Entry<?, ?>)o;
 
                     return (e.getKey() != null && e.getValue() != null) &&
                         (e.getKey().equals(k) && e.getValue().equals(v));
@@ -932,7 +929,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 return false;
             }
 
-            final Entry that = (Entry)o;
+            final Entry<?, ?> that = (Entry<?, ?>)o;
 
             return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
         }
@@ -1096,7 +1093,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          */
         public boolean contains(final Object o)
         {
-            final Entry entry = (Entry)o;
+            if (!(o instanceof Entry))
+            {
+                return false;
+            }
+            final Entry<?, ?> entry = (Entry<?, ?>)o;
             final Integer value = get(entry.getKey());
 
             return value != null && value.equals(entry.getValue());

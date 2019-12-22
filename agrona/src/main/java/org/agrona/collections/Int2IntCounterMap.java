@@ -427,7 +427,6 @@ public class Int2IntCounterMap implements Serializable
         {
             if (entries[keyIndex] == key)
             {
-                @DoNotSub final int valueIndex = keyIndex + 1;
                 oldValue = entries[keyIndex + 1];
                 entries[keyIndex + 1] = initialValue;
                 size--;
