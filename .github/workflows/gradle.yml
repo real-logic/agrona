@@ -12,6 +12,6 @@ jobs:
       - uses: actions/checkout@master
       - name: Setup java
         uses: actions/setup-java@v1
-          with:
-            java-version: ${{ matrix.java-version }}
+        with:
+          java-version: ${{ matrix.java-version }}
       run: ./gradlew
