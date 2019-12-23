@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11.0.4 ]
+        java: [ 8, 11 ]
     name: Java ${{ matrix.java }}
     steps:
       - uses: actions/checkout@master
