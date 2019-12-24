@@ -35,7 +35,7 @@ def byteBuddyVersion = '1.10.5'
 def checkstyleVersion = '8.27'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.4'
-def junitVersion = '4.12'
+def junitVersion = '5.5.2'
 def jmhVersion = '1.22'
 
 def agronaGroup = 'org.agrona'
@@ -138,8 +138,13 @@ subprojects {
         checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
 
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-        testImplementation "junit:junit:${junitVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        // Compatibility with JUnit 4
+        testCompileOnly "junit:junit:4.12"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
     }
 
     checkstyle.toolVersion = "${checkstyleVersion}"
@@ -178,6 +183,8 @@ subprojects {
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
             jvmArgs('--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED')
         }
+
+        useJUnitPlatform()
 
         testLogging {
             showStandardStreams = true
