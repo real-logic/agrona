@@ -481,7 +481,7 @@ task uploadToMavenCentral {
             'agrona-benchmarks:uploadArchives'
 }
 
-task runJavaBenchmarks(type: Exec) {
+task runJavaBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
     commandLine 'java',
             '-jar', 'agrona-benchmarks/build/libs/agrona-benchmarks.jar',
             '-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelOldGC',
