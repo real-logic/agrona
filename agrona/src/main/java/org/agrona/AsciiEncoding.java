@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 /**
  * Helper for dealing with ASCII encoding of numbers.
  */
-public class AsciiEncoding
+public final class AsciiEncoding
 {
     public static final byte ZERO = '0';
     private static final int[] INT_ROUNDS =
@@ -39,6 +39,10 @@ public class AsciiEncoding
     public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
     public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
     public static final byte MINUS_SIGN = (byte)'-';
+
+    private AsciiEncoding()
+    {
+    }
 
     /**
      * Get the end offset of an ASCII encoded value.

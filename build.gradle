@@ -35,7 +35,8 @@ def byteBuddyVersion = '1.10.5'
 def checkstyleVersion = '8.27'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.4'
-def junitVersion = '4.12'
+def junitVersion = '5.5.2'
+def jmhVersion = '1.22'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.1.1-SNAPSHOT'
@@ -137,8 +138,13 @@ subprojects {
         checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
 
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-        testImplementation "junit:junit:${junitVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        // Compatibility with JUnit 4
+        testCompileOnly "junit:junit:4.12"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
     }
 
     checkstyle.toolVersion = "${checkstyleVersion}"
@@ -177,6 +183,8 @@ subprojects {
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
             jvmArgs('--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED')
         }
+
+        useJUnitPlatform()
 
         testLogging {
             showStandardStreams = true
@@ -409,8 +417,75 @@ project(':agrona-agent') {
     }
 }
 
+project(':agrona-benchmarks') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    dependencies {
+        compile "org.openjdk.jmh:jmh-core:${jmhVersion}"
+        annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
+        compile project(':agrona')
+    }
+
+    shadowJar {
+        mustRunAfter jar
+        archiveFileName = 'agrona-benchmarks.jar'
+        archiveClassifier = 'benchmarks'
+        manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment {
+                    MavenDeployment deployment -> signing.signPom(deployment)
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project(projectPom)
+            }
+        }
+    }
+
+    task sourcesJar(type: Jar) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.shadow
+    }
+}
+
 task uploadToMavenCentral {
-    dependsOn 'agrona:uploadArchives', 'agrona-agent:uploadArchives', 'agrona-agent:uploadShadow'
+    dependsOn 'agrona:uploadArchives',
+            'agrona-agent:uploadArchives',
+            'agrona-agent:uploadShadow',
+            'agrona-benchmarks:uploadArchives'
+}
+
+task runJavaBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
+    commandLine 'java',
+            '-jar', 'agrona-benchmarks/build/libs/agrona-benchmarks.jar',
+            '-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelOldGC',
+            '-w', '1s', '-r', '1s','-wi', '3', '-i', '5', '-tu', 'ns', '-f', '5'
 }
 
 wrapper {

@@ -21,7 +21,7 @@ package org.agrona;
  *
  * This is code adapted from <a href="https://netty.io/">the Netty project</a> adopted to support {@link DirectBuffer}.
  */
-public class PrintBufferUtil
+public final class PrintBufferUtil
 {
     private static final String NEWLINE = System.lineSeparator();
     private static final String EMPTY_STRING = "";
@@ -46,6 +46,10 @@ public class PrintBufferUtil
         {
             BYTE2HEX_PAD[i] = Integer.toHexString(i);
         }
+    }
+
+    private PrintBufferUtil()
+    {
     }
 
     /**

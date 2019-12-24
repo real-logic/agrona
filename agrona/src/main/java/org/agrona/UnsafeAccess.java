@@ -24,7 +24,7 @@ import java.security.PrivilegedExceptionAction;
 /**
  * Obtain access the the {@link Unsafe} class for direct memory operations.
  */
-public class UnsafeAccess
+public final class UnsafeAccess
 {
     public static final Unsafe UNSAFE;
     public static final int ARRAY_BYTE_BASE_OFFSET;
@@ -52,5 +52,9 @@ public class UnsafeAccess
 
         UNSAFE = unsafe;
         ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
+    }
+
+    private UnsafeAccess()
+    {
     }
 }

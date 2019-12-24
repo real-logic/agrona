@@ -146,6 +146,7 @@ public class AgentInvokerTest
         when(mockAgent.doWork()).thenThrow(new ClosedByInterruptException());
 
         assertExceptionNotReported();
+        assertTrue(Thread.interrupted()); // by throwing ClosedByInterruptException
     }
 
     @Test
@@ -167,6 +168,7 @@ public class AgentInvokerTest
             });
 
         assertExceptionNotReported();
+        assertTrue(Thread.interrupted()); // by throwing ClosedByInterruptException
     }
 
     private void assertExceptionNotReported()

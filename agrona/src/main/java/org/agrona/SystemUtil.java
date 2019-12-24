@@ -31,7 +31,7 @@ import static java.lang.System.getProperty;
 /**
  * Utilities for inspecting the system.
  */
-public class SystemUtil
+public final class SystemUtil
 {
     /**
      * PID value if a process id could not be determined. This value should be equal to a kernel only process
@@ -71,6 +71,10 @@ public class SystemUtil
         }
 
         PID = pid;
+    }
+
+    private SystemUtil()
+    {
     }
 
     /**

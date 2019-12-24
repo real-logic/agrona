@@ -21,8 +21,12 @@ import java.util.List;
 /**
  * Utility functions to help with using {@link java.lang.AutoCloseable} resources.
  */
-public class CloseHelper
+public final class CloseHelper
 {
+    private CloseHelper()
+    {
+    }
+
     /**
      * Quietly close a {@link java.lang.AutoCloseable} dealing with nulls and exceptions.
      *

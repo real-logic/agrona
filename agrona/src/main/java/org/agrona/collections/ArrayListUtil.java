@@ -20,8 +20,12 @@ import java.util.ArrayList;
 /**
  * Utility functions for working with {@link ArrayList}s.
  */
-public class ArrayListUtil
+public final class ArrayListUtil
 {
+    private ArrayListUtil()
+    {
+    }
+
     /**
      * Removes element at index, but instead of copying all elements to the left, moves into the same slot the last
      * element. This avoids the copy costs, but spoils the list order. If index is the last element it is just removed.

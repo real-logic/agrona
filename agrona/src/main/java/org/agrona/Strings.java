@@ -18,8 +18,12 @@ package org.agrona;
 /**
  * Utility functions for using Strings.
  */
-public class Strings
+public final class Strings
 {
+    private Strings()
+    {
+    }
+
     /**
      * Is a string null or empty?
      *
