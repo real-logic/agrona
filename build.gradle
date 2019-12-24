@@ -36,6 +36,7 @@ def checkstyleVersion = '8.27'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.4'
 def junitVersion = '4.12'
+def jmhVersion = '1.22'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.1.1-SNAPSHOT'
@@ -409,8 +410,75 @@ project(':agrona-agent') {
     }
 }
 
+project(':agrona-benchmarks') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    dependencies {
+        compile "org.openjdk.jmh:jmh-core:${jmhVersion}"
+        annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
+        compile project(':agrona')
+    }
+
+    shadowJar {
+        mustRunAfter jar
+        archiveFileName = 'agrona-benchmarks.jar'
+        archiveClassifier = 'benchmarks'
+        manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment {
+                    MavenDeployment deployment -> signing.signPom(deployment)
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project(projectPom)
+            }
+        }
+    }
+
+    task sourcesJar(type: Jar) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.shadow
+    }
+}
+
 task uploadToMavenCentral {
-    dependsOn 'agrona:uploadArchives', 'agrona-agent:uploadArchives', 'agrona-agent:uploadShadow'
+    dependsOn 'agrona:uploadArchives',
+            'agrona-agent:uploadArchives',
+            'agrona-agent:uploadShadow',
+            'agrona-benchmarks:uploadArchives'
+}
+
+task runJavaBenchmarks(type: Exec) {
+    commandLine 'java',
+            '-jar', 'agrona-benchmarks/build/libs/agrona-benchmarks.jar',
+            '-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelOldGC',
+            '-w', '1s', '-r', '1s','-wi', '3', '-i', '5', '-tu', 'ns', '-f', '5'
 }
 
 wrapper {

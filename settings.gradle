@@ -1,1 +1,1 @@
-include ':agrona', ':agrona-agent'
+include ':agrona', ':agrona-agent', 'agrona-benchmarks'
