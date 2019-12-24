@@ -24,9 +24,9 @@ import java.util.zip.CRC32;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)
-public class CrcUtilBenchmark
+public class Crc32Benchmark
 {
-    @Param({ "32", "64", "128", "256", "1024", "2048", "4096", "8192" })
+    @Param({ "32", "128", "256", "1376", "2048", "4096" })
     private int length;
 
     private int offset = 32;
@@ -43,11 +43,13 @@ public class CrcUtilBenchmark
         address = BufferUtil.address(directByteBuffer);
         directByteBuffer.position(offset);
         heapByteBuffer.position(offset);
+
         for (int i = 0; i < length; i++)
         {
             directByteBuffer.put((byte)i);
             heapByteBuffer.put((byte)i);
         }
+
         directByteBuffer.flip().position(offset);
         heapByteBuffer.flip().position(offset);
         crc32 = new CRC32();
@@ -66,19 +68,21 @@ public class CrcUtilBenchmark
     }
 
     @Benchmark
-    public int crcUtil()
+    public int crc32Native()
     {
-        return CrcUtil.crc32DirectByteBuffer(0, address, offset, length);
+        return Checksums.crc32(0, address, offset, length);
     }
 
     private int callPublicApi(final ByteBuffer byteBuffer)
     {
         final int limit = byteBuffer.limit();
         final int position = byteBuffer.position();
+
         crc32.reset();
         crc32.update(byteBuffer);
         final int checksum = (int)crc32.getValue();
         byteBuffer.limit(limit).position(position);
+
         return checksum;
     }
 }

@@ -9,11 +9,11 @@ import java.util.zip.CRC32;
 
 import static org.agrona.BufferUtil.address;
 import static org.agrona.BufferUtil.allocateDirectAligned;
-import static org.agrona.CrcUtil.crc32DirectByteBuffer;
+import static org.agrona.Checksums.crc32;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class CrcUtilTest
+class ChecksumsTest
 {
 
     @Test
@@ -35,10 +35,10 @@ class CrcUtilTest
         buffer.put(data);
         final long address = address(buffer);
 
-        assertEquals(checksum1, crc32DirectByteBuffer(0, address, 5, 23));
-        assertEquals(checksum2, crc32DirectByteBuffer(checksum1, address, 28, 10));
-        assertNotEquals(checksum2, crc32DirectByteBuffer(0, address, 28, 10));
-        assertEquals(checksum1, crc32DirectByteBuffer(0, address, 5, 23));
+        assertEquals(checksum1, crc32(0, address, 5, 23));
+        assertEquals(checksum2, crc32(checksum1, address, 28, 10));
+        assertNotEquals(checksum2, crc32(0, address, 28, 10));
+        assertEquals(checksum1, crc32(0, address, 5, 23));
     }
 
     @ParameterizedTest
@@ -48,6 +48,6 @@ class CrcUtilTest
         final ByteBuffer buffer = allocateDirectAligned(32, 32);
         final long address = address(buffer);
 
-        assertNotEquals(0, crc32DirectByteBuffer(0, address, offset, length));
+        assertNotEquals(0, crc32(0, address, offset, length));
     }
 }
