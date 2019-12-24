@@ -20,8 +20,12 @@ import java.util.Map;
 /**
  * Various verification checks to be applied in code.
  */
-public class Verify
+public final class Verify
 {
+    private Verify()
+    {
+    }
+
     /**
      * Verify that a reference is not null.
      *

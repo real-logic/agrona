@@ -18,12 +18,16 @@ package org.agrona.collections;
 /**
  * Hashing functions for applying to integers.
  */
-public class Hashing
+public final class Hashing
 {
     /**
      * Default load factor to be used in open addressing hashed data structures.
      */
     public static final float DEFAULT_LOAD_FACTOR = 0.55f;
+
+    private Hashing()
+    {
+    }
 
     /**
      * Generate a hash for an int value. This is a no op.

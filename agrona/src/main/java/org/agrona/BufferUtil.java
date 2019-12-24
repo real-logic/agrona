@@ -24,7 +24,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Common functions for buffer implementations.
  */
-public class BufferUtil
+public final class BufferUtil
 {
     public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
     public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
@@ -49,6 +49,10 @@ public class BufferUtil
         {
             throw new RuntimeException(ex);
         }
+    }
+
+    private BufferUtil()
+    {
     }
 
     /**

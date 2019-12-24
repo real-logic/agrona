@@ -26,8 +26,12 @@ import java.util.function.ToIntFunction;
 /**
  * Utility functions for collection objects.
  */
-public class CollectionUtil
+public final class CollectionUtil
 {
+    private CollectionUtil()
+    {
+    }
+
     /**
      * A getOrDefault that doesn't create garbage if its suppler is non-capturing.
      *

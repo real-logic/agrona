@@ -56,6 +56,10 @@ public final class ArrayUtil
      */
     public static final int MAX_CAPACITY = Integer.MAX_VALUE - 8;
 
+    private ArrayUtil()
+    {
+    }
+
     /**
      * Add an element to an array resulting in a new array.
      *

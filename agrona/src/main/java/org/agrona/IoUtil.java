@@ -36,7 +36,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 /**
  * Collection of IO utilities for dealing with files, especially mapping and un-mapping.
  */
-public class IoUtil
+public final class IoUtil
 {
     /**
      * Size in bytes of a file page.
@@ -79,6 +79,10 @@ public class IoUtil
 
             return method;
         }
+    }
+
+    private IoUtil()
+    {
     }
 
     /**

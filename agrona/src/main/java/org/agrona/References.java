@@ -46,8 +46,12 @@ import java.lang.ref.Reference;
  * this class, no assumptions, beyond those provided in the documentation below,
  * should be made about their actual implementation.
  */
-public class References
+public final class References
 {
+    private References()
+    {
+    }
+
     /**
      * Indicate whether a {@link Reference} has been cleared.
      *
