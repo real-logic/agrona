@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Real Logic Ltd.
+ * Copyright 2014-2019 Real Logic Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,39 @@ import java.util.zip.CRC32;
 
 public final class Checksums
 {
-    private static final MethodHandle METHOD_HANDLE;
+    private static final MethodHandle CRC_METHOD_HANDLE;
 
     static
     {
+        MethodHandle methodHandle;
+
         try
         {
             final Method method = CRC32.class.getDeclaredMethod(
                 "updateByteBuffer", int.class, long.class, int.class, int.class);
             method.setAccessible(true);
-            METHOD_HANDLE = MethodHandles.lookup().unreflect(method);
+            methodHandle = MethodHandles.lookup().unreflect(method);
         }
-        catch (final NoSuchMethodException | IllegalAccessException ex)
+        catch (final IllegalAccessException ex)
         {
-            throw new Error("failed to resolved CRC methods", ex);
+            throw new Error("failed to resolve CRC methods", ex);
         }
+        catch (final NoSuchMethodException ignore)
+        {
+            try
+            {
+                final Method method = CRC32.class.getDeclaredMethod(
+                    "updateByteBuffer0", int.class, long.class, int.class, int.class);
+                method.setAccessible(true);
+                methodHandle = MethodHandles.lookup().unreflect(method);
+            }
+            catch (final NoSuchMethodException | IllegalAccessException ex)
+            {
+                throw new Error("failed to resolve CRC methods", ex);
+            }
+        }
+
+        CRC_METHOD_HANDLE = methodHandle;
     }
 
     private Checksums()
@@ -58,7 +76,7 @@ public final class Checksums
     {
         try
         {
-            return (int)METHOD_HANDLE.invokeExact(crc, address, offset, length);
+            return (int)CRC_METHOD_HANDLE.invokeExact(crc, address, offset, length);
         }
         catch (final Throwable throwable)
         {
