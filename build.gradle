@@ -344,8 +344,6 @@ project(':agrona-agent') {
             'Can-Retransform-Classes': 'true',
             'Automatic-Module-Name': 'org.agrona.agent.all'
         )
-
-        relocate 'net.bytebuddy', 'org.agrona.shadow.net.bytebuddy'
     }
 
     uploadArchives {
