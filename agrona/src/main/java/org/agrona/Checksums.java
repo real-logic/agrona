@@ -31,7 +31,7 @@ public final class Checksums
         try
         {
             final Method method = CRC32.class.getDeclaredMethod(
-                "updateByteBuffer", int.class, long.class, int.class, int.class);
+                "updateByteBuffer0", int.class, long.class, int.class, int.class);
             method.setAccessible(true);
             methodHandle = MethodHandles.lookup().unreflect(method);
         }
@@ -44,7 +44,7 @@ public final class Checksums
             try
             {
                 final Method method = CRC32.class.getDeclaredMethod(
-                    "updateByteBuffer0", int.class, long.class, int.class, int.class);
+                    "updateByteBuffer", int.class, long.class, int.class, int.class);
                 method.setAccessible(true);
                 methodHandle = MethodHandles.lookup().unreflect(method);
             }
