@@ -23,17 +23,17 @@ import static java.lang.invoke.MethodHandles.lookup;
 public final class Checksums
 {
     private static final MethodHandle CRC_METHOD_HANDLE;
-    private static final boolean USE_CRC32C;
+    private static final boolean HAS_CRC32C;
 
     static
     {
         MethodHandle methodHandle;
-        boolean useCRC32C = false;
+        boolean hasCRC32C = false;
 
         try
         {
             methodHandle = findMethodHandle("java.util.zip.CRC32C", "updateDirectByteBuffer");
-            useCRC32C = true;
+            hasCRC32C = true;
         }
         catch (final Exception ex1)
         {
@@ -49,7 +49,7 @@ public final class Checksums
         }
 
         CRC_METHOD_HANDLE = methodHandle;
-        USE_CRC32C = useCRC32C;
+        HAS_CRC32C = hasCRC32C;
     }
 
     private static MethodHandle findMethodHandle(final String className, final String methodName) throws Exception
@@ -80,7 +80,7 @@ public final class Checksums
     {
         try
         {
-            if (USE_CRC32C)
+            if (HAS_CRC32C)
             {
                 return ~(int)CRC_METHOD_HANDLE.invokeExact(~crc, address, offset, offset + length);
             }
