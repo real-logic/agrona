@@ -26,7 +26,7 @@ import java.util.zip.CRC32;
 @State(Scope.Benchmark)
 public class Crc32Benchmark
 {
-    @Param({ "8", "32", "128", "256", "1376", "2048", "4096" })
+    @Param({ "8", "16", "32", "64", "128", "256", "512", "1024", "1296", "1376", "4096" })
     private int length;
 
     private int offset = 32;
