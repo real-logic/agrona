@@ -29,6 +29,7 @@ public final class Checksums
     {
         MethodHandle methodHandle;
         boolean useCRC32C = false;
+
         try
         {
             methodHandle = findMethodHandle("java.util.zip.CRC32C", "updateDirectByteBuffer");
@@ -56,6 +57,7 @@ public final class Checksums
         final Class<?> klass = Class.forName(className);
         final Method method = klass.getDeclaredMethod(methodName, int.class, long.class, int.class, int.class);
         method.setAccessible(true);
+
         return lookup().unreflect(method);
     }
 
@@ -82,6 +84,7 @@ public final class Checksums
             {
                 return ~(int)CRC_METHOD_HANDLE.invokeExact(~crc, address, offset, offset + length);
             }
+            else
             {
                 return (int)CRC_METHOD_HANDLE.invokeExact(crc, address, offset, length);
             }
