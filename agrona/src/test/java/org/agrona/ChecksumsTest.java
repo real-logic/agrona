@@ -16,11 +16,10 @@
 package org.agrona;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import static org.agrona.BufferUtil.address;
 import static org.agrona.BufferUtil.allocateDirectAligned;
@@ -31,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class ChecksumsTest
 {
     @Test
-    void crc32DirectByteBufferShouldComputeCorrectCrc32Checksum()
+    void crc32ShouldComputeCorrectCrc32Checksum()
     {
-        final CRC32 crc32 = new CRC32();
+        final Checksum crc32 = lookupChecksumImplementation();
         final byte[] data = new byte[23];
         for (int i = 0; i < data.length; i++)
         {
@@ -56,13 +55,21 @@ class ChecksumsTest
         assertEquals(checksum1, crc32(0, address, 5, 23));
     }
 
-    @ParameterizedTest
-    @CsvSource({ "-1,10", "33, 5", "0,-10", "0,100" })
-    void crc32DirectByteBufferProducesGarbageWhenWrongOffsetOrLengthSpecified(final int offset, final int length)
+    private Checksum lookupChecksumImplementation()
     {
-        final ByteBuffer buffer = allocateDirectAligned(32, 32);
-        final long address = address(buffer);
-
-        assertNotEquals(0, crc32(0, address, offset, length));
+        try
+        {
+            final Class<?> klass = Class.forName("java.util.zip.CRC32C");
+            return (Checksum)klass.getDeclaredConstructor().newInstance();
+        }
+        catch (final ClassNotFoundException e)
+        {
+            return new CRC32(); // JDK 8 version
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            LangUtil.rethrowUnchecked(e);
+            return null; // un-reachable
+        }
     }
 }

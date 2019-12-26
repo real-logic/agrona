@@ -16,45 +16,47 @@
 package org.agrona;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.zip.CRC32;
+
+import static java.lang.invoke.MethodHandles.lookup;
 
 public final class Checksums
 {
     private static final MethodHandle CRC_METHOD_HANDLE;
+    private static final boolean USE_CRC32C;
 
     static
     {
         MethodHandle methodHandle;
-
+        boolean useCRC32C = false;
         try
         {
-            final Method method = CRC32.class.getDeclaredMethod(
-                "updateByteBuffer0", int.class, long.class, int.class, int.class);
-            method.setAccessible(true);
-            methodHandle = MethodHandles.lookup().unreflect(method);
+            methodHandle = findMethodHandle("java.util.zip.CRC32C", "updateDirectByteBuffer");
+            useCRC32C = true;
         }
-        catch (final IllegalAccessException ex)
-        {
-            throw new Error("failed to resolve CRC methods", ex);
-        }
-        catch (final NoSuchMethodException ignore)
+        catch (final Exception ex1)
         {
             try
             {
-                final Method method = CRC32.class.getDeclaredMethod(
-                    "updateByteBuffer", int.class, long.class, int.class, int.class);
-                method.setAccessible(true);
-                methodHandle = MethodHandles.lookup().unreflect(method);
+                methodHandle = findMethodHandle("java.util.zip.CRC32", "updateByteBuffer");
             }
-            catch (final NoSuchMethodException | IllegalAccessException ex)
+            catch (final Exception ex2)
             {
-                throw new Error("failed to resolve CRC methods", ex);
+                ex2.addSuppressed(ex1);
+                throw new Error("failed to resolve CRC methods", ex2);
             }
         }
 
         CRC_METHOD_HANDLE = methodHandle;
+        USE_CRC32C = useCRC32C;
+    }
+
+    private static MethodHandle findMethodHandle(final String className, final String methodName) throws Exception
+    {
+        final Class<?> klass = Class.forName(className);
+        final Method method = klass.getDeclaredMethod(methodName, int.class, long.class, int.class, int.class);
+        method.setAccessible(true);
+        return lookup().unreflect(method);
     }
 
     private Checksums()
@@ -62,7 +64,7 @@ public final class Checksums
     }
 
     /**
-     * Compute CRC-32 checksum on via an address which could be from a {@link java.nio.ByteBuffer}.
+     * Compute CRC-32 (or CRC-32C) checksum on via an address which could be from a {@link java.nio.ByteBuffer}.
      * <p>
      * <em>WARNING: Executing this method non-direct ByteBuffer address may segfault the VM!</em>
      *
@@ -70,18 +72,24 @@ public final class Checksums
      * @param address at which the underlying storage begins.
      * @param offset  from the address.
      * @param length  of the data from which CRC-32 checksum should be computed.
-     * @return CRC-32 checksum.
+     * @return CRC-32 (or CRC-32C) checksum.
      */
     public static int crc32(final int crc, final long address, final int offset, final int length)
     {
         try
         {
-            return (int)CRC_METHOD_HANDLE.invokeExact(crc, address, offset, length);
+            if (USE_CRC32C)
+            {
+                return ~(int)CRC_METHOD_HANDLE.invokeExact(~crc, address, offset, offset + length);
+            }
+            {
+                return (int)CRC_METHOD_HANDLE.invokeExact(crc, address, offset, length);
+            }
         }
         catch (final Throwable throwable)
         {
             LangUtil.rethrowUnchecked(throwable);
-            return -1;
+            return -1; // make compiler happy
         }
     }
 }
