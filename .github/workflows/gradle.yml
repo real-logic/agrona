@@ -9,7 +9,7 @@ jobs:
         java: [ 8, 11 ]
     name: Java ${{ matrix.java }}
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
