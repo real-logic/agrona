@@ -9,7 +9,7 @@ jobs:
         java: [ 8, 11 ]
     name: Java ${{ matrix.java }}
     steps:
-      - name: Cache Gradle dependencies
+      - name: Checkout code
         uses: actions/checkout@v2
       - name: Cache Gradle dependencies
         uses: actions/cache@v1
