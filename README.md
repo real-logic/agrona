@@ -52,7 +52,7 @@ Full clean, build, and install into local maven repository
 
 License (See LICENSE file for full license)
 -------------------------------------------
-Copyright 2014-2019 Real Logic Limited
+Copyright 
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
