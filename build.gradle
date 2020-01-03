@@ -219,6 +219,9 @@ project(':agrona') {
 
     dependencies {
         testImplementation 'com.google.guava:guava-testlib:28.1-jre'
+        // Compatibility with JUnit 4
+        testRuntimeOnly "junit:junit:4.12"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
     }
 
     uploadArchives {
