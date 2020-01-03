@@ -36,6 +36,7 @@ def checkstyleVersion = '8.28'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.4'
 def junitVersion = '5.5.2'
+def guavaTestLib = '28.1-jre'
 def jmhVersion = '1.22'
 
 def agronaGroup = 'org.agrona'
@@ -218,9 +219,11 @@ project(':agrona') {
     apply plugin: 'biz.aQute.bnd.builder'
 
     dependencies {
-        testImplementation 'com.google.guava:guava-testlib:28.1-jre'
+        testImplementation("com.google.guava:guava-testlib:${guavaTestLib}") {
+            exclude group: 'junit'
+        }
         // Compatibility with JUnit 4
-        testRuntimeOnly "junit:junit:4.12"
+        testImplementation "junit:junit:4.13"
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
     }
 
