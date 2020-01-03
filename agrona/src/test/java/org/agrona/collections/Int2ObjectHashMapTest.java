@@ -15,21 +15,19 @@
  */
 package org.agrona.collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Int2ObjectHashMapTest
 {
@@ -127,7 +125,7 @@ public class Int2ObjectHashMapTest
         intToObjectMap.clear();
 
         assertThat(intToObjectMap.size(), is(0));
-        Assert.assertNull(intToObjectMap.get(1));
+        assertNull(intToObjectMap.get(1));
     }
 
     @Test
@@ -158,8 +156,8 @@ public class Int2ObjectHashMapTest
 
         intToObjectMap.put(key, value);
 
-        Assert.assertTrue(intToObjectMap.containsValue(value));
-        Assert.assertFalse(intToObjectMap.containsValue("NoKey"));
+        assertTrue(intToObjectMap.containsValue(value));
+        assertFalse(intToObjectMap.containsValue("NoKey"));
     }
 
     @Test
@@ -170,8 +168,8 @@ public class Int2ObjectHashMapTest
 
         intToObjectMap.put(key, value);
 
-        Assert.assertTrue(intToObjectMap.containsKey(key));
-        Assert.assertFalse(intToObjectMap.containsKey(0));
+        assertTrue(intToObjectMap.containsKey(key));
+        assertFalse(intToObjectMap.containsKey(0));
     }
 
     @Test
@@ -182,11 +180,11 @@ public class Int2ObjectHashMapTest
 
         intToObjectMap.put(key, value);
 
-        Assert.assertTrue(intToObjectMap.containsKey(key));
+        assertTrue(intToObjectMap.containsKey(key));
 
         intToObjectMap.remove(key);
 
-        Assert.assertFalse(intToObjectMap.containsKey(key));
+        assertFalse(intToObjectMap.containsKey(key));
     }
 
     @Test

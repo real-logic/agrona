@@ -15,67 +15,58 @@
  */
 package org.agrona.collections;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
 public class ObjectHashSetStringTest
 {
-    @Parameters
-    public static ObjectHashSet[] data()
+    private static ObjectHashSet[] data()
     {
-        return new ObjectHashSet[] {
+        return new ObjectHashSet[]{
             new ObjectHashSet<String>(INITIAL_CAPACITY),
-            new ObjectHashSet<String>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false)};
+            new ObjectHashSet<String>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false) };
     }
 
     private static final int INITIAL_CAPACITY = 100;
 
-    private final ObjectHashSet<String> testSet;
-
-    public ObjectHashSetStringTest(final ObjectHashSet<String> testSet)
-    {
-        this.testSet = testSet;
-    }
-
-    @Before
-    public void clear()
-    {
-        testSet.clear();
-    }
-
-    @Test
-    public void containsAddedElement()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void containsAddedElement(final ObjectHashSet<String> testSet)
     {
         assertTrue(testSet.add("1"));
 
         assertTrue(testSet.contains("1"));
     }
 
-    @Test
-    public void addingAnElementTwiceDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void addingAnElementTwiceDoesNothing(final ObjectHashSet<String> testSet)
     {
         assertTrue(testSet.add("1"));
 
         assertFalse(testSet.add("1"));
     }
 
-    @Test
-    public void removingAnElementFromAnEmptyListDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void removingAnElementFromAnEmptyListDoesNothing(final ObjectHashSet<String> testSet)
     {
         assertFalse(testSet.remove("0"));
     }
 
-    @Test
-    public void removingAPresentElementRemovesIt()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void removingAPresentElementRemovesIt(final ObjectHashSet<String> testSet)
     {
         assertTrue(testSet.add("1"));
 
@@ -84,22 +75,25 @@ public class ObjectHashSetStringTest
         assertFalse(testSet.contains("1"));
     }
 
-    @Test
-    public void sizeIsInitiallyZero()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void sizeIsInitiallyZero(final ObjectHashSet<String> testSet)
     {
         assertEquals(0, testSet.size());
     }
 
-    @Test
-    public void sizeIncrementsWithNumberOfAddedElements()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void sizeIncrementsWithNumberOfAddedElements(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
         assertEquals(2, testSet.size());
     }
 
-    @Test
-    public void sizeContainsNumberOfNewElements()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void sizeContainsNumberOfNewElements(final ObjectHashSet<String> testSet)
     {
         testSet.add("1");
         testSet.add("1");
@@ -107,76 +101,85 @@ public class ObjectHashSetStringTest
         assertEquals(1, testSet.size());
     }
 
-    @Test
-    public void iteratorsListElements()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsListElements(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
-        assertIteratorHasElements();
+        assertIteratorHasElements(testSet);
     }
 
-    @Test
-    public void iteratorsStartFromTheBeginningEveryTime()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsStartFromTheBeginningEveryTime(final ObjectHashSet<String> testSet)
     {
-        iteratorsListElements();
+        iteratorsListElements(testSet);
 
-        assertIteratorHasElements();
+        assertIteratorHasElements(testSet);
     }
 
-    @Test
-    public void iteratorsListElementsWithoutHasNext()
-    {
-        addTwoElements(testSet);
-
-        assertIteratorHasElementsWithoutHasNext();
-    }
-
-    @Test
-    public void iteratorsStartFromTheBeginningEveryTimeWithoutHasNext()
-    {
-        iteratorsListElementsWithoutHasNext();
-
-        assertIteratorHasElementsWithoutHasNext();
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void iteratorsThrowNoSuchElementException()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsListElementsWithoutHasNext(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
-        exhaustIterator();
+        assertIteratorHasElementsWithoutHasNext(testSet);
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsStartFromTheBeginningEveryTimeWithoutHasNext(final ObjectHashSet<String> testSet)
+    {
+        iteratorsListElementsWithoutHasNext(testSet);
+
+        assertIteratorHasElementsWithoutHasNext(testSet);
+    }
+
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsThrowNoSuchElementException(final ObjectHashSet<String> testSet)
+    {
+        addTwoElements(testSet);
+
+        assertThrows(NoSuchElementException.class, () -> exhaustIterator(testSet));
+    }
+
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
         try
         {
-            exhaustIterator();
+            exhaustIterator(testSet);
         }
         catch (final NoSuchElementException ignore)
         {
         }
 
-        exhaustIterator();
+        assertThrows(NoSuchElementException.class, () -> exhaustIterator(testSet));
     }
 
-    @Test
-    public void iteratorHasNoElements()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorHasNoElements(final ObjectHashSet<String> testSet)
     {
         assertFalse(testSet.iterator().hasNext());
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void iteratorThrowExceptionForEmptySet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void iteratorThrowExceptionForEmptySet(final ObjectHashSet<String> testSet)
     {
-        testSet.iterator().next();
+        assertThrows(NoSuchElementException.class, () -> testSet.iterator().next());
     }
 
-    @Test
-    public void clearRemovesAllElementsOfTheSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void clearRemovesAllElementsOfTheSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -187,8 +190,9 @@ public class ObjectHashSetStringTest
         assertFalse(testSet.contains("1001"));
     }
 
-    @Test
-    public void differenceReturnsNullIfBothSetsEqual()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void differenceReturnsNullIfBothSetsEqual(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -198,8 +202,9 @@ public class ObjectHashSetStringTest
         assertNull(testSet.difference(other));
     }
 
-    @Test
-    public void differenceReturnsSetDifference()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void differenceReturnsSetDifference(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -210,15 +215,17 @@ public class ObjectHashSetStringTest
         assertThat(diff, containsInAnyOrder("1001"));
     }
 
-    @Test
-    public void twoEmptySetsAreEqual()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void twoEmptySetsAreEqual(final ObjectHashSet<String> testSet)
     {
         final ObjectHashSet other = new ObjectHashSet(100);
         assertEquals(testSet, other);
     }
 
-    @Test
-    public void setsWithTheSameValuesAreEqual()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void setsWithTheSameValuesAreEqual(final ObjectHashSet<String> testSet)
     {
         final ObjectHashSet<String> other = new ObjectHashSet<>(100);
 
@@ -228,8 +235,9 @@ public class ObjectHashSetStringTest
         assertEquals(testSet, other);
     }
 
-    @Test
-    public void setsWithTheDifferentSizesAreNotEqual()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void setsWithTheDifferentSizesAreNotEqual(final ObjectHashSet<String> testSet)
     {
         final ObjectHashSet<String> other = new ObjectHashSet<>(100);
 
@@ -240,8 +248,9 @@ public class ObjectHashSetStringTest
         assertNotEquals(testSet, other);
     }
 
-    @Test
-    public void setsWithTheDifferentValuesAreNotEqual()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void setsWithTheDifferentValuesAreNotEqual(final ObjectHashSet<String> testSet)
     {
         final ObjectHashSet<String> other = new ObjectHashSet<>(100);
 
@@ -253,14 +262,16 @@ public class ObjectHashSetStringTest
         assertNotEquals(testSet, other);
     }
 
-    @Test
-    public void twoEmptySetsHaveTheSameHashcode()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void twoEmptySetsHaveTheSameHashcode(final ObjectHashSet<String> testSet)
     {
         assertEquals(testSet.hashCode(), new ObjectHashSet<String>(100).hashCode());
     }
 
-    @Test
-    public void reducesSizeWhenElementRemoved()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void reducesSizeWhenElementRemoved(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -269,9 +280,10 @@ public class ObjectHashSetStringTest
         assertEquals(1, testSet.size());
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("data")
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArrayCopiesElementsIntoSufficientlySizedArray()
+    public void toArrayCopiesElementsIntoSufficientlySizedArray(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -280,9 +292,10 @@ public class ObjectHashSetStringTest
         assertArrayContainingElements(result);
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("data")
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArrayCopiesElementsIntoNewArray()
+    public void toArrayCopiesElementsIntoNewArray(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -291,9 +304,10 @@ public class ObjectHashSetStringTest
         assertArrayContainingElements(result);
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("data")
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArraySupportsEmptyCollection()
+    public void toArraySupportsEmptyCollection(final ObjectHashSet<String> testSet)
     {
         final String[] result = testSet.toArray(new String[testSet.size()]);
 
@@ -312,14 +326,15 @@ public class ObjectHashSetStringTest
         requiredFields.add("49");
         requiredFields.add("56");
 
-        assertTrue("Failed to remove 8", requiredFields.remove("8"));
-        assertTrue("Failed to remove 9", requiredFields.remove("9"));
+        assertTrue(requiredFields.remove("8"), "Failed to remove 8");
+        assertTrue(requiredFields.remove("9"), "Failed to remove 9");
 
         assertThat(requiredFields, containsInAnyOrder("35", "49", "56"));
     }
 
-    @Test
-    public void shouldResizeWhenItHitsCapacity()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void shouldResizeWhenItHitsCapacity(final ObjectHashSet<String> testSet)
     {
         for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
         {
@@ -332,8 +347,9 @@ public class ObjectHashSetStringTest
         }
     }
 
-    @Test
-    public void containsSubset()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void containsSubset(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -344,8 +360,9 @@ public class ObjectHashSetStringTest
         assertTrue(testSet.containsAll(subset));
     }
 
-    @Test
-    public void doesNotContainDisjointSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void doesNotContainDisjointSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -357,8 +374,9 @@ public class ObjectHashSetStringTest
         assertFalse(testSet.containsAll(other));
     }
 
-    @Test
-    public void doesNotContainSuperset()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void doesNotContainSuperset(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -370,8 +388,9 @@ public class ObjectHashSetStringTest
         assertFalse(testSet.containsAll(superset));
     }
 
-    @Test
-    public void addingEmptySetDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void addingEmptySetDoesNothing(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -379,8 +398,9 @@ public class ObjectHashSetStringTest
         assertContainsElements(testSet);
     }
 
-    @Test
-    public void addingSubsetDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void addingSubsetDoesNothing(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -392,8 +412,9 @@ public class ObjectHashSetStringTest
         assertContainsElements(testSet);
     }
 
-    @Test
-    public void addingEqualSetDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void addingEqualSetDoesNothing(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -405,8 +426,9 @@ public class ObjectHashSetStringTest
         assertContainsElements(testSet);
     }
 
-    @Test
-    public void containsValuesAddedFromDisjointSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void containsValuesAddedFromDisjointSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -421,8 +443,9 @@ public class ObjectHashSetStringTest
         assertTrue(testSet.containsAll(disjoint));
     }
 
-    @Test
-    public void containsValuesAddedFromIntersectingSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void containsValuesAddedFromIntersectingSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -437,8 +460,9 @@ public class ObjectHashSetStringTest
         assertTrue(testSet.containsAll(intersecting));
     }
 
-    @Test
-    public void removingEmptySetDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void removingEmptySetDoesNothing(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -446,8 +470,9 @@ public class ObjectHashSetStringTest
         assertContainsElements(testSet);
     }
 
-    @Test
-    public void removingDisjointSetDoesNothing()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void removingDisjointSetDoesNothing(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -460,8 +485,9 @@ public class ObjectHashSetStringTest
         assertContainsElements(testSet);
     }
 
-    @Test
-    public void doesNotContainRemovedIntersectingSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void doesNotContainRemovedIntersectingSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -475,8 +501,9 @@ public class ObjectHashSetStringTest
         assertFalse(testSet.containsAll(intersecting));
     }
 
-    @Test
-    public void isEmptyAfterRemovingEqualSet()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void isEmptyAfterRemovingEqualSet(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -488,8 +515,9 @@ public class ObjectHashSetStringTest
         assertTrue(testSet.isEmpty());
     }
 
-    @Test
-    public void removeElementsFromIterator()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void removeElementsFromIterator(final ObjectHashSet<String> testSet)
     {
         addTwoElements(testSet);
 
@@ -513,7 +541,7 @@ public class ObjectHashSetStringTest
         obj.add("1001");
     }
 
-    private void assertIteratorHasElements()
+    private void assertIteratorHasElements(final ObjectHashSet<String> testSet)
     {
         final Iterator<String> iter = testSet.iterator();
 
@@ -528,7 +556,7 @@ public class ObjectHashSetStringTest
         assertContainsElements(values);
     }
 
-    private void assertIteratorHasElementsWithoutHasNext()
+    private void assertIteratorHasElementsWithoutHasNext(final ObjectHashSet<String> testSet)
     {
         final Iterator<String> iter = testSet.iterator();
 
@@ -550,7 +578,7 @@ public class ObjectHashSetStringTest
         assertThat(other, containsInAnyOrder("1", "1001"));
     }
 
-    private void exhaustIterator()
+    private void exhaustIterator(final ObjectHashSet<String> testSet)
     {
         final Iterator<String> iterator = testSet.iterator();
         iterator.next();

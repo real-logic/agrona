@@ -16,23 +16,18 @@
 package org.agrona.concurrent;
 
 import org.agrona.MutableDirectBuffer;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Theories.class)
 public class UnsafeBufferTest
 {
     private static final byte VALUE = 42;
@@ -235,26 +230,26 @@ public class UnsafeBufferTest
         buffer.putBytes(INDEX, value.getBytes(US_ASCII));
     }
 
-    @DataPoints
-    public static int[][] valuesAndLengths()
+    private static int[][] valuesAndLengths()
     {
         return new int[][]
             {
-                {1, 1},
-                {10, 2},
-                {100, 3},
-                {1000, 4},
-                {12, 2},
-                {123, 3},
-                {2345, 4},
-                {9, 1},
-                {99, 2},
-                {999, 3},
-                {9999, 4},
+                { 1, 1 },
+                { 10, 2 },
+                { 100, 3 },
+                { 1000, 4 },
+                { 12, 2 },
+                { 123, 3 },
+                { 2345, 4 },
+                { 9, 1 },
+                { 99, 2 },
+                { 999, 3 },
+                { 9999, 4 },
             };
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
     public void shouldPutNaturalFromEnd(final int[] valueAndLength)
     {
         final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
@@ -262,11 +257,12 @@ public class UnsafeBufferTest
         final int length = valueAndLength[1];
 
         final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
-        assertEquals("for " + Arrays.toString(valueAndLength), 0, start);
+        final String message = "for " + Arrays.toString(valueAndLength);
+        assertEquals(0, start, message);
 
         assertEquals(
-            "for " + Arrays.toString(valueAndLength),
             String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(0, length));
+            buffer.getStringWithoutLengthAscii(0, length),
+            message);
     }
 }

@@ -15,19 +15,23 @@
  */
 package org.agrona.collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import static org.agrona.collections.Int2IntHashMap.MIN_CAPACITY;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class Int2IntHashMapNotAvoidingAllocationTest extends Int2IntHashMapTest
 {
-    public Int2IntHashMapNotAvoidingAllocationTest()
+
+    @BeforeEach
+    void before()
     {
-        super(new Int2IntHashMap(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, MISSING_VALUE, false));
+        map = new Int2IntHashMap(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, MISSING_VALUE, false);
     }
 
     @Test

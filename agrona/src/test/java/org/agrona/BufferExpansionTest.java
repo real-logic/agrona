@@ -15,24 +15,27 @@
  */
 package org.agrona;
 
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(Theories.class)
 public class BufferExpansionTest
 {
-    @DataPoint
-    public static final MutableDirectBuffer EXPANDABLE_ARRAY_BUFFER = new ExpandableArrayBuffer();
+    private static Stream<MutableDirectBuffer> buffers()
+    {
+        return Stream.of(
+            new ExpandableArrayBuffer(),
+            new ExpandableDirectByteBuffer()
+        );
+    }
 
-    @DataPoint
-    public static final MutableDirectBuffer EXPANDABLE_DIRECT_BYTE_BUFFER = new ExpandableDirectByteBuffer();
-
-    @Theory
+    @ParameterizedTest
+    @MethodSource("buffers")
     public void shouldExpand(final MutableDirectBuffer buffer)
     {
         final int capacity = buffer.capacity();

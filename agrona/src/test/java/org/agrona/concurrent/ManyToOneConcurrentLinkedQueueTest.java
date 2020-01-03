@@ -15,14 +15,16 @@
  */
 package org.agrona.concurrent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ManyToOneConcurrentLinkedQueueTest
 {
@@ -115,34 +117,37 @@ public class ManyToOneConcurrentLinkedQueueTest
         assertThat(queue.toString(), is("{0, 1, 2, 3, 4}"));
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void shouldTransferConcurrently()
     {
-        final int count = 1_000_000;
-        final int numThreads = 2;
-        final Executor executor = Executors.newFixedThreadPool(numThreads);
-        final Runnable producer =
-            () ->
-            {
-                for (int i = 0, items = count / numThreads; i < items; i++)
+        assertTimeout(Duration.ofSeconds(10), () ->
+        {
+            final int count = 1_000_000;
+            final int numThreads = 2;
+            final Executor executor = Executors.newFixedThreadPool(numThreads);
+            final Runnable producer =
+                () ->
                 {
-                    queue.offer(i);
-                }
-            };
+                    for (int i = 0, items = count / numThreads; i < items; i++)
+                    {
+                        queue.offer(i);
+                    }
+                };
 
-        for (int i = 0; i < numThreads; i++)
-        {
-            executor.execute(producer);
-        }
-
-        for (int i = 0; i < count; i++)
-        {
-            while (null == queue.poll())
+            for (int i = 0; i < numThreads; i++)
             {
-                // busy spin
+                executor.execute(producer);
             }
-        }
 
-        assertTrue(queue.isEmpty());
+            for (int i = 0; i < count; i++)
+            {
+                while (null == queue.poll())
+                {
+                    // busy spin
+                }
+            }
+
+            assertTrue(queue.isEmpty());
+        });
     }
 }

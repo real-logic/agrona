@@ -15,35 +15,25 @@
  */
 package org.agrona.agent;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-import static org.agrona.BitUtil.SIZE_OF_BYTE;
-import static org.agrona.BitUtil.SIZE_OF_CHAR;
-import static org.agrona.BitUtil.SIZE_OF_DOUBLE;
-import static org.agrona.BitUtil.SIZE_OF_FLOAT;
-import static org.agrona.BitUtil.SIZE_OF_INT;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-import static org.agrona.BitUtil.SIZE_OF_SHORT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.nio.ByteBuffer;
-import java.util.function.IntConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.bytebuddy.agent.ByteBuddyAgent;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import net.bytebuddy.agent.ByteBuddyAgent;
+import java.nio.ByteBuffer;
+import java.util.function.IntConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static org.agrona.BitUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BufferAlignmentAgentTest
 {
@@ -52,13 +42,13 @@ public class BufferAlignmentAgentTest
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
 
-    @BeforeClass
+    @BeforeAll
     public static void installAgent()
     {
         BufferAlignmentAgent.agentmain("", ByteBuddyAgent.install());
     }
 
-    @AfterClass
+    @AfterAll
     public static void removeAgent()
     {
         BufferAlignmentAgent.removeTransformer();
@@ -339,8 +329,8 @@ public class BufferAlignmentAgentTest
             assertTrue(matcher.find());
             final int offsetFound = Integer.parseInt(matcher.group());
 
-            assertEquals("BufferAlignmentException reported wrong index", index, indexFound);
-            assertNotEquals("BufferAlignmentException reported wrong offset", 0, offsetFound);
+            assertEquals(index, indexFound, "BufferAlignmentException reported wrong index");
+            assertNotEquals(0, offsetFound, "BufferAlignmentException reported wrong offset");
 
             return;
         }

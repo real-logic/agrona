@@ -15,13 +15,14 @@
  */
 package org.agrona;
 
+import org.junit.jupiter.api.Test;
+
 import static org.agrona.SystemUtil.parseDuration;
 import static org.agrona.SystemUtil.parseSize;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SystemUtilTest
 {
@@ -52,22 +53,22 @@ public class SystemUtilTest
         assertThat(parseDuration("", "12s"), is(12L * 1000 * 1000 * 1000));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void shouldThrowWhenParseTimeHasBadSuffix()
     {
-        parseDuration("", "1g");
+        assertThrows(NumberFormatException.class, () -> parseDuration("", "1g"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void shouldThrowWhenParseTimeHasBadTwoLetterSuffix()
     {
-        parseDuration("", "1zs");
+        assertThrows(NumberFormatException.class, () -> parseDuration("", "1zs"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void shouldThrowWhenParseSizeOverflows()
     {
-        parseSize("", 8589934592L + "g");
+        assertThrows(NumberFormatException.class, () -> parseSize("", 8589934592L + "g"));
     }
 
     @Test

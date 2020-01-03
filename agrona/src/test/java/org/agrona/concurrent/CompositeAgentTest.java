@@ -15,10 +15,9 @@
  */
 package org.agrona.concurrent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class CompositeAgentTest
@@ -33,18 +32,18 @@ public class CompositeAgentTest
         }
     }
 
-    private final Agent[] agents = new Agent[]{mock(Agent.class), mock(Agent.class), mock(Agent.class)};
+    private final Agent[] agents = new Agent[]{ mock(Agent.class), mock(Agent.class), mock(Agent.class) };
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAcceptEmptyList()
     {
-        final CompositeAgent ignore = new CompositeAgent();
+        assertThrows(IllegalArgumentException.class, CompositeAgent::new);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldNotAcceptNullAgents()
     {
-        final CompositeAgent ignore = new CompositeAgent(agents[0], null, agents[1]);
+        assertThrows(NullPointerException.class, () -> new CompositeAgent(agents[0], null, agents[1]));
     }
 
     @Test

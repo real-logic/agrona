@@ -16,38 +16,35 @@
 package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Theories.class)
 public class StringNumbersLengthsTest
 {
-    @DataPoints
-    public static int[][] valuesAndLengths()
+    private static int[][] valuesAndLengths()
     {
         return new int[][]
-        {
-            {1, 1},
-            {10, 2},
-            {100, 3},
-            {1000, 4},
-            {12, 2},
-            {123, 3},
-            {2345, 4},
-            {9, 1},
-            {99, 2},
-            {999, 3},
-            {9999, 4},
-        };
+            {
+                { 1, 1 },
+                { 10, 2 },
+                { 100, 3 },
+                { 1000, 4 },
+                { 12, 2 },
+                { 123, 3 },
+                { 2345, 4 },
+                { 9, 1 },
+                { 99, 2 },
+                { 999, 3 },
+                { 9999, 4 },
+            };
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
     public void shouldPutNaturalInt(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
@@ -58,7 +55,8 @@ public class StringNumbersLengthsTest
         assertValueAndLengthEquals(valueAndLength, buffer, length);
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
     public void shouldPutNaturalLong(final int[] valueAndLength)
     {
         final long value = valueAndLength[0];
@@ -69,7 +67,8 @@ public class StringNumbersLengthsTest
         assertValueAndLengthEquals(valueAndLength, buffer, length);
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
     public void shouldPutInt(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
@@ -80,7 +79,8 @@ public class StringNumbersLengthsTest
         assertValueAndLengthEquals(valueAndLength, buffer, length);
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
     public void shouldPutLong(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
@@ -96,11 +96,13 @@ public class StringNumbersLengthsTest
         final int value = valueAndLength[0];
         final int expectedLength = valueAndLength[1];
 
-        assertEquals("for " + Arrays.toString(valueAndLength), expectedLength, length);
+        final String message = "for " + Arrays.toString(valueAndLength);
+
+        assertEquals(expectedLength, length, message);
 
         assertEquals(
-            "for " + Arrays.toString(valueAndLength),
             String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(1, expectedLength));
+            buffer.getStringWithoutLengthAscii(1, expectedLength),
+            message);
     }
 }

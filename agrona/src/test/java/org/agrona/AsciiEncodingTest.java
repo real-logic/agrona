@@ -15,10 +15,11 @@
  */
 package org.agrona;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AsciiEncodingTest
 {
@@ -42,45 +43,45 @@ public class AsciiEncodingTest
         assertThat(AsciiEncoding.parseLongAscii("3333", 1, 2), is(33L));
     }
 
-    @Test(expected = AsciiNumberFormatException.class)
+    @Test
     public void shouldThrowExceptionWhenDecodingCharNonNumericValue()
     {
-        AsciiEncoding.getDigit(0, 'a');
+        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.getDigit(0, 'a'));
     }
 
-    @Test(expected = AsciiNumberFormatException.class)
+    @Test
     public void shouldThrowExceptionWhenDecodingByteNonNumericValue()
     {
-        AsciiEncoding.getDigit(0, (byte)'a');
+        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.getDigit(0, (byte)'a'));
     }
 
-    @Test(expected = AsciiNumberFormatException.class)
+    @Test
     public void shouldThrowExceptionWhenParsingLongContainingLoneMinusSign()
     {
-        AsciiEncoding.parseLongAscii("-", 0, 1);
+        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseLongAscii("-", 0, 1));
     }
 
-    @Test(expected = AsciiNumberFormatException.class)
+    @Test
     public void shouldThrowExceptionWhenParsingIntegerContainingLoneMinusSign()
     {
-        AsciiEncoding.parseIntAscii("-", 0, 1);
+        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseIntAscii("-", 0, 1));
     }
 
-    @Test(expected = AsciiNumberFormatException.class)
+    @Test
     public void shouldThrowExceptionWhenParsingLongContainingLonePlusSign()
     {
-        AsciiEncoding.parseLongAscii("+", 0, 1);
+        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseLongAscii("+", 0, 1));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionWhenParsingEmptyLong()
     {
-        AsciiEncoding.parseLongAscii("", 0, 0);
+        assertThrows(IndexOutOfBoundsException.class, () -> AsciiEncoding.parseLongAscii("", 0, 0));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionWhenParsingEmptyInteger()
     {
-        AsciiEncoding.parseIntAscii("", 0, 0);
+        assertThrows(IndexOutOfBoundsException.class, () -> AsciiEncoding.parseIntAscii("", 0, 0));
     }
 }

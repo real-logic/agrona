@@ -15,17 +15,19 @@
  */
 package org.agrona.collections;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Object2IntHashMapTest
 {
@@ -125,7 +127,7 @@ public class Object2IntHashMapTest
         objectToIntMap.clear();
 
         assertThat(objectToIntMap.size(), is(0));
-        Assert.assertEquals(MISSING_VALUE, objectToIntMap.getValue("1"));
+        assertEquals(MISSING_VALUE, objectToIntMap.getValue("1"));
     }
 
     @Test
@@ -156,8 +158,8 @@ public class Object2IntHashMapTest
 
         objectToIntMap.put(key, value);
 
-        Assert.assertTrue(objectToIntMap.containsValue(value));
-        Assert.assertFalse(objectToIntMap.containsValue(8));
+        assertTrue(objectToIntMap.containsValue(value));
+        assertFalse(objectToIntMap.containsValue(8));
     }
 
     @Test
@@ -168,8 +170,8 @@ public class Object2IntHashMapTest
 
         objectToIntMap.put(key, value);
 
-        Assert.assertTrue(objectToIntMap.containsKey(key));
-        Assert.assertFalse(objectToIntMap.containsKey("Eight"));
+        assertTrue(objectToIntMap.containsKey(key));
+        assertFalse(objectToIntMap.containsKey("Eight"));
     }
 
     @Test
@@ -180,11 +182,11 @@ public class Object2IntHashMapTest
 
         objectToIntMap.put(key, value);
 
-        Assert.assertTrue(objectToIntMap.containsKey(key));
+        assertTrue(objectToIntMap.containsKey(key));
 
         objectToIntMap.remove(key);
 
-        Assert.assertFalse(objectToIntMap.containsKey(key));
+        assertFalse(objectToIntMap.containsKey(key));
     }
 
     @Test
@@ -222,7 +224,7 @@ public class Object2IntHashMapTest
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Object2IntHashMap<String>.ValueIterator iter = objectToIntMap.values().iterator(); iter.hasNext();)
+        for (final Object2IntHashMap<String>.ValueIterator iter = objectToIntMap.values().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }

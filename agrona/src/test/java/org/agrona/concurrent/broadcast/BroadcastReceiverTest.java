@@ -15,17 +15,18 @@
  */
 package org.agrona.concurrent.broadcast;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class BroadcastReceiverTest
 {
@@ -40,7 +41,7 @@ public class BroadcastReceiverTest
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private BroadcastReceiver broadcastReceiver;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
@@ -54,7 +55,7 @@ public class BroadcastReceiverTest
         assertThat(broadcastReceiver.capacity(), is(CAPACITY));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
@@ -62,7 +63,7 @@ public class BroadcastReceiverTest
 
         when(buffer.capacity()).thenReturn(totalBufferLength);
 
-        new BroadcastReceiver(buffer);
+        assertThrows(IllegalStateException.class, () -> new BroadcastReceiver(buffer));
     }
 
     @Test

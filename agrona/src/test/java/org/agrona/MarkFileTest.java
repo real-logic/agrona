@@ -1,5 +1,9 @@
 package org.agrona;
 
+import org.agrona.concurrent.SystemEpochClock;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -8,18 +12,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.agrona.concurrent.SystemEpochClock;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MarkFileTest
 {
-    public final TemporaryFolder tmpDir = new TemporaryFolder();
+    @TempDir
+    File directory;
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldWaitForMarkFileToContainEnoughDataForVersionCheck() throws IOException
     {
-        final File directory = tmpDir.newFolder();
+
         final String filename = "markfile.dat";
         final Path markFilePath = directory.toPath().resolve(filename);
         Files.createFile(markFilePath);
@@ -28,7 +31,7 @@ public class MarkFileTest
         {
             channel.write(ByteBuffer.allocate(1));
         }
-        new MarkFile(directory, filename, 0,
-          16, 10, new SystemEpochClock(), v -> {}, msg -> {});
+        assertThrows(IllegalStateException.class, () ->
+            new MarkFile(directory, filename, 0, 16, 10, new SystemEpochClock(), v -> {}, msg -> {}));
     }
 }

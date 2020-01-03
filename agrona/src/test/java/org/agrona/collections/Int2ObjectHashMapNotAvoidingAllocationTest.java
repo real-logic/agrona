@@ -15,12 +15,12 @@
  */
 package org.agrona.collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Int2ObjectHashMapNotAvoidingAllocationTest extends Int2ObjectHashMapTest
 {
