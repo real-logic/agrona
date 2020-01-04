@@ -15,34 +15,37 @@
  */
 package org.agrona.concurrent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class DynamicCompositeAgentTest
 {
     private static final String ROLE_NAME = "roleName";
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldNotAllowAddAfterClose()
     {
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
 
         invoker.close();
-        compositeAgent.tryAdd(mock(Agent.class));
+
+        assertThrows(IllegalStateException.class, () -> compositeAgent.tryAdd(mock(Agent.class)));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldNotAllowRemoveAfterClose()
     {
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
 
         invoker.close();
-        compositeAgent.tryRemove(mock(Agent.class));
+
+        assertThrows(IllegalStateException.class, () -> compositeAgent.tryRemove(mock(Agent.class)));
     }
 
     @Test

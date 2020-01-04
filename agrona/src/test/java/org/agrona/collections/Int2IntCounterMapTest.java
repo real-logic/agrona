@@ -15,16 +15,18 @@
  */
 package org.agrona.collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
@@ -238,16 +240,16 @@ public class Int2IntCounterMapTest
         assertEquals(count, map.size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSupportLoadFactorOfGreaterThanOne()
     {
-        new Int2IntHashMap(4, 2, 0);
+        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 2, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSupportLoadFactorOfOne()
     {
-        new Int2IntHashMap(4, 1, 0);
+        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 1, 0));
     }
 
     @Test
@@ -256,12 +258,12 @@ public class Int2IntCounterMapTest
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
         IntStream.range(1, 17).forEach((i) -> map.put(i, i));
-        assertEquals("Map has correct size", 16, map.size());
+        assertEquals(16, map.size(), "Map has correct size");
 
         final List<Integer> keys = new ArrayList<>(map.keySet());
         keys.forEach(map::remove);
 
-        assertTrue("Map isn't empty", map.isEmpty());
+        assertTrue(map.isEmpty(), "Map isn't empty");
     }
 
     @Test
@@ -391,10 +393,10 @@ public class Int2IntCounterMapTest
         assertFalse(map.containsKey(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowInitialValueAsValue()
     {
-        map.put(1, INITIAL_VALUE);
+        assertThrows(IllegalArgumentException.class, () -> map.put(1, INITIAL_VALUE));
     }
 
     @Test

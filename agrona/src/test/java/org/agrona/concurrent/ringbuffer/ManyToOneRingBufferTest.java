@@ -15,19 +15,20 @@
  */
 package org.agrona.concurrent.ringbuffer;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import static java.lang.Boolean.TRUE;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class ManyToOneRingBufferTest
 {
@@ -41,7 +42,7 @@ public class ManyToOneRingBufferTest
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private ManyToOneRingBuffer ringBuffer;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
@@ -411,20 +412,22 @@ public class ManyToOneRingBufferTest
         assertThat(ringBuffer.capacity(), is(CAPACITY));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
-        new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength]));
+        assertThrows(IllegalStateException.class, () ->
+            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenMaxMessageSizeExceeded()
     {
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
-        ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, ringBuffer.maxMsgLength() + 1);
+        assertThrows(IllegalArgumentException.class,
+            () -> ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, ringBuffer.maxMsgLength() + 1));
     }
 
     @Test

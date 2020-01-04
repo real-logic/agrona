@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent.errors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.agrona.BitUtil;
@@ -25,7 +25,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 

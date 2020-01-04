@@ -15,16 +15,18 @@
  */
 package org.agrona.collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.agrona.collections.CollectionUtil.removeIf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionUtilTest
 {
@@ -73,7 +75,7 @@ public class CollectionUtilTest
             0,
             (x) ->
             {
-                Assert.fail("Shouldn't be called");
+                fail("Shouldn't be called");
                 return x + 1;
             });
 
@@ -88,21 +90,21 @@ public class CollectionUtilTest
         CollectionUtil.validatePositivePowerOfTwo(64);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void validatePositivePowerOfTwoFailWith3()
     {
-        CollectionUtil.validatePositivePowerOfTwo(3);
+        assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(3));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void validatePositivePowerOfTwoFailWith15()
     {
-        CollectionUtil.validatePositivePowerOfTwo(15);
+        assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(15));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void validatePositivePowerOfTwFailWith33()
     {
-        CollectionUtil.validatePositivePowerOfTwo(33);
+        assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(33));
     }
 }

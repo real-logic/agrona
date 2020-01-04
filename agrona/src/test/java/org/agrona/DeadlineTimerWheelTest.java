@@ -16,17 +16,17 @@
 package org.agrona;
 
 import org.agrona.collections.MutableLong;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DeadlineTimerWheelTest
 {
@@ -34,16 +34,16 @@ public class DeadlineTimerWheelTest
     private static final int RESOLUTION =
         BitUtil.findNextPositivePowerOfTwo((int)TimeUnit.MILLISECONDS.toNanos(1));
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldExceptionOnNonPowerOfTwoTicksPerWheel()
     {
-        new DeadlineTimerWheel(TIME_UNIT, 0, 16, 10);
+        assertThrows(IllegalArgumentException.class, () -> new DeadlineTimerWheel(TIME_UNIT, 0, 16, 10));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldExceptionOnNonPowerOfTwoResolution()
     {
-        new DeadlineTimerWheel(TIME_UNIT, 0, 17, 8);
+        assertThrows(IllegalArgumentException.class, () -> new DeadlineTimerWheel(TIME_UNIT, 0, 17, 8));
     }
 
     @Test
@@ -60,443 +60,244 @@ public class DeadlineTimerWheelTest
         assertEquals(wheel.startTime(), startTime);
     }
 
-    @Test(timeout = 1000)
+    @Test
     public void shouldBeAbleToScheduleTimerOnEdgeOfTick()
     {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
-
-        final long deadline = 5 * wheel.tickResolution();
-        final long id = wheel.scheduleTimer(deadline);
-        assertEquals(wheel.deadline(id), deadline);
-
-        do
+        assertTimeout(Duration.ofSeconds(1), () ->
         {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value);
+            final long deadline = 5 * wheel.tickResolution();
+            final long id = wheel.scheduleTimer(deadline);
+            assertEquals(wheel.deadline(id), deadline);
 
-        // this is the first tick after the timer, so it should be on this edge
-        assertThat(firedTimestamp.value, is(6 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleNonZeroStartTime()
-    {
-        long controlTimestamp = 100 * RESOLUTION;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
-
-        final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value);
-
-        // this is the first tick after the timer, so it should be on this edge
-        assertThat(firedTimestamp.value, is(106 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleNanoTimeUnitTimers()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
-
-        final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()) + 1);
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value);
-
-        // this is the first tick after the timer, so it should be on this edge
-        assertThat(firedTimestamp.value, is(6 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleMultipleRounds()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 16);
-
-        final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value);
-
-        // this is the first tick after the timer, so it should be on this edge
-        assertThat(firedTimestamp.value, is(64 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldBeAbleToCancelTimer()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
-
-        final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value && controlTimestamp < (16 * wheel.tickResolution()));
-
-        assertTrue(wheel.cancelTimer(id));
-        assertFalse(wheel.cancelTimer(id));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value && controlTimestamp < (128 * wheel.tickResolution()));
-
-        assertThat(firedTimestamp.value, is(-1L));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleExpiringTimersInPreviousTicks()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
-
-        final long id = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-
-        final long pollStartTimeNs = 32 * wheel.tickResolution();
-        controlTimestamp += pollStartTimeNs;
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            if (wheel.currentTickTime() > pollStartTimeNs)
+            do
             {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
                 controlTimestamp += wheel.tickResolution();
             }
-        }
-        while (-1 == firedTimestamp.value && controlTimestamp < (128 * wheel.tickResolution()));
+            while (-1 == firedTimestamp.value);
 
-        assertThat(firedTimestamp.value, is(pollStartTimeNs));
+            // this is the first tick after the timer, so it should be on this edge
+            assertThat(firedTimestamp.value, is(6 * wheel.tickResolution()));
+        });
     }
 
-    @Test(timeout = 1000)
+    @Test
+    public void shouldHandleNonZeroStartTime()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 100 * RESOLUTION;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+
+            final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value);
+
+            // this is the first tick after the timer, so it should be on this edge
+            assertThat(firedTimestamp.value, is(106 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldHandleNanoTimeUnitTimers()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
+
+            final long id = wheel.scheduleTimer(controlTimestamp + (5 * wheel.tickResolution()) + 1);
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value);
+
+            // this is the first tick after the timer, so it should be on this edge
+            assertThat(firedTimestamp.value, is(6 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldHandleMultipleRounds()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 16);
+
+            final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value);
+
+            // this is the first tick after the timer, so it should be on this edge
+            assertThat(firedTimestamp.value, is(64 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldBeAbleToCancelTimer()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
+
+            final long id = wheel.scheduleTimer(controlTimestamp + (63 * wheel.tickResolution()));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value && controlTimestamp < (16 * wheel.tickResolution()));
+
+            assertTrue(wheel.cancelTimer(id));
+            assertFalse(wheel.cancelTimer(id));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value && controlTimestamp < (128 * wheel.tickResolution()));
+
+            assertThat(firedTimestamp.value, is(-1L));
+        });
+    }
+
+    @Test
+    public void shouldHandleExpiringTimersInPreviousTicks()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
+
+            final long id = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+
+            final long pollStartTimeNs = 32 * wheel.tickResolution();
+            controlTimestamp += pollStartTimeNs;
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                if (wheel.currentTickTime() > pollStartTimeNs)
+                {
+                    controlTimestamp += wheel.tickResolution();
+                }
+            }
+            while (-1 == firedTimestamp.value && controlTimestamp < (128 * wheel.tickResolution()));
+
+            assertThat(firedTimestamp.value, is(pollStartTimeNs));
+        });
+    }
+
+    @Test
     public void shouldHandleMultipleTimersInDifferentTicks()
     {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
-
-        do
+        assertTimeout(Duration.ofSeconds(1), () ->
         {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    if (timerId == id1)
-                    {
-                        firedTimestamp1.value = now;
-                    }
-                    else if (timerId == id2)
-                    {
-                        firedTimestamp2.value = now;
-                    }
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 256);
 
-                    return true;
-                },
-                Integer.MAX_VALUE);
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
 
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
-
-        assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(24 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleMultipleTimersInSameTickSameRound()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    if (timerId == id1)
-                    {
-                        firedTimestamp1.value = now;
-                    }
-                    else if (timerId == id2)
-                    {
-                        firedTimestamp2.value = now;
-                    }
-
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
-
-        assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(16 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleMultipleTimersInSameTickDifferentRound()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
-
-        do
-        {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    if (timerId == id1)
-                    {
-                        firedTimestamp1.value = now;
-                    }
-                    else if (timerId == id2)
-                    {
-                        firedTimestamp2.value = now;
-                    }
-
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
-
-        assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(24 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldLimitExpiringTimers()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-
-        int numExpired = 0;
-
-        do
-        {
-            numExpired += wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id1));
-                    firedTimestamp1.value = now;
-                    return true;
-                },
-                1);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
-
-        assertThat(numExpired, is(1));
-
-        do
-        {
-            numExpired += wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id2));
-                    firedTimestamp2.value = now;
-                    return true;
-                },
-                1);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
-
-        assertThat(numExpired, is(2));
-
-        assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(17 * wheel.tickResolution()));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldHandleFalseReturnToExpireTimerAgain()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-
-        int numExpired = 0;
-
-        do
-        {
-            numExpired += wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    if (timerId == id1)
-                    {
-                        if (-1 == firedTimestamp1.value)
-                        {
-                            firedTimestamp1.value = now;
-                            return false;
-                        }
-
-                        firedTimestamp1.value = now;
-                    }
-                    else if (timerId == id2)
-                    {
-                        firedTimestamp2.value = now;
-                    }
-
-                    return true;
-                },
-                Integer.MAX_VALUE);
-
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
-
-        assertThat(firedTimestamp1.value, is(17 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(17 * wheel.tickResolution()));
-        assertThat(numExpired, is(2));
-    }
-
-    @Test(timeout = 1000)
-    public void shouldCopeWithExceptionFromHandler()
-    {
-        long controlTimestamp = 0;
-        final MutableLong firedTimestamp1 = new MutableLong(-1);
-        final MutableLong firedTimestamp2 = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-
-        final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-        final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
-
-        int numExpired = 0;
-        Exception e = null;
-        do
-        {
-            try
+            do
             {
-                numExpired += wheel.poll(
+                wheel.poll(
                     controlTimestamp,
                     (timeUnit, now, timerId) ->
                     {
                         if (timerId == id1)
                         {
                             firedTimestamp1.value = now;
-                            throw new IllegalStateException();
                         }
                         else if (timerId == id2)
                         {
@@ -509,38 +310,276 @@ public class DeadlineTimerWheelTest
 
                 controlTimestamp += wheel.tickResolution();
             }
-            catch (final Exception ex)
-            {
-                e = ex;
-            }
-        }
-        while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+            while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
 
-        assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
-        assertThat(firedTimestamp2.value, is(16 * wheel.tickResolution()));
-        assertThat(numExpired, is((1)));
-        assertThat(wheel.timerCount(), is(0L));
-        assertNotNull(e);
+            assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(24 * wheel.tickResolution()));
+        });
     }
 
-    @Test(timeout = 1000)
+    @Test
+    public void shouldHandleMultipleTimersInSameTickSameRound()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        if (timerId == id1)
+                        {
+                            firedTimestamp1.value = now;
+                        }
+                        else if (timerId == id2)
+                        {
+                            firedTimestamp2.value = now;
+                        }
+
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+            assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(16 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldHandleMultipleTimersInSameTickDifferentRound()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (23 * wheel.tickResolution()));
+
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        if (timerId == id1)
+                        {
+                            firedTimestamp1.value = now;
+                        }
+                        else if (timerId == id2)
+                        {
+                            firedTimestamp2.value = now;
+                        }
+
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+            assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(24 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldLimitExpiringTimers()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+
+            int numExpired = 0;
+
+            do
+            {
+                numExpired += wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id1));
+                        firedTimestamp1.value = now;
+                        return true;
+                    },
+                    1);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
+
+            assertThat(numExpired, is(1));
+
+            do
+            {
+                numExpired += wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id2));
+                        firedTimestamp2.value = now;
+                        return true;
+                    },
+                    1);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp1.value && -1 == firedTimestamp2.value);
+
+            assertThat(numExpired, is(2));
+
+            assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(17 * wheel.tickResolution()));
+        });
+    }
+
+    @Test
+    public void shouldHandleFalseReturnToExpireTimerAgain()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+
+            int numExpired = 0;
+
+            do
+            {
+                numExpired += wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        if (timerId == id1)
+                        {
+                            if (-1 == firedTimestamp1.value)
+                            {
+                                firedTimestamp1.value = now;
+                                return false;
+                            }
+
+                            firedTimestamp1.value = now;
+                        }
+                        else if (timerId == id2)
+                        {
+                            firedTimestamp2.value = now;
+                        }
+
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+            assertThat(firedTimestamp1.value, is(17 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(17 * wheel.tickResolution()));
+            assertThat(numExpired, is(2));
+        });
+    }
+
+    @Test
+    public void shouldCopeWithExceptionFromHandler()
+    {
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            long controlTimestamp = 0;
+            final MutableLong firedTimestamp1 = new MutableLong(-1);
+            final MutableLong firedTimestamp2 = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+
+            final long id1 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+            final long id2 = wheel.scheduleTimer(controlTimestamp + (15 * wheel.tickResolution()));
+
+            int numExpired = 0;
+            Exception e = null;
+            do
+            {
+                try
+                {
+                    numExpired += wheel.poll(
+                        controlTimestamp,
+                        (timeUnit, now, timerId) ->
+                        {
+                            if (timerId == id1)
+                            {
+                                firedTimestamp1.value = now;
+                                throw new IllegalStateException();
+                            }
+                            else if (timerId == id2)
+                            {
+                                firedTimestamp2.value = now;
+                            }
+
+                            return true;
+                        },
+                        Integer.MAX_VALUE);
+
+                    controlTimestamp += wheel.tickResolution();
+                }
+                catch (final Exception ex)
+                {
+                    e = ex;
+                }
+            }
+            while (-1 == firedTimestamp1.value || -1 == firedTimestamp2.value);
+
+            assertThat(firedTimestamp1.value, is(16 * wheel.tickResolution()));
+            assertThat(firedTimestamp2.value, is(16 * wheel.tickResolution()));
+            assertThat(numExpired, is((1)));
+            assertThat(wheel.timerCount(), is(0L));
+            assertNotNull(e);
+        });
+    }
+
+    @Test
     public void shouldBeAbleToIterateOverTimers()
     {
-        final long controlTimestamp = 0;
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
-        final long deadline1 = controlTimestamp + (15 * wheel.tickResolution());
-        final long deadline2 = controlTimestamp + ((15 + 7) * wheel.tickResolution());
+        assertTimeout(Duration.ofSeconds(1), () ->
+        {
+            final long controlTimestamp = 0;
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
+            final long deadline1 = controlTimestamp + (15 * wheel.tickResolution());
+            final long deadline2 = controlTimestamp + ((15 + 7) * wheel.tickResolution());
 
-        final long id1 = wheel.scheduleTimer(deadline1);
-        final long id2 = wheel.scheduleTimer(deadline2);
+            final long id1 = wheel.scheduleTimer(deadline1);
+            final long id2 = wheel.scheduleTimer(deadline2);
 
-        final Map<Long, Long> timerIdByDeadlineMap = new HashMap<>();
+            final Map<Long, Long> timerIdByDeadlineMap = new HashMap<>();
 
-        wheel.forEach(timerIdByDeadlineMap::put);
+            wheel.forEach(timerIdByDeadlineMap::put);
 
-        assertThat(timerIdByDeadlineMap.size(), is(2));
-        assertThat(timerIdByDeadlineMap.get(deadline1), is(id1));
-        assertThat(timerIdByDeadlineMap.get(deadline2), is(id2));
+            assertThat(timerIdByDeadlineMap.size(), is(2));
+            assertThat(timerIdByDeadlineMap.get(deadline1), is(id1));
+            assertThat(timerIdByDeadlineMap.get(deadline2), is(id2));
+        });
     }
 
     @Test
@@ -561,14 +600,14 @@ public class DeadlineTimerWheelTest
         assertThat(wheel.deadline(id2), is(DeadlineTimerWheel.NULL_DEADLINE));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldNotAllowResetWhenTimersActive()
     {
         final long controlTimestamp = 0;
         final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
 
         wheel.scheduleTimer(controlTimestamp + 100);
-        wheel.resetStartTime(controlTimestamp + 1);
+        assertThrows(IllegalStateException.class, () -> wheel.resetStartTime(controlTimestamp + 1));
     }
 
     @Test
@@ -585,33 +624,36 @@ public class DeadlineTimerWheelTest
         assertThat(wheel.currentTickTime(), is(currentTickTime * 6));
     }
 
-    @Test(timeout = 1000)
+    @Test
     public void shouldScheduleDeadlineInThePast()
     {
-        long controlTimestamp = 100 * RESOLUTION;
-        final MutableLong firedTimestamp = new MutableLong(-1);
-        final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
-
-        final long deadline = controlTimestamp - 3;
-        final long id = wheel.scheduleTimer(deadline);
-
-        do
+        assertTimeout(Duration.ofSeconds(1), () ->
         {
-            wheel.poll(
-                controlTimestamp,
-                (timeUnit, now, timerId) ->
-                {
-                    assertThat(timerId, is(id));
-                    firedTimestamp.value = now;
-                    return true;
-                },
-                Integer.MAX_VALUE);
+            long controlTimestamp = 100 * RESOLUTION;
+            final MutableLong firedTimestamp = new MutableLong(-1);
+            final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
-            controlTimestamp += wheel.tickResolution();
-        }
-        while (-1 == firedTimestamp.value);
+            final long deadline = controlTimestamp - 3;
+            final long id = wheel.scheduleTimer(deadline);
 
-        assertThat(firedTimestamp.value, greaterThan(deadline));
+            do
+            {
+                wheel.poll(
+                    controlTimestamp,
+                    (timeUnit, now, timerId) ->
+                    {
+                        assertThat(timerId, is(id));
+                        firedTimestamp.value = now;
+                        return true;
+                    },
+                    Integer.MAX_VALUE);
+
+                controlTimestamp += wheel.tickResolution();
+            }
+            while (-1 == firedTimestamp.value);
+
+            assertThat(firedTimestamp.value, greaterThan(deadline));
+        });
     }
 
     @Test

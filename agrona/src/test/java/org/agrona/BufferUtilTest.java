@@ -15,22 +15,22 @@
  */
 package org.agrona;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-import static org.agrona.BitUtil.isAligned;
+import static org.agrona.BitUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BufferUtilTest
 {
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldDetectNonPowerOfTwoAlignment()
     {
-        BufferUtil.allocateDirectAligned(1, 3);
+        assertThrows(IllegalArgumentException.class, () -> BufferUtil.allocateDirectAligned(1, 3));
     }
 
     @Test

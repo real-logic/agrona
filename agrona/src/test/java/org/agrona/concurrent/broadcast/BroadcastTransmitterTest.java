@@ -15,16 +15,17 @@
  */
 package org.agrona.concurrent.broadcast;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class BroadcastTransmitterTest
 {
@@ -39,7 +40,7 @@ public class BroadcastTransmitterTest
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private BroadcastTransmitter broadcastTransmitter;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
@@ -53,7 +54,7 @@ public class BroadcastTransmitterTest
         assertThat(broadcastTransmitter.capacity(), is(CAPACITY));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
@@ -61,24 +62,26 @@ public class BroadcastTransmitterTest
 
         when(buffer.capacity()).thenReturn(totalBufferLength);
 
-        new BroadcastTransmitter(buffer);
+        assertThrows(IllegalStateException.class, () -> new BroadcastTransmitter(buffer));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenMaxMessageLengthExceeded()
     {
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
-        broadcastTransmitter.transmit(MSG_TYPE_ID, srcBuffer, 0, broadcastTransmitter.maxMsgLength() + 1);
+        assertThrows(IllegalArgumentException.class, () ->
+            broadcastTransmitter.transmit(MSG_TYPE_ID, srcBuffer, 0, broadcastTransmitter.maxMsgLength() + 1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenMessageTypeIdInvalid()
     {
         final int invalidMsgId = -1;
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
-        broadcastTransmitter.transmit(invalidMsgId, srcBuffer, 0, 32);
+        assertThrows(IllegalArgumentException.class, () ->
+            broadcastTransmitter.transmit(invalidMsgId, srcBuffer, 0, 32));
     }
 
     @Test

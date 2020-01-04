@@ -15,14 +15,15 @@
  */
 package org.agrona.collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.agrona.collections.IntHashSet.MISSING_VALUE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IntHashSetTest
 {
@@ -146,15 +147,15 @@ public class IntHashSetTest
         assertIteratorHasElementsWithoutHasNext();
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void iteratorsThrowNoSuchElementException()
     {
         addTwoElements(testSet);
 
-        exhaustIterator();
+        assertThrows(NoSuchElementException.class, this::exhaustIterator);
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime()
     {
         addTwoElements(testSet);
@@ -167,7 +168,7 @@ public class IntHashSetTest
         {
         }
 
-        exhaustIterator();
+        assertThrows(NoSuchElementException.class, this::exhaustIterator);
     }
 
     @Test
@@ -176,10 +177,10 @@ public class IntHashSetTest
         assertFalse(testSet.iterator().hasNext());
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void iteratorThrowExceptionForEmptySet()
     {
-        testSet.iterator().next();
+        assertThrows(NoSuchElementException.class, () -> testSet.iterator().next());
     }
 
     @Test
@@ -299,19 +300,19 @@ public class IntHashSetTest
         assertEquals(1, testSet.size());
     }
 
-    @Test(expected = ArrayStoreException.class)
+    @Test
     @SuppressWarnings("SuspiciousToArrayCall")
     public void toArrayThrowsArrayStoreExceptionForWrongType()
     {
-        testSet.toArray(new String[1]);
+        assertThrows(ArrayStoreException.class, () -> testSet.toArray(new String[1]));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     @SuppressWarnings("ConstantConditions")
     public void toArrayThrowsNullPointerExceptionForNullArgument()
     {
         final Integer[] into = null;
-        testSet.toArray(into);
+        assertThrows(NullPointerException.class, () -> testSet.toArray(into));
     }
 
     @Test
@@ -357,8 +358,8 @@ public class IntHashSetTest
         requiredFields.add(49);
         requiredFields.add(56);
 
-        assertTrue("Failed to remove 8", requiredFields.remove(8));
-        assertTrue("Failed to remove 9", requiredFields.remove(9));
+        assertTrue(requiredFields.remove(8), "Failed to remove 8");
+        assertTrue(requiredFields.remove(9), "Failed to remove 9");
 
         assertThat(requiredFields, containsInAnyOrder(35, 49, 56));
     }
@@ -831,9 +832,9 @@ public class IntHashSetTest
             testSet.add(MISSING_VALUE);
         }
 
-        assertEquals("Fail with seed:" + seed, testSet, compatibleSet);
-        assertEquals("Fail with seed:" + seed, compatibleSet, testSet);
-        assertEquals("Fail with seed:" + seed, compatibleSet.hashCode(), testSet.hashCode());
+        assertEquals(testSet, compatibleSet, "Fail with seed:" + seed);
+        assertEquals(compatibleSet, testSet, "Fail with seed:" + seed);
+        assertEquals(compatibleSet.hashCode(), testSet.hashCode(), "Fail with seed:" + seed);
     }
 
     private static void addTwoElements(final IntHashSet obj)

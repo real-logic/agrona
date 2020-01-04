@@ -16,10 +16,12 @@
 package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AsciiSequenceViewTest
 {
@@ -100,29 +102,29 @@ public class AsciiSequenceViewTest
         assertEquals(0, asciiSequenceView.getBytes(new UnsafeBuffer(new byte[128]), 16));
     }
 
-    @Test(expected = StringIndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowIndexOutOfBoundsExceptionWhenCharNotPresentAtGivenPosition()
     {
         final String data = "foo";
         buffer.putStringWithoutLengthAscii(INDEX, data);
         asciiSequenceView.wrap(buffer, INDEX, data.length());
 
-        asciiSequenceView.charAt(4);
+        assertThrows(StringIndexOutOfBoundsException.class, () -> asciiSequenceView.charAt(4));
     }
 
-    @Test(expected = StringIndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionWhenCharAtCalledWithNoBuffer()
     {
-        asciiSequenceView.charAt(0);
+        assertThrows(StringIndexOutOfBoundsException.class, () -> asciiSequenceView.charAt(0));
     }
 
-    @Test(expected = StringIndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionWhenCharAtCalledWithNegativeIndex()
     {
         final String data = "foo";
         buffer.putStringWithoutLengthAscii(INDEX, data);
         asciiSequenceView.wrap(buffer, INDEX, data.length());
 
-        asciiSequenceView.charAt(-1);
+        assertThrows(StringIndexOutOfBoundsException.class, () -> asciiSequenceView.charAt(-1));
     }
 }

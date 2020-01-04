@@ -15,29 +15,28 @@
  */
 package org.agrona.concurrent.status;
 
+import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.collections.IntObjConsumer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.agrona.DirectBuffer;
-import org.agrona.collections.IntObjConsumer;
 
 import java.nio.ByteBuffer;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.agrona.concurrent.status.CountersReader.MAX_LABEL_LENGTH;
+import static org.agrona.concurrent.status.CountersReader.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
-import static org.agrona.concurrent.status.CountersReader.METADATA_LENGTH;
 
 public class CountersManagerTest
 {
@@ -172,14 +171,15 @@ public class CountersManagerTest
         assertThat(managerWithCooldown.allocate("the next label"), is(def));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldNotOverAllocateCounters()
     {
         manager.allocate("abc");
         manager.allocate("def");
         manager.allocate("ghi");
         manager.allocate("jkl");
-        manager.allocate("mno");
+
+        assertThrows(IllegalStateException.class, () -> manager.allocate("mno"));
     }
 
     @Test
