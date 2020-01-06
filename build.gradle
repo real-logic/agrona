@@ -133,15 +133,20 @@ allprojects {
 jar.enabled = false
 
 subprojects {
-    apply plugin: 'java-library'
     apply plugin: 'maven'
-    apply plugin: 'checkstyle'
     apply plugin: 'signing'
     apply plugin: 'eclipse'
-    apply plugin: 'io.freefair.javadoc-links'
 
     group = agronaGroup
     version = agronaVersion
+
+    if (project.name.endsWith('-bom')) {
+        return
+    }
+
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+    apply plugin: 'io.freefair.javadoc-links'
 
     jar.enabled = true
 
@@ -438,10 +443,58 @@ project(':agrona-benchmarks') {
     }
 }
 
+project(':agrona-bom') {
+    apply plugin: 'java-platform'
+
+    dependencies {
+        constraints {
+            api project(':agrona')
+            api project(':agrona-agent')
+            api project(':agrona-benchmarks')
+        }
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment {
+                    MavenDeployment deployment -> signing.signPom(deployment)
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project(projectPom)
+            }
+        }
+    }
+
+    artifacts {
+        // TODO: what goes here?
+    }
+
+    signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+    }
+
+    /*
+    install {
+        repositories.mavenInstaller.pom.project(projectPom)
+    }
+    */
+}
+
 task uploadToMavenCentral {
     dependsOn 'agrona:uploadArchives',
         'agrona-agent:uploadArchives',
-        'agrona-agent:uploadShadow'
+        'agrona-agent:uploadShadow',
+        'agrona-bom:uploadArchives'
 }
 
 task runBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
@@ -453,8 +506,9 @@ task runBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
 
 task testReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/allTests")
-    // Include the results from the `test` task in all subprojects
-    reportOn subprojects*.test
+    // Include the results from the `test` task in all subprojects except the bom
+    reportOn subprojects*.findAll{ !it.name.endsWith('-bom') }.test
+
 }
 
 wrapper {
