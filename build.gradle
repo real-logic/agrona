@@ -198,6 +198,8 @@ subprojects {
             showStandardStreams = true
             exceptionFormat = 'full'
         }
+
+        reports.html.enabled = false // Disable individual test reports
     }
 
     javadoc {
@@ -451,6 +453,12 @@ task runBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
         '-jar', 'agrona-benchmarks/build/libs/benchmarks.jar',
         '-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelOldGC',
         '-w', '1s', '-r', '1s','-wi', '3', '-i', '5', '-tu', 'ns', '-f', '5'
+}
+
+task testReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/allTests")
+    // Include the results from the `test` task in all subprojects
+    reportOn subprojects*.test
 }
 
 wrapper {
