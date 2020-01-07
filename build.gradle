@@ -20,7 +20,6 @@ buildscript {
 }
 
 plugins {
-    id 'java'
     id 'java-library'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
@@ -134,7 +133,6 @@ allprojects {
 jar.enabled = false
 
 subprojects {
-    apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
@@ -429,9 +427,9 @@ project(':agrona-benchmarks') {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
-        compile "org.openjdk.jmh:jmh-core:${jmhVersion}"
+        implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
         annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
-        compile project(':agrona')
+        implementation project(':agrona')
     }
 
     shadowJar {
