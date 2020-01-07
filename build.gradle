@@ -20,7 +20,6 @@ buildscript {
 }
 
 plugins {
-    id 'java'
     id 'java-library'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
@@ -36,7 +35,7 @@ def checkstyleVersion = '8.28'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.2.4'
 def junitVersion = '5.5.2'
-def guavaTestLib = '28.1-jre'
+def guavaTestLib = '28.2-jre'
 def jmhVersion = '1.22'
 
 def agronaGroup = 'org.agrona'
@@ -134,7 +133,6 @@ allprojects {
 jar.enabled = false
 
 subprojects {
-    apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven'
     apply plugin: 'checkstyle'
@@ -148,8 +146,6 @@ subprojects {
     jar.enabled = true
 
     dependencies {
-        checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
-
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
         testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
@@ -429,9 +425,9 @@ project(':agrona-benchmarks') {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
-        compile "org.openjdk.jmh:jmh-core:${jmhVersion}"
+        implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
         annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
-        compile project(':agrona')
+        implementation project(':agrona')
     }
 
     shadowJar {
