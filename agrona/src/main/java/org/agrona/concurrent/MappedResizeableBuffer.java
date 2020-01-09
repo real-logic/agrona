@@ -893,7 +893,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     public String getStringUtf8(final long offset, final int length)
     {
         final byte[] stringInBytes = new byte[length];
-        getBytes(offset + SIZE_OF_INT, stringInBytes);
+        getBytes(offset + STR_HEADER_LEN, stringInBytes);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -917,9 +917,9 @@ public class MappedResizeableBuffer implements AutoCloseable
         }
 
         putInt(offset, bytes.length);
-        putBytes(offset + SIZE_OF_INT, bytes);
+        putBytes(offset + STR_HEADER_LEN, bytes);
 
-        return SIZE_OF_INT + bytes.length;
+        return STR_HEADER_LEN + bytes.length;
     }
 
     public int putStringUtf8(final long offset, final String value, final ByteOrder byteOrder, final int maxEncodedSize)
@@ -931,9 +931,9 @@ public class MappedResizeableBuffer implements AutoCloseable
         }
 
         putInt(offset, bytes.length, byteOrder);
-        putBytes(offset + SIZE_OF_INT, bytes);
+        putBytes(offset + STR_HEADER_LEN, bytes);
 
-        return SIZE_OF_INT + bytes.length;
+        return STR_HEADER_LEN + bytes.length;
     }
 
     public String getStringWithoutLengthUtf8(final long offset, final int length)

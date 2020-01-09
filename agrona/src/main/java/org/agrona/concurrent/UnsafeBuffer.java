@@ -897,7 +897,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             lengthCheck(length);
             boundsCheck0(index, length);
-            BufferUtil.boundsCheck(dstBuffer, (long)dstOffset, length);
+            BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
         }
 
         final byte[] dstByteArray;
@@ -1067,7 +1067,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT);
+            boundsCheck0(index, STR_HEADER_LEN);
         }
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
@@ -1077,7 +1077,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public int getStringAscii(final int index, final Appendable appendable)
     {
-        boundsCheck0(index, SIZE_OF_INT);
+        boundsCheck0(index, STR_HEADER_LEN);
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
 
@@ -1088,7 +1088,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT);
+            boundsCheck0(index, STR_HEADER_LEN);
         }
 
         int bits = UNSAFE.getInt(byteArray, addressOffset + index);
@@ -1104,7 +1104,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_INT);
+        boundsCheck0(index, STR_HEADER_LEN);
 
         int bits = UNSAFE.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -1121,11 +1121,11 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index + SIZE_OF_INT, length);
+            boundsCheck0(index + STR_HEADER_LEN, length);
         }
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + SIZE_OF_INT, dst, ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -1134,12 +1134,12 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, length + SIZE_OF_INT);
+            boundsCheck0(index, length + STR_HEADER_LEN);
         }
 
         try
         {
-            for (int i = index + SIZE_OF_INT, limit = index + SIZE_OF_INT + length; i < limit; i++)
+            for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++)
             {
                 final char c = (char)UNSAFE.getByte(byteArray, addressOffset + i);
                 appendable.append(c > 127 ? '?' : c);
@@ -1159,7 +1159,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, length + SIZE_OF_INT);
+            boundsCheck0(index, length + STR_HEADER_LEN);
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, length);
@@ -1172,10 +1172,10 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
+            UNSAFE.putByte(byteArray, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
         }
 
-        return SIZE_OF_INT + length;
+        return STR_HEADER_LEN + length;
     }
 
     public int putStringAscii(final int index, final String value, final ByteOrder byteOrder)
@@ -1184,7 +1184,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, length + SIZE_OF_INT);
+            boundsCheck0(index, length + STR_HEADER_LEN);
         }
 
         int bits = length;
@@ -1203,10 +1203,10 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + SIZE_OF_INT + index + i, (byte)c);
+            UNSAFE.putByte(byteArray, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
         }
 
-        return SIZE_OF_INT + length;
+        return STR_HEADER_LEN + length;
     }
 
     public String getStringWithoutLengthAscii(final int index, final int length)
@@ -1297,7 +1297,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT);
+            boundsCheck0(index, STR_HEADER_LEN);
         }
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
@@ -1309,7 +1309,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT);
+            boundsCheck0(index, STR_HEADER_LEN);
         }
 
         int bits = UNSAFE.getInt(byteArray, addressOffset + index);
@@ -1327,11 +1327,11 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index + SIZE_OF_INT, length);
+            boundsCheck0(index + STR_HEADER_LEN, length);
         }
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + SIZE_OF_INT, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1356,13 +1356,13 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT + bytes.length);
+            boundsCheck0(index, STR_HEADER_LEN + bytes.length);
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bytes.length);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + SIZE_OF_INT, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + STR_HEADER_LEN, bytes.length);
 
-        return SIZE_OF_INT + bytes.length;
+        return STR_HEADER_LEN + bytes.length;
     }
 
     public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedLength)
@@ -1375,7 +1375,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, SIZE_OF_INT + bytes.length);
+            boundsCheck0(index, STR_HEADER_LEN + bytes.length);
         }
 
         int bits = bytes.length;
@@ -1385,9 +1385,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + SIZE_OF_INT, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + STR_HEADER_LEN, bytes.length);
 
-        return SIZE_OF_INT + bytes.length;
+        return STR_HEADER_LEN + bytes.length;
     }
 
     public String getStringWithoutLengthUtf8(final int index, final int length)

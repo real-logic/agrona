@@ -18,6 +18,8 @@ package org.agrona;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static org.agrona.BitUtil.SIZE_OF_INT;
+
 /**
  * Abstraction over a range of buffer types that allows fields to be read in native typed fashion.
  * <p>
@@ -26,6 +28,11 @@ import java.nio.ByteOrder;
  */
 public interface DirectBuffer extends Comparable<DirectBuffer>
 {
+    /**
+     * Length of the header on strings to denote the length of the string in bytes.
+     */
+    int STR_HEADER_LEN = SIZE_OF_INT;
+
     /**
      * Don't print the content of the array while calling toString() on buffer instance.
      */
