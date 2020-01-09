@@ -17,11 +17,11 @@ package org.agrona.concurrent;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,7 +120,7 @@ public class ManyToOneConcurrentLinkedQueueTest
     @Test
     public void shouldTransferConcurrently()
     {
-        assertTimeout(Duration.ofSeconds(10), () ->
+        assertTimeoutPreemptively(ofSeconds(10), () ->
         {
             final int count = 1_000_000;
             final int numThreads = 2;

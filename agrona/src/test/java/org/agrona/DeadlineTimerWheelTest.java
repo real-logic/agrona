@@ -18,11 +18,11 @@ package org.agrona;
 import org.agrona.collections.MutableLong;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -63,7 +63,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldBeAbleToScheduleTimerOnEdgeOfTick()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -97,7 +97,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleNonZeroStartTime()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 100 * RESOLUTION;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -129,7 +129,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleNanoTimeUnitTimers()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -161,7 +161,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleMultipleRounds()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -193,7 +193,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldBeAbleToCancelTimer()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -242,7 +242,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleExpiringTimersInPreviousTicks()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp = new MutableLong(-1);
@@ -279,7 +279,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleMultipleTimersInDifferentTicks()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -320,7 +320,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleMultipleTimersInSameTickSameRound()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -361,7 +361,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleMultipleTimersInSameTickDifferentRound()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -402,7 +402,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldLimitExpiringTimers()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -458,7 +458,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldHandleFalseReturnToExpireTimerAgain()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -508,7 +508,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldCopeWithExceptionFromHandler()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 0;
             final MutableLong firedTimestamp1 = new MutableLong(-1);
@@ -562,7 +562,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldBeAbleToIterateOverTimers()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             final long controlTimestamp = 0;
             final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 8);
@@ -627,7 +627,7 @@ public class DeadlineTimerWheelTest
     @Test
     public void shouldScheduleDeadlineInThePast()
     {
-        assertTimeout(Duration.ofSeconds(1), () ->
+        assertTimeoutPreemptively(ofSeconds(1), () ->
         {
             long controlTimestamp = 100 * RESOLUTION;
             final MutableLong firedTimestamp = new MutableLong(-1);
