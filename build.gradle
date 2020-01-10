@@ -340,8 +340,6 @@ project(':agrona-agent') {
     }
 
     shadowJar {
-        mustRunAfter jar
-
         dependencies {
             exclude(project(':agrona'))
         }
@@ -358,6 +356,8 @@ project(':agrona-agent') {
         )
     }
 
+    jar.finalizedBy shadowJar
+    
     uploadArchives {
         repositories {
             mavenDeployer {
