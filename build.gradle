@@ -431,11 +431,12 @@ project(':agrona-benchmarks') {
     }
 
     shadowJar {
-        mustRunAfter jar
         archiveFileName = 'benchmarks.jar'
         archiveClassifier.set 'benchmarks'
         manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
     }
+
+    jar.finalizedBy shadowJar
 }
 
 task uploadToMavenCentral {
