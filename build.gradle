@@ -216,6 +216,14 @@ subprojects {
 
     install {
         repositories.mavenInstaller.pom.project(projectPom)
+
+        repositories.mavenInstaller.pom.whenConfigured {
+            p -> p.dependencies = p.dependencies.findAll {
+                dep -> !(dep.artifactId.contains("hamcrest") ||
+                         dep.artifactId.contains("mockito") ||
+                         dep.artifactId.contains("junit"))
+            }
+        }
     }
 }
 
@@ -415,6 +423,12 @@ project(':agrona-agent') {
         archives javadocJar
     }
 
+    install {
+        repositories.mavenInstaller.pom.whenConfigured {
+            p -> p.dependencies = []
+        }
+    }
+    
     signing {
         required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.shadow
