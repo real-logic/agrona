@@ -144,6 +144,7 @@ subprojects {
     version = agronaVersion
 
     jar.enabled = true
+    checkstyle.toolVersion = "${checkstyleVersion}"
 
     dependencies {
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
@@ -152,8 +153,6 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     }
-
-    checkstyle.toolVersion = "${checkstyleVersion}"
 
     compileJava {
         if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
@@ -216,6 +215,29 @@ subprojects {
 
     install {
         repositories.mavenInstaller.pom.project(projectPom)
+        repositories.mavenInstaller.pom.whenConfigured {
+            p -> p.dependencies = p.dependencies.findAll {
+                dep -> !(dep.artifactId.contains("hamcrest") ||
+                        dep.artifactId.contains("mockito") ||
+                        dep.artifactId.contains("junit"))
+            }
+        }
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.whenConfigured {
+                    p ->
+                        p.dependencies = p.dependencies.findAll {
+                            dep ->
+                                !(dep.artifactId.contains("hamcrest") ||
+                                  dep.artifactId.contains("mockito") ||
+                                  dep.artifactId.contains("junit"))
+                        }
+                }
+            }
+        }
     }
 }
 
@@ -340,12 +362,9 @@ project(':agrona-agent') {
     }
 
     shadowJar {
-        mustRunAfter jar
-
         dependencies {
             exclude(project(':agrona'))
         }
-
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': "${agronaVersion}",
@@ -358,9 +377,15 @@ project(':agrona-agent') {
         )
     }
 
+    jar.finalizedBy shadowJar
+
     uploadArchives {
         repositories {
             mavenDeployer {
+                pom.whenConfigured {
+                    p -> p.dependencies = []
+                }
+
                 beforeDeployment {
                     MavenDeployment deployment -> signing.signPom(deployment)
                 }
@@ -381,6 +406,10 @@ project(':agrona-agent') {
     uploadShadow {
         repositories {
             mavenDeployer {
+                pom.whenConfigured {
+                    p -> p.dependencies = []
+                }
+
                 beforeDeployment {
                     MavenDeployment deployment -> signing.signPom(deployment)
                 }
@@ -398,6 +427,12 @@ project(':agrona-agent') {
         }
 
         mustRunAfter 'uploadArchives'
+    }
+
+    install {
+        repositories.mavenInstaller.pom.whenConfigured {
+            p -> p.dependencies = []
+        }
     }
 
     task sourcesJar(type: Jar) {
