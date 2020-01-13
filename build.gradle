@@ -230,13 +230,11 @@ subprojects {
         repositories {
             mavenDeployer {
                 pom.whenConfigured {
-                    p ->
-                        p.dependencies = p.dependencies.findAll {
-                            dep ->
-                                !(dep.artifactId.contains("hamcrest") ||
-                                  dep.artifactId.contains("mockito") ||
-                                  dep.artifactId.contains("junit"))
-                        }
+                    p -> p.dependencies = p.dependencies.findAll {
+                        dep -> !(dep.artifactId.contains("hamcrest") ||
+                                 dep.artifactId.contains("mockito") ||
+                                 dep.artifactId.contains("junit"))
+                    }
                 }
             }
         }
