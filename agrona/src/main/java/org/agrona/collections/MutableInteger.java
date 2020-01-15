@@ -61,7 +61,7 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
 
     public long longValue()
     {
-        return (long)value;
+        return value;
     }
 
     public float floatValue()
@@ -71,7 +71,7 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
 
     public double doubleValue()
     {
-        return (double)value;
+        return value;
     }
 
     public void increment()
@@ -81,15 +81,12 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
 
     public int incrementAndGet()
     {
-        increment();
-        return get();
+        return ++value;
     }
 
     public int getAndIncrement()
     {
-        final int result = get();
-        increment();
-        return result;
+        return value++;
     }
 
     public void decrement()
@@ -99,15 +96,12 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
 
     public int decrementAndGet()
     {
-        decrement();
-        return get();
+        return --value;
     }
 
     public int getAndDecrement()
     {
-        final int result = get();
-        decrement();
-        return result;
+        return value--;
     }
 
     public boolean equals(final Object o)
@@ -144,6 +138,6 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
 
     public static int compare(final int lhs, final int rhs)
     {
-        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+        return Integer.compare(lhs, rhs);
     }
 }

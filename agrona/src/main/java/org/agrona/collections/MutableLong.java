@@ -81,15 +81,12 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
 
     public long incrementAndGet()
     {
-        increment();
-        return get();
+        return ++value;
     }
 
     public long getAndIncrement()
     {
-        final long result = get();
-        increment();
-        return result;
+        return value++;
     }
 
     public void decrement()
@@ -99,15 +96,12 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
 
     public long decrementAndGet()
     {
-        decrement();
-        return get();
+        return --value;
     }
 
     public long getAndDecrement()
     {
-        final long result = get();
-        decrement();
-        return result;
+        return value--;
     }
 
     public boolean equals(final Object o)
@@ -144,6 +138,6 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
 
     public static int compare(final long lhs, final long rhs)
     {
-        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+        return Long.compare(lhs, rhs);
     }
 }
