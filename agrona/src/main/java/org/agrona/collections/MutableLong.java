@@ -74,6 +74,42 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return (double)value;
     }
 
+    public void increment()
+    {
+        value++;
+    }
+
+    public long incrementAndGet()
+    {
+        increment();
+        return get();
+    }
+
+    public long getAndIncrement()
+    {
+        final long result = get();
+        increment();
+        return result;
+    }
+
+    public void decrement()
+    {
+        value--;
+    }
+
+    public long decrementAndGet()
+    {
+        decrement();
+        return get();
+    }
+
+    public long getAndDecrement()
+    {
+        final long result = get();
+        decrement();
+        return result;
+    }
+
     public boolean equals(final Object o)
     {
         if (this == o)

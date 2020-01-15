@@ -74,6 +74,42 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return (double)value;
     }
 
+    public void increment()
+    {
+        value++;
+    }
+
+    public int incrementAndGet()
+    {
+        increment();
+        return get();
+    }
+
+    public int getAndIncrement()
+    {
+        final int result = get();
+        increment();
+        return result;
+    }
+
+    public void decrement()
+    {
+        value--;
+    }
+
+    public int decrementAndGet()
+    {
+        decrement();
+        return get();
+    }
+
+    public int getAndDecrement()
+    {
+        final int result = get();
+        decrement();
+        return result;
+    }
+
     public boolean equals(final Object o)
     {
         if (this == o)
