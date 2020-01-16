@@ -144,7 +144,7 @@ public class UnsafeBufferPosition extends Position
         return "UnsafeBufferPosition{" +
             "isClosed=" + isClosed() +
             ", counterId=" + counterId +
-            ", value=" + getVolatile() +
+            ", value=" + (isClosed ? -1 : getVolatile()) +
             '}';
     }
 }

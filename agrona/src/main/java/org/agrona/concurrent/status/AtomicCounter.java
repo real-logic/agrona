@@ -311,7 +311,7 @@ public class AtomicCounter implements AutoCloseable
         return "AtomicCounter{" +
             "isClosed=" + isClosed() +
             ", id=" + id +
-            ", value=" + get() +
+            ", value=" + (isClosed ? -1 : get()) +
             '}';
     }
 }

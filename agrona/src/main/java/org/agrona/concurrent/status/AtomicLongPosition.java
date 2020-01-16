@@ -105,7 +105,7 @@ public class AtomicLongPosition extends Position
         return "AtomicLongPosition{" +
             "isClosed=" + isClosed +
             ", id=" + id +
-            ", value=" + value +
+            ", value=" + (isClosed ? -1 : value) +
             '}';
     }
 }
