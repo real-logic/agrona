@@ -103,9 +103,9 @@ public class AtomicLongPosition extends Position
     public String toString()
     {
         return "AtomicLongPosition{" +
-            "isClosed=" + isClosed +
+            "isClosed=" + isClosed() +
             ", id=" + id +
-            ", value=" + (isClosed ? -1 : value) +
+            ", value=" + (isClosed() ? -1 : value) +
             '}';
     }
 }
