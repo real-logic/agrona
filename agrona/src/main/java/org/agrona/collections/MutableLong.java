@@ -104,6 +104,18 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return value--;
     }
 
+    public long getAndAdd(final long delta)
+    {
+        final long result = value;
+        value += delta;
+        return result;
+    }
+
+    public long addAndGet(final long delta)
+    {
+        return value += delta;
+    }
+
     public boolean equals(final Object o)
     {
         if (this == o)

@@ -104,6 +104,18 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return value--;
     }
 
+    public int getAndAdd(final int delta)
+    {
+        final int result = value;
+        value += delta;
+        return result;
+    }
+
+    public int addAndGet(final int delta)
+    {
+        return value += delta;
+    }
+
     public boolean equals(final Object o)
     {
         if (this == o)
