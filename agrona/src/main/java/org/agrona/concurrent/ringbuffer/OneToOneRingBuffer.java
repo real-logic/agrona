@@ -29,12 +29,8 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
  * This single producer ring-buffer can be used in combination a consumer using the {@link ManyToOneRingBuffer}
  * provided no other producers are accessing the same ring-buffer.
  */
-public class OneToOneRingBuffer implements RingBuffer
+public final class OneToOneRingBuffer implements RingBuffer
 {
-    /**
-     * Record type is padding to prevent fragmentation in the buffer.
-     */
-    public static final int PADDING_MSG_TYPE_ID = -1;
 
     private final int capacity;
     private final int maxMsgLength;
@@ -52,7 +48,7 @@ public class OneToOneRingBuffer implements RingBuffer
      *
      * @param buffer via which events will be exchanged.
      * @throws IllegalStateException if the buffer capacity is not a power of 2 plus
-     * {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
+     *                               {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
      */
     public OneToOneRingBuffer(final AtomicBuffer buffer)
     {
@@ -81,74 +77,23 @@ public class OneToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
-    public boolean write(final int msgTypeId, final DirectBuffer srcBuffer, final int srcIndex, final int length)
+    public boolean write(final int msgTypeId, final DirectBuffer srcBuffer, final int offset, final int length)
     {
         checkTypeId(msgTypeId);
         checkMsgLength(length);
 
         final AtomicBuffer buffer = this.buffer;
         final int recordLength = length + HEADER_LENGTH;
-        final int alignedRecordLength = align(recordLength, ALIGNMENT);
-        final int requiredCapacity = alignedRecordLength + HEADER_LENGTH;
-        final int capacity = this.capacity;
-        final int tailPositionIndex = this.tailPositionIndex;
-        final int headCachePositionIndex = this.headCachePositionIndex;
-        final int mask = capacity - 1;
+        final int recordIndex = claimCapacity(buffer, recordLength);
 
-        long head = buffer.getLong(headCachePositionIndex);
-        final long tail = buffer.getLong(tailPositionIndex);
-        final int availableCapacity = capacity - (int)(tail - head);
-
-        if (requiredCapacity > availableCapacity)
+        if (INSUFFICIENT_CAPACITY == recordIndex)
         {
-            head = buffer.getLongVolatile(headPositionIndex);
-
-            if (requiredCapacity > (capacity - (int)(tail - head)))
-            {
-                return false;
-            }
-
-            buffer.putLong(headCachePositionIndex, head);
+            return false;
         }
 
-        int padding = 0;
-        int recordIndex = (int)tail & mask;
-        final int toBufferEndLength = capacity - recordIndex;
-
-        if (requiredCapacity > toBufferEndLength)
-        {
-            int headIndex = (int)head & mask;
-
-            if (requiredCapacity > headIndex)
-            {
-                head = buffer.getLongVolatile(headPositionIndex);
-                headIndex = (int)head & mask;
-                if (requiredCapacity > headIndex)
-                {
-                    return false;
-                }
-
-                buffer.putLong(headCachePositionIndex, head);
-            }
-
-            padding = toBufferEndLength;
-        }
-
-        if (0 != padding)
-        {
-            buffer.putLong(0, 0L);
-            buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
-            buffer.putIntOrdered(lengthOffset(recordIndex), padding);
-            recordIndex = 0;
-        }
-
-        buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, srcIndex, length);
-        buffer.putLong(recordIndex + alignedRecordLength, 0L);
-
+        buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
-        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
-
         return true;
     }
 
@@ -298,12 +243,150 @@ public class OneToOneRingBuffer implements RingBuffer
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public int tryClaim(final int msgTypeId, final int length)
+    {
+        checkTypeId(msgTypeId);
+        checkMsgLength(length);
+
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordIndex = claimCapacity(buffer, recordLength);
+
+        if (INSUFFICIENT_CAPACITY == recordIndex)
+        {
+            return recordIndex;
+        }
+
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
+        // Note: putInt is used to write negative length of the message since we are not yet publishing the message and
+        // hence the order of writes of type field and negative length does not matter.
+        // It is safe to do so, because the header was pre-zeroed during the capacity claim.
+        buffer.putInt(lengthOffset(recordIndex), -recordLength);
+        return encodedMsgOffset(recordIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void commit(final int index)
+    {
+        final int recordIndex = computeRecordIndex(index);
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
+
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void abort(final int index)
+    {
+        final int recordIndex = computeRecordIndex(index);
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
+
+        buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+    }
+
     private void checkMsgLength(final int length)
     {
-        if (length > maxMsgLength)
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("invalid message length=" + length);
+        }
+        else if (length > maxMsgLength)
         {
             throw new IllegalArgumentException(
                 "encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
         }
+    }
+
+    private int claimCapacity(final AtomicBuffer buffer, final int recordLength)
+    {
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
+        final int requiredCapacity = alignedRecordLength + HEADER_LENGTH;
+        final int capacity = this.capacity;
+        final int tailPositionIndex = this.tailPositionIndex;
+        final int headCachePositionIndex = this.headCachePositionIndex;
+        final int mask = capacity - 1;
+
+        long head = buffer.getLong(headCachePositionIndex);
+        final long tail = buffer.getLong(tailPositionIndex);
+        final int availableCapacity = capacity - (int)(tail - head);
+
+        if (requiredCapacity > availableCapacity)
+        {
+            head = buffer.getLongVolatile(headPositionIndex);
+
+            if (requiredCapacity > (capacity - (int)(tail - head)))
+            {
+                return INSUFFICIENT_CAPACITY;
+            }
+
+            buffer.putLong(headCachePositionIndex, head);
+        }
+
+        int padding = 0;
+        int recordIndex = (int)tail & mask;
+        final int toBufferEndLength = capacity - recordIndex;
+
+        if (requiredCapacity > toBufferEndLength)
+        {
+            int headIndex = (int)head & mask;
+
+            if (requiredCapacity > headIndex)
+            {
+                head = buffer.getLongVolatile(headPositionIndex);
+                headIndex = (int)head & mask;
+                if (requiredCapacity > headIndex)
+                {
+                    return INSUFFICIENT_CAPACITY;
+                }
+
+                buffer.putLong(headCachePositionIndex, head);
+            }
+
+            padding = toBufferEndLength;
+        }
+
+        if (0 != padding)
+        {
+            buffer.putLong(0, 0L);
+            buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+            buffer.putIntOrdered(lengthOffset(recordIndex), padding);
+            recordIndex = 0;
+        }
+
+        buffer.putLong(recordIndex + alignedRecordLength, 0L); // pre-zero next message header
+
+        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
+
+        return recordIndex;
+    }
+
+    private int computeRecordIndex(final int index)
+    {
+        final int recordIndex = index - HEADER_LENGTH;
+        if (recordIndex < 0 || recordIndex > (capacity - HEADER_LENGTH))
+        {
+            throw new IllegalArgumentException("invalid message index " + index);
+        }
+        return recordIndex;
+    }
+
+    private int verifyClaimedSpaceNotReleased(final AtomicBuffer buffer, final int recordIndex)
+    {
+        final int recordLength = buffer.getInt(lengthOffset(recordIndex));
+        if (recordLength < 0)
+        {
+            return recordLength;
+        }
+        throw new IllegalStateException("claimed space was already " +
+            (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordIndex)) ? "aborted" : "committed"));
     }
 }

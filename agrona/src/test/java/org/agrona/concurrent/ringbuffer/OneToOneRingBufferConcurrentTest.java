@@ -15,21 +15,26 @@
  */
 package org.agrona.concurrent.ringbuffer;
 
-import org.agrona.BitUtil;
+import org.agrona.collections.MutableInteger;
+import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.CyclicBarrier;
 
+import static org.agrona.BitUtil.SIZE_OF_INT;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.concurrent.ringbuffer.RecordDescriptor.HEADER_LENGTH;
+import static org.agrona.concurrent.ringbuffer.RecordDescriptor.typeOffset;
+import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OneToOneRingBufferConcurrentTest
 {
     private static final int MSG_TYPE_ID = 7;
+    public static final int REPETITIONS = 1;
 
     private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(byteBuffer);
@@ -38,78 +43,169 @@ public class OneToOneRingBufferConcurrentTest
     @Test
     public void shouldExchangeMessages()
     {
-        final int reps = 10 * 1000 * 1000;
-        final int numProducers = 1;
-        final CyclicBarrier barrier = new CyclicBarrier(numProducers);
+        new Producer().start();
 
-        for (int i = 0; i < numProducers; i++)
-        {
-            new Thread(new Producer(i, barrier, reps)).start();
-        }
-
-        final int[] counts = new int[numProducers];
-
+        final MutableInteger count = new MutableInteger();
         final MessageHandler handler =
             (msgTypeId, buffer, index, length) ->
             {
-                final int producerId = buffer.getInt(index);
-                final int iteration = buffer.getInt(index + BitUtil.SIZE_OF_INT);
+                final int iteration = buffer.getInt(index);
 
-                final int count = counts[producerId];
-                assertThat(iteration, is(count));
+                assertEquals(count.get(), iteration);
 
-                counts[producerId]++;
+                count.increment();
             };
 
-        int msgCount = 0;
-        while (msgCount < (reps * numProducers))
+        while (count.get() < REPETITIONS)
         {
             final int readCount = ringBuffer.read(handler);
             if (0 == readCount)
             {
                 Thread.yield();
             }
-
-            msgCount += readCount;
         }
-
-        assertThat(msgCount, is(reps * numProducers));
     }
 
-    class Producer implements Runnable
+    @Test
+    public void shouldExchangeMessagesViaTryClaimCommit()
     {
-        private final int producerId;
-        private final CyclicBarrier barrier;
-        private final int reps;
+        new ClaimCommit().start();
 
-        Producer(final int producerId, final CyclicBarrier barrier, final int reps)
+        final MutableInteger count = new MutableInteger();
+        final MessageHandler handler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                final int iteration = buffer.getInt(index);
+                final long longVal = buffer.getLong(index + SIZE_OF_INT);
+
+                assertEquals(count.get(), iteration);
+                assertEquals(count.get() * 20L, longVal);
+
+                count.increment();
+            };
+
+        while (count.get() < REPETITIONS)
         {
-            this.producerId = producerId;
-            this.barrier = barrier;
-            this.reps = reps;
+            final int readCount = ringBuffer.read(handler);
+            if (0 == readCount)
+            {
+                Thread.yield();
+            }
+        }
+    }
+
+    @Test
+    public void shouldExchangeMessagesViaTryClaimAbort()
+    {
+        new ClaimAbort().start();
+
+        final MutableInteger count = new MutableInteger();
+        final MessageHandler handler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                final int iteration = buffer.getInt(index);
+
+                assertEquals(count.get(), iteration);
+                assertEquals(MSG_TYPE_ID, buffer.getInt(typeOffset(index - HEADER_LENGTH)));
+
+                count.increment();
+            };
+
+        while (count.get() < REPETITIONS)
+        {
+            final int readCount = ringBuffer.read(handler);
+            if (0 == readCount)
+            {
+                Thread.yield();
+            }
+        }
+    }
+
+    class Producer extends Thread
+    {
+        Producer()
+        {
+            super("producer");
         }
 
         public void run()
         {
-            try
-            {
-                barrier.await();
-            }
-            catch (final Exception ignore)
-            {
-            }
-
-            final int length = BitUtil.SIZE_OF_INT * 2;
-            final int repsValueOffset = BitUtil.SIZE_OF_INT;
             final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
-            srcBuffer.putInt(0, producerId);
-
-            for (int i = 0; i < reps; i++)
+            for (int i = 0; i < REPETITIONS; i++)
             {
-                srcBuffer.putInt(repsValueOffset, i);
+                srcBuffer.putInt(0, i);
 
-                while (!ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, length))
+                while (!ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, SIZE_OF_INT))
+                {
+                    Thread.yield();
+                }
+            }
+        }
+    }
+
+    class ClaimCommit extends Thread
+    {
+        ClaimCommit()
+        {
+            super("tryClaim-commit");
+        }
+
+        public void run()
+        {
+            final int length = SIZE_OF_INT + SIZE_OF_LONG;
+            for (int i = 0; i < REPETITIONS; i++)
+            {
+
+                int index = -1;
+                try
+                {
+                    while (INSUFFICIENT_CAPACITY == (index = ringBuffer.tryClaim(MSG_TYPE_ID, length)))
+                    {
+                        Thread.yield();
+                    }
+
+                    final AtomicBuffer buffer = ringBuffer.buffer();
+                    buffer.putInt(index, i);
+                    buffer.putLong(index + SIZE_OF_INT, i * 20L);
+                }
+                finally
+                {
+                    ringBuffer.commit(index);
+                }
+            }
+        }
+    }
+
+    class ClaimAbort extends Thread
+    {
+        ClaimAbort()
+        {
+            super("tryClaim-abort");
+        }
+
+        public void run()
+        {
+            final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+            for (int i = 0; i < REPETITIONS; i++)
+            {
+
+                int index = -1;
+                try
+                {
+                    while (INSUFFICIENT_CAPACITY == (index = ringBuffer.tryClaim(MSG_TYPE_ID, SIZE_OF_INT)))
+                    {
+                        Thread.yield();
+                    }
+                    ringBuffer.buffer().putInt(index, -i); // should be skipped
+                }
+                finally
+                {
+                    ringBuffer.abort(index);
+                }
+
+                srcBuffer.putInt(16, i);
+                while (!ringBuffer.write(MSG_TYPE_ID, srcBuffer, 16, SIZE_OF_INT))
                 {
                     Thread.yield();
                 }

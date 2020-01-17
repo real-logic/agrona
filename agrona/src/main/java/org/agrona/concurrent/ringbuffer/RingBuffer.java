@@ -26,6 +26,16 @@ import org.agrona.concurrent.MessageHandler;
 public interface RingBuffer
 {
     /**
+     * Record type is padding to prevent fragmentation in the buffer.
+     */
+    int PADDING_MSG_TYPE_ID = -1;
+
+    /**
+     * Buffer has insufficient capacity to record a message or satisfy {@link #tryClaim(int, int)} request.
+     */
+    int INSUFFICIENT_CAPACITY = -2;
+
+    /**
      * Get the capacity of the ring-buffer in bytes for exchange.
      *
      * @return the capacity of the ring-buffer in bytes for exchange.
@@ -37,12 +47,12 @@ public interface RingBuffer
      *
      * @param msgTypeId type of the message encoding.
      * @param srcBuffer containing the encoded binary message.
-     * @param srcIndex  at which the encoded message begins.
+     * @param offset    at which the encoded message begins.
      * @param length    of the encoded message in bytes.
      * @return true if written to the ring-buffer, or false if insufficient space exists.
-     * @throws IllegalArgumentException if the length is greater than {@link RingBuffer#maxMsgLength()}
+     * @throws IllegalArgumentException if the {@code length} is negative or is greater than {@link #maxMsgLength()}.
      */
-    boolean write(int msgTypeId, DirectBuffer srcBuffer, int srcIndex, int length);
+    boolean write(int msgTypeId, DirectBuffer srcBuffer, int offset, int length);
 
     /**
      * Read as many messages as are available to the end of the ring buffer.
@@ -143,4 +153,71 @@ public interface RingBuffer
      * @return true of an unblocking action was taken otherwise false.
      */
     boolean unblock();
+
+    /**
+     * Try to claim a space in the underlying ring-buffer into which a message can be written with zero copy semantics.
+     * Once the message has been written then {@link #commit(int)} should be called thus making it available to be
+     * consumed. Alternatively a claim can be aborted using {@link #abort(int)} method.
+     * <p>
+     * Claiming a space in the ring-buffer means that the consumer will not be able to consume past the claim until
+     * the claimed space is either committed or aborted. Producers will be able to write message even when outstanding
+     * claims exist.
+     * <p>
+     * An example of using claim:
+     * <pre>
+     * {@code
+     *     final RingBuffer ringBuffer = ...;
+     *
+     *     final int index = ringBuffer.tryClaim(msgTypeId, messageLength);
+     *     if (index >= 0)
+     *     {
+     *         try
+     *         {
+     *             final AtomicBuffer buffer = ringBuffer.buffer();
+     *             // Work with the buffer directly using the index
+     *             ...
+     *             ringBuffer.commit(index); // commit message
+     *         }
+     *         catch (final Throwable t)
+     *         {
+     *             ringBuffer.abort(index); // allow consumer to proceed
+     *             ...
+     *         }
+     *     }
+     * }
+     * </pre>
+     *
+     * @param msgTypeId type of the message encoding. Will be written into the header upon successful claim.
+     * @param length    of the claim in bytes. A claim length cannot be greater than {@link #maxMsgLength()}.
+     * @return an index into the underlying ring-buffer at which encoded message begins, otherwise returns
+     * {@link #INSUFFICIENT_CAPACITY} indicating that there is not enough free space in the buffer.
+     * @throws IllegalArgumentException if the {@code msgTypeId} is less than {@code 1}.
+     * @throws IllegalArgumentException if the {@code length} is negative or is greater than {@link #maxMsgLength()}.
+     * @see #commit(int)
+     * @see #abort(int)
+     */
+    int tryClaim(int msgTypeId, int length);
+
+    /**
+     * Commit message that was written in the previously claimed space thus making it available to the consumer.
+     *
+     * @param index at which the encoded message begins, i.e. value returned from the {@link #tryClaim(int, int)} call.
+     * @throws IllegalArgumentException if the {@code index} is out of bounds.
+     * @throws IllegalStateException    if this method is called after {@link #commit(int)} or {@link #abort(int)} was
+     *                                  already invoked for the given {@code index}.
+     * @see #tryClaim(int, int)
+     */
+    void commit(int index);
+
+    /**
+     * Abort claim and allow consumer to proceed after the claimed length. Aborting turns unused space into padding,
+     * i.e. changes type of the message to {@link #PADDING_MSG_TYPE_ID}.
+     *
+     * @param index at which the encoded message begins, i.e. value returned from the {@link #tryClaim(int, int)} call.
+     * @throws IllegalArgumentException if the {@code index} is out of bounds.
+     * @throws IllegalStateException    if this method is called after {@link #commit(int)} or {@link #abort(int)} was
+     *                                  already invoked for the given {@code index}.
+     * @see #tryClaim(int, int)
+     */
+    void abort(int index);
 }
