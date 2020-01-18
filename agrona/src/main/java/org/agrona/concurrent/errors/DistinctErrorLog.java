@@ -20,6 +20,8 @@ import org.agrona.concurrent.EpochClock;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -44,7 +46,7 @@ import static org.agrona.BitUtil.align;
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  |R|                         Length                              |
  *  +-+-------------------------------------------------------------+
- *  |R|                     Observation Count                       |
+ *  |R|                    Observation Count                        |
  *  +-+-------------------------------------------------------------+
  *  |R|                Last Observation Timestamp                   |
  *  |                                                               |
@@ -52,7 +54,7 @@ import static org.agrona.BitUtil.align;
  *  |R|               First Observation Timestamp                   |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                     UTF-8 Encoded Error                      ...
+ *  |                        Encoded Error                         ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  * </pre>
@@ -94,19 +96,55 @@ public class DistinctErrorLog
     private int nextOffset = 0;
     private final EpochClock clock;
     private final AtomicBuffer buffer;
+    private final Charset charset;
     private DistinctObservation[] distinctObservations = new DistinctObservation[0];
 
     /**
      * Create a new error log that will be written to a provided {@link AtomicBuffer}.
+     * <p>
+     * The {@link Charset} with default to {@link StandardCharsets#UTF_8} for encoding the exceptions.
      *
      * @param buffer into which the observation records are recorded.
      * @param clock  to be used for time stamping records.
      */
     public DistinctErrorLog(final AtomicBuffer buffer, final EpochClock clock)
     {
+        this(buffer, clock, UTF_8);
+    }
+
+    /**
+     * Create a new error log that will be written to a provided {@link AtomicBuffer}.
+     *
+     * @param buffer  into which the observation records are recorded.
+     * @param clock   to be used for time stamping records.
+     * @param charset for encoding the errors.
+     */
+    public DistinctErrorLog(final AtomicBuffer buffer, final EpochClock clock, final Charset charset)
+    {
         buffer.verifyAlignment();
         this.clock = clock;
         this.buffer = buffer;
+        this.charset = charset;
+    }
+
+    /**
+     * Buffer the error log is written to.
+     *
+     * @return buffer the error log is written to.
+     */
+    AtomicBuffer buffer()
+    {
+        return buffer;
+    }
+
+    /**
+     * {@link Charset} used to encode errors.
+     *
+     * @return the {@link Charset} used to encode errors.
+     */
+    Charset charset()
+    {
+        return charset;
     }
 
     /**
@@ -216,7 +254,7 @@ public class DistinctErrorLog
     {
         final StringWriter stringWriter = new StringWriter();
         observation.printStackTrace(new PrintWriter(stringWriter));
-        final byte[] encodedError = stringWriter.toString().getBytes(UTF_8);
+        final byte[] encodedError = stringWriter.toString().getBytes(charset);
 
         final int length = ENCODED_ERROR_OFFSET + encodedError.length;
         final int offset = nextOffset;
