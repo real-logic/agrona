@@ -132,7 +132,7 @@ public class DistinctErrorLog
      *
      * @return buffer the error log is written to.
      */
-    AtomicBuffer buffer()
+    public AtomicBuffer buffer()
     {
         return buffer;
     }
@@ -142,7 +142,7 @@ public class DistinctErrorLog
      *
      * @return the {@link Charset} used to encode errors.
      */
-    Charset charset()
+    public Charset charset()
     {
         return charset;
     }
