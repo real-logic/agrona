@@ -38,8 +38,7 @@ public class BufferStringOperationsTest
             new UnsafeBuffer(new byte[BUFFER_CAPACITY]),
             new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY)),
             new ExpandableArrayBuffer(BUFFER_CAPACITY),
-            new ExpandableDirectByteBuffer(BUFFER_CAPACITY)
-        );
+            new ExpandableDirectByteBuffer(BUFFER_CAPACITY));
     }
 
     @ParameterizedTest

@@ -236,7 +236,7 @@ public class Int2IntHashMapTest
         iterator.next();
         iterator.next();
 
-        assertThrows(NoSuchElementException.class, () -> iterator.next());
+        assertThrows(NoSuchElementException.class, iterator::next);
     }
 
     @Test

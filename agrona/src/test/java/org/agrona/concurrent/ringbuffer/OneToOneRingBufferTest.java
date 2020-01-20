@@ -518,7 +518,7 @@ public class OneToOneRingBufferTest
 
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
             () -> action.accept(index));
-        assertEquals("claimed space was already committed", exception.getMessage());
+        assertEquals("claimed space previously committed", exception.getMessage());
     }
 
     private void testAlreadyAborted(final IntConsumer action)
@@ -530,6 +530,6 @@ public class OneToOneRingBufferTest
 
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
             () -> action.accept(index));
-        assertEquals("claimed space was already aborted", exception.getMessage());
+        assertEquals("claimed space previously aborted", exception.getMessage());
     }
 }

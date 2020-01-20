@@ -243,7 +243,6 @@ public class BroadcastReceiverTest
 
         assertFalse(broadcastReceiver.validate()); // Need to receiveNext() to catch up with transmission again.
 
-        final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
+        verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
     }
 }

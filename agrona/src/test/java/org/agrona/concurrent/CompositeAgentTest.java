@@ -81,6 +81,7 @@ public class CompositeAgentTest
             final Agent agent = agents[index];
             doThrow(new AgentException(index)).when(agent).onStart();
         }
+
         try
         {
             compositeAgent.onStart();
@@ -92,11 +93,11 @@ public class CompositeAgentTest
                 assertTrue(suppressed instanceof AgentException);
             }
         }
+
         for (final Agent agent : agents)
         {
             verify(agent).onStart();
         }
-
 
         for (int i = 0; i < agents.length; i++)
         {
@@ -104,6 +105,7 @@ public class CompositeAgentTest
             final Agent agent = agents[index];
             doThrow(new AgentException(index)).when(agent).doWork();
         }
+
         for (int i = 0; i < agents.length; i++)
         {
             try
@@ -115,6 +117,7 @@ public class CompositeAgentTest
                 assertEquals(i, e.index);
             }
         }
+
         for (final Agent agent : agents)
         {
             verify(agent).doWork();
@@ -126,6 +129,7 @@ public class CompositeAgentTest
             final Agent agent = agents[index];
             doThrow(new AgentException(index)).when(agent).onClose();
         }
+
         try
         {
             compositeAgent.onClose();
@@ -137,6 +141,7 @@ public class CompositeAgentTest
                 assertTrue(suppressed instanceof AgentException);
             }
         }
+
         for (final Agent agent : agents)
         {
             verify(agent).onClose();

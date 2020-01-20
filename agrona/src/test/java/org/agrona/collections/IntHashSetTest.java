@@ -818,15 +818,15 @@ public class IntHashSetTest
     {
         final HashSet<Integer> compatibleSet = new HashSet<>();
         final long seed = System.nanoTime();
-        final Random r = new Random(seed);
+        final Random random = new Random(seed);
         for (int i = 0; i < 1024; i++)
         {
-            final int value = r.nextInt();
+            final int value = random.nextInt();
             compatibleSet.add(value);
             testSet.add(value);
         }
 
-        if (r.nextBoolean())
+        if (random.nextBoolean())
         {
             compatibleSet.add(MISSING_VALUE);
             testSet.add(MISSING_VALUE);
@@ -888,7 +888,7 @@ public class IntHashSetTest
 
     private void exhaustIterator()
     {
-        final Iterator iterator = testSet.iterator();
+        final Iterator<Integer> iterator = testSet.iterator();
         iterator.next();
         iterator.next();
         iterator.next();

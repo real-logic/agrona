@@ -95,6 +95,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+
         return true;
     }
 
@@ -447,6 +448,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
         {
             throw new IllegalArgumentException("invalid message index " + index);
         }
+
         return recordIndex;
     }
 
@@ -457,7 +459,8 @@ public final class ManyToOneRingBuffer implements RingBuffer
         {
             return recordLength;
         }
-        throw new IllegalStateException("claimed space was already " +
+
+        throw new IllegalStateException("claimed space previously " +
             (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordIndex)) ? "aborted" : "committed"));
     }
 }

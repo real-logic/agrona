@@ -172,7 +172,7 @@ public class IntArrayQueueTest
     {
         final IntArrayQueue queue = new IntArrayQueue();
 
-        for (final int i : queue)
+        for (final int ignore : queue)
         {
             fail("Should be empty");
         }
@@ -184,7 +184,7 @@ public class IntArrayQueueTest
             queue.removeInt();
         }
 
-        for (final int i : queue)
+        for (final int ignore : queue)
         {
             fail("Should be empty");
         }

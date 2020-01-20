@@ -94,6 +94,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+
         return true;
     }
 
@@ -265,6 +266,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         // hence the order of writes of type field and negative length does not matter.
         // It is safe to do so, because the header was pre-zeroed during the capacity claim.
         buffer.putInt(lengthOffset(recordIndex), -recordLength);
+
         return encodedMsgOffset(recordIndex);
     }
 
@@ -363,7 +365,6 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         buffer.putLong(recordIndex + alignedRecordLength, 0L); // pre-zero next message header
-
         buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
 
         return recordIndex;
@@ -376,6 +377,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         {
             throw new IllegalArgumentException("invalid message index " + index);
         }
+
         return recordIndex;
     }
 
@@ -386,7 +388,8 @@ public final class OneToOneRingBuffer implements RingBuffer
         {
             return recordLength;
         }
-        throw new IllegalStateException("claimed space was already " +
+
+        throw new IllegalStateException("claimed space previously " +
             (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordIndex)) ? "aborted" : "committed"));
     }
 }

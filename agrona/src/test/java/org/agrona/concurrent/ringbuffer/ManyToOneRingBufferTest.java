@@ -422,8 +422,8 @@ public class ManyToOneRingBufferTest
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
-        assertThrows(IllegalStateException.class, () ->
-            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
+        assertThrows(IllegalStateException.class,
+            () -> new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
     }
 
     @Test
@@ -663,7 +663,7 @@ public class ManyToOneRingBufferTest
 
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
             () -> action.accept(index));
-        assertEquals("claimed space was already committed", exception.getMessage());
+        assertEquals("claimed space previously committed", exception.getMessage());
     }
 
     private void testAlreadyAborted(final IntConsumer action)
@@ -675,6 +675,6 @@ public class ManyToOneRingBufferTest
 
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
             () -> action.accept(index));
-        assertEquals("claimed space was already aborted", exception.getMessage());
+        assertEquals("claimed space previously aborted", exception.getMessage());
     }
 }

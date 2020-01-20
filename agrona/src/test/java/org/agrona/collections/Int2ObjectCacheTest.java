@@ -291,4 +291,3 @@ public class Int2ObjectCacheTest
         assertThat(cache.cacheHits(), is(0L));
     }
 }
-

@@ -219,7 +219,7 @@ public class ObjectHashSetStringTest
     @MethodSource("data")
     public void twoEmptySetsAreEqual(final ObjectHashSet<String> testSet)
     {
-        final ObjectHashSet other = new ObjectHashSet(100);
+        final ObjectHashSet<?> other = new ObjectHashSet<>(100);
         assertEquals(testSet, other);
     }
 
@@ -521,7 +521,7 @@ public class ObjectHashSetStringTest
     {
         addTwoElements(testSet);
 
-        final ObjectHashSet.ObjectIterator iter = testSet.iterator();
+        final ObjectHashSet<String>.ObjectIterator iter = testSet.iterator();
         //noinspection Java8CollectionRemoveIf
         while (iter.hasNext())
         {

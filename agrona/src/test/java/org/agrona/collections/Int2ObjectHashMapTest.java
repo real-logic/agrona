@@ -242,7 +242,7 @@ public class Int2ObjectHashMapTest
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Int2ObjectHashMap.KeyIterator iter = intToObjectMap.keySet().iterator(); iter.hasNext(); )
+        for (final Int2ObjectHashMap<String>.KeyIterator iter = intToObjectMap.keySet().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }
@@ -425,4 +425,3 @@ public class Int2ObjectHashMapTest
         assertThat(map.size(), is(1));
     }
 }
-

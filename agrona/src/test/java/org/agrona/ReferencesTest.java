@@ -47,4 +47,3 @@ public class ReferencesTest
         assertFalse(References.isReferringTo(ref, objTwo));
     }
 }
-

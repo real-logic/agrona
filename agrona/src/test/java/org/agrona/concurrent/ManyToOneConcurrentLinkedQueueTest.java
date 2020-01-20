@@ -143,7 +143,7 @@ public class ManyToOneConcurrentLinkedQueueTest
             {
                 while (null == queue.poll())
                 {
-                    // busy spin
+                    Thread.yield();
                 }
             }
 

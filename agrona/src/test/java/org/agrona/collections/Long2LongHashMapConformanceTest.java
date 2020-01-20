@@ -27,7 +27,6 @@ import junit.framework.TestSuite;
 import java.util.List;
 import java.util.Map;
 
-
 public class Long2LongHashMapConformanceTest
 {
     // Generated suite to test conformity to the java.util.Set interface

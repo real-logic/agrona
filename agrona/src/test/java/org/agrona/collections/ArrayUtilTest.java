@@ -17,15 +17,14 @@ package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
 
-import static java.lang.Integer.valueOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class ArrayUtilTest
 {
     // Reference Equality
-    private static final Integer ONE = valueOf(1);
-    private static final Integer TWO = valueOf(2);
-    private static final Integer THREE = valueOf(3);
+    private static final Integer ONE = 1;
+    private static final Integer TWO = 2;
+    private static final Integer THREE = 3;
 
     private final Integer[] values = { ONE, TWO };
 

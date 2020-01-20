@@ -271,7 +271,7 @@ public class ObjectHashSetIntegerTest
     @MethodSource("data")
     public void twoEmptySetsAreEqual(final ObjectHashSet<Integer> testSet)
     {
-        final ObjectHashSet other = new ObjectHashSet(100);
+        final ObjectHashSet<?> other = new ObjectHashSet<>(100);
         assertEquals(testSet, other);
     }
 
@@ -598,7 +598,7 @@ public class ObjectHashSetIntegerTest
     {
         addTwoElements(testSet);
 
-        final ObjectHashSet.ObjectIterator intIterator = testSet.iterator();
+        final ObjectHashSet<Integer>.ObjectIterator intIterator = testSet.iterator();
         //noinspection Java8CollectionRemoveIf
         while (intIterator.hasNext())
         {
@@ -640,7 +640,7 @@ public class ObjectHashSetIntegerTest
             testSet.add(i);
         }
 
-        final ObjectHashSet.ObjectIterator iter = testSet.iterator();
+        final ObjectHashSet<Integer>.ObjectIterator iter = testSet.iterator();
         for (int i = 0; i < 20; i++)
         {
             assertTrue(iter.hasNext());
@@ -714,7 +714,7 @@ public class ObjectHashSetIntegerTest
 
     private void exhaustIterator(final ObjectHashSet<Integer> testSet)
     {
-        final ObjectHashSet.ObjectIterator iterator = testSet.iterator();
+        final ObjectHashSet<Integer>.ObjectIterator iterator = testSet.iterator();
         iterator.next();
         iterator.next();
         iterator.next();
