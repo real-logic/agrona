@@ -22,7 +22,7 @@ import org.agrona.BitUtil;
  * of a ring of messages which is a power of 2 in size, followed by a trailer section containing state
  * information for the producers and consumers of the ring.
  */
-public class RingBufferDescriptor
+public final class RingBufferDescriptor
 {
     /**
      * Offset within the trailer for where the tail value is stored.
@@ -74,6 +74,10 @@ public class RingBufferDescriptor
 
         offset += (BitUtil.CACHE_LINE_LENGTH * 2);
         TRAILER_LENGTH = offset;
+    }
+
+    private RingBufferDescriptor()
+    {
     }
 
     /**

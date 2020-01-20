@@ -19,11 +19,16 @@ import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
+
+import java.util.function.IntConsumer;
 
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
+import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,11 +72,11 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putBytes(encodedMsgOffset((int)tail), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putLong((int)tail + alignedRecordLength, 0L);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength);
+        inOrder.verify(buffer).putBytes(encodedMsgOffset((int)tail), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset((int)tail), MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), recordLength);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength);
     }
 
     @Test
@@ -135,8 +140,10 @@ public class OneToOneRingBufferTest
         inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
-        inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
+
+        inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset(0), recordLength);
     }
@@ -163,8 +170,10 @@ public class OneToOneRingBufferTest
         inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
-        inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
+
+        inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset(0), recordLength);
     }
@@ -352,5 +361,175 @@ public class OneToOneRingBufferTest
 
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[messageLength]);
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, messageLength));
+    }
+
+    @Test
+    public void tryClaimThrowsIllegalArgumentExceptionIfMessageTypeIdIsInvalid()
+    {
+        assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(0, 10));
+    }
+
+    @Test
+    public void tryClaimThrowsIllegalArgumentExceptionIfLengthIsBiggerThanMaxMessageLength()
+    {
+        assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(MSG_TYPE_ID, 2000));
+    }
+
+    @Test
+    public void tryClaimThrowsIllegalArgumentExceptionIfLengthIsNegative()
+    {
+        assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(MSG_TYPE_ID, -5));
+    }
+
+    @Test
+    public void tryClaimReturnsOffsetAtWhichMessageBodyCanBeWritten()
+    {
+        final int msgTypeId = MSG_TYPE_ID;
+        final int length = 333;
+        final int recordLength = HEADER_LENGTH + length;
+        final int alignedRecordLength = align(recordLength, ALIGNMENT);
+
+        final int index = ringBuffer.tryClaim(msgTypeId, length);
+
+        assertEquals(HEADER_LENGTH, index);
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, alignedRecordLength);
+        inOrder.verify(buffer).putInt(typeOffset(0), msgTypeId);
+        inOrder.verify(buffer).putInt(lengthOffset(0), -recordLength);
+    }
+
+    @Test
+    public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBuffer()
+    {
+        final int msgTypeId = MSG_TYPE_ID;
+        final int length = 10;
+        when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(10L);
+        when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn((long)CAPACITY);
+
+        final int index = ringBuffer.tryClaim(msgTypeId, length);
+
+        assertEquals(INSUFFICIENT_CAPACITY, index);
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getLong(HEAD_COUNTER_CACHE_INDEX);
+        inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
+        inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBufferAfterWrap()
+    {
+        final int msgTypeId = MSG_TYPE_ID;
+        final int length = 100;
+        when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(22L);
+        when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(CAPACITY * 2L - 10);
+        when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(CAPACITY + 111L, 3L);
+
+        final int index = ringBuffer.tryClaim(msgTypeId, length);
+
+        assertEquals(INSUFFICIENT_CAPACITY, index);
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getLong(HEAD_COUNTER_CACHE_INDEX);
+        inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
+        inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
+        inOrder.verify(buffer).putLong(HEAD_COUNTER_CACHE_INDEX, CAPACITY + 111L);
+        inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
+    public void commitThrowsIllegalArgumentExceptionIfOffsetIsInvalid(final int index)
+    {
+        assertThrows(IllegalArgumentException.class, () -> ringBuffer.commit(index));
+    }
+
+    @Test
+    public void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
+    {
+        testAlreadyCommitted(ringBuffer::commit);
+    }
+
+    @Test
+    public void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
+    {
+        testAlreadyAborted(ringBuffer::commit);
+    }
+
+    @Test
+    public void commitPublishesMessageByInvertingTheLengthValue()
+    {
+        final int index = 32;
+        final int recordIndex = index - HEADER_LENGTH;
+        when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(-19);
+
+        ringBuffer.commit(index);
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getInt(lengthOffset(recordIndex));
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(recordIndex), 19);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
+    public void abortThrowsIllegalArgumentExceptionIfOffsetIsInvalid(final int index)
+    {
+        assertThrows(IllegalArgumentException.class, () -> ringBuffer.abort(index));
+    }
+
+    @Test
+    public void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
+    {
+        testAlreadyCommitted(ringBuffer::abort);
+    }
+
+    @Test
+    public void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
+    {
+        testAlreadyAborted(ringBuffer::abort);
+    }
+
+    @Test
+    public void abortMarksUnusedSpaceAsPadding()
+    {
+        final int index = 108;
+        final int recordIndex = index - HEADER_LENGTH;
+        when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(-11111);
+
+        ringBuffer.abort(index);
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getInt(lengthOffset(recordIndex));
+        inOrder.verify(buffer).putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(recordIndex), 11111);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    private void testAlreadyCommitted(final IntConsumer action)
+    {
+        final int index = HEADER_LENGTH;
+        final int recordIndex = index - HEADER_LENGTH;
+        when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(0);
+
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> action.accept(index));
+        assertEquals("claimed space was already committed", exception.getMessage());
+    }
+
+    private void testAlreadyAborted(final IntConsumer action)
+    {
+        final int index = 128;
+        final int recordIndex = index - HEADER_LENGTH;
+        when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(10);
+        when(buffer.getInt(typeOffset(recordIndex))).thenReturn(PADDING_MSG_TYPE_ID);
+
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> action.accept(index));
+        assertEquals("claimed space was already aborted", exception.getMessage());
     }
 }
