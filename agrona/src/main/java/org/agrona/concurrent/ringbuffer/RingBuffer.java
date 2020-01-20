@@ -163,13 +163,35 @@ public interface RingBuffer
      * the claimed space is either committed or aborted. Producers will be able to write message even when outstanding
      * claims exist.
      * <p>
-     * An example of using claim:
+     * An example of using {@code tryClaim}:
      * <pre>
      * {@code
      *     final RingBuffer ringBuffer = ...;
      *
      *     final int index = ringBuffer.tryClaim(msgTypeId, messageLength);
-     *     if (index >= 0)
+     *     if (index > 0)
+     *     {
+     *         try
+     *         {
+     *             final AtomicBuffer buffer = ringBuffer.buffer();
+     *             // Work with the buffer directly using the index
+     *             ...
+     *         }
+     *         finally
+     *         {
+     *             ringBuffer.commit(index); // commit message
+     *         }
+     *     }
+     * }
+     * </pre>
+     * <p>
+     * Ensure that claimed space is released even in case of an exception:
+     * <pre>
+     * {@code
+     *     final RingBuffer ringBuffer = ...;
+     *
+     *     final int index = ringBuffer.tryClaim(msgTypeId, messageLength);
+     *     if (index > 0)
      *     {
      *         try
      *         {
@@ -189,7 +211,7 @@ public interface RingBuffer
      *
      * @param msgTypeId type of the message encoding. Will be written into the header upon successful claim.
      * @param length    of the claim in bytes. A claim length cannot be greater than {@link #maxMsgLength()}.
-     * @return an index into the underlying ring-buffer at which encoded message begins, otherwise returns
+     * @return a non-zero index into the underlying ring-buffer at which encoded message begins, otherwise returns
      * {@link #INSUFFICIENT_CAPACITY} indicating that there is not enough free space in the buffer.
      * @throws IllegalArgumentException if the {@code msgTypeId} is less than {@code 1}.
      * @throws IllegalArgumentException if the {@code length} is negative or is greater than {@link #maxMsgLength()}.
