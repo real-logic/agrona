@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent.broadcast;
 
-import org.agrona.BitUtil;
+import static org.agrona.BitUtil.SIZE_OF_INT;
 
 /**
  * Description of the structure for a record in the broadcast buffer.
@@ -35,7 +35,7 @@ import org.agrona.BitUtil;
  * <p>
  * (R) bits are reserved.
  */
-public class RecordDescriptor
+public final class RecordDescriptor
 {
     /**
      * Message type is padding to prevent fragmentation in the buffer.
@@ -50,17 +50,21 @@ public class RecordDescriptor
     /**
      * Offset within the record at which the message type field begins.
      */
-    public static final int TYPE_OFFSET = LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+    public static final int TYPE_OFFSET = LENGTH_OFFSET + SIZE_OF_INT;
 
     /**
      * Length of the record header in bytes.
      */
-    public static final int HEADER_LENGTH = BitUtil.SIZE_OF_INT * 2;
+    public static final int HEADER_LENGTH = SIZE_OF_INT * 2;
 
     /**
      * Alignment as a multiple of bytes for each record.
      */
     public static final int RECORD_ALIGNMENT = HEADER_LENGTH;
+
+    private RecordDescriptor()
+    {
+    }
 
     /**
      * Calculate the maximum supported message length for a buffer of given capacity.

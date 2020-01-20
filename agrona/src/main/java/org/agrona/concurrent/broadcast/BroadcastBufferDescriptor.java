@@ -15,13 +15,13 @@
  */
 package org.agrona.concurrent.broadcast;
 
-import org.agrona.BitUtil;
+import static org.agrona.BitUtil.*;
 
 /**
  * Layout of the broadcast buffer. The buffer consists of a ring of messages that is a power of 2 in size.
  * This is followed by a trailer section containing state information about the ring.
  */
-public class BroadcastBufferDescriptor
+public final class BroadcastBufferDescriptor
 {
     /**
      * Offset within the trailer for where the tail intended value is stored.
@@ -48,13 +48,17 @@ public class BroadcastBufferDescriptor
         int offset = 0;
         TAIL_INTENT_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.SIZE_OF_LONG;
+        offset += SIZE_OF_LONG;
         TAIL_COUNTER_OFFSET = offset;
 
-        offset += BitUtil.SIZE_OF_LONG;
+        offset += SIZE_OF_LONG;
         LATEST_COUNTER_OFFSET = offset;
 
-        TRAILER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
+        TRAILER_LENGTH = CACHE_LINE_LENGTH * 2;
+    }
+
+    private BroadcastBufferDescriptor()
+    {
     }
 
     /**
@@ -65,7 +69,7 @@ public class BroadcastBufferDescriptor
      */
     public static void checkCapacity(final int capacity)
     {
-        if (!BitUtil.isPowerOfTwo(capacity))
+        if (!isPowerOfTwo(capacity))
         {
             final String msg = "capacity must be a positive power of 2 + TRAILER_LENGTH: capacity=" + capacity;
             throw new IllegalStateException(msg);
