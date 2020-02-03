@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility functions to help with using {@link java.lang.AutoCloseable} resources.
+ * Utility functions to help with using {@link java.lang.AutoCloseable} resources. If a null exception is passed
+ * then it is ignored.
  */
 public final class CloseHelper
 {
@@ -116,14 +117,14 @@ public final class CloseHelper
                 closeable.close();
             }
         }
-        catch (final Exception e)
+        catch (final Exception ex)
         {
-            LangUtil.rethrowUnchecked(e);
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 
     /**
-     * Close all closeables in closeables. If any of them throw then throw that exception.
+     * Close all provided closeables. If any of them throw then throw that exception.
      * If multiple closeables throw an exception when being closed, then throw an exception that contains
      * all of them as suppressed exceptions.
      *
@@ -166,7 +167,7 @@ public final class CloseHelper
     }
 
     /**
-     * Close all closeables in closeables. If any of them throw then throw that exception.
+     * Close all provided closeables. If any of them throw then throw that exception.
      * If multiple closeables throw an exception when being closed, then throw an exception that contains
      * all of them as suppressed exceptions.
      *
@@ -204,6 +205,86 @@ public final class CloseHelper
             final Exception exception = exceptions.remove(0);
             exceptions.forEach(exception::addSuppressed);
             LangUtil.rethrowUnchecked(exception);
+        }
+    }
+
+    /**
+     * Close a {@link java.lang.AutoCloseable} delegating exceptions to the {@link ErrorHandler}.
+     *
+     * @param errorHandler to delegate exceptions to.
+     * @param closeable    to be closed.
+     */
+    public static void close(final ErrorHandler errorHandler, final AutoCloseable closeable)
+    {
+        try
+        {
+            if (null != closeable)
+            {
+                closeable.close();
+            }
+        }
+        catch (final Exception ex)
+        {
+            errorHandler.onError(ex);
+        }
+    }
+
+    /**
+     * Close all closeables and delegate exceptions to the {@link ErrorHandler}.
+     *
+     * @param errorHandler to delegate exceptions to.
+     * @param closeables   to be closed.
+     */
+    public static void closeAll(final ErrorHandler errorHandler, final List<? extends AutoCloseable> closeables)
+    {
+        if (closeables == null)
+        {
+            return;
+        }
+
+        for (int i = 0, size = closeables.size(); i < size; i++)
+        {
+            final AutoCloseable closeable = closeables.get(i);
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ex)
+                {
+                    errorHandler.onError(ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Close all closeables and delegate exceptions to the {@link ErrorHandler}.
+     *
+     * @param errorHandler to delegate exceptions to.
+     * @param closeables   to be closed.
+     */
+    public static void closeAll(final ErrorHandler errorHandler, final AutoCloseable... closeables)
+    {
+        if (closeables == null)
+        {
+            return;
+        }
+
+        for (final AutoCloseable closeable : closeables)
+        {
+            if (closeable != null)
+            {
+                try
+                {
+                    closeable.close();
+                }
+                catch (final Exception ex)
+                {
+                    errorHandler.onError(ex);
+                }
+            }
         }
     }
 }
