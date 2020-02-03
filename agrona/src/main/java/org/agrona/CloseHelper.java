@@ -15,8 +15,7 @@
  */
 package org.agrona;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Utility functions to help with using {@link java.lang.AutoCloseable} resources. If a null exception is passed
@@ -42,7 +41,7 @@ public final class CloseHelper
                 closeable.close();
             }
         }
-        catch (final Exception ignore)
+        catch (final Throwable ignore)
         {
         }
     }
@@ -52,23 +51,22 @@ public final class CloseHelper
      *
      * @param closeables to be closed.
      */
-    public static void quietCloseAll(final List<? extends AutoCloseable> closeables)
+    public static void quietCloseAll(final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.isEmpty())
         {
             return;
         }
 
-        for (int i = 0, size = closeables.size(); i < size; i++)
+        for (final AutoCloseable closeable : closeables)
         {
-            final AutoCloseable closeable = closeables.get(i);
             if (closeable != null)
             {
                 try
                 {
                     closeable.close();
                 }
-                catch (final Exception ignore)
+                catch (final Throwable ignore)
                 {
                 }
             }
@@ -82,7 +80,7 @@ public final class CloseHelper
      */
     public static void quietCloseAll(final AutoCloseable... closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.length == 0)
         {
             return;
         }
@@ -95,7 +93,7 @@ public final class CloseHelper
                 {
                     closeable.close();
                 }
-                catch (final Exception ignore)
+                catch (final Throwable ignore)
                 {
                 }
             }
@@ -117,7 +115,7 @@ public final class CloseHelper
                 closeable.close();
             }
         }
-        catch (final Exception ex)
+        catch (final Throwable ex)
         {
             LangUtil.rethrowUnchecked(ex);
         }
@@ -130,39 +128,39 @@ public final class CloseHelper
      *
      * @param closeables to be closed.
      */
-    public static void closeAll(final List<? extends AutoCloseable> closeables)
+    public static void closeAll(final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.isEmpty())
         {
             return;
         }
 
-        List<Exception> exceptions = null;
-        for (int i = 0, size = closeables.size(); i < size; i++)
+        Throwable error = null;
+        for (final AutoCloseable closeable : closeables)
         {
-            final AutoCloseable closeable = closeables.get(i);
             if (closeable != null)
             {
                 try
                 {
                     closeable.close();
                 }
-                catch (final Exception ex)
+                catch (final Throwable ex)
                 {
-                    if (exceptions == null)
+                    if (error == null)
                     {
-                        exceptions = new ArrayList<>();
+                        error = ex;
                     }
-                    exceptions.add(ex);
+                    else
+                    {
+                        error.addSuppressed(ex);
+                    }
                 }
             }
         }
 
-        if (exceptions != null)
+        if (error != null)
         {
-            final Exception exception = exceptions.remove(0);
-            exceptions.forEach(exception::addSuppressed);
-            LangUtil.rethrowUnchecked(exception);
+            LangUtil.rethrowUnchecked(error);
         }
     }
 
@@ -175,12 +173,12 @@ public final class CloseHelper
      */
     public static void closeAll(final AutoCloseable... closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.length == 0)
         {
             return;
         }
 
-        List<Exception> exceptions = null;
+        Throwable error = null;
         for (final AutoCloseable closeable : closeables)
         {
             if (closeable != null)
@@ -189,22 +187,23 @@ public final class CloseHelper
                 {
                     closeable.close();
                 }
-                catch (final Exception ex)
+                catch (final Throwable ex)
                 {
-                    if (exceptions == null)
+                    if (error == null)
                     {
-                        exceptions = new ArrayList<>();
+                        error = ex;
                     }
-                    exceptions.add(ex);
+                    else
+                    {
+                        error.addSuppressed(ex);
+                    }
                 }
             }
         }
 
-        if (exceptions != null)
+        if (error != null)
         {
-            final Exception exception = exceptions.remove(0);
-            exceptions.forEach(exception::addSuppressed);
-            LangUtil.rethrowUnchecked(exception);
+            LangUtil.rethrowUnchecked(error);
         }
     }
 
@@ -223,7 +222,7 @@ public final class CloseHelper
                 closeable.close();
             }
         }
-        catch (final Exception ex)
+        catch (final Throwable ex)
         {
             errorHandler.onError(ex);
         }
@@ -235,23 +234,22 @@ public final class CloseHelper
      * @param errorHandler to delegate exceptions to.
      * @param closeables   to be closed.
      */
-    public static void closeAll(final ErrorHandler errorHandler, final List<? extends AutoCloseable> closeables)
+    public static void closeAll(final ErrorHandler errorHandler, final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.isEmpty())
         {
             return;
         }
 
-        for (int i = 0, size = closeables.size(); i < size; i++)
+        for (final AutoCloseable closeable : closeables)
         {
-            final AutoCloseable closeable = closeables.get(i);
             if (closeable != null)
             {
                 try
                 {
                     closeable.close();
                 }
-                catch (final Exception ex)
+                catch (final Throwable ex)
                 {
                     errorHandler.onError(ex);
                 }
@@ -267,7 +265,7 @@ public final class CloseHelper
      */
     public static void closeAll(final ErrorHandler errorHandler, final AutoCloseable... closeables)
     {
-        if (closeables == null)
+        if (closeables == null || closeables.length == 0)
         {
             return;
         }
@@ -280,7 +278,7 @@ public final class CloseHelper
                 {
                     closeable.close();
                 }
-                catch (final Exception ex)
+                catch (final Throwable ex)
                 {
                     errorHandler.onError(ex);
                 }
