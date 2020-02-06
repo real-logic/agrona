@@ -36,6 +36,23 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
+    public void testToArrayTyped()
+    {
+        final Object2ObjectHashMap<String, String> cut = new Object2ObjectHashMap<>();
+        cut.put("a", "valA");
+        cut.put("b", "valA");
+        cut.put("c", "valA");
+
+        final Entry[] type = new Entry[1];
+        final Entry[] array = cut.entrySet().toArray(type);
+        for (final Entry entry : array)
+        {
+            cut.remove(((Entry<String, String>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
     public void testToArrayWithArrayListConstructor()
     {
         final Object2ObjectHashMap<String, String> cut = new Object2ObjectHashMap<>();

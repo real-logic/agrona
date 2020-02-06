@@ -879,11 +879,30 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public Object[] toArray()
         {
             final Object[] array = new Object[size()];
+            return toArray(array);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public <T> T[] toArray(final T[] a)
+        {
+            final T[] array = a.length >= size ? a : (T[])java.lang.reflect.Array
+                            .newInstance(a.getClass().getComponentType(), size);
             final EntryIterator it = iterator();
             for (@DoNotSub int i = 0; i < array.length; i++)
             {
-                it.next();
-                array[i] = it.allocateDuplicateEntry();
+                if (it.hasNext())
+                {
+                    it.next();
+                    array[i] = (T)it.allocateDuplicateEntry();
+                }
+                else
+                {
+                    array[i] = null;
+                    break;
+                }
             }
             return array;
         }

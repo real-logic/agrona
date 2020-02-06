@@ -459,6 +459,23 @@ public class Object2IntHashMapTest
     }
 
     @Test
+    public void testToArrayTyped()
+    {
+        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
+        cut.put("a", 1);
+        cut.put("b", 2);
+        cut.put("c", 3);
+
+        final Entry[] type = new Entry[1];
+        final Entry[] array = cut.entrySet().toArray(type);
+        for (final Entry entry : array)
+        {
+            cut.remove(((Entry<String, Integer>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
     public void testToArrayWithArrayListConstructor()
     {
         final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);

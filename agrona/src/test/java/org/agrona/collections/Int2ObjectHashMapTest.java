@@ -444,6 +444,23 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
+    public void testToArrayTyped()
+    {
+        final Int2ObjectHashMap<String> cut = new Int2ObjectHashMap<>();
+        cut.put(1, "a");
+        cut.put(2, "b");
+        cut.put(3, "c");
+
+        final Map.Entry[] type = new Map.Entry[1];
+        final Map.Entry[] array = cut.entrySet().toArray(type);
+        for (final Map.Entry entry : array)
+        {
+            cut.remove(((Map.Entry<Integer, String>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
     public void testToArrayWithArrayListConstructor()
     {
         final Int2ObjectHashMap<String> cut = new Int2ObjectHashMap<>();

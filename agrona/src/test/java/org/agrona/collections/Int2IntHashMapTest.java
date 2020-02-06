@@ -676,6 +676,23 @@ public class Int2IntHashMapTest
     }
 
     @Test
+    public void testToArrayTyped()
+    {
+        final Int2IntHashMap cut = new Int2IntHashMap(-127);
+        cut.put(1, 11);
+        cut.put(2, 12);
+        cut.put(3, 13);
+
+        final Entry[] type = new Entry[1];
+        final Entry[] array = cut.entrySet().toArray(type);
+        for (final Entry entry : array)
+        {
+            cut.remove(((Entry<Integer, Integer>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
     public void testToArrayWithArrayListConstructor()
     {
         final Int2IntHashMap cut = new Int2IntHashMap(-127);
