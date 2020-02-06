@@ -438,7 +438,7 @@ public class Int2ObjectHashMapTest
         final Object[] array = cut.entrySet().toArray();
         for (final Object entry : array)
         {
-            cut.remove(((Map.Entry<Integer, String>) entry).getKey());
+            cut.remove(((Map.Entry<Integer, String>)entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

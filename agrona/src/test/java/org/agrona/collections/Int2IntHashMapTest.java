@@ -670,7 +670,7 @@ public class Int2IntHashMapTest
         final Object[] array = cut.entrySet().toArray();
         for (final Object entry : array)
         {
-            cut.remove(((Entry<Integer, Integer>) entry).getKey());
+            cut.remove(((Entry<Integer, Integer>)entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

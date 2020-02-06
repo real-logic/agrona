@@ -453,7 +453,7 @@ public class Object2IntHashMapTest
         final Object[] array = cut.entrySet().toArray();
         for (final Object entry : array)
         {
-            cut.remove(((Entry<String, Integer>) entry).getKey());
+            cut.remove(((Entry<String, Integer>)entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

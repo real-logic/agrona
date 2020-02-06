@@ -30,7 +30,7 @@ public class Object2ObjectHashMapTest
         final Object[] array = cut.entrySet().toArray();
         for (final Object entry : array)
         {
-            cut.remove(((Entry<String, String>) entry).getKey());
+            cut.remove(((Entry<String, String>)entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }
