@@ -1107,9 +1107,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
          * {@inheritDoc}
          */
         @Override
-        public Map.Entry<Integer, Integer>[] toArray()
+        public Object[] toArray()
         {
-            final Entry<Integer, Integer>[] array = new Map.Entry[size()];
+            final Object[] array = new Object[size()];
             final EntryIterator it = iterator();
             for (@DoNotSub int i = 0; i < array.length; i++)
             {

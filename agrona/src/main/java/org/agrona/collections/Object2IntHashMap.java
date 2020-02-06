@@ -806,9 +806,9 @@ public class Object2IntHashMap<K>
          * {@inheritDoc}
          */
         @Override
-        public Map.Entry<K, Integer>[] toArray()
+        public Object[] toArray()
         {
-            final Entry<K, Integer>[] array = new Map.Entry[size()];
+            final Object[] array = new Object[size()];
             final EntryIterator it = iterator();
             for (@DoNotSub int i = 0; i < array.length; i++)
             {

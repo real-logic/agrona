@@ -27,10 +27,10 @@ public class Object2ObjectHashMapTest
         cut.put("b", "valA");
         cut.put("c", "valA");
 
-        final Map.Entry<String, String>[] array = cut.entrySet().toArray();
-        for (final Map.Entry<String, String> entry : array)
+        final Object[] array = cut.entrySet().toArray();
+        for (final Object entry : array)
         {
-            cut.remove(entry.getKey());
+            cut.remove(((Entry<String, String>) entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

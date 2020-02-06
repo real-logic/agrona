@@ -435,10 +435,10 @@ public class Int2ObjectHashMapTest
         cut.put(2, "b");
         cut.put(3, "c");
 
-        final Map.Entry<Integer, String>[] array = cut.entrySet().toArray();
-        for (final Map.Entry<Integer, String> entry : array)
+        final Object[] array = cut.entrySet().toArray();
+        for (final Object entry : array)
         {
-            cut.remove(entry.getKey());
+            cut.remove(((Map.Entry<Integer, String>) entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

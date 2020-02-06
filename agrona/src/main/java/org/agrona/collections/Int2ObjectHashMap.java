@@ -779,9 +779,9 @@ public class Int2ObjectHashMap<V>
          * {@inheritDoc}
          */
         @Override
-        public Map.Entry<Integer, V>[] toArray()
+        public Object[] toArray()
         {
-            final Entry<Integer, V>[] array = new Map.Entry[size()];
+            final Object[] array = new Object[size()];
             final EntryIterator it = iterator();
             for (@DoNotSub int i = 0; i < array.length; i++)
             {

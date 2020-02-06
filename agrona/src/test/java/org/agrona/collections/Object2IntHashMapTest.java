@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -449,10 +450,10 @@ public class Object2IntHashMapTest
         cut.put("b", 2);
         cut.put("c", 3);
 
-        final Map.Entry<String, Integer>[] array = cut.entrySet().toArray();
-        for (final Map.Entry<String, Integer> entry : array)
+        final Object[] array = cut.entrySet().toArray();
+        for (final Object entry : array)
         {
-            cut.remove(entry.getKey());
+            cut.remove(((Entry<String, Integer>) entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }

@@ -876,9 +876,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
          * {@inheritDoc}
          */
         @Override
-        public Map.Entry<K, V>[] toArray()
+        public Object[] toArray()
         {
-            final Entry<K, V>[] array = new Map.Entry[size()];
+            final Object[] array = new Object[size()];
             final EntryIterator it = iterator();
             for (@DoNotSub int i = 0; i < array.length; i++)
             {

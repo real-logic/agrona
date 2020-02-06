@@ -667,10 +667,10 @@ public class Int2IntHashMapTest
         cut.put(2, 12);
         cut.put(3, 13);
 
-        final Map.Entry<Integer, Integer>[] array = cut.entrySet().toArray();
-        for (final Map.Entry<Integer, Integer> entry : array)
+        final Object[] array = cut.entrySet().toArray();
+        for (final Object entry : array)
         {
-            cut.remove(entry.getKey());
+            cut.remove(((Entry<Integer, Integer>) entry).getKey());
         }
         assertTrue(cut.isEmpty());
     }
