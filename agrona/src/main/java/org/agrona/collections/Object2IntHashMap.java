@@ -805,25 +805,21 @@ public class Object2IntHashMap<K>
         /**
          * {@inheritDoc}
          */
-        /**
-         * {@inheritDoc}
-         */
-        @Override
         public Object[] toArray()
         {
-            final Object[] array = new Object[size()];
-            return toArray(array);
+            return toArray(new Object[size()]);
         }
 
         /**
          * {@inheritDoc}
          */
-        @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a)
         {
-            final T[] array = a.length >= size ? a : (T[])java.lang.reflect.Array
-                            .newInstance(a.getClass().getComponentType(), size);
+            final T[] array = a.length >= size ?
+                a : (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
             final EntryIterator it = iterator();
+
             for (@DoNotSub int i = 0; i < array.length; i++)
             {
                 if (it.hasNext())
@@ -837,6 +833,7 @@ public class Object2IntHashMap<K>
                     break;
                 }
             }
+
             return array;
         }
     }
@@ -983,49 +980,7 @@ public class Object2IntHashMap<K>
 
         private Entry<K, Integer> allocateDuplicateEntry()
         {
-            final K k = getKey();
-            final int v = getIntValue();
-
-            return new Entry<K, Integer>()
-            {
-                public K getKey()
-                {
-                    return k;
-                }
-
-                public Integer getValue()
-                {
-                    return v;
-                }
-
-                public Integer setValue(final Integer value)
-                {
-                    return Object2IntHashMap.this.put(k, value);
-                }
-
-                @DoNotSub public int hashCode()
-                {
-                    return getKey().hashCode() ^ Integer.hashCode(getIntValue());
-                }
-
-                @DoNotSub public boolean equals(final Object o)
-                {
-                    if (!(o instanceof Entry))
-                    {
-                        return false;
-                    }
-
-                    @SuppressWarnings("rawtypes") final Map.Entry e = (Entry)o;
-
-                    return (e.getKey() != null && e.getValue() != null) &&
-                        (e.getKey().equals(k) && e.getValue().equals(v));
-                }
-
-                public String toString()
-                {
-                    return k + "=" + v;
-                }
-            };
+            return new MapEntry(getKey(), getIntValue());
         }
 
         public K getKey()
@@ -1060,6 +1015,55 @@ public class Object2IntHashMap<K>
             values[pos] = value;
 
             return oldValue;
+        }
+
+        public final class MapEntry implements Entry<K, Integer>
+        {
+            private final K k;
+            private final int v;
+
+            public MapEntry(final K k, final int v)
+            {
+                this.k = k;
+                this.v = v;
+            }
+
+            public K getKey()
+            {
+                return k;
+            }
+
+            public Integer getValue()
+            {
+                return v;
+            }
+
+            public Integer setValue(final Integer value)
+            {
+                return Object2IntHashMap.this.put(k, value);
+            }
+
+            @DoNotSub public int hashCode()
+            {
+                return getKey().hashCode() ^ Integer.hashCode(getIntValue());
+            }
+
+            @DoNotSub public boolean equals(final Object o)
+            {
+                if (!(o instanceof Map.Entry))
+                {
+                    return false;
+                }
+
+                @SuppressWarnings("rawtypes") final Entry e = (Entry)o;
+
+                return (e.getKey() != null && e.getValue() != null) && (e.getKey().equals(k) && e.getValue().equals(v));
+            }
+
+            public String toString()
+            {
+                return k + "=" + v;
+            }
         }
     }
 }

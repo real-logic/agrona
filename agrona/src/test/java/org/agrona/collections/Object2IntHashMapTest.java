@@ -445,49 +445,52 @@ public class Object2IntHashMapTest
     @Test
     public void testToArray()
     {
-        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
-        cut.put("a", 1);
-        cut.put("b", 2);
-        cut.put("c", 3);
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
 
-        final Object[] array = cut.entrySet().toArray();
+        final Object[] array = map.entrySet().toArray();
         for (final Object entry : array)
         {
-            cut.remove(((Entry<String, Integer>)entry).getKey());
+            map.remove(((Entry<?, ?>)entry).getKey());
         }
-        assertTrue(cut.isEmpty());
+
+        assertTrue(map.isEmpty());
     }
 
     @Test
     public void testToArrayTyped()
     {
-        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
-        cut.put("a", 1);
-        cut.put("b", 2);
-        cut.put("c", 3);
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
 
-        final Entry[] type = new Entry[1];
-        final Entry[] array = cut.entrySet().toArray(type);
-        for (final Entry entry : array)
+        final Entry<?, ?>[] type = new Entry[1];
+        final Entry<?, ?>[] array = map.entrySet().toArray(type);
+        for (final Entry<?, ?> entry : array)
         {
-            cut.remove(((Entry<String, Integer>)entry).getKey());
+            map.remove(entry.getKey());
         }
-        assertTrue(cut.isEmpty());
+
+        assertTrue(map.isEmpty());
     }
 
     @Test
     public void testToArrayWithArrayListConstructor()
     {
-        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
-        cut.put("a", 1);
-        cut.put("b", 2);
-        cut.put("c", 3);
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
 
-        final List<Map.Entry<String, Integer>> list = new ArrayList<>(cut.entrySet());
+        final List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
         for (final Map.Entry<String, Integer> entry : list)
         {
-            cut.remove(entry.getKey());
+            map.remove(entry.getKey());
         }
-        assertTrue(cut.isEmpty());
+
+        assertTrue(map.isEmpty());
     }
 }

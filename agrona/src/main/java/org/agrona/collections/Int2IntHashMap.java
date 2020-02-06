@@ -861,49 +861,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         private Entry<Integer, Integer> allocateDuplicateEntry()
         {
-            final int k = getIntKey();
-            final int v = getIntValue();
-
-            return new Entry<Integer, Integer>()
-            {
-                public Integer getKey()
-                {
-                    return k;
-                }
-
-                public Integer getValue()
-                {
-                    return v;
-                }
-
-                public Integer setValue(final Integer value)
-                {
-                    return Int2IntHashMap.this.put(k, value.intValue());
-                }
-
-                @DoNotSub public int hashCode()
-                {
-                    return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
-                }
-
-                @DoNotSub public boolean equals(final Object o)
-                {
-                    if (!(o instanceof Entry))
-                    {
-                        return false;
-                    }
-
-                    final Map.Entry<?, ?> e = (Entry<?, ?>)o;
-
-                    return (e.getKey() != null && e.getValue() != null) &&
-                        (e.getKey().equals(k) && e.getValue().equals(v));
-                }
-
-                public String toString()
-                {
-                    return k + "=" + v;
-                }
-            };
+            return new MapEntry(getIntKey(), getIntValue());
         }
 
         /**
@@ -932,6 +890,55 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             final Entry<?, ?> that = (Entry<?, ?>)o;
 
             return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
+        }
+
+        public final class MapEntry implements Entry<Integer, Integer>
+        {
+            private final int k;
+            private final int v;
+
+            public MapEntry(final int k, final int v)
+            {
+                this.k = k;
+                this.v = v;
+            }
+
+            public Integer getKey()
+            {
+                return k;
+            }
+
+            public Integer getValue()
+            {
+                return v;
+            }
+
+            public Integer setValue(final Integer value)
+            {
+                return Int2IntHashMap.this.put(k, value.intValue());
+            }
+
+            @DoNotSub public int hashCode()
+            {
+                return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
+            }
+
+            @DoNotSub public boolean equals(final Object o)
+            {
+                if (!(o instanceof Map.Entry))
+                {
+                    return false;
+                }
+
+                final Entry<?, ?> e = (Entry<?, ?>)o;
+
+                return (e.getKey() != null && e.getValue() != null) && (e.getKey().equals(k) && e.getValue().equals(v));
+            }
+
+            public String toString()
+            {
+                return k + "=" + v;
+            }
         }
     }
 
@@ -1106,22 +1113,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         /**
          * {@inheritDoc}
          */
-        @Override
         public Object[] toArray()
         {
-            final Object[] array = new Object[size()];
-            return toArray(array);
+            return toArray(new Object[size()]);
         }
 
         /**
          * {@inheritDoc}
          */
-        @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a)
         {
-            final T[] array = a.length >= size ? a : (T[])java.lang.reflect.Array
-                            .newInstance(a.getClass().getComponentType(), size);
+            final T[] array = a.length >= size ?
+                a : (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
             final EntryIterator it = iterator();
+
             for (@DoNotSub int i = 0; i < array.length; i++)
             {
                 if (it.hasNext())
@@ -1135,6 +1141,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                     break;
                 }
             }
+
             return array;
         }
     }

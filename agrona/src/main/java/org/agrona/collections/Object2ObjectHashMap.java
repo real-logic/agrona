@@ -652,50 +652,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
         private Entry<K, V> allocateDuplicateEntry()
         {
-            final K k = getKey();
-            final V v = getValue();
-
-            return new Entry<K, V>()
-            {
-                public K getKey()
-                {
-                    return k;
-                }
-
-                public V getValue()
-                {
-                    return v;
-                }
-
-                public V setValue(final V value)
-                {
-                    return Object2ObjectHashMap.this.put(k, value);
-                }
-
-                public int hashCode()
-                {
-                    final V v = getValue();
-                    return getKey().hashCode() ^ (v != null ? v.hashCode() : 0);
-                }
-
-                public boolean equals(final Object o)
-                {
-                    if (!(o instanceof Entry))
-                    {
-                        return false;
-                    }
-
-                    final Entry<?, ?> e = (Entry<?, ?>)o;
-
-                    return (e.getKey() != null && e.getKey().equals(k)) &&
-                        ((e.getValue() == null && v == null) || e.getValue().equals(v));
-                }
-
-                public String toString()
-                {
-                    return k + "=" + v;
-                }
-            };
+            return new MapEntry(getKey(), getValue());
         }
 
         /**
@@ -723,6 +680,57 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             final Entry<?, ?> that = (Entry<?, ?>)o;
 
             return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
+        }
+
+        public final class MapEntry implements Entry<K, V>
+        {
+            private final K k;
+            private final V v;
+
+            public MapEntry(final K k, final V v)
+            {
+                this.k = k;
+                this.v = v;
+            }
+
+            public K getKey()
+            {
+                return k;
+            }
+
+            public V getValue()
+            {
+                return v;
+            }
+
+            public V setValue(final V value)
+            {
+                return Object2ObjectHashMap.this.put(k, value);
+            }
+
+            public int hashCode()
+            {
+                final V v = getValue();
+                return getKey().hashCode() ^ (v != null ? v.hashCode() : 0);
+            }
+
+            public boolean equals(final Object o)
+            {
+                if (!(o instanceof Map.Entry))
+                {
+                    return false;
+                }
+
+                final Entry<?, ?> e = (Entry<?, ?>)o;
+
+                return (e.getKey() != null && e.getKey().equals(k)) &&
+                    ((e.getValue() == null && v == null) || e.getValue().equals(v));
+            }
+
+            public String toString()
+            {
+                return k + "=" + v;
+            }
         }
     }
 
@@ -875,22 +883,21 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         /**
          * {@inheritDoc}
          */
-        @Override
         public Object[] toArray()
         {
-            final Object[] array = new Object[size()];
-            return toArray(array);
+            return toArray(new Object[size()]);
         }
 
         /**
          * {@inheritDoc}
          */
-        @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a)
         {
-            final T[] array = a.length >= size ? a : (T[])java.lang.reflect.Array
-                            .newInstance(a.getClass().getComponentType(), size);
+            final T[] array = a.length >= size ?
+                a : (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
             final EntryIterator it = iterator();
+
             for (@DoNotSub int i = 0; i < array.length; i++)
             {
                 if (it.hasNext())
@@ -904,6 +911,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                     break;
                 }
             }
+
             return array;
         }
     }
