@@ -15,11 +15,13 @@
  */
 package org.agrona.collections;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -437,5 +439,37 @@ public class Object2IntHashMapTest
 
         final Object2IntHashMap<String> mapCopy = new Object2IntHashMap<>(objectToIntMap);
         assertThat(mapCopy, is(objectToIntMap));
+    }
+
+    @Test
+    public void testToArray()
+    {
+        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
+        cut.put("a", 1);
+        cut.put("b", 2);
+        cut.put("c", 3);
+
+        Map.Entry<String, Integer>[] array = cut.entrySet().toArray();
+        for (Map.Entry<String, Integer> entry : array)
+        {
+            cut.remove(entry.getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
+    public void testToArrayWithArrayListConstructor()
+    {
+        final Object2IntHashMap<String> cut = new Object2IntHashMap<>(-127);
+        cut.put("a", 1);
+        cut.put("b", 2);
+        cut.put("c", 3);
+
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(cut.entrySet());
+        for (Map.Entry<String, Integer> entry : list)
+        {
+            cut.remove(entry.getKey());
+        }
+        assertTrue(cut.isEmpty());
     }
 }

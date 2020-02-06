@@ -659,6 +659,38 @@ public class Int2IntHashMapTest
         assertEquals(expected, map);
     }
 
+    @Test
+    public void testToArray()
+    {
+        final Int2IntHashMap cut = new Int2IntHashMap(-127);
+        cut.put(1, 11);
+        cut.put(2, 12);
+        cut.put(3, 13);
+
+        Map.Entry<Integer, Integer>[] array = cut.entrySet().toArray();
+        for (Map.Entry<Integer, Integer> entry : array)
+        {
+            cut.remove(entry.getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
+    public void testToArrayWithArrayListConstructor()
+    {
+        final Int2IntHashMap cut = new Int2IntHashMap(-127);
+        cut.put(1, 11);
+        cut.put(2, 12);
+        cut.put(3, 13);
+
+        List<Map.Entry<Integer, Integer>> list = new ArrayList<>(cut.entrySet());
+        for (Map.Entry<Integer, Integer> entry : list)
+        {
+            cut.remove(entry.getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());

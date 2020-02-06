@@ -774,6 +774,22 @@ public class Int2ObjectHashMap<V>
             final V value = getMapped(key);
             return value != null && value.equals(mapNullValue(entry.getValue()));
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map.Entry<Integer, V>[] toArray()
+        {
+            final Entry<Integer, V>[] array = new Map.Entry[size()];
+            final EntryIterator it = iterator();
+            for (@DoNotSub int i = 0; i < array.length; i++)
+            {
+                it.next();
+                array[i] = it.allocateDuplicateEntry();
+            }
+            return array;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -1102,5 +1102,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
             return value != null && value.equals(entry.getValue());
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map.Entry<Integer, Integer>[] toArray()
+        {
+            final Entry<Integer, Integer>[] array = new Map.Entry[size()];
+            final EntryIterator it = iterator();
+            for (@DoNotSub int i = 0; i < array.length; i++)
+            {
+                it.next();
+                array[i] = it.allocateDuplicateEntry();
+            }
+            return array;
+        }
     }
 }
