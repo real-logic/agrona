@@ -774,6 +774,41 @@ public class Int2ObjectHashMap<V>
             final V value = getMapped(key);
             return value != null && value.equals(mapNullValue(entry.getValue()));
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object[] toArray()
+        {
+            final Object[] array = new Object[size()];
+            return toArray(array);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public <T> T[] toArray(final T[] a)
+        {
+            final T[] array = a.length >= size ? a : (T[])java.lang.reflect.Array
+                            .newInstance(a.getClass().getComponentType(), size);
+            final EntryIterator it = iterator();
+            for (@DoNotSub int i = 0; i < array.length; i++)
+            {
+                if (it.hasNext())
+                {
+                    it.next();
+                    array[i] = (T)it.allocateDuplicateEntry();
+                }
+                else
+                {
+                    array[i] = null;
+                    break;
+                }
+            }
+            return array;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

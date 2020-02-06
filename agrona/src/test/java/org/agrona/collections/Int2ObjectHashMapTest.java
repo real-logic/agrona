@@ -15,11 +15,13 @@
  */
 package org.agrona.collections;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -423,5 +425,54 @@ public class Int2ObjectHashMapTest
         assertThat(map.containsKey(-1), is(false));
 
         assertThat(map.size(), is(1));
+    }
+
+    @Test
+    public void testToArray()
+    {
+        final Int2ObjectHashMap<String> cut = new Int2ObjectHashMap<>();
+        cut.put(1, "a");
+        cut.put(2, "b");
+        cut.put(3, "c");
+
+        final Object[] array = cut.entrySet().toArray();
+        for (final Object entry : array)
+        {
+            cut.remove(((Map.Entry<Integer, String>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
+    public void testToArrayTyped()
+    {
+        final Int2ObjectHashMap<String> cut = new Int2ObjectHashMap<>();
+        cut.put(1, "a");
+        cut.put(2, "b");
+        cut.put(3, "c");
+
+        final Map.Entry[] type = new Map.Entry[1];
+        final Map.Entry[] array = cut.entrySet().toArray(type);
+        for (final Map.Entry entry : array)
+        {
+            cut.remove(((Map.Entry<Integer, String>)entry).getKey());
+        }
+        assertTrue(cut.isEmpty());
+    }
+
+    @Test
+    public void testToArrayWithArrayListConstructor()
+    {
+        final Int2ObjectHashMap<String> cut = new Int2ObjectHashMap<>();
+        cut.put(1, "a");
+        cut.put(2, "b");
+        cut.put(3, "c");
+
+        final List<Map.Entry<Integer, String>> list = new ArrayList<>(cut.entrySet());
+        for (final Map.Entry<Integer, String> entry : list)
+        {
+            cut.remove(entry.getKey());
+        }
+        assertTrue(cut.isEmpty());
     }
 }
