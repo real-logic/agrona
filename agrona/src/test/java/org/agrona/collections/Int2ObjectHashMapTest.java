@@ -435,8 +435,8 @@ public class Int2ObjectHashMapTest
         cut.put(2, "b");
         cut.put(3, "c");
 
-        Map.Entry<Integer, String>[] array = cut.entrySet().toArray();
-        for (Map.Entry<Integer, String> entry : array)
+        final Map.Entry<Integer, String>[] array = cut.entrySet().toArray();
+        for (final Map.Entry<Integer, String> entry : array)
         {
             cut.remove(entry.getKey());
         }
@@ -451,8 +451,8 @@ public class Int2ObjectHashMapTest
         cut.put(2, "b");
         cut.put(3, "c");
 
-        List<Map.Entry<Integer, String>> list = new ArrayList<>(cut.entrySet());
-        for (Map.Entry<Integer, String> entry : list)
+        final List<Map.Entry<Integer, String>> list = new ArrayList<>(cut.entrySet());
+        for (final Map.Entry<Integer, String> entry : list)
         {
             cut.remove(entry.getKey());
         }

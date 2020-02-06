@@ -667,8 +667,8 @@ public class Int2IntHashMapTest
         cut.put(2, 12);
         cut.put(3, 13);
 
-        Map.Entry<Integer, Integer>[] array = cut.entrySet().toArray();
-        for (Map.Entry<Integer, Integer> entry : array)
+        final Map.Entry<Integer, Integer>[] array = cut.entrySet().toArray();
+        for (final Map.Entry<Integer, Integer> entry : array)
         {
             cut.remove(entry.getKey());
         }
@@ -683,8 +683,8 @@ public class Int2IntHashMapTest
         cut.put(2, 12);
         cut.put(3, 13);
 
-        List<Map.Entry<Integer, Integer>> list = new ArrayList<>(cut.entrySet());
-        for (Map.Entry<Integer, Integer> entry : list)
+        final List<Map.Entry<Integer, Integer>> list = new ArrayList<>(cut.entrySet());
+        for (final Map.Entry<Integer, Integer> entry : list)
         {
             cut.remove(entry.getKey());
         }

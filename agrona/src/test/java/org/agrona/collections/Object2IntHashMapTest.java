@@ -449,8 +449,8 @@ public class Object2IntHashMapTest
         cut.put("b", 2);
         cut.put("c", 3);
 
-        Map.Entry<String, Integer>[] array = cut.entrySet().toArray();
-        for (Map.Entry<String, Integer> entry : array)
+        final Map.Entry<String, Integer>[] array = cut.entrySet().toArray();
+        for (final Map.Entry<String, Integer> entry : array)
         {
             cut.remove(entry.getKey());
         }
@@ -465,8 +465,8 @@ public class Object2IntHashMapTest
         cut.put("b", 2);
         cut.put("c", 3);
 
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(cut.entrySet());
-        for (Map.Entry<String, Integer> entry : list)
+        final List<Map.Entry<String, Integer>> list = new ArrayList<>(cut.entrySet());
+        for (final Map.Entry<String, Integer> entry : list)
         {
             cut.remove(entry.getKey());
         }

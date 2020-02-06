@@ -16,7 +16,8 @@ import org.junit.jupiter.api.Test;
  *
  * @author OmniBene, s.r.o.
  */
-public class Object2ObjectHashMapTest {
+public class Object2ObjectHashMapTest
+{
 
     @Test
     public void testToArray()
@@ -26,8 +27,8 @@ public class Object2ObjectHashMapTest {
         cut.put("b", "valA");
         cut.put("c", "valA");
 
-        Map.Entry<String, String>[] array = cut.entrySet().toArray();
-        for (Map.Entry<String, String> entry : array)
+        final Map.Entry<String, String>[] array = cut.entrySet().toArray();
+        for (final Map.Entry<String, String> entry : array)
         {
             cut.remove(entry.getKey());
         }
@@ -42,8 +43,8 @@ public class Object2ObjectHashMapTest {
         cut.put("b", "valA");
         cut.put("c", "valA");
 
-        List<Entry<String, String>> list = new ArrayList<>(cut.entrySet());
-        for (Map.Entry<String, String> entry : list)
+        final List<Entry<String, String>> list = new ArrayList<>(cut.entrySet());
+        for (final Map.Entry<String, String> entry : list)
         {
             cut.remove(entry.getKey());
         }
