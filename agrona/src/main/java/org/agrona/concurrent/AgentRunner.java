@@ -257,7 +257,12 @@ public class AgentRunner implements Runnable, AutoCloseable
                 catch (final InterruptedException ignore)
                 {
                     failAction(closeFailAction, thread, " due to thread interrupt");
+                    if (!isClosed && !thread.isInterrupted())
+                    {
+                        thread.interrupt();
+                    }
                     Thread.currentThread().interrupt();
+                    Thread.yield();
                     return;
                 }
             }
