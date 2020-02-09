@@ -29,7 +29,6 @@ import static org.mockito.Mockito.*;
 
 class IoUtilTest
 {
-
     @TempDir
     Path tempDir;
 
@@ -82,7 +81,7 @@ class IoUtilTest
     }
 
     @Test
-    void deleteIgnoreFailuresShouldThrowExceptionIfDeleteOfAFileFails() throws IOException
+    void deleteIgnoreFailuresShouldThrowExceptionIfDeleteOfAFileFails()
     {
         final File file = mock(File.class);
         when(file.exists()).thenReturn(true);
@@ -92,7 +91,7 @@ class IoUtilTest
     }
 
     @Test
-    void deleteIgnoreFailuresShouldThrowExceptionIfDeleteOfADirectoryFails() throws IOException
+    void deleteIgnoreFailuresShouldThrowExceptionIfDeleteOfADirectoryFails()
     {
         final File dir = mock(File.class);
         when(dir.exists()).thenReturn(true);
@@ -159,7 +158,7 @@ class IoUtilTest
     }
 
     @Test
-    void deleteErrorHandlerShouldCatchExceptionIfDeleteOfAFileFails() throws IOException
+    void deleteErrorHandlerShouldCatchExceptionIfDeleteOfAFileFails()
     {
         final ErrorHandler errorHandler = mock(ErrorHandler.class);
         final File file = mock(File.class);
@@ -172,7 +171,7 @@ class IoUtilTest
     }
 
     @Test
-    void deleteErrorHandlerShouldCatchExceptionIfDeleteOfADirectoryFails() throws IOException
+    void deleteErrorHandlerShouldCatchExceptionIfDeleteOfADirectoryFails()
     {
         final ErrorHandler errorHandler = mock(ErrorHandler.class);
         final File dir = mock(File.class);
@@ -277,5 +276,4 @@ class IoUtilTest
 
         verify(errorHandler).onError(isA(DirectoryNotEmptyException.class));
     }
-
 }
