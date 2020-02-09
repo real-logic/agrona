@@ -167,6 +167,39 @@ public final class IoUtil
     }
 
     /**
+     * Recursively delete a file or directory tree.
+     *
+     * @param file         to be deleted.
+     * @param errorHandler to delegate errors to on exception.
+     */
+    public static void delete(final File file, final ErrorHandler errorHandler)
+    {
+        if (file.isDirectory())
+        {
+            final File[] files = file.listFiles();
+            if (null != files)
+            {
+                for (final File f : files)
+                {
+                    delete(f, errorHandler);
+                }
+            }
+        }
+
+        if (!file.delete())
+        {
+            try
+            {
+                Files.delete(file.toPath());
+            }
+            catch (final Throwable ex)
+            {
+                errorHandler.onError(ex);
+            }
+        }
+    }
+
+    /**
      * Create a directory if it doesn't already exist.
      *
      * @param directory        the directory which definitely exists after this method call.
@@ -223,6 +256,27 @@ public final class IoUtil
             catch (final IOException ex)
             {
                 LangUtil.rethrowUnchecked(ex);
+            }
+        }
+    }
+
+    /**
+     * Delete file only if it already exists.
+     *
+     * @param file         to delete.
+     * @param errorHandler to delegate error to on exception.
+     */
+    public static void deleteIfExists(final File file, final ErrorHandler errorHandler)
+    {
+        if (file.exists())
+        {
+            try
+            {
+                Files.delete(file.toPath());
+            }
+            catch (final Throwable ex)
+            {
+                errorHandler.onError(ex);
             }
         }
     }
