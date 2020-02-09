@@ -29,9 +29,7 @@ import java.util.function.BiConsumer;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.READ;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 
 /**
  * Collection of IO utilities for dealing with files, especially mapping and un-mapping.
@@ -141,6 +139,11 @@ public final class IoUtil
      */
     public static void delete(final File file, final boolean ignoreFailures)
     {
+        if (!file.exists())
+        {
+            return;
+        }
+
         if (file.isDirectory())
         {
             final File[] files = file.listFiles();
@@ -174,6 +177,11 @@ public final class IoUtil
      */
     public static void delete(final File file, final ErrorHandler errorHandler)
     {
+        if (!file.exists())
+        {
+            return;
+        }
+
         if (file.isDirectory())
         {
             final File[] files = file.listFiles();
@@ -247,16 +255,13 @@ public final class IoUtil
      */
     public static void deleteIfExists(final File file)
     {
-        if (file.exists())
+        try
         {
-            try
-            {
-                Files.delete(file.toPath());
-            }
-            catch (final IOException ex)
-            {
-                LangUtil.rethrowUnchecked(ex);
-            }
+            Files.deleteIfExists(file.toPath());
+        }
+        catch (final IOException ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
         }
     }
 
@@ -268,16 +273,13 @@ public final class IoUtil
      */
     public static void deleteIfExists(final File file, final ErrorHandler errorHandler)
     {
-        if (file.exists())
+        try
         {
-            try
-            {
-                Files.delete(file.toPath());
-            }
-            catch (final Throwable ex)
-            {
-                errorHandler.onError(ex);
-            }
+            Files.deleteIfExists(file.toPath());
+        }
+        catch (final Throwable ex)
+        {
+            errorHandler.onError(ex);
         }
     }
 
