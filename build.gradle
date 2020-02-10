@@ -135,12 +135,6 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'io.freefair.javadoc-links'
 
-    group = agronaGroup
-    version = agronaVersion
-
-    jar.enabled = true
-    checkstyle.toolVersion = "${checkstyleVersion}"
-
     dependencies {
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
         testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
@@ -148,6 +142,11 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     }
+
+    group = agronaGroup
+    version = agronaVersion
+
+    checkstyle.toolVersion = "${checkstyleVersion}"
 
     tasks.withType(Sign) {
         onlyIf {
