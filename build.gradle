@@ -261,7 +261,6 @@ project(':agrona') {
     }
 
     javadoc {
-        source += sourceSets.main.allJava
         source += sourceSets.generated.allJava
     }
 
