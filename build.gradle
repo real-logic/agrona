@@ -157,7 +157,7 @@ subprojects {
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     }
 
-    compileJava {
+    tasks.withType(JavaCompile) {
         if (JavaVersion.current().isJava9Compatible()) {
             options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
@@ -170,14 +170,6 @@ subprojects {
         }
         else {
             logger.warn("fork options for compilation are disabled because JAVA_HOME not set")
-        }
-        options.encoding = 'UTF-8'
-        options.deprecation = true
-    }
-
-    compileTestJava {
-        if (JavaVersion.current().isJava9Compatible()) {
-            options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         }
         options.encoding = 'UTF-8'
         options.deprecation = true
@@ -234,8 +226,6 @@ project(':agrona') {
 
     compileGeneratedJava {
         dependsOn 'generatePrimitiveSpecialisations'
-        options.encoding = 'UTF-8'
-        options.deprecation = true
         classpath += sourceSets.main.runtimeClasspath
     }
 
