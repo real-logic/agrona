@@ -48,8 +48,6 @@ if (null == System.getenv("JAVA_HOME")) {
 }
 
 ext {
-    group = agronaGroup
-    version = agronaVersion
     isReleaseVersion = !version.endsWith('-SNAPSHOT')
     releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
     snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -127,12 +125,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
-    tasks.withType(Sign) {
-        onlyIf {
-            isReleaseVersion && gradle.taskGraph.hasTask(tasks.publish)
-        }
-    }
 }
 
 jar.enabled = false
@@ -155,6 +147,17 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    }
+
+    tasks.withType(Sign) {
+        onlyIf {
+            isReleaseVersion && gradle.taskGraph.hasTask(tasks.publish)
+        }
+    }
+
+    tasks.withType(Jar) {
+        enabled = true
+        includeEmptyDirs = false
     }
 
     tasks.withType(JavaCompile) {
