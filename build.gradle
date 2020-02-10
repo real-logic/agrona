@@ -158,7 +158,7 @@ subprojects {
     }
 
     compileJava {
-        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
+        if (JavaVersion.current().isJava9Compatible()) {
             options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
@@ -176,7 +176,7 @@ subprojects {
     }
 
     compileTestJava {
-        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
+        if (JavaVersion.current().isJava9Compatible()) {
             options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         }
         options.encoding = 'UTF-8'
@@ -184,7 +184,7 @@ subprojects {
     }
 
     test {
-        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_9.ordinal()) {
+        if (JavaVersion.current().isJava9Compatible()) {
             jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
             jvmArgs('--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED')
@@ -206,7 +206,7 @@ subprojects {
         options.encoding = 'UTF-8'
         options.docEncoding = 'UTF-8'
         options.charSet = 'UTF-8'
-        if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_1_10.ordinal()) {
+        if (JavaVersion.current().isJava9Compatible()) {
             options.addBooleanOption 'html5', true
         }
     }
