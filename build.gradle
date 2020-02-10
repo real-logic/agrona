@@ -218,6 +218,7 @@ project(':agrona') {
     apply plugin: 'biz.aQute.bnd.builder'
 
     dependencies {
+        testImplementation files('build/classes/java/generated')
         testImplementation("com.google.guava:guava-testlib:${guavaTestLib}") {
             exclude group: 'junit'
         }
@@ -229,10 +230,6 @@ project(':agrona') {
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
         generated.java.srcDir generatedDir
-        test {
-            compileClasspath += generated.output
-            runtimeClasspath += generated.output
-        }
     }
 
     compileGeneratedJava {
