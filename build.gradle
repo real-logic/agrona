@@ -278,17 +278,15 @@ project(':agrona') {
         source += sourceSets.generated.allJava
     }
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        archiveClassifier.set 'javadoc'
-        from javadoc.destinationDir
+    java {
+        withSourcesJar()
+        withJavadocJar()
     }
 
     publishing {
         publications {
             agrona(MavenPublication) {
                 from components.java
-                artifact sourcesJar
-                artifact javadocJar
                 pom(projectPom)
             }
         }
