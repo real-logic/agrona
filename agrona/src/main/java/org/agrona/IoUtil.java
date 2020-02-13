@@ -598,14 +598,7 @@ public final class IoUtil
 
     private static String getFileMode(final FileChannel.MapMode mode)
     {
-        if (mode == READ_ONLY)
-        {
-            return "r";
-        }
-        else
-        {
-            return "rw";
-        }
+        return mode == READ_ONLY ? "r" : "rw";
     }
 
     private static int getMode(final FileChannel.MapMode mode)

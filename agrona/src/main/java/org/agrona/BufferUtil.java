@@ -57,6 +57,7 @@ public final class BufferUtil
             MethodHandle getCleaner = null;
             MethodHandle clean = null;
             final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
             try
             {
                 invokeCleaner = lookup.findVirtual(
@@ -67,11 +68,11 @@ public final class BufferUtil
                 // JDK 8 fallback
                 final Class<?> directBuffer = Class.forName("sun.nio.ch.DirectBuffer");
                 final Class<?> cleaner = Class.forName("sun.misc.Cleaner");
-                getCleaner =
-                    lookup.findVirtual(directBuffer, "cleaner", methodType(cleaner));
+                getCleaner = lookup.findVirtual(directBuffer, "cleaner", methodType(cleaner));
                 clean = lookup.findVirtual(cleaner, "clean", methodType(void.class));
 
             }
+
             INVOKE_CLEANER = invokeCleaner;
             GET_CLEANER = getCleaner;
             CLEAN = clean;
@@ -199,11 +200,10 @@ public final class BufferUtil
      */
     public static void free(final DirectBuffer buffer)
     {
-        if (null == buffer)
+        if (null != buffer)
         {
-            return;
+            free(buffer.byteBuffer());
         }
-        free(buffer.byteBuffer());
     }
 
     /**
@@ -215,28 +215,27 @@ public final class BufferUtil
      */
     public static void free(final ByteBuffer buffer)
     {
-        if (null == buffer || !buffer.isDirect())
+        if (null != buffer && buffer.isDirect())
         {
-            return;
-        }
-        try
-        {
-            if (null != INVOKE_CLEANER) // JDK 9+
+            try
             {
-                INVOKE_CLEANER.invokeExact(UNSAFE, buffer);
-            }
-            else // JDK 8
-            {
-                final Object cleaner = GET_CLEANER.invoke(buffer);
-                if (null != cleaner)
+                if (null != INVOKE_CLEANER) // JDK 9+
                 {
-                    CLEAN.invoke(cleaner);
+                    INVOKE_CLEANER.invokeExact(UNSAFE, buffer);
+                }
+                else // JDK 8
+                {
+                    final Object cleaner = GET_CLEANER.invoke(buffer);
+                    if (null != cleaner)
+                    {
+                        CLEAN.invoke(cleaner);
+                    }
                 }
             }
-        }
-        catch (final Throwable throwable)
-        {
-            LangUtil.rethrowUnchecked(throwable);
+            catch (final Throwable throwable)
+            {
+                LangUtil.rethrowUnchecked(throwable);
+            }
         }
     }
 }
