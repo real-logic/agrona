@@ -18,7 +18,8 @@ package org.agrona;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -48,17 +49,20 @@ public final class IoUtil
 
     static class MappingMethods
     {
-        static final Method MAP_ADDRESS;
-        static final Method UNMAP_ADDRESS;
+        static final MethodHandle MAP_ADDRESS;
+        static final MethodHandle UNMAP_ADDRESS;
 
         static
         {
             try
             {
                 final Class<?> fileChannelClass = Class.forName("sun.nio.ch.FileChannelImpl");
+                final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-                MAP_ADDRESS = getFileChannelMethod(fileChannelClass, "map0", int.class, long.class, long.class);
-                UNMAP_ADDRESS = getFileChannelMethod(fileChannelClass, "unmap0", long.class, long.class);
+                MAP_ADDRESS = lookup.unreflect(
+                    getFileChannelMethod(fileChannelClass, "map0", int.class, long.class, long.class));
+                UNMAP_ADDRESS = lookup.unreflect(
+                    getFileChannelMethod(fileChannelClass, "unmap0", long.class, long.class));
             }
             catch (final Exception ex)
             {
@@ -514,7 +518,7 @@ public final class IoUtil
         {
             return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
         }
-        catch (final IllegalAccessException | InvocationTargetException ex)
+        catch (final Throwable ex)
         {
             LangUtil.rethrowUnchecked(ex);
         }
@@ -533,9 +537,9 @@ public final class IoUtil
     {
         try
         {
-            MappingMethods.UNMAP_ADDRESS.invoke(fileChannel, address, length);
+            MappingMethods.UNMAP_ADDRESS.invoke(address, length);
         }
-        catch (final IllegalAccessException | InvocationTargetException ex)
+        catch (final Throwable ex)
         {
             LangUtil.rethrowUnchecked(ex);
         }
