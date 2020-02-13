@@ -224,6 +224,10 @@ project(':agrona') {
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
         generated.java.srcDir generatedDir
+        test {
+            compileClasspath += generated.output
+            runtimeClasspath += generated.output
+        }
     }
 
     compileGeneratedJava {
