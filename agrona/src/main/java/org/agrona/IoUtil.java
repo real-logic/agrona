@@ -50,7 +50,6 @@ public final class IoUtil
     {
         static final Method MAP_ADDRESS;
         static final Method UNMAP_ADDRESS;
-        static final Method UNMAP_BUFFER;
 
         static
         {
@@ -60,7 +59,6 @@ public final class IoUtil
 
                 MAP_ADDRESS = getFileChannelMethod(fileChannelClass, "map0", int.class, long.class, long.class);
                 UNMAP_ADDRESS = getFileChannelMethod(fileChannelClass, "unmap0", long.class, long.class);
-                UNMAP_BUFFER = getFileChannelMethod(fileChannelClass, "unmap", MappedByteBuffer.class);
             }
             catch (final Exception ex)
             {
@@ -493,20 +491,11 @@ public final class IoUtil
      * Unmap a {@link MappedByteBuffer} without waiting for the next GC cycle.
      *
      * @param buffer to be unmapped.
+     * @see BufferUtil#free(ByteBuffer)
      */
     public static void unmap(final MappedByteBuffer buffer)
     {
-        if (null != buffer)
-        {
-            try
-            {
-                MappingMethods.UNMAP_BUFFER.invoke(null, buffer);
-            }
-            catch (final Exception ex)
-            {
-                LangUtil.rethrowUnchecked(ex);
-            }
-        }
+        BufferUtil.free(buffer);
     }
 
     /**
