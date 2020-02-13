@@ -15,9 +15,14 @@
  */
 package org.agrona;
 
-import java.nio.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.invoke.MethodType.methodType;
 import static org.agrona.BitUtil.isPowerOfTwo;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
@@ -26,6 +31,9 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public final class BufferUtil
 {
+    private static final MethodHandle INVOKE_CLEANER;
+    private static final MethodHandle GET_CLEANER;
+    private static final MethodHandle CLEAN;
     public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
     public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
     public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
@@ -44,6 +52,29 @@ public final class BufferUtil
                 ByteBuffer.class.getDeclaredField("offset"));
 
             BYTE_BUFFER_ADDRESS_FIELD_OFFSET = UNSAFE.objectFieldOffset(Buffer.class.getDeclaredField("address"));
+
+            MethodHandle invokeCleaner = null;
+            MethodHandle getCleaner = null;
+            MethodHandle clean = null;
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+            try
+            {
+                invokeCleaner = lookup.findVirtual(
+                    UNSAFE.getClass(), "invokeCleaner", methodType(void.class, ByteBuffer.class));
+            }
+            catch (final NoSuchMethodException ex)
+            {
+                // JDK 8 fallback
+                final Class<?> directBuffer = Class.forName("sun.nio.ch.DirectBuffer");
+                final Class<?> cleaner = Class.forName("sun.misc.Cleaner");
+                getCleaner =
+                    lookup.findVirtual(directBuffer, "cleaner", methodType(cleaner));
+                clean = lookup.findVirtual(cleaner, "clean", methodType(void.class));
+
+            }
+            INVOKE_CLEANER = invokeCleaner;
+            GET_CLEANER = getCleaner;
+            CLEAN = clean;
         }
         catch (final Exception ex)
         {
@@ -157,5 +188,55 @@ public final class BufferUtil
         buffer.position(offset);
 
         return buffer.slice();
+    }
+
+    /**
+     * Free the underlying direct {@link ByteBuffer} by invoking {@code Cleaner} on it. No op if {@code null} or if the
+     * underlying {@link ByteBuffer} non-direct.
+     *
+     * @param buffer to be freed
+     * @see ByteBuffer#isDirect()
+     */
+    public static void free(final DirectBuffer buffer)
+    {
+        if (null == buffer)
+        {
+            return;
+        }
+        free(buffer.byteBuffer());
+    }
+
+    /**
+     * Free direct {@link ByteBuffer} by invoking {@code Cleaner} on it. No op if {@code null} or non-direct
+     * {@link ByteBuffer}.
+     *
+     * @param buffer to be freed
+     * @see ByteBuffer#isDirect()
+     */
+    public static void free(final ByteBuffer buffer)
+    {
+        if (null == buffer || !buffer.isDirect())
+        {
+            return;
+        }
+        try
+        {
+            if (null != INVOKE_CLEANER) // JDK 9+
+            {
+                INVOKE_CLEANER.invokeExact(UNSAFE, buffer);
+            }
+            else // JDK 8
+            {
+                final Object cleaner = GET_CLEANER.invoke(buffer);
+                if (null != cleaner)
+                {
+                    CLEAN.invoke(cleaner);
+                }
+            }
+        }
+        catch (final Throwable throwable)
+        {
+            LangUtil.rethrowUnchecked(throwable);
+        }
     }
 }
