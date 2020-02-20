@@ -52,11 +52,21 @@ public class CountedErrorHandler implements ErrorHandler, AutoCloseable
         isClosed = true;
     }
 
+    /**
+     * Has this instance been closed.
+     *
+     * @return true if {@link #close()} has previously be called, otherwise false.
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
     public void onError(final Throwable throwable)
     {
         if (isClosed)
         {
-            throwable.printStackTrace();
+            throwable.printStackTrace(System.err);
         }
         else
         {
