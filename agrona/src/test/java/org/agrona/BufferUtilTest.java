@@ -15,7 +15,10 @@
  */
 package org.agrona;
 
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.mockito.InOrder;
 
 import java.nio.ByteBuffer;
 
@@ -24,6 +27,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.JRE.JAVA_9;
+import static org.mockito.Mockito.*;
 
 public class BufferUtilTest
 {
@@ -53,5 +58,82 @@ public class BufferUtilTest
         final long address = BufferUtil.address(byteBuffer);
         assertTrue(isAligned(address, CACHE_LINE_LENGTH));
         assertThat(byteBuffer.capacity(), is(capacity));
+    }
+
+    @Test
+    public void freeIsAnOpIfDirectBufferIsNull()
+    {
+        BufferUtil.free((DirectBuffer)null);
+    }
+
+    @Test
+    public void freeIsAnOpIfByteBufferIsNull()
+    {
+        BufferUtil.free((ByteBuffer)null);
+    }
+
+    @Test
+    public void freeIsAnOpIfByteBufferIsNotDirect()
+    {
+        final ByteBuffer buffer = mock(ByteBuffer.class);
+
+        BufferUtil.free(buffer);
+
+        verify(buffer).isDirect();
+        verifyNoMoreInteractions(buffer);
+    }
+
+    @Test
+    public void freeIsAnOpIfDirectBufferContainsNonDirectByteBuffer()
+    {
+        final DirectBuffer buffer = mock(DirectBuffer.class);
+        final ByteBuffer byteBuffer = mock(ByteBuffer.class);
+        when(buffer.byteBuffer()).thenReturn(byteBuffer);
+
+        BufferUtil.free(buffer);
+
+        final InOrder inOrder = inOrder(buffer, byteBuffer);
+        inOrder.verify(buffer).byteBuffer();
+        inOrder.verify(byteBuffer).isDirect();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void freeShouldReleaseByteBufferResources()
+    {
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+        buffer.put((byte)1);
+        buffer.put((byte)2);
+        buffer.put((byte)3);
+        buffer.position(0);
+
+        BufferUtil.free(buffer);
+    }
+
+    @Test
+    public void freeShouldReleaseDirectBufferResources()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(4));
+        buffer.setMemory(0, 4, (byte)111);
+
+        BufferUtil.free(buffer);
+    }
+
+    @Test
+    @EnabledForJreRange(min = JAVA_9)
+    public void freeThrowsIllegalArgumentExceptionIfByteBufferIsASlice()
+    {
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(4).slice();
+
+        assertThrows(IllegalArgumentException.class, () -> BufferUtil.free(buffer));
+    }
+
+    @Test
+    @EnabledForJreRange(min = JAVA_9)
+    public void freeThrowsIllegalArgumentExceptionIfByteBufferIsADuplicate()
+    {
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(4).duplicate();
+
+        assertThrows(IllegalArgumentException.class, () -> BufferUtil.free(buffer));
     }
 }

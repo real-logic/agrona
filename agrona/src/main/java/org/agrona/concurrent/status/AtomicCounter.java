@@ -31,7 +31,7 @@ public class AtomicCounter implements AutoCloseable
     private final int id;
     private final long addressOffset;
     private final byte[] byteArray;
-    private final CountersManager countersManager;
+    private CountersManager countersManager;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
@@ -74,6 +74,29 @@ public class AtomicCounter implements AutoCloseable
     public int id()
     {
         return id;
+    }
+
+    /**
+     * Disconnect from {@link CountersManager} if allocated so it can be closed without freeing the slot.
+     */
+    public void disconnectCountersManager()
+    {
+        countersManager = null;
+    }
+
+    /**
+     * Close counter and free the counter slot for reuse of connected to {@link CountersManager}.
+     */
+    public void close()
+    {
+        if (!isClosed)
+        {
+            isClosed = true;
+            if (null != countersManager)
+            {
+                countersManager.free(id);
+            }
+        }
     }
 
     /**
@@ -291,27 +314,13 @@ public class AtomicCounter implements AutoCloseable
         return updated;
     }
 
-    /**
-     * Free the counter slot for reuse.
-     */
-    public void close()
-    {
-        if (!isClosed)
-        {
-            isClosed = true;
-            if (null != countersManager)
-            {
-                countersManager.free(id);
-            }
-        }
-    }
-
     public String toString()
     {
         return "AtomicCounter{" +
             "isClosed=" + isClosed() +
             ", id=" + id +
             ", value=" + (isClosed() ? -1 : get()) +
+            ", countersManager=" + countersManager +
             '}';
     }
 }

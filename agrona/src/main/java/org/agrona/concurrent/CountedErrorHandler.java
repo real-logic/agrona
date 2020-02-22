@@ -23,10 +23,11 @@ import java.util.Objects;
 /**
  * An {@link ErrorHandler} which calls {@link AtomicCounter#increment()} before delegating the exception.
  */
-public class CountedErrorHandler implements ErrorHandler
+public class CountedErrorHandler implements ErrorHandler, AutoCloseable
 {
     private final ErrorHandler errorHandler;
     private final AtomicCounter errorCounter;
+    private volatile boolean isClosed;
 
     /**
      * Construct a counted error handler with a delegate and counter.
@@ -43,13 +44,38 @@ public class CountedErrorHandler implements ErrorHandler
         this.errorCounter = errorCounter;
     }
 
+    /**
+     * Close so that {@link #onError(Throwable)} will not delegate and instead print to {@link System#err}
+     */
+    public void close()
+    {
+        isClosed = true;
+    }
+
+    /**
+     * Has this instance been closed.
+     *
+     * @return true if {@link #close()} has previously be called, otherwise false.
+     */
+    public boolean isClosed()
+    {
+        return isClosed;
+    }
+
     public void onError(final Throwable throwable)
     {
-        if (!errorCounter.isClosed())
+        if (isClosed)
         {
-            errorCounter.increment();
+            throwable.printStackTrace(System.err);
         }
+        else
+        {
+            if (!errorCounter.isClosed())
+            {
+                errorCounter.increment();
+            }
 
-        errorHandler.onError(throwable);
+            errorHandler.onError(throwable);
+        }
     }
 }
