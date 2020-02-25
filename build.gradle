@@ -261,7 +261,7 @@ project(':agrona') {
     }
 
     task sourcesJar(type: Jar) {
-        archiveClassifier.set 'sources'
+        archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
     }
@@ -326,7 +326,7 @@ project(':agrona-agent') {
     jar.finalizedBy shadowJar
 
     task sourcesJar(type: Jar) {
-        archiveClassifier.set 'sources'
+        archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from project(':agrona').sourceSets.main.allSource
         from project(':agrona').sourceSets.generated.allSource
@@ -339,7 +339,7 @@ project(':agrona-agent') {
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        archiveClassifier.set 'javadoc'
+        archiveClassifier.set('javadoc')
         from javadoc.destinationDir
     }
 
@@ -379,7 +379,7 @@ project(':agrona-benchmarks') {
 
     shadowJar {
         archiveFileName = 'benchmarks.jar'
-        archiveClassifier.set 'benchmarks'
+        archiveClassifier.set('benchmarks')
         manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
     }
 
