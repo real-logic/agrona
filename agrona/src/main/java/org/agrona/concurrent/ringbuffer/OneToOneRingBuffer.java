@@ -31,7 +31,6 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
  */
 public final class OneToOneRingBuffer implements RingBuffer
 {
-
     private final int capacity;
     private final int maxMsgLength;
     private final int tailPositionIndex;

@@ -15,6 +15,8 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.hints.ThreadHints;
+
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -97,6 +99,8 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
                 return true;
             }
+
+            ThreadHints.onSpinWait();
         }
     }
 
@@ -127,6 +131,8 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
                 return (E)e;
             }
+
+            ThreadHints.onSpinWait();
         }
     }
 
