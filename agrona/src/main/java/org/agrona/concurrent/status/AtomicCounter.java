@@ -179,6 +179,29 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Perform an atomic decrement that will not lose updates across threads.
+     *
+     * @return the previous value of the counter
+     */
+    public long decrement()
+    {
+        return UnsafeAccess.UNSAFE.getAndAddLong(byteArray, addressOffset, -1);
+    }
+
+    /**
+     * Perform an atomic decrement that is not safe across threads.
+     *
+     * @return the previous value of the counter
+     */
+    public long decrementOrdered()
+    {
+        final long currentValue = UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset);
+        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, currentValue - 1);
+
+        return currentValue;
+    }
+
+    /**
      * Set the counter with volatile semantics.
      *
      * @param value to be set with volatile semantics.
