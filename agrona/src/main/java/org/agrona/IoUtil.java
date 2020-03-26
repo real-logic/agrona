@@ -50,6 +50,7 @@ public final class IoUtil
     static class MappingMethods
     {
         static final MethodHandle MAP_ADDRESS;
+        static final MethodHandle MAP_WITH_SYNC_ADDRESS;
         static final MethodHandle UNMAP_ADDRESS;
 
         static
@@ -59,10 +60,26 @@ public final class IoUtil
                 final Class<?> fileChannelClass = Class.forName("sun.nio.ch.FileChannelImpl");
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-                MAP_ADDRESS = lookup.unreflect(
-                    getFileChannelMethod(fileChannelClass, "map0", int.class, long.class, long.class));
-                UNMAP_ADDRESS = lookup.unreflect(
-                    getFileChannelMethod(fileChannelClass, "unmap0", long.class, long.class));
+                MethodHandle mapAddress;
+                MethodHandle mapWithSyncAddress;
+                try
+                {
+                    mapAddress = lookup.unreflect(getFileChannelMethod(
+                        fileChannelClass, "map0", int.class, long.class, long.class));
+                    mapWithSyncAddress = null;
+                }
+                catch (final Exception ex)
+                {
+                    mapAddress = null;
+                    mapWithSyncAddress = lookup.unreflect(getFileChannelMethod(
+                        fileChannelClass, "map0", int.class, long.class, long.class, boolean.class));
+                }
+
+                MAP_ADDRESS = mapAddress;
+                MAP_WITH_SYNC_ADDRESS = mapWithSyncAddress;
+
+                UNMAP_ADDRESS = lookup.unreflect(getFileChannelMethod(
+                    fileChannelClass, "unmap0", long.class, long.class));
             }
             catch (final Exception ex)
             {
@@ -516,7 +533,16 @@ public final class IoUtil
     {
         try
         {
-            return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
+            if (null != MappingMethods.MAP_ADDRESS)
+            {
+                return (long)MappingMethods.MAP_ADDRESS.invoke(
+                    fileChannel, getMode(mode), offset, length);
+            }
+            else
+            {
+                return (long)MappingMethods.MAP_WITH_SYNC_ADDRESS.invoke(
+                    fileChannel, getMode(mode), offset, length, false);
+            }
         }
         catch (final Throwable ex)
         {
