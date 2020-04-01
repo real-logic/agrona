@@ -38,10 +38,10 @@ def junitVersion = '5.6.1'
 def guavaTestLib = '28.2-jre'
 def jmhVersion = '1.23'
 
-group = 'org.agrona'
-version = '1.4.2-SNAPSHOT'
-
+def agronaGroup = 'org.agrona'
+def agronaVersion = '1.4.2-SNAPSHOT'
 def externalJdk = true
+
 if (null == System.getenv("JAVA_HOME")) {
     externalJdk = false
     logger.warn("JAVA_HOME not set! Default JDK will be used.")
@@ -141,6 +141,9 @@ subprojects {
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     }
 
+    group = agronaGroup
+    version = agronaVersion
+
     checkstyle.toolVersion = "${checkstyleVersion}"
 
     tasks.withType(Sign) {
@@ -161,13 +164,11 @@ subprojects {
             options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         }
         options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
-        if (externalJdk)
-        {
+        if (externalJdk) {
             options.fork = true
             options.forkOptions.javaHome = file("${System.env.JAVA_HOME}")
         }
-        else
-        {
+        else {
             logger.warn("fork options for compilation are disabled because JAVA_HOME not set")
         }
         options.encoding = 'UTF-8'
@@ -247,7 +248,7 @@ project(':agrona') {
             Bundle-SymbolicName:    org.agrona.core
             Implementation-Title:   Agrona
             Implementation-Vendor:  Real Logic Limited
-            Implementation-Version: ${project.version}
+            Implementation-Version: ${agronaVersion}
 
             -exportcontents: org.agrona, org.agrona.*
 
@@ -315,7 +316,7 @@ project(':agrona-agent') {
         archiveClassifier.set('')
         manifest.attributes(
             'Implementation-Title': 'Agrona',
-            'Implementation-Version': "${project.version}",
+            'Implementation-Version': "${agronaVersion}",
             'Implementation-Vendor': 'Real Logic Limited',
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
