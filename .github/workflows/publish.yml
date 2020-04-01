@@ -1,7 +1,7 @@
 name: Publish a release to the Maven Central Repository
 on:
   repository_dispatch:
-    types: [release]
+    types: [publish_artifacts]
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"

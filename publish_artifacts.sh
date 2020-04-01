@@ -19,5 +19,5 @@ echo "Sending repository_dispatch command to publish artifacts: gitRef='${gitRef
 curl -v -H "Accept: application/vnd.github.everest-preview+json" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     --request POST \
-    --data "{\"event_type\": \"release\", \"client_payload\": { \"gitRef\": \"${gitRef}\"}}" \
+    --data "{\"event_type\": \"publish_artifacts\", \"client_payload\": { \"gitRef\": \"${gitRef}\"}}" \
     https://api.github.com/repos/real-logic/agrona/dispatches
