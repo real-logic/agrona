@@ -47,16 +47,32 @@ if (null == System.getenv("JAVA_HOME")) {
     logger.warn("JAVA_HOME not set! Default JDK will be used.")
 }
 
+def getConfigProperty(final String projectPropertyName, final String envVarName)
+{
+    String value = project.findProperty(projectPropertyName);
+    if (!value)
+    {
+        value = System.getenv(envVarName);
+        if (!value)
+        {
+            return null
+        }
+    }
+
+    value = value.trim();
+    return value ? value : null
+}
+
 ext {
     isReleaseVersion = !agronaVersion.endsWith('-SNAPSHOT')
 
     ossrhReleasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
     ossrhSnapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-    ossrhUsername = findProperty('ossrhUsername') ?: System.getenv('OSSRH_USERNAME')
-    ossrhPassword = findProperty('ossrhPassword') ?: System.getenv('OSSRH_PASSWORD')
+    ossrhUsername = getConfigProperty('ossrhUsername', 'OSSRH_USERNAME')
+    ossrhPassword = getConfigProperty('ossrhPassword', 'OSSRH_PASSWORD')
 
-    signingKey = findProperty('signingKey') ?: System.getenv('SIGNING_GPG_SECRET_KEY') // NOTE: ASCII armored secret key
-    signingPassword = findProperty('signingPassword') ?: System.getenv('SIGNING_GPG_PASSWORD') // NOTE: Plain text
+    signingKey = getConfigProperty('signingKey', 'SIGNING_GPG_SECRET_KEY')         // NOTE: ASCII armored secret key
+    signingPassword = getConfigProperty('signingPassword', 'SIGNING_GPG_PASSWORD') // NOTE: Plain text
 }
 
 def projectPom = {
