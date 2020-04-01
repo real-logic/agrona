@@ -48,7 +48,7 @@ if (null == System.getenv("JAVA_HOME")) {
 }
 
 ext {
-    isReleaseVersion = !version.endsWith('-SNAPSHOT')
+    isReleaseVersion = !agronaVersion.endsWith('-SNAPSHOT')
 
     ossrhReleasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
     ossrhSnapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
