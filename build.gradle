@@ -47,18 +47,32 @@ if (null == System.getenv("JAVA_HOME")) {
     logger.warn("JAVA_HOME not set! Default JDK will be used.")
 }
 
+def getConfigProperty(final String projectPropertyName, final String envVarName)
+{
+    String value = project.findProperty(projectPropertyName);
+    if (!value)
+    {
+        value = System.getenv(envVarName);
+        if (!value)
+        {
+            return null
+        }
+    }
+
+    value = value.trim();
+    return value ? value : null
+}
+
 ext {
-    isReleaseVersion = !version.endsWith('-SNAPSHOT')
-    releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-    snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    isReleaseVersion = !agronaVersion.endsWith('-SNAPSHOT')
 
-    if (!project.hasProperty('ossrhUsername')) {
-        ossrhUsername = ''
-    }
+    ossrhReleasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    ossrhSnapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    ossrhUsername = getConfigProperty('ossrhUsername', 'OSSRH_USERNAME')
+    ossrhPassword = getConfigProperty('ossrhPassword', 'OSSRH_PASSWORD')
 
-    if (!project.hasProperty('ossrhPassword')) {
-        ossrhPassword = ''
-    }
+    signingKey = getConfigProperty('signingKey', 'SIGNING_GPG_SECRET_KEY')         // NOTE: ASCII armored secret key
+    signingPassword = getConfigProperty('signingPassword', 'SIGNING_GPG_PASSWORD') // NOTE: Plain text
 }
 
 def projectPom = {
@@ -285,7 +299,8 @@ project(':agrona') {
 
         repositories {
             maven {
-                url = !isReleaseVersion ? snapshotsRepoUrl : releasesRepoUrl
+                name = 'MavenCentral'
+                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -295,6 +310,10 @@ project(':agrona') {
     }
 
     signing {
+        if (null != signingKey)
+        {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
         sign publishing.publications.agrona
     }
 }
@@ -354,7 +373,8 @@ project(':agrona-agent') {
         }
         repositories {
             maven {
-                url = !isReleaseVersion ? snapshotsRepoUrl : releasesRepoUrl
+                name = 'MavenCentral'
+                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -364,6 +384,10 @@ project(':agrona-agent') {
     }
 
     signing {
+        if (null != signingKey)
+        {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
         sign publishing.publications.agronaAgent
     }
 }
