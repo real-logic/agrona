@@ -36,6 +36,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Don't print the content of the array while calling toString() on buffer instance.
      */
+    @Deprecated
     String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
 
     /**

@@ -39,9 +39,6 @@ import static org.agrona.AsciiEncoding.*;
  */
 public class ExpandableArrayBuffer implements MutableDirectBuffer
 {
-    private static final boolean SHOULD_PRINT_ARRAY_CONTENT =
-        !Boolean.getBoolean(DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME);
-
     /**
      * Maximum length to which the underlying buffer can grow. Some JVMs store state in the last few bytes.
      */
@@ -1174,7 +1171,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public String toString()
     {
         return "ExpandableArrayBuffer{" +
-            "byteArray=" + (SHOULD_PRINT_ARRAY_CONTENT ? Arrays.toString(byteArray) : byteArray) +
+            "byteArray=" + byteArray +
+            " byteArray.length" + (null == byteArray ? 0 : byteArray.length) +
             '}';
     }
 }

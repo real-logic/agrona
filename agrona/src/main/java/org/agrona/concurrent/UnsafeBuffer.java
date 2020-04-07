@@ -20,7 +20,6 @@ import org.agrona.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -53,8 +52,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
-    public static final boolean SHOULD_PRINT_ARRAY_CONTENT =
-        !Boolean.getBoolean(DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME);
 
     private long addressOffset;
     private int capacity;
@@ -1812,7 +1809,7 @@ public class UnsafeBuffer implements AtomicBuffer
         return "UnsafeBuffer{" +
             "addressOffset=" + addressOffset +
             ", capacity=" + capacity +
-            ", byteArray=" + (SHOULD_PRINT_ARRAY_CONTENT ? Arrays.toString(byteArray) : byteArray) +
+            ", byteArray=" + byteArray +
             ", byteBuffer=" + byteBuffer +
             '}';
     }
