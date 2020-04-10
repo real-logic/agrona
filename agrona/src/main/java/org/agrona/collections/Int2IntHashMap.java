@@ -137,8 +137,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public int get(final int key)
     {
-        final int[] entries = this.entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
@@ -172,8 +170,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             throw new IllegalArgumentException("cannot accept missingValue");
         }
 
-        final int[] entries = this.entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
         int oldValue = missingValue;
@@ -215,7 +211,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     private void rehash(@DoNotSub final int newCapacity)
     {
         final int[] oldEntries = entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int length = entries.length;
 
         capacity(newCapacity);
@@ -252,15 +247,15 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public void intForEach(final IntIntConsumer consumer)
     {
-        final int[] entries = this.entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int length = entries.length;
+        @DoNotSub int remaining = size;
 
-        for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
+        for (@DoNotSub int valueIndex = 1; remaining > 0 && valueIndex < length; valueIndex += 2)
         {
-            if (entries[keyIndex + 1] != missingValue) // lgtm [java/index-out-of-bounds]
+            if (entries[valueIndex] != missingValue)
             {
-                consumer.accept(entries[keyIndex], entries[keyIndex + 1]); // lgtm [java/index-out-of-bounds]
+                consumer.accept(entries[valueIndex - 1], entries[valueIndex]);
+                --remaining;
             }
         }
     }
@@ -287,15 +282,19 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         boolean found = false;
         if (value != missingValue)
         {
-            final int[] entries = this.entries;
             @DoNotSub final int length = entries.length;
+            @DoNotSub int remaining = size;
 
-            for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
+            for (@DoNotSub int valueIndex = 1; remaining > 0 && valueIndex < length; valueIndex += 2)
             {
-                if (value == entries[valueIndex])
+                if (missingValue != entries[valueIndex])
                 {
-                    found = true;
-                    break;
+                    if (value == entries[valueIndex])
+                    {
+                        found = true;
+                        break;
+                    }
+                    --remaining;
                 }
             }
         }
@@ -449,8 +448,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     public int remove(final int key)
     {
-        final int[] entries = this.entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
 
@@ -477,8 +474,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteKeyIndex)
     {
-        final int[] entries = this.entries;
-        final int missingValue = this.missingValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int keyIndex = deleteKeyIndex;
 
@@ -513,8 +508,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         final int missingValue = this.missingValue;
         int min = size == 0 ? missingValue : Integer.MAX_VALUE;
-
-        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
@@ -538,8 +531,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         final int missingValue = this.missingValue;
         int max = size == 0 ? missingValue : Integer.MIN_VALUE;
-
-        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
@@ -629,6 +620,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         {
             return true;
         }
+
         if (!(o instanceof Map))
         {
             return false;
@@ -637,7 +629,6 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         final Map<?, ?> that = (Map<?, ?>)o;
 
         return size == that.size() && entrySet().equals(that.entrySet());
-
     }
 
     @DoNotSub public int hashCode()
@@ -688,11 +679,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             @DoNotSub int keyIndex = capacity;
             if (entries[capacity - 1] != missingValue)
             {
-                keyIndex = 0;
-                for (; keyIndex < capacity; keyIndex += 2)
+                for (@DoNotSub int i = 1; i < capacity; i += 2)
                 {
-                    if (entries[keyIndex + 1] == missingValue) // lgtm [java/index-out-of-bounds]
+                    if (entries[i] == missingValue)
                     {
+                        keyIndex = i - 1;
                         break;
                     }
                 }

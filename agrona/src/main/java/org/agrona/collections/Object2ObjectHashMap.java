@@ -124,7 +124,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     {
         Objects.requireNonNull(key);
 
-        final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int index = Hashing.evenHash(key.hashCode(), mask);
 
@@ -156,7 +155,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         final Object val = mapNullValue(value);
         requireNonNull(val, "value cannot be null");
 
-        final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int index = Hashing.evenHash(key.hashCode(), mask);
         Object oldValue = null;
@@ -236,7 +234,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         boolean found = false;
         if (val != null)
         {
-            final Object[] entries = this.entries;
             final int length = entries.length;
 
             for (int valueIndex = 1; valueIndex < length; valueIndex += 2)
@@ -280,15 +277,36 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     @SuppressWarnings("unchecked")
     public void forEach(final BiConsumer<? super K, ? super V> consumer)
     {
-        final Object[] entries = this.entries;
-        final int length = entries.length;
-
-        for (int keyIndex = 0; keyIndex < length; keyIndex += 2)
+        int remaining = size;
+        if (remaining > 0)
         {
-            if (entries[keyIndex + 1] != null) // lgtm [java/index-out-of-bounds]
+            final int capacity = entries.length;
+            int i = capacity;
+
+            if (null != entries[capacity - 1])
             {
-                consumer.accept(
-                    (K)entries[keyIndex], unmapNullValue(entries[keyIndex + 1])); // lgtm [java/index-out-of-bounds]
+                for (i = 1; i < capacity; i += 2)
+                {
+                    if (null == entries[i])
+                    {
+                        --i;
+                        break;
+                    }
+                }
+            }
+
+            i -= 2;
+            while (remaining > 0)
+            {
+                final int index = i & (entries.length - 1);
+                final Object value = entries[index + 1];
+                if (null != value)
+                {
+                    consumer.accept((K)entries[index], unmapNullValue(entries[index + 1]));
+                    --remaining;
+                }
+
+                i -= 2;
             }
         }
     }
@@ -447,6 +465,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         {
             return true;
         }
+
         if (!(o instanceof Map))
         {
             return false;
@@ -507,13 +526,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             final int capacity = entries.length;
 
             int keyIndex = capacity;
-            if (entries[capacity - 1] != null)
+            if (null != entries[capacity - 1])
             {
-                keyIndex = 0;
-                for (; keyIndex < capacity; keyIndex += 2)
+                for (int i = 1; i < capacity; i += 2)
                 {
-                    if (entries[keyIndex + 1] == null) // lgtm [java/index-out-of-bounds]
+                    if (entries[i] == null)
                     {
+                        keyIndex = i - 1;
                         break;
                     }
                 }
@@ -798,10 +817,11 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
                 if (null != entries[capacity - 1])
                 {
-                    for (i = 0; i < capacity; i += 2)
+                    for (i = 1; i < capacity; i += 2)
                     {
-                        if (null == entries[i + 1])
+                        if (null == entries[i])
                         {
+                            --i;
                             break;
                         }
                     }
@@ -859,7 +879,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return containsValue(o);
         }
 
-        @SuppressWarnings("unchecked")
         public void forEach(final Consumer<? super V> action)
         {
             int remaining = Object2ObjectHashMap.this.size;
@@ -871,10 +890,11 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
                 if (null != entries[capacity - 1])
                 {
-                    for (i = 0; i < capacity; i += 2)
+                    for (i = 1; i < capacity; i += 2)
                     {
                         if (null == entries[i + 1])
                         {
+                            --i;
                             break;
                         }
                     }
@@ -886,7 +906,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                     final Object value = entries[(i & (entries.length - 1)) + 1];
                     if (null != value)
                     {
-                        action.accept((V)value);
+                        action.accept(unmapNullValue(value));
                         --remaining;
                     }
 

@@ -131,8 +131,6 @@ public class Int2IntCounterMap implements Serializable
      */
     public int get(final int key)
     {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
@@ -166,8 +164,6 @@ public class Int2IntCounterMap implements Serializable
             throw new IllegalArgumentException("cannot accept initialValue");
         }
 
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
         int oldValue = initialValue;
@@ -267,8 +263,6 @@ public class Int2IntCounterMap implements Serializable
      */
     public int getAndAdd(final int key, final int amount)
     {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
         int oldValue = initialValue;
@@ -312,15 +306,15 @@ public class Int2IntCounterMap implements Serializable
      */
     public void forEach(final IntIntConsumer consumer)
     {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int length = entries.length;
+        @DoNotSub int remaining = size;
 
-        for (@DoNotSub int i = 0; i < length; i += 2)
+        for (@DoNotSub int i = 1; remaining > 0 && i < length; i += 2)
         {
-            if (entries[i + 1] != initialValue) // lgtm [java/index-out-of-bounds]
+            if (entries[i] != initialValue)
             {
-                consumer.accept(entries[i], entries[i + 1]); // lgtm [java/index-out-of-bounds]
+                consumer.accept(entries[i - 1], entries[i]);
+                --remaining;
             }
         }
     }
@@ -349,7 +343,6 @@ public class Int2IntCounterMap implements Serializable
         boolean found = false;
         if (value != initialValue)
         {
-            final int[] entries = this.entries;
             @DoNotSub final int length = entries.length;
 
             for (@DoNotSub int i = 1; i < length; i += 2)
@@ -417,8 +410,6 @@ public class Int2IntCounterMap implements Serializable
      */
     public int remove(final int key)
     {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
 
@@ -449,10 +440,8 @@ public class Int2IntCounterMap implements Serializable
      */
     public int minValue()
     {
-        final int initialValue = this.initialValue;
         int min = size == 0 ? initialValue : Integer.MAX_VALUE;
 
-        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
@@ -474,10 +463,8 @@ public class Int2IntCounterMap implements Serializable
      */
     public int maxValue()
     {
-        final int initialValue = this.initialValue;
         int max = size == 0 ? initialValue : Integer.MIN_VALUE;
 
-        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
@@ -500,16 +487,14 @@ public class Int2IntCounterMap implements Serializable
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int length = entries.length;
 
-        for (@DoNotSub int i = 0; i < length; i += 2)
+        for (@DoNotSub int i = 1; i < length; i += 2)
         {
-            final int value = entries[i + 1]; // lgtm [java/index-out-of-bounds]
+            final int value = entries[i];
             if (value != initialValue)
             {
-                sb.append(entries[i]).append('=').append(value).append(", ");
+                sb.append(entries[i - 1]).append('=').append(value).append(", ");
             }
         }
 
@@ -531,8 +516,6 @@ public class Int2IntCounterMap implements Serializable
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteKeyIndex)
     {
-        final int[] entries = this.entries;
-        final int initialValue = this.initialValue;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = deleteKeyIndex;
 

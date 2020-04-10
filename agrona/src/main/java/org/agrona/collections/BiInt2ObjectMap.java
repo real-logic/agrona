@@ -290,11 +290,15 @@ public class BiInt2ObjectMap<V> implements Serializable
     @SuppressWarnings("unchecked")
     public void forEach(final Consumer<V> consumer)
     {
-        for (final Object value : values)
+        int remaining = size;
+
+        for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
         {
+            final Object value = values[i];
             if (null != value)
             {
                 consumer.accept((V)value);
+                --remaining;
             }
         }
     }
@@ -307,7 +311,9 @@ public class BiInt2ObjectMap<V> implements Serializable
     @SuppressWarnings("unchecked")
     public void forEach(final EntryConsumer<V> consumer)
     {
-        for (int i = 0, size = values.length; i < size; i++)
+        int remaining = size;
+
+        for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
         {
             final Object value = values[i];
             if (null != value)
@@ -317,6 +323,7 @@ public class BiInt2ObjectMap<V> implements Serializable
                 final int keyPartB = (int)(compoundKey & 0xFFFF_FFFFL);
 
                 consumer.accept(keyPartA, keyPartB, (V)value);
+                --remaining;
             }
         }
     }

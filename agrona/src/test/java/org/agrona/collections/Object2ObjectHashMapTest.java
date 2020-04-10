@@ -77,26 +77,93 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
+    public void shouldForEachEntries()
+    {
+        class Entry
+        {
+            final String key;
+            final String value;
+
+            Entry(final String key, final String value)
+            {
+                this.key = key;
+                this.value = value;
+            }
+
+            public boolean equals(final Object o)
+            {
+                if (this == o)
+                {
+                    return true;
+                }
+
+                if (o == null || getClass() != o.getClass())
+                {
+                    return false;
+                }
+
+                final Entry entry = (Entry)o;
+                return Objects.equals(key, entry.key) && Objects.equals(value, entry.value);
+            }
+
+            public int hashCode()
+            {
+                return Objects.hash(key, value);
+            }
+
+            public String toString()
+            {
+                return "Entry{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+            }
+        }
+
+        final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
+
+        for (int i = 0; i < 11; i++)
+        {
+            final String val = Integer.toString(i);
+            final String key = "key-" + val;
+            final String value = "value-" + val;
+
+            map.put(key, value);
+        }
+
+        final ArrayList<Entry> copyOne = new ArrayList<>();
+        for (final Map.Entry<String, String> entry : map.entrySet())
+        {
+            copyOne.add(new Entry(entry.getKey(), entry.getValue()));
+        }
+
+        final Collection<Entry> copyTwo = new ArrayList<>();
+        map.forEach((key, value) -> copyTwo.add(new Entry(key, value)));
+
+        assertEquals(copyOne, copyTwo);
+    }
+
+    @Test
     public void shouldForEachValues()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
         for (int i = 0; i < 11; i++)
         {
             final String val = Integer.toString(i);
-            map.put(val, val);
+            map.put("key-" + val, "value-" + val);
         }
 
-        final Collection<String> copyToSetOne = new ArrayList<>();
+        final Collection<String> copyOne = new ArrayList<>();
         for (final String s : map.values())
         {
             //noinspection UseBulkOperation
-            copyToSetOne.add(s);
+            copyOne.add(s);
         }
 
-        final Collection<String> copyToSetTwo = new ArrayList<>();
-        map.values().forEach(copyToSetTwo::add);
+        final Collection<String> copyTwo = new ArrayList<>();
+        map.values().forEach(copyTwo::add);
 
-        assertEquals(copyToSetTwo, copyToSetOne);
+        assertEquals(copyTwo, copyOne);
     }
 
     @Test
@@ -106,19 +173,19 @@ public class Object2ObjectHashMapTest
         for (int i = 0; i < 11; i++)
         {
             final String val = Integer.toString(i);
-            map.put(val, val);
+            map.put("key-" + val, "value-" + val);
         }
 
-        final Collection<String> copyToSetOne = new ArrayList<>();
+        final Collection<String> copyOne = new ArrayList<>();
         for (final String s : map.keySet())
         {
             //noinspection UseBulkOperation
-            copyToSetOne.add(s);
+            copyOne.add(s);
         }
 
-        final Collection<String> copyToSetTwo = new ArrayList<>();
-        map.keySet().forEach(copyToSetTwo::add);
+        final Collection<String> copyTwo = new ArrayList<>();
+        map.keySet().forEach(copyTwo::add);
 
-        assertEquals(copyToSetTwo, copyToSetOne);
+        assertEquals(copyTwo, copyOne);
     }
 }

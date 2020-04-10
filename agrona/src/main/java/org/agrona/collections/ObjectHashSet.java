@@ -154,7 +154,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     public boolean add(final T value)
     {
         Objects.requireNonNull(value);
-        final Object[] values = this.values;
         final int mask = values.length - 1;
         int index = Hashing.hash(value.hashCode(), mask);
 
