@@ -18,6 +18,7 @@ package org.agrona.collections;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -784,6 +785,43 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         {
             return containsKey(o);
         }
+
+        @SuppressWarnings("unchecked")
+        public void forEach(final Consumer<? super K> action)
+        {
+            int remaining = Object2ObjectHashMap.this.size;
+            if (remaining > 0)
+            {
+                final Object[] entries = Object2ObjectHashMap.this.entries;
+                final int capacity = entries.length;
+                int i = capacity;
+
+                if (null != entries[capacity - 1])
+                {
+                    for (i = 0; i < capacity; i += 2)
+                    {
+                        if (null == entries[i + 1])
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                i -= 2;
+                while (remaining > 0)
+                {
+                    final int index = i & (entries.length - 1);
+                    final Object value = entries[index + 1];
+                    if (null != value)
+                    {
+                        action.accept((K)entries[index]);
+                        --remaining;
+                    }
+
+                    i -= 2;
+                }
+            }
+        }
     }
 
     public final class ValueCollection extends AbstractCollection<V>
@@ -819,6 +857,42 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public boolean contains(final Object o)
         {
             return containsValue(o);
+        }
+
+        @SuppressWarnings("unchecked")
+        public void forEach(final Consumer<? super V> action)
+        {
+            int remaining = Object2ObjectHashMap.this.size;
+            if (remaining > 0)
+            {
+                final Object[] entries = Object2ObjectHashMap.this.entries;
+                final int capacity = entries.length;
+                int i = capacity;
+
+                if (null != entries[capacity - 1])
+                {
+                    for (i = 0; i < capacity; i += 2)
+                    {
+                        if (null == entries[i + 1])
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                i -= 2;
+                while (remaining > 0)
+                {
+                    final Object value = entries[(i & (entries.length - 1)) + 1];
+                    if (null != value)
+                    {
+                        action.accept((V)value);
+                        --remaining;
+                    }
+
+                    i -= 2;
+                }
+            }
         }
     }
 

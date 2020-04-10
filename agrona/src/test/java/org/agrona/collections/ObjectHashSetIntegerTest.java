@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectHashSetIntegerTest
 {
-    private static Iterable<ObjectHashSet<Integer>> data()
+    static Iterable<ObjectHashSet<Integer>> data()
     {
         return Arrays.asList(
             new ObjectHashSet<>(INITIAL_CAPACITY),
@@ -128,7 +128,6 @@ public class ObjectHashSetIntegerTest
         addTwoElements(testSet);
         assertEquals(2, testSet.size());
     }
-
 
     @ParameterizedTest
     @MethodSource("data")
@@ -612,7 +611,6 @@ public class ObjectHashSetIntegerTest
         assertThat(testSet, hasSize(1));
     }
 
-
     @ParameterizedTest
     @MethodSource("data")
     public void shouldGenerateStringRepresentation(final ObjectHashSet<Integer> testSet)
@@ -624,7 +622,7 @@ public class ObjectHashSetIntegerTest
             testSet.add(testEntry);
         }
 
-        final String mapAsAString = "{1, 3, 7, 11, 12, 19, -1}";
+        final String mapAsAString = "{1, 19, 11, 7, 3, -1, 12}";
         assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 
@@ -677,27 +675,25 @@ public class ObjectHashSetIntegerTest
 
     private void assertIteratorHasElements(final ObjectHashSet<Integer> testSet)
     {
-        final Iterator<Integer> iter = testSet.iterator();
-
+        final Iterator<Integer> iterator = testSet.iterator();
         final Set<Integer> values = new HashSet<>();
 
-        assertTrue(iter.hasNext());
-        values.add(iter.next());
-        assertTrue(iter.hasNext());
-        values.add(iter.next());
-        assertFalse(iter.hasNext());
+        assertTrue(iterator.hasNext());
+        values.add(iterator.next());
+        assertTrue(iterator.hasNext());
+        values.add(iterator.next());
+        assertFalse(iterator.hasNext());
 
         assertContainsElements(values);
     }
 
     private void assertIteratorHasElementsWithoutHasNext(final ObjectHashSet<Integer> testSet)
     {
-        final Iterator<Integer> iter = testSet.iterator();
-
+        final Iterator<Integer> iterator = testSet.iterator();
         final Set<Integer> values = new HashSet<>();
 
-        values.add(iter.next());
-        values.add(iter.next());
+        values.add(iterator.next());
+        values.add(iterator.next());
 
         assertContainsElements(values);
     }

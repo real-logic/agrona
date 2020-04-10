@@ -210,7 +210,7 @@ public class Int2ObjectHashMapTest
     @Test
     public void shouldIterateValues()
     {
-        final Collection<String> initialSet = new HashSet<>();
+        final Collection<String> initialSet = new ArrayList<>();
 
         for (int i = 0; i < 11; i++)
         {
@@ -219,15 +219,44 @@ public class Int2ObjectHashMapTest
             initialSet.add(value);
         }
 
-        final Collection<String> copyToSet = new HashSet<>();
-
+        final Collection<String> copyToSetOne = new ArrayList<>();
         for (final String s : intToObjectMap.values())
         {
             //noinspection UseBulkOperation
-            copyToSet.add(s);
+            copyToSetOne.add(s);
         }
 
-        assertThat(copyToSet, is(initialSet));
+        final Collection<String> copyToSetTwo = new ArrayList<>();
+        for (final String s : intToObjectMap.values())
+        {
+            //noinspection UseBulkOperation
+            copyToSetTwo.add(s);
+        }
+
+        assertEquals(initialSet, copyToSetOne);
+        assertEquals(initialSet, copyToSetTwo);
+    }
+
+    @Test
+    public void shouldForEachValues()
+    {
+        for (int i = 0; i < 11; i++)
+        {
+            final String value = Integer.toString(i);
+            intToObjectMap.put(i, value);
+        }
+
+        final Collection<String> copyToSetOne = new ArrayList<>();
+        for (final String s : intToObjectMap.values())
+        {
+            //noinspection UseBulkOperation
+            copyToSetOne.add(s);
+        }
+
+        final Collection<String> copyToSetTwo = new ArrayList<>();
+        intToObjectMap.values().forEach(copyToSetTwo::add);
+
+        assertEquals(copyToSetTwo, copyToSetOne);
     }
 
     @Test
@@ -249,7 +278,7 @@ public class Int2ObjectHashMapTest
             copyToSet.add(iter.nextInt());
         }
 
-        assertThat(copyToSet, is(initialSet));
+        assertEquals(initialSet, copyToSet);
     }
 
     @Test
@@ -278,7 +307,7 @@ public class Int2ObjectHashMapTest
             copyToSet.add(aInteger);
         }
 
-        assertThat(copyToSet, is(initialSet));
+        assertEquals(initialSet, copyToSet);
     }
 
     @Test
@@ -311,9 +340,9 @@ public class Int2ObjectHashMapTest
         }
 
         final int reducedSetSize = count - 1;
-        assertThat(initialSet.size(), is(count));
-        assertThat(intToObjectMap.size(), is(reducedSetSize));
-        assertThat(copyOfSet.size(), is(reducedSetSize));
+        assertEquals(count, initialSet.size());
+        assertEquals(reducedSetSize, intToObjectMap.size());
+        assertEquals(reducedSetSize, copyOfSet.size());
     }
 
     @Test
@@ -341,7 +370,7 @@ public class Int2ObjectHashMapTest
             }
         }
 
-        assertThat(intToObjectMap.get(7), equalTo(testValue));
+        assertEquals(testValue, intToObjectMap.get(7));
     }
 
     private void iterateEntries()

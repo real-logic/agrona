@@ -19,6 +19,7 @@ import org.agrona.generation.DoNotSub;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
@@ -724,6 +725,43 @@ public class Int2ObjectHashMap<V>
         public void clear()
         {
             Int2ObjectHashMap.this.clear();
+        }
+
+        @SuppressWarnings("unchecked")
+        public void forEach(final Consumer<? super V> action)
+        {
+            @DoNotSub int remaining =
+                Int2ObjectHashMap.this.size;
+            if (remaining > 0)
+            {
+                final Object[] values = Int2ObjectHashMap.this.values;
+                @DoNotSub final int capacity = values.length;
+                @DoNotSub int i = capacity;
+
+                if (null != values[capacity - 1])
+                {
+                    for (i = 0; i < capacity; i++)
+                    {
+                        if (null == values[i])
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                --i;
+                while (remaining > 0)
+                {
+                    final Object value = values[i & (values.length - 1)];
+                    if (null != value)
+                    {
+                        action.accept((V)value);
+                        --remaining;
+                    }
+
+                    --i;
+                }
+            }
         }
     }
 

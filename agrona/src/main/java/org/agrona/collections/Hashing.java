@@ -69,16 +69,15 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for a K value.
+     * Generate a hash for an object.
      *
-     * @param <K> is the type of value
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
      * @return the hash of the value.
      */
-    public static <K> int hash(final K value, final int mask)
+    public static int hash(final Object value, final int mask)
     {
-        final int hash = value.hashCode();
+        final int hash = value.hashCode() * 31;
 
         return hash & mask;
     }

@@ -17,8 +17,7 @@ package org.agrona.collections;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.IntConsumer;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -157,7 +156,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         Objects.requireNonNull(value);
         final Object[] values = this.values;
         final int mask = values.length - 1;
-        int index = value.hashCode() & mask;
+        int index = Hashing.hash(value.hashCode(), mask);
 
         while (values[index] != MISSING_VALUE)
         {
@@ -208,7 +207,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         {
             if (value != MISSING_VALUE)
             {
-                int newHash = value.hashCode() & mask;
+                int newHash = Hashing.hash(value.hashCode(), mask);
                 while (tempValues[newHash] != MISSING_VALUE)
                 {
                     newHash = ++newHash & mask;
@@ -229,7 +228,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     {
         final Object[] values = this.values;
         final int mask = values.length - 1;
-        int index = value.hashCode() & mask;
+        int index = Hashing.hash(value.hashCode(), mask);
 
         while (values[index] != MISSING_VALUE)
         {
@@ -267,7 +266,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
                 return;
             }
 
-            final int hash = values[index].hashCode() & mask;
+            final int hash = Hashing.hash(values[index].hashCode(), mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
@@ -297,7 +296,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     {
         final Object[] values = this.values;
         final int mask = values.length - 1;
-        int index = value.hashCode() & mask;
+        int index = Hashing.hash(value.hashCode(), mask);
 
         while (values[index] != MISSING_VALUE)
         {
@@ -565,6 +564,45 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         }
 
         return hashCode;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public void forEach(final Consumer<? super T> action)
+    {
+        int remaining = size;
+        if (remaining > 0)
+        {
+            final Object[] values = this.values;
+            final int capacity = values.length;
+            int i = capacity;
+
+            if (null != values[capacity - 1])
+            {
+                for (i = 0; i < capacity; i++)
+                {
+                    if (null == values[i])
+                    {
+                        break;
+                    }
+                }
+            }
+
+            --i;
+            while (remaining > 0)
+            {
+                final Object value = values[i & (values.length - 1)];
+                if (null != value)
+                {
+                    action.accept((T)value);
+                    --remaining;
+                }
+
+                --i;
+            }
+        }
     }
 
     /**

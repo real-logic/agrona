@@ -19,10 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -30,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectHashSetStringTest
 {
-    private static ObjectHashSet[] data()
+    static Iterable<ObjectHashSet<String>> data()
     {
-        return new ObjectHashSet[]{
-            new ObjectHashSet<String>(INITIAL_CAPACITY),
-            new ObjectHashSet<String>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false) };
+        return Arrays.asList(
+            new ObjectHashSet<>(INITIAL_CAPACITY),
+            new ObjectHashSet<>(INITIAL_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, false));
     }
 
     private static final int INITIAL_CAPACITY = 100;
@@ -314,7 +311,6 @@ public class ObjectHashSetStringTest
         assertArrayEquals(result, new String[]{});
     }
 
-    // Test case from usage bug.
     @Test
     public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {
@@ -535,6 +531,29 @@ public class ObjectHashSetStringTest
         assertThat(testSet, hasSize(1));
     }
 
+    @Test
+    public void shouldForEachValues()
+    {
+        final ObjectHashSet<String> set = new ObjectHashSet<>();
+        for (int i = 0; i < 11; i++)
+        {
+            final String val = Integer.toString(i);
+            set.add(val);
+        }
+
+        final Collection<String> copyToSetOne = new ArrayList<>();
+        for (final String s : set)
+        {
+            //noinspection UseBulkOperation
+            copyToSetOne.add(s);
+        }
+
+        final Collection<String> copyToSetTwo = new ArrayList<>();
+        set.forEach(copyToSetTwo::add);
+
+        assertEquals(copyToSetTwo, copyToSetOne);
+    }
+
     private static void addTwoElements(final ObjectHashSet<String> obj)
     {
         obj.add("1");
@@ -544,7 +563,6 @@ public class ObjectHashSetStringTest
     private void assertIteratorHasElements(final ObjectHashSet<String> testSet)
     {
         final Iterator<String> iter = testSet.iterator();
-
         final Set<String> values = new HashSet<>();
 
         assertTrue(iter.hasNext());
@@ -559,7 +577,6 @@ public class ObjectHashSetStringTest
     private void assertIteratorHasElementsWithoutHasNext(final ObjectHashSet<String> testSet)
     {
         final Iterator<String> iter = testSet.iterator();
-
         final Set<String> values = new HashSet<>();
 
         values.add(iter.next());
