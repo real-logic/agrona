@@ -119,7 +119,6 @@ public class Object2ObjectHashMapTest
         final Collection<String> copyToSetTwo = new ArrayList<>();
         map.keySet().forEach(copyToSetTwo::add);
 
-        System.out.println("copyToSetTwo = " + copyToSetTwo);
         assertEquals(copyToSetTwo, copyToSetOne);
     }
 }
