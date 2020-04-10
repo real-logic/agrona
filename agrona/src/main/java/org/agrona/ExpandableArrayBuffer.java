@@ -1171,7 +1171,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public String toString()
     {
         return "ExpandableArrayBuffer{" +
-            "byteArray=" + byteArray +
+            "byteArray=" + byteArray + // lgtm [java/print-array]
             " byteArray.length" + (null == byteArray ? 0 : byteArray.length) +
             '}';
     }

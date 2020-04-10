@@ -1809,7 +1809,7 @@ public class UnsafeBuffer implements AtomicBuffer
         return "UnsafeBuffer{" +
             "addressOffset=" + addressOffset +
             ", capacity=" + capacity +
-            ", byteArray=" + byteArray +
+            ", byteArray=" + byteArray + // lgtm [java/print-array]
             ", byteBuffer=" + byteBuffer +
             '}';
     }
