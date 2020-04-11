@@ -170,7 +170,6 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return !previousContainsMissingValue;
         }
 
-        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
 
@@ -255,7 +254,6 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return previousContainsMissingValue;
         }
 
-        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
 
@@ -283,7 +281,6 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     @SuppressWarnings("FinalParameters")
     @DoNotSub void compactChain(int deleteIndex)
     {
-        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
 
         @DoNotSub int index = deleteIndex;
@@ -340,7 +337,6 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return containsMissingValue;
         }
 
-        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(value, mask);
 

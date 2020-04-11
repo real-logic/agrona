@@ -188,14 +188,22 @@ public class Int2ObjectHashMap<V>
     {
         boolean found = false;
         final Object val = mapNullValue(value);
+
         if (null != val)
         {
-            for (final Object v : values)
+            @DoNotSub int remaining =
+                Int2ObjectHashMap.this.size;
+
+            for (@DoNotSub int i = 0, length = values.length; remaining > 0 && i < length; i++)
             {
-                if (val.equals(v))
+                if (null != values[i])
                 {
-                    found = true;
-                    break;
+                    if (val.equals(values[i]))
+                    {
+                        found = true;
+                        break;
+                    }
+                    --remaining;
                 }
             }
         }
@@ -727,39 +735,17 @@ public class Int2ObjectHashMap<V>
             Int2ObjectHashMap.this.clear();
         }
 
-        @SuppressWarnings("unchecked")
         public void forEach(final Consumer<? super V> action)
         {
             @DoNotSub int remaining =
                 Int2ObjectHashMap.this.size;
-            if (remaining > 0)
+
+            for (@DoNotSub int i = 0, length = values.length; remaining > 0 && i < length; i++)
             {
-                final Object[] values = Int2ObjectHashMap.this.values;
-                @DoNotSub final int capacity = values.length;
-                @DoNotSub int i = capacity;
-
-                if (null != values[capacity - 1])
+                if (null != values[i])
                 {
-                    for (i = 0; i < capacity; i++)
-                    {
-                        if (null == values[i])
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                --i;
-                while (remaining > 0)
-                {
-                    final Object value = values[i & (values.length - 1)];
-                    if (null != value)
-                    {
-                        action.accept((V)value);
-                        --remaining;
-                    }
-
-                    --i;
+                    action.accept(unmapNullValue(values[i]));
+                    --remaining;
                 }
             }
         }

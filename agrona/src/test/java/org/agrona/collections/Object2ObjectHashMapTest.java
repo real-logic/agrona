@@ -18,9 +18,9 @@ package org.agrona.collections;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Object2ObjectHashMapTest
 {
@@ -131,13 +131,13 @@ public class Object2ObjectHashMapTest
             map.put(key, value);
         }
 
-        final ArrayList<Entry> copyOne = new ArrayList<>();
+        final HashSet<Entry> copyOne = new HashSet<>();
         for (final Map.Entry<String, String> entry : map.entrySet())
         {
             copyOne.add(new Entry(entry.getKey(), entry.getValue()));
         }
 
-        final Collection<Entry> copyTwo = new ArrayList<>();
+        final HashSet<Entry> copyTwo = new HashSet<>();
         map.forEach((key, value) -> copyTwo.add(new Entry(key, value)));
 
         assertEquals(copyOne, copyTwo);
@@ -153,14 +153,14 @@ public class Object2ObjectHashMapTest
             map.put("key-" + val, "value-" + val);
         }
 
-        final Collection<String> copyOne = new ArrayList<>();
+        final Collection<String> copyOne = new HashSet<>();
         for (final String s : map.values())
         {
             //noinspection UseBulkOperation
             copyOne.add(s);
         }
 
-        final Collection<String> copyTwo = new ArrayList<>();
+        final Collection<String> copyTwo = new HashSet<>();
         map.values().forEach(copyTwo::add);
 
         assertEquals(copyTwo, copyOne);
@@ -176,14 +176,14 @@ public class Object2ObjectHashMapTest
             map.put("key-" + val, "value-" + val);
         }
 
-        final Collection<String> copyOne = new ArrayList<>();
+        final Collection<String> copyOne = new HashSet<>();
         for (final String s : map.keySet())
         {
             //noinspection UseBulkOperation
             copyOne.add(s);
         }
 
-        final Collection<String> copyTwo = new ArrayList<>();
+        final Collection<String> copyTwo = new HashSet<>();
         map.keySet().forEach(copyTwo::add);
 
         assertEquals(copyTwo, copyOne);

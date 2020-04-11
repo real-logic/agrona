@@ -72,8 +72,6 @@ public final class IntLruCache<E> implements AutoCloseable, Serializable
     public E lookup(final int key)
     {
         @DoNotSub int size = this.size;
-        final int[] keys = this.keys;
-        final Object[] values = this.values;
 
         for (@DoNotSub int i = 0; i < size; i++)
         {
@@ -112,9 +110,6 @@ public final class IntLruCache<E> implements AutoCloseable, Serializable
         final Object value,
         @DoNotSub final int fromIndex)
     {
-        final int[] keys = this.keys;
-        final Object[] values = this.values;
-
         for (@DoNotSub int i = fromIndex; i > 0; i--)
         {
             keys[i] = keys[i - 1];

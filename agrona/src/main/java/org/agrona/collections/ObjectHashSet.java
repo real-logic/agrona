@@ -293,7 +293,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      */
     public boolean contains(final Object value)
     {
-        final Object[] values = this.values;
         final int mask = values.length - 1;
         int index = Hashing.hash(value.hashCode(), mask);
 
@@ -568,38 +567,16 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void forEach(final Consumer<? super T> action)
     {
         int remaining = size;
-        if (remaining > 0)
+
+        for (int i = 0, length = values.length; remaining > 0 && i < length; i++)
         {
-            final Object[] values = this.values;
-            final int capacity = values.length;
-            int i = capacity;
-
-            if (null != values[capacity - 1])
+            if (null != values[i])
             {
-                for (i = 0; i < capacity; i++)
-                {
-                    if (null == values[i])
-                    {
-                        break;
-                    }
-                }
-            }
-
-            --i;
-            while (remaining > 0)
-            {
-                final Object value = values[i & (values.length - 1)];
-                if (null != value)
-                {
-                    action.accept((T)value);
-                    --remaining;
-                }
-
-                --i;
+                action.accept(values[i]);
+                --remaining;
             }
         }
     }

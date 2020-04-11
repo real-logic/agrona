@@ -240,23 +240,18 @@ public class Int2ObjectHashMapTest
     @Test
     public void shouldForEachValues()
     {
+        final Collection<String> expected = new HashSet<>();
         for (int i = 0; i < 11; i++)
         {
             final String value = Integer.toString(i);
             intToObjectMap.put(i, value);
+            expected.add(value);
         }
 
-        final Collection<String> copyToSetOne = new ArrayList<>();
-        for (final String s : intToObjectMap.values())
-        {
-            //noinspection UseBulkOperation
-            copyToSetOne.add(s);
-        }
+        final Collection<String> copySet = new HashSet<>();
+        intToObjectMap.values().forEach(copySet::add);
 
-        final Collection<String> copyToSetTwo = new ArrayList<>();
-        intToObjectMap.values().forEach(copyToSetTwo::add);
-
-        assertEquals(copyToSetTwo, copyToSetOne);
+        assertEquals(expected, copySet);
     }
 
     @Test

@@ -541,14 +541,14 @@ public class ObjectHashSetStringTest
             set.add(val);
         }
 
-        final Collection<String> copyToSetOne = new ArrayList<>();
+        final Collection<String> copyToSetOne = new HashSet<>();
         for (final String s : set)
         {
             //noinspection UseBulkOperation
             copyToSetOne.add(s);
         }
 
-        final Collection<String> copyToSetTwo = new ArrayList<>();
+        final Collection<String> copyToSetTwo = new HashSet<>();
         set.forEach(copyToSetTwo::add);
 
         assertEquals(copyToSetTwo, copyToSetOne);

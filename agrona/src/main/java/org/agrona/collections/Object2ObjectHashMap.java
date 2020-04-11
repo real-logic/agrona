@@ -226,7 +226,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      * Does the map contain the value.
      *
      * @param value to be tested against contained values.
-     * @return true if contained otherwise value.
+     * @return true if contained otherwise false.
      */
     public boolean containsValue(final Object value)
     {
@@ -278,35 +278,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     public void forEach(final BiConsumer<? super K, ? super V> consumer)
     {
         int remaining = size;
-        if (remaining > 0)
+
+        for (int i = 1, length = entries.length; remaining > 0 && i < length; i += 2)
         {
-            final int capacity = entries.length;
-            int i = capacity;
-
-            if (null != entries[capacity - 1])
+            if (null != entries[i])
             {
-                for (i = 1; i < capacity; i += 2)
-                {
-                    if (null == entries[i])
-                    {
-                        --i;
-                        break;
-                    }
-                }
-            }
-
-            i -= 2;
-            while (remaining > 0)
-            {
-                final int index = i & (entries.length - 1);
-                final Object value = entries[index + 1];
-                if (null != value)
-                {
-                    consumer.accept((K)entries[index], unmapNullValue(entries[index + 1]));
-                    --remaining;
-                }
-
-                i -= 2;
+                consumer.accept((K)entries[i - 1], unmapNullValue(entries[i]));
+                --remaining;
             }
         }
     }
@@ -809,36 +787,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public void forEach(final Consumer<? super K> action)
         {
             int remaining = Object2ObjectHashMap.this.size;
-            if (remaining > 0)
+
+            for (int i = 1, length = entries.length; remaining > 0 && i < length; i += 2)
             {
-                final Object[] entries = Object2ObjectHashMap.this.entries;
-                final int capacity = entries.length;
-                int i = capacity;
-
-                if (null != entries[capacity - 1])
+                if (null != entries[i])
                 {
-                    for (i = 1; i < capacity; i += 2)
-                    {
-                        if (null == entries[i])
-                        {
-                            --i;
-                            break;
-                        }
-                    }
-                }
-
-                i -= 2;
-                while (remaining > 0)
-                {
-                    final int index = i & (entries.length - 1);
-                    final Object value = entries[index + 1];
-                    if (null != value)
-                    {
-                        action.accept((K)entries[index]);
-                        --remaining;
-                    }
-
-                    i -= 2;
+                    action.accept((K)entries[i - 1]);
+                    --remaining;
                 }
             }
         }
@@ -882,35 +837,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         public void forEach(final Consumer<? super V> action)
         {
             int remaining = Object2ObjectHashMap.this.size;
-            if (remaining > 0)
+
+            for (int i = 1, length = entries.length; remaining > 0 && i < length; i += 2)
             {
-                final Object[] entries = Object2ObjectHashMap.this.entries;
-                final int capacity = entries.length;
-                int i = capacity;
-
-                if (null != entries[capacity - 1])
+                if (null != entries[i])
                 {
-                    for (i = 1; i < capacity; i += 2)
-                    {
-                        if (null == entries[i + 1])
-                        {
-                            --i;
-                            break;
-                        }
-                    }
-                }
-
-                i -= 2;
-                while (remaining > 0)
-                {
-                    final Object value = entries[(i & (entries.length - 1)) + 1];
-                    if (null != value)
-                    {
-                        action.accept(unmapNullValue(value));
-                        --remaining;
-                    }
-
-                    i -= 2;
+                    action.accept(unmapNullValue(entries[i]));
+                    --remaining;
                 }
             }
         }

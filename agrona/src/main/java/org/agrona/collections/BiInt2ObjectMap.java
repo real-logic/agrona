@@ -235,7 +235,6 @@ public class BiInt2ObjectMap<V> implements Serializable
     public V remove(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
-
         final int mask = values.length - 1;
         int index = Hashing.hash(key, mask);
 
