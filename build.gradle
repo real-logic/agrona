@@ -34,7 +34,7 @@ def byteBuddyVersion = '1.10.5'
 def checkstyleVersion = '8.28'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.3.3'
-def junitVersion = '5.6.1'
+def junitVersion = '5.6.2'
 def guavaTestLib = '28.2-jre'
 def jmhVersion = '1.23'
 
@@ -60,6 +60,7 @@ def getConfigProperty(final String projectPropertyName, final String envVarName)
     }
 
     value = value.trim();
+
     return value ? value : null
 }
 
