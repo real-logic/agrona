@@ -17,6 +17,8 @@ package org.agrona.concurrent;
 
 /**
  * Implementation that calls {@link HighResolutionClock#epochNanos()}.
+ *
+ * @see OffsetEpochNanoClock
  */
 public class SystemEpochNanoClock implements EpochNanoClock
 {
