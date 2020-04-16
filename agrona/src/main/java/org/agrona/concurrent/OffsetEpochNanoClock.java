@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Real Logic Limited.
+ * Copyright 2014-2020 Real Logic Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package org.agrona.concurrent;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
- * An accurate, zero-gc, pure-java, EpochNanoClock that calculates an initial nanoTime() offset and then uses
- * that offset to adjust the return value of System.nanoTime() into the UNIX epoch.
+ * An accurate, zero-gc, pure-java, {@link EpochNanoClock} that calculates an initial epoch nano time based on
+ * {@link System#currentTimeMillis()} and then uses that offset to adjust the return value of
+ * {@link System#nanoTime()} into the UNIX epoch.
  *
  * @see org.agrona.concurrent.SystemEpochNanoClock
  */
@@ -49,19 +50,19 @@ public class OffsetEpochNanoClock implements EpochNanoClock
             final long initialCurrentTimeMillis = System.currentTimeMillis();
             final long secondNanoTime = System.nanoTime();
 
-            final long nanoTimeWndow = secondNanoTime - firstNanoTime;
-            if (nanoTimeWndow < measurementThresholdInNs)
+            final long nanoTimeWindow = secondNanoTime - firstNanoTime;
+            if (nanoTimeWindow < measurementThresholdInNs)
             {
                 initialCurrentTimeNanos = MILLISECONDS.toNanos(initialCurrentTimeMillis);
-                initialNanoTime = (firstNanoTime + secondNanoTime) / 2;
+                initialNanoTime = (firstNanoTime + secondNanoTime) >> 1;
                 isWithinThreshold = true;
                 return;
             }
-            else if (nanoTimeWndow < bestNanoTimeWindow)
+            else if (nanoTimeWindow < bestNanoTimeWindow)
             {
                 bestInitialCurrentTimeNanos = MILLISECONDS.toNanos(initialCurrentTimeMillis);
-                bestInitialNanoTime = (firstNanoTime + secondNanoTime) / 2;
-                bestNanoTimeWindow = nanoTimeWndow;
+                bestInitialNanoTime = (firstNanoTime + secondNanoTime) >> 1;
+                bestNanoTimeWindow = nanoTimeWindow;
             }
         }
 
