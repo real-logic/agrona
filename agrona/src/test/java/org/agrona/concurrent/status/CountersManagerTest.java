@@ -32,8 +32,7 @@ import static org.agrona.concurrent.status.CountersReader.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -224,6 +223,9 @@ public class CountersManagerTest
 
         final DirectBuffer keyTwoBuffer = argCaptorTwo.getValue();
         assertThat(keyTwoBuffer.getLong(0), is(keyTwo));
+
+        assertEquals(typeIdOne, manager.getCounterTypeId(counterIdOne));
+        assertEquals(typeIdTwo, manager.getCounterTypeId(counterIdTwo));
     }
 
     @Test

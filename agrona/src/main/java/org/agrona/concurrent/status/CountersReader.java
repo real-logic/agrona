@@ -395,6 +395,19 @@ public class CountersReader
     }
 
     /**
+     * Get the type id for a given counter id.
+     *
+     * @param counterId to be read.
+     * @return the type id for a given counter id.
+     */
+    public int getCounterTypeId(final int counterId)
+    {
+        validateCounterId(counterId);
+
+        return metaDataBuffer.getInt(metaDataOffset(counterId) + TYPE_ID_OFFSET);
+    }
+
+    /**
      * Get the deadline (in milliseconds) for when a given counter id may be reused.
      *
      * @param counterId to be read.
