@@ -23,7 +23,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
-    id 'io.freefair.javadoc-links' version '4.1.6' apply false
+    id 'io.freefair.javadoc-links' version '5.0.0' apply false
     id 'biz.aQute.bnd.builder' version '5.0.1' apply false
     id "com.github.ben-manes.versions" version "0.28.0"
 }
@@ -35,7 +35,7 @@ def checkstyleVersion = '8.28'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.3.3'
 def junitVersion = '5.6.2'
-def guavaTestLib = '28.2-jre'
+def guavaTestLib = '29.0-jre'
 def jmhVersion = '1.23'
 
 def agronaGroup = 'org.agrona'
