@@ -37,7 +37,7 @@ import static org.agrona.AsciiEncoding.*;
  * <b>Note:</b> this class has a natural ordering that is inconsistent with equals.
  * Types may be different but equal on buffer contents.
  */
-public class ExpandableArrayBuffer implements MutableDirectBuffer
+public final class ExpandableArrayBuffer implements MutableDirectBuffer
 {
     /**
      * Maximum length to which the underlying buffer can grow. Some JVMs store state in the last few bytes.
