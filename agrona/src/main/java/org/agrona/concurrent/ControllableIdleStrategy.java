@@ -28,16 +28,45 @@ import java.util.concurrent.locks.LockSupport;
  */
 public final class ControllableIdleStrategy implements IdleStrategy
 {
+    /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "controllable";
+
+    /**
+     * Not controlled so will go with default of {@link #PARK}.
+     */
     public static final int NOT_CONTROLLED = 0;
+
+    /**
+     * Apply {@link NoOpIdleStrategy}.
+     */
     public static final int NOOP = 1;
+
+    /**
+     * Apply {@link BusySpinIdleStrategy}.
+     */
     public static final int BUSY_SPIN = 2;
+
+    /**
+     * Apply {@link YieldingIdleStrategy}.
+     */
     public static final int YIELD = 3;
+
+    /**
+     * Apply {@link SleepingIdleStrategy} with minimum sleep interval.
+     */
     public static final int PARK = 4;
 
     private static final long PARK_PERIOD_NANOSECONDS = 1000;
 
     private final StatusIndicatorReader statusIndicator;
 
+    /**
+     * Configure idle strategy taking an indicator of which strategy should be applied.
+     *
+     * @param statusIndicator indicator of which strategy should be applied.
+     */
     public ControllableIdleStrategy(final StatusIndicatorReader statusIndicator)
     {
         this.statusIndicator = statusIndicator;
@@ -96,7 +125,16 @@ public final class ControllableIdleStrategy implements IdleStrategy
     public String toString()
     {
         return "ControllableIdleStrategy{" +
-            "statusIndicator=" + statusIndicator +
+            "alias=" + ALIAS +
+            ", statusIndicator=" + statusIndicator +
             '}';
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
     }
 }

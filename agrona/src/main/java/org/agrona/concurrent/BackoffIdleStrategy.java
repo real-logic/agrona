@@ -64,9 +64,29 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
  */
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
+    /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "backoff";
+
+    /**
+     * Default number of times the strategy will spin without work before going to next state.
+     */
     public static final long DEFAULT_MAX_SPINS = 10L;
+
+    /**
+     * Default number of times the strategy will yield without work before going to next state.
+     */
     public static final long DEFAULT_MAX_YIELDS = 5L;
+
+    /**
+     * Default interval the strategy will park the thread on entering the park state.
+     */
     public static final long DEFAULT_MIN_PARK_PERIOD_NS = 1000L;
+
+    /**
+     * Default interval the strategy will park the thread will expand interval to as a max.
+     */
     public static final long DEFAULT_MAX_PARK_PERIOD_NS = 1_000_000L;
 
     byte p064, p065, p066, p067, p068, p069, p070, p071, p072, p073, p074, p075, p076, p077, p078, p079;
@@ -163,10 +183,19 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         state = NOT_IDLE;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
+    }
+
     public String toString()
     {
         return "BackoffIdleStrategy{" +
-            "maxSpins=" + maxSpins +
+            "alias=" + ALIAS +
+            ", maxSpins=" + maxSpins +
             ", maxYields=" + maxYields +
             ", minParkPeriodNs=" + minParkPeriodNs +
             ", maxParkPeriodNs=" + maxParkPeriodNs +

@@ -22,6 +22,11 @@ package org.agrona.concurrent;
 public final class NoOpIdleStrategy implements IdleStrategy
 {
     /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "noop";
+
+    /**
      * As there is no instance state then this object can be used to save on allocation.
      */
     public static final NoOpIdleStrategy INSTANCE = new NoOpIdleStrategy();
@@ -51,8 +56,16 @@ public final class NoOpIdleStrategy implements IdleStrategy
     {
     }
 
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
+    }
+
     public String toString()
     {
-        return "NoOpIdleStrategy{}";
+        return "NoOpIdleStrategy{alias=" + ALIAS + "}";
     }
 }

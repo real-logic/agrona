@@ -21,10 +21,18 @@ package org.agrona.concurrent;
 public final class YieldingIdleStrategy implements IdleStrategy
 {
     /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "yield";
+
+    /**
      * As there is no instance state then this object can be used to save on allocation.
      */
     public static final YieldingIdleStrategy INSTANCE = new YieldingIdleStrategy();
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle(final int workCount)
     {
         if (workCount > 0)
@@ -35,17 +43,31 @@ public final class YieldingIdleStrategy implements IdleStrategy
         Thread.yield();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void idle()
     {
         Thread.yield();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void reset()
     {
     }
 
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
+    }
+
     public String toString()
     {
-        return "YieldingIdleStrategy{}";
+        return "YieldingIdleStrategy{alias=" + ALIAS + "}";
     }
 }

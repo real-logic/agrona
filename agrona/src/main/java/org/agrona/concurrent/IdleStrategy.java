@@ -90,4 +90,11 @@ public interface IdleStrategy
      * Reset the internal state in preparation for entering an idle state again.
      */
     void reset();
+
+    /**
+     * Simple name by which the strategy can be identified.
+     *
+     * @return simple name by which the strategy can be identified.
+     */
+    String alias();
 }

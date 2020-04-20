@@ -25,6 +25,11 @@ import java.util.concurrent.locks.LockSupport;
 public final class SleepingIdleStrategy implements IdleStrategy
 {
     /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "sleep-ns";
+
+    /**
      * Default sleep period that tends to work as the likely minimum on Linux to be effective.
      */
     public static final long DEFAULT_SLEEP_PERIOD_NS = 1000L;
@@ -77,10 +82,19 @@ public final class SleepingIdleStrategy implements IdleStrategy
     {
     }
 
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
+    }
+
     public String toString()
     {
         return "SleepingIdleStrategy{" +
-            "sleepPeriodNs=" + sleepPeriodNs +
+            "alias=" + ALIAS +
+            ", sleepPeriodNs=" + sleepPeriodNs +
             '}';
     }
 }

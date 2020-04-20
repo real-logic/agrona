@@ -25,6 +25,11 @@ import org.agrona.hints.ThreadHints;
 public final class BusySpinIdleStrategy implements IdleStrategy
 {
     /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "spin";
+
+    /**
      * As there is no instance state then this object can be used to save on allocation.
      */
     public static final BusySpinIdleStrategy INSTANCE = new BusySpinIdleStrategy();
@@ -61,6 +66,14 @@ public final class BusySpinIdleStrategy implements IdleStrategy
 
     public String toString()
     {
-        return "BusySpinIdleStrategy{}";
+        return "BusySpinIdleStrategy{alias=" + ALIAS + "}";
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
     }
 }

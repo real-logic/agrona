@@ -23,6 +23,11 @@ package org.agrona.concurrent;
 public final class SleepingMillisIdleStrategy implements IdleStrategy
 {
     /**
+     * Name to be returned from {@link #alias()}.
+     */
+    public static final String ALIAS = "sleep-ms";
+
+    /**
      * Default sleep period when the default constructor is used.
      */
     public static final long DEFAULT_SLEEP_PERIOD_MS = 1L;
@@ -89,10 +94,19 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     {
     }
 
+    /**
+     *  {@inheritDoc}
+     */
+    public String alias()
+    {
+        return ALIAS;
+    }
+
     public String toString()
     {
         return "SleepingMillisIdleStrategy{" +
-            "sleepPeriodMs=" + sleepPeriodMs +
+            "alias=" + ALIAS +
+            ", sleepPeriodMs=" + sleepPeriodMs +
             '}';
     }
 }
