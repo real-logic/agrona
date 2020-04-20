@@ -43,7 +43,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * <b>Note:</b> The wrap methods on this class are not thread safe. Concurrent access should only happen after a
  * successful wrap.
  */
-public final class UnsafeBuffer implements AtomicBuffer
+public class UnsafeBuffer implements AtomicBuffer
 {
     /**
      * Buffer alignment to ensure atomic word accesses.
