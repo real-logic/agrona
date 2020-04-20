@@ -96,5 +96,8 @@ public interface IdleStrategy
      *
      * @return simple name by which the strategy can be identified.
      */
-    String alias();
+    default String alias()
+    {
+        return "";
+    }
 }
