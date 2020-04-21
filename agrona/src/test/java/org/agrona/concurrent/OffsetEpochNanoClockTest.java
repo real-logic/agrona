@@ -29,6 +29,11 @@ public class OffsetEpochNanoClockTest
     {
         final OffsetEpochNanoClock clock = new OffsetEpochNanoClock();
 
+        assertSaneEpochTimeStamp(clock);
+    }
+
+    private void assertSaneEpochTimeStamp(final OffsetEpochNanoClock clock)
+    {
         final long startInMs = System.currentTimeMillis();
         UnsafeAccess.UNSAFE.fullFence();
         final long nanoTime = clock.nanoTime();
@@ -39,4 +44,15 @@ public class OffsetEpochNanoClockTest
         assertThat(nanoTimeInMs, Matchers.lessThanOrEqualTo(endInMs));
         assertThat(nanoTimeInMs, Matchers.greaterThanOrEqualTo(startInMs));
     }
+
+    @Test
+    public void shouldResampleSaneEpochTimestamp()
+    {
+        final OffsetEpochNanoClock clock = new OffsetEpochNanoClock();
+
+        clock.sample();
+
+        assertSaneEpochTimeStamp(clock);
+    }
+
 }
