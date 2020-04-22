@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -22,24 +23,59 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * {@link System#currentTimeMillis()} and then uses that offset to adjust the return value of
  * {@link System#nanoTime()} into the UNIX epoch.
  *
+ * The {@link #sample()} method can be used in order to reset these initial values if your system clock gets updated.
+ *
  * @see org.agrona.concurrent.SystemEpochNanoClock
  */
 public class OffsetEpochNanoClock implements EpochNanoClock
 {
     private static final long DEFAULT_MEASUREMENT_THRESHOLD_IN_NS = 250;
     private static final int DEFAULT_MAX_MEASUREMENT_RETRIES = 100;
+    private static final long DEFAULT_RESAMPLE_INTERVAL_IN_NS = HOURS.toNanos(1);
 
-    private final long initialNanoTime;
-    private final long initialCurrentTimeNanos;
-    private final boolean isWithinThreshold;
+    private final int maxMeasurementRetries;
+    private final long measurementThresholdInNs;
+    private final long resampleIntervalInNs;
+
+    private long initialNanoTime;
+    private long initialCurrentTimeNanos;
+    private boolean isWithinThreshold;
 
     public OffsetEpochNanoClock()
     {
-        this(DEFAULT_MAX_MEASUREMENT_RETRIES, DEFAULT_MEASUREMENT_THRESHOLD_IN_NS);
+        this(DEFAULT_MAX_MEASUREMENT_RETRIES, DEFAULT_MEASUREMENT_THRESHOLD_IN_NS, DEFAULT_RESAMPLE_INTERVAL_IN_NS);
     }
 
-    public OffsetEpochNanoClock(final int maxMeasurementRetries, final long measurementThresholdInNs)
+    /**
+     * Constructs the clock with custom configuration parameters.
+     *
+     * @param maxMeasurementRetries the maximum number of times that this clock will attempt to re-sample the initial
+     *                              time values.
+     * @param measurementThresholdInNs the desired accuracy window for the initial clock samples.
+     * @param resampleIntervalInNs the desired interval before the samples are automatically recalculated. The seed
+     *                             recalculation enables the system to minimise clock drift if the system clock is
+     *                             updated.
+     */
+    public OffsetEpochNanoClock(
+        final int maxMeasurementRetries,
+        final long measurementThresholdInNs,
+        final long resampleIntervalInNs)
     {
+        this.maxMeasurementRetries = maxMeasurementRetries;
+        this.measurementThresholdInNs = measurementThresholdInNs;
+        this.resampleIntervalInNs = resampleIntervalInNs;
+
+        sample();
+    }
+
+    /**
+     * Explicitly resample the initial seeds.
+     */
+    public void sample()
+    {
+        final int maxMeasurementRetries = this.maxMeasurementRetries;
+        final long measurementThresholdInNs = this.measurementThresholdInNs;
+
         // Loop attempts to find a measurement that is accurate to a given threshold
         long bestInitialCurrentTimeNanos = 0, bestInitialNanoTime = 0;
         long bestNanoTimeWindow = Long.MAX_VALUE;
@@ -75,9 +111,19 @@ public class OffsetEpochNanoClock implements EpochNanoClock
     public long nanoTime()
     {
         final long nanoTimeAdjustment = System.nanoTime() - initialNanoTime;
+        if (nanoTimeAdjustment < 0 || nanoTimeAdjustment > resampleIntervalInNs)
+        {
+            sample();
+            return nanoTime();
+        }
         return initialCurrentTimeNanos + nanoTimeAdjustment;
     }
 
+    /**
+     * Gets whether the clock sampled the initial time offset accurately.
+     *
+     * @return true if the clock sampled the initial time offset accurately.
+     */
     public boolean isWithinThreshold()
     {
         return isWithinThreshold;
