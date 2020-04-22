@@ -37,7 +37,7 @@ import static org.agrona.concurrent.UnsafeBuffer.*;
  * <p>
  * Note: The resize method is not threadsafe. Concurrent access should only occur after a successful resize.
  */
-public final class MappedResizeableBuffer implements AutoCloseable
+public class MappedResizeableBuffer implements AutoCloseable
 {
     private long addressOffset;
     private long capacity;

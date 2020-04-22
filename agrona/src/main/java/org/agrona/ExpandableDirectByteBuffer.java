@@ -39,7 +39,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * <b>Note:</b> this class has a natural ordering that is inconsistent with equals.
  * Types may be different but equal on buffer contents.
  */
-public final class ExpandableDirectByteBuffer implements MutableDirectBuffer
+public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 {
     /**
      * Maximum length to which the underlying buffer can grow.

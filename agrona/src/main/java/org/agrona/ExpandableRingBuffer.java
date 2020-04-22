@@ -30,7 +30,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  * <p>
  * <b>Note:</b> This class is not thread safe.
  */
-public final class ExpandableRingBuffer
+public class ExpandableRingBuffer
 {
     /**
      * Maximum capacity to which the ring buffer can grow which is 1GB.
