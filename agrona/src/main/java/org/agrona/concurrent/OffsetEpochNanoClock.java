@@ -21,49 +21,47 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 /**
  * An accurate, zero-gc, pure-java, {@link EpochNanoClock} that calculates an initial epoch nano time based on
  * {@link System#currentTimeMillis()} and then uses that offset to adjust the return value of
- * {@link System#nanoTime()} into the UNIX epoch.
- *
+ * {@link System#nanoTime()} to the UNIX epoch.
+ * <p>
  * The {@link #sample()} method can be used in order to reset these initial values if your system clock gets updated.
  *
  * @see org.agrona.concurrent.SystemEpochNanoClock
  */
 public class OffsetEpochNanoClock implements EpochNanoClock
 {
-    private static final long DEFAULT_MEASUREMENT_THRESHOLD_IN_NS = 250;
     private static final int DEFAULT_MAX_MEASUREMENT_RETRIES = 100;
-    private static final long DEFAULT_RESAMPLE_INTERVAL_IN_NS = HOURS.toNanos(1);
+    private static final long DEFAULT_MEASUREMENT_THRESHOLD_NS = 250;
+    private static final long DEFAULT_RESAMPLE_INTERVAL_NS = HOURS.toNanos(1);
 
     private final int maxMeasurementRetries;
-    private final long measurementThresholdInNs;
-    private final long resampleIntervalInNs;
+    private final long measurementThresholdNs;
+    private final long resampleIntervalNs;
 
     private long initialNanoTime;
-    private long initialCurrentTimeNanos;
+    private long initialCurrentNanoTime;
     private boolean isWithinThreshold;
 
     public OffsetEpochNanoClock()
     {
-        this(DEFAULT_MAX_MEASUREMENT_RETRIES, DEFAULT_MEASUREMENT_THRESHOLD_IN_NS, DEFAULT_RESAMPLE_INTERVAL_IN_NS);
+        this(DEFAULT_MAX_MEASUREMENT_RETRIES, DEFAULT_MEASUREMENT_THRESHOLD_NS, DEFAULT_RESAMPLE_INTERVAL_NS);
     }
 
     /**
      * Constructs the clock with custom configuration parameters.
      *
-     * @param maxMeasurementRetries the maximum number of times that this clock will attempt to re-sample the initial
-     *                              time values.
-     * @param measurementThresholdInNs the desired accuracy window for the initial clock samples.
-     * @param resampleIntervalInNs the desired interval before the samples are automatically recalculated. The seed
-     *                             recalculation enables the system to minimise clock drift if the system clock is
-     *                             updated.
+     * @param maxMeasurementRetries  the maximum number of times that this clock will attempt to re-sample the initial
+     *                               time values.
+     * @param measurementThresholdNs the desired accuracy window for the initial clock samples.
+     * @param resampleIntervalNs     the desired interval before the samples are automatically recalculated. The seed
+     *                               recalculation enables the system to minimise clock drift if the system clock is
+     *                               updated.
      */
     public OffsetEpochNanoClock(
-        final int maxMeasurementRetries,
-        final long measurementThresholdInNs,
-        final long resampleIntervalInNs)
+        final int maxMeasurementRetries, final long measurementThresholdNs, final long resampleIntervalNs)
     {
         this.maxMeasurementRetries = maxMeasurementRetries;
-        this.measurementThresholdInNs = measurementThresholdInNs;
-        this.resampleIntervalInNs = resampleIntervalInNs;
+        this.measurementThresholdNs = measurementThresholdNs;
+        this.resampleIntervalNs = resampleIntervalNs;
 
         sample();
     }
@@ -73,11 +71,8 @@ public class OffsetEpochNanoClock implements EpochNanoClock
      */
     public void sample()
     {
-        final int maxMeasurementRetries = this.maxMeasurementRetries;
-        final long measurementThresholdInNs = this.measurementThresholdInNs;
-
         // Loop attempts to find a measurement that is accurate to a given threshold
-        long bestInitialCurrentTimeNanos = 0, bestInitialNanoTime = 0;
+        long bestInitialCurrentNanoTime = 0, bestInitialNanoTime = 0;
         long bestNanoTimeWindow = Long.MAX_VALUE;
 
         for (int i = 0; i < maxMeasurementRetries; i++)
@@ -87,23 +82,23 @@ public class OffsetEpochNanoClock implements EpochNanoClock
             final long secondNanoTime = System.nanoTime();
 
             final long nanoTimeWindow = secondNanoTime - firstNanoTime;
-            if (nanoTimeWindow < measurementThresholdInNs)
+            if (nanoTimeWindow < measurementThresholdNs)
             {
-                initialCurrentTimeNanos = MILLISECONDS.toNanos(initialCurrentTimeMillis);
+                initialCurrentNanoTime = MILLISECONDS.toNanos(initialCurrentTimeMillis);
                 initialNanoTime = (firstNanoTime + secondNanoTime) >> 1;
                 isWithinThreshold = true;
                 return;
             }
             else if (nanoTimeWindow < bestNanoTimeWindow)
             {
-                bestInitialCurrentTimeNanos = MILLISECONDS.toNanos(initialCurrentTimeMillis);
+                bestInitialCurrentNanoTime = MILLISECONDS.toNanos(initialCurrentTimeMillis);
                 bestInitialNanoTime = (firstNanoTime + secondNanoTime) >> 1;
                 bestNanoTimeWindow = nanoTimeWindow;
             }
         }
 
         // If we never get a time below the threshold, pick the narrowest window we've seen so far.
-        initialCurrentTimeNanos = bestInitialCurrentTimeNanos;
+        initialCurrentNanoTime = bestInitialCurrentNanoTime;
         initialNanoTime = bestInitialNanoTime;
         isWithinThreshold = false;
     }
@@ -111,12 +106,13 @@ public class OffsetEpochNanoClock implements EpochNanoClock
     public long nanoTime()
     {
         final long nanoTimeAdjustment = System.nanoTime() - initialNanoTime;
-        if (nanoTimeAdjustment < 0 || nanoTimeAdjustment > resampleIntervalInNs)
+        if (nanoTimeAdjustment < 0 || nanoTimeAdjustment > resampleIntervalNs)
         {
             sample();
             return nanoTime();
         }
-        return initialCurrentTimeNanos + nanoTimeAdjustment;
+
+        return initialCurrentNanoTime + nanoTimeAdjustment;
     }
 
     /**
