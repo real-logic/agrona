@@ -347,13 +347,13 @@ public class CountersManagerTest
             manager.setCounterKey(counter.id(), tempBuffer, 0, MAX_KEY_LENGTH + 1);
             fail("Should have thrown exception");
         }
-        catch (IllegalArgumentException e)
+        catch (final IllegalArgumentException e)
         {
             assertTrue(true);
         }
     }
 
-    private static class StringKeyExtractor implements MetaData
+    private static final class StringKeyExtractor implements MetaData
     {
         private final int id;
         private String key;
