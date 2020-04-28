@@ -287,9 +287,8 @@ public class CountersManagerTest
         assertThat(counter.label(), is("original label with update"));
     }
 
-
     @Test
-    public void shouldBeAbleToGetAndUpdateCounterKey()
+    public void shouldBeAbleToGetAndUpdateCounterKeyUsingCallback()
     {
         final String originalKey = "original key";
         final String updatedKey = "updated key";
@@ -300,11 +299,58 @@ public class CountersManagerTest
         final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
         manager.forEach(keyExtractor);
-
         assertThat(keyExtractor.key, is(originalKey));
 
         manager.setCounterKey(counter.id(), (keyBuffer) -> keyBuffer.putStringUtf8(0, updatedKey));
 
+        manager.forEach(keyExtractor);
+        assertThat(keyExtractor.key, is(updatedKey));
+    }
+
+    @Test
+    public void shouldBeAbleToGetAndUpdateCounterKey()
+    {
+        final String originalKey = "original key";
+        final String updatedKey = "updated key";
+
+
+        final AtomicCounter counter = manager.newCounter(
+            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+
+        final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
+
+        manager.forEach(keyExtractor);
+
+        assertThat(keyExtractor.key, is(originalKey));
+
+        final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[128]);
+        final int length = tempBuffer.putStringUtf8(0, updatedKey);
+
+        manager.setCounterKey(counter.id(), tempBuffer, 0, length);
+
+        manager.forEach(keyExtractor);
+        assertThat(keyExtractor.key, is(updatedKey));
+    }
+
+    @Test
+    public void shouldRejectOversizeKeys()
+    {
+        final String originalKey = "original key";
+
+        final AtomicCounter counter = manager.newCounter(
+            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+
+        final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[256]);
+
+        try
+        {
+            manager.setCounterKey(counter.id(), tempBuffer, 0, MAX_KEY_LENGTH + 1);
+            fail("Should have thrown exception");
+        }
+        catch (IllegalArgumentException e)
+        {
+            assertTrue(true);
+        }
     }
 
     private static class StringKeyExtractor implements MetaData
