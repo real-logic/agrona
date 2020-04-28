@@ -287,6 +287,45 @@ public class CountersManagerTest
         assertThat(counter.label(), is("original label with update"));
     }
 
+
+    @Test
+    public void shouldBeAbleToGetAndUpdateCounterKey()
+    {
+        final String originalKey = "original key";
+        final String updatedKey = "updated key";
+
+        final AtomicCounter counter = manager.newCounter(
+            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+
+        final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
+
+        manager.forEach(keyExtractor);
+
+        assertThat(keyExtractor.key, is(originalKey));
+
+        manager.setCounterKey(counter.id(), (keyBuffer) -> keyBuffer.putStringUtf8(0, updatedKey));
+
+    }
+
+    private static class StringKeyExtractor implements MetaData
+    {
+        private final int id;
+        private String key;
+
+        private StringKeyExtractor(final int id)
+        {
+            this.id = id;
+        }
+
+        public void accept(final int counterId, final int typeId, final DirectBuffer keyBuffer, final String label)
+        {
+            if (counterId == id)
+            {
+                key = keyBuffer.getStringUtf8(0);
+            }
+        }
+    }
+
     @Test
     public void shouldBeAbleToAppendLabel()
     {
