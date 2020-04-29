@@ -15,12 +15,15 @@
  */
 package org.agrona.concurrent.status;
 
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-
+import org.agrona.DirectBuffer;
+import org.agrona.MutableDirectBuffer;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Atomic counter that is backed by an {@link AtomicBuffer} that can be read across threads and processes.
@@ -148,6 +151,44 @@ public class AtomicCounter implements AutoCloseable
         if (null != countersManager)
         {
             countersManager.appendToLabel(id, suffix);
+        }
+        else
+        {
+            throw new IllegalStateException("Not constructed with CountersManager");
+        }
+    }
+
+    /**
+     * Update the key for a counter constructed with a {@link CountersManager}.
+     *
+     * @param keyFunc callback to use to update the counter's key
+     * @throws IllegalStateException is not constructed {@link CountersManager}.
+     */
+    public void updateKey(final Consumer<MutableDirectBuffer> keyFunc)
+    {
+        if (null != countersManager)
+        {
+            countersManager.setCounterKey(id, keyFunc);
+        }
+        else
+        {
+            throw new IllegalStateException("Not constructed with CountersManager");
+        }
+    }
+
+    /**
+     * Update the key for a counter constructed with a {@link CountersManager}.
+     *
+     * @param keyBuffer contains key data to be copied into the counter.
+     * @param offset start of the key data within the keyBuffer
+     * @param length length of the data within the keyBuffer (must be &lt;= {@link CountersReader#MAX_KEY_LENGTH})
+     * @throws IllegalStateException is not constructed {@link CountersManager}.
+     */
+    public void updateKey(final DirectBuffer keyBuffer, final int offset, final int length)
+    {
+        if (null != countersManager)
+        {
+            countersManager.setCounterKey(id, keyBuffer, offset, length);
         }
         else
         {
