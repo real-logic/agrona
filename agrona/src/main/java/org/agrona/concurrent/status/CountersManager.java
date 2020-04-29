@@ -390,7 +390,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} key based on counterId, using a consumer callback to update the key buffer.
+     * Set an {@link AtomicCounter} key based on counterId, using a consumer callback to update the key metadata buffer.
      *
      * @param counterId to be set.
      * @param keyFunc   callback used to set the key.
@@ -401,7 +401,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} key based on counterId, copying the value from the supplied buffer.
+     * Set an {@link AtomicCounter} key based on counterId, copying the key metadata from the supplied buffer.
      *
      * @param id        to be set
      * @param keyBuffer containing the updated key
@@ -417,7 +417,6 @@ public class CountersManager extends CountersReader
 
         metaDataBuffer.putBytes(metaDataOffset(id) + KEY_OFFSET, keyBuffer, offset, length);
     }
-
 
     /**
      * Set an {@link AtomicCounter} label based on counterId.
