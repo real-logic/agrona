@@ -390,6 +390,36 @@ public class CountersManager extends CountersReader
     }
 
     /**
+     * Set an {@link AtomicCounter} key based on counterId, using a consumer callback to update the key buffer.
+     *
+     * @param counterId to be set.
+     * @param keyFunc   callback used to set the key.
+     */
+    public void setCounterKey(final int counterId, final Consumer<MutableDirectBuffer> keyFunc)
+    {
+        keyFunc.accept(new UnsafeBuffer(metaDataBuffer, metaDataOffset(counterId) + KEY_OFFSET, MAX_KEY_LENGTH));
+    }
+
+    /**
+     * Set an {@link AtomicCounter} key based on counterId, copying the value from the supplied buffer.
+     *
+     * @param id        to be set
+     * @param keyBuffer containing the updated key
+     * @param offset    offset into buffer
+     * @param length    length of data to copy
+     */
+    public void setCounterKey(final int id, final DirectBuffer keyBuffer, final int offset, final int length)
+    {
+        if (length > MAX_KEY_LENGTH)
+        {
+            throw new IllegalArgumentException("Supplied key is too long: " + length + ", max: " + MAX_KEY_LENGTH);
+        }
+
+        metaDataBuffer.putBytes(metaDataOffset(id) + KEY_OFFSET, keyBuffer, offset, length);
+    }
+
+
+    /**
      * Set an {@link AtomicCounter} label based on counterId.
      *
      * @param counterId to be set.
