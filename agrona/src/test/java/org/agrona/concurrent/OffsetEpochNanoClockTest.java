@@ -19,6 +19,8 @@ import org.agrona.UnsafeAccess;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.util.concurrent.locks.LockSupport;
+
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -36,13 +38,20 @@ public class OffsetEpochNanoClockTest
     {
         final long startInMs = System.currentTimeMillis();
         UnsafeAccess.UNSAFE.fullFence();
+        parkForMeasurementPrecision();
         final long nanoTime = clock.nanoTime();
         final long nanoTimeInMs = NANOSECONDS.toMillis(nanoTime);
+        parkForMeasurementPrecision();
         UnsafeAccess.UNSAFE.fullFence();
         final long endInMs = System.currentTimeMillis();
 
         assertThat(nanoTimeInMs, Matchers.lessThanOrEqualTo(endInMs));
         assertThat(nanoTimeInMs, Matchers.greaterThanOrEqualTo(startInMs));
+    }
+
+    private void parkForMeasurementPrecision()
+    {
+        LockSupport.parkNanos(1_000_000);
     }
 
     @Test
