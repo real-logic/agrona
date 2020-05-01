@@ -247,7 +247,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                         return;
                     }
 
-                    failAction(closeFailAction, thread, " due to timeout, retrying...");
+                    failAction(closeFailAction, thread, "timeout, retrying...");
 
                     if (!thread.isInterrupted())
                     {
@@ -258,7 +258,7 @@ public class AgentRunner implements Runnable, AutoCloseable
                 {
                     Thread.currentThread().interrupt();
 
-                    failAction(closeFailAction, thread, " due to thread interrupt");
+                    failAction(closeFailAction, thread, "thread interrupt");
 
                     if (!isClosed && !thread.isInterrupted())
                     {
