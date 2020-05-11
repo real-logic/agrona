@@ -22,9 +22,9 @@ import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameMatches;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
+import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 import org.agrona.DirectBuffer;
 import org.agrona.agent.BufferAlignmentInterceptor.CharVerifier;
 import org.agrona.agent.BufferAlignmentInterceptor.DoubleVerifier;
@@ -44,16 +44,16 @@ import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 
 /**
- * An agent that verifies that all memory accesses in {@link DirectBuffer} implementations are aligned.
+ * A Java agent that verifies that all memory accesses in {@link DirectBuffer} implementations are aligned.
  * <p>
  * Unaligned accesses can be slower or even make the JVM crash on some architectures.
  * <p>
  * Using this agent will avoid such crashes, but it has a performance overhead and should only be used for testing
- * and debugging
+ * and debugging.
  */
 public class BufferAlignmentAgent
 {
-    private static ClassFileTransformer alignmentTransformer;
+    private static ResettableClassFileTransformer alignmentTransformer;
     private static Instrumentation instrumentation;
 
     public static void premain(final String agentArgs, final Instrumentation instrumentation)
@@ -78,8 +78,7 @@ public class BufferAlignmentAgent
             .with(new AgentBuilderListener())
             .disableClassFormatChanges()
             .with(shouldRedefine ?
-                AgentBuilder.RedefinitionStrategy.RETRANSFORMATION :
-                AgentBuilder.RedefinitionStrategy.DISABLED)
+                AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED)
             .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
             .transform((builder, typeDescription, classLoader, module) -> builder
                 .visit(to(LongVerifier.class).on(nameContains("Long")))
@@ -95,10 +94,7 @@ public class BufferAlignmentAgent
     {
         if (alignmentTransformer != null)
         {
-            instrumentation.removeTransformer(alignmentTransformer);
-            instrumentation.removeTransformer(new AgentBuilder.Default()
-                .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
-                .transform(AgentBuilder.Transformer.NoOp.INSTANCE).installOn(instrumentation));
+            alignmentTransformer.reset(instrumentation, AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
             alignmentTransformer = null;
             instrumentation = null;
         }
