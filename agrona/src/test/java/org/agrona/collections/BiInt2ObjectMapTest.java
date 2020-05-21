@@ -200,12 +200,12 @@ public class BiInt2ObjectMapTest
                 return true;
             }
 
-            if (o == null || getClass() != o.getClass())
+            if (!(o instanceof EntryCapture))
             {
                 return false;
             }
 
-            final EntryCapture that = (EntryCapture)o;
+            final EntryCapture<?> that = (EntryCapture<?>)o;
 
             return keyPartA == that.keyPartA && keyPartB == that.keyPartB && value.equals(that.value);
 

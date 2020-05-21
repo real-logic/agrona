@@ -711,7 +711,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
-            BufferUtil.boundsCheck(dstBuffer, (long)dstOffset, length);
+            BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
         }
 
         final byte[] dstByteArray;
@@ -753,7 +753,7 @@ public class MappedResizeableBuffer implements AutoCloseable
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
-            BufferUtil.boundsCheck(srcBuffer, (long)srcIndex, length);
+            BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
         }
 
         putBytes(index, srcBuffer, srcIndex, length);

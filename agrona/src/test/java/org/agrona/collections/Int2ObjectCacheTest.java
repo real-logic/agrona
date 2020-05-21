@@ -165,7 +165,7 @@ public class Int2ObjectCacheTest
 
         final Collection<Integer> copyToSet = new HashSet<>();
 
-        for (final Int2ObjectCache.KeyIterator iter = cache.keySet().iterator(); iter.hasNext(); )
+        for (final Int2ObjectCache<String>.KeyIterator iter = cache.keySet().iterator(); iter.hasNext(); )
         {
             copyToSet.add(iter.nextInt());
         }

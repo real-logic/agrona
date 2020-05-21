@@ -311,7 +311,7 @@ public final class SystemUtil
         final char lastCharacter = propertyValue.charAt(lengthMinusSuffix);
         if (Character.isDigit(lastCharacter))
         {
-            return Long.valueOf(propertyValue);
+            return Long.parseLong(propertyValue);
         }
 
         final long value = AsciiEncoding.parseLongAscii(propertyValue, 0, lengthMinusSuffix);
@@ -392,7 +392,7 @@ public final class SystemUtil
         final char lastCharacter = propertyValue.charAt(propertyValue.length() - 1);
         if (Character.isDigit(lastCharacter))
         {
-            return Long.valueOf(propertyValue);
+            return Long.parseLong(propertyValue);
         }
 
         if (lastCharacter != 's' && lastCharacter != 'S')

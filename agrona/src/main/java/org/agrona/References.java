@@ -58,7 +58,7 @@ public final class References
      * @param ref The {@link Reference} to be tested.
      * @return true if {@link Reference} is cleared, otherwise false.
      */
-    public static boolean isCleared(final Reference ref)
+    public static boolean isCleared(final Reference<?> ref)
     {
         return ref.get() == null;
     }
