@@ -80,6 +80,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
 
         final long mask = this.capacity - 1;
         final long[] sequences = this.sequences;
+        final E[] buffer = this.buffer;
 
         while (true)
         {
@@ -108,6 +109,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     public E poll()
     {
         final long[] sequences = this.sequences;
+        final E[] buffer = this.buffer;
         final long mask = this.capacity - 1;
 
         while (true)
@@ -130,6 +132,39 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 UNSAFE.putOrderedLong(sequences, sequenceOffset, attemptedHead + mask);
 
                 return (E)e;
+            }
+
+            ThreadHints.onSpinWait();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public E peek()
+    {
+        final long[] sequences = this.sequences;
+        final E[] buffer = this.buffer;
+        final long mask = this.capacity - 1;
+
+        while (true)
+        {
+            final long currentHead = head;
+            final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
+            final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
+            final long attemptedHead = currentHead + 1L;
+
+            if (sequence < attemptedHead)
+            {
+                return null;
+            }
+            else if (sequence == attemptedHead)
+            {
+                final long elementOffset = sequenceToBufferOffset(currentHead, mask);
+                final Object e = UNSAFE.getObject(buffer, elementOffset);
+
+                if (currentHead == head)
+                {
+                    return (E)e;
+                }
             }
 
             ThreadHints.onSpinWait();

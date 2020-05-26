@@ -23,10 +23,10 @@ import java.util.Queue;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ArrayQueueTest
+public class ArrayQueueSizeTest
 {
     private static final int REPETITIONS = 10_000_000;
-    private static final int QUEUE_CAPACITY = 1000;
+    private static final int QUEUE_CAPACITY = 128;
 
     private final AbstractConcurrentArrayQueue<Integer> queue = new OneToOneConcurrentArrayQueue<>(QUEUE_CAPACITY);
     private final Producer producer = new Producer(queue);
@@ -51,7 +51,7 @@ public class ArrayQueueTest
 
     @Test
     @Timeout(10)
-    public void shouldNeverReportSizeLessThanZero()
+    public void shouldNeverReportSizeOutOfRange()
     {
         producerThread = new Thread(producer);
         consumerThread = new Thread(consumer);
@@ -62,7 +62,7 @@ public class ArrayQueueTest
         while (producer.isRunning() || consumer.isRunning())
         {
             final int size = queue.size();
-            if (size < 0)
+            if (size < 0 || size > queue.capacity())
             {
                 fail("invalid size: " + size);
             }
