@@ -173,11 +173,6 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return e;
     }
 
-    public boolean isEmpty()
-    {
-        return head == tail;
-    }
-
     public boolean contains(final Object o)
     {
         if (null == o)
@@ -263,6 +258,11 @@ public abstract class AbstractConcurrentArrayQueue<E>
         while (null != value);
     }
 
+    public boolean isEmpty()
+    {
+        return head >= tail;
+    }
+
     public int size()
     {
         long currentHeadBefore;
@@ -277,7 +277,17 @@ public abstract class AbstractConcurrentArrayQueue<E>
         }
         while (currentHeadAfter != currentHeadBefore);
 
-        return (int)(currentTail - currentHeadAfter);
+        final long size = currentTail - currentHeadAfter;
+        if (size < 0)
+        {
+            return 0;
+        }
+        else if (size > capacity)
+        {
+            return capacity;
+        }
+
+        return (int)size;
     }
 
     public static long sequenceToBufferOffset(final long sequence, final long mask)

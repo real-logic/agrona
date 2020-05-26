@@ -16,12 +16,11 @@
 package org.agrona.concurrent;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.Queue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,36 +117,35 @@ public class ManyToOneConcurrentLinkedQueueTest
     }
 
     @Test
+    @Timeout(10)
     public void shouldTransferConcurrently()
     {
-        assertTimeoutPreemptively(ofSeconds(10), () ->
-        {
-            final int count = 1_000_000;
-            final int numThreads = 2;
-            final Executor executor = Executors.newFixedThreadPool(numThreads);
-            final Runnable producer =
-                () ->
-                {
-                    for (int i = 0, items = count / numThreads; i < items; i++)
-                    {
-                        queue.offer(i);
-                    }
-                };
-
-            for (int i = 0; i < numThreads; i++)
+        final int count = 1_000_000;
+        final int numThreads = 2;
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        final Runnable producer =
+            () ->
             {
-                executor.execute(producer);
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                while (null == queue.poll())
+                for (int i = 0, items = count / numThreads; i < items; i++)
                 {
-                    Thread.yield();
+                    queue.offer(i);
                 }
-            }
+            };
 
-            assertTrue(queue.isEmpty());
-        });
+        for (int i = 0; i < numThreads; i++)
+        {
+            executor.execute(producer);
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            while (null == queue.poll())
+            {
+                Thread.yield();
+            }
+        }
+
+        executor.shutdown();
+        assertTrue(queue.isEmpty());
     }
 }
