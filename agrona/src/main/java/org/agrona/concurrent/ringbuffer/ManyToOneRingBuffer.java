@@ -233,7 +233,17 @@ public final class ManyToOneRingBuffer implements RingBuffer
         }
         while (headAfter != headBefore);
 
-        return (int)(tail - headAfter);
+        final long size = tail - headAfter;
+        if (size < 0)
+        {
+            return 0;
+        }
+        else if (size > capacity)
+        {
+            return capacity;
+        }
+
+        return (int)size;
     }
 
     /**
