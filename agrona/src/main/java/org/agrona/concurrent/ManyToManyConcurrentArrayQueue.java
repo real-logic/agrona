@@ -156,7 +156,8 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             {
                 return null;
             }
-            else if (sequence == attemptedHead)
+
+            if (sequence == attemptedHead)
             {
                 final long elementOffset = sequenceToBufferOffset(currentHead, mask);
                 final Object e = UNSAFE.getObject(buffer, elementOffset);
