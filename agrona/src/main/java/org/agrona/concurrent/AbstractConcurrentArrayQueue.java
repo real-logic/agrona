@@ -138,19 +138,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
     @SuppressWarnings("unchecked")
     public E peek()
     {
-        final E[] buffer = this.buffer;
-        final int mask = capacity - 1;
-        long currentHead;
-        Object element;
-
-        do
-        {
-            currentHead = head;
-            element = UNSAFE.getObjectVolatile(buffer, sequenceToBufferOffset(head, mask));
-        }
-        while (currentHead != head);
-
-        return (E)element;
+        return (E)UNSAFE.getObjectVolatile(buffer, sequenceToBufferOffset(head, capacity - 1));
     }
 
     public boolean add(final E e)
