@@ -161,17 +161,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            final int bufferLength = buffer.length;
-            if (offset != 0 && (offset < 0 || offset > bufferLength - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for buffer.length=" + bufferLength);
-            }
-
-            if (length < 0 || length > bufferLength - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for buffer.length=" + bufferLength);
-            }
+            boundsCheckWrap(offset, length, buffer.length);
         }
 
         addressOffset = ARRAY_BASE_OFFSET + offset;
@@ -209,17 +199,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            final int bufferCapacity = buffer.capacity();
-            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for capacity=" + bufferCapacity);
-            }
-
-            if (length < 0 || length > bufferCapacity - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for capacity=" + bufferCapacity);
-            }
+            boundsCheckWrap(offset, length, buffer.capacity());
         }
 
         if (buffer != byteBuffer)
@@ -263,17 +243,7 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            final int bufferCapacity = buffer.capacity();
-            if (offset != 0 && (offset < 0 || offset > bufferCapacity - 1))
-            {
-                throw new IllegalArgumentException("offset=" + offset + " not valid for capacity=" + bufferCapacity);
-            }
-
-            if (length < 0 || length > bufferCapacity - offset)
-            {
-                throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for capacity=" + bufferCapacity);
-            }
+            boundsCheckWrap(offset, length, buffer.capacity());
         }
 
         addressOffset = buffer.addressOffset() + offset;
@@ -1687,6 +1657,25 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    private static void boundsCheckWrap(final int offset, final int length, final int capacity)
+    {
+        if (offset < 0)
+        {
+            throw new IllegalArgumentException("invalid offset: " + offset);
+        }
+
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("invalid length: " + length);
+        }
+
+        if ((offset > capacity - length) || (length > capacity - offset))
+        {
+            throw new IllegalArgumentException(
+                "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
+        }
+    }
+
     private void boundsCheck(final int index)
     {
         if (index < 0 || index >= capacity)
@@ -1709,7 +1698,7 @@ public class UnsafeBuffer implements AtomicBuffer
         boundsCheck0(index, length);
     }
 
-    private void lengthCheck(final int length)
+    private static void lengthCheck(final int length)
     {
         if (length < 0)
         {

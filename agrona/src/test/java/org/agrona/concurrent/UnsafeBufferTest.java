@@ -27,6 +27,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UnsafeBufferTest
 {
@@ -220,6 +221,54 @@ public class UnsafeBufferTest
         assertContainsString(buffer, String.valueOf(Integer.MIN_VALUE), length);
     }
 
+    @ParameterizedTest
+    @MethodSource("valuesAndLengths")
+    public void shouldPutNaturalFromEnd(final int[] valueAndLength)
+    {
+        final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
+        final int value = valueAndLength[0];
+        final int length = valueAndLength[1];
+
+        final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
+        final String message = "for " + Arrays.toString(valueAndLength);
+        assertEquals(0, start, message);
+
+        assertEquals(
+            String.valueOf(value),
+            buffer.getStringWithoutLengthAscii(0, length),
+            message);
+    }
+
+    @Test
+    public void shouldWrapValidRange()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
+        final UnsafeBuffer slice = new UnsafeBuffer();
+
+        slice.wrap(buffer);
+        slice.wrap(buffer, 0, 8);
+        slice.wrap(buffer, 1, 7);
+        slice.wrap(buffer, 2, 6);
+        slice.wrap(buffer, 3, 5);
+        slice.wrap(buffer, 4, 4);
+        slice.wrap(buffer, 5, 3);
+        slice.wrap(buffer, 6, 2);
+        slice.wrap(buffer, 7, 1);
+        slice.wrap(buffer, 8, 0);
+    }
+
+    @Test
+    public void shouldNotWrapInValidRange()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
+        final UnsafeBuffer slice = new UnsafeBuffer();
+
+        assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, -1, 0));
+        assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 0, -1));
+        assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 8, 1));
+        assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 7, 3));
+    }
+
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
     {
         assertEquals(value, buffer.getStringWithoutLengthAscii(INDEX, length));
@@ -246,23 +295,5 @@ public class UnsafeBufferTest
                 { 999, 3 },
                 { 9999, 4 },
             };
-    }
-
-    @ParameterizedTest
-    @MethodSource("valuesAndLengths")
-    public void shouldPutNaturalFromEnd(final int[] valueAndLength)
-    {
-        final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
-        final int value = valueAndLength[0];
-        final int length = valueAndLength[1];
-
-        final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
-        final String message = "for " + Arrays.toString(valueAndLength);
-        assertEquals(0, start, message);
-
-        assertEquals(
-            String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(0, length),
-            message);
     }
 }
