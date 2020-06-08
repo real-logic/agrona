@@ -225,8 +225,8 @@ public interface RingBuffer
      *
      * @param index at which the encoded message begins, i.e. value returned from the {@link #tryClaim(int, int)} call.
      * @throws IllegalArgumentException if the {@code index} is out of bounds.
-     * @throws IllegalStateException    if this method is called after {@link #commit(int)} or {@link #abort(int)} was
-     *                                  already invoked for the given {@code index}.
+     * @throws IllegalStateException    if this method is called after {@link #abort(int)} or was already invoked for
+     *                                  the given {@code index}.
      * @see #tryClaim(int, int)
      */
     void commit(int index);
@@ -237,8 +237,8 @@ public interface RingBuffer
      *
      * @param index at which the encoded message begins, i.e. value returned from the {@link #tryClaim(int, int)} call.
      * @throws IllegalArgumentException if the {@code index} is out of bounds.
-     * @throws IllegalStateException    if this method is called after {@link #commit(int)} or {@link #abort(int)} was
-     *                                  already invoked for the given {@code index}.
+     * @throws IllegalStateException    if this method is called after {@link #commit(int)} or was already invoked for
+     *                                  the given {@code index}.
      * @see #tryClaim(int, int)
      */
     void abort(int index);
