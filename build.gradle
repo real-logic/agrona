@@ -30,7 +30,7 @@ plugins {
 
 defaultTasks 'clean', 'build'
 
-def byteBuddyVersion = '1.10.10'
+def byteBuddyVersion = '1.10.11'
 def checkstyleVersion = '8.28'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.3.3'
