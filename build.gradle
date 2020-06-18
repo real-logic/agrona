@@ -213,10 +213,14 @@ subprojects {
         options.encoding = 'UTF-8'
         options.docEncoding = 'UTF-8'
         options.charSet = 'UTF-8'
+        if (JavaVersion.current().isJava11Compatible()) {
+            options.links("https://docs.oracle.com/en/java/javase/${JavaVersion.current().majorVersion}/docs/api/")
+        } else {
+            options.links("https://docs.oracle.com/javase/${JavaVersion.current().majorVersion}/docs/api/")
+        }
         if (JavaVersion.current().isJava10Compatible()) {
             options.addBooleanOption 'html5', true
         }
-        options.links("https://docs.oracle.com/javase/8/docs/api/");
     }
 }
 
