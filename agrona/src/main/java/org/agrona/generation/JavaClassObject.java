@@ -20,6 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+/**
+ * A {@link SimpleJavaFileObject} that is used to store the bytes for a java class in memory.
+ */
 public class JavaClassObject extends SimpleJavaFileObject
 {
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -29,16 +32,27 @@ public class JavaClassObject extends SimpleJavaFileObject
         super(URI.create("string:///" + className.replace('.', '/') + kind.extension), kind);
     }
 
+    /**
+     * Get the raw bytes for a class file.
+     *
+     * @return the raw bytes for a class file.
+     */
     public byte[] getBytes()
     {
         return baos.toByteArray();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public OutputStream openOutputStream()
     {
         return baos;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Kind getKind()
     {
         return Kind.CLASS;

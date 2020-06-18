@@ -30,6 +30,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class DynamicCompositeAgent implements Agent
 {
+    /**
+     * {@link Enum} to indicate the current status of a {@link DynamicCompositeAgent}.
+     */
     public enum Status
     {
         /**

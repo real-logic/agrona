@@ -56,11 +56,23 @@ public class BufferAlignmentAgent
     private static ResettableClassFileTransformer alignmentTransformer;
     private static Instrumentation instrumentation;
 
+    /**
+     * Invoked when the agent is launched with the JVM and before the main application.
+     *
+     * @param agentArgs       ignored for buffer alignment agent.
+     * @param instrumentation for adding bytecode to classes.
+     */
     public static void premain(final String agentArgs, final Instrumentation instrumentation)
     {
         agent(false, instrumentation);
     }
 
+    /**
+     * Invoked when the agent is attached to an already running application.
+     *
+     * @param agentArgs       ignored for buffer alignment agent.
+     * @param instrumentation for adding bytecode to classes.
+     */
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation)
     {
         agent(true, instrumentation);
@@ -90,13 +102,16 @@ public class BufferAlignmentAgent
             .installOn(instrumentation);
     }
 
+    /**
+     * Remove the bytecode transformer and associated bytecode weaving so the alignment checks are not made.
+     */
     public static synchronized void removeTransformer()
     {
         if (alignmentTransformer != null)
         {
             alignmentTransformer.reset(instrumentation, AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
             alignmentTransformer = null;
-            instrumentation = null;
+            BufferAlignmentAgent.instrumentation = null;
         }
     }
 

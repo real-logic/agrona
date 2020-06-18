@@ -23,7 +23,6 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '6.0.0' apply false
-    id 'io.freefair.javadoc-links' version '5.1.0' apply false
     id 'biz.aQute.bnd.builder' version '5.1.1' apply false
     id "com.github.ben-manes.versions" version "0.28.0"
 }
@@ -148,7 +147,6 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
     apply plugin: 'eclipse'
-    apply plugin: 'io.freefair.javadoc-links'
 
     dependencies {
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
@@ -218,6 +216,7 @@ subprojects {
         if (JavaVersion.current().isJava10Compatible()) {
             options.addBooleanOption 'html5', true
         }
+        options.links("https://docs.oracle.com/javase/8/docs/api/");
     }
 }
 

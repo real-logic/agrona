@@ -20,11 +20,17 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An {@link OutputManager} which can store source files as {@link StringWriter} buy source file name.
+ */
 public class StringWriterOutputManager implements OutputManager
 {
     private String packageName;
-    private final Map<String, StringWriter> sourceFileByName = new HashMap<>();
+    private final HashMap<String, StringWriter> sourceFileByName = new HashMap<>();
 
+    /**
+     * {@inheritDoc}
+     */
     public Writer createOutput(final String name)
     {
         final StringWriter stringWriter = new StringWriter();
@@ -33,19 +39,41 @@ public class StringWriterOutputManager implements OutputManager
         return stringWriter;
     }
 
+    /**
+     * Set the package name to be used for source files.
+     *
+     * @param packageName to be used for source files.
+     */
     public void setPackageName(final String packageName)
     {
         this.packageName = packageName;
     }
 
+    /**
+     * Get a {@link CharSequence} which represents the source file.
+     *
+     * @param name of the source file.
+     * @return {@link CharSequence} which represents the source file.
+     */
     public CharSequence getSource(final String name)
     {
-        return sourceFileByName.get(name).toString();
+        final StringWriter stringWriter = sourceFileByName.get(name);
+        if (null == stringWriter)
+        {
+            throw new IllegalArgumentException("unknown source file name: " + name);
+        }
+
+        return stringWriter.toString();
     }
 
+    /**
+     * Get a {@link Map} of all source files.
+     *
+     * @return a {@link Map} of all source files.
+     */
     public Map<String, CharSequence> getSources()
     {
-        final Map<String, CharSequence> sources = new HashMap<>();
+        final HashMap<String, CharSequence> sources = new HashMap<>();
         for (final Map.Entry<String, StringWriter> entry : sourceFileByName.entrySet())
         {
             sources.put(entry.getKey(), entry.getValue().toString());
@@ -54,6 +82,9 @@ public class StringWriterOutputManager implements OutputManager
         return sources;
     }
 
+    /**
+     * Clear all source files in this {@link OutputManager}.
+     */
     public void clear()
     {
         packageName = "";

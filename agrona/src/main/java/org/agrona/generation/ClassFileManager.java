@@ -23,6 +23,11 @@ import java.security.SecureClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link ForwardingJavaFileManager} for storing class files which can be looked up by name.
+ *
+ * @param <M> the kind of file manager forwarded to by this object.
+ */
 public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaFileManager<M>
 {
     private final Map<String, JavaClassObject> classObjectByNameMap = new HashMap<>();
@@ -32,6 +37,9 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
         super(standardManager);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ClassLoader getClassLoader(final Location location)
     {
         return new SecureClassLoader()
@@ -44,6 +52,9 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public JavaFileObject getJavaFileForOutput(
         final Location location, final String className, final JavaFileObject.Kind kind, final FileObject sibling)
     {

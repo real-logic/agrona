@@ -18,6 +18,9 @@ package org.agrona.generation;
 import javax.tools.SimpleJavaFileObject;
 import java.net.URI;
 
+/**
+ * An implementation of a {@link SimpleJavaFileObject} which stores the content in a {@link CharSequence}.
+ */
 public class CharSequenceJavaFileObject extends SimpleJavaFileObject
 {
     private final CharSequence sourceCode;
@@ -28,6 +31,9 @@ public class CharSequenceJavaFileObject extends SimpleJavaFileObject
         this.sourceCode = sourceCode;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CharSequence getCharContent(final boolean ignoreEncodingErrors)
     {
         return sourceCode;
