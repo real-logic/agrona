@@ -36,8 +36,17 @@ public final class AsciiEncoding
         999999999_999999999L, Long.MAX_VALUE
     };
 
-    public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
-    public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
+    private static final String MIN_INTEGER_AS_STRING = String.valueOf(Integer.MIN_VALUE);
+    private static final String MIN_LONG_AS_STRING = String.valueOf(Long.MIN_VALUE);
+
+    // Based on  Integer::parseInt and Long::parseLong
+    // If value to be multiplied by 10 is above this threshold, multiplication will overflow;
+    // however it may overflow to positive number, so simple check for change of sign does not detect the problem
+    private static final int INTEGER_MULT_MAX = Integer.MAX_VALUE / 10;
+    private static final long LONG_MULT_MAX = Long.MAX_VALUE / 10;
+
+    public static final byte[] MIN_INTEGER_VALUE = MIN_INTEGER_AS_STRING.getBytes(US_ASCII);
+    public static final byte[] MIN_LONG_VALUE = MIN_LONG_AS_STRING.getBytes(US_ASCII);
     public static final byte MINUS_SIGN = (byte)'-';
 
     private AsciiEncoding()
@@ -120,7 +129,7 @@ public final class AsciiEncoding
      * @param cs     to parse.
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
-     * @throws AsciiNumberFormatException if <code>cs</code> is not an int value
+     * @throws AsciiNumberFormatException if <code>cs</code> is not an int value, or outside of the int range
      * @throws IndexOutOfBoundsException if <code>cs</code> is empty
      * @return the parsed value.
      */
@@ -138,7 +147,16 @@ public final class AsciiEncoding
         int tally = 0;
         for (; i < endExclusive; i++)
         {
+            if (tally > INTEGER_MULT_MAX)
+            {
+                overflow(cs, index, i);
+            }
+
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
+            if (tally < 0 && !contentEquals(MIN_INTEGER_AS_STRING, cs, index, length))
+            {
+                overflow(cs, index, i);
+            }
         }
 
         if (first == MINUS_SIGN)
@@ -155,7 +173,7 @@ public final class AsciiEncoding
      * @param cs     to parse.
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
-     * @throws AsciiNumberFormatException if <code>cs</code> is not a long value
+     * @throws AsciiNumberFormatException if <code>cs</code> is not a long value, or outside of the long range
      * @throws IndexOutOfBoundsException if <code>cs</code> is empty
      * @return the parsed value.
      */
@@ -173,7 +191,16 @@ public final class AsciiEncoding
         long tally = 0;
         for (; i < endExclusive; i++)
         {
+            if (tally > LONG_MULT_MAX)
+            {
+                overflow(cs, index, i);
+            }
+
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
+            if (tally < 0 && !contentEquals(MIN_LONG_AS_STRING, cs, index, length))
+            {
+                overflow(cs, index, i);
+            }
         }
 
         if (first == MINUS_SIGN)
@@ -182,5 +209,31 @@ public final class AsciiEncoding
         }
 
         return tally;
+    }
+
+    private static boolean contentEquals(final String str, final CharSequence cs, final int index, final int length)
+    {
+        if (str.length() != length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            if (str.charAt(i) != cs.charAt(index + i))
+            {
+                return false;
+            }
+
+        }
+
+        return true;
+    }
+
+    private static void overflow(final CharSequence cs, final int startIndex, final int overflowIndex)
+    {
+        throw new NumberFormatException("'" + cs + "' - overflow @ " + overflowIndex +
+                                        ": " + cs.subSequence(startIndex, overflowIndex) +
+                                        '[' + cs.charAt(overflowIndex) + ']');
     }
 }
