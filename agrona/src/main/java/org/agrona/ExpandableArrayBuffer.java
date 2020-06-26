@@ -968,7 +968,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         if (remainder != 0)
         {
-            throw new NumberFormatException(String.format("Cannot write %d in %d bytes", value, length));
+            throw new NumberFormatException("Cannot write " + value + " in " + length + " bytes");
         }
     }
 
