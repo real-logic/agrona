@@ -71,37 +71,29 @@ public class AsciiEncodingTest
     @Test
     public void shouldThrowExceptionWhenParsingIntegerWhichCanOverFlow()
     {
+        final String maxValuePlusOneDigit = Integer.MAX_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
-            () ->
-            {
-                final String value = Integer.MAX_VALUE + "1";
-                parseIntAscii(value, 0, value.length());
-            });
+            () -> parseIntAscii(maxValuePlusOneDigit, 0, maxValuePlusOneDigit.length()),
+            maxValuePlusOneDigit);
 
+        final String minValuePlusOneDigit = Integer.MIN_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
-            () ->
-            {
-                final String value = Integer.MIN_VALUE + "1";
-                parseIntAscii(value, 0, value.length());
-            });
+            () -> parseIntAscii(minValuePlusOneDigit, 0, minValuePlusOneDigit.length()),
+            minValuePlusOneDigit);
     }
 
     @Test
     public void shouldThrowExceptionWhenParsingLongWhichCanOverFlow()
     {
+        final String maxValuePlusOneDigit = Long.MAX_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
-            () ->
-            {
-                final String value = Long.MAX_VALUE + "1";
-                parseLongAscii(value, 0, value.length());
-            });
+            () -> parseLongAscii(maxValuePlusOneDigit, 0, maxValuePlusOneDigit.length()),
+            maxValuePlusOneDigit);
 
+        final String minValuePlusOneDigit = Long.MIN_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
-            () ->
-            {
-                final String value = Long.MIN_VALUE + "1";
-                parseLongAscii(value, 0, value.length());
-            });
+            () -> parseLongAscii(minValuePlusOneDigit, 0, minValuePlusOneDigit.length()),
+            minValuePlusOneDigit);
     }
 
     @Test
