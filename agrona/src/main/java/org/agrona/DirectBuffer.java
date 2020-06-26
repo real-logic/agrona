@@ -185,7 +185,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     int getInt(int index);
 
     /**
-     * Get the ASCII encoded int sized natural value at a given index.
+     * Parse the ASCII encoded int sized natural value at a given index.
      *
      * @param index  in bytes from which to get.
      * @param length the length in bytes to parse.
@@ -194,7 +194,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     int parseNaturalIntAscii(int index, int length);
 
     /**
-     * Get the ASCII encoded long sized natural value at a given index.
+     * Parse the ASCII encoded long sized natural value at a given index.
      *
      * @param index  in bytes from which to get.
      * @param length the length in bytes to parse.
@@ -203,7 +203,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     long parseNaturalLongAscii(int index, int length);
 
     /**
-     * Get the ASCII encoded integer value at a given index.
+     * Parse the ASCII encoded integer value at a given index.
      *
      * @param index  in bytes from which to get.
      * @param length the length in bytes to parse.
@@ -212,7 +212,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     int parseIntAscii(int index, int length);
 
     /**
-     * Get the ASCII encoded long integer value at a given index.
+     * Parse the ASCII encoded long integer value at a given index.
      *
      * @param index  in bytes from which to get.
      * @param length the length in bytes to parse.
