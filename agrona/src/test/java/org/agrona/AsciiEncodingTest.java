@@ -17,8 +17,9 @@ package org.agrona;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.agrona.AsciiEncoding.parseIntAscii;
+import static org.agrona.AsciiEncoding.parseLongAscii;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AsciiEncodingTest
@@ -26,21 +27,81 @@ public class AsciiEncodingTest
     @Test
     public void shouldParseInt()
     {
-        assertThat(AsciiEncoding.parseIntAscii("0", 0, 1), is(0));
-        assertThat(AsciiEncoding.parseIntAscii("-0", 0, 2), is(0));
-        assertThat(AsciiEncoding.parseIntAscii("7", 0, 1), is(7));
-        assertThat(AsciiEncoding.parseIntAscii("-7", 0, 2), is(-7));
-        assertThat(AsciiEncoding.parseIntAscii("3333", 1, 2), is(33));
+        assertEquals(0, parseIntAscii("0", 0, 1));
+        assertEquals(0, parseIntAscii("-0", 0, 2));
+        assertEquals(7, parseIntAscii("7", 0, 1));
+        assertEquals(-7, parseIntAscii("-7", 0, 2));
+        assertEquals(33, parseIntAscii("3333", 1, 2));
+
+        final String maxValueMinusOne = String.valueOf(Integer.MAX_VALUE - 1);
+        assertEquals(Integer.MAX_VALUE - 1, parseIntAscii(maxValueMinusOne, 0, maxValueMinusOne.length()));
+
+        final String maxValue = String.valueOf(Integer.MAX_VALUE);
+        assertEquals(Integer.MAX_VALUE, parseIntAscii(maxValue, 0, maxValue.length()));
+
+        final String minValuePlusOne = String.valueOf(Integer.MIN_VALUE + 1);
+        assertEquals(Integer.MIN_VALUE + 1, parseIntAscii(minValuePlusOne, 0, minValuePlusOne.length()));
+
+        final String minValue = String.valueOf(Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, parseIntAscii(minValue, 0, minValue.length()));
     }
 
     @Test
     public void shouldParseLong()
     {
-        assertThat(AsciiEncoding.parseLongAscii("0", 0, 1), is(0L));
-        assertThat(AsciiEncoding.parseLongAscii("-0", 0, 2), is(0L));
-        assertThat(AsciiEncoding.parseLongAscii("7", 0, 1), is(7L));
-        assertThat(AsciiEncoding.parseLongAscii("-7", 0, 2), is(-7L));
-        assertThat(AsciiEncoding.parseLongAscii("3333", 1, 2), is(33L));
+        assertEquals(0L, parseLongAscii("0", 0, 1));
+        assertEquals(0L, parseLongAscii("-0", 0, 2));
+        assertEquals(7L, parseLongAscii("7", 0, 1));
+        assertEquals(-7L, parseLongAscii("-7", 0, 2));
+        assertEquals(33L, parseLongAscii("3333", 1, 2));
+
+        final String maxValueMinusOne = String.valueOf(Long.MAX_VALUE - 1);
+        assertEquals(Long.MAX_VALUE - 1, parseLongAscii(maxValueMinusOne, 0, maxValueMinusOne.length()));
+
+        final String maxValue = String.valueOf(Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, parseLongAscii(maxValue, 0, maxValue.length()));
+
+        final String minValuePlusOne = String.valueOf(Long.MIN_VALUE + 1);
+        assertEquals(Long.MIN_VALUE + 1, parseLongAscii(minValuePlusOne, 0, minValuePlusOne.length()));
+
+        final String minValue = String.valueOf(Long.MIN_VALUE);
+        assertEquals(Long.MIN_VALUE, parseLongAscii(minValue, 0, minValue.length()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenParsingIntegerWhichCanOverFlow()
+    {
+        assertThrows(AsciiNumberFormatException.class,
+            () ->
+            {
+                final String value = Integer.MAX_VALUE + "1";
+                parseIntAscii(value, 0, value.length());
+            });
+
+        assertThrows(AsciiNumberFormatException.class,
+            () ->
+            {
+                final String value = Integer.MIN_VALUE + "1";
+                parseIntAscii(value, 0, value.length());
+            });
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenParsingLongWhichCanOverFlow()
+    {
+        assertThrows(AsciiNumberFormatException.class,
+            () ->
+            {
+                final String value = Long.MAX_VALUE + "1";
+                parseLongAscii(value, 0, value.length());
+            });
+
+        assertThrows(AsciiNumberFormatException.class,
+            () ->
+            {
+                final String value = Long.MIN_VALUE + "1";
+                parseLongAscii(value, 0, value.length());
+            });
     }
 
     @Test
@@ -56,32 +117,32 @@ public class AsciiEncodingTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenParsingLongContainingLoneMinusSign()
+    public void shouldThrowExceptionWhenParsingIntegerContainingLoneMinusSign()
     {
-        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseLongAscii("-", 0, 1));
+        assertThrows(AsciiNumberFormatException.class, () -> parseIntAscii("-", 0, 1));
     }
 
     @Test
-    public void shouldThrowExceptionWhenParsingIntegerContainingLoneMinusSign()
+    public void shouldThrowExceptionWhenParsingLongContainingLoneMinusSign()
     {
-        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseIntAscii("-", 0, 1));
+        assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("-", 0, 1));
     }
 
     @Test
     public void shouldThrowExceptionWhenParsingLongContainingLonePlusSign()
     {
-        assertThrows(AsciiNumberFormatException.class, () -> AsciiEncoding.parseLongAscii("+", 0, 1));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenParsingEmptyLong()
-    {
-        assertThrows(IndexOutOfBoundsException.class, () -> AsciiEncoding.parseLongAscii("", 0, 0));
+        assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("+", 0, 1));
     }
 
     @Test
     public void shouldThrowExceptionWhenParsingEmptyInteger()
     {
-        assertThrows(IndexOutOfBoundsException.class, () -> AsciiEncoding.parseIntAscii("", 0, 0));
+        assertThrows(IndexOutOfBoundsException.class, () -> parseIntAscii("", 0, 0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenParsingEmptyLong()
+    {
+        assertThrows(IndexOutOfBoundsException.class, () -> parseLongAscii("", 0, 0));
     }
 }

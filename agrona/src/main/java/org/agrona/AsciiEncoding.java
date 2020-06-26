@@ -129,10 +129,16 @@ public final class AsciiEncoding
         final int endExclusive = index + length;
         final int first = cs.charAt(index);
         int i = index;
+        final boolean isSigned = first == MINUS_SIGN;
 
-        if (first == MINUS_SIGN && length > 1)
+        if (isSigned && length > 1)
         {
             i++;
+        }
+
+        if (length > (isSigned ? 11 : 10))
+        {
+            throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
         }
 
         int tally = 0;
@@ -141,7 +147,7 @@ public final class AsciiEncoding
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
         }
 
-        if (first == MINUS_SIGN)
+        if (isSigned)
         {
             tally = -tally;
         }
@@ -164,10 +170,16 @@ public final class AsciiEncoding
         final int endExclusive = index + length;
         final int first = cs.charAt(index);
         int i = index;
+        final boolean isSigned = first == MINUS_SIGN;
 
-        if (first == MINUS_SIGN && length > 1)
+        if (isSigned && length > 1)
         {
             i++;
+        }
+
+        if (length > (isSigned ? 20 : 19))
+        {
+            throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
         }
 
         long tally = 0;
@@ -176,7 +188,7 @@ public final class AsciiEncoding
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
         }
 
-        if (first == MINUS_SIGN)
+        if (isSigned)
         {
             tally = -tally;
         }
