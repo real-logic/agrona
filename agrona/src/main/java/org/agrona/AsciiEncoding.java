@@ -241,7 +241,14 @@ public final class AsciiEncoding
         for (int i = 0; i < limitDigits.length; i++)
         {
             final int digit = AsciiEncoding.getDigit(i, cs.charAt(index + i));
-            if (digit > (limitDigits[i] - 0x30))
+            final int limitDigit = limitDigits[i] - 0x30;
+
+            if (digit < limitDigit)
+            {
+                break;
+            }
+
+            if (digit > limitDigit)
             {
                 return true;
             }
