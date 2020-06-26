@@ -76,10 +76,20 @@ public class AsciiEncodingTest
             () -> parseIntAscii(maxValuePlusOneDigit, 0, maxValuePlusOneDigit.length()),
             maxValuePlusOneDigit);
 
+        final String maxValuePlusOne = "2147483648";
+        assertThrows(AsciiNumberFormatException.class,
+            () -> parseIntAscii(maxValuePlusOne, 0, maxValuePlusOne.length()),
+            maxValuePlusOne);
+
         final String minValuePlusOneDigit = Integer.MIN_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
             () -> parseIntAscii(minValuePlusOneDigit, 0, minValuePlusOneDigit.length()),
             minValuePlusOneDigit);
+
+        final String minValueMinusOne = "-2147483649";
+        assertThrows(AsciiNumberFormatException.class,
+            () -> parseIntAscii(minValueMinusOne, 0, minValueMinusOne.length()),
+            minValueMinusOne);
     }
 
     @Test
@@ -90,10 +100,20 @@ public class AsciiEncodingTest
             () -> parseLongAscii(maxValuePlusOneDigit, 0, maxValuePlusOneDigit.length()),
             maxValuePlusOneDigit);
 
+        final String maxValuePlusOne = "9223372036854775808";
+        assertThrows(AsciiNumberFormatException.class,
+            () -> parseLongAscii(maxValuePlusOne, 0, maxValuePlusOne.length()),
+            maxValuePlusOne);
+
         final String minValuePlusOneDigit = Long.MIN_VALUE + "1";
         assertThrows(AsciiNumberFormatException.class,
             () -> parseLongAscii(minValuePlusOneDigit, 0, minValuePlusOneDigit.length()),
             minValuePlusOneDigit);
+
+        final String minValueMinusOne = "-9223372036854775809";
+        assertThrows(AsciiNumberFormatException.class,
+            () -> parseLongAscii(minValueMinusOne, 0, minValueMinusOne.length()),
+            minValueMinusOne);
     }
 
     @Test

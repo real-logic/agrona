@@ -22,7 +22,17 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
  */
 public final class AsciiEncoding
 {
+    public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
+    public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
+    public static final byte MINUS_SIGN = '-';
     public static final byte ZERO = '0';
+
+    private static final String MIN_INT_STRING = "2147483648";
+    private static final String MAX_INT_STRING = "2147483647";
+
+    private static final String MIN_LONG_STRING = "9223372036854775808";
+    private static final String MAX_LONG_STRING = "9223372036854775807";
+
     private static final int[] INT_ROUNDS =
     {
         9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE
@@ -35,10 +45,6 @@ public final class AsciiEncoding
         99999_999999999L, 999999_999999999L, 9999999_999999999L, 99999999_999999999L,
         999999999_999999999L, Long.MAX_VALUE
     };
-
-    public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
-    public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
-    public static final byte MINUS_SIGN = (byte)'-';
 
     private AsciiEncoding()
     {
@@ -136,9 +142,20 @@ public final class AsciiEncoding
             i++;
         }
 
-        if (length > (isSigned ? 11 : 10))
+        if (length >= 10)
         {
-            throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
+            if (10 == length && !isSigned)
+            {
+                checkOverflow(cs, i, 10, MAX_INT_STRING);
+            }
+            else if (11 == length && isSigned)
+            {
+                checkOverflow(cs, i, 10, MIN_INT_STRING);
+            }
+            else
+            {
+                throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
+            }
         }
 
         int tally = 0;
@@ -153,6 +170,18 @@ public final class AsciiEncoding
         }
 
         return tally;
+    }
+
+    private static void checkOverflow(final CharSequence cs, final int index, final int length, final String limit)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            final int digit = AsciiEncoding.getDigit(i, cs.charAt(index + i));
+            if (digit > (limit.charAt(i) - 0x30))
+            {
+                throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
+            }
+        }
     }
 
     /**
@@ -177,9 +206,20 @@ public final class AsciiEncoding
             i++;
         }
 
-        if (length > (isSigned ? 20 : 19))
+        if (length >= 19)
         {
-            throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
+            if (19 == length && !isSigned)
+            {
+                checkOverflow(cs, i, 19, MAX_LONG_STRING);
+            }
+            else if (20 == length && isSigned)
+            {
+                checkOverflow(cs, i, 19, MIN_LONG_STRING);
+            }
+            else
+            {
+                throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
+            }
         }
 
         long tally = 0;
