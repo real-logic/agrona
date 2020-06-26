@@ -144,24 +144,7 @@ public final class AsciiEncoding
 
         if (length >= 10)
         {
-            if (10 == length && !isSigned)
-            {
-                if (isOverflow(MAX_INT_DIGITS, cs, i))
-                {
-                    throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-                }
-            }
-            else if (11 == length && isSigned)
-            {
-                if (isOverflow(MIN_INT_DIGITS, cs, i))
-                {
-                    throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-                }
-            }
-            else
-            {
-                throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-            }
+            checkIntLimits(cs, index, length, i, isSigned);
         }
 
         int tally = 0;
@@ -202,24 +185,7 @@ public final class AsciiEncoding
 
         if (length >= 19)
         {
-            if (19 == length && !isSigned)
-            {
-                if (isOverflow(MAX_LONG_DIGITS, cs, i))
-                {
-                    throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-                }
-            }
-            else if (20 == length && isSigned)
-            {
-                if (isOverflow(MIN_LONG_DIGITS, cs, i))
-                {
-                    throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-                }
-            }
-            else
-            {
-                throw new AsciiNumberFormatException("overflow parsing: " + cs.subSequence(index, index + length));
-            }
+            checkLongLimits(cs, index, length, i, isSigned);
         }
 
         long tally = 0;
@@ -234,6 +200,52 @@ public final class AsciiEncoding
         }
 
         return tally;
+    }
+
+    private static void checkIntLimits(
+        final CharSequence cs, final int index, final int length, final int i, final boolean isSigned)
+    {
+        if (10 == length && !isSigned)
+        {
+            if (isOverflow(MAX_INT_DIGITS, cs, i))
+            {
+                throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
+            }
+        }
+        else if (11 == length && isSigned)
+        {
+            if (isOverflow(MIN_INT_DIGITS, cs, i))
+            {
+                throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
+            }
+        }
+        else
+        {
+            throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
+        }
+    }
+
+    private static void checkLongLimits(
+        final CharSequence cs, final int index, final int length, final int i, final boolean isSigned)
+    {
+        if (19 == length && !isSigned)
+        {
+            if (isOverflow(MAX_LONG_DIGITS, cs, i))
+            {
+                throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
+            }
+        }
+        else if (20 == length && isSigned)
+        {
+            if (isOverflow(MIN_LONG_DIGITS, cs, i))
+            {
+                throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
+            }
+        }
+        else
+        {
+            throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
+        }
     }
 
     private static boolean isOverflow(final byte[] limitDigits, final CharSequence cs, final int index)
