@@ -135,16 +135,16 @@ public final class AsciiEncoding
         final int endExclusive = index + length;
         final int first = cs.charAt(index);
         int i = index;
-        final boolean isSigned = first == MINUS_SIGN;
+        final boolean hasSign = first == MINUS_SIGN;
 
-        if (isSigned && length > 1)
+        if (hasSign && length > 1)
         {
             i++;
         }
 
         if (length >= 10)
         {
-            checkIntLimits(cs, index, length, i, isSigned);
+            checkIntLimits(cs, index, length, i, hasSign);
         }
 
         int tally = 0;
@@ -153,7 +153,7 @@ public final class AsciiEncoding
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
         }
 
-        if (isSigned)
+        if (hasSign)
         {
             tally = -tally;
         }
@@ -176,16 +176,16 @@ public final class AsciiEncoding
         final int endExclusive = index + length;
         final int first = cs.charAt(index);
         int i = index;
-        final boolean isSigned = first == MINUS_SIGN;
+        final boolean hasSign = first == MINUS_SIGN;
 
-        if (isSigned && length > 1)
+        if (hasSign && length > 1)
         {
             i++;
         }
 
         if (length >= 19)
         {
-            checkLongLimits(cs, index, length, i, isSigned);
+            checkLongLimits(cs, index, length, i, hasSign);
         }
 
         long tally = 0;
@@ -194,7 +194,7 @@ public final class AsciiEncoding
             tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
         }
 
-        if (isSigned)
+        if (hasSign)
         {
             tally = -tally;
         }
@@ -203,16 +203,16 @@ public final class AsciiEncoding
     }
 
     private static void checkIntLimits(
-        final CharSequence cs, final int index, final int length, final int i, final boolean isSigned)
+        final CharSequence cs, final int index, final int length, final int i, final boolean hasSign)
     {
-        if (10 == length && !isSigned)
+        if (10 == length)
         {
-            if (isOverflow(MAX_INT_DIGITS, cs, i))
+            if (!hasSign && isOverflow(MAX_INT_DIGITS, cs, i))
             {
                 throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
             }
         }
-        else if (11 == length && isSigned)
+        else if (11 == length && hasSign)
         {
             if (isOverflow(MIN_INT_DIGITS, cs, i))
             {
@@ -226,16 +226,16 @@ public final class AsciiEncoding
     }
 
     private static void checkLongLimits(
-        final CharSequence cs, final int index, final int length, final int i, final boolean isSigned)
+        final CharSequence cs, final int index, final int length, final int i, final boolean hasSign)
     {
-        if (19 == length && !isSigned)
+        if (19 == length)
         {
-            if (isOverflow(MAX_LONG_DIGITS, cs, i))
+            if (!hasSign && isOverflow(MAX_LONG_DIGITS, cs, i))
             {
                 throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
             }
         }
-        else if (20 == length && isSigned)
+        else if (20 == length && hasSign)
         {
             if (isOverflow(MIN_LONG_DIGITS, cs, i))
             {

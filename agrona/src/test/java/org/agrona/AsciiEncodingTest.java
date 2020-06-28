@@ -32,6 +32,7 @@ public class AsciiEncodingTest
         assertEquals(7, parseIntAscii("7", 0, 1));
         assertEquals(-7, parseIntAscii("-7", 0, 2));
         assertEquals(33, parseIntAscii("3333", 1, 2));
+        assertEquals(-123456789, parseIntAscii("-123456789", 0, 10));
 
         final String maxValueMinusOne = String.valueOf(Integer.MAX_VALUE - 1);
         assertEquals(Integer.MAX_VALUE - 1, parseIntAscii(maxValueMinusOne, 0, maxValueMinusOne.length()));
@@ -54,6 +55,7 @@ public class AsciiEncodingTest
         assertEquals(7L, parseLongAscii("7", 0, 1));
         assertEquals(-7L, parseLongAscii("-7", 0, 2));
         assertEquals(33L, parseLongAscii("3333", 1, 2));
+        assertEquals(-123456789876543210L, parseLongAscii("-123456789876543210", 0, 19));
 
         final String maxValueMinusOne = String.valueOf(Long.MAX_VALUE - 1);
         assertEquals(Long.MAX_VALUE - 1, parseLongAscii(maxValueMinusOne, 0, maxValueMinusOne.length()));
