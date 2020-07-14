@@ -241,17 +241,17 @@ project(':agrona') {
 
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
-        generated.java.srcDir generatedDir
+        generated {
+            java.srcDir generatedDir
+            compileClasspath += sourceSets.main.runtimeClasspath
+        }
         test {
             compileClasspath += generated.output
             runtimeClasspath += generated.output
         }
     }
 
-    compileGeneratedJava {
-        dependsOn 'generatePrimitiveSpecialisations'
-        classpath += sourceSets.main.runtimeClasspath
-    }
+    compileGeneratedJava.dependsOn 'generatePrimitiveSpecialisations'
 
     task generatePrimitiveSpecialisations(type: JavaExec) {
         main = 'org.agrona.generation.SpecialisationGenerator'
