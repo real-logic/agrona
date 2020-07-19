@@ -245,10 +245,6 @@ project(':agrona') {
             java.srcDir generatedDir
             compileClasspath += sourceSets.main.runtimeClasspath
         }
-        test {
-            compileClasspath += generated.output
-            runtimeClasspath += generated.output
-        }
     }
 
     compileGeneratedJava.dependsOn 'generatePrimitiveSpecialisations'
