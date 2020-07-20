@@ -127,20 +127,19 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @throws AsciiNumberFormatException if <code>cs</code> is not an int value
-     * @throws IndexOutOfBoundsException if <code>cs</code> is empty
+     * @throws IndexOutOfBoundsException if parsing results in access outside string boundaries, or length is negative
      * @return the parsed value.
      */
     public static int parseIntAscii(final CharSequence cs, final int index, final int length)
     {
-        final int endExclusive = index + length;
-        final int first = cs.charAt(index);
-        int i = index;
-        final boolean hasSign = first == MINUS_SIGN;
-
-        if (hasSign && length > 1)
+        if (length <= 1)
         {
-            i++;
+            return parseSingleDigit(cs, index, length);
         }
+
+        final boolean hasSign = cs.charAt(index) == MINUS_SIGN;
+        final int endExclusive = index + length;
+        int i = hasSign ? index + 1 : index;
 
         if (length >= 10)
         {
@@ -168,20 +167,19 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @throws AsciiNumberFormatException if <code>cs</code> is not a long value
-     * @throws IndexOutOfBoundsException if <code>cs</code> is empty
+     * @throws IndexOutOfBoundsException if parsing results in access outside string boundaries, or length is negative
      * @return the parsed value.
      */
     public static long parseLongAscii(final CharSequence cs, final int index, final int length)
     {
-        final int endExclusive = index + length;
-        final int first = cs.charAt(index);
-        int i = index;
-        final boolean hasSign = first == MINUS_SIGN;
-
-        if (hasSign && length > 1)
+        if (length <= 1)
         {
-            i++;
+            return parseSingleDigit(cs, index, length);
         }
+
+        final boolean hasSign = cs.charAt(index) == MINUS_SIGN;
+        final int endExclusive = index + length;
+        int i = hasSign ? index + 1 : index;
 
         if (length >= 19)
         {
@@ -200,6 +198,22 @@ public final class AsciiEncoding
         }
 
         return tally;
+    }
+
+    private static int parseSingleDigit(final CharSequence cs, final int index, final int length)
+    {
+        if (length == 1)
+        {
+            return AsciiEncoding.getDigit(index, cs.charAt(index));
+        }
+        else if (length == 0)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid int @ " + index);
+        }
+        else
+        {
+            throw new IndexOutOfBoundsException("length=" + length);
+        }
     }
 
     private static void checkIntLimits(

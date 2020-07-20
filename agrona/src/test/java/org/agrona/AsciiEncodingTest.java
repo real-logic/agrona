@@ -151,12 +151,12 @@ public class AsciiEncodingTest
     @Test
     public void shouldThrowExceptionWhenParsingEmptyInteger()
     {
-        assertThrows(IndexOutOfBoundsException.class, () -> parseIntAscii("", 0, 0));
+        assertThrows(AsciiNumberFormatException.class, () -> parseIntAscii("", 0, 0));
     }
 
     @Test
     public void shouldThrowExceptionWhenParsingEmptyLong()
     {
-        assertThrows(IndexOutOfBoundsException.class, () -> parseLongAscii("", 0, 0));
+        assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("", 0, 0));
     }
 }
