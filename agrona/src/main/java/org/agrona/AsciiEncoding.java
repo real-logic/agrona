@@ -202,13 +202,13 @@ public final class AsciiEncoding
 
     private static int parseSingleDigit(final CharSequence cs, final int index, final int length)
     {
-        if (length == 1)
+        if (1 == length)
         {
             return AsciiEncoding.getDigit(index, cs.charAt(index));
         }
-        else if (length == 0)
+        else if (0 == length)
         {
-            throw new AsciiNumberFormatException("'' is not a valid int @ " + index);
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
         }
         else
         {
