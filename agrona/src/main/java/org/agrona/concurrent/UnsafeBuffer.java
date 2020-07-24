@@ -1392,9 +1392,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        if (0 == length)
+        if (length <= 0)
         {
-            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
         final int end = index + length;
@@ -1414,9 +1414,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        if (0 == length)
+        if (length <= 0)
         {
-            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
         final int end = index + length;
@@ -1436,9 +1436,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        if (0 == length)
+        if (length <= 0)
         {
-            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
         else if (1 == length)
         {
@@ -1475,9 +1475,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        if (0 == length)
+        if (length <= 0)
         {
-            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
         else if (1 == length)
         {
