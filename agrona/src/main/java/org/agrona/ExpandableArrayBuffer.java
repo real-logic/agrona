@@ -810,6 +810,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         boundsCheck0(index, length);
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         int tally = 0;
         for (int i = index; i < end; i++)
@@ -824,6 +829,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         boundsCheck0(index, length);
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         long tally = 0;
         for (int i = index; i < end; i++)
@@ -837,6 +847,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public int parseIntAscii(final int index, final int length)
     {
         boundsCheck0(index, length);
+
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, byteArray[index]);
+        }
 
         final int endExclusive = index + length;
         final int first = byteArray[index];
@@ -864,6 +883,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public long parseLongAscii(final int index, final int length)
     {
         boundsCheck0(index, length);
+
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, byteArray[index]);
+        }
 
         final int endExclusive = index + length;
         final int first = byteArray[index];

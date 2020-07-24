@@ -1392,6 +1392,11 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         int tally = 0;
         for (int i = index; i < end; i++)
@@ -1409,6 +1414,11 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         long tally = 0;
         for (int i = index; i < end; i++)
@@ -1424,6 +1434,15 @@ public class UnsafeBuffer implements AtomicBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
+        }
+
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
         final int endExclusive = index + length;
@@ -1454,6 +1473,15 @@ public class UnsafeBuffer implements AtomicBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
+        }
+
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
         final int endExclusive = index + length;

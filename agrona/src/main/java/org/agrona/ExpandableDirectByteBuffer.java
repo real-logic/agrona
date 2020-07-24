@@ -856,11 +856,16 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         boundsCheck0(index, length);
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         int tally = 0;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
         }
 
         return tally;
@@ -870,11 +875,16 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         boundsCheck0(index, length);
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+
         final int end = index + length;
         long tally = 0L;
         for (int i = index; i < end; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
         }
 
         return tally;
@@ -883,6 +893,15 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     public int parseIntAscii(final int index, final int length)
     {
         boundsCheck0(index, length);
+
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
+        }
 
         final int endExclusive = index + length;
         final int first = getByte0(index);
@@ -895,7 +914,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         int tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
         }
 
         if (first == MINUS_SIGN)
@@ -910,6 +929,15 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         boundsCheck0(index, length);
 
+        if (0 == length)
+        {
+            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+        }
+        else if (1 == length)
+        {
+            return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
+        }
+
         final int endExclusive = index + length;
         final int first = getByte0(index);
         int i = index;
@@ -921,7 +949,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         long tally = 0;
         for (; i < endExclusive; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, getByte0(i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
         }
 
         if (first == MINUS_SIGN)
