@@ -356,28 +356,34 @@ public class MarkFile implements AutoCloseable
         final long deadlineMs,
         final EpochClock epochClock)
     {
-        try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
+        while (true)
         {
-            while (fileChannel.size() < 4)
+            try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
             {
-                if (epochClock.time() > deadlineMs)
+                final long size = fileChannel.size();
+                if (size < SIZE_OF_LONG)
                 {
-                    throw new IllegalStateException("Mark file is created but not populated");
+                    if (epochClock.time() > deadlineMs)
+                    {
+                        throw new IllegalStateException("Mark file is created but not populated");
+                    }
+
+                    fileChannel.close();
+                    sleep(16);
+                    continue;
                 }
 
-                sleep(16);
-            }
+                if (null != logger)
+                {
+                    logger.accept("INFO: Mark file exists: " + markFile);
+                }
 
-            if (null != logger)
+                return fileChannel.map(READ_WRITE, 0, size);
+            }
+            catch (final IOException ex)
             {
-                logger.accept("INFO: Mark file exists: " + markFile);
+                throw new IllegalStateException("cannot open mark file for reading", ex);
             }
-
-            return fileChannel.map(READ_WRITE, 0, fileChannel.size());
-        }
-        catch (final IOException ex)
-        {
-            throw new IllegalStateException("cannot open mark file for reading", ex);
         }
     }
 
