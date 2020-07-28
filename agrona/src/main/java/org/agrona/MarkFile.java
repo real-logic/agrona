@@ -399,7 +399,7 @@ public class MarkFile implements AutoCloseable
         final long startTimeMs = epochClock.time();
         final long deadlineMs = startTimeMs + timeoutMs;
 
-        while (!markFile.exists() || markFile.length() <= 0)
+        while (!markFile.exists() || markFile.length() < SIZE_OF_LONG)
         {
             if (epochClock.time() > deadlineMs)
             {
@@ -410,29 +410,37 @@ public class MarkFile implements AutoCloseable
         }
 
         final MappedByteBuffer byteBuffer = waitForFileMapping(logger, markFile, deadlineMs, epochClock);
-        final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
-        int version;
-        while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
+        try
         {
-            if (epochClock.time() > deadlineMs)
+            final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
+            int version;
+            while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
             {
-                throw new IllegalStateException("Mark file is created but not initialised");
+                if (epochClock.time() > deadlineMs)
+                {
+                    throw new IllegalStateException("Mark file is created but not initialised");
+                }
+
+                sleep(1);
             }
 
-            sleep(1);
+            versionCheck.accept(version);
+
+            while (0 == buffer.getLongVolatile(timestampFieldOffset))
+            {
+                if (epochClock.time() > deadlineMs)
+                {
+                    throw new IllegalStateException("No non zero timestamp detected");
+                }
+
+                sleep(1);
+            }
         }
-
-        versionCheck.accept(version);
-
-        while (0 == buffer.getLongVolatile(timestampFieldOffset))
+        catch (final Throwable ex)
         {
-            if (epochClock.time() > deadlineMs)
-            {
-                throw new IllegalStateException("No non zero timestamp detected");
-            }
-
-            sleep(1);
+            IoUtil.unmap(byteBuffer);
+            LangUtil.rethrowUnchecked(ex);
         }
 
         return byteBuffer;
