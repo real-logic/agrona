@@ -361,7 +361,7 @@ public class MarkFile implements AutoCloseable
             try (FileChannel fileChannel = FileChannel.open(markFile.toPath(), READ, WRITE))
             {
                 final long size = fileChannel.size();
-                if (size < SIZE_OF_LONG)
+                if (size < (SIZE_OF_INT + SIZE_OF_LONG))
                 {
                     if (epochClock.time() > deadlineMs)
                     {
@@ -396,10 +396,9 @@ public class MarkFile implements AutoCloseable
         final IntConsumer versionCheck,
         final Consumer<String> logger)
     {
-        final long startTimeMs = epochClock.time();
-        final long deadlineMs = startTimeMs + timeoutMs;
+        final long deadlineMs = epochClock.time() + timeoutMs;
 
-        while (!markFile.exists() || markFile.length() < SIZE_OF_LONG)
+        while (!markFile.exists() || markFile.length() < (timestampFieldOffset + SIZE_OF_LONG))
         {
             if (epochClock.time() > deadlineMs)
             {
@@ -410,6 +409,10 @@ public class MarkFile implements AutoCloseable
         }
 
         final MappedByteBuffer byteBuffer = waitForFileMapping(logger, markFile, deadlineMs, epochClock);
+        if (byteBuffer.capacity() < (timestampFieldOffset + SIZE_OF_LONG))
+        {
+            throw new IllegalStateException("Mark file mapping is to small: capacity=" + byteBuffer.capacity());
+        }
 
         try
         {
@@ -476,8 +479,7 @@ public class MarkFile implements AutoCloseable
                 versionCheck.accept(version);
 
                 final long timestampMs = buffer.getLongVolatile(timestampFieldOffset);
-                final long nowMs = epochClock.time();
-                final long timestampAgeMs = nowMs - timestampMs;
+                final long timestampAgeMs = epochClock.time() - timestampMs;
 
                 if (null != logger)
                 {
@@ -535,8 +537,7 @@ public class MarkFile implements AutoCloseable
 
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
 
-        final long startTimeMs = epochClock.time();
-        final long deadlineMs = startTimeMs + timeoutMs;
+        final long deadlineMs = epochClock.time() + timeoutMs;
         int version;
         while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
         {
