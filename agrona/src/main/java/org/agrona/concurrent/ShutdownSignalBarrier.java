@@ -54,7 +54,7 @@ public class ShutdownSignalBarrier
     }
 
     /**
-     * Programmatically signal awaiting threads.
+     * Programmatically signal awaiting threads on the latch associated with this barrier.
      */
     public void signal()
     {
