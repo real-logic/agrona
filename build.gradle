@@ -35,7 +35,7 @@ def hamcrestVersion = '2.2'
 def mockitoVersion = '3.4.6'
 def junitVersion = '5.6.2'
 def guavaTestLib = '29.0-jre'
-def jmhVersion = '1.23'
+def jmhVersion = '1.24'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.6.1-SNAPSHOT'
