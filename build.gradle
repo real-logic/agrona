@@ -332,7 +332,7 @@ project(':agrona-agent') {
         archiveClassifier.set('')
         manifest.attributes(
             'Implementation-Title': 'Agrona',
-            'Implementation-Version': "${agronaVersion}",
+            'Implementation-Version': agronaVersion,
             'Implementation-Vendor': 'Real Logic Limited',
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
