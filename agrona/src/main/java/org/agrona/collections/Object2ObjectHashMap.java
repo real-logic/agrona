@@ -95,7 +95,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public int capacity()
     {
-        return entries.length >> 2;
+        return entries.length >> 1;
     }
 
     /**

@@ -100,7 +100,7 @@ public class Int2IntCounterMap implements Serializable
      */
     @DoNotSub public int capacity()
     {
-        return entries.length >> 2;
+        return entries.length >> 1;
     }
 
     /**
