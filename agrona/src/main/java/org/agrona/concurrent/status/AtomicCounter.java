@@ -144,9 +144,10 @@ public class AtomicCounter implements AutoCloseable
      * Append to the label for a counter constructed with a {@link CountersManager}.
      *
      * @param suffix for the counter within a {@link CountersManager}.
+     * @return this for a fluent API.
      * @throws IllegalStateException is not constructed {@link CountersManager}.
      */
-    public void appendToLabel(final String suffix)
+    public AtomicCounter appendToLabel(final String suffix)
     {
         if (null != countersManager)
         {
@@ -156,6 +157,8 @@ public class AtomicCounter implements AutoCloseable
         {
             throw new IllegalStateException("Not constructed with CountersManager");
         }
+
+        return this;
     }
 
     /**
