@@ -32,7 +32,7 @@ defaultTasks 'clean', 'build'
 def byteBuddyVersion = '1.10.14'
 def checkstyleVersion = '8.35'
 def hamcrestVersion = '2.2'
-def mockitoVersion = '3.4.6'
+def mockitoVersion = '3.5.0'
 def junitVersion = '5.6.2'
 def guavaTestLib = '29.0-jre'
 def jmhVersion = '1.25'
@@ -48,17 +48,17 @@ if (null == System.getenv("JAVA_HOME")) {
 
 def getConfigProperty(final String projectPropertyName, final String envVarName)
 {
-    String value = project.findProperty(projectPropertyName);
+    String value = project.findProperty(projectPropertyName)
     if (!value)
     {
-        value = System.getenv(envVarName);
+        value = System.getenv(envVarName)
         if (!value)
         {
             return null
         }
     }
 
-    value = value.trim();
+    value = value.trim()
 
     return value ? value : null
 }
