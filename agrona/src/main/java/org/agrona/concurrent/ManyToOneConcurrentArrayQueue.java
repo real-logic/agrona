@@ -31,6 +31,8 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  * sequentially consistency across methods but this can have a detrimental effect in a resource starved system. This
  * internal spinning eats up a CPU core and prevents other threads making progress resulting in latency spikes. To
  * avoid this a more relaxed approach is taken in that an in-progress offer is not waited on to complete.
+ * <p>
+ * If you wish to check for empty then call {@link #isEmpty()} rather than {@link #size()} checking for zero.
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
