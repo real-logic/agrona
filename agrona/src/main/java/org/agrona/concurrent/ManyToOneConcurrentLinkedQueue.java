@@ -102,8 +102,12 @@ abstract class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrent
  * MPSC linked queue</a>.
  * <p>
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no item
- * available but size could be greater than zero if an offer is in progress. This is a conflated design issue in the
- * {@link java.util.Queue} implementation.
+ * available but size could be greater than zero if an offer is in progress. This is due to the offer being a multi-step
+ * process which can start and be interrupted before completion, the thread will later be resumed and the offer process
+ * completes. Other methods, such as peek and poll, could spin internally waiting on the offer to complete to provide
+ * sequentially consistency across methods but this can have a detrimental effect in a resource starved system. This
+ * internal spinning eats up a CPU core and prevents other threads making progress resulting in latency spikes. To
+ * avoid this a more relaxed approach is taken in that an in-progress offer is not waited on to complete.
  * <p>
  * If you wish to check for empty then call {@link #isEmpty()} rather than {@link #size()} checking for zero.
  *
