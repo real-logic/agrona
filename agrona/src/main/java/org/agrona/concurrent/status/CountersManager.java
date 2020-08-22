@@ -453,8 +453,8 @@ public class CountersManager extends CountersReader
             {
                 freeList.remove(i);
                 final int offset = counterOffset(counterId);
-                valuesBuffer.putLongOrdered(offset, 0L);
                 valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
+                valuesBuffer.putLongOrdered(offset, 0L);
 
                 return counterId;
             }
