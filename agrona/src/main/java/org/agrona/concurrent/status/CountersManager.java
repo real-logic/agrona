@@ -42,7 +42,10 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  |                        Counter Value                          |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                     120 bytes of padding                     ...
+ *  |                       Registration Id                         |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                     112 bytes of padding                     ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -60,7 +63,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                   Free-for-reuse Deadline                     |
+ *  |                 Free-for-reuse Deadline (ms)                  |
  *  |                                                               |
  *  +---------------------------------------------------------------+
  *  |                      112 bytes for key                       ...
@@ -79,10 +82,6 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  */
 public class CountersManager extends CountersReader
 {
-    /**
-     * Default type id of a counter when none is supplied.
-     */
-    public static final int DEFAULT_TYPE_ID = 0;
 
     private final long freeToReuseTimeoutMs;
     private int idHighWaterMark = -1;
@@ -90,7 +89,7 @@ public class CountersManager extends CountersReader
     private final EpochClock epochClock;
 
     /**
-     * Create a new counter buffer manager over two buffers.
+     * Create a new counter manager over two buffers.
      *
      * @param metaDataBuffer       containing the types, keys, and labels for the counters.
      * @param valuesBuffer         containing the values of the counters themselves.
@@ -118,7 +117,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Create a new counter buffer manager over two buffers.
+     * Create a new counter manager over two buffers.
      *
      * @param metaDataBuffer containing the types, keys, and labels for the counters.
      * @param valuesBuffer   containing the values of the counters themselves.
@@ -138,7 +137,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Create a new counter buffer manager over two buffers.
+     * Create a new counter manager over two buffers.
      *
      * @param metaDataBuffer containing the types, keys, and labels for the counters.
      * @param valuesBuffer   containing the values of the counters themselves.
@@ -368,7 +367,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} value based on counterId.
+     * Set an {@link AtomicCounter} value based for a counterId.
      *
      * @param counterId to be set.
      * @param value     to set for the counter.
@@ -376,6 +375,17 @@ public class CountersManager extends CountersReader
     public void setCounterValue(final int counterId, final long value)
     {
         valuesBuffer.putLongOrdered(counterOffset(counterId), value);
+    }
+
+    /**
+     * Set an {@link AtomicCounter} registration id for a counterId.
+     *
+     * @param counterId      to be set.
+     * @param registrationId to set for the counter.
+     */
+    public void setCounterRegistrationId(final int counterId, final long registrationId)
+    {
+        valuesBuffer.putLongOrdered(counterOffset(counterId) + REGISTRATION_ID_OFFSET, registrationId);
     }
 
     /**
@@ -436,14 +446,15 @@ public class CountersManager extends CountersReader
         for (int i = 0, size = freeList.size(); i < size; i++)
         {
             final int counterId = freeList.getInt(i);
-
             final long deadlineMs = metaDataBuffer.getLongVolatile(
                 metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
 
             if (nowMs >= deadlineMs)
             {
                 freeList.remove(i);
-                valuesBuffer.putLongOrdered(counterOffset(counterId), 0L);
+                final int offset = counterOffset(counterId);
+                valuesBuffer.putLongOrdered(offset, 0L);
+                valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
 
                 return counterId;
             }

@@ -82,7 +82,7 @@ public class CountersManagerTest
         {
             manager.allocate(
                 "label",
-                CountersManager.DEFAULT_TYPE_ID,
+                DEFAULT_TYPE_ID,
                 (buffer) ->
                 {
                     throw ex;
@@ -107,6 +107,36 @@ public class CountersManagerTest
         final int counterId = manager.allocate("abc");
         reader.forEach(consumer);
         verify(consumer).accept(counterId, "abc");
+    }
+
+    @Test
+    public void shouldSetRegistrationId()
+    {
+        final int counterId = manager.allocate("abc");
+        assertEquals(0L, reader.getCounterRegistrationId(counterId));
+
+        final long registrationId = 777L;
+        manager.setCounterRegistrationId(counterId, registrationId);
+        assertEquals(registrationId, reader.getCounterRegistrationId(counterId));
+    }
+
+    @Test
+    public void shouldResetValueAndRegistrationIdIfReused()
+    {
+        final int counterIdOne = manager.allocate("abc");
+        assertEquals(DEFAULT_REGISTRATION_ID, reader.getCounterRegistrationId(counterIdOne));
+
+        final long registrationIdOne = 777L;
+        manager.setCounterRegistrationId(counterIdOne, registrationIdOne);
+
+        manager.free(counterIdOne);
+        final int counterIdTwo = manager.allocate("def");
+        assertEquals(counterIdOne, counterIdTwo);
+        assertEquals(DEFAULT_REGISTRATION_ID, reader.getCounterRegistrationId(counterIdTwo));
+
+        final long registrationIdTwo = 333L;
+        manager.setCounterRegistrationId(counterIdTwo, registrationIdTwo);
+        assertEquals(registrationIdTwo, reader.getCounterRegistrationId(counterIdTwo));
     }
 
     @Test
@@ -278,7 +308,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldBeAbleToGetAndUpdateCounterLabel()
+    public void shouldGetAndUpdateCounterLabel()
     {
         final AtomicCounter counter = manager.newCounter("original label");
 
@@ -288,7 +318,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldBeAbleToGetAndUpdateCounterKeyUsingCallback()
+    public void shouldGetAndUpdateCounterKeyUsingCallback()
     {
         final String originalKey = "original key";
         final String updatedKey = "updated key";
@@ -308,11 +338,10 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldBeAbleToGetAndUpdateCounterKey()
+    public void shouldGetAndUpdateCounterKey()
     {
         final String originalKey = "original key";
         final String updatedKey = "updated key";
-
 
         final AtomicCounter counter = manager.newCounter(
             "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
@@ -373,7 +402,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldBeAbleToAppendLabel()
+    public void shouldAppendLabel()
     {
         final AtomicCounter counter = manager.newCounter("original label");
 

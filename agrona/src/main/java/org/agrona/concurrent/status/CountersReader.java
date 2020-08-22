@@ -41,7 +41,10 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  *  |                        Counter Value                          |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                     120 bytes of padding                     ...
+ *  |                       Registration Id                         |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                     112 bytes of padding                     ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -59,7 +62,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  *  +---------------------------------------------------------------+
  *  |                          Type Id                              |
  *  +---------------------------------------------------------------+
- *  |                   Free-for-reuse Deadline                     |
+ *  |                  Free-for-reuse Deadline (ms)                 |
  *  |                                                               |
  *  +---------------------------------------------------------------+
  *  |                      112 bytes for key                       ...
@@ -112,6 +115,16 @@ public class CountersReader
     }
 
     /**
+     * Default type id of a counter when none is supplied.
+     */
+    public static final int DEFAULT_TYPE_ID = 0;
+
+    /**
+     * Default registration id of a counter when none is set.
+     */
+    public static final long DEFAULT_REGISTRATION_ID = 0;
+
+    /**
      * Can be used to representing a null counter id when passed as a argument.
      */
     public static final int NULL_COUNTER_ID = -1;
@@ -135,6 +148,11 @@ public class CountersReader
      * Deadline to indicate counter is not free to be reused.
      */
     public static final long NOT_FREE_TO_REUSE = Long.MAX_VALUE;
+
+    /**
+     * Offset in the record at which the type id field is stored.
+     */
+    public static final int REGISTRATION_ID_OFFSET = SIZE_OF_LONG;
 
     /**
      * Offset in the record at which the type id field is stored.
@@ -379,6 +397,20 @@ public class CountersReader
     }
 
     /**
+     * Get the registration id for a given counter id as a volatile read. The registration id may be assigned
+     * when the counter is allocated to help avoid ABA issues if the counter id is reused.
+     *
+     * @param counterId to be read.
+     * @return the current registration id of the counter.
+     */
+    public long getCounterRegistrationId(final int counterId)
+    {
+        validateCounterId(counterId);
+
+        return valuesBuffer.getLongVolatile(counterOffset(counterId) + REGISTRATION_ID_OFFSET);
+    }
+
+    /**
      * Get the state for a given counter id as a volatile read.
      *
      * @param counterId to be read.
@@ -408,11 +440,11 @@ public class CountersReader
     }
 
     /**
-     * Get the deadline (in milliseconds) for when a given counter id may be reused.
+     * Get the deadline (ms) for when a given counter id may be reused.
      *
      * @param counterId to be read.
-     * @return deadline (in milliseconds) for when a given counter id may be reused or {@link #NOT_FREE_TO_REUSE} if
-     * currently in use.
+     * @return deadline (ms) for when a given counter id may be reused or {@link #NOT_FREE_TO_REUSE} if currently
+     * in use.
      */
     public long getFreeForReuseDeadline(final int counterId)
     {
