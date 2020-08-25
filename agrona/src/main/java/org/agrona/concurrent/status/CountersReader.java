@@ -384,6 +384,56 @@ public class CountersReader
     }
 
     /**
+     * Iterate over allocated counters and find the first matching a given registration id.
+     *
+     * @param registrationId to find.
+     * @return the counter if found otherwise {@link #NULL_COUNTER_ID}.
+     */
+    public int findByRegistrationId(final long registrationId)
+    {
+        int counterId = -1;
+        final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+
+        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
+        {
+            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(i) &&
+                registrationId == valuesBuffer.getLongVolatile(counterOffset(i) + REGISTRATION_ID_OFFSET))
+            {
+                counterId = i;
+                break;
+            }
+        }
+
+        return counterId;
+    }
+
+    /**
+     * Iterate over allocated counters and find the first matching a given type id and registration id.
+     *
+     * @param typeId         to find.
+     * @param registrationId to find.
+     * @return the counter if found otherwise {@link #NULL_COUNTER_ID}.
+     */
+    public int findByTypeIdAndRegistrationId(final int typeId, final long registrationId)
+    {
+        int counterId = -1;
+        final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+
+        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
+        {
+            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(i) &&
+                typeId == metaDataBuffer.getInt(i + TYPE_ID_OFFSET) &&
+                registrationId == valuesBuffer.getLongVolatile(counterOffset(i) + REGISTRATION_ID_OFFSET))
+            {
+                counterId = i;
+                break;
+            }
+        }
+
+        return counterId;
+    }
+
+    /**
      * Get the value for a given counter id as a volatile read.
      *
      * @param counterId to be read.

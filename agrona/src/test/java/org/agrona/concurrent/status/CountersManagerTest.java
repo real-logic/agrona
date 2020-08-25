@@ -140,6 +140,30 @@ public class CountersManagerTest
     }
 
     @Test
+    public void shouldFindByRegistrationId()
+    {
+        final long registrationId = 777L;
+        final int counterId = manager.allocate("abc");
+        manager.setCounterRegistrationId(counterId, registrationId);
+
+        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(0));
+        assertEquals(counterId, manager.findByRegistrationId(registrationId));
+    }
+
+    @Test
+    public void shouldFindByTypeIdAndRegistrationId()
+    {
+        final long registrationId = 777L;
+        final int typeId = 666;
+        final int counterId = manager.allocate("abc", typeId);
+        manager.setCounterRegistrationId(counterId, registrationId);
+
+        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(0));
+        assertEquals(NULL_COUNTER_ID, manager.findByTypeIdAndRegistrationId(0, registrationId));
+        assertEquals(counterId, manager.findByTypeIdAndRegistrationId(typeId, registrationId));
+    }
+
+    @Test
     public void shouldStoreMultipleLabels()
     {
         final int abc = manager.allocate("abc");
