@@ -393,10 +393,11 @@ public class CountersReader
     {
         int counterId = -1;
         final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+        final int capacity = metaDataBuffer.capacity();
 
-        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
+        for (int offset = 0, i = 0; offset < capacity; offset += METADATA_LENGTH, i++)
         {
-            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(i) &&
+            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(offset) &&
                 registrationId == valuesBuffer.getLongVolatile(counterOffset(i) + REGISTRATION_ID_OFFSET))
             {
                 counterId = i;
@@ -418,11 +419,12 @@ public class CountersReader
     {
         int counterId = -1;
         final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+        final int capacity = metaDataBuffer.capacity();
 
-        for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
+        for (int offset = 0, i = 0; offset < capacity; offset += METADATA_LENGTH, i++)
         {
-            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(i) &&
-                typeId == metaDataBuffer.getInt(i + TYPE_ID_OFFSET) &&
+            if (RECORD_ALLOCATED == metaDataBuffer.getIntVolatile(offset) &&
+                typeId == metaDataBuffer.getInt(offset + TYPE_ID_OFFSET) &&
                 registrationId == valuesBuffer.getLongVolatile(counterOffset(i) + REGISTRATION_ID_OFFSET))
             {
                 counterId = i;

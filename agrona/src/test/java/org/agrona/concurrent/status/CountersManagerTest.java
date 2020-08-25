@@ -143,10 +143,11 @@ public class CountersManagerTest
     public void shouldFindByRegistrationId()
     {
         final long registrationId = 777L;
+        manager.allocate("null");
         final int counterId = manager.allocate("abc");
         manager.setCounterRegistrationId(counterId, registrationId);
 
-        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(0));
+        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(1));
         assertEquals(counterId, manager.findByRegistrationId(registrationId));
     }
 
@@ -155,10 +156,11 @@ public class CountersManagerTest
     {
         final long registrationId = 777L;
         final int typeId = 666;
+        manager.allocate("null");
         final int counterId = manager.allocate("abc", typeId);
         manager.setCounterRegistrationId(counterId, registrationId);
 
-        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(0));
+        assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(1));
         assertEquals(NULL_COUNTER_ID, manager.findByTypeIdAndRegistrationId(0, registrationId));
         assertEquals(counterId, manager.findByTypeIdAndRegistrationId(typeId, registrationId));
     }
