@@ -113,7 +113,7 @@ public class CountersManagerTest
     public void shouldSetRegistrationId()
     {
         final int counterId = manager.allocate("abc");
-        assertEquals(0L, reader.getCounterRegistrationId(counterId));
+        assertEquals(DEFAULT_REGISTRATION_ID, reader.getCounterRegistrationId(counterId));
 
         final long registrationId = 777L;
         manager.setCounterRegistrationId(counterId, registrationId);
@@ -137,6 +137,36 @@ public class CountersManagerTest
         final long registrationIdTwo = 333L;
         manager.setCounterRegistrationId(counterIdTwo, registrationIdTwo);
         assertEquals(registrationIdTwo, reader.getCounterRegistrationId(counterIdTwo));
+    }
+
+    @Test
+    public void shouldSetOwnerId()
+    {
+        final int counterId = manager.allocate("abc");
+        assertEquals(DEFAULT_OWNER_ID, reader.getCounterOwnerId(counterId));
+
+        final long ownerId = 444L;
+        manager.setCounterOwnerId(counterId, ownerId);
+        assertEquals(ownerId, reader.getCounterOwnerId(counterId));
+    }
+
+    @Test
+    public void shouldResetValueAndOwnerIdIfReused()
+    {
+        final int counterIdOne = manager.allocate("abc");
+        assertEquals(DEFAULT_OWNER_ID, reader.getCounterOwnerId(counterIdOne));
+
+        final long ownerIdOne = 444L;
+        manager.setCounterOwnerId(counterIdOne, ownerIdOne);
+
+        manager.free(counterIdOne);
+        final int counterIdTwo = manager.allocate("def");
+        assertEquals(counterIdOne, counterIdTwo);
+        assertEquals(DEFAULT_OWNER_ID, reader.getCounterOwnerId(counterIdTwo));
+
+        final long ownerIdTwo = 222L;
+        manager.setCounterOwnerId(counterIdTwo, ownerIdTwo);
+        assertEquals(ownerIdTwo, reader.getCounterOwnerId(counterIdTwo));
     }
 
     @Test

@@ -45,7 +45,10 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  |                       Registration Id                         |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                     112 bytes of padding                     ...
+ *  |                          Owner Id                             |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                     104 bytes of padding                     ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -367,69 +370,86 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} value based for a counterId.
+     * Set an {@link AtomicCounter} value based for a counter id with volatile memory ordering.
      *
      * @param counterId to be set.
      * @param value     to set for the counter.
      */
     public void setCounterValue(final int counterId, final long value)
     {
+        validateCounterId(counterId);
         valuesBuffer.putLongOrdered(counterOffset(counterId), value);
     }
 
     /**
-     * Set an {@link AtomicCounter} registration id for a counterId.
+     * Set an {@link AtomicCounter} registration id for a counter id with volatile memory ordering.
      *
      * @param counterId      to be set.
      * @param registrationId to set for the counter.
      */
     public void setCounterRegistrationId(final int counterId, final long registrationId)
     {
+        validateCounterId(counterId);
         valuesBuffer.putLongOrdered(counterOffset(counterId) + REGISTRATION_ID_OFFSET, registrationId);
     }
 
     /**
-     * Set an {@link AtomicCounter} label based on counterId.
+     * Set an {@link AtomicCounter} owner id for a counter id.
+     *
+     * @param counterId to be set.
+     * @param ownerId   to set for the counter.
+     */
+    public void setCounterOwnerId(final int counterId, final long ownerId)
+    {
+        validateCounterId(counterId);
+        valuesBuffer.putLong(counterOffset(counterId) + OWNER_ID_OFFSET, ownerId);
+    }
+
+    /**
+     * Set an {@link AtomicCounter} label by counter id.
      *
      * @param counterId to be set.
      * @param label     to set for the counter.
      */
     public void setCounterLabel(final int counterId, final String label)
     {
+        validateCounterId(counterId);
         putLabel(metaDataOffset(counterId), label);
     }
 
     /**
-     * Set an {@link AtomicCounter} key based on counterId, using a consumer callback to update the key metadata buffer.
+     * Set an {@link AtomicCounter} key by on counter id, using a consumer callback to update the key metadata buffer.
      *
      * @param counterId to be set.
      * @param keyFunc   callback used to set the key.
      */
     public void setCounterKey(final int counterId, final Consumer<MutableDirectBuffer> keyFunc)
     {
+        validateCounterId(counterId);
         keyFunc.accept(new UnsafeBuffer(metaDataBuffer, metaDataOffset(counterId) + KEY_OFFSET, MAX_KEY_LENGTH));
     }
 
     /**
-     * Set an {@link AtomicCounter} key based on counterId, copying the key metadata from the supplied buffer.
+     * Set an {@link AtomicCounter} key by on counter id, copying the key metadata from the supplied buffer.
      *
-     * @param id        to be set
-     * @param keyBuffer containing the updated key
-     * @param offset    offset into buffer
-     * @param length    length of data to copy
+     * @param counterId to be set.
+     * @param keyBuffer containing the updated key.
+     * @param offset    offset into buffer.
+     * @param length    length of data to copy.
      */
-    public void setCounterKey(final int id, final DirectBuffer keyBuffer, final int offset, final int length)
+    public void setCounterKey(final int counterId, final DirectBuffer keyBuffer, final int offset, final int length)
     {
+        validateCounterId(counterId);
         if (length > MAX_KEY_LENGTH)
         {
             throw new IllegalArgumentException("Supplied key is too long: " + length + ", max: " + MAX_KEY_LENGTH);
         }
 
-        metaDataBuffer.putBytes(metaDataOffset(id) + KEY_OFFSET, keyBuffer, offset, length);
+        metaDataBuffer.putBytes(metaDataOffset(counterId) + KEY_OFFSET, keyBuffer, offset, length);
     }
 
     /**
-     * Set an {@link AtomicCounter} label based on counterId.
+     * Set an {@link AtomicCounter} label based on counter id.
      *
      * @param counterId to be set.
      * @param label     to set for the counter.
@@ -446,14 +466,13 @@ public class CountersManager extends CountersReader
         for (int i = 0, size = freeList.size(); i < size; i++)
         {
             final int counterId = freeList.getInt(i);
-            final long deadlineMs = metaDataBuffer.getLongVolatile(
-                metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
-
-            if (nowMs >= deadlineMs)
+            if (nowMs >= metaDataBuffer.getLong(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET))
             {
                 freeList.remove(i);
+
                 final int offset = counterOffset(counterId);
                 valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
+                valuesBuffer.putLong(offset + OWNER_ID_OFFSET, DEFAULT_OWNER_ID);
                 valuesBuffer.putLongOrdered(offset, 0L);
 
                 return counterId;
