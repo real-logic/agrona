@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 
-import static java.nio.ByteBuffer.allocateDirect;
+import static java.nio.ByteBuffer.allocate;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.agrona.concurrent.status.CountersReader.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,12 +44,12 @@ public class CountersManagerTest
 
     private long currentTimestamp = 0;
 
-    private final UnsafeBuffer labelsBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
-    private final UnsafeBuffer counterBuffer = new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
-    private final CountersManager manager = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
-    private final CountersReader reader = new CountersManager(labelsBuffer, counterBuffer, US_ASCII);
-    private final CountersManager managerWithCooldown =
-        new CountersManager(labelsBuffer, counterBuffer, US_ASCII, () -> currentTimestamp, FREE_TO_REUSE_TIMEOUT);
+    private final UnsafeBuffer metadataBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * METADATA_LENGTH));
+    private final UnsafeBuffer valuesBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
+    private final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
+    private final CountersReader reader = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
+    private final CountersManager managerWithCooldown = new CountersManager(
+        metadataBuffer, valuesBuffer, US_ASCII, () -> currentTimestamp, FREE_TO_REUSE_TIMEOUT);
 
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
@@ -273,8 +273,8 @@ public class CountersManagerTest
         manager.allocate("def");
 
         final int id = manager.allocate("abc");
-        final ReadablePosition reader = new UnsafeBufferPosition(counterBuffer, id);
-        final Position writer = new UnsafeBufferPosition(counterBuffer, id);
+        final ReadablePosition reader = new UnsafeBufferPosition(valuesBuffer, id);
+        final Position writer = new UnsafeBufferPosition(valuesBuffer, id);
         final long expectedValue = 0xF_FFFF_FFFFL;
 
         writer.setOrdered(expectedValue);

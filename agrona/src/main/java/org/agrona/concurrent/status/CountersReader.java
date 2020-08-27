@@ -243,7 +243,7 @@ public class CountersReader
     public CountersReader(
         final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
-        this.maxCounterId = valuesBuffer.capacity() / COUNTER_LENGTH;
+        this.maxCounterId = (valuesBuffer.capacity() / COUNTER_LENGTH) - 1;
         this.valuesBuffer = valuesBuffer;
         this.metaDataBuffer = metaDataBuffer;
         this.labelCharset = labelCharset;

@@ -509,7 +509,7 @@ public class CountersManager extends CountersReader
 
     private void checkCountersCapacity(final int counterId)
     {
-        if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
+        if (counterId > maxCounterId)
         {
             throw new IllegalStateException("unable to allocate counter, buffer is full");
         }
