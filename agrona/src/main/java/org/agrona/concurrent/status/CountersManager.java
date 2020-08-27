@@ -339,6 +339,7 @@ public class CountersManager extends CountersReader
      */
     public void free(final int counterId)
     {
+        validateCounterId(counterId);
         final int offset = metaDataOffset(counterId);
 
         metaDataBuffer.putIntOrdered(offset, RECORD_RECLAIMED);
