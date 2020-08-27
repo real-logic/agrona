@@ -135,7 +135,7 @@ public class CountersManager extends CountersReader
 
         if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
         {
-            throw new IllegalArgumentException("metadata buffer not sufficiently large");
+            throw new IllegalArgumentException("metadata buffer is too small");
         }
     }
 
@@ -173,10 +173,7 @@ public class CountersManager extends CountersReader
     public int allocate(final String label, final int typeId)
     {
         final int counterId = nextCounterId();
-        checkCountersCapacity(counterId);
-
         final int recordOffset = metaDataOffset(counterId);
-        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -209,10 +206,7 @@ public class CountersManager extends CountersReader
     public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
     {
         final int counterId = nextCounterId();
-        checkCountersCapacity(counterId);
-
         final int recordOffset = metaDataOffset(counterId);
-        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -256,10 +250,7 @@ public class CountersManager extends CountersReader
         final int labelLength)
     {
         final int counterId = nextCounterId();
-        checkCountersCapacity(counterId);
-
         final int recordOffset = metaDataOffset(counterId);
-        checkMetaDataCapacity(recordOffset);
 
         try
         {
@@ -461,23 +452,28 @@ public class CountersManager extends CountersReader
 
     private int nextCounterId()
     {
-        final long nowMs = epochClock.time();
-
-        for (int i = 0, size = freeList.size(); i < size; i++)
+        if (!freeList.isEmpty())
         {
-            final int counterId = freeList.getInt(i);
-            if (nowMs >= metaDataBuffer.getLong(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET))
+            final long nowMs = epochClock.time();
+
+            for (int i = 0, size = freeList.size(); i < size; i++)
             {
-                freeList.remove(i);
+                final int counterId = freeList.getInt(i);
+                if (nowMs >= metaDataBuffer.getLong(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET))
+                {
+                    freeList.remove(i);
 
-                final int offset = counterOffset(counterId);
-                valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
-                valuesBuffer.putLong(offset + OWNER_ID_OFFSET, DEFAULT_OWNER_ID);
-                valuesBuffer.putLongOrdered(offset, 0L);
+                    final int offset = counterOffset(counterId);
+                    valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
+                    valuesBuffer.putLong(offset + OWNER_ID_OFFSET, DEFAULT_OWNER_ID);
+                    valuesBuffer.putLongOrdered(offset, 0L);
 
-                return counterId;
+                    return counterId;
+                }
             }
         }
+
+        checkCountersCapacity(idHighWaterMark + 1);
 
         return ++idHighWaterMark;
     }
@@ -528,14 +524,6 @@ public class CountersManager extends CountersReader
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
             throw new IllegalStateException("unable to allocate counter, values buffer is full");
-        }
-    }
-
-    private void checkMetaDataCapacity(final int recordOffset)
-    {
-        if ((recordOffset + METADATA_LENGTH) > metaDataBuffer.capacity())
-        {
-            throw new IllegalStateException("unable to allocate counter, metadata buffer is full");
         }
     }
 }
