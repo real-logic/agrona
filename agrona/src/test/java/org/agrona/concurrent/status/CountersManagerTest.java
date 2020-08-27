@@ -191,7 +191,8 @@ public class CountersManagerTest
         manager.setCounterRegistrationId(counterId, registrationId);
 
         assertEquals(NULL_COUNTER_ID, manager.findByRegistrationId(1));
-        assertEquals(NULL_COUNTER_ID, manager.findByTypeIdAndRegistrationId(0, registrationId));
+        assertEquals(NULL_COUNTER_ID, manager.findByTypeIdAndRegistrationId(DEFAULT_TYPE_ID, registrationId));
+        assertEquals(NULL_COUNTER_ID, manager.findByTypeIdAndRegistrationId(typeId, 0));
         assertEquals(counterId, manager.findByTypeIdAndRegistrationId(typeId, registrationId));
     }
 
