@@ -19,9 +19,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.collections.IntArrayList;
-import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.EpochClock;
-import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.concurrent.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -85,7 +83,6 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  */
 public class CountersManager extends CountersReader
 {
-
     private final long freeToReuseTimeoutMs;
     private int idHighWaterMark = -1;
     private final IntArrayList freeList = new IntArrayList();
@@ -113,27 +110,7 @@ public class CountersManager extends CountersReader
         this.epochClock = epochClock;
         this.freeToReuseTimeoutMs = freeToReuseTimeoutMs;
 
-        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
-        {
-            throw new IllegalArgumentException("metadata buffer not sufficiently large");
-        }
-    }
-
-    /**
-     * Create a new counter manager over two buffers.
-     *
-     * @param metaDataBuffer containing the types, keys, and labels for the counters.
-     * @param valuesBuffer   containing the values of the counters themselves.
-     */
-    public CountersManager(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
-    {
-        super(metaDataBuffer, valuesBuffer);
-
-        valuesBuffer.verifyAlignment();
-        this.epochClock = () -> 0;
-        this.freeToReuseTimeoutMs = 0;
-
-        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * 2))
+        if (metaDataBuffer.capacity() < (valuesBuffer.capacity() * (METADATA_LENGTH / COUNTER_LENGTH)))
         {
             throw new IllegalArgumentException("metadata buffer is too small");
         }
@@ -149,7 +126,18 @@ public class CountersManager extends CountersReader
     public CountersManager(
         final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
-        this(metaDataBuffer, valuesBuffer, labelCharset, () -> 0, 0);
+        this(metaDataBuffer, valuesBuffer, labelCharset, new CachedEpochClock(), 0);
+    }
+
+    /**
+     * Create a new counter manager over two buffers.
+     *
+     * @param metaDataBuffer containing the types, keys, and labels for the counters.
+     * @param valuesBuffer   containing the values of the counters themselves.
+     */
+    public CountersManager(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
+    {
+        this(metaDataBuffer, valuesBuffer, StandardCharsets.UTF_8, new CachedEpochClock(), 0);
     }
 
     /**
@@ -351,12 +339,11 @@ public class CountersManager extends CountersReader
      */
     public void free(final int counterId)
     {
-        final int recordOffset = metaDataOffset(counterId);
+        final int offset = metaDataOffset(counterId);
 
-        metaDataBuffer.putIntOrdered(recordOffset, RECORD_RECLAIMED);
-        metaDataBuffer.setMemory(recordOffset + KEY_OFFSET, MAX_KEY_LENGTH, (byte)0);
-        metaDataBuffer.putLong(
-            recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
+        metaDataBuffer.putIntOrdered(offset, RECORD_RECLAIMED);
+        metaDataBuffer.setMemory(offset + KEY_OFFSET, MAX_KEY_LENGTH, (byte)0);
+        metaDataBuffer.putLong(offset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
         freeList.addInt(counterId);
     }
 
@@ -433,7 +420,7 @@ public class CountersManager extends CountersReader
         validateCounterId(counterId);
         if (length > MAX_KEY_LENGTH)
         {
-            throw new IllegalArgumentException("Supplied key is too long: " + length + ", max: " + MAX_KEY_LENGTH);
+            throw new IllegalArgumentException("key is too long: " + length + ", max: " + MAX_KEY_LENGTH);
         }
 
         metaDataBuffer.putBytes(metaDataOffset(counterId) + KEY_OFFSET, keyBuffer, offset, length);
@@ -523,7 +510,7 @@ public class CountersManager extends CountersReader
     {
         if ((counterOffset(counterId) + COUNTER_LENGTH) > valuesBuffer.capacity())
         {
-            throw new IllegalStateException("unable to allocate counter, values buffer is full");
+            throw new IllegalStateException("unable to allocate counter, buffer is full");
         }
     }
 }
