@@ -38,7 +38,7 @@ def guavaTestLib = '29.0-jre'
 def jmhVersion = '1.25.1'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '1.7.0-SNAPSHOT'
+def agronaVersion = '1.7.0'
 def externalJdk = true
 
 if (null == System.getenv("JAVA_HOME")) {
