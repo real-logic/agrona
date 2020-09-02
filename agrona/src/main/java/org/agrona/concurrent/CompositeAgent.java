@@ -87,7 +87,7 @@ public class CompositeAgent implements Agent
             {
                 agent.onStart();
             }
-            catch (final Exception ex)
+            catch (final Throwable ex)
             {
                 if (ce == null)
                 {
@@ -136,7 +136,7 @@ public class CompositeAgent implements Agent
             {
                 agent.onClose();
             }
-            catch (final Exception ex)
+            catch (final Throwable ex)
             {
                 if (ce == null)
                 {

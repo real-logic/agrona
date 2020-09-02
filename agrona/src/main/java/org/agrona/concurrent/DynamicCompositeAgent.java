@@ -179,7 +179,7 @@ public class DynamicCompositeAgent implements Agent
             {
                 agent.onClose();
             }
-            catch (final Exception ex)
+            catch (final Throwable ex)
             {
                 if (ce == null)
                 {
@@ -292,7 +292,7 @@ public class DynamicCompositeAgent implements Agent
         {
             agent.onStart();
         }
-        catch (final RuntimeException ex)
+        catch (final Throwable ex)
         {
             agent.onClose();
             throw ex;
