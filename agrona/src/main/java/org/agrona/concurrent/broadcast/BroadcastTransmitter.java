@@ -121,7 +121,7 @@ public class BroadcastTransmitter
 
         buffer.putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        buffer.putLong(latestCounterIndex, currentTail);
+        buffer.putLongOrdered(latestCounterIndex, currentTail);
         buffer.putLongOrdered(tailCounterIndex, currentTail + recordLengthAligned);
     }
 

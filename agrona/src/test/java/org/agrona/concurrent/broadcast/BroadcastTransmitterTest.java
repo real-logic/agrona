@@ -106,7 +106,7 @@ public class BroadcastTransmitterTest
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLong(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
@@ -134,7 +134,7 @@ public class BroadcastTransmitterTest
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLong(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
@@ -163,7 +163,7 @@ public class BroadcastTransmitterTest
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLong(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
@@ -198,7 +198,7 @@ public class BroadcastTransmitterTest
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLong(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 }
