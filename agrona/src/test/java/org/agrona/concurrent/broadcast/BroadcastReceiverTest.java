@@ -163,7 +163,7 @@ public class BroadcastReceiverTest
 
         when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
-        when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
+        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
 
         when(buffer.getInt(lengthOffset(recordOffset))).thenReturn(recordLength);
         when(buffer.getInt(typeOffset(recordOffset))).thenReturn(MSG_TYPE_ID);
@@ -195,7 +195,7 @@ public class BroadcastReceiverTest
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX))
             .thenReturn(catchupTail)
             .thenReturn(postPaddingTail);
-        when(buffer.getLong(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
+        when(buffer.getLongVolatile(LATEST_COUNTER_INDEX)).thenReturn(latestRecord);
         when(buffer.getInt(lengthOffset(catchupOffset))).thenReturn(recordLength);
         when(buffer.getInt(typeOffset(catchupOffset))).thenReturn(MSG_TYPE_ID);
 

@@ -160,7 +160,7 @@ public class BroadcastReceiver
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
 
-                cursor = buffer.getLong(latestCounterIndex);
+                cursor = buffer.getLongVolatile(latestCounterIndex);
                 recordOffset = (int)cursor & (capacity - 1);
             }
 
