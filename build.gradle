@@ -24,13 +24,13 @@ plugins {
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '6.0.0' apply false
     id 'biz.aQute.bnd.builder' version '5.1.2' apply false
-    id "com.github.ben-manes.versions" version "0.29.0"
+    id "com.github.ben-manes.versions" version "0.30.0"
 }
 
 defaultTasks 'clean', 'build'
 
 def byteBuddyVersion = '1.10.14'
-def checkstyleVersion = '8.35'
+def checkstyleVersion = '8.36'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.5.10'
 def junitVersion = '5.6.2'
