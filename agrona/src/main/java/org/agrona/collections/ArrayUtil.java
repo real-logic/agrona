@@ -107,7 +107,7 @@ public final class ArrayUtil
      * Remove an element from an array resulting in a new array if the index was inside the array otherwise the old
      * array.
      * <p>
-     * Returns the input parameter if the index isn't inside the array.
+     * Returns the old elements array if the index isn't inside the array.
      *
      * @param oldElements to have the element removed from.
      * @param index       to remove the element at.
