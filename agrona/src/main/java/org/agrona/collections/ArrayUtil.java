@@ -103,6 +103,17 @@ public final class ArrayUtil
         return remove(oldElements, index);
     }
 
+    /**
+     * Remove an element from an array resulting in a new array if the index was inside the array otherwise the old
+     * array.
+     * <p>
+     * Returns the input parameter if the index isn't inside the array.
+     *
+     * @param oldElements to have the element removed from.
+     * @param index       to remove the element at.
+     * @param <T>         type of the array.
+     * @return a new array without the element if the index is inside the array otherwise the original array.
+     */
     public static <T> T[] remove(final T[] oldElements, final int index)
     {
         if (index == UNKNOWN_INDEX)
