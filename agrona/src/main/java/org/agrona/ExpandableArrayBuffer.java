@@ -1107,19 +1107,29 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
     private int calculateExpansion(final int currentLength, final int requiredLength)
     {
-        long value = currentLength;
+        if (requiredLength - currentLength > currentLength)
+        {
+            return fastCalculateExpansion(currentLength, requiredLength);
+        }
 
+        long value = currentLength;
         while (value < requiredLength)
         {
-            value = value + (value >> 1);
+            value = value + (value >> 1) + 1;
 
-            if (value > MAX_ARRAY_LENGTH)
+            if (value >= MAX_ARRAY_LENGTH)
             {
-                value = MAX_ARRAY_LENGTH;
+                return MAX_ARRAY_LENGTH;
             }
         }
 
         return (int)value;
+    }
+
+    private int fastCalculateExpansion(final int currentLength, final int requiredLength)
+    {
+        final long value = currentLength + requiredLength + (currentLength >> 1);
+        return value >= MAX_ARRAY_LENGTH ? MAX_ARRAY_LENGTH : (int)value;
     }
 
     private void boundsCheck0(final int index, final int length)

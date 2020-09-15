@@ -69,6 +69,24 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
+    public void testInfinityLoopReproducer()
+    {
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1);
+        buffer.putByte(0, (byte)4);
+        buffer.putByte(1, (byte)2);
+
+        final ExpandableArrayBuffer buffer2 = new ExpandableArrayBuffer(0);
+        buffer2.putByte(0, (byte)4);
+    }
+
+    @Test
+    public void testFastExpansion()
+    {
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(4);
+        buffer.putStringUtf8(0, "42_at_least_twice");
+    }
+
+    @Test
     public void testUnsafeBufferFromHeapByteBuffer()
     {
         testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET);
