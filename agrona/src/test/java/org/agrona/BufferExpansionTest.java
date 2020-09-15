@@ -15,6 +15,7 @@
  */
 package org.agrona;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BufferExpansionTest
 {
@@ -45,6 +46,40 @@ public class BufferExpansionTest
         buffer.putInt(index, value);
 
         assertThat(buffer.capacity(), greaterThan(capacity));
-        assertThat(buffer.getInt(index), is(value));
+        assertEquals(buffer.getInt(index), value);
+    }
+
+    @Test
+    public void shouldExpandArrayBufferFromZeroCapacity()
+    {
+        final MutableDirectBuffer buffer = new ExpandableArrayBuffer(0);
+        buffer.putByte(0, (byte)4);
+
+        assertThat(buffer.capacity(), greaterThan(0));
+    }
+
+    @Test
+    public void shouldExpandArrayBufferFromOneCapacity()
+    {
+        final MutableDirectBuffer buffer = new ExpandableArrayBuffer(1);
+        buffer.putByte(0, (byte)4);
+        buffer.putByte(1, (byte)2);
+    }
+
+    @Test
+    public void shouldExpandDirectBufferFromZeroCapacity()
+    {
+        final MutableDirectBuffer buffer = new ExpandableDirectByteBuffer(0);
+        buffer.putByte(0, (byte)4);
+
+        assertThat(buffer.capacity(), greaterThan(0));
+    }
+
+    @Test
+    public void shouldExpandDirectBufferFromOneCapacity()
+    {
+        final MutableDirectBuffer buffer = new ExpandableDirectByteBuffer(1);
+        buffer.putByte(0, (byte)4);
+        buffer.putByte(1, (byte)2);
     }
 }

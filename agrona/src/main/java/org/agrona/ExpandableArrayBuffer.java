@@ -1095,19 +1095,19 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         final int currentArrayLength = byteArray.length;
         if (resultingPosition > currentArrayLength)
         {
-            if (currentArrayLength >= MAX_ARRAY_LENGTH)
+            if (resultingPosition > MAX_ARRAY_LENGTH)
             {
                 throw new IndexOutOfBoundsException(
                     "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
             }
 
-            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, (int)resultingPosition));
+            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, resultingPosition));
         }
     }
 
-    private int calculateExpansion(final int currentLength, final int requiredLength)
+    private int calculateExpansion(final int currentLength, final long requiredLength)
     {
-        long value = currentLength;
+        long value = Math.max(currentLength, INITIAL_CAPACITY);
 
         while (value < requiredLength)
         {

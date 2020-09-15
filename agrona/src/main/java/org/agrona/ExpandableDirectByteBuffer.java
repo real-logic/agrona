@@ -1146,13 +1146,13 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         final int currentCapacity = capacity;
         if (resultingPosition > currentCapacity)
         {
-            if (currentCapacity >= MAX_BUFFER_LENGTH)
+            if (resultingPosition > MAX_BUFFER_LENGTH)
             {
                 throw new IndexOutOfBoundsException(
                     "index=" + index + " length=" + length + " maxCapacity=" + MAX_BUFFER_LENGTH);
             }
 
-            final int newCapacity = calculateExpansion(currentCapacity, (int)resultingPosition);
+            final int newCapacity = calculateExpansion(currentCapacity, resultingPosition);
             final ByteBuffer newBuffer = ByteBuffer.allocateDirect(newCapacity);
 
             getBytes(0, newBuffer, 0, capacity);
@@ -1163,15 +1163,15 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         }
     }
 
-    private int calculateExpansion(final int currentLength, final int requiredLength)
+    private int calculateExpansion(final int currentLength, final long requiredLength)
     {
-        long value = currentLength;
+        long value = Math.max(currentLength, INITIAL_CAPACITY);
 
         while (value < requiredLength)
         {
             value = value + (value >> 1);
 
-            if (value > Integer.MAX_VALUE)
+            if (value > MAX_BUFFER_LENGTH)
             {
                 value = MAX_BUFFER_LENGTH;
             }
