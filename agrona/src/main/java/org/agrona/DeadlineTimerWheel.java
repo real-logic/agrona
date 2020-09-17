@@ -30,12 +30,12 @@ import java.util.concurrent.TimeUnit;
  * <a href="http://www.cse.wustl.edu/~cdgill/courses/cs6874/TimingWheels.ppt">here</a>.
  * <p>
  * Wheel is backed by arrays. Timer cancellation is O(1). Timer scheduling might be slightly
- * longer if a lot of timers are in the same tick. The underlying tick contains an array. That
+ * longer if a lot of timers are in the same tick or spoke. The underlying tick is contained in an array. That
  * array grows when needed, but does not shrink.
  * <p>
  * <b>Caveats</b>
  * <p>
- * Timers that expire in the same tick will not be ordered with one another. As ticks are
+ * Timers that expire in the same tick are not be ordered with one another. As ticks are
  * fairly coarse resolution normally, this means that some timers may expire out of order.
  * <p>
  * <b>Note:</b> Not threadsafe.
@@ -141,7 +141,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Time unit for the time values.
+     * Time unit for the time ticks.
      *
      * @return time unit for the ticks.
      */
@@ -183,7 +183,7 @@ public class DeadlineTimerWheel
     /**
      * Number of active timers.
      *
-     * @return number of active timers.
+     * @return number of currently scheduled timers.
      */
     public long timerCount()
     {
@@ -194,7 +194,7 @@ public class DeadlineTimerWheel
      * Reset the start time of the wheel.
      *
      * @param startTime to set the wheel to.
-     * @throws IllegalStateException if wheel has any active timers.
+     * @throws IllegalStateException if wheel has any scheduled timers.
      */
     public void resetStartTime(final long startTime)
     {
@@ -215,7 +215,7 @@ public class DeadlineTimerWheel
      */
     public long currentTickTime()
     {
-        return ((currentTick + 1L) << resolutionBitsToShift) + startTime;
+        return currentTickTime0();
     }
 
     /**
@@ -234,7 +234,7 @@ public class DeadlineTimerWheel
     }
 
     /**
-     * Clear out all active timers in the wheel.
+     * Clear out all scheduled timers in the wheel.
      */
     public void clear()
     {
@@ -264,7 +264,7 @@ public class DeadlineTimerWheel
      * and returned for future reference.
      *
      * @param deadline after which the timer should expire.
-     * @return timerId for the scheduled timer.
+     * @return timerId assigned for the scheduled timer.
      */
     public long scheduleTimer(final long deadline)
     {
@@ -320,7 +320,7 @@ public class DeadlineTimerWheel
      * @param now         current time to compare deadlines against.
      * @param handler     to call for each expired timer.
      * @param expiryLimit to process in one poll operation.
-     * @return number of expired timers.
+     * @return count of expired timers as a result of this poll operation.
      */
     public int poll(final long now, final TimerHandler handler, final int expiryLimit)
     {
@@ -335,7 +335,7 @@ public class DeadlineTimerWheel
                 final int wheelIndex = (spokeIndex << allocationBitsToShift) + pollIndex;
                 final long deadline = wheel[wheelIndex];
 
-                if (deadline <= now)
+                if (now >= deadline)
                 {
                     wheel[wheelIndex] = NULL_DEADLINE;
                     timerCount--;
@@ -353,7 +353,7 @@ public class DeadlineTimerWheel
                 pollIndex = (pollIndex + 1) >= length ? 0 : (pollIndex + 1);
             }
 
-            if (expiryLimit > timersExpired && currentTickTime() <= now)
+            if (expiryLimit > timersExpired && now >= currentTickTime0())
             {
                 currentTick++;
                 pollIndex = 0;
@@ -363,7 +363,7 @@ public class DeadlineTimerWheel
                 pollIndex = 0;
             }
         }
-        else if (currentTickTime() <= now)
+        else if (now >= currentTickTime0())
         {
             currentTick++;
             pollIndex = 0;
@@ -401,7 +401,7 @@ public class DeadlineTimerWheel
      * Get the deadline for the given timerId.
      *
      * @param timerId of the timer to return the deadline of.
-     * @return deadline for the given timerId or {@link #NULL_DEADLINE} if timerId is not running.
+     * @return deadline for the given timerId or {@link #NULL_DEADLINE} if timerId is not scheduled.
      */
     public long deadline(final long timerId)
     {
@@ -420,13 +420,18 @@ public class DeadlineTimerWheel
         return NULL_DEADLINE;
     }
 
+    private long currentTickTime0()
+    {
+        return ((currentTick + 1L) << resolutionBitsToShift) + startTime;
+    }
+
     private long increaseCapacity(final long deadline, final int spokeIndex)
     {
         final int newTickAllocation = tickAllocation << 1;
         final int newAllocationBitsToShift = Integer.numberOfTrailingZeros(newTickAllocation);
 
         final long newCapacity = (long)ticksPerWheel * newTickAllocation;
-        if (newCapacity > 1 << 30)
+        if (newCapacity > (1 << 30))
         {
             throw new IllegalStateException("max capacity reached at tickAllocation=" + tickAllocation);
         }
