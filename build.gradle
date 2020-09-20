@@ -29,10 +29,10 @@ plugins {
 
 defaultTasks 'clean', 'build'
 
-def byteBuddyVersion = '1.10.14'
+def byteBuddyVersion = '1.10.15'
 def checkstyleVersion = '8.36'
 def hamcrestVersion = '2.2'
-def mockitoVersion = '3.5.10'
+def mockitoVersion = '3.5.11'
 def junitVersion = '5.7.0'
 def guavaTestLib = '29.0-jre'
 def jmhVersion = '1.25.2'
