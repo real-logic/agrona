@@ -34,10 +34,10 @@ public interface MessageDecoderFlyweight extends MessageFlyweight, DecoderFlywei
     MessageDecoderFlyweight wrap(DirectBuffer buffer, int offset, int actingBlockLength, int actingVersion);
 
     /**
-     * Populate the supplied StringBuilder with the string representation of the message.
+     * Populate the supplied {@link StringBuilder} with the string representation of the message.
      *
-     * @param builder destination for the string
-     * @return the supplied builder
+     * @param builder destination for the string representation.
+     * @return the supplied builder for a fluent API.
      */
     StringBuilder appendTo(StringBuilder builder);
 }
