@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8', '11', '14' ]
+        java: [ '8', '11', '15' ]
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout code
