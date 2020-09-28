@@ -22,6 +22,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -54,20 +55,30 @@ public final class SystemUtil
         long pid = PID_NOT_FOUND;
         try
         {
-            // TODO: if Java 9, then use ProcessHandle.
-            final String pidPropertyValue = System.getProperty(SUN_PID_PROP_NAME);
-            if (null != pidPropertyValue)
-            {
-                pid = Long.parseLong(pidPropertyValue);
-            }
-            else
-            {
-                final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                pid = Long.parseLong(jvmName.split("@")[0]);
-            }
+            final Class<?> processHandleClass = Class.forName("java.lang.ProcessHandle");
+            final Method currentMethod = processHandleClass.getMethod("current");
+            final Object processHandle = currentMethod.invoke(null);
+            final Method pidMethod = processHandleClass.getMethod("pid");
+            pid = (Long)pidMethod.invoke(processHandle);
         }
         catch (final Throwable ignore)
         {
+            try
+            {
+                final String pidPropertyValue = System.getProperty(SUN_PID_PROP_NAME);
+                if (null != pidPropertyValue)
+                {
+                    pid = Long.parseLong(pidPropertyValue);
+                }
+                else
+                {
+                    final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+                    pid = Long.parseLong(jvmName.split("@")[0]);
+                }
+            }
+            catch (final Throwable ignore2)
+            {
+            }
         }
 
         PID = pid;
