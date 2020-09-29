@@ -17,11 +17,11 @@ package org.agrona;
 
 import org.junit.jupiter.api.Test;
 
-import static org.agrona.SystemUtil.parseDuration;
-import static org.agrona.SystemUtil.parseSize;
+import static org.agrona.SystemUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SystemUtilTest
@@ -76,7 +76,7 @@ public class SystemUtilTest
     {
         final int originalSystemPropSize = System.getProperties().size();
 
-        SystemUtil.loadPropertiesFile("$unknown-file$");
+        loadPropertiesFile("$unknown-file$");
 
         assertThat(originalSystemPropSize, is(System.getProperties().size()));
     }
@@ -87,7 +87,7 @@ public class SystemUtilTest
         assertThat(System.getProperty("TestFileA.foo"), is(emptyOrNullString()));
         assertThat(System.getProperty("TestFileB.foo"), is(emptyOrNullString()));
 
-        SystemUtil.loadPropertiesFiles(new String[]{ "TestFileA.properties", "TestFileB.properties" });
+        loadPropertiesFiles(new String[]{ "TestFileA.properties", "TestFileB.properties" });
 
         assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
         assertThat(System.getProperty("TestFileB.foo"), is("BBB"));
@@ -99,10 +99,16 @@ public class SystemUtilTest
         System.setProperty("TestFileA.foo", "ToBeOverridden");
         assertThat(System.getProperty("TestFileA.foo"), is("ToBeOverridden"));
 
-        SystemUtil.loadPropertiesFile("TestFileA.properties");
+        loadPropertiesFile("TestFileA.properties");
 
         assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
 
         System.clearProperty("TestFileA.foo");
+    }
+
+    @Test
+    void shouldReturnPid()
+    {
+        assertNotEquals(PID_NOT_FOUND, getPid());
     }
 }
