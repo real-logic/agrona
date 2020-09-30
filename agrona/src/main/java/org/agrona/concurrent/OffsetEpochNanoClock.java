@@ -41,6 +41,9 @@ public class OffsetEpochNanoClock implements EpochNanoClock
     private long initialCurrentNanoTime;
     private boolean isWithinThreshold;
 
+    /**
+     * Constructs the clock with default configuration.
+     */
     public OffsetEpochNanoClock()
     {
         this(DEFAULT_MAX_MEASUREMENT_RETRIES, DEFAULT_MEASUREMENT_THRESHOLD_NS, DEFAULT_RESAMPLE_INTERVAL_NS);

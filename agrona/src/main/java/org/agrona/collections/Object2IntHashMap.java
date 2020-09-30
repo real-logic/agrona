@@ -76,6 +76,7 @@ public class Object2IntHashMap<K>
 
     /**
      * Construct a new map allowing a configuration for initial capacity and load factor.
+     *
      * @param initialCapacity       for the backing array
      * @param loadFactor            limit for resizing on puts
      * @param missingValue          value to be used as a null marker in the map
@@ -842,6 +843,11 @@ public class Object2IntHashMap<K>
     // Iterators
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Base iterator impl.
+     *
+     * @param <T> type of elements.
+     */
     abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
         @DoNotSub private int posCounter;
@@ -849,6 +855,11 @@ public class Object2IntHashMap<K>
         @DoNotSub private int remaining;
         private boolean isPositionValid = false;
 
+        /**
+         * Position of the current element.
+         *
+         * @return position of the element in the array.
+         */
         @DoNotSub protected final int position()
         {
             return posCounter & (values.length - 1);
@@ -859,6 +870,11 @@ public class Object2IntHashMap<K>
             return remaining > 0;
         }
 
+        /**
+         * Find next element.
+         *
+         * @throws NoSuchElementException if no more elements.
+         */
         protected final void findNext()
         {
             if (!hasNext())
@@ -941,6 +957,11 @@ public class Object2IntHashMap<K>
             return nextInt();
         }
 
+        /**
+         * Get next value without boxing.
+         *
+         * @return next value.
+         */
         public int nextInt()
         {
             findNext();
@@ -988,6 +1009,11 @@ public class Object2IntHashMap<K>
             return keys[position()];
         }
 
+        /**
+         * Get int value without auto-boxing.
+         *
+         * @return value.
+         */
         public int getIntValue()
         {
             return values[position()];
@@ -1003,9 +1029,16 @@ public class Object2IntHashMap<K>
             return setValue(value.intValue());
         }
 
+        /**
+         * Set value at current position without auto-boxing.
+         *
+         * @param value to be set.
+         * @return old value.
+         * @throws IllegalArgumentException if {@code missingValue == value}.
+         */
         public int setValue(final int value)
         {
-            if (value == missingValue)
+            if (missingValue == value)
             {
                 throw new IllegalArgumentException("cannot accept missingValue");
             }
@@ -1017,11 +1050,18 @@ public class Object2IntHashMap<K>
             return oldValue;
         }
 
+        /**
+         * An {@link java.util.Map.Entry} implementation.
+         */
         public final class MapEntry implements Entry<K, Integer>
         {
             private final K k;
             private final int v;
 
+            /**
+             * @param k key.
+             * @param v value.
+             */
             public MapEntry(final K k, final int v)
             {
                 this.k = k;

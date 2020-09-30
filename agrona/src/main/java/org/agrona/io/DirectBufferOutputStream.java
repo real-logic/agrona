@@ -30,25 +30,52 @@ public class DirectBufferOutputStream extends OutputStream
     private int length;
     private int position;
 
+    /**
+     * Default constructor.
+     */
     public DirectBufferOutputStream()
     {
     }
 
+    /**
+     * Constructs output stream wrapping the given buffer.
+     *
+     * @param buffer to wrap.
+     */
     public DirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
     }
 
+    /**
+     * Constructs output stream wrapping the given buffer at an offset.
+     *
+     * @param buffer to wrap.
+     * @param offset in the buffer.
+     * @param length size in bytes to wrap.
+     */
     public DirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
     }
 
+    /**
+     * Wrap the buffer.
+     *
+     * @param buffer to wrap.
+     */
     public void wrap(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
     }
 
+    /**
+     * Wrap the buffer at an offset.
+     *
+     * @param buffer to wrap.
+     * @param offset in the buffer.
+     * @param length size in bytes to wrap.
+     */
     public void wrap(final MutableDirectBuffer buffer, final int offset, final int length)
     {
         if (null == buffer)
@@ -142,7 +169,7 @@ public class DirectBufferOutputStream extends OutputStream
     /**
      * Write a byte[] to the buffer.
      *
-     * @param srcBytes  to write
+     * @param srcBytes to write
      * @throws IllegalStateException if insufficient capacity remains in the buffer.
      */
     public void write(final byte[] srcBytes)

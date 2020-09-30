@@ -23,87 +23,170 @@ import java.io.Serializable;
  */
 public class MutableLong extends Number implements Comparable<MutableLong>, Serializable
 {
+    /**
+     * The value. Default value is {@code 0}.
+     */
     public long value = 0;
 
+    /**
+     * Default constructor.
+     */
     public MutableLong()
     {
     }
 
+    /**
+     * Creates an instance with a value.
+     *
+     * @param value to assign.
+     */
     public MutableLong(final long value)
     {
         this.value = value;
     }
 
+    /**
+     * Get the value.
+     *
+     * @return the value.
+     */
     public long get()
     {
         return value;
     }
 
+    /**
+     * Set the value.
+     *
+     * @param value to be assigned.
+     */
     public void set(final long value)
     {
         this.value = value;
     }
 
+    /**
+     * Return value as {@code byte}.
+     *
+     * @return value as {@code byte}.
+     */
     public byte byteValue()
     {
         return (byte)value;
     }
 
+    /**
+     * Return value as {@code short}.
+     *
+     * @return value as {@code short}.
+     */
     public short shortValue()
     {
         return (short)value;
     }
 
+    /**
+     * Return value as {@code int}.
+     *
+     * @return value as {@code int}.
+     */
     public int intValue()
     {
         return (int)value;
     }
 
+    /**
+     * Return value as {@code long}.
+     *
+     * @return value as {@code long}.
+     */
     public long longValue()
     {
         return value;
     }
 
+    /**
+     * Return value as {@code float}.
+     *
+     * @return value as {@code float}.
+     */
     public float floatValue()
     {
         return (float)value;
     }
 
+    /**
+     * Return value as {@code double}.
+     *
+     * @return value as {@code double}.
+     */
     public double doubleValue()
     {
         return (double)value;
     }
 
+    /**
+     * Increment the value.
+     */
     public void increment()
     {
         value++;
     }
 
+    /**
+     * Increment and return the value.
+     *
+     * @return the value after increment.
+     */
     public long incrementAndGet()
     {
         return ++value;
     }
 
+    /**
+     * Get and increment the value.
+     *
+     * @return the value before increment.
+     */
     public long getAndIncrement()
     {
         return value++;
     }
 
+    /**
+     * Decrement the value.
+     */
     public void decrement()
     {
         value--;
     }
 
+    /**
+     * Decrement and get the value.
+     *
+     * @return value after the decrement.
+     */
     public long decrementAndGet()
     {
         return --value;
     }
 
+    /**
+     * Get the value and decrement it.
+     *
+     * @return the value before the decrement.
+     */
     public long getAndDecrement()
     {
         return value--;
     }
 
+    /**
+     * Get the value and add {@code delta} to it.
+     *
+     * @param delta to add.
+     * @return the value before the change.
+     */
     public long getAndAdd(final long delta)
     {
         final long result = value;
@@ -111,6 +194,12 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return result;
     }
 
+    /**
+     * Add the {@code delta} and get the value.
+     *
+     * @param delta to add.
+     * @return the value after the change.
+     */
     public long addAndGet(final long delta)
     {
         return value += delta;
@@ -148,6 +237,18 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return compare(this.value, that.value);
     }
 
+    /**
+     * Compare two long values. Calling this method is equivalent to calling:
+     * <pre>
+     *     Long.compare(lhs, rhs);
+     * </pre>
+     *
+     * @param lhs first value.
+     * @param rhs second value.
+     * @return the value {@code 0} if {@code lhs == rhs};
+     * a value less than {@code 0} if {@code lhs < rhs}; and
+     * a value greater than {@code 0} if {@code lhs > rhs}
+     */
     public static int compare(final long lhs, final long rhs)
     {
         return Long.compare(lhs, rhs);

@@ -26,16 +26,30 @@ public class AtomicLongPosition extends Position
     private final int id;
     private final AtomicLong value;
 
+    /**
+     * Default constructor.
+     */
     public AtomicLongPosition()
     {
         this(0, 0L);
     }
 
+    /**
+     * Create a position with a given id and zero as an initial value.
+     *
+     * @param id to be assigned.
+     */
     public AtomicLongPosition(final int id)
     {
         this(id, 0L);
     }
 
+    /**
+     * Create a position with a given id and an initial value.
+     *
+     * @param id           to be assigned.
+     * @param initialValue to be assigned.
+     */
     public AtomicLongPosition(final int id, final long initialValue)
     {
         this.id = id;

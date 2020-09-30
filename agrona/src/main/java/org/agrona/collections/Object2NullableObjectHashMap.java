@@ -20,6 +20,9 @@ package org.agrona.collections;
  */
 public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, V>
 {
+    /**
+     * Default constructor.
+     */
     public Object2NullableObjectHashMap()
     {
     }

@@ -49,11 +49,20 @@ public class Int2ObjectHashMap<V>
     private KeySet keySet;
     private EntrySet entrySet;
 
+    /**
+     * Constructs map with {@link #MIN_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR} and enables caching of iterators.
+     */
     public Int2ObjectHashMap()
     {
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, true);
     }
 
+    /**
+     * Constructs map with given initial capacity and load factory and enables caching of iterators.
+     *
+     * @param initialCapacity for the backing array
+     * @param loadFactor      limit for resizing on puts
+     */
     public Int2ObjectHashMap(
         @DoNotSub final int initialCapacity,
         final float loadFactor)
@@ -63,6 +72,7 @@ public class Int2ObjectHashMap<V>
 
     /**
      * Construct a new map allowing a configuration for initial capacity and load factor.
+     *
      * @param initialCapacity       for the backing array
      * @param loadFactor            limit for resizing on puts
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
@@ -230,6 +240,12 @@ public class Int2ObjectHashMap<V>
         return unmapNullValue(getMapped(key));
     }
 
+    /**
+     * Get mapped value without auto-boxing the key.
+     *
+     * @param key to get value by.
+     * @return mapped value or {@code null}.
+     */
     @SuppressWarnings("unchecked")
     protected V getMapped(final int key)
     {
@@ -523,11 +539,23 @@ public class Int2ObjectHashMap<V>
         return result;
     }
 
+    /**
+     * Interceptor for masking null values.
+     *
+     * @param value value to mask.
+     * @return masked value.
+     */
     protected Object mapNullValue(final Object value)
     {
         return value;
     }
 
+    /**
+     * Interceptor for unmasking null values.
+     *
+     * @param value value to unmask.
+     * @return unmasked value.
+     */
     @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
@@ -677,6 +705,12 @@ public class Int2ObjectHashMap<V>
             return Int2ObjectHashMap.this.containsKey(o);
         }
 
+        /**
+         * Checks if the key is contained in the map.
+         *
+         * @param key to check.
+         * @return {@code true} if the key is contained in the map.
+         */
         public boolean contains(final int key)
         {
             return Int2ObjectHashMap.this.containsKey(key);
@@ -687,6 +721,12 @@ public class Int2ObjectHashMap<V>
             return null != Int2ObjectHashMap.this.remove(o);
         }
 
+        /**
+         * Removes key and the corresponding value from the map.
+         *
+         * @param key to be removed.
+         * @return {@code true} if the mapping was removed.
+         */
         public boolean remove(final int key)
         {
             return null != Int2ObjectHashMap.this.remove(key);
@@ -839,6 +879,11 @@ public class Int2ObjectHashMap<V>
     // Iterators
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Base iterator implementation.
+     *
+     * @param <T> type of the elements.
+     */
     abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
         @DoNotSub private int posCounter;
@@ -846,11 +891,21 @@ public class Int2ObjectHashMap<V>
         @DoNotSub private int remaining;
         boolean isPositionValid = false;
 
+        /**
+         * Position of the current element.
+         *
+         * @return position of the current element.
+         */
         @DoNotSub protected final int position()
         {
             return posCounter & (values.length - 1);
         }
 
+        /**
+         * Number of remaining elements.
+         *
+         * @return number of remaining elements.
+         */
         @DoNotSub public int remaining()
         {
             return remaining;
@@ -861,6 +916,11 @@ public class Int2ObjectHashMap<V>
             return remaining > 0;
         }
 
+        /**
+         * Find the next element.
+         *
+         * @throws NoSuchElementException if no more elements.
+         */
         protected final void findNext()
         {
             if (!hasNext())
@@ -954,6 +1014,11 @@ public class Int2ObjectHashMap<V>
             return nextInt();
         }
 
+        /**
+         * Return next key.
+         *
+         * @return next key.
+         */
         public int nextInt()
         {
             findNext();
@@ -990,6 +1055,11 @@ public class Int2ObjectHashMap<V>
             return getIntKey();
         }
 
+        /**
+         * Get key with auto-boxing.
+         *
+         * @return key.
+         */
         public int getIntKey()
         {
             return keys[position()];
@@ -1018,11 +1088,18 @@ public class Int2ObjectHashMap<V>
             return (V)oldValue;
         }
 
+        /**
+         * An {@link java.util.Map.Entry} implementation.
+         */
         public final class MapEntry implements Entry<Integer, V>
         {
             private final int k;
             private final V v;
 
+            /**
+             * @param k key.
+             * @param v value.
+             */
             public MapEntry(final int k, final V v)
             {
                 this.k = k;

@@ -24,10 +24,19 @@ import org.agrona.generation.DoNotSub;
  */
 public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
 {
+    /**
+     * Constructs map with default settings.
+     */
     public Int2NullableObjectHashMap()
     {
     }
 
+    /**
+     * Constructs map with given initial capacity and load factory and enables caching of iterators.
+     *
+     * @param initialCapacity for the backing array.
+     * @param loadFactor      limit for resizing on puts.
+     */
     public Int2NullableObjectHashMap(
         @DoNotSub final int initialCapacity, final float loadFactor)
     {
@@ -36,6 +45,7 @@ public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
 
     /**
      * Construct a new map allowing a configuration for initial capacity and load factor.
+     *
      * @param initialCapacity       for the backing array
      * @param loadFactor            limit for resizing on puts
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.

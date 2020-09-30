@@ -42,6 +42,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     @DoNotSub private int size = 0;
     private int[] elements;
 
+    /**
+     * Constructs a new list with the {@link #INITIAL_CAPACITY} using {@link #DEFAULT_NULL_VALUE}.
+     */
     public IntArrayList()
     {
         this(INITIAL_CAPACITY, DEFAULT_NULL_VALUE);
@@ -83,7 +86,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
      * @throws IllegalArgumentException if the initialSize is is less than 0 or greater than the length of the
-     * initial array.
+     *                                  initial array.
      */
     public void wrap(
         final int[] initialElements,
@@ -473,6 +476,12 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         ensureCapacityPrivate(Math.max(requiredCapacity, INITIAL_CAPACITY));
     }
 
+    /**
+     * Type-safe overload of the {@link #equals(Object)} method.
+     *
+     * @param that other list.
+     * @return {@code true} if lists are equal.
+     */
     public boolean equals(final IntArrayList that)
     {
         if (that == this)

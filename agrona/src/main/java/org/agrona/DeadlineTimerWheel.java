@@ -90,6 +90,12 @@ public class DeadlineTimerWheel
     @FunctionalInterface
     public interface TimerConsumer
     {
+        /**
+         * Called for each timer in the Timer Wheel.
+         *
+         * @param deadline of the timer.
+         * @param timerId  of the timer.
+         */
         void accept(long deadline, long timerId);
     }
 
@@ -220,7 +226,7 @@ public class DeadlineTimerWheel
 
     /**
      * Set the current tick of the wheel to examine on the next {@link #poll}.
-     *
+     * <p>
      * If the time passed in is less than the current time, nothing is changed.
      * No timers will be expired when winding forward and thus are still in the wheel and will be expired as
      * encountered in the wheel during {@link #poll} operations. No guarantee of order for expired timers is

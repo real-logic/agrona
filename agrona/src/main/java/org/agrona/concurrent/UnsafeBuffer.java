@@ -23,11 +23,11 @@ import java.nio.ByteOrder;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.agrona.AsciiEncoding.*;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.AsciiEncoding.*;
-import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 
 /**
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer. The buffer can be a
@@ -50,7 +50,17 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public static final int ALIGNMENT = SIZE_OF_LONG;
 
+    /**
+     * Name of the system property that specify if the bounds checks should be disabled.
+     * To disable bounds checks set this property to {@code true}.
+     */
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
+
+    /**
+     * Should bounds checks be done or not. Controled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
+     * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
+     */
     public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
 
     private long addressOffset;

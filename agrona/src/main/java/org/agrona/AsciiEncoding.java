@@ -22,9 +22,24 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
  */
 public final class AsciiEncoding
 {
+    /**
+     * US-ASCII-encoded byte representation of the {@link Integer#MIN_VALUE}.
+     */
     public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@link Long#MIN_VALUE}.
+     */
     public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
+
+    /**
+     * Byte value of the minus sign ('{@code -}').
+     */
     public static final byte MINUS_SIGN = '-';
+
+    /**
+     * Byte value of zero character ('{@code 0}').
+     */
     public static final byte ZERO = '0';
 
     private static final byte[] MIN_INT_DIGITS = "2147483648".getBytes(US_ASCII);

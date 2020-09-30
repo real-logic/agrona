@@ -20,6 +20,9 @@ package org.agrona.collections;
  */
 public final class NullReference
 {
+    /**
+     * Single instance of the {@link NullReference} class.
+     */
     public static final NullReference INSTANCE = new NullReference();
 
     private NullReference()

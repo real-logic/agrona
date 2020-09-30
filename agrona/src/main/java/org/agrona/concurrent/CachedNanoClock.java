@@ -34,6 +34,9 @@ abstract class CachedNanoClockPadding
  */
 abstract class CachedNanoClockValue extends CachedNanoClockPadding
 {
+    /**
+     * Time in nanoseconds.
+     */
     protected volatile long timeNs;
 }
 

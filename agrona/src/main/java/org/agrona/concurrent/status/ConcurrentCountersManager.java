@@ -21,6 +21,7 @@ import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.EpochClock;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -32,17 +33,41 @@ public class ConcurrentCountersManager extends CountersManager
 {
     private final ReentrantLock lock = new ReentrantLock();
 
+    /**
+     * Construct a counter manager over buffers containing the values and associated metadata.
+     * <p>
+     * Counter labels default to {@link StandardCharsets#UTF_8}.
+     *
+     * @param metaDataBuffer containing the counter metadata.
+     * @param valuesBuffer   containing the counter values.
+     */
     public ConcurrentCountersManager(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
     {
         super(metaDataBuffer, valuesBuffer);
     }
 
+    /**
+     * Construct a counter manager over buffers containing the values and associated metadata.
+     *
+     * @param metaDataBuffer containing the counter metadata.
+     * @param valuesBuffer   containing the counter values.
+     * @param labelCharset   for the label encoding.
+     */
     public ConcurrentCountersManager(
         final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer, final Charset labelCharset)
     {
         super(metaDataBuffer, valuesBuffer, labelCharset);
     }
 
+    /**
+     * Create a new counter manager over buffers containing the values and associated metadata.
+     *
+     * @param metaDataBuffer       containing the types, keys, and labels for the counters.
+     * @param valuesBuffer         containing the values of the counters themselves.
+     * @param labelCharset         for the label encoding.
+     * @param epochClock           to use for determining time for keep counter from being reused after being freed.
+     * @param freeToReuseTimeoutMs timeout (in milliseconds) to keep counter from being reused after being freed.
+     */
     public ConcurrentCountersManager(
         final AtomicBuffer metaDataBuffer,
         final AtomicBuffer valuesBuffer,

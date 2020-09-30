@@ -29,15 +29,29 @@ public class ExpandableDirectBufferOutputStream extends OutputStream
     private int offset;
     private int position;
 
+    /**
+     * Default constructor.
+     */
     public ExpandableDirectBufferOutputStream()
     {
     }
 
+    /**
+     * Wrap given {@link MutableDirectBuffer}.
+     *
+     * @param buffer to wrap.
+     */
     public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0);
     }
 
+    /**
+     * Wrap given {@link MutableDirectBuffer} at a given offset.
+     *
+     * @param buffer to wrap.
+     * @param offset at which the puts will occur.
+     */
     public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset)
     {
         wrap(buffer, offset);

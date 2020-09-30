@@ -29,25 +29,52 @@ public class DirectBufferInputStream extends InputStream
     private int length;
     private int position;
 
+    /**
+     * Default constructor.
+     */
     public DirectBufferInputStream()
     {
     }
 
+    /**
+     * Wrap given {@link DirectBuffer}.
+     *
+     * @param buffer to wrap.
+     */
     public DirectBufferInputStream(final DirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
     }
 
+    /**
+     * Wrap given {@link DirectBuffer}.
+     *
+     * @param buffer to wrap.
+     * @param offset into the buffer.
+     * @param length in bytes.
+     */
     public DirectBufferInputStream(final DirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
     }
 
+    /**
+     * Wrap given {@link DirectBuffer}.
+     *
+     * @param buffer to wrap.
+     */
     public void wrap(final DirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
     }
 
+    /**
+     * Wrap given {@link DirectBuffer}.
+     *
+     * @param buffer to wrap.
+     * @param offset into the buffer.
+     * @param length in bytes.
+     */
     public void wrap(final DirectBuffer buffer, final int offset, final int length)
     {
         if (null == buffer)

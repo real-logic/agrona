@@ -541,6 +541,11 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
         return iterator.reset();
     }
 
+    /**
+     * Copye values from another {@link IntHashSet} into this one.
+     *
+     * @param that set to copy values from.
+     */
     public void copy(final IntHashSet that)
     {
         if (this.values.length != that.values.length)
@@ -735,6 +740,11 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return remaining > 0;
         }
 
+        /**
+         * Returns number of remaining (not yet visited) elements.
+         *
+         * @return number of remaining elements.
+         */
         @DoNotSub public int remaining()
         {
             return remaining;

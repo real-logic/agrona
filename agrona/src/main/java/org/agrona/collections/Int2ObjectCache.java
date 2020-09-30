@@ -61,6 +61,13 @@ public class Int2ObjectCache<V>
     private KeySet keySet;
     private EntrySet entrySet;
 
+    /**
+     * Constructs cache with provided configuration.
+     *
+     * @param numSets          number of sets, must be power or two.
+     * @param setSize          size of a single set, must be power or two.
+     * @param evictionConsumer consumer to be notified when entry is being evicted from the cache.
+     */
     public Int2ObjectCache(
         @DoNotSub final int numSets,
         @DoNotSub final int setSize,
@@ -572,6 +579,9 @@ public class Int2ObjectCache<V>
     // Sets and Collections
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * A key set implementation.
+     */
     public final class KeySet extends AbstractSet<Integer>
     {
         private final KeyIterator iterator = new KeyIterator();
@@ -586,6 +596,12 @@ public class Int2ObjectCache<V>
             return Int2ObjectCache.this.containsKey(o);
         }
 
+        /**
+         * Check if the given key contained in the set without auto-boxing.
+         *
+         * @param key to be checked.
+         * @return {@code true} if key is contained in the cache.
+         */
         public boolean contains(final int key)
         {
             return Int2ObjectCache.this.containsKey(key);
@@ -609,6 +625,9 @@ public class Int2ObjectCache<V>
         }
     }
 
+    /**
+     * A collection of values.
+     */
     public final class ValueCollection extends AbstractCollection<V>
     {
         private final ValueIterator iterator = new ValueIterator();
@@ -636,6 +655,9 @@ public class Int2ObjectCache<V>
         }
     }
 
+    /**
+     * An entry set implementation.
+     */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
         private final EntryIterator iterator = new EntryIterator();
@@ -667,6 +689,11 @@ public class Int2ObjectCache<V>
         @DoNotSub private int remaining;
         @DoNotSub private int position = -1;
 
+        /**
+         * Position of the current element.
+         *
+         * @return position of the current element.
+         */
         @DoNotSub protected final int position()
         {
             return position;
@@ -677,6 +704,9 @@ public class Int2ObjectCache<V>
             return remaining > 0;
         }
 
+        /**
+         * Find next element.
+         */
         protected final void findNext()
         {
             boolean found = false;
@@ -713,6 +743,9 @@ public class Int2ObjectCache<V>
         }
     }
 
+    /**
+     * An iterator over values.
+     */
     public final class ValueIterator extends AbstractIterator<V>
     {
         @SuppressWarnings("unchecked")
@@ -723,6 +756,9 @@ public class Int2ObjectCache<V>
         }
     }
 
+    /**
+     * An iterator over keys.
+     */
     public final class KeyIterator extends AbstractIterator<Integer>
     {
         public Integer next()
@@ -730,6 +766,11 @@ public class Int2ObjectCache<V>
             return nextInt();
         }
 
+        /**
+         * Return next key.
+         *
+         * @return next key.
+         */
         public int nextInt()
         {
             findNext();
@@ -737,6 +778,9 @@ public class Int2ObjectCache<V>
         }
     }
 
+    /**
+     * An iterator over entries.
+     */
     public final class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>
@@ -753,7 +797,12 @@ public class Int2ObjectCache<V>
             return getIntKey();
         }
 
-        public Integer getIntKey()
+        /**
+         * Get key of the current entry.
+         *
+         * @return key of the current entry.
+         */
+        public int getIntKey()
         {
             return keys[position()];
         }

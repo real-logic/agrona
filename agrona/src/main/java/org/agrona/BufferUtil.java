@@ -31,15 +31,39 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public final class BufferUtil
 {
+    /**
+     * UTF-8-encoded byte representation of the {@code "null"} string.
+     */
+    public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
+
+    /**
+     * Native byte order.
+     */
+    public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+
+    /**
+     * Byte array base offset.
+     */
+    public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+
+    /**
+     * Offset of the {@code java.nio.ByteBuffer#hb} field.
+     */
+    public static final long BYTE_BUFFER_HB_FIELD_OFFSET;
+
+    /**
+     * Offset of the {@code java.nio.ByteBuffer#offset} field.
+     */
+    public static final long BYTE_BUFFER_OFFSET_FIELD_OFFSET;
+
+    /**
+     * Offset of the {@code java.nio.Buffer#address} field.
+     */
+    public static final long BYTE_BUFFER_ADDRESS_FIELD_OFFSET;
+
     private static final MethodHandle INVOKE_CLEANER;
     private static final MethodHandle GET_CLEANER;
     private static final MethodHandle CLEAN;
-    public static final byte[] NULL_BYTES = "null".getBytes(StandardCharsets.UTF_8);
-    public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-    public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
-    public static final long BYTE_BUFFER_HB_FIELD_OFFSET;
-    public static final long BYTE_BUFFER_OFFSET_FIELD_OFFSET;
-    public static final long BYTE_BUFFER_ADDRESS_FIELD_OFFSET;
 
     static
     {

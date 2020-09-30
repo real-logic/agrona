@@ -27,8 +27,17 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 abstract class ManyToOneConcurrentLinkedQueuePadding1
 {
+    /**
+     * Offset of the {@code head} field.
+     */
     protected static final long HEAD_OFFSET;
+    /**
+     * Offset of the {@code tail} field.
+     */
     protected static final long TAIL_OFFSET;
+    /**
+     * Offset of the {@code next} field.
+     */
     protected static final long NEXT_OFFSET;
 
     static final class Node<E>
@@ -72,6 +81,9 @@ abstract class ManyToOneConcurrentLinkedQueuePadding1
  */
 abstract class ManyToOneConcurrentLinkedQueueTail<E> extends ManyToOneConcurrentLinkedQueuePadding1
 {
+    /**
+     * Tail of the queue.
+     */
     protected volatile ManyToOneConcurrentLinkedQueue.Node<E> tail;
 }
 
@@ -91,6 +103,9 @@ abstract class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcur
  */
 abstract class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQueuePadding2<E>
 {
+    /**
+     * Head of queue.
+     */
     protected volatile ManyToOneConcurrentLinkedQueue.Node<E> head;
 }
 
@@ -122,6 +137,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     private final Node<E> empty = new Node<>(null);
 
+    /**
+     * Constructs an empty queue.
+     */
     public ManyToOneConcurrentLinkedQueue()
     {
         headOrdered(empty);
