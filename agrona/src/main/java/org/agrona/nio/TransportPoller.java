@@ -26,8 +26,6 @@ import java.nio.channels.Selector;
  */
 public class TransportPoller implements AutoCloseable
 {
-    private static final String SELECTOR_IMPL = "sun.nio.ch.SelectorImpl";
-
     /**
      * Reference to the {@code selectedKeys} field in the {@link Selector} class.
      */
@@ -40,6 +38,8 @@ public class TransportPoller implements AutoCloseable
      * Number of iterations.
      */
     protected static final int ITERATION_THRESHOLD = 5;
+
+    private static final String SELECTOR_IMPL = "sun.nio.ch.SelectorImpl";
 
     static
     {
@@ -71,7 +71,7 @@ public class TransportPoller implements AutoCloseable
     }
 
     /**
-     * Key0set used by the {@link Selector}.
+     * KeySet used by the {@link Selector}.
      */
     protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();
 

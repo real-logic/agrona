@@ -968,6 +968,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
             /**
              * Constructs entry with given key and value.
+             *
              * @param k key.
              * @param v value.
              */
@@ -1124,6 +1125,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
         /**
          * Checks if the value is contained in the map.
+         *
          * @param value to be checked.
          * @return  {@code true} if value is contained in this map.
          */
