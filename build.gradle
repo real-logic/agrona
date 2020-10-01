@@ -261,6 +261,7 @@ project(':agrona') {
     }
 
     compileGeneratedJava.dependsOn 'generatePrimitiveSpecialisations'
+    compileTestJava.dependsOn compileGeneratedJava
 
     task generatePrimitiveSpecialisations(type: JavaExec) {
         main = 'org.agrona.generation.SpecialisationGenerator'
