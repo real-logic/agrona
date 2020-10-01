@@ -38,6 +38,12 @@ public final class SpecialisationGenerator
     private static final List<Substitution> SUBSTITUTIONS = Collections.singletonList(
         new Substitution("long", "Long", "Long"));
 
+    /**
+     * Main method.
+     *
+     * @param args command line args.
+     * @throws IOException in case of I/O error.
+     */
     public static void main(final String[] args) throws IOException
     {
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntIntConsumer", SRC_DIR, DST_DIR);
@@ -106,6 +112,12 @@ public final class SpecialisationGenerator
             this.className = className;
         }
 
+        /**
+         * Perform code substitutions.
+         *
+         * @param contents original source code.
+         * @return modified source code.
+         */
         public String substitute(final String contents)
         {
             return contents
@@ -114,6 +126,12 @@ public final class SpecialisationGenerator
                 .replace("Int", className);
         }
 
+        /**
+         * Perform conditional code substitutions, i.e. only if not disabled.
+         *
+         * @param contents original source code.
+         * @return modified source code.
+         */
         public String conditionalSubstitute(final String contents)
         {
             return

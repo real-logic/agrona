@@ -32,7 +32,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * A {@link MarkFile} is used to mark the presence of a running component and to track liveness.
- *
+ * <p>
  * The assumptions are: (1) the version field is an int in size, (2) the timestamp field is a long in size,
  * and (3) the version field comes before the timestamp field.
  */
@@ -51,7 +51,7 @@ public class MarkFile implements AutoCloseable
     /**
      * Create a directory and mark file if none present. Checking if an active Mark file exists and is active.
      * Old Mark file is deleted and recreated if not active.
-     *
+     * <p>
      * Total length of Mark file will be mapped until {@link #close()} is called.
      *
      * @param directory             for the Mark file.
@@ -104,7 +104,7 @@ public class MarkFile implements AutoCloseable
     /**
      * Create a {@link MarkFile} if none present. Checking if an active {@link MarkFile} exists and is active.
      * Existing {@link MarkFile} is used if not active.
-     *
+     * <p>
      * Total length of Mark file will be mapped until {@link #close()} is called.
      *
      * @param markFile             to use.
@@ -151,7 +151,7 @@ public class MarkFile implements AutoCloseable
 
     /**
      * Map a pre-existing {@link MarkFile} if one present and is active.
-     *
+     * <p>
      * Total length of {@link MarkFile} will be mapped until {@link #close()} is called.
      *
      * @param directory            for the {@link MarkFile} file.
@@ -186,7 +186,7 @@ public class MarkFile implements AutoCloseable
 
     /**
      * Manage a {@link MarkFile} given a mapped file and offsets of version and timestamp.
-     *
+     * <p>
      * If mappedBuffer is not null, then it will be unmapped upon {@link #close()}.
      *
      * @param mappedBuffer         for the {@link MarkFile} fields.
@@ -224,6 +224,11 @@ public class MarkFile implements AutoCloseable
         this.timestampFieldOffset = timestampFieldOffset;
     }
 
+    /**
+     * Checks if {@link MarkFile} is closed.
+     *
+     * @return {@code true} if {@link MarkFile} is closed.
+     */
     public boolean isClosed()
     {
         return isClosed;
@@ -242,61 +247,134 @@ public class MarkFile implements AutoCloseable
         }
     }
 
+    /**
+     * Perform an ordered put of the version field.
+     *
+     * @param version to be signaled.
+     */
     public void signalReady(final int version)
     {
         buffer.putIntOrdered(versionFieldOffset, version);
     }
 
+    /**
+     * Perform volatile read of the version field.
+     *
+     * @return value of the version field.
+     */
     public int versionVolatile()
     {
         return buffer.getIntVolatile(versionFieldOffset);
     }
 
+    /**
+     * Perform weak/plain read of the version field.
+     *
+     * @return value of the version field.
+     */
     public int versionWeak()
     {
         return buffer.getInt(versionFieldOffset);
     }
 
+    /**
+     * Set timestamp field using an ordered put.
+     *
+     * @param timestamp to be set.
+     */
     public void timestampOrdered(final long timestamp)
     {
         buffer.putLongOrdered(timestampFieldOffset, timestamp);
     }
 
+    /**
+     * Perform volatile read of the timestamp field.
+     *
+     * @return value of the timestamp field.
+     */
     public long timestampVolatile()
     {
         return buffer.getLongVolatile(timestampFieldOffset);
     }
 
+    /**
+     * Perform weak/plain read of the timestamp field.
+     *
+     * @return value of the timestamp field.
+     */
     public long timestampWeak()
     {
         return buffer.getLong(timestampFieldOffset);
     }
 
+    /**
+     * Delete parent directory.
+     *
+     * @param ignoreFailures should the failures be silently ignored.
+     */
     public void deleteDirectory(final boolean ignoreFailures)
     {
         IoUtil.delete(parentDir, ignoreFailures);
     }
 
+    /**
+     * Returns parent directory.
+     *
+     * @return parent directory.
+     */
     public File parentDirectory()
     {
         return parentDir;
     }
 
+    /**
+     * Returns {@link MarkFile}.
+     *
+     * @return {@link MarkFile}.
+     */
     public File markFile()
     {
         return markFile;
     }
 
+    /**
+     * Returns the underlying {@link MappedByteBuffer}.
+     *
+     * @return reference to the {@link MappedByteBuffer}.
+     */
     public MappedByteBuffer mappedByteBuffer()
     {
         return mappedBuffer;
     }
 
+    /**
+     * Returns the underlying {@link UnsafeBuffer}.
+     *
+     * @return reference to the {@link UnsafeBuffer}.
+     */
     public UnsafeBuffer buffer()
     {
         return buffer;
     }
 
+    /**
+     * Ensure the the directory exists, i.e. create if it does not exist yet and re-create if it already exists.
+     *
+     * @param directory             to create.
+     * @param filename              of the {@link MarkFile}.
+     * @param warnIfDirectoryExists should print warning if directory already exists.
+     * @param dirDeleteOnStart      should directory be deleted if it already exists. When the flag is set to {@code false}
+     *                              the check will be made to see if the {@link MarkFile} is active.
+     *                              <p>Note: the directory will be deleted anyway even if the flag is {@code false}.
+     * @param versionFieldOffset    offset of the version field.
+     * @param timestampFieldOffset  offset of the timestamp field.
+     * @param timeoutMs             timeout in milliseconds.
+     * @param epochClock            epoch clock.
+     * @param versionCheck          {@link MarkFile} version check function.
+     * @param logger                to use for reporting warnings.
+     * @throws IllegalStateException if {@link MarkFile} already exists and is active and
+     *                               {@code dirDeleteOnStart=false}.
+     */
     public static void ensureDirectoryExists(
         final File directory,
         final String filename,
@@ -350,6 +428,16 @@ public class MarkFile implements AutoCloseable
         IoUtil.ensureDirectoryExists(directory, directory.toString());
     }
 
+    /**
+     * Await the creation of the {@link MarkFile}.
+     *
+     * @param logger     to use for warnings.
+     * @param markFile   the {@link MarkFile}.
+     * @param deadlineMs deadline timeout in milliseconds.
+     * @param epochClock epoch clock.
+     * @return {@link MappedByteBuffer} for the {@link MarkFile}.
+     * @throws IllegalStateException if deadline timeout is reached.
+     */
     public static MappedByteBuffer waitForFileMapping(
         final Consumer<String> logger,
         final File markFile,
@@ -387,6 +475,20 @@ public class MarkFile implements AutoCloseable
         }
     }
 
+    /**
+     * Map existing {@link MarkFile}.
+     *
+     * @param markFile             the {@link MarkFile}.
+     * @param versionFieldOffset   offset of the version field.
+     * @param timestampFieldOffset offset of the timestamp field.
+     * @param timeoutMs            timeout in milliseconds.
+     * @param epochClock           epoch clock.
+     * @param versionCheck         version check function.
+     * @param logger               for the warnings.
+     * @return {@link MappedByteBuffer} for the {@link MarkFile}.
+     * @throws IllegalStateException if timeout is reached.
+     * @throws IllegalStateException if {@link MarkFile} has wrong size.
+     */
     public static MappedByteBuffer mapExistingMarkFile(
         final File markFile,
         final int versionFieldOffset,
@@ -449,6 +551,21 @@ public class MarkFile implements AutoCloseable
         return byteBuffer;
     }
 
+    /**
+     * Map new of existing {@link MarkFile}.
+     *
+     * @param markFile             the {@link MarkFile}.
+     * @param shouldPreExist       should {@link MarkFile} already exist.
+     * @param versionFieldOffset   offset of the version field.
+     * @param timestampFieldOffset offset of the timestamp field.
+     * @param totalFileLength      total file length to be mapped.
+     * @param timeoutMs            timeout in milliseconds.
+     * @param epochClock           epoch clock.
+     * @param versionCheck         version check function.
+     * @param logger               for the warnings.
+     * @return {@link MappedByteBuffer} for the {@link MarkFile}.
+     * @throws IllegalStateException if timeout is reached.
+     */
     public static MappedByteBuffer mapNewOrExistingMarkFile(
         final File markFile,
         final boolean shouldPreExist,
@@ -505,6 +622,15 @@ public class MarkFile implements AutoCloseable
         return byteBuffer;
     }
 
+    /**
+     * Map existing {@link MarkFile}.
+     *
+     * @param markFile the {@link MarkFile}.
+     * @param logger   for the warnings.
+     * @param offset   offset to map at.
+     * @param length   to map.
+     * @return {@link MappedByteBuffer} for the {@link MarkFile}.
+     */
     public static MappedByteBuffer mapExistingFile(
         final File markFile, final Consumer<String> logger, final long offset, final long length)
     {
@@ -521,6 +647,18 @@ public class MarkFile implements AutoCloseable
         return null;
     }
 
+    /**
+     * Check if {@link MarkFile} is active, i.e. still in use.
+     *
+     * @param byteBuffer           the {@link MappedByteBuffer}.
+     * @param epochClock           epoch clock.
+     * @param timeoutMs            timeout in milliseconds.
+     * @param versionFieldOffset   offset of the version field.
+     * @param timestampFieldOffset offset of the timestamp field.
+     * @param versionCheck         version check function.
+     * @param logger               for the warnings.
+     * @return {@code true} if {@link MarkFile} is active.
+     */
     public static boolean isActive(
         final MappedByteBuffer byteBuffer,
         final EpochClock epochClock,
@@ -563,6 +701,12 @@ public class MarkFile implements AutoCloseable
         return timestampAgeMs <= timeoutMs;
     }
 
+    /**
+     * Put thread to sleep for the given duration and restore interrupted status if thread is interrupted while
+     * sleeping.
+     *
+     * @param durationMs sleep durarion in milliseconds.
+     */
     protected static void sleep(final long durationMs)
     {
         try

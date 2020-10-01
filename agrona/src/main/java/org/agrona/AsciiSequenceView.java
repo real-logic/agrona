@@ -24,6 +24,9 @@ public class AsciiSequenceView implements CharSequence
     private int offset;
     private int length;
 
+    /**
+     * Default constructor.
+     */
     public AsciiSequenceView()
     {
     }

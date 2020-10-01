@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -102,6 +105,16 @@ public final class CompilerUtil
         }
     }
 
+    /**
+     * Compile and load a class.
+     *
+     * @param className   name of the class to compile.
+     * @param diagnostics attached to the compilation task.
+     * @param fileManager to load compiled class from disk.
+     * @param task        compilation task.
+     * @return {@link Class} for the compiled class or {@code null} if compilation fails.
+     * @throws ClassNotFoundException if compiled class was not loaded.
+     */
     public static Class<?> compileAndLoad(
         final String className,
         final DiagnosticCollector<JavaFileObject> diagnostics,
@@ -116,6 +129,13 @@ public final class CompilerUtil
         return fileManager.getClassLoader(null).loadClass(className);
     }
 
+    /**
+     * Execute compilation task and report errors if it fails.
+     *
+     * @param diagnostics attached to the compilation task.
+     * @param task        compilation to be executed.
+     * @return {@code true} if compilation succeeds.
+     */
     public static boolean compile(
         final DiagnosticCollector<JavaFileObject> diagnostics, final JavaCompiler.CompilationTask task)
     {
@@ -154,6 +174,13 @@ public final class CompilerUtil
         return succeeded;
     }
 
+    /**
+     * Persist source files to disc.
+     *
+     * @param sources to persist.
+     * @return a collection of {@link File} objects pointing to the persisted sources.
+     * @throws IOException in case of I/O errors.
+     */
     public static Collection<File> persist(final Map<String, CharSequence> sources) throws IOException
     {
         final Collection<File> files = new ArrayList<>(sources.size());

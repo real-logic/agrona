@@ -18,7 +18,7 @@ package org.agrona.collections;
 import org.agrona.generation.DoNotSub;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -49,6 +49,13 @@ public class Int2IntCounterMap implements Serializable
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, initialValue);
     }
 
+    /**
+     * Construct a new counter map with the initial value for the counter provided.
+     *
+     * @param initialCapacity of the map.
+     * @param loadFactor      applied for resize operations.
+     * @param initialValue    to be used for each counter.
+     */
     public Int2IntCounterMap(
         @DoNotSub final int initialCapacity,
         @DoNotSub final float loadFactor,

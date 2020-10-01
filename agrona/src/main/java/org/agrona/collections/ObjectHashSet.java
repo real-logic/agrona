@@ -472,6 +472,11 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         return iterator.reset();
     }
 
+    /**
+     * Copy data from the provided {@link ObjectHashSet} into this one.
+     *
+     * @param that set to copy data from.
+     */
     public void copy(final ObjectHashSet<T> that)
     {
         if (this.values.length != that.values.length)
@@ -617,6 +622,11 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
             return this;
         }
 
+        /**
+         * Return number of remaining elements.
+         *
+         * @return number of remaining elements.
+         */
         public int remaining()
         {
             return remaining;
@@ -633,7 +643,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         }
 
         /**
-         * @return the next int value.
+         * @return the next value.
          */
         public T nextValue()
         {

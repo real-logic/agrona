@@ -30,19 +30,55 @@ abstract class BackoffIdleStrategyPrePad
 
 abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
 {
+    /**
+     * Denotes a non-idle state.
+     */
     protected static final int NOT_IDLE = 0;
+    /**
+     * Denotes a spinning state.
+     */
     protected static final int SPINNING = 1;
+    /**
+     * Denotes an yielding state.
+     */
     protected static final int YIELDING = 2;
+    /**
+     * Denotes a parking state.
+     */
     protected static final int PARKING = 3;
 
+    /**
+     * Max number of spins.
+     */
     protected final long maxSpins;
+    /**
+     * Max number of yields.
+     */
     protected final long maxYields;
+    /**
+     * Min park period in nanoseconds.
+     */
     protected final long minParkPeriodNs;
+    /**
+     * Max park period in nanoseconds.
+     */
     protected final long maxParkPeriodNs;
 
+    /**
+     * Current state.
+     */
     protected int state = NOT_IDLE;
+    /**
+     * Number of spins.
+     */
     protected long spins;
+    /**
+     * Number of yields.
+     */
     protected long yields;
+    /**
+     * Park period in nanoseconds.
+     */
     protected long parkPeriodNs;
 
     BackoffIdleStrategyData(

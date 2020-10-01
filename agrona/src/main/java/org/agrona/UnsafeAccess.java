@@ -26,7 +26,13 @@ import java.security.PrivilegedExceptionAction;
  */
 public final class UnsafeAccess
 {
+    /**
+     * Reference to the {@link Unsafe} instance.
+     */
     public static final Unsafe UNSAFE;
+    /**
+     * Byte array base offset.
+     */
     public static final int ARRAY_BYTE_BASE_OFFSET;
 
     static

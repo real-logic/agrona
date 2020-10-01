@@ -120,6 +120,11 @@ public final class IntLruCache<E> implements AutoCloseable, Serializable
         values[0] = value;
     }
 
+    /**
+     * Returns cache capacity.
+     *
+     * @return cache capacity.
+     */
     @DoNotSub public int capacity()
     {
         return capacity;

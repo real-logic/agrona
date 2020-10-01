@@ -58,6 +58,9 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 // TODO: consider optimising this class by indexing on the key, rather than just linear scanning
 public class RecordBuffer
 {
+    /**
+     * Special offset indiciating that the record was not claimed.
+     */
     public static final int DID_NOT_CLAIM_RECORD = -1;
 
     private static final int UNUSED = 0;
@@ -111,6 +114,11 @@ public class RecordBuffer
         void writeRecord(int offset);
     }
 
+    /**
+     * @param buffer     to wrap.
+     * @param headerSize in bytes.
+     * @param recordSize in bytes.
+     */
     public RecordBuffer(final AtomicBuffer buffer, final int headerSize, final int recordSize)
     {
         this.buffer = buffer;

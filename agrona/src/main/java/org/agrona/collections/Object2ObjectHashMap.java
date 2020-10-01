@@ -15,6 +15,8 @@
  */
 package org.agrona.collections;
 
+import org.agrona.generation.DoNotSub;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -23,7 +25,6 @@ import java.util.function.Consumer;
 import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
-import org.agrona.generation.DoNotSub;
 
 /**
  * A open addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
@@ -42,11 +43,20 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     private ValueCollection valueCollection;
     private EntrySet entrySet;
 
+    /**
+     * Default constructor, i.e. create a map with {@link #MIN_CAPACITY} and {@link Hashing#DEFAULT_LOAD_FACTOR}.
+     */
     public Object2ObjectHashMap()
     {
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR);
     }
 
+    /**
+     * Create a map with initiail capacity and load factor.
+     *
+     * @param initialCapacity for the map to override {@link #MIN_CAPACITY}
+     * @param loadFactor      for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
+     */
     public Object2ObjectHashMap(final int initialCapacity, final float loadFactor)
     {
         this(initialCapacity, loadFactor, true);
@@ -459,11 +469,25 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         return entrySet().hashCode();
     }
 
+    /**
+     * Handle incoming <em>null</em> value and optionally replace with another non-null counterpart.
+     *
+     * @param value value to be handled.
+     * @return replacement value.
+     */
     protected Object mapNullValue(final Object value)
     {
         return value;
     }
 
+    /**
+     * Handle incoming non-null value and optionally replace it with the <em>null</em> value counterpart. This is the
+     * opposite of the {@link #mapNullValue(Object)} method.
+     *
+     * @param value value to be handled.
+     * @return replacement value.
+     * @see #mapNullValue(Object)
+     */
     @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
@@ -489,8 +513,14 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 
     // ---------------- Utility Classes ----------------
 
+    /**
+     * Base iterator impl.
+     */
     abstract class AbstractIterator implements Serializable
     {
+        /**
+         * Is position valid.
+         */
         protected boolean isPositionValid = false;
         private int remaining;
         private int positionCounter;
@@ -525,16 +555,31 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return positionCounter & entries.length - 1;
         }
 
+        /**
+         * Return number of remaining elements.
+         *
+          * @return number of remaining elements.
+         */
         public int remaining()
         {
             return remaining;
         }
 
+        /**
+         * Check if there is next element to iterate.
+         *
+         * @return {@code true} if {@code remaining > 0}.
+         */
         public boolean hasNext()
         {
             return remaining > 0;
         }
 
+        /**
+         * Find next element.
+         *
+         * @throws NoSuchElementException if no more elements.
+         */
         protected final void findNext()
         {
             if (!hasNext())
@@ -561,6 +606,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             throw new IllegalStateException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void remove()
         {
             if (isPositionValid)
@@ -581,6 +629,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * An iterator over keys.
+     */
     public final class KeyIterator extends AbstractIterator implements Iterator<K>
     {
         @SuppressWarnings("unchecked")
@@ -591,6 +642,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * An iterator over values.
+     */
     public final class ValueIterator extends AbstractIterator implements Iterator<V>
     {
         public V next()
@@ -600,6 +654,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * An iterator over entries.
+     */
     public final class EntryIterator
         extends AbstractIterator
         implements Iterator<Entry<K, V>>, Entry<K, V>
@@ -680,11 +737,18 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
         }
 
+        /**
+         * An {@link java.util.Map.Entry} implementation.
+         */
         public final class MapEntry implements Entry<K, V>
         {
             private final K k;
             private final V v;
 
+            /**
+             * @param k key.
+             * @param v value.
+             */
             public MapEntry(final K k, final V v)
             {
                 this.k = k;
@@ -732,6 +796,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * A key set implementation.
+     */
     public final class KeySet extends AbstractSet<K> implements Serializable
     {
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
@@ -799,6 +866,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * A collection of values.
+     */
     public final class ValueCollection extends AbstractCollection<V>
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
@@ -849,6 +919,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         }
     }
 
+    /**
+     * An entry set implementation.
+     */
     public final class EntrySet extends AbstractSet<Map.Entry<K, V>> implements Serializable
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;

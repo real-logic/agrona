@@ -35,6 +35,12 @@ public interface OutputManager
      */
     Writer createOutput(String name) throws IOException;
 
+    /**
+     * Create named output and call {@link ResourceConsumer#accept(Object)}.
+     *
+     * @param name             name of the output to create.
+     * @param resourceConsumer to be called.
+     */
     default void withOutput(final String name, final ResourceConsumer<Writer> resourceConsumer)
     {
         try (Writer output = createOutput(name))

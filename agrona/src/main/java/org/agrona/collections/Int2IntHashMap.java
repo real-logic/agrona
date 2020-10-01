@@ -44,11 +44,19 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     private ValueCollection values;
     private EntrySet entrySet;
 
+    /**
+     * @param missingValue for the map that represents null.
+     */
     public Int2IntHashMap(final int missingValue)
     {
         this(MIN_CAPACITY, Hashing.DEFAULT_LOAD_FACTOR, missingValue);
     }
 
+    /**
+     * @param initialCapacity for the map to override {@link #MIN_CAPACITY}
+     * @param loadFactor      for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
+     * @param missingValue    for the map that represents null.
+     */
     public Int2IntHashMap(
         @DoNotSub final int initialCapacity,
         @DoNotSub final float loadFactor,
@@ -135,6 +143,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         return size == 0;
     }
 
+    /**
+     * Get a value using provided key avoiding boxing.
+     *
+     * @param key lookup key.
+     * @return value associated with the key or {@link #missingValue()} if key is not found in the map.
+     */
     public int get(final int key)
     {
         @DoNotSub final int mask = entries.length - 1;
@@ -446,6 +460,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         return valOrNull(remove((int)key));
     }
 
+    /**
+     * Remove value from the map using given key avoiding boxing.
+     *
+     * @param key whose mapping is to be removed from the map.
+     * @return removed value or {@link #missingValue()} if key was not found in the map.
+     */
     public int remove(final int key)
     {
         @DoNotSub final int mask = entries.length - 1;
@@ -593,7 +613,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Primitive specialised version of {@link #replace(Object, Object, Object)}
      *
-     * @param key key with which the specified value is associated
+     * @param key      key with which the specified value is associated
      * @param oldValue value expected to be associated with the specified key
      * @param newValue value to be associated with the specified key
      * @return {@code true} if the value was replaced
@@ -661,8 +681,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 
     // ---------------- Utility Classes ----------------
 
+    /**
+     * Base iterator implementation.
+     */
     abstract class AbstractIterator implements Serializable
     {
+        /**
+         * Is current position valid.
+         */
         protected boolean isPositionValid = false;
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
@@ -693,21 +719,41 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             positionCounter = keyIndex + capacity;
         }
 
+        /**
+         * Returns position of the key of the current entry.
+         *
+         * @return key position.
+         */
         @DoNotSub protected final int keyPosition()
         {
             return positionCounter & entries.length - 1;
         }
 
+        /**
+         * Number of remaining elements.
+         *
+         * @return number of remaining elements.
+         */
         @DoNotSub public int remaining()
         {
             return remaining;
         }
 
+        /**
+         * Check if there are more elements remaining.
+         *
+         * @return {@code true} if {@code remaining > 0}.
+         */
         public boolean hasNext()
         {
             return remaining > 0;
         }
 
+        /**
+         * Advance to the next entry.
+         *
+         * @throws NoSuchElementException if no more entries available.
+         */
         protected final void findNext()
         {
             if (!hasNext())
@@ -735,6 +781,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             throw new IllegalStateException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void remove()
         {
             if (isPositionValid)
@@ -755,7 +804,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
-     * Iterator over keys which supports access to unboxed keys.
+     * Iterator over keys which supports access to unboxed keys via {@link #nextValue()}.
      */
     public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
@@ -764,6 +813,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return nextValue();
         }
 
+        /**
+         * Return next key.
+         *
+         * @return next key.
+         */
         public int nextValue()
         {
             findNext();
@@ -781,6 +835,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return nextValue();
         }
 
+        /**
+         * Return next value.
+         *
+         * @return next value.
+         */
         public int nextValue()
         {
             findNext();
@@ -800,6 +859,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return getIntKey();
         }
 
+        /**
+         * Returns the key of the current entry.
+         *
+         * @return the key.
+         */
         public int getIntKey()
         {
             return entries[keyPosition()];
@@ -810,6 +874,11 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return getIntValue();
         }
 
+        /**
+         * Returns the value of the current entry.
+         *
+         * @return the value.
+         */
         public int getIntValue()
         {
             return entries[keyPosition() + 1];
@@ -820,6 +889,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return setValue(value.intValue());
         }
 
+        /**
+         * Sets the value of the current entry.
+         *
+         * @param value to be set.
+         * @return previous value of the entry.
+         */
         public int setValue(final int value)
         {
             if (!isPositionValid)
@@ -883,11 +958,19 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
         }
 
+        /**
+         * An {@link java.util.Map.Entry} implementation.
+         */
         public final class MapEntry implements Entry<Integer, Integer>
         {
             private final int k;
             private final int v;
 
+            /**
+             * Constructs entry with given key and value.
+             * @param k key.
+             * @param v value.
+             */
             public MapEntry(final int k, final int v)
             {
                 this.k = k;
@@ -988,6 +1071,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return contains((int)o);
         }
 
+        /**
+         * Checks if key is contained in the map without boxing.
+         *
+         * @param key to check.
+         * @return {@code true} if key is contained in this map.
+         */
         public boolean contains(final int key)
         {
             return containsKey(key);
@@ -1033,9 +1122,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return contains((int)o);
         }
 
-        public boolean contains(final int key)
+        /**
+         * Checks if the value is contained in the map.
+         * @param value to be checked.
+         * @return  {@code true} if value is contained in this map.
+         */
+        public boolean contains(final int value)
         {
-            return containsValue(key);
+            return containsValue(value);
         }
     }
 

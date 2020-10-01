@@ -27,6 +27,12 @@ public class JavaClassObject extends SimpleJavaFileObject
 {
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+    /**
+     * Create an instance for a given class name.
+     *
+     * @param className name of the class.
+     * @param kind      kind of the class.
+     */
     public JavaClassObject(final String className, final Kind kind)
     {
         super(URI.create("string:///" + className.replace('.', '/') + kind.extension), kind);

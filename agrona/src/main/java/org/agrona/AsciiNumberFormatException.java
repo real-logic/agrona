@@ -20,6 +20,11 @@ package org.agrona;
  */
 public class AsciiNumberFormatException extends NumberFormatException
 {
+    /**
+     * Create exception with a given message.
+     *
+     * @param message to use as cause.
+     */
     public AsciiNumberFormatException(final String message)
     {
         super(message);

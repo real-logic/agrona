@@ -24,9 +24,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
-import static org.agrona.BitUtil.SIZE_OF_INT;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BitUtil.*;
 
 /**
  * Reads the counters metadata and values buffers.
@@ -215,9 +213,21 @@ public class CountersReader
      */
     public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
+    /**
+     * Max counter Id.
+     */
     protected final int maxCounterId;
+    /**
+     * Meta-data buffer.
+     */
     protected final AtomicBuffer metaDataBuffer;
+    /**
+     * Values buffer.
+     */
     protected final AtomicBuffer valuesBuffer;
+    /**
+     * Charset for the label.
+     */
     protected final Charset labelCharset;
 
     /**
@@ -558,6 +568,12 @@ public class CountersReader
         return labelValue(metaDataBuffer, metaDataOffset(counterId));
     }
 
+    /**
+     * Validate if counter Id is valid.
+     *
+     * @param counterId to validate.
+     * @throws IllegalArgumentException if {@code counterId < 0 || counterId > maxCounterId}.
+     */
     protected void validateCounterId(final int counterId)
     {
         if (counterId < 0 || counterId > maxCounterId)

@@ -29,26 +29,59 @@ import java.util.Arrays;
  */
 public final class ArrayUtil
 {
+    /**
+     * Constant indicating an invalid/unknown array index.
+     */
     public static final int UNKNOWN_INDEX = -1;
 
+    /**
+     * Empty boolean array.
+     */
     public static final boolean[] EMPTY_BOOLEAN_ARRAY = new boolean[0];
 
+    /**
+     * Empty byte array.
+     */
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+    /**
+     * Empty char array.
+     */
     public static final char[] EMPTY_CHAR_ARRAY = new char[0];
 
+    /**
+     * Empty short array.
+     */
     public static final short[] EMPTY_SHORT_ARRAY = new short[0];
 
+    /**
+     * Empty int array.
+     */
     public static final int[] EMPTY_INT_ARRAY = new int[0];
 
+    /**
+     * Empty float array.
+     */
     public static final float[] EMPTY_FLOAT_ARRAY = new float[0];
 
+    /**
+     * Empty boolean array.
+     */
     public static final long[] EMPTY_LONG_ARRAY = new long[0];
 
+    /**
+     * Empty double array.
+     */
     public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
 
+    /**
+     * Empty Object array.
+     */
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    /**
+     * Empty String array.
+     */
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     /**

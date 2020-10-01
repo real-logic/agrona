@@ -33,6 +33,12 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> impl
     private final Function<E, V> viewer;
     private final Collection<E> elements;
 
+    /**
+     * Constructs an unmodifiable view over collection.
+     *
+     * @param viewer   function.
+     * @param elements collection to create a view for.
+     */
     public UnmodifiableCollectionView(final Function<E, V> viewer, final Collection<E> elements)
     {
         this.viewer = viewer;
@@ -55,6 +61,9 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> impl
         return iterator.reset();
     }
 
+    /**
+     * A stateful reusable iterator.
+     */
     public final class ReusableIterator implements Iterator<V>, Serializable
     {
         private Iterator<E> delegate;

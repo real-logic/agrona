@@ -28,8 +28,17 @@ public class TransportPoller implements AutoCloseable
 {
     private static final String SELECTOR_IMPL = "sun.nio.ch.SelectorImpl";
 
+    /**
+     * Reference to the {@code selectedKeys} field in the {@link Selector} class.
+     */
     protected static final Field SELECTED_KEYS_FIELD;
+    /**
+     * Reference to the {@code publicSelectedKeys} field in the {@link Selector} class.
+     */
     protected static final Field PUBLIC_SELECTED_KEYS_FIELD;
+    /**
+     * Number of iterations.
+     */
     protected static final int ITERATION_THRESHOLD = 5;
 
     static
@@ -61,9 +70,19 @@ public class TransportPoller implements AutoCloseable
         }
     }
 
+    /**
+     * Key0set used by the {@link Selector}.
+     */
     protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();
+
+    /**
+     * Reference to the {@link Selector}.
+     */
     protected final Selector selector;
 
+    /**
+     * Default constructor.
+     */
     public TransportPoller()
     {
         try

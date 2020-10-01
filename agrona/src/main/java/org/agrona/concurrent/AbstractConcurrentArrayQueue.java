@@ -17,7 +17,9 @@ package org.agrona.concurrent;
 
 import org.agrona.BitUtil;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static org.agrona.UnsafeAccess.UNSAFE;
 
@@ -38,8 +40,17 @@ abstract class AbstractConcurrentArrayQueuePadding1
  */
 abstract class AbstractConcurrentArrayQueueProducer extends AbstractConcurrentArrayQueuePadding1
 {
+    /**
+     * Tail index.
+     */
     protected volatile long tail;
+    /**
+     * Cached head index.
+     */
     protected long headCache;
+    /**
+     * Shared cached head index.
+     */
     protected volatile long sharedHeadCache;
 }
 
@@ -60,6 +71,9 @@ abstract class AbstractConcurrentArrayQueuePadding2 extends AbstractConcurrentAr
  */
 abstract class AbstractConcurrentArrayQueueConsumer extends AbstractConcurrentArrayQueuePadding2
 {
+    /**
+     * Head index.
+     */
     protected volatile long head;
 }
 
@@ -82,10 +96,25 @@ public abstract class AbstractConcurrentArrayQueue<E>
     extends AbstractConcurrentArrayQueuePadding3
     implements QueuedPipe<E>
 {
+    /**
+     * Offset of the {@code tail} field.
+     */
     protected static final long TAIL_OFFSET;
+    /**
+     * Offset of the {@code sharedHeadCache} field.
+     */
     protected static final long SHARED_HEAD_CACHE_OFFSET;
+    /**
+     * Offset of the {@code head} field.
+     */
     protected static final long HEAD_OFFSET;
+    /**
+     * Array base.
+     */
     protected static final int BUFFER_ARRAY_BASE;
+    /**
+     * Shift for scale.
+     */
     protected static final int SHIFT_FOR_SCALE;
 
     static
@@ -105,9 +134,20 @@ public abstract class AbstractConcurrentArrayQueue<E>
         }
     }
 
+    /**
+     * Queue capacity.
+     */
     protected final int capacity;
+    /**
+     * Backing array.
+     */
     protected final E[] buffer;
 
+    /**
+     * Constructs a queue with the requested capacity.
+     *
+     * @param requestedCapacity of the queue.
+     */
     @SuppressWarnings("unchecked")
     public AbstractConcurrentArrayQueue(final int requestedCapacity)
     {
@@ -290,6 +330,13 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return (int)size;
     }
 
+    /**
+     * Compute buffer offset based on the given sequence and the mask.
+     *
+     * @param sequence to compute the offset from.
+     * @param mask to apply.
+     * @return buffer offset.
+     */
     public static long sequenceToBufferOffset(final long sequence, final long mask)
     {
         return BUFFER_ARRAY_BASE + ((sequence & mask) << SHIFT_FOR_SCALE);

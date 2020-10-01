@@ -23,87 +23,170 @@ import java.io.Serializable;
  */
 public class MutableInteger extends Number implements Comparable<MutableInteger>, Serializable
 {
+    /**
+     * The value. Default value is {@code 0}.
+     */
     public int value = 0;
 
+    /**
+     * Default constructor.
+     */
     public MutableInteger()
     {
     }
 
+    /**
+     * Creates an instance with a value.
+     *
+     * @param value to assign.
+     */
     public MutableInteger(final int value)
     {
         this.value = value;
     }
 
+    /**
+     * Get the value.
+     *
+     * @return the value.
+     */
     public int get()
     {
         return value;
     }
 
+    /**
+     * Set the value.
+     *
+     * @param value to be assigned.
+     */
     public void set(final int value)
     {
         this.value = value;
     }
 
+    /**
+     * Return value as {@code byte}.
+     *
+     * @return value as {@code byte}.
+     */
     public byte byteValue()
     {
         return (byte)value;
     }
 
+    /**
+     * Return value as {@code short}.
+     *
+     * @return value as {@code short}.
+     */
     public short shortValue()
     {
         return (short)value;
     }
 
+    /**
+     * Return value as {@code int}.
+     *
+     * @return value as {@code int}.
+     */
     public int intValue()
     {
         return value;
     }
 
+    /**
+     * Return value as {@code long}.
+     *
+     * @return value as {@code long}.
+     */
     public long longValue()
     {
         return value;
     }
 
+    /**
+     * Return value as {@code float}.
+     *
+     * @return value as {@code float}.
+     */
     public float floatValue()
     {
         return (float)value;
     }
 
+    /**
+     * Return value as {@code double}.
+     *
+     * @return value as {@code double}.
+     */
     public double doubleValue()
     {
         return value;
     }
 
+    /**
+     * Increment the value.
+     */
     public void increment()
     {
         value++;
     }
 
+    /**
+     * Increment and return the value.
+     *
+     * @return the value after increment.
+     */
     public int incrementAndGet()
     {
         return ++value;
     }
 
+    /**
+     * Get and increment the value.
+     *
+     * @return the value before increment.
+     */
     public int getAndIncrement()
     {
         return value++;
     }
 
+    /**
+     * Decrement the value.
+     */
     public void decrement()
     {
         value--;
     }
 
+    /**
+     * Decrement and get the value.
+     *
+     * @return value after the decrement.
+     */
     public int decrementAndGet()
     {
         return --value;
     }
 
+    /**
+     * Get the value and decrement it.
+     *
+     * @return the value before the decrement.
+     */
     public int getAndDecrement()
     {
         return value--;
     }
 
+    /**
+     * Get the value and add {@code delta} to it.
+     *
+     * @param delta to add.
+     * @return the value before the change.
+     */
     public int getAndAdd(final int delta)
     {
         final int result = value;
@@ -111,6 +194,12 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return result;
     }
 
+    /**
+     * Add the {@code delta} and get the value.
+     *
+     * @param delta to add.
+     * @return the value after the change.
+     */
     public int addAndGet(final int delta)
     {
         return value += delta;
@@ -148,6 +237,17 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return compare(this.value, that.value);
     }
 
+    /**
+     * Compare two values. Invoking this method is equivalent to:
+     * <pre>
+     *     Integer.compare(lhs, rhs);
+     * </pre>
+     *
+     * @param lhs first value to compare.
+     * @param rhs second value to compare.
+     * @return zero if values are equal, negative value if {@code lhs} is less than {@code rhs} or
+     * positive value otherwise.
+     */
     public static int compare(final int lhs, final int rhs)
     {
         return Integer.compare(lhs, rhs);

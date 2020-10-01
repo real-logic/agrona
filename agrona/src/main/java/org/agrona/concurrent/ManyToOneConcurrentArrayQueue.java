@@ -38,6 +38,11 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  */
 public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
+    /**
+     * Constructs a queue with the requested capacity.
+     *
+     * @param requestedCapacity of the queue.
+     */
     public ManyToOneConcurrentArrayQueue(final int requestedCapacity)
     {
         super(requestedCapacity);

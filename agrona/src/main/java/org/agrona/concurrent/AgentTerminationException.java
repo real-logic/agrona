@@ -24,25 +24,54 @@ package org.agrona.concurrent;
  */
 public class AgentTerminationException extends RuntimeException
 {
+    /**
+     * Default constructor.
+     */
     public AgentTerminationException()
     {
     }
 
+    /**
+     * Create an exception with the given message.
+     *
+     * @param message to assign.
+     */
     public AgentTerminationException(final String message)
     {
         super(message);
     }
 
+    /**
+     * Create an exception with the given message and a cause.
+     *
+     * @param message to assign.
+     * @param cause   of the error.
+     */
     public AgentTerminationException(final String message, final Throwable cause)
     {
         super(message, cause);
     }
 
+    /**
+     * Create an exception with the given cause.
+     *
+     * @param cause of the error.
+     */
     public AgentTerminationException(final Throwable cause)
     {
         super(cause);
     }
 
+    /**
+     * Create an exception with the given message and a cause.
+     *
+     * @param message            to assign.
+     * @param cause              of the error.
+     * @param enableSuppression  whether or not suppression is enabled
+     *                           or disabled.
+     * @param writableStackTrace whether or not the stack trace should
+     *                           be writable.
+     */
     public AgentTerminationException(
         final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace)
     {

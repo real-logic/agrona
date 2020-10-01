@@ -25,6 +25,12 @@ public class CharSequenceJavaFileObject extends SimpleJavaFileObject
 {
     private final CharSequence sourceCode;
 
+    /**
+     * Create file object from class source code.
+     *
+     * @param className  name of the class.
+     * @param sourceCode of the class.
+     */
     public CharSequenceJavaFileObject(final String className, final CharSequence sourceCode)
     {
         super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);

@@ -34,6 +34,9 @@ abstract class CachedEpochClockPadding
  */
 abstract class CachedEpochClockValue extends CachedEpochClockPadding
 {
+    /**
+     * Time in milliseconds.
+     */
     protected volatile long timeMs;
 }
 

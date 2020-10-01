@@ -15,10 +15,9 @@
  */
 package org.agrona.agent;
 
+import net.bytebuddy.asm.Advice;
 import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
-
-import net.bytebuddy.asm.Advice;
 
 /**
  * Interceptor to be applied when verifying buffer alignment accesses.
@@ -28,6 +27,13 @@ public class BufferAlignmentInterceptor
 {
     abstract static class Verifier
     {
+        /**
+         * Interceptor for type alignment verifier.
+         *
+         * @param index     into the buffer.
+         * @param buffer    the buffer.
+         * @param alignment to be verified.
+         */
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer, final int alignment)
         {
             final int alignmentOffset = (int)(buffer.addressOffset() + index) % alignment;
@@ -44,6 +50,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class LongVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code long} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
@@ -56,6 +68,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class DoubleVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code double} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
@@ -68,6 +86,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class IntVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code int} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
@@ -80,6 +104,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class FloatVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code float} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
@@ -92,6 +122,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class ShortVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code short} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
@@ -104,6 +140,12 @@ public class BufferAlignmentInterceptor
      */
     public static final class CharVerifier extends Verifier
     {
+        /**
+         * Verify alignment of the {@code char} types.
+         *
+         * @param index  into the buffer.
+         * @param buffer the buffer.
+         */
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
