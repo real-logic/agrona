@@ -844,7 +844,7 @@ public class Object2IntHashMap<K>
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Base iterator impl.
+     * Base iterator implementation that contains basic logic of traversing the element in the backing array.
      *
      * @param <T> type of elements.
      */
@@ -948,7 +948,7 @@ public class Object2IntHashMap<K>
     }
 
     /**
-     * Iterator over values providing unboxed access.
+     * Iterator over values providing unboxed access via {@link #nextInt()}.
      */
     public final class ValueIterator extends AbstractIterator<Integer>
     {
@@ -1010,7 +1010,7 @@ public class Object2IntHashMap<K>
         }
 
         /**
-         * Get int value without auto-boxing.
+         * Get int value without boxing.
          *
          * @return value.
          */
@@ -1030,7 +1030,7 @@ public class Object2IntHashMap<K>
         }
 
         /**
-         * Set value at current position without auto-boxing.
+         * Set value at current position without boxing.
          *
          * @param value to be set.
          * @return old value.

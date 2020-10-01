@@ -241,7 +241,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Get mapped value without auto-boxing the key.
+     * Get mapped value without boxing the key.
      *
      * @param key to get value by.
      * @return mapped value or {@code null}.
@@ -880,9 +880,9 @@ public class Int2ObjectHashMap<V>
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Base iterator implementation.
+     * Base iterator implementation that contains basic logic of traversing the element in the backing array.
      *
-     * @param <T> type of the elements.
+     * @param <T> type of elements.
      */
     abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
@@ -1005,7 +1005,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Iterator over keys which supports access to unboxed keys.
+     * Iterator over keys which supports access to unboxed keys via {@link #nextInt()}.
      */
     public class KeyIterator extends AbstractIterator<Integer>
     {
@@ -1015,7 +1015,7 @@ public class Int2ObjectHashMap<V>
         }
 
         /**
-         * Return next key.
+         * Return next key without boxing.
          *
          * @return next key.
          */
@@ -1028,7 +1028,7 @@ public class Int2ObjectHashMap<V>
     }
 
     /**
-     * Iterator over entries which supports access to unboxed keys and values.
+     * Iterator over entries which supports access to unboxed keys via {@link #getIntKey()}.
      */
     public class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
@@ -1056,7 +1056,7 @@ public class Int2ObjectHashMap<V>
         }
 
         /**
-         * Get key with auto-boxing.
+         * Get key without boxing.
          *
          * @return key.
          */

@@ -700,7 +700,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     }
 
     /**
-     * Iterator which supports unboxed access to values.
+     * Iterator which supports unboxed access to values via {@link #nextValue()}.
      */
     public final class IntIterator implements Iterator<Integer>, Serializable
     {

@@ -144,9 +144,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
-     * Get a value using provided key avoiding auto-boxing.
+     * Get a value using provided key avoiding boxing.
      *
-     * @param key loolup key.
+     * @param key lookup key.
      * @return value associated with the key or {@link #missingValue()} if key is not found in the map.
      */
     public int get(final int key)
@@ -461,7 +461,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
-     * Remove value from the map using given key avoiding auto-boxing.
+     * Remove value from the map using given key avoiding boxing.
      *
      * @param key whose mapping is to be removed from the map.
      * @return removed value or {@link #missingValue()} if key was not found in the map.
@@ -804,7 +804,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     }
 
     /**
-     * Iterator over keys which supports access to unboxed keys.
+     * Iterator over keys which supports access to unboxed keys via {@link #nextValue()}.
      */
     public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
@@ -1072,7 +1072,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         }
 
         /**
-         * Checks if key is contained in the map without auto-boxing.
+         * Checks if key is contained in the map without boxing.
          *
          * @param key to check.
          * @return {@code true} if key is contained in this map.

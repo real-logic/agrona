@@ -580,7 +580,7 @@ public class Int2ObjectCache<V>
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * A key set implementation.
+     * A key set implementation which supports cached iterator to avoid allocation.
      */
     public final class KeySet extends AbstractSet<Integer>
     {
@@ -597,7 +597,7 @@ public class Int2ObjectCache<V>
         }
 
         /**
-         * Check if the given key contained in the set without auto-boxing.
+         * Check if the given key contained in the set without boxing.
          *
          * @param key to be checked.
          * @return {@code true} if key is contained in the cache.
@@ -626,7 +626,7 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * A collection of values.
+     * Collection of values which supports cached iterator to avoid allocation.
      */
     public final class ValueCollection extends AbstractCollection<V>
     {
@@ -656,7 +656,7 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * An entry set implementation.
+     * Set of entries which supports cached iterator to avoid allocation.
      */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
@@ -684,6 +684,11 @@ public class Int2ObjectCache<V>
     // Iterators
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Base iterator implementation that contains basic logic of traversing the element in the backing array.
+     *
+     * @param <T> type of elements.
+     */
     abstract class AbstractIterator<T> implements Iterator<T>
     {
         @DoNotSub private int remaining;
@@ -757,7 +762,7 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * An iterator over keys.
+     * Iterator over keys which supports access to unboxed keys via {@link #nextInt()}.
      */
     public final class KeyIterator extends AbstractIterator<Integer>
     {
@@ -767,7 +772,7 @@ public class Int2ObjectCache<V>
         }
 
         /**
-         * Return next key.
+         * Return next key without boxing.
          *
          * @return next key.
          */
@@ -779,7 +784,7 @@ public class Int2ObjectCache<V>
     }
 
     /**
-     * An iterator over entries.
+     * Iterator over entries which supports access to unboxed keys via {@link #getIntKey()}.
      */
     public final class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
