@@ -29,7 +29,7 @@ plugins {
 
 defaultTasks 'clean', 'build'
 
-def byteBuddyVersion = '1.10.15'
+def byteBuddyVersion = '1.10.16'
 def checkstyleVersion = '8.36'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.5.13'
@@ -158,10 +158,13 @@ subprojects {
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
         testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}") {
             exclude group: 'org.junit.jupiter'
+            exclude group: 'net.bytebuddy'
         }
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
+        testRuntimeOnly "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
     }
 
     group = agronaGroup
