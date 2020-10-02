@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -30,7 +29,7 @@ import java.util.function.IntFunction;
  *
  * @param <E> the type of element that this cache holds.
  */
-public final class IntLruCache<E> implements AutoCloseable, Serializable
+public final class IntLruCache<E> implements AutoCloseable
 {
     private static final long serialVersionUID = 8349342109370417432L;
     @DoNotSub private final int capacity;

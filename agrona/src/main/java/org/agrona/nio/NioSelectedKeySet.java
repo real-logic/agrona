@@ -166,6 +166,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      * @param function to apply to each {@link java.nio.channels.SelectionKey}
      * @return number of handled frames.
      */
+    @SuppressWarnings("overloads")
     public int forEach(final ToIntFunction<SelectionKey> function)
     {
         int handledFrames = 0;

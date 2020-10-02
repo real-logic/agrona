@@ -24,6 +24,8 @@ public class CompositeAgentTest
 {
     static class AgentException extends RuntimeException
     {
+        private static final long serialVersionUID = 104952591506361027L;
+
         final int index;
 
         AgentException(final int index)

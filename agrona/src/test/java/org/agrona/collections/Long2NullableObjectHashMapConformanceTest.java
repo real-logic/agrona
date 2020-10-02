@@ -54,7 +54,7 @@ public class Long2NullableObjectHashMapConformanceTest
                 return map;
             }
 
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({"unchecked", "rawtypes"})
             public Map.Entry<Long, Long>[] createArray(final int length)
             {
                 return new Map.Entry[length];

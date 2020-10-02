@@ -27,9 +27,8 @@ import java.util.function.Function;
  * @param <V> The type of the view.
  * @param <E> The type of the underlying element.
  */
-public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> implements Serializable
+public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
 {
-    private static final long serialVersionUID = -2278582252954007865L;
     private final ReusableIterator iterator = new ReusableIterator();
     private final Function<E, V> viewer;
     private final Collection<E> elements;
