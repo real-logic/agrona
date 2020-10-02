@@ -32,6 +32,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
+    private static final long serialVersionUID = -690554872053575793L;
 
     private final float loadFactor;
     private final int missingValue;

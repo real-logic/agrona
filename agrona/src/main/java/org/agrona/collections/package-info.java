@@ -16,7 +16,5 @@
 
 /**
  * Collections classes that support primitive types and tend to be cache friendly.
- *
- * @serial exclude
  */
 package org.agrona.collections;

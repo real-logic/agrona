@@ -30,6 +30,8 @@ import static org.agrona.collections.Hashing.compoundKey;
  */
 public class BiInt2ObjectMap<V> implements Serializable
 {
+    private static final long serialVersionUID = -4306301811303037776L;
+
     /**
      * Handler for a map entry
      *

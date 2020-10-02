@@ -22,6 +22,7 @@ import java.io.Serializable;
  */
 public class MutableBoolean implements Serializable
 {
+    private static final long serialVersionUID = 4524695016393435450L;
     /**
      * For convenient access.
      */

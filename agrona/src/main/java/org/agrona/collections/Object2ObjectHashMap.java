@@ -32,6 +32,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 {
     static final int MIN_CAPACITY = 8;
+    private static final long serialVersionUID = -1549211171492606678L;
 
     private final float loadFactor;
     private int resizeThreshold;
@@ -518,6 +519,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     abstract class AbstractIterator implements Serializable
     {
+        private static final long serialVersionUID = -6722944592177026218L;
         /**
          * Is position valid.
          */
@@ -634,6 +636,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class KeyIterator extends AbstractIterator implements Iterator<K>, Serializable
     {
+        private static final long serialVersionUID = 2381081253326969359L;
+
         @SuppressWarnings("unchecked")
         public K next()
         {
@@ -647,6 +651,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class ValueIterator extends AbstractIterator implements Iterator<V>, Serializable
     {
+        private static final long serialVersionUID = -9021925571373462472L;
+
         public V next()
         {
             findNext();
@@ -661,6 +667,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         extends AbstractIterator
         implements Iterator<Entry<K, V>>, Entry<K, V>, Serializable
     {
+        private static final long serialVersionUID = 7273758986584625427L;
+
         @SuppressWarnings("unchecked")
         public K getKey()
         {
@@ -801,6 +809,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class KeySet extends AbstractSet<K> implements Serializable
     {
+        private static final long serialVersionUID = 9104229702905879053L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -871,6 +880,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
+        private static final long serialVersionUID = 4700865656461554026L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -924,6 +934,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class EntrySet extends AbstractSet<Map.Entry<K, V>> implements Serializable
     {
+        private static final long serialVersionUID = 7025830249792699509L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**

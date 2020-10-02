@@ -29,6 +29,7 @@ import java.util.function.Function;
  */
 public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> implements Serializable
 {
+    private static final long serialVersionUID = -2278582252954007865L;
     private final ReusableIterator iterator = new ReusableIterator();
     private final Function<E, V> viewer;
     private final Collection<E> elements;
@@ -66,6 +67,7 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> impl
      */
     public final class ReusableIterator implements Iterator<V>, Serializable
     {
+        private static final long serialVersionUID = 9183617352140354854L;
         private Iterator<E> delegate;
 
         public boolean hasNext()

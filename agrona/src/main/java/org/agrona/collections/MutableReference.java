@@ -24,6 +24,7 @@ import java.io.Serializable;
  */
 public class MutableReference<T> implements Serializable
 {
+    private static final long serialVersionUID = 321431528882718691L;
     /**
      * For convenient access.
      */

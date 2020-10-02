@@ -36,6 +36,7 @@ public class Int2ObjectHashMap<V>
     implements Map<Integer, V>, Serializable
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
+    private static final long serialVersionUID = -87577678740521569L;
 
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
@@ -678,6 +679,7 @@ public class Int2ObjectHashMap<V>
      */
     public final class KeySet extends AbstractSet<Integer> implements Serializable
     {
+        private static final long serialVersionUID = 174654887531298424L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -743,6 +745,7 @@ public class Int2ObjectHashMap<V>
      */
     public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
+        private static final long serialVersionUID = 6851282235497568109L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -796,6 +799,7 @@ public class Int2ObjectHashMap<V>
      */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
     {
+        private static final long serialVersionUID = 6797969139720339177L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**
@@ -886,6 +890,7 @@ public class Int2ObjectHashMap<V>
      */
     abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
+        private static final long serialVersionUID = 7955640333577513200L;
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
@@ -996,6 +1001,8 @@ public class Int2ObjectHashMap<V>
      */
     public class ValueIterator extends AbstractIterator<V> implements Serializable
     {
+        private static final long serialVersionUID = -410109102792377049L;
+
         public V next()
         {
             findNext();
@@ -1009,6 +1016,8 @@ public class Int2ObjectHashMap<V>
      */
     public class KeyIterator extends AbstractIterator<Integer> implements Serializable
     {
+        private static final long serialVersionUID = -4905479491707153377L;
+
         public Integer next()
         {
             return nextInt();
@@ -1034,6 +1043,8 @@ public class Int2ObjectHashMap<V>
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>, Serializable
     {
+        private static final long serialVersionUID = 2227334666048171527L;
+
         public Entry<Integer, V> next()
         {
             findNext();
@@ -1093,6 +1104,7 @@ public class Int2ObjectHashMap<V>
          */
         public final class MapEntry implements Entry<Integer, V>, Serializable
         {
+            private static final long serialVersionUID = -6648311124347304211L;
             private final int k;
             private final V v;
 

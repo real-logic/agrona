@@ -32,6 +32,7 @@ import java.util.function.IntFunction;
  */
 public final class IntLruCache<E> implements AutoCloseable, Serializable
 {
+    private static final long serialVersionUID = 8349342109370417432L;
     @DoNotSub private final int capacity;
     private final IntFunction<E> factory;
     private final Consumer<E> closer;

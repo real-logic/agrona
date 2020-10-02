@@ -31,6 +31,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 public class Int2IntCounterMap implements Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
+    private static final long serialVersionUID = -3044319458317497461L;
 
     @DoNotSub private final float loadFactor;
     private final int initialValue;

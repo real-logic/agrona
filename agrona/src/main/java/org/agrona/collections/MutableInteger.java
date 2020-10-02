@@ -23,6 +23,7 @@ import java.io.Serializable;
  */
 public class MutableInteger extends Number implements Comparable<MutableInteger>, Serializable
 {
+    private static final long serialVersionUID = 985259236882848264L;
     /**
      * The value. Default value is {@code 0}.
      */

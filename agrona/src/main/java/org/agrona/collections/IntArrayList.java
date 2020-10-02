@@ -37,6 +37,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * Initial capacity to which the array will be sized.
      */
     @DoNotSub public static final int INITIAL_CAPACITY = 10;
+    private static final long serialVersionUID = -2257879229511649624L;
 
     private final int nullValue;
     @DoNotSub private int size = 0;

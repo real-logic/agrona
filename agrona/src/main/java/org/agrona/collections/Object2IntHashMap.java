@@ -35,6 +35,7 @@ public class Object2IntHashMap<K>
     implements Map<K, Integer>, Serializable
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
+    private static final long serialVersionUID = -6664980642816252596L;
 
     private final float loadFactor;
     private final int missingValue;
@@ -677,6 +678,7 @@ public class Object2IntHashMap<K>
      */
     public final class KeySet extends AbstractSet<K> implements Serializable
     {
+        private static final long serialVersionUID = -1234547139181649343L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -721,6 +723,7 @@ public class Object2IntHashMap<K>
      */
     public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
     {
+        private static final long serialVersionUID = -6589907057505627813L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -759,6 +762,7 @@ public class Object2IntHashMap<K>
      */
     public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>> implements Serializable
     {
+        private static final long serialVersionUID = -5640061430571657431L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**
@@ -850,6 +854,7 @@ public class Object2IntHashMap<K>
      */
     abstract class AbstractIterator<T> implements Iterator<T>, Serializable
     {
+        private static final long serialVersionUID = -5613227376239486119L;
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
@@ -952,6 +957,8 @@ public class Object2IntHashMap<K>
      */
     public final class ValueIterator extends AbstractIterator<Integer> implements Serializable
     {
+        private static final long serialVersionUID = 6755174304344657841L;
+
         public Integer next()
         {
             return nextInt();
@@ -974,6 +981,8 @@ public class Object2IntHashMap<K>
      */
     public final class KeyIterator extends AbstractIterator<K> implements Serializable
     {
+        private static final long serialVersionUID = -5782758367804714619L;
+
         public K next()
         {
             findNext();
@@ -988,6 +997,8 @@ public class Object2IntHashMap<K>
         extends AbstractIterator<Entry<K, Integer>>
         implements Entry<K, Integer>, Serializable
     {
+        private static final long serialVersionUID = 951101238418327235L;
+
         public Entry<K, Integer> next()
         {
             findNext();
@@ -1055,6 +1066,7 @@ public class Object2IntHashMap<K>
          */
         public final class MapEntry implements Entry<K, Integer>, Serializable
         {
+            private static final long serialVersionUID = 7716717237784090877L;
             private final K k;
             private final int v;
 

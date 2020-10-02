@@ -47,6 +47,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     static final int MISSING_VALUE = -1;
+    private static final long serialVersionUID = 8717061229749503234L;
 
     private final boolean shouldAvoidAllocation;
     private boolean containsMissingValue;
@@ -704,6 +705,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
      */
     public final class IntIterator implements Iterator<Integer>, Serializable
     {
+        private static final long serialVersionUID = 351844349377836408L;
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;

@@ -43,6 +43,7 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
 public class Int2ObjectCache<V>
     implements Map<Integer, V>, Serializable
 {
+    private static final long serialVersionUID = -3961583992974512864L;
     private long cachePuts = 0;
     private long cacheHits = 0;
     private long cacheMisses = 0;
@@ -630,6 +631,7 @@ public class Int2ObjectCache<V>
      */
     public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
+        private static final long serialVersionUID = 4345278262685013239L;
         private final ValueIterator iterator = new ValueIterator();
 
         @DoNotSub public int size()
@@ -660,6 +662,7 @@ public class Int2ObjectCache<V>
      */
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
     {
+        private static final long serialVersionUID = -3132352339812038323L;
         private final EntryIterator iterator = new EntryIterator();
 
         @DoNotSub public int size()
@@ -753,6 +756,8 @@ public class Int2ObjectCache<V>
      */
     public final class ValueIterator extends AbstractIterator<V> implements Serializable
     {
+        private static final long serialVersionUID = -7244668512356407776L;
+
         @SuppressWarnings("unchecked")
         public V next()
         {
@@ -766,6 +771,8 @@ public class Int2ObjectCache<V>
      */
     public final class KeyIterator extends AbstractIterator<Integer> implements Serializable
     {
+        private static final long serialVersionUID = 7839502277176425113L;
+
         public Integer next()
         {
             return nextInt();
@@ -790,6 +797,8 @@ public class Int2ObjectCache<V>
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>, Serializable
     {
+        private static final long serialVersionUID = -737802949794732177L;
+
         public Entry<Integer, V> next()
         {
             findNext();

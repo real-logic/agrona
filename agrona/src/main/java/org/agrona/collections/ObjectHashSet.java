@@ -43,6 +43,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     static final Object MISSING_VALUE = null;
+    private static final long serialVersionUID = -1323058412234306050L;
 
     private final boolean shouldAvoidAllocation;
     private final float loadFactor;
@@ -591,6 +592,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
      */
     public final class ObjectIterator implements Iterator<T>, Serializable
     {
+        private static final long serialVersionUID = 5661111157418381153L;
         private int remaining;
         private int positionCounter;
         private int stopCounter;

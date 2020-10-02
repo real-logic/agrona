@@ -20,6 +20,8 @@ package org.agrona.collections;
  */
 public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, V>
 {
+    private static final long serialVersionUID = 8456084431646897808L;
+
     /**
      * Default constructor.
      */

@@ -20,6 +20,8 @@ package org.agrona;
  */
 public class AsciiNumberFormatException extends NumberFormatException
 {
+    private static final long serialVersionUID = -6849486257505869666L;
+
     /**
      * Create exception with a given message.
      *
