@@ -806,7 +806,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Iterator over keys which supports access to unboxed keys via {@link #nextValue()}.
      */
-    public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
+    public final class KeyIterator extends AbstractIterator implements Iterator<Integer>, Serializable
     {
         public Integer next()
         {
@@ -828,7 +828,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Iterator over values which supports access to unboxed values.
      */
-    public final class ValueIterator extends AbstractIterator implements Iterator<Integer>
+    public final class ValueIterator extends AbstractIterator implements Iterator<Integer>, Serializable
     {
         public Integer next()
         {
@@ -852,7 +852,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public final class EntryIterator
         extends AbstractIterator
-        implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
+        implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>, Serializable
     {
         public Integer getKey()
         {
@@ -1087,7 +1087,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Collection of values which supports optionally cached iterators to avoid allocation.
      */
-    public final class ValueCollection extends AbstractCollection<Integer>
+    public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 

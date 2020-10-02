@@ -950,7 +950,7 @@ public class Object2IntHashMap<K>
     /**
      * Iterator over values providing unboxed access via {@link #nextInt()}.
      */
-    public final class ValueIterator extends AbstractIterator<Integer>
+    public final class ValueIterator extends AbstractIterator<Integer> implements Serializable
     {
         public Integer next()
         {
@@ -972,7 +972,7 @@ public class Object2IntHashMap<K>
     /**
      * Iterator over keys.
      */
-    public final class KeyIterator extends AbstractIterator<K>
+    public final class KeyIterator extends AbstractIterator<K> implements Serializable
     {
         public K next()
         {
@@ -986,7 +986,7 @@ public class Object2IntHashMap<K>
      */
     public final class EntryIterator
         extends AbstractIterator<Entry<K, Integer>>
-        implements Entry<K, Integer>
+        implements Entry<K, Integer>, Serializable
     {
         public Entry<K, Integer> next()
         {
@@ -1053,7 +1053,7 @@ public class Object2IntHashMap<K>
         /**
          * An {@link java.util.Map.Entry} implementation.
          */
-        public final class MapEntry implements Entry<K, Integer>
+        public final class MapEntry implements Entry<K, Integer>, Serializable
         {
             private final K k;
             private final int v;

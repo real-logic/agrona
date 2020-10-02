@@ -628,7 +628,7 @@ public class Int2ObjectCache<V>
     /**
      * Collection of values which supports cached iterator to avoid allocation.
      */
-    public final class ValueCollection extends AbstractCollection<V>
+    public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator iterator = new ValueIterator();
 
@@ -658,7 +658,7 @@ public class Int2ObjectCache<V>
     /**
      * Set of entries which supports cached iterator to avoid allocation.
      */
-    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
     {
         private final EntryIterator iterator = new EntryIterator();
 
@@ -751,7 +751,7 @@ public class Int2ObjectCache<V>
     /**
      * An iterator over values.
      */
-    public final class ValueIterator extends AbstractIterator<V>
+    public final class ValueIterator extends AbstractIterator<V> implements Serializable
     {
         @SuppressWarnings("unchecked")
         public V next()
@@ -764,7 +764,7 @@ public class Int2ObjectCache<V>
     /**
      * Iterator over keys which supports access to unboxed keys via {@link #nextInt()}.
      */
-    public final class KeyIterator extends AbstractIterator<Integer>
+    public final class KeyIterator extends AbstractIterator<Integer> implements Serializable
     {
         public Integer next()
         {
@@ -788,7 +788,7 @@ public class Int2ObjectCache<V>
      */
     public final class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
-        implements Entry<Integer, V>
+        implements Entry<Integer, V>, Serializable
     {
         public Entry<Integer, V> next()
         {

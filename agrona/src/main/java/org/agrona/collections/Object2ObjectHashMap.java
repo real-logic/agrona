@@ -632,7 +632,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     /**
      * An iterator over keys.
      */
-    public final class KeyIterator extends AbstractIterator implements Iterator<K>
+    public final class KeyIterator extends AbstractIterator implements Iterator<K>, Serializable
     {
         @SuppressWarnings("unchecked")
         public K next()
@@ -645,7 +645,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     /**
      * An iterator over values.
      */
-    public final class ValueIterator extends AbstractIterator implements Iterator<V>
+    public final class ValueIterator extends AbstractIterator implements Iterator<V>, Serializable
     {
         public V next()
         {
@@ -659,7 +659,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
      */
     public final class EntryIterator
         extends AbstractIterator
-        implements Iterator<Entry<K, V>>, Entry<K, V>
+        implements Iterator<Entry<K, V>>, Entry<K, V>, Serializable
     {
         @SuppressWarnings("unchecked")
         public K getKey()
@@ -869,7 +869,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     /**
      * A collection of values.
      */
-    public final class ValueCollection extends AbstractCollection<V>
+    public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
