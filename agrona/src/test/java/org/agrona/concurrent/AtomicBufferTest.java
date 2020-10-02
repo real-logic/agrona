@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.stream.Stream;
@@ -54,10 +55,15 @@ public class AtomicBufferTest
             new UnsafeBuffer(
                 ByteBuffer.allocateDirect(BUFFER_CAPACITY), 0, BUFFER_CAPACITY),
             new UnsafeBuffer(
-                ((ByteBuffer)(ByteBuffer.allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY))).slice()),
+                sliceBuffer(ByteBuffer.allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY))),
             new UnsafeBuffer(
                 ByteBuffer.allocate(BUFFER_CAPACITY).asReadOnlyBuffer(), 0, BUFFER_CAPACITY)
         );
+    }
+
+    private static ByteBuffer sliceBuffer(final Buffer buffer)
+    {
+        return ((ByteBuffer)buffer).slice();
     }
 
     @ParameterizedTest
@@ -778,7 +784,7 @@ public class AtomicBufferTest
         duplicateBuffer.put(testBytes);
 
         final ByteBuffer dstBuffer =
-            ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
+            sliceBuffer(ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length));
 
         buffer.getBytes(INDEX, dstBuffer, testBytes.length);
 
@@ -848,7 +854,7 @@ public class AtomicBufferTest
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer =
-            ((ByteBuffer)ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length)).slice();
+            sliceBuffer(ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length));
         srcBuffer.put(testBytes).flip();
 
         buffer.putBytes(INDEX, srcBuffer, testBytes.length);
