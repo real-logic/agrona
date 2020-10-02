@@ -27,7 +27,6 @@ import java.util.function.Function;
  * @param <V> The type of the view.
  * @param <E> The type of the underlying element.
  */
-@SuppressWarnings("serial")
 public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V> implements Serializable
 {
     private static final long serialVersionUID = -2278582252954007865L;

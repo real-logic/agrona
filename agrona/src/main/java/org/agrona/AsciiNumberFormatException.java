@@ -18,7 +18,6 @@ package org.agrona;
 /**
  * Thrown when parsing an ASCII string and finding characters that are not digits.
  */
-@SuppressWarnings("serial")
 public class AsciiNumberFormatException extends NumberFormatException
 {
     private static final long serialVersionUID = -6849486257505869666L;

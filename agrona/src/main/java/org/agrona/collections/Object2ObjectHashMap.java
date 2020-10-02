@@ -29,7 +29,6 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * A open addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
  */
-@SuppressWarnings("serial")
 public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 {
     static final int MIN_CAPACITY = 8;

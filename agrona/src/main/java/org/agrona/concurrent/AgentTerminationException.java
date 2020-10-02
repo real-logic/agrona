@@ -22,7 +22,6 @@ package org.agrona.concurrent;
  * @see AgentInvoker
  * @see AgentRunner
  */
-@SuppressWarnings("serial")
 public class AgentTerminationException extends RuntimeException
 {
     private static final long serialVersionUID = 5962977383701965069L;

@@ -32,7 +32,6 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  *
  * @param <V> type of values stored in the {@link java.util.Map}
  */
-@SuppressWarnings("serial")
 public class Int2ObjectHashMap<V>
     implements Map<Integer, V>, Serializable
 {
