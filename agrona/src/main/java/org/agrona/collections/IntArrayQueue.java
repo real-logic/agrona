@@ -30,6 +30,7 @@ import java.util.function.IntConsumer;
  * <p>
  * <b>Note:</b> This class is not threadsafe.
  */
+@SuppressWarnings("serial")
 public class IntArrayQueue extends AbstractQueue<Integer> implements Serializable
 {
     /**

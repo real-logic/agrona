@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
  */
+@SuppressWarnings("serial")
 public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess, Serializable
 {
     /**

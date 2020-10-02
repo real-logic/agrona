@@ -21,6 +21,7 @@ import java.io.Serializable;
  * Holder for an int value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
  * reference.
  */
+@SuppressWarnings("serial")
 public class MutableInteger extends Number implements Comparable<MutableInteger>, Serializable
 {
     private static final long serialVersionUID = 985259236882848264L;

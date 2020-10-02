@@ -30,6 +30,7 @@ import java.util.function.IntFunction;
  *
  * @param <E> the type of element that this cache holds.
  */
+@SuppressWarnings("serial")
 public final class IntLruCache<E> implements AutoCloseable, Serializable
 {
     private static final long serialVersionUID = 8349342109370417432L;

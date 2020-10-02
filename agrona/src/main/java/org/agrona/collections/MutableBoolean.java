@@ -20,6 +20,7 @@ import java.io.Serializable;
 /**
  * Mutable boolean valid that is useful for capturing a value when using lambdas or collections.
  */
+@SuppressWarnings("serial")
 public class MutableBoolean implements Serializable
 {
     private static final long serialVersionUID = 4524695016393435450L;

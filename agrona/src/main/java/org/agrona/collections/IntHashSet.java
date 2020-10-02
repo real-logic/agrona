@@ -39,6 +39,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see IntIterator
  * @see Set
  */
+@SuppressWarnings("serial")
 public class IntHashSet extends AbstractSet<Integer> implements Serializable
 {
     /**

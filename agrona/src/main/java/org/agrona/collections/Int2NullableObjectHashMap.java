@@ -22,6 +22,7 @@ import org.agrona.generation.DoNotSub;
  *
  * @param <V> type of values stored in the {@link java.util.Map}
  */
+@SuppressWarnings("serial")
 public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
 {
     private static final long serialVersionUID = -7081946803848112161L;

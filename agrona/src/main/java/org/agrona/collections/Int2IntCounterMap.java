@@ -28,6 +28,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * A open-addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
  * counters which hit {@link #initialValue} as deleted. This means that changing a counter may impact {@link #size()}.
  */
+@SuppressWarnings("serial")
 public class Int2IntCounterMap implements Serializable
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
