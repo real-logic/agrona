@@ -69,7 +69,7 @@ public class Object2IntHashMapConformanceTest
                 return map;
             }
 
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({"unchecked", "rawtypes"})
             public Map.Entry<Integer, Integer>[] createArray(final int length)
             {
                 return new Map.Entry[length];

@@ -284,6 +284,7 @@ public class Object2IntHashMap<K>
      * @param mappingFunction to provide a value if the get returns missingValue.
      * @return the value if found otherwise the default.
      */
+    @SuppressWarnings("overloads")
     public int computeIfAbsent(final K key, final ToIntFunction<? super K> mappingFunction)
     {
         int value = getValue(key);

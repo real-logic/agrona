@@ -677,6 +677,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
+    @SuppressWarnings("rawtypes")
     public void shouldToArrayTyped()
     {
         final Int2IntHashMap map = new Int2IntHashMap(-127);

@@ -15,14 +15,9 @@
  */
 package org.agrona.collections;
 
-import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -460,6 +455,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
+    @SuppressWarnings("rawtypes")
     public void testToArrayTyped()
     {
         final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);

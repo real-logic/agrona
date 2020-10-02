@@ -438,6 +438,7 @@ public class MarkFile implements AutoCloseable
      * @return {@link MappedByteBuffer} for the {@link MarkFile}.
      * @throws IllegalStateException if deadline timeout is reached.
      */
+    @SuppressWarnings("try")
     public static MappedByteBuffer waitForFileMapping(
         final Consumer<String> logger,
         final File markFile,
