@@ -26,7 +26,7 @@ public interface Agent
     /**
      * To be overridden by Agents that need to do resource init on start.
      * <p>
-     * This method will be called by the agent thread thread once on start..
+     * This method will be called by the agent thread once on start.
      */
     default void onStart()
     {
