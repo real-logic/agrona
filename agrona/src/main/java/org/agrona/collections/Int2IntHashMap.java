@@ -174,9 +174,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      * Put a key value pair in the map.
      *
      * @param key   lookup key
-     * @param value new value, must not be initialValue
-     * @return current counter value associated with key, or initialValue if none found
-     * @throws IllegalArgumentException if value is missingValue
+     * @param value new value, must not be {@link #missingValue()}
+     * @return previous value associated with the key, or {@link #missingValue()} if none found
+     * @throws IllegalArgumentException if value is {@link #missingValue()}
      */
     public int put(final int key, final int value)
     {
