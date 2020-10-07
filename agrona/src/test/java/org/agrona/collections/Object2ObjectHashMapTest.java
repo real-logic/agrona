@@ -42,6 +42,7 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
+    @SuppressWarnings("rawtypes")
     public void testToArrayTyped()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();

@@ -409,6 +409,8 @@ public class Int2ObjectHashMapTest
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<String>()
         {
+            private static final long serialVersionUID = 4728671632683628332L;
+
             private final Object nullRef = new Object();
 
             protected Object mapNullValue(final Object value)
@@ -469,6 +471,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
+    @SuppressWarnings("rawtypes")
     public void testToArrayTyped()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();

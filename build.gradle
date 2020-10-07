@@ -30,6 +30,7 @@ plugins {
 defaultTasks 'clean', 'build'
 
 def byteBuddyVersion = '1.10.16'
+def findbugsAnnotations = '3.0.1'
 def checkstyleVersion = '8.36'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.5.13'
@@ -184,11 +185,16 @@ subprojects {
     }
 
     tasks.withType(JavaCompile) {
+        doFirst {
+            mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
+        }
+
         if (JavaVersion.current().isJava9Compatible()) {
             options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         }
+        options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
         options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
         if (externalJdk) {
             options.fork = true
@@ -338,6 +344,9 @@ project(':agrona-agent') {
     dependencies {
         implementation project(':agrona')
         implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
+        // Avoid Javac warning about missing dependency from ByteBuddy
+        compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
+        testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
     }
 
     shadowJar {
