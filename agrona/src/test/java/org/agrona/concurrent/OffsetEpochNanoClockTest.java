@@ -17,7 +17,7 @@ package org.agrona.concurrent;
 
 import org.agrona.UnsafeAccess;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.locks.LockSupport;
 
@@ -49,11 +49,6 @@ public class OffsetEpochNanoClockTest
         assertThat(nanoTimeInMs, Matchers.greaterThanOrEqualTo(startInMs));
     }
 
-    private void parkForMeasurementPrecision()
-    {
-        LockSupport.parkNanos(1_000_000);
-    }
-
     @Test
     public void shouldResampleSaneEpochTimestamp()
     {
@@ -64,4 +59,8 @@ public class OffsetEpochNanoClockTest
         assertSaneEpochTimeStamp(clock);
     }
 
+    private void parkForMeasurementPrecision()
+    {
+        LockSupport.parkNanos(1_000_000);
+    }
 }

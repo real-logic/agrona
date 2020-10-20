@@ -15,9 +15,7 @@
  */
 package org.agrona.concurrent;
 
-import org.junit.After;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 
 import java.util.Queue;
 
@@ -33,7 +31,7 @@ public class ArrayQueuePeekTest
 
     private Thread producerThread;
 
-    @After
+    @AfterEach
     public void after()
     {
         if (null != producerThread)
