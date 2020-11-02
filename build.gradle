@@ -24,16 +24,16 @@ plugins {
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
     id 'biz.aQute.bnd.builder' version '5.1.2' apply false
-    id "com.github.ben-manes.versions" version "0.33.0"
+    id "com.github.ben-manes.versions" version "0.34.0"
 }
 
 defaultTasks 'clean', 'build'
 
-def byteBuddyVersion = '1.10.17'
+def byteBuddyVersion = '1.10.18'
 def findbugsAnnotations = '3.0.1'
 def checkstyleVersion = '8.36.2'
 def hamcrestVersion = '2.2'
-def mockitoVersion = '3.5.15'
+def mockitoVersion = '3.6.0'
 def junitVersion = '5.7.0'
 def guavaTestLib = '30.0-jre'
 def jmhVersion = '1.26'
