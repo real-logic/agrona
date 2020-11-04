@@ -87,7 +87,7 @@ public class SystemUtilTest
         assertThat(System.getProperty("TestFileA.foo"), is(emptyOrNullString()));
         assertThat(System.getProperty("TestFileB.foo"), is(emptyOrNullString()));
 
-        loadPropertiesFiles(new String[]{ "TestFileA.properties", "TestFileB.properties" });
+        loadPropertiesFiles("TestFileA.properties", "TestFileB.properties");
 
         assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
         assertThat(System.getProperty("TestFileB.foo"), is("BBB"));

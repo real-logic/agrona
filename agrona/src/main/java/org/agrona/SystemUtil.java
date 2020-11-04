@@ -246,7 +246,7 @@ public final class SystemUtil
      * @param filenamesOrUrls that holds properties.
      * @see #loadPropertiesFile(String)
      */
-    public static void loadPropertiesFiles(final String[] filenamesOrUrls)
+    public static void loadPropertiesFiles(final String... filenamesOrUrls)
     {
         for (final String filenameOrUrl : filenamesOrUrls)
         {
