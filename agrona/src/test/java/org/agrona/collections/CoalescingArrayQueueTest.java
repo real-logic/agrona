@@ -147,7 +147,8 @@ class CoalescingArrayQueueTest
     }
 
     @Test
-    void shouldCoalesce() {
+    void shouldCoalesce()
+    {
         final CoalescingArrayQueue<Versioned> queue = create();
         final Versioned element = withKey(7);
         final Versioned updated = withKeyVersion(7, 1);
@@ -177,7 +178,7 @@ class CoalescingArrayQueueTest
         return new Versioned(key, version);
     }
 
-    private static class Versioned
+    private static final class Versioned
     {
         private final int key;
         private int version;
@@ -193,16 +194,18 @@ class CoalescingArrayQueueTest
             this.version = version;
         }
 
-        public int getKey() {
+        public int getKey()
+        {
             return key;
         }
 
-        public int getVersion() {
+        public int getVersion()
+        {
             return version;
         }
 
         @Override
-        public boolean equals(Object o)
+        public boolean equals(final Object o)
         {
             if (this == o)
             {
@@ -213,7 +216,7 @@ class CoalescingArrayQueueTest
                 return false;
             }
 
-            Versioned versioned = (Versioned) o;
+            final Versioned versioned = (Versioned)o;
 
             return key == versioned.key && version == versioned.version;
         }

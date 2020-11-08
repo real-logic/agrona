@@ -42,7 +42,8 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      *
      * @param <V> type of the value.
      */
-    public interface KeySupplier<V> {
+    public interface KeySupplier<V>
+    {
         /**
          * key supplier.
          * @param v value instance.
@@ -70,7 +71,7 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      *
      * @param keySupplier required supplier of unique key for value instances.
      */
-    public CoalescingArrayQueue(KeySupplier<V> keySupplier)
+    public CoalescingArrayQueue(final KeySupplier<V> keySupplier)
     {
         this(keySupplier, MIN_CAPACITY);
     }
@@ -82,8 +83,8 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      * @param initialCapacity for the queue which will be rounded up to the nearest power of 2.
      */
     public CoalescingArrayQueue(
-            KeySupplier<V> keySupplier,
-            final int initialCapacity)
+        final KeySupplier<V> keySupplier,
+        final int initialCapacity)
     {
         this(keySupplier, initialCapacity, true);
     }
@@ -96,9 +97,9 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      * @param shouldAvoidAllocation true to cache the iterator otherwise false to allocate a new iterator each time.
      */
     public CoalescingArrayQueue(
-            final KeySupplier<V> keySupplier,
-            final int initialCapacity,
-            final boolean shouldAvoidAllocation)
+        final KeySupplier<V> keySupplier,
+        final int initialCapacity,
+        final boolean shouldAvoidAllocation)
     {
         if (keySupplier == null)
         {
@@ -178,7 +179,7 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(Consumer<? super V> action)
+    public void forEach(final Consumer<? super V> action)
     {
         requireNonNull(action, "action cannot be null.");
         // Warn: a slow implementation
@@ -210,7 +211,7 @@ public class CoalescingArrayQueue<V> extends AbstractQueue<V>
      * {@inheritDoc}
      */
     @Override
-    public boolean offer(V v)
+    public boolean offer(final V v)
     {
         requireNonNull(v, "value cannot be null");
 
