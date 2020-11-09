@@ -43,8 +43,8 @@ public class OffsetEpochNanoClockTest
         sleep();
         final long endMs = System.currentTimeMillis();
 
-        assertThat(timeMs, lessThanOrEqualTo(endMs));
         assertThat(timeMs, greaterThanOrEqualTo(beginMs));
+        assertThat(timeMs, lessThanOrEqualTo(endMs));
     }
 
     @Test
