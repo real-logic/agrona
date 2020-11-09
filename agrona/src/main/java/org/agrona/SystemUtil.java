@@ -272,7 +272,7 @@ public final class SystemUtil
             if (value < 0 || value > Integer.MAX_VALUE)
             {
                 throw new NumberFormatException(
-                    propertyName + " must positive and less than Integer.MAX_VALUE :" + value);
+                    propertyName + " must positive and less than Integer.MAX_VALUE: " + value);
             }
 
             return (int)value;
@@ -333,7 +333,7 @@ public final class SystemUtil
             case 'K':
                 if (value > MAX_K_VALUE)
                 {
-                    throw new NumberFormatException(propertyName + " would overflow long: " + propertyValue);
+                    throw new NumberFormatException(propertyName + " would overflow a long: " + propertyValue);
                 }
                 return value * 1024;
 
@@ -341,7 +341,7 @@ public final class SystemUtil
             case 'M':
                 if (value > MAX_M_VALUE)
                 {
-                    throw new NumberFormatException(propertyName + " would overflow long: " + propertyValue);
+                    throw new NumberFormatException(propertyName + " would overflow a long: " + propertyValue);
                 }
                 return value * 1024 * 1024;
 
@@ -349,7 +349,7 @@ public final class SystemUtil
             case 'G':
                 if (value > MAX_G_VALUE)
                 {
-                    throw new NumberFormatException(propertyName + " would overflow long: " + propertyValue);
+                    throw new NumberFormatException(propertyName + " would overflow a long: " + propertyValue);
                 }
                 return value * 1024 * 1024 * 1024;
 
