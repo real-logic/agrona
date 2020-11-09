@@ -76,7 +76,6 @@ public class SystemUtilTest
         final int originalSystemPropSize = System.getProperties().size();
 
         loadPropertiesFile("$unknown-file$");
-
         assertEquals(originalSystemPropSize, System.getProperties().size());
     }
 
@@ -86,10 +85,17 @@ public class SystemUtilTest
         assertThat(System.getProperty("TestFileA.foo"), is(emptyOrNullString()));
         assertThat(System.getProperty("TestFileB.foo"), is(emptyOrNullString()));
 
-        loadPropertiesFiles("TestFileA.properties", "TestFileB.properties");
-
-        assertEquals("AAA", System.getProperty("TestFileA.foo"));
-        assertEquals("BBB", System.getProperty("TestFileB.foo"));
+        try
+        {
+            loadPropertiesFiles("TestFileA.properties", "TestFileB.properties");
+            assertEquals("AAA", System.getProperty("TestFileA.foo"));
+            assertEquals("BBB", System.getProperty("TestFileB.foo"));
+        }
+        finally
+        {
+            System.clearProperty("TestFileA.foo");
+            System.clearProperty("TestFileB.foo");
+        }
     }
 
     @Test
@@ -98,11 +104,15 @@ public class SystemUtilTest
         System.setProperty("TestFileA.foo", "ToBeOverridden");
         assertEquals("ToBeOverridden", System.getProperty("TestFileA.foo"));
 
-        loadPropertiesFile("TestFileA.properties");
-
-        assertEquals("AAA", System.getProperty("TestFileA.foo"));
-
-        System.clearProperty("TestFileA.foo");
+        try
+        {
+            loadPropertiesFiles("TestFileA.properties");
+            assertEquals("AAA", System.getProperty("TestFileA.foo"));
+        }
+        finally
+        {
+            System.clearProperty("TestFileA.foo");
+        }
     }
 
     @Test
@@ -111,10 +121,15 @@ public class SystemUtilTest
         System.setProperty("TestFileA.foo", "ToBeNotOverridden");
         assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
 
-        loadPropertiesFile(PropertyAction.PRESERVE, "TestFileA.properties");
-        assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
-
-        System.clearProperty("TestFileA.foo");
+        try
+        {
+            loadPropertiesFile(PropertyAction.PRESERVE, "TestFileA.properties");
+            assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
+        }
+        finally
+        {
+            System.clearProperty("TestFileA.foo");
+        }
     }
 
     @Test
