@@ -21,36 +21,35 @@ import static org.agrona.SystemUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SystemUtilTest
 {
     @Test
     public void shouldParseSizesWithSuffix()
     {
-        assertThat(parseSize("", "1"), is(1L));
-        assertThat(parseSize("", "1k"), is(1024L));
-        assertThat(parseSize("", "1K"), is(1024L));
-        assertThat(parseSize("", "1m"), is(1024L * 1024));
-        assertThat(parseSize("", "1M"), is(1024L * 1024));
-        assertThat(parseSize("", "1g"), is(1024L * 1024 * 1024));
-        assertThat(parseSize("", "1G"), is(1024L * 1024 * 1024));
+        assertEquals(1L, parseSize("", "1"));
+        assertEquals(1024L, parseSize("", "1k"));
+        assertEquals(1024L, parseSize("", "1K"));
+        assertEquals(1024L * 1024L, parseSize("", "1m"));
+        assertEquals(1024L * 1024L, parseSize("", "1M"));
+        assertEquals(1024L * 1024L * 1024L, parseSize("", "1g"));
+        assertEquals(1024L * 1024L * 1024L, parseSize("", "1G"));
     }
 
     @Test
     public void shouldParseTimesWithSuffix()
     {
-        assertThat(parseDuration("", "1"), is(1L));
-        assertThat(parseDuration("", "1ns"), is(1L));
-        assertThat(parseDuration("", "1NS"), is(1L));
-        assertThat(parseDuration("", "1us"), is(1000L));
-        assertThat(parseDuration("", "1US"), is(1000L));
-        assertThat(parseDuration("", "1ms"), is(1000L * 1000));
-        assertThat(parseDuration("", "1MS"), is(1000L * 1000));
-        assertThat(parseDuration("", "1s"), is(1000L * 1000 * 1000));
-        assertThat(parseDuration("", "1S"), is(1000L * 1000 * 1000));
-        assertThat(parseDuration("", "12s"), is(12L * 1000 * 1000 * 1000));
+        assertEquals(1L, parseDuration("", "1"));
+        assertEquals(1L, parseDuration("", "1ns"));
+        assertEquals(1L, parseDuration("", "1NS"));
+        assertEquals(1000L, parseDuration("", "1us"));
+        assertEquals(1000L, parseDuration("", "1US"));
+        assertEquals(1000L * 1000, parseDuration("", "1ms"));
+        assertEquals(1000L * 1000, parseDuration("", "1MS"));
+        assertEquals(1000L * 1000 * 1000, parseDuration("", "1s"));
+        assertEquals(1000L * 1000 * 1000, parseDuration("", "1S"));
+        assertEquals(12L * 1000 * 1000 * 1000, parseDuration("", "12S"));
     }
 
     @Test
@@ -78,7 +77,7 @@ public class SystemUtilTest
 
         loadPropertiesFile("$unknown-file$");
 
-        assertThat(originalSystemPropSize, is(System.getProperties().size()));
+        assertEquals(originalSystemPropSize, System.getProperties().size());
     }
 
     @Test
@@ -89,19 +88,31 @@ public class SystemUtilTest
 
         loadPropertiesFiles("TestFileA.properties", "TestFileB.properties");
 
-        assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
-        assertThat(System.getProperty("TestFileB.foo"), is("BBB"));
+        assertEquals("AAA", System.getProperty("TestFileA.foo"));
+        assertEquals("BBB", System.getProperty("TestFileB.foo"));
     }
 
     @Test
     public void shouldOverrideSystemPropertiesWithConfigFromPropFile()
     {
         System.setProperty("TestFileA.foo", "ToBeOverridden");
-        assertThat(System.getProperty("TestFileA.foo"), is("ToBeOverridden"));
+        assertEquals("ToBeOverridden", System.getProperty("TestFileA.foo"));
 
         loadPropertiesFile("TestFileA.properties");
 
-        assertThat(System.getProperty("TestFileA.foo"), is("AAA"));
+        assertEquals("AAA", System.getProperty("TestFileA.foo"));
+
+        System.clearProperty("TestFileA.foo");
+    }
+
+    @Test
+    public void shouldNotOverrideSystemPropertiesWithConfigFromPropFile()
+    {
+        System.setProperty("TestFileA.foo", "ToBeNotOverridden");
+        assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
+
+        loadPropertiesFile(PropertyAction.PRESERVE, "TestFileA.properties");
+        assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
 
         System.clearProperty("TestFileA.foo");
     }

@@ -15,9 +15,7 @@
  */
 package org.agrona;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
@@ -193,7 +191,7 @@ public final class SystemUtil
     }
 
     /**
-     * Load system properties from a given filename or url.
+     * Load system properties from a given filename or url with default to {@link PropertyAction#REPLACE}.
      * <p>
      * File is first searched for in resources using the system {@link ClassLoader},
      * then file system, then URL. All are loaded if multiples found.
@@ -202,15 +200,26 @@ public final class SystemUtil
      */
     public static void loadPropertiesFile(final String filenameOrUrl)
     {
-        final Properties properties = new Properties(System.getProperties());
-        System.getProperties().forEach(properties::put);
+        loadPropertiesFile(PropertyAction.REPLACE, filenameOrUrl);
+    }
 
+    /**
+     * Load system properties from a given filename or url.
+     * <p>
+     * File is first searched for in resources using the system {@link ClassLoader},
+     * then file system, then URL. All are loaded if multiples found.
+     *
+     * @param propertyAction  to take with each loaded property.
+     * @param filenameOrUrl that holds properties.
+     */
+    public static void loadPropertiesFile(final PropertyAction propertyAction, final String filenameOrUrl)
+    {
         final URL resource = ClassLoader.getSystemClassLoader().getResource(filenameOrUrl);
         if (null != resource)
         {
             try (InputStream in = resource.openStream())
             {
-                properties.load(in);
+                loadProperties(propertyAction, in);
             }
             catch (final Exception ignore)
             {
@@ -220,9 +229,9 @@ public final class SystemUtil
         final File file = new File(filenameOrUrl);
         if (file.exists())
         {
-            try (FileInputStream in = new FileInputStream(file))
+            try (InputStream in = new FileInputStream(file))
             {
-                properties.load(in);
+                loadProperties(propertyAction, in);
             }
             catch (final Exception ignore)
             {
@@ -231,26 +240,36 @@ public final class SystemUtil
 
         try (InputStream in = new URL(filenameOrUrl).openStream())
         {
-            properties.load(in);
+            loadProperties(propertyAction, in);
         }
         catch (final Exception ignore)
         {
         }
-
-        System.setProperties(properties);
     }
 
     /**
-     * Load system properties from a given set of filenames or URLs.
+     * Load system properties from a given set of filenames or URLs with default to {@link PropertyAction#REPLACE}.
      *
      * @param filenamesOrUrls that holds properties.
      * @see #loadPropertiesFile(String)
      */
     public static void loadPropertiesFiles(final String... filenamesOrUrls)
     {
+        loadPropertiesFiles(PropertyAction.REPLACE, filenamesOrUrls);
+    }
+
+    /**
+     * Load system properties from a given set of filenames or URLs.
+     *
+     * @param propertyAction  to take with each loaded property.
+     * @param filenamesOrUrls that holds properties.
+     * @see #loadPropertiesFile(String)
+     */
+    public static void loadPropertiesFiles(final PropertyAction propertyAction, final String... filenamesOrUrls)
+    {
         for (final String filenameOrUrl : filenamesOrUrls)
         {
-            loadPropertiesFile(filenameOrUrl);
+            loadPropertiesFile(propertyAction, filenameOrUrl);
         }
     }
 
@@ -439,5 +458,31 @@ public final class SystemUtil
                 throw new NumberFormatException(
                     propertyName + ": " + propertyValue + " should end with: s, ms, us, or ns.");
         }
+    }
+
+    private static void loadProperties(final PropertyAction propertyAction, final InputStream in) throws IOException
+    {
+        final Properties systemProperties = System.getProperties();
+        final Properties properties = new Properties();
+
+        properties.load(in);
+        properties.forEach(
+            (k, v) ->
+            {
+                switch (propertyAction)
+                {
+                    case PRESERVE:
+                        if (!systemProperties.containsKey(k))
+                        {
+                            systemProperties.setProperty((String)k, (String)v);
+                        }
+                        break;
+
+                    default:
+                    case REPLACE:
+                        systemProperties.setProperty((String)k, (String)v);
+                        break;
+                }
+            });
     }
 }
