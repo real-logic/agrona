@@ -15,14 +15,12 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.UnsafeAccess;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.locks.LockSupport;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 public class OffsetEpochNanoClockTest
 {
@@ -31,22 +29,22 @@ public class OffsetEpochNanoClockTest
     {
         final OffsetEpochNanoClock clock = new OffsetEpochNanoClock();
 
-        assertSaneEpochTimeStamp(clock);
+        assertSaneEpochTimestamp(clock);
     }
 
-    private void assertSaneEpochTimeStamp(final OffsetEpochNanoClock clock)
+    private void assertSaneEpochTimestamp(final OffsetEpochNanoClock clock)
     {
-        final long startInMs = System.currentTimeMillis();
-        UnsafeAccess.UNSAFE.fullFence();
-        parkForMeasurementPrecision();
-        final long nanoTime = clock.nanoTime();
-        final long nanoTimeInMs = NANOSECONDS.toMillis(nanoTime);
-        parkForMeasurementPrecision();
-        UnsafeAccess.UNSAFE.fullFence();
-        final long endInMs = System.currentTimeMillis();
+        final long beginMs = System.currentTimeMillis();
+        sleep();
 
-        assertThat(nanoTimeInMs, Matchers.lessThanOrEqualTo(endInMs));
-        assertThat(nanoTimeInMs, Matchers.greaterThanOrEqualTo(startInMs));
+        final long nanoTime = clock.nanoTime();
+        final long timeMs = NANOSECONDS.toMillis(nanoTime);
+
+        sleep();
+        final long endMs = System.currentTimeMillis();
+
+        assertThat(timeMs, lessThanOrEqualTo(endMs));
+        assertThat(timeMs, greaterThanOrEqualTo(beginMs));
     }
 
     @Test
@@ -56,11 +54,18 @@ public class OffsetEpochNanoClockTest
 
         clock.sample();
 
-        assertSaneEpochTimeStamp(clock);
+        assertSaneEpochTimestamp(clock);
     }
 
-    private void parkForMeasurementPrecision()
+    private void sleep()
     {
-        LockSupport.parkNanos(1_000_000);
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch (final InterruptedException ignore)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 }
