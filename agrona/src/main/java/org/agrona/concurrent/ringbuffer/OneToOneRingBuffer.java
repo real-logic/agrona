@@ -16,10 +16,10 @@
 package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
-import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.MessageHandler;
+import org.agrona.concurrent.*;
 
 import static org.agrona.BitUtil.align;
+import static org.agrona.concurrent.ControlledMessageHandler.Action.*;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 
@@ -100,6 +100,57 @@ public final class OneToOneRingBuffer implements RingBuffer
     /**
      * {@inheritDoc}
      */
+    public int tryClaim(final int msgTypeId, final int length)
+    {
+        checkTypeId(msgTypeId);
+        checkMsgLength(length);
+
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordIndex = claimCapacity(buffer, recordLength);
+
+        if (INSUFFICIENT_CAPACITY == recordIndex)
+        {
+            return recordIndex;
+        }
+
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
+        // Note: putInt is used to write negative length of the message since we are not yet publishing the message and
+        // hence the order of writes of type field and negative length does not matter.
+        // It is safe to do so, because the header was pre-zeroed during the capacity claim.
+        buffer.putInt(lengthOffset(recordIndex), -recordLength);
+
+        return encodedMsgOffset(recordIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void commit(final int index)
+    {
+        final int recordIndex = computeRecordIndex(index);
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
+
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void abort(final int index)
+    {
+        final int recordIndex = computeRecordIndex(index);
+        final AtomicBuffer buffer = this.buffer;
+        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
+
+        buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int read(final MessageHandler handler)
     {
         return read(handler, Integer.MAX_VALUE);
@@ -141,13 +192,93 @@ public final class OneToOneRingBuffer implements RingBuffer
                     continue;
                 }
 
-                ++messagesRead;
                 handler.onMessage(messageTypeId, buffer, recordIndex + HEADER_LENGTH, recordLength - HEADER_LENGTH);
+                ++messagesRead;
             }
         }
         finally
         {
-            if (bytesRead != 0)
+            if (bytesRead > 0)
+            {
+                buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+            }
+        }
+
+        return messagesRead;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int controlledRead(final ControlledMessageHandler handler)
+    {
+        return controlledRead(handler, Integer.MAX_VALUE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int controlledRead(final ControlledMessageHandler handler, final int messageCountLimit)
+    {
+        int messagesRead = 0;
+
+        final AtomicBuffer buffer = this.buffer;
+        final int headPositionIndex = this.headPositionIndex;
+        long head = buffer.getLong(headPositionIndex);
+
+        int bytesRead = 0;
+
+        final int capacity = this.capacity;
+        int headIndex = (int)head & (capacity - 1);
+        final int contiguousBlockLength = capacity - headIndex;
+
+        try
+        {
+            while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
+            {
+                final int recordIndex = headIndex + bytesRead;
+                final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
+                if (recordLength <= 0)
+                {
+                    break;
+                }
+
+                final int alignedLength = align(recordLength, ALIGNMENT);
+                bytesRead += alignedLength;
+
+                final int messageTypeId = buffer.getInt(typeOffset(recordIndex));
+                if (PADDING_MSG_TYPE_ID == messageTypeId)
+                {
+                    continue;
+                }
+
+                final ControlledMessageHandler.Action action = handler.onMessage(
+                    messageTypeId, buffer, recordIndex + HEADER_LENGTH, recordLength - HEADER_LENGTH);
+
+                if (ABORT == action)
+                {
+                    bytesRead -= alignedLength;
+                    break;
+                }
+
+                ++messagesRead;
+
+                if (BREAK == action)
+                {
+                    break;
+                }
+                if (COMMIT == action)
+                {
+                    buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+                    headIndex += bytesRead;
+                    head += bytesRead;
+                    bytesRead = 0;
+                }
+            }
+        }
+        finally
+        {
+            if (bytesRead > 0)
             {
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
@@ -253,57 +384,6 @@ public final class OneToOneRingBuffer implements RingBuffer
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public int tryClaim(final int msgTypeId, final int length)
-    {
-        checkTypeId(msgTypeId);
-        checkMsgLength(length);
-
-        final AtomicBuffer buffer = this.buffer;
-        final int recordLength = length + HEADER_LENGTH;
-        final int recordIndex = claimCapacity(buffer, recordLength);
-
-        if (INSUFFICIENT_CAPACITY == recordIndex)
-        {
-            return recordIndex;
-        }
-
-        buffer.putInt(typeOffset(recordIndex), msgTypeId);
-        // Note: putInt is used to write negative length of the message since we are not yet publishing the message and
-        // hence the order of writes of type field and negative length does not matter.
-        // It is safe to do so, because the header was pre-zeroed during the capacity claim.
-        buffer.putInt(lengthOffset(recordIndex), -recordLength);
-
-        return encodedMsgOffset(recordIndex);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void commit(final int index)
-    {
-        final int recordIndex = computeRecordIndex(index);
-        final AtomicBuffer buffer = this.buffer;
-        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
-
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void abort(final int index)
-    {
-        final int recordIndex = computeRecordIndex(index);
-        final AtomicBuffer buffer = this.buffer;
-        final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
-
-        buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
-    }
-
     private void checkMsgLength(final int length)
     {
         if (length < 0)
@@ -313,7 +393,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         else if (length > maxMsgLength)
         {
             throw new IllegalArgumentException(
-                "encoded message exceeds maxMsgLength of " + maxMsgLength + ", length=" + length);
+                "encoded message exceeds maxMsgLength=" + maxMsgLength + ", length=" + length);
         }
     }
 

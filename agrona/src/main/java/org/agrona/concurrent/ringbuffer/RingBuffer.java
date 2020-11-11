@@ -16,8 +16,7 @@
 package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
-import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.MessageHandler;
+import org.agrona.concurrent.*;
 
 /**
  * Ring-buffer for the concurrent exchanging of binary encoded messages from producer(s) to consumer(s)
@@ -53,106 +52,6 @@ public interface RingBuffer
      * @throws IllegalArgumentException if the {@code length} is negative or is greater than {@link #maxMsgLength()}.
      */
     boolean write(int msgTypeId, DirectBuffer srcBuffer, int offset, int length);
-
-    /**
-     * Read as many messages as are available to the end of the ring buffer.
-     * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
-     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
-     * determine of a backlog of message bytes remains in the ring buffer.
-     *
-     * @param handler to be called for processing each message in turn.
-     * @return the number of messages that have been processed.
-     */
-    int read(MessageHandler handler);
-
-    /**
-     * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
-     * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
-     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
-     * determine of a backlog of message bytes remains in the ring buffer.
-     *
-     * @param handler           to be called for processing each message in turn.
-     * @param messageCountLimit the number of messages will be read in a single invocation.
-     * @return the number of messages that have been processed.
-     */
-    int read(MessageHandler handler, int messageCountLimit);
-
-    /**
-     * The maximum message length in bytes supported by the underlying ring buffer.
-     *
-     * @return the maximum message length in bytes supported by the underlying ring buffer.
-     */
-    int maxMsgLength();
-
-    /**
-     * Get the next value that can be used for a correlation id on an message when a response needs to be correlated.
-     * <p>
-     * This method should be thread safe.
-     *
-     * @return the next value in the correlation sequence.
-     */
-    long nextCorrelationId();
-
-    /**
-     * Get the underlying buffer used by the RingBuffer for storage.
-     *
-     * @return the underlying buffer used by the RingBuffer for storage.
-     */
-    AtomicBuffer buffer();
-
-    /**
-     * Set the time of the last consumer heartbeat.
-     * <p>
-     * <b>Note:</b> The value for time must be valid across processes which means {@link System#nanoTime()}
-     * is not a valid option.
-     *
-     * @param time of the last consumer heartbeat.
-     */
-    void consumerHeartbeatTime(long time);
-
-    /**
-     * The time of the last consumer heartbeat.
-     *
-     * @return the time of the last consumer heartbeat.
-     */
-    long consumerHeartbeatTime();
-
-    /**
-     * The position in bytes from start up of the producers. The figure includes the headers.
-     * This is the range they are working with but could still be in the act of working with.
-     *
-     * @return number of bytes produced by the producers in claimed space.
-     */
-    long producerPosition();
-
-    /**
-     * The position in bytes from start up for the consumers. The figure includes the headers.
-     *
-     * @return the count of bytes consumed by the consumers.
-     */
-    long consumerPosition();
-
-    /**
-     * Size of the buffer backlog in bytes between producers and consumers. The value includes the size of headers.
-     * <p>
-     * This method gives a concurrent snapshot of the buffer whereby a concurrent read or write may be
-     * partially complete and thus the value should be taken as an indication.
-     *
-     * @return size of the backlog of bytes in the buffer between producers and consumers.
-     */
-    int size();
-
-    /**
-     * Unblock a multi-producer ring buffer when a producer has died during the act of offering. The operation will
-     * scan from the consumer position up to the producer position.
-     * <p>
-     * If no action is required at the position then none will be taken.
-     *
-     * @return true of an unblocking action was taken otherwise false.
-     */
-    boolean unblock();
 
     /**
      * Try to claim a space in the underlying ring-buffer into which a message can be written with zero copy semantics.
@@ -242,4 +141,129 @@ public interface RingBuffer
      * @see #tryClaim(int, int)
      */
     void abort(int index);
+
+    /**
+     * Read as many messages as are available to the end of the ring buffer.
+     * <p>
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
+     *
+     * @param handler to be called for processing each message in turn.
+     * @return the number of messages that have been processed.
+     */
+    int read(MessageHandler handler);
+
+    /**
+     * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
+     * <p>
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
+     *
+     * @param handler           to be called for processing each message in turn.
+     * @param messageCountLimit the number of messages will be read in a single invocation.
+     * @return the number of messages that have been processed.
+     */
+    int read(MessageHandler handler, int messageCountLimit);
+
+    /**
+     * Read as many messages as are available to the end of the ring buffer with the handler able to control progress.
+     * <p>
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
+     *
+     * @param handler to be called for processing each message in turn which will return how to progress.
+     * @return the number of messages that have been processed.
+     */
+    int controlledRead(ControlledMessageHandler handler);
+
+    /**
+     * Read messages up to a limit of available to the end of the ring buffer with the handler able to control progress.
+     * <p>
+     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
+     * determine of a backlog of message bytes remains in the ring buffer.
+     *
+     * @param handler           to be called for processing each message in turn which will return how to progress.
+     * @param messageCountLimit the number of messages will be read in a single invocation.
+     * @return the number of messages that have been processed.
+     */
+    int controlledRead(ControlledMessageHandler handler, int messageCountLimit);
+
+    /**
+     * The maximum message length in bytes supported by the underlying ring buffer.
+     *
+     * @return the maximum message length in bytes supported by the underlying ring buffer.
+     */
+    int maxMsgLength();
+
+    /**
+     * Get the next value that can be used for a correlation id on an message when a response needs to be correlated.
+     * <p>
+     * This method should be thread safe.
+     *
+     * @return the next value in the correlation sequence.
+     */
+    long nextCorrelationId();
+
+    /**
+     * Get the underlying buffer used by the RingBuffer for storage.
+     *
+     * @return the underlying buffer used by the RingBuffer for storage.
+     */
+    AtomicBuffer buffer();
+
+    /**
+     * Set the time of the last consumer heartbeat.
+     * <p>
+     * <b>Note:</b> The value for time must be valid across processes which means {@link System#nanoTime()}
+     * is not a valid option.
+     *
+     * @param time of the last consumer heartbeat.
+     */
+    void consumerHeartbeatTime(long time);
+
+    /**
+     * The time of the last consumer heartbeat.
+     *
+     * @return the time of the last consumer heartbeat.
+     */
+    long consumerHeartbeatTime();
+
+    /**
+     * The position in bytes from start up of the producers. The figure includes the headers.
+     * This is the range they are working with but could still be in the act of working with.
+     *
+     * @return number of bytes produced by the producers in claimed space.
+     */
+    long producerPosition();
+
+    /**
+     * The position in bytes from start up for the consumers. The figure includes the headers.
+     *
+     * @return the count of bytes consumed by the consumers.
+     */
+    long consumerPosition();
+
+    /**
+     * Size of the buffer backlog in bytes between producers and consumers. The value includes the size of headers.
+     * <p>
+     * This method gives a concurrent snapshot of the buffer whereby a concurrent read or write may be
+     * partially complete and thus the value should be taken as an indication.
+     *
+     * @return size of the backlog of bytes in the buffer between producers and consumers.
+     */
+    int size();
+
+    /**
+     * Unblock a multi-producer ring buffer when a producer has died during the act of offering. The operation will
+     * scan from the consumer position up to the producer position.
+     * <p>
+     * If no action is required at the position then none will be taken.
+     *
+     * @return true of an unblocking action was taken otherwise false.
+     */
+    boolean unblock();
 }

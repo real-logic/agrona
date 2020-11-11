@@ -15,8 +15,9 @@
  */
 package org.agrona.concurrent.ringbuffer;
 
-import org.agrona.concurrent.MessageHandler;
-import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.ExpandableArrayBuffer;
+import org.agrona.collections.MutableInteger;
+import org.agrona.concurrent.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -403,12 +404,11 @@ public class OneToOneRingBufferTest
     @Test
     public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBuffer()
     {
-        final int msgTypeId = MSG_TYPE_ID;
         final int length = 10;
         when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(10L);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn((long)CAPACITY);
 
-        final int index = ringBuffer.tryClaim(msgTypeId, length);
+        final int index = ringBuffer.tryClaim(MSG_TYPE_ID, length);
 
         assertEquals(INSUFFICIENT_CAPACITY, index);
 
@@ -422,13 +422,12 @@ public class OneToOneRingBufferTest
     @Test
     public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBufferAfterWrap()
     {
-        final int msgTypeId = MSG_TYPE_ID;
         final int length = 100;
         when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(22L);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(CAPACITY * 2L - 10);
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(CAPACITY + 111L, 3L);
 
-        final int index = ringBuffer.tryClaim(msgTypeId, length);
+        final int index = ringBuffer.tryClaim(MSG_TYPE_ID, length);
 
         assertEquals(INSUFFICIENT_CAPACITY, index);
 
@@ -443,7 +442,7 @@ public class OneToOneRingBufferTest
 
     @ParameterizedTest
     @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
-    public void commitThrowsIllegalArgumentExceptionIfOffsetIsInvalid(final int index)
+    public void commitThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.commit(index));
     }
@@ -477,7 +476,7 @@ public class OneToOneRingBufferTest
 
     @ParameterizedTest
     @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
-    public void abortThrowsIllegalArgumentExceptionIfOffsetIsInvalid(final int index)
+    public void abortThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.abort(index));
     }
@@ -510,14 +509,124 @@ public class OneToOneRingBufferTest
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    public void shouldContinueOnControlledRead()
+    {
+        final String msg = "Hello World";
+        final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
+        final int srcLength = srcBuffer.putStringAscii(0, msg);
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+
+        final ControlledMessageHandler controlledMessageHandler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                assertEquals(MSG_TYPE_ID, msgTypeId);
+                assertEquals(HEADER_LENGTH, index);
+                assertEquals(srcLength, length);
+                assertEquals(msg, buffer.getStringAscii(index));
+
+                return ControlledMessageHandler.Action.CONTINUE;
+            };
+
+        final int messagesRead = ringBuffer.controlledRead(controlledMessageHandler, 1);
+        assertEquals(1, messagesRead);
+        assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
+    }
+
+    @Test
+    public void shouldAbortOnControlledRead()
+    {
+        final String msg = "Hello World";
+        final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
+        final int srcLength = srcBuffer.putStringAscii(0, msg);
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+
+        final ControlledMessageHandler controlledMessageHandler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                assertEquals(MSG_TYPE_ID, msgTypeId);
+                assertEquals(HEADER_LENGTH, index);
+                assertEquals(srcLength, length);
+                assertEquals(msg, buffer.getStringAscii(index));
+
+                return ControlledMessageHandler.Action.ABORT;
+            };
+
+        final int messagesRead = ringBuffer.controlledRead(controlledMessageHandler, 1);
+        assertEquals(0, messagesRead);
+        assertEquals(0, ringBuffer.consumerPosition());
+    }
+
+    @Test
+    public void shouldAbortOnControlledReadOfSecondMessage()
+    {
+        final String msg = "Hello World";
+        final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
+        final int srcLength = srcBuffer.putStringAscii(0, msg);
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final MutableInteger counter = new MutableInteger();
+
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+
+        final ControlledMessageHandler controlledMessageHandler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                return counter.getAndIncrement() == 0 ?
+                    ControlledMessageHandler.Action.CONTINUE : ControlledMessageHandler.Action.ABORT;
+            };
+
+        final int messagesRead = ringBuffer.controlledRead(controlledMessageHandler);
+        assertEquals(2, counter.get());
+        assertEquals(1, messagesRead);
+        assertNotEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
+    }
+
+    @Test
+    public void shouldCommitOnEachMessage()
+    {
+        final String msg = "Hello World";
+        final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
+        final int srcLength = srcBuffer.putStringAscii(0, msg);
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final MutableInteger counter = new MutableInteger();
+
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+        assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
+
+        final ControlledMessageHandler controlledMessageHandler =
+            (msgTypeId, buffer, index, length) ->
+            {
+                if (0 == counter.getAndIncrement())
+                {
+                    assertEquals(0L, ringBuffer.consumerPosition());
+                }
+                else
+                {
+                    assertEquals(ringBuffer.producerPosition() / 2, ringBuffer.consumerPosition());
+                }
+
+                return ControlledMessageHandler.Action.COMMIT;
+            };
+
+        final int messagesRead = ringBuffer.controlledRead(controlledMessageHandler);
+        assertEquals(2, counter.get());
+        assertEquals(2, messagesRead);
+        assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
+    }
+
     private void testAlreadyCommitted(final IntConsumer action)
     {
         final int index = HEADER_LENGTH;
         final int recordIndex = index - HEADER_LENGTH;
         when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(0);
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
-            () -> action.accept(index));
+        final IllegalStateException exception = assertThrows(
+            IllegalStateException.class, () -> action.accept(index));
         assertEquals("claimed space previously committed", exception.getMessage());
     }
 
@@ -528,8 +637,8 @@ public class OneToOneRingBufferTest
         when(buffer.getInt(lengthOffset(recordIndex))).thenReturn(10);
         when(buffer.getInt(typeOffset(recordIndex))).thenReturn(PADDING_MSG_TYPE_ID);
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
-            () -> action.accept(index));
+        final IllegalStateException exception = assertThrows(
+            IllegalStateException.class, () -> action.accept(index));
         assertEquals("claimed space previously aborted", exception.getMessage());
     }
 }
