@@ -56,6 +56,62 @@ public class DistinctErrorLogTest
     }
 
     @Test
+    public void shouldRecordFirstObservationOnly()
+    {
+        final long timestampOne = 7;
+        final long timestampTwo = 8;
+        final int offset = 0;
+        final RuntimeException error = new RuntimeException("Test Error");
+
+        when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
+
+        assertTrue(log.record(error));
+        assertTrue(log.record(error));
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
+        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
+        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldRecordDifferentMessage()
+    {
+        final long timestampOne = 7;
+        final long timestampTwo = 8;
+        final int offset = 0;
+        final RuntimeException errorOne = new RuntimeException("Test Error 1");
+        final RuntimeException errorTwo = new RuntimeException("Test Error 1");
+
+        when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
+
+        assertTrue(log.record(errorOne));
+        assertTrue(log.record(errorTwo));
+
+        final ArgumentCaptor<Integer> lengthArg = ArgumentCaptor.forClass(Integer.class);
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
+        inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
+        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+
+        final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
+
+        inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
+        inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
+        inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
     public void shouldSummariseObservations()
     {
         final long timestampOne = 7;

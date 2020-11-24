@@ -207,7 +207,9 @@ public class DistinctErrorLog
                 return true;
             }
 
-            if (lhs.getClass() == rhs.getClass() && equals(lhs.getStackTrace(), rhs.getStackTrace()))
+            if (lhs.getClass() == rhs.getClass() &&
+                Objects.equals(lhs.getMessage(), rhs.getMessage()) &&
+                equals(lhs.getStackTrace(), rhs.getStackTrace()))
             {
                 lhs = lhs.getCause();
                 rhs = rhs.getCause();
