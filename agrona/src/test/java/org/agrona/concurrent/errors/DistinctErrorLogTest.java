@@ -85,8 +85,7 @@ public class DistinctErrorLogTest
         final long timestampOne = 7;
         final long timestampTwo = 8;
         final int offset = 0;
-        final RuntimeException errorOne = new RuntimeException("Test Error 1");
-        final RuntimeException errorTwo = new RuntimeException("Test Error 1");
+        final Exception errorOne = new Exception("Error 1"), errorTwo = new Exception("Error 2");
 
         when(clock.time()).thenReturn(timestampOne).thenReturn(timestampTwo);
 
