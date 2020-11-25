@@ -54,7 +54,7 @@ def guavaTestLib = '30.0-jre'
 def jmhVersion = '1.26'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '1.8.1-SNAPSHOT'
+def agronaVersion = '1.9.0-SNAPSHOT'
 
 def getConfigProperty(final String projectPropertyName, final String envVarName)
 {
