@@ -29,15 +29,12 @@ plugins {
 
 defaultTasks 'clean', 'build'
 
-static def getBuildJavaVersion()
-{
+static def getBuildJavaVersion() {
     def buildJavaVersion = System.getenv('BUILD_JAVA_VERSION') ?: JavaVersion.current().getMajorVersion()
-    if (buildJavaVersion.indexOf('.') > 0)
-    {
+    if (buildJavaVersion.indexOf('.') > 0) {
         buildJavaVersion = buildJavaVersion.substring(0, buildJavaVersion.indexOf('.'))
     }
-    if (buildJavaVersion.indexOf('-') > 0)
-    {
+    if (buildJavaVersion.indexOf('-') > 0) {
         buildJavaVersion = buildJavaVersion.substring(0, buildJavaVersion.indexOf('-'))
     }
     Integer.parseInt(buildJavaVersion)
@@ -46,7 +43,7 @@ int buildJavaVersion = getBuildJavaVersion()
 
 def byteBuddyVersion = '1.10.18'
 def findbugsAnnotations = '3.0.1'
-def checkstyleVersion = '8.37'
+def checkstyleVersion = '8.38'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.6.28'
 def junitVersion = '5.7.0'
@@ -56,14 +53,11 @@ def jmhVersion = '1.26'
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.9.0-SNAPSHOT'
 
-def getConfigProperty(final String projectPropertyName, final String envVarName)
-{
+def getConfigProperty(final String projectPropertyName, final String envVarName) {
     String value = project.findProperty(projectPropertyName)
-    if (!value)
-    {
+    if (!value) {
         value = System.getenv(envVarName)
-        if (!value)
-        {
+        if (!value) {
             return null
         }
     }
@@ -207,14 +201,12 @@ subprojects {
             mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
         }
 
-        if (buildJavaVersion >= 9)
-        {
+        if (buildJavaVersion >= 9) {
             options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
             options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         }
-        else
-        {
+        else {
             options.fork = true
             def javaHome = System.env.JAVA_HOME
             if (javaHome != null) {
