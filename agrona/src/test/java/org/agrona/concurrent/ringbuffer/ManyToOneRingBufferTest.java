@@ -31,8 +31,6 @@ import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
-import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
-import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.HEAD_POSITION_OFFSET;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -766,36 +764,6 @@ public class ManyToOneRingBufferTest
         assertEquals(2, counter.get());
         assertEquals(2, messagesRead);
         assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
-    }
-
-    @Test
-    void shouldVerifyAlignment()
-    {
-        final IllegalStateException exception = new IllegalStateException("alignment error");
-        doThrow(exception).when(buffer).verifyAlignment();
-
-        final IllegalStateException thrown =
-            assertThrows(IllegalStateException.class, () -> new ManyToOneRingBuffer(buffer));
-        assertSame(exception, thrown);
-    }
-
-
-    @Test
-    void shouldResetMetadataAndPreZeroFirstRecordHeader()
-    {
-        final int capacity = 1024;
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[capacity + TRAILER_LENGTH]);
-        buffer.setMemory(0, buffer.capacity(), (byte)127);
-        buffer.putInt(lengthOffset(0), 100);
-        buffer.putInt(typeOffset(0), 3);
-        buffer.putInt(capacity + TAIL_POSITION_OFFSET, 1200);
-        buffer.putInt(capacity + HEAD_CACHE_POSITION_OFFSET, 1000);
-        buffer.putInt(capacity + HEAD_POSITION_OFFSET, 1000);
-
-        final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(buffer);
-
-        assertEquals(0, ringBuffer.size());
-        assertEquals(0, ringBuffer.read((msgTypeId, buffer1, index, length) -> fail()));
     }
 
     private void testAlreadyCommitted(final IntConsumer action)
