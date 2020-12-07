@@ -22,6 +22,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CyclicBarrier;
 
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
@@ -34,16 +35,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OneToOneRingBufferConcurrentTest
 {
     private static final int MSG_TYPE_ID = 7;
-    public static final int REPETITIONS = 1;
+    public static final int REPETITIONS = 10_000_000;
 
     private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(byteBuffer);
     private final RingBuffer ringBuffer = new OneToOneRingBuffer(unsafeBuffer);
 
     @Test
-    public void shouldExchangeMessages()
+    public void shouldExchangeMessages() throws Exception
     {
-        new Producer().start();
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        final Producer producer = new Producer(barrier);
+        producer.start();
 
         final MutableInteger count = new MutableInteger();
         final MessageHandler handler =
@@ -56,6 +59,8 @@ public class OneToOneRingBufferConcurrentTest
                 count.increment();
             };
 
+        barrier.await();
+
         while (count.get() < REPETITIONS)
         {
             final int readCount = ringBuffer.read(handler);
@@ -64,12 +69,16 @@ public class OneToOneRingBufferConcurrentTest
                 Thread.yield();
             }
         }
+
+        producer.join();
     }
 
     @Test
-    public void shouldExchangeMessagesViaTryClaimCommit()
+    public void shouldExchangeMessagesViaTryClaimCommit() throws Exception
     {
-        new ClaimCommit().start();
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        final ClaimCommit producer = new ClaimCommit(barrier);
+        producer.start();
 
         final MutableInteger count = new MutableInteger();
         final MessageHandler handler =
@@ -84,6 +93,8 @@ public class OneToOneRingBufferConcurrentTest
                 count.increment();
             };
 
+        barrier.await();
+
         while (count.get() < REPETITIONS)
         {
             final int readCount = ringBuffer.read(handler);
@@ -92,12 +103,16 @@ public class OneToOneRingBufferConcurrentTest
                 Thread.yield();
             }
         }
+
+        producer.join();
     }
 
     @Test
-    public void shouldExchangeMessagesViaTryClaimAbort()
+    public void shouldExchangeMessagesViaTryClaimAbort() throws Exception
     {
-        new ClaimAbort().start();
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        final ClaimAbort producer = new ClaimAbort(barrier);
+        producer.start();
 
         final MutableInteger count = new MutableInteger();
         final MessageHandler handler =
@@ -111,6 +126,8 @@ public class OneToOneRingBufferConcurrentTest
                 count.increment();
             };
 
+        barrier.await();
+
         while (count.get() < REPETITIONS)
         {
             final int readCount = ringBuffer.read(handler);
@@ -119,18 +136,30 @@ public class OneToOneRingBufferConcurrentTest
                 Thread.yield();
             }
         }
+
+        producer.join();
     }
 
     class Producer extends Thread
     {
-        Producer()
+        private final CyclicBarrier barrier;
+
+        Producer(final CyclicBarrier barrier)
         {
             super("producer");
+            this.barrier = barrier;
         }
 
         public void run()
         {
             final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+            try
+            {
+                barrier.await();
+            }
+            catch (final Exception ignore)
+            {
+            }
 
             for (int i = 0; i < REPETITIONS; i++)
             {
@@ -146,13 +175,24 @@ public class OneToOneRingBufferConcurrentTest
 
     class ClaimCommit extends Thread
     {
-        ClaimCommit()
+        private final CyclicBarrier barrier;
+
+        ClaimCommit(final CyclicBarrier barrier)
         {
             super("tryClaim-commit");
+            this.barrier = barrier;
         }
 
         public void run()
         {
+            try
+            {
+                barrier.await();
+            }
+            catch (final Exception ignore)
+            {
+            }
+
             final int length = SIZE_OF_INT + SIZE_OF_LONG;
             for (int i = 0; i < REPETITIONS; i++)
             {
@@ -179,14 +219,25 @@ public class OneToOneRingBufferConcurrentTest
 
     class ClaimAbort extends Thread
     {
-        ClaimAbort()
+        private final CyclicBarrier barrier;
+
+        ClaimAbort(final CyclicBarrier barrier)
         {
             super("tryClaim-abort");
+            this.barrier = barrier;
         }
 
         public void run()
         {
             final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+            try
+            {
+                barrier.await();
+            }
+            catch (final Exception ignore)
+            {
+            }
+
             for (int i = 0; i < REPETITIONS; i++)
             {
 

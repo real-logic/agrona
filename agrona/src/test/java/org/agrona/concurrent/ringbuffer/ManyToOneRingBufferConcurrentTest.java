@@ -75,15 +75,17 @@ public class ManyToOneRingBufferConcurrentTest
     }
 
     @Test
-    public void shouldExchangeMessages()
+    public void shouldExchangeMessages() throws Exception
     {
         final int reps = 10_000_000;
         final int numProducers = 2;
-        final CyclicBarrier barrier = new CyclicBarrier(numProducers);
+        final CyclicBarrier barrier = new CyclicBarrier(numProducers + 1);
+        final Thread[] threads = new Thread[numProducers];
 
         for (int i = 0; i < numProducers; i++)
         {
-            new Thread(new Producer(i, barrier, reps)).start();
+            threads[i] = new Thread(new Producer(i, barrier, reps));
+            threads[i].start();
         }
 
         final int[] counts = new int[numProducers];
@@ -100,6 +102,8 @@ public class ManyToOneRingBufferConcurrentTest
                 counts[producerId]++;
             };
 
+        barrier.await();
+
         int msgCount = 0;
         while (msgCount < (reps * numProducers))
         {
@@ -113,18 +117,25 @@ public class ManyToOneRingBufferConcurrentTest
         }
 
         assertEquals(reps * numProducers, msgCount);
+
+        for (final Thread t : threads)
+        {
+            t.join();
+        }
     }
 
     @Test
-    public void shouldExchangeMessagesViaTryClaimCommit()
+    public void shouldExchangeMessagesViaTryClaimCommit() throws Exception
     {
         final int reps = 10_000_000;
         final int numProducers = 2;
-        final CyclicBarrier barrier = new CyclicBarrier(numProducers);
+        final CyclicBarrier barrier = new CyclicBarrier(numProducers + 1);
+        final Thread[] threads = new Thread[numProducers];
 
         for (int i = 0; i < numProducers; i++)
         {
-            new Thread(new ClaimCommit(i, barrier, reps)).start();
+            threads[i] = new Thread(new ClaimCommit(i, barrier, reps));
+            threads[i].start();
         }
 
         final int[] counts = new int[numProducers];
@@ -141,6 +152,8 @@ public class ManyToOneRingBufferConcurrentTest
                 counts[producerId]++;
             };
 
+        barrier.await();
+
         int msgCount = 0;
         while (msgCount < (reps * numProducers))
         {
@@ -154,18 +167,25 @@ public class ManyToOneRingBufferConcurrentTest
         }
 
         assertEquals(reps * numProducers, msgCount);
+
+        for (final Thread t : threads)
+        {
+            t.join();
+        }
     }
 
     @Test
-    public void shouldExchangeMessagesViaTryClaimAbort()
+    public void shouldExchangeMessagesViaTryClaimAbort() throws Exception
     {
         final int reps = 10_000_000;
         final int numProducers = 2;
-        final CyclicBarrier barrier = new CyclicBarrier(numProducers);
+        final CyclicBarrier barrier = new CyclicBarrier(numProducers + 1);
+        final Thread[] threads = new Thread[numProducers];
 
         for (int i = 0; i < numProducers; i++)
         {
-            new Thread(new ClaimAbort(i, barrier, reps)).start();
+            threads[i] = new Thread(new ClaimAbort(i, barrier, reps));
+            threads[i].start();
         }
 
         final int[] counts = new int[numProducers];
@@ -182,6 +202,8 @@ public class ManyToOneRingBufferConcurrentTest
                 counts[producerId]++;
             };
 
+        barrier.await();
+
         int msgCount = 0;
         while (msgCount < (reps * numProducers))
         {
@@ -195,6 +217,11 @@ public class ManyToOneRingBufferConcurrentTest
         }
 
         assertEquals(reps * numProducers, msgCount);
+
+        for (final Thread t : threads)
+        {
+            t.join();
+        }
     }
 
     class Producer implements Runnable
