@@ -115,10 +115,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
-        // Note: putInt is used to write negative length of the message since we are not yet publishing the message and
-        // hence the order of writes of type field and negative length does not matter.
-        // It is safe to do so, because the header was pre-zeroed during the capacity claim.
-        buffer.putInt(lengthOffset(recordIndex), -recordLength);
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
 
         return encodedMsgOffset(recordIndex);
     }
@@ -445,6 +442,8 @@ public final class OneToOneRingBuffer implements RingBuffer
             padding = toBufferEndLength;
         }
 
+        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
+
         if (0 != padding)
         {
             buffer.putLong(0, 0L);
@@ -454,7 +453,6 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         buffer.putLong(recordIndex + alignedRecordLength, 0L); // pre-zero next message header
-        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
 
         return recordIndex;
     }
