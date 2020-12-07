@@ -157,11 +157,6 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
 
-    dependencies {
-        testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
-        testRuntimeOnly "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
-    }
-
     if (buildJavaVersion >= 9)
     {
         java {
@@ -268,6 +263,8 @@ project(':agrona') {
         }
         testImplementation 'junit:junit:4.13' // Compatibility with JUnit 4
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+        testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
+        testRuntimeOnly "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
     }
 
     def generatedDir = file("${buildDir}/generated-src")
@@ -362,12 +359,13 @@ project(':agrona-agent') {
 
     dependencies {
         implementation project(':agrona')
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
         // Avoid Javac warning about missing dependency from ByteBuddy
         compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
         testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
     }
 
     shadowJar {
