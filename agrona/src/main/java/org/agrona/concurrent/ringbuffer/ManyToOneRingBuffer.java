@@ -17,7 +17,9 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
 import org.agrona.UnsafeAccess;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
 
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ControlledMessageHandler.Action.*;
@@ -39,9 +41,12 @@ public final class ManyToOneRingBuffer implements RingBuffer
     private final AtomicBuffer buffer;
 
     /**
-     * Construct a new {@link RingBuffer} based on an underlying {@link AtomicBuffer}.
+     * Construct an empty {@link RingBuffer} based on an underlying {@link AtomicBuffer}.
      * The underlying buffer must a power of 2 in size plus sufficient space
      * for the {@link RingBufferDescriptor#TRAILER_LENGTH}.
+     *
+     * <p>Note: Existing data in the buffer will be ignored and the ring buffer will be created as empty, i.e. upon
+     * construction the {@link #size()} and {@link #read(MessageHandler, int)} methods will return zero.</p>
      *
      * @param buffer via which events will be exchanged.
      * @throws IllegalStateException if the buffer capacity is not a power of 2
@@ -49,11 +54,14 @@ public final class ManyToOneRingBuffer implements RingBuffer
      */
     public ManyToOneRingBuffer(final AtomicBuffer buffer)
     {
-        this.buffer = buffer;
         checkCapacity(buffer.capacity());
+        buffer.verifyAlignment();
+
+        this.buffer = buffer;
         capacity = buffer.capacity() - TRAILER_LENGTH;
 
-        buffer.verifyAlignment();
+        buffer.putLong(0, 0); // pre-zero first record header
+        buffer.setMemory(capacity, TRAILER_LENGTH, (byte)0); // reset metadata
 
         maxMsgLength = capacity >> 3;
         tailPositionIndex = capacity + TAIL_POSITION_OFFSET;

@@ -17,7 +17,9 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.collections.MutableInteger;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,6 +32,7 @@ import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
+import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,10 +42,10 @@ public class OneToOneRingBufferTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 4096;
-    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + RingBufferDescriptor.TRAILER_LENGTH;
-    private static final int TAIL_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.TAIL_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
+    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + TRAILER_LENGTH;
+    private static final int TAIL_COUNTER_INDEX = CAPACITY + TAIL_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_INDEX = CAPACITY + HEAD_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + HEAD_CACHE_POSITION_OFFSET;
 
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private OneToOneRingBuffer ringBuffer;
@@ -329,7 +332,7 @@ public class OneToOneRingBufferTest
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
-        final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
+        final int totalBufferLength = capacity + TRAILER_LENGTH;
         assertThrows(IllegalStateException.class,
             () -> new OneToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
     }
@@ -617,6 +620,35 @@ public class OneToOneRingBufferTest
         assertEquals(2, counter.get());
         assertEquals(2, messagesRead);
         assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
+    }
+
+    @Test
+    void shouldVerifyAlignment()
+    {
+        final IllegalStateException exception = new IllegalStateException("alignment error");
+        doThrow(exception).when(buffer).verifyAlignment();
+
+        final IllegalStateException thrown =
+            assertThrows(IllegalStateException.class, () -> new OneToOneRingBuffer(buffer));
+        assertSame(exception, thrown);
+    }
+
+    @Test
+    void shouldResetMetadataAndPreZeroFirstRecordHeader()
+    {
+        final int capacity = 1024;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[capacity + TRAILER_LENGTH]);
+        buffer.setMemory(0, buffer.capacity(), (byte)127);
+        buffer.putInt(lengthOffset(0), 100);
+        buffer.putInt(typeOffset(0), 3);
+        buffer.putInt(capacity + TAIL_POSITION_OFFSET, 1200);
+        buffer.putInt(capacity + HEAD_CACHE_POSITION_OFFSET, 1000);
+        buffer.putInt(capacity + HEAD_POSITION_OFFSET, 1000);
+
+        final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(buffer);
+
+        assertEquals(0, ringBuffer.size());
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer1, index, length) -> fail()));
     }
 
     private void testAlreadyCommitted(final IntConsumer action)
