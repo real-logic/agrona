@@ -73,8 +73,8 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putLong((int)tail + alignedRecordLength, 0L);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength);
+        inOrder.verify(buffer).putLong((int)tail + alignedRecordLength, 0L);
         inOrder.verify(buffer).putBytes(encodedMsgOffset((int)tail), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset((int)tail), MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), recordLength);
@@ -137,12 +137,13 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
+
         inOrder.verify(buffer).putLong(0, 0L);
         inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
         inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
 
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
@@ -167,12 +168,13 @@ public class OneToOneRingBufferTest
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
 
         final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
+
         inOrder.verify(buffer).putLong(0, 0L);
         inOrder.verify(buffer).putInt(typeOffset((int)tail), PADDING_MSG_TYPE_ID);
         inOrder.verify(buffer).putIntOrdered(lengthOffset((int)tail), HEADER_LENGTH);
 
         inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + alignedRecordLength + HEADER_LENGTH);
 
         inOrder.verify(buffer).putBytes(encodedMsgOffset(0), srcBuffer, srcIndex, length);
         inOrder.verify(buffer).putInt(typeOffset(0), MSG_TYPE_ID);
@@ -395,10 +397,10 @@ public class OneToOneRingBufferTest
         assertEquals(HEADER_LENGTH, index);
 
         final InOrder inOrder = inOrder(buffer);
-        inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
         inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, alignedRecordLength);
+        inOrder.verify(buffer).putLong(alignedRecordLength, 0L);
         inOrder.verify(buffer).putInt(typeOffset(0), msgTypeId);
-        inOrder.verify(buffer).putInt(lengthOffset(0), -recordLength);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(0), -recordLength);
     }
 
     @Test
