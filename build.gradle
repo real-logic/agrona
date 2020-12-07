@@ -243,11 +243,14 @@ subprojects {
         options.charSet = 'UTF-8'
         if (buildJavaVersion >= 16) { // Work around for early access versions for which no JavaDoc is published
             options.links("https://docs.oracle.com/en/java/javase/15/docs/api/")
-        } else if (buildJavaVersion >= 11) {
+        }
+        else if (buildJavaVersion >= 11) {
             options.links("https://docs.oracle.com/en/java/javase/${buildJavaVersion}/docs/api/")
-        } else {
+        }
+        else {
             options.links("https://docs.oracle.com/javase/${buildJavaVersion}/docs/api/")
         }
+
         if (buildJavaVersion >= 10) {
             options.addBooleanOption 'html5', true
         }
@@ -264,8 +267,7 @@ project(':agrona') {
         testImplementation("com.google.guava:guava-testlib:${guavaTestLib}") {
             exclude group: 'junit'
         }
-        // Compatibility with JUnit 4
-        testImplementation 'junit:junit:4.13'
+        testImplementation 'junit:junit:4.13' // Compatibility with JUnit 4
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
     }
 
