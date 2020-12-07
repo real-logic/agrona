@@ -262,6 +262,7 @@ project(':agrona') {
             exclude group: 'org.junit.jupiter'
             exclude group: 'net.bytebuddy'
         }
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         testImplementation("com.google.guava:guava-testlib:${guavaTestLib}") {
             exclude group: 'junit'
         }
