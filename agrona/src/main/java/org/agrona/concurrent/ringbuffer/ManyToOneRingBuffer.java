@@ -91,8 +91,8 @@ public final class ManyToOneRingBuffer implements RingBuffer
         buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
         UnsafeAccess.UNSAFE.storeFence();
 
-        buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
 
         return true;
