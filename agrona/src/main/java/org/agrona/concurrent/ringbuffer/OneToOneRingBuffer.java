@@ -16,6 +16,7 @@
 package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
+import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.*;
 
 import static org.agrona.BitUtil.align;
@@ -90,6 +91,9 @@ public final class OneToOneRingBuffer implements RingBuffer
             return false;
         }
 
+        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        UnsafeAccess.UNSAFE.storeFence();
+
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
@@ -114,8 +118,9 @@ public final class OneToOneRingBuffer implements RingBuffer
             return recordIndex;
         }
 
-        buffer.putInt(typeOffset(recordIndex), msgTypeId);
         buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        UnsafeAccess.UNSAFE.storeFence();
+        buffer.putInt(typeOffset(recordIndex), msgTypeId);
 
         return encodedMsgOffset(recordIndex);
     }
@@ -447,6 +452,9 @@ public final class OneToOneRingBuffer implements RingBuffer
         if (0 != padding)
         {
             buffer.putLong(0, 0L);
+            buffer.putIntOrdered(lengthOffset(recordIndex), -padding);
+            UnsafeAccess.UNSAFE.storeFence();
+
             buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
             buffer.putIntOrdered(lengthOffset(recordIndex), padding);
             recordIndex = 0;
