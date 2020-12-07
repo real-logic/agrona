@@ -203,12 +203,12 @@ public class OneToOneRingBufferTest
         when(buffer.getLong(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(0);
 
-        final int[] times = new int[1];
-        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
+        final MutableInteger times = new MutableInteger();
+        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times.increment();
         final int messagesRead = ringBuffer.read(handler);
 
         assertThat(messagesRead, is(0));
-        assertThat(times[0], is(0));
+        assertThat(times.get(), is(0));
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer, times(1)).getIntVolatile(lengthOffset(headIndex));
@@ -232,12 +232,12 @@ public class OneToOneRingBufferTest
         when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
         when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
 
-        final int[] times = new int[1];
-        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
+        final MutableInteger times = new MutableInteger();
+        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times.increment();
         final int messagesRead = ringBuffer.read(handler);
 
         assertThat(messagesRead, is(2));
-        assertThat(times[0], is(2));
+        assertThat(times.get(), is(2));
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, tail);
@@ -257,13 +257,13 @@ public class OneToOneRingBufferTest
         when(buffer.getInt(typeOffset(headIndex))).thenReturn(MSG_TYPE_ID);
         when(buffer.getIntVolatile(lengthOffset(headIndex))).thenReturn(recordLength);
 
-        final int[] times = new int[1];
-        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times[0]++;
+        final MutableInteger times = new MutableInteger();
+        final MessageHandler handler = (msgTypeId, buffer, index, length) -> times.increment();
         final int limit = 1;
         final int messagesRead = ringBuffer.read(handler, limit);
 
         assertThat(messagesRead, is(1));
-        assertThat(times[0], is(1));
+        assertThat(times.get(), is(1));
 
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, head + alignedRecordLength);
@@ -286,12 +286,11 @@ public class OneToOneRingBufferTest
         when(buffer.getInt(typeOffset(headIndex + alignedRecordLength))).thenReturn(MSG_TYPE_ID);
         when(buffer.getIntVolatile(lengthOffset(headIndex + alignedRecordLength))).thenReturn(recordLength);
 
-        final int[] times = new int[1];
+        final MutableInteger times = new MutableInteger();
         final MessageHandler handler =
             (msgTypeId, buffer, index, length) ->
             {
-                times[0]++;
-                if (times[0] == 2)
+                if (times.incrementAndGet() == 2)
                 {
                     throw new RuntimeException();
                 }
@@ -303,7 +302,7 @@ public class OneToOneRingBufferTest
         }
         catch (final RuntimeException ignore)
         {
-            assertThat(times[0], is(2));
+            assertThat(times.get(), is(2));
 
             final InOrder inOrder = inOrder(buffer);
             inOrder.verify(buffer, times(1)).putLongOrdered(HEAD_COUNTER_INDEX, tail);
