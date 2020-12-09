@@ -135,13 +135,12 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     byte p161, p162, p163, p164, p165, p166, p167, p168, p169, p170, p171, p172, p173, p174, p175, p176;
     byte p177, p178, p179, p180, p181, p182, p183, p184, p185, p186, p187, p189, p190, p191, p192, p193;
 
-    private final Node<E> empty = new Node<>(null);
-
     /**
      * Constructs an empty queue.
      */
     public ManyToOneConcurrentLinkedQueue()
     {
+        final Node<E> empty = new Node<>(null);
         headOrdered(empty);
         UNSAFE.putOrderedObject(this, TAIL_OFFSET, empty);
     }
@@ -180,23 +179,13 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     {
         E value = null;
         final Node<E> head = this.head;
-        Node<E> next = head.next;
+        final Node<E> next = head.next;
 
         if (null != next)
         {
             value = next.value;
             next.value = null;
             head.nextOrdered(null);
-
-            if (null == next.next)
-            {
-                final Node<E> tail = this.tail;
-                if (tail == next && casTail(tail, empty))
-                {
-                    next = empty;
-                }
-            }
-
             headOrdered(next);
         }
 
@@ -348,8 +337,4 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return (Node<E>)UNSAFE.getAndSetObject(this, TAIL_OFFSET, newTail);
     }
 
-    private boolean casTail(final Node<E> expectedNode, final Node<E> updateNode)
-    {
-        return UNSAFE.compareAndSwapObject(this, TAIL_OFFSET, expectedNode, updateNode);
-    }
 }
