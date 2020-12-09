@@ -48,7 +48,7 @@ def hamcrestVersion = '2.2'
 def mockitoVersion = '3.6.28'
 def junitVersion = '5.7.0'
 def guavaTestLib = '30.0-jre'
-def jmhVersion = '1.26'
+def jmhVersion = '1.27'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = '1.9.0-SNAPSHOT'
@@ -344,8 +344,7 @@ project(':agrona') {
     }
 
     signing {
-        if (null != signingKey)
-        {
+        if (null != signingKey) {
             useInMemoryPgpKeys(signingKey, signingPassword)
         }
         sign publishing.publications.agrona
