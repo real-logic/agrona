@@ -334,7 +334,7 @@ project(':agrona') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
+                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -413,7 +413,7 @@ project(':agrona-agent') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
+                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
