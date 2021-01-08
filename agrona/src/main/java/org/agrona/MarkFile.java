@@ -363,8 +363,8 @@ public class MarkFile implements AutoCloseable
      * @param directory             to create.
      * @param filename              of the {@link MarkFile}.
      * @param warnIfDirectoryExists should print warning if directory already exists.
-     * @param dirDeleteOnStart      should directory be deleted if it already exists. When the flag is set to {@code false}
-     *                              the check will be made to see if the {@link MarkFile} is active.
+     * @param dirDeleteOnStart      should directory be deleted if it already exists. When the flag is set to
+     *                              {@code false} the check will be made to see if the {@link MarkFile} is active.
      *                              <p>Note: the directory will be deleted anyway even if the flag is {@code false}.
      * @param versionFieldOffset    offset of the version field.
      * @param timestampFieldOffset  offset of the timestamp field.
@@ -413,7 +413,7 @@ public class MarkFile implements AutoCloseable
                         versionCheck,
                         logger))
                     {
-                        throw new IllegalStateException("Active Mark file detected");
+                        throw new IllegalStateException("active Mark file detected");
                     }
                 }
                 finally
@@ -440,10 +440,7 @@ public class MarkFile implements AutoCloseable
      */
     @SuppressWarnings("try")
     public static MappedByteBuffer waitForFileMapping(
-        final Consumer<String> logger,
-        final File markFile,
-        final long deadlineMs,
-        final EpochClock epochClock)
+        final Consumer<String> logger, final File markFile, final long deadlineMs, final EpochClock epochClock)
     {
         while (true)
         {
@@ -471,7 +468,7 @@ public class MarkFile implements AutoCloseable
             }
             catch (final IOException ex)
             {
-                throw new IllegalStateException("cannot open mark file for reading", ex);
+                throw new IllegalStateException("cannot open mark file", ex);
             }
         }
     }
@@ -537,7 +534,7 @@ public class MarkFile implements AutoCloseable
             {
                 if (epochClock.time() > deadlineMs)
                 {
-                    throw new IllegalStateException("No non zero timestamp detected");
+                    throw new IllegalStateException("no non-zero timestamp detected");
                 }
 
                 sleep(1);
@@ -606,7 +603,7 @@ public class MarkFile implements AutoCloseable
 
                 if (timestampAgeMs < timeoutMs)
                 {
-                    throw new IllegalStateException("Active Mark file detected");
+                    throw new IllegalStateException("active Mark file detected");
                 }
             }
         }
@@ -675,9 +672,9 @@ public class MarkFile implements AutoCloseable
         }
 
         final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer);
-
         final long deadlineMs = epochClock.time() + timeoutMs;
         int version;
+
         while (0 == (version = buffer.getIntVolatile(versionFieldOffset)))
         {
             if (epochClock.time() > deadlineMs)
@@ -706,7 +703,7 @@ public class MarkFile implements AutoCloseable
      * Put thread to sleep for the given duration and restore interrupted status if thread is interrupted while
      * sleeping.
      *
-     * @param durationMs sleep durarion in milliseconds.
+     * @param durationMs sleep duration in milliseconds.
      */
     protected static void sleep(final long durationMs)
     {
