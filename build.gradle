@@ -43,7 +43,7 @@ int buildJavaVersion = getBuildJavaVersion()
 
 def byteBuddyVersion = '1.10.19'
 def findbugsAnnotations = '3.0.1'
-def checkstyleVersion = '8.38'
+def checkstyleVersion = '8.39'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.7.0'
 def junitVersion = '5.7.0'
