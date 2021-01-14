@@ -34,6 +34,7 @@ public class AgentRunner implements Runnable, AutoCloseable
     /**
      * Indicates that the runner is being closed.
      */
+    @SuppressWarnings("InstantiatingAThreadWithDefaultRunMethod")
     public static final Thread TOMBSTONE = new Thread();
 
     /**

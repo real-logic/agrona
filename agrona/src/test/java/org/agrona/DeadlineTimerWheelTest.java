@@ -99,7 +99,7 @@ public class DeadlineTimerWheelTest
     {
         assertTimeoutPreemptively(ofSeconds(1), () ->
         {
-            long controlTimestamp = 100 * RESOLUTION;
+            long controlTimestamp = 100L * RESOLUTION;
             final MutableLong firedTimestamp = new MutableLong(-1);
             final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 
@@ -629,7 +629,7 @@ public class DeadlineTimerWheelTest
     {
         assertTimeoutPreemptively(ofSeconds(1), () ->
         {
-            long controlTimestamp = 100 * RESOLUTION;
+            long controlTimestamp = 100L * RESOLUTION;
             final MutableLong firedTimestamp = new MutableLong(-1);
             final DeadlineTimerWheel wheel = new DeadlineTimerWheel(TIME_UNIT, controlTimestamp, RESOLUTION, 1024);
 

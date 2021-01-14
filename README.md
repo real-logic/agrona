@@ -45,7 +45,7 @@ The project is built with [Gradle](http://gradle.org/) using this [build.gradle]
 
 You require the following to build Agrona:
 
-* Latest Java 8. Agrona is tested with Java 8 and 11.
+* The Latest release of Java 8. Agrona is tested with Java 8 and 11.
 
 Full clean, build, and install into local maven repository
 

@@ -227,7 +227,7 @@ public class OneToOneRingBufferTest
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
-        final long tail = alignedRecordLength * 2;
+        final long tail = alignedRecordLength * 2L;
         final long head = 0L;
         final int headIndex = (int)head;
 
@@ -281,7 +281,7 @@ public class OneToOneRingBufferTest
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
         final int alignedRecordLength = align(recordLength, ALIGNMENT);
-        final long tail = alignedRecordLength * 2;
+        final long tail = alignedRecordLength * 2L;
         final long head = 0L;
         final int headIndex = (int)head;
 

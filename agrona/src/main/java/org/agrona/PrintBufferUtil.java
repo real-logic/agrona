@@ -205,7 +205,7 @@ public final class PrintBufferUtil
             {
                 final StringBuilder buf = new StringBuilder(12);
                 buf.append(NEWLINE);
-                buf.append(Long.toHexString(i << 4 & 0xFFFFFFFFL | 0x100000000L));
+                buf.append(Long.toHexString((long)i << 4 & 0xFFFFFFFFL | 0x100000000L));
                 buf.setCharAt(buf.length() - 9, '|');
                 buf.append('|');
                 HEXDUMP_ROW_PREFIXES[i] = buf.toString();

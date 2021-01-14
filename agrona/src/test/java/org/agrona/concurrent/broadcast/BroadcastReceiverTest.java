@@ -112,7 +112,7 @@ public class BroadcastReceiverTest
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
         final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
-        final long tail = recordLengthAligned * 2;
+        final long tail = recordLengthAligned * 2L;
         final long latestRecord = tail - recordLengthAligned;
         final int recordOffsetOne = 0;
         final int recordOffsetTwo = (int)latestRecord;
