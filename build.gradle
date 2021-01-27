@@ -41,6 +41,18 @@ static def getBuildJavaVersion() {
 }
 int buildJavaVersion = getBuildJavaVersion()
 
+def toolchainLauncher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(buildJavaVersion)
+}
+
+def toolchainCompiler = javaToolchains.compilerFor {
+    languageVersion = JavaLanguageVersion.of(buildJavaVersion)
+}
+
+def toolchainJavadocTool = javaToolchains.javadocToolFor {
+    languageVersion = JavaLanguageVersion.of(buildJavaVersion)
+}
+
 def byteBuddyVersion = '1.10.19'
 def findbugsAnnotations = '3.0.1'
 def checkstyleVersion = '8.39'
@@ -149,6 +161,10 @@ allprojects {
             failOnVersionConflict()
         }
     }
+
+    tasks.withType(JavaExec).configureEach {
+        javaLauncher = toolchainLauncher
+    }
 }
 
 jar.enabled = false
@@ -156,15 +172,6 @@ jar.enabled = false
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
-
-    if (buildJavaVersion >= 9)
-    {
-        java {
-            toolchain {
-                languageVersion = JavaLanguageVersion.of(buildJavaVersion)
-            }
-        }
-    }
 
     group = agronaGroup
     version = agronaVersion
@@ -188,19 +195,16 @@ subprojects {
         }
 
         if (buildJavaVersion >= 9) {
-            options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
-            options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
-            options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
             // -- Workaround for https://github.com/gradle/gradle/issues/15538
             options.forkOptions.jvmArgs.addAll( ['--add-opens', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED'] )
             // --
+
+            javaCompiler = toolchainCompiler
         }
         else {
             options.fork = true
-            def javaHome = System.env.JAVA_HOME
-            if (javaHome != null) {
-                options.forkOptions.javaHome = file(javaHome)
-            }
+            def javaHome = toolchainCompiler.get().metadata.installationPath.asFile.toPath().toAbsolutePath()
+            options.forkOptions.javaHome = javaHome.toFile()
         }
 
         options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
@@ -211,9 +215,7 @@ subprojects {
 
     test {
         if (buildJavaVersion >= 9) {
-            jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
-            jvmArgs('--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED')
         }
 
         useJUnitPlatform()
@@ -222,6 +224,8 @@ subprojects {
             showStandardStreams = true
             exceptionFormat = 'full'
         }
+
+        javaLauncher = toolchainLauncher
     }
 
     javadoc {
@@ -243,6 +247,8 @@ subprojects {
         if (buildJavaVersion >= 10) {
             options.addBooleanOption 'html5', true
         }
+
+        javadocTool = toolchainJavadocTool
     }
 }
 
@@ -283,12 +289,7 @@ project(':agrona') {
     compileGeneratedJava.dependsOn 'generatePrimitiveSpecialisations'
     compileTestJava.dependsOn compileGeneratedJava
 
-    def javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(buildJavaVersion)
-    }
-
     task generatePrimitiveSpecialisations(type: JavaExec) {
-        executable = javaLauncher.get().executablePath
         main = 'org.agrona.generation.SpecialisationGenerator'
         classpath = sourceSets.main.runtimeClasspath
         outputs.dir generatedDir
@@ -452,13 +453,6 @@ project(':agrona-benchmarks') {
     }
 
     jar.finalizedBy shadowJar
-}
-
-task runBenchmarks(type: Exec, dependsOn: 'agrona-benchmarks:shadowJar') {
-    commandLine 'java',
-        '-jar', 'agrona-benchmarks/build/libs/benchmarks.jar',
-        '-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelOldGC',
-        '-w', '1s', '-r', '1s','-wi', '3', '-i', '5', '-tu', 'ns', '-f', '5'
 }
 
 task testReport(type: TestReport) {
