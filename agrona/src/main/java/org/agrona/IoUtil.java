@@ -535,8 +535,7 @@ public final class IoUtil
         {
             if (null != MappingMethods.MAP_ADDRESS)
             {
-                return (long)MappingMethods.MAP_ADDRESS.invoke(
-                    fileChannel, getMode(mode), offset, length);
+                return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
             }
             else
             {
