@@ -94,7 +94,6 @@ public final class BufferUtil
                 final Class<?> cleaner = Class.forName("sun.misc.Cleaner");
                 getCleaner = lookup.findVirtual(directBuffer, "cleaner", methodType(cleaner));
                 clean = lookup.findVirtual(cleaner, "clean", methodType(void.class));
-
             }
 
             INVOKE_CLEANER = invokeCleaner;
