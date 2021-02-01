@@ -84,7 +84,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 public class CountersManager extends CountersReader
 {
     private final long freeToReuseTimeoutMs;
-    private int idHighWaterMark = -1;
+    private int highWaterMarkId = -1;
     private final IntArrayList freeList = new IntArrayList();
     private final EpochClock epochClock;
 
@@ -138,6 +138,43 @@ public class CountersManager extends CountersReader
     public CountersManager(final AtomicBuffer metaDataBuffer, final AtomicBuffer valuesBuffer)
     {
         this(metaDataBuffer, valuesBuffer, StandardCharsets.UTF_8, new CachedEpochClock(), 0);
+    }
+
+    /**
+     * Capacity as a count of counters which can be allocated.
+     *
+     * @return capacity as a count of counters which can be allocated.
+     */
+    public int capacity()
+    {
+        return maxCounterId + 1;
+    }
+
+    /**
+     * Number of counters available to be allocated which is a function of {@link #capacity()} minus the number already
+     * allocated.
+     *
+     * @return the number of counter available to be allocated.
+     */
+    public int available()
+    {
+        int freeListCount = 0;
+
+        if (!freeList.isEmpty())
+        {
+            final long nowMs = epochClock.time();
+
+            for (int i = 0, size = freeList.size(); i < size; i++)
+            {
+                final int counterId = freeList.getInt(i);
+                if (nowMs >= metaDataBuffer.getLong(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET))
+                {
+                    freeListCount++;
+                }
+            }
+        }
+
+        return (capacity() - highWaterMarkId - 1) + freeListCount;
     }
 
     /**
@@ -461,9 +498,9 @@ public class CountersManager extends CountersReader
             }
         }
 
-        checkCountersCapacity(idHighWaterMark + 1);
+        checkCountersCapacity(highWaterMarkId + 1);
 
-        return ++idHighWaterMark;
+        return ++highWaterMarkId;
     }
 
     private void putLabel(final int recordOffset, final String label)

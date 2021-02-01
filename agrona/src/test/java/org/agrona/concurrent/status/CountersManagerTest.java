@@ -29,9 +29,6 @@ import java.nio.ByteBuffer;
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.agrona.concurrent.status.CountersReader.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -54,6 +51,18 @@ public class CountersManagerTest
     @SuppressWarnings("unchecked")
     private final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
     private final CountersReader.MetaData metaData = mock(CountersReader.MetaData.class);
+
+    @Test
+    public void shouldSupportEmptyManager()
+    {
+        final UnsafeBuffer metadataBuffer = new UnsafeBuffer(new byte[0]);
+        final UnsafeBuffer valuesBuffer = new UnsafeBuffer(new byte[0]);
+        final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
+
+        assertEquals(-1, manager.maxCounterId());
+        assertEquals(0, manager.capacity());
+        assertEquals(0, manager.available());
+    }
 
     @Test
     public void shouldTruncateLongLabel()
@@ -90,10 +99,10 @@ public class CountersManagerTest
         }
         catch (final RuntimeException caught)
         {
-            assertThat(caught, is(ex));
+            assertEquals(ex, caught);
 
             final AtomicCounter counter = manager.newCounter("new label");
-            assertThat(counter.id(), is(0));
+            assertEquals(0, counter.id());
 
             return;
         }
@@ -215,11 +224,18 @@ public class CountersManagerTest
     @Test
     public void shouldFreeAndReuseCounters()
     {
+        assertEquals(NUMBER_OF_COUNTERS - 1, manager.maxCounterId());
+        assertEquals(NUMBER_OF_COUNTERS, manager.capacity());
+        assertEquals(NUMBER_OF_COUNTERS, manager.available());
+
         final int abc = manager.allocate("abc");
         final int def = manager.allocate("def");
         final int ghi = manager.allocate("ghi");
 
+        assertEquals(NUMBER_OF_COUNTERS - 3, manager.available());
+
         manager.free(def);
+        assertEquals(NUMBER_OF_COUNTERS - 2, manager.available());
 
         reader.forEach(consumer);
 
@@ -228,33 +244,34 @@ public class CountersManagerTest
         inOrder.verify(consumer).accept(ghi, "ghi");
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(manager.allocate("the next label"), is(def));
+        assertEquals(def, manager.allocate("the next label"));
+        assertEquals(NUMBER_OF_COUNTERS - 3, manager.available());
     }
 
     @Test
     public void shouldFreeAndNotReuseCountersThatHaveCooldown()
     {
-        final int abc = managerWithCooldown.allocate("abc");
+        managerWithCooldown.allocate("abc");
         final int def = managerWithCooldown.allocate("def");
         final int ghi = managerWithCooldown.allocate("ghi");
 
         managerWithCooldown.free(def);
 
         currentTimestamp += FREE_TO_REUSE_TIMEOUT - 1;
-        assertThat(managerWithCooldown.allocate("the next label"), is(greaterThan(ghi)));
+        assertEquals(ghi + 1, managerWithCooldown.allocate("the next label"));
     }
 
     @Test
     public void shouldFreeAndReuseCountersAfterCooldown()
     {
-        final int abc = managerWithCooldown.allocate("abc");
+        managerWithCooldown.allocate("abc");
         final int def = managerWithCooldown.allocate("def");
-        final int ghi = managerWithCooldown.allocate("ghi");
+        managerWithCooldown.allocate("ghi");
 
         managerWithCooldown.free(def);
 
         currentTimestamp += FREE_TO_REUSE_TIMEOUT;
-        assertThat(managerWithCooldown.allocate("the next label"), is(def));
+        assertEquals(def, managerWithCooldown.allocate("the next label"));
     }
 
     @Test
@@ -280,7 +297,7 @@ public class CountersManagerTest
 
         writer.setOrdered(expectedValue);
 
-        assertThat(reader.getVolatile(), is(expectedValue));
+        assertEquals(expectedValue, reader.getVolatile());
     }
 
     @Test
@@ -306,10 +323,10 @@ public class CountersManagerTest
         inOrder.verifyNoMoreInteractions();
 
         final DirectBuffer keyOneBuffer = argCaptorOne.getValue();
-        assertThat(keyOneBuffer.getLong(0), is(keyOne));
+        assertEquals(keyOne, keyOneBuffer.getLong(0));
 
         final DirectBuffer keyTwoBuffer = argCaptorTwo.getValue();
-        assertThat(keyTwoBuffer.getLong(0), is(keyTwo));
+        assertEquals(keyTwo, keyTwoBuffer.getLong(0));
 
         assertEquals(typeIdOne, manager.getCounterTypeId(counterIdOne));
         assertEquals(typeIdTwo, manager.getCounterTypeId(counterIdTwo));
@@ -347,10 +364,10 @@ public class CountersManagerTest
         inOrder.verifyNoMoreInteractions();
 
         final DirectBuffer keyOneBufferCapture = argCaptorOne.getValue();
-        assertThat(keyOneBufferCapture.getLong(0), is(keyOne));
+        assertEquals(keyOne, keyOneBufferCapture.getLong(0));
 
         final DirectBuffer keyTwoBufferCapture = argCaptorTwo.getValue();
-        assertThat(keyTwoBufferCapture.getLong(0), is(keyTwo));
+        assertEquals(keyTwo, keyTwoBufferCapture.getLong(0));
     }
 
     @Test
@@ -361,7 +378,7 @@ public class CountersManagerTest
         final long value = 7L;
         manager.setCounterValue(counterId, value);
 
-        assertThat(manager.getCounterValue(counterId), is(value));
+        assertEquals(value, manager.getCounterValue(counterId));
     }
 
     @Test
@@ -369,9 +386,9 @@ public class CountersManagerTest
     {
         final AtomicCounter counter = manager.newCounter("original label");
 
-        assertThat(counter.label(), is("original label"));
+        assertEquals("original label", counter.label());
         counter.updateLabel(counter.label() + " with update");
-        assertThat(counter.label(), is("original label with update"));
+        assertEquals("original label with update", counter.label());
     }
 
     @Test
@@ -386,12 +403,12 @@ public class CountersManagerTest
         final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
         manager.forEach(keyExtractor);
-        assertThat(keyExtractor.key, is(originalKey));
+        assertEquals(originalKey, keyExtractor.key);
 
         manager.setCounterKey(counter.id(), (keyBuffer) -> keyBuffer.putStringUtf8(0, updatedKey));
 
         manager.forEach(keyExtractor);
-        assertThat(keyExtractor.key, is(updatedKey));
+        assertEquals(updatedKey, keyExtractor.key);
     }
 
     @Test
@@ -407,7 +424,7 @@ public class CountersManagerTest
 
         manager.forEach(keyExtractor);
 
-        assertThat(keyExtractor.key, is(originalKey));
+        assertEquals(originalKey, keyExtractor.key);
 
         final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[128]);
         final int length = tempBuffer.putStringUtf8(0, updatedKey);
@@ -415,7 +432,7 @@ public class CountersManagerTest
         manager.setCounterKey(counter.id(), tempBuffer, 0, length);
 
         manager.forEach(keyExtractor);
-        assertThat(keyExtractor.key, is(updatedKey));
+        assertEquals(updatedKey, keyExtractor.key);
     }
 
     @Test
@@ -439,7 +456,7 @@ public class CountersManagerTest
         }
     }
 
-    private static final class StringKeyExtractor implements MetaData
+    static final class StringKeyExtractor implements MetaData
     {
         private final int id;
         private String key;
@@ -463,8 +480,8 @@ public class CountersManagerTest
     {
         final AtomicCounter counter = manager.newCounter("original label");
 
-        assertThat(counter.label(), is("original label"));
+        assertEquals("original label", counter.label());
         counter.appendToLabel(" with update");
-        assertThat(counter.label(), is("original label with update"));
+        assertEquals("original label with update", counter.label());
     }
 }

@@ -81,6 +81,22 @@ public class ConcurrentCountersManager extends CountersManager
     /**
      * {@inheritDoc}
      */
+    public int available()
+    {
+        lock.lock();
+        try
+        {
+            return super.available();
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int allocate(final String label, final int typeId)
     {
         lock.lock();
