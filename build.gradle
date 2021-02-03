@@ -55,7 +55,7 @@ def toolchainJavadocTool = javaToolchains.javadocToolFor {
 
 def byteBuddyVersion = '1.10.20'
 def findbugsAnnotations = '3.0.1'
-def checkstyleVersion = '8.39'
+def checkstyleVersion = '8.40'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.7.7'
 def junitVersion = '5.7.0'
