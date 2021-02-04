@@ -173,6 +173,18 @@ public final class SystemUtil
     public static String threadDump()
     {
         final StringBuilder sb = new StringBuilder();
+        threadDump(sb);
+
+        return sb.toString();
+    }
+
+    /**
+     * Write a formatted dump of all threads with associated state and stack traces to a provided {@link StringBuilder}.
+     *
+     * @param sb to write the thread dump to.
+     */
+    public static void threadDump(final StringBuilder sb)
+    {
         final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 
         for (final ThreadInfo info : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), Integer.MAX_VALUE))
@@ -186,8 +198,6 @@ public final class SystemUtil
 
             sb.append("\n\n");
         }
-
-        return sb.toString();
     }
 
     /**
