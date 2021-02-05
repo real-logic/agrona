@@ -25,6 +25,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * <p>
  * The {@link #sample()} method can be used in order to reset these initial values if your system clock gets updated.
  *
+ * This class can be used from multiple threads safely.
+ *
  * @see org.agrona.concurrent.SystemEpochNanoClock
  */
 public class OffsetEpochNanoClock implements EpochNanoClock
@@ -37,9 +39,7 @@ public class OffsetEpochNanoClock implements EpochNanoClock
     private final long measurementThresholdNs;
     private final long resampleIntervalNs;
 
-    private long initialNanoTime;
-    private long initialCurrentNanoTime;
-    private boolean isWithinThreshold;
+    private volatile TimeFields timeFields;
 
     /**
      * Constructs the clock with default configuration.
@@ -78,6 +78,9 @@ public class OffsetEpochNanoClock implements EpochNanoClock
         long bestInitialCurrentNanoTime = 0, bestInitialNanoTime = 0;
         long bestNanoTimeWindow = Long.MAX_VALUE;
 
+        final int maxMeasurementRetries = this.maxMeasurementRetries;
+        final long measurementThresholdNs = this.measurementThresholdNs;
+
         for (int i = 0; i < maxMeasurementRetries; i++)
         {
             final long firstNanoTime = System.nanoTime();
@@ -87,9 +90,10 @@ public class OffsetEpochNanoClock implements EpochNanoClock
             final long nanoTimeWindow = secondNanoTime - firstNanoTime;
             if (nanoTimeWindow < measurementThresholdNs)
             {
-                initialCurrentNanoTime = MILLISECONDS.toNanos(initialCurrentTimeMillis);
-                initialNanoTime = (firstNanoTime + secondNanoTime) >> 1;
-                isWithinThreshold = true;
+                timeFields = new TimeFields(
+                    MILLISECONDS.toNanos(initialCurrentTimeMillis),
+                    (firstNanoTime + secondNanoTime) >> 1,
+                    true);
                 return;
             }
             else if (nanoTimeWindow < bestNanoTimeWindow)
@@ -101,21 +105,23 @@ public class OffsetEpochNanoClock implements EpochNanoClock
         }
 
         // If we never get a time below the threshold, pick the narrowest window we've seen so far.
-        initialCurrentNanoTime = bestInitialCurrentNanoTime;
-        initialNanoTime = bestInitialNanoTime;
-        isWithinThreshold = false;
+        timeFields = new TimeFields(
+            bestInitialCurrentNanoTime,
+            bestInitialNanoTime,
+            false);
     }
 
     public long nanoTime()
     {
-        final long nanoTimeAdjustment = System.nanoTime() - initialNanoTime;
+        final TimeFields timeFields = this.timeFields;
+        final long nanoTimeAdjustment = System.nanoTime() - timeFields.initialNanoTime;
         if (nanoTimeAdjustment < 0 || nanoTimeAdjustment > resampleIntervalNs)
         {
             sample();
             return nanoTime();
         }
 
-        return initialCurrentNanoTime + nanoTimeAdjustment;
+        return timeFields.initialCurrentNanoTime + nanoTimeAdjustment;
     }
 
     /**
@@ -125,6 +131,21 @@ public class OffsetEpochNanoClock implements EpochNanoClock
      */
     public boolean isWithinThreshold()
     {
-        return isWithinThreshold;
+        return timeFields.isWithinThreshold;
+    }
+
+    static final class TimeFields
+    {
+        final long initialCurrentNanoTime;
+        final long initialNanoTime;
+        final boolean isWithinThreshold;
+
+        private TimeFields(
+            final long initialCurrentNanoTime, final long initialNanoTime, final boolean isWithinThreshold)
+        {
+            this.initialNanoTime = initialNanoTime;
+            this.initialCurrentNanoTime = initialCurrentNanoTime;
+            this.isWithinThreshold = isWithinThreshold;
+        }
     }
 }
