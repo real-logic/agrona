@@ -58,7 +58,7 @@ def findbugsAnnotations = '3.0.1'
 def checkstyleVersion = '8.39'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '3.7.7'
-def junitVersion = '5.7.0'
+def junitVersion = '5.7.1'
 def guavaTestLib = '30.1-jre'
 def jmhVersion = '1.27'
 
