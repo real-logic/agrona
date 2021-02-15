@@ -155,6 +155,11 @@ public class AgentInvoker implements AutoCloseable
             catch (final Throwable throwable)
             {
                 handleError(throwable);
+                if (Thread.currentThread().isInterrupted())
+                {
+                    isRunning = false;
+                    close();
+                }
             }
         }
 

@@ -162,7 +162,7 @@ public class AgentRunner implements Runnable, AutoCloseable
 
             while (isRunning)
             {
-                doDutyCycle(idleStrategy, agent);
+                doWork(idleStrategy, agent);
             }
 
             try
@@ -285,7 +285,7 @@ public class AgentRunner implements Runnable, AutoCloseable
         }
     }
 
-    private void doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)
+    private void doWork(final IdleStrategy idleStrategy, final Agent agent)
     {
         try
         {
@@ -312,6 +312,10 @@ public class AgentRunner implements Runnable, AutoCloseable
         catch (final Throwable throwable)
         {
             handleError(throwable);
+            if (Thread.currentThread().isInterrupted())
+            {
+                isRunning = false;
+            }
         }
     }
 
