@@ -1,5 +1,6 @@
 /*
- *  Copyright 2016 Gil Tene
+ * Copyright 2014-2021 Real Logic Limited.
+ * Copyright 2016 Gil Tene
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
