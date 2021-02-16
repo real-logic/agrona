@@ -270,7 +270,7 @@ project(':agrona') {
         testImplementation("com.google.guava:guava-testlib:${guavaTestLib}") {
             exclude group: 'junit'
         }
-        testImplementation 'junit:junit:4.13.1' // Compatibility with JUnit 4
+        testImplementation 'junit:junit:4.13.2' // Compatibility with JUnit 4
         testRuntimeOnly ("org.junit.vintage:junit-vintage-engine:${junitVersion}") {
             exclude group: 'junit'
         }
