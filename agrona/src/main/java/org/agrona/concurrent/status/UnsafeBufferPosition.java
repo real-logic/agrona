@@ -66,41 +66,65 @@ public class UnsafeBufferPosition extends Position
         this.addressOffset = buffer.addressOffset() + counterOffset;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isClosed()
     {
         return isClosed;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int id()
     {
         return counterId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long get()
     {
         return UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getVolatile()
     {
         return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void set(final long value)
     {
         UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setOrdered(final long value)
     {
         UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setVolatile(final long value)
     {
         UnsafeAccess.UNSAFE.putLongVolatile(byteArray, addressOffset, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean proposeMax(final long proposedValue)
     {
         boolean updated = false;
@@ -114,6 +138,9 @@ public class UnsafeBufferPosition extends Position
         return updated;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean proposeMaxOrdered(final long proposedValue)
     {
         boolean updated = false;
@@ -127,6 +154,9 @@ public class UnsafeBufferPosition extends Position
         return updated;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close()
     {
         if (!isClosed)
@@ -139,6 +169,9 @@ public class UnsafeBufferPosition extends Position
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "UnsafeBufferPosition{" +

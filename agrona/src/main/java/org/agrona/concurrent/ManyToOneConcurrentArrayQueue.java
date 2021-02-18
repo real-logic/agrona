@@ -48,6 +48,9 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         super(requestedCapacity);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean offer(final E e)
     {
         if (null == e)
@@ -81,6 +84,9 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         return true;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public E poll()
     {
@@ -98,11 +104,17 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         return (E)e;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int drain(final Consumer<E> elementConsumer)
     {
         return drain(elementConsumer, (int)(tail - head));
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public int drain(final Consumer<E> elementConsumer, final int limit)
     {
@@ -131,6 +143,9 @@ public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQue
         return (int)(nextSequence - currentHead);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public int drainTo(final Collection<? super E> target, final int limit)
     {

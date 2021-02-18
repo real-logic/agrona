@@ -122,19 +122,22 @@ public final class ControllableIdleStrategy implements IdleStrategy
     {
     }
 
-    public String toString()
-    {
-        return "ControllableIdleStrategy{" +
-            "alias=" + ALIAS +
-            ", statusIndicator=" + statusIndicator +
-            '}';
-    }
-
     /**
      *  {@inheritDoc}
      */
     public String alias()
     {
         return ALIAS;
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "ControllableIdleStrategy{" +
+            "alias=" + ALIAS +
+            ", statusIndicator=" + statusIndicator +
+            '}';
     }
 }

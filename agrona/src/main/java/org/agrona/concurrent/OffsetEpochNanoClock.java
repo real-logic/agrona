@@ -111,6 +111,9 @@ public class OffsetEpochNanoClock implements EpochNanoClock
             false);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public long nanoTime()
     {
         final TimeFields timeFields = this.timeFields;

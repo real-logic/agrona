@@ -146,11 +146,17 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         UNSAFE.putOrderedObject(this, TAIL_OFFSET, empty);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean add(final E e)
     {
         return offer(e);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean offer(final E e)
     {
         if (null == e)
@@ -165,6 +171,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return true;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public E remove()
     {
         final E e = poll();
@@ -176,6 +185,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return e;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public E poll()
     {
         E value = null;
@@ -203,6 +215,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return value;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public E element()
     {
         final E e = peek();
@@ -214,6 +229,9 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return e;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public E peek()
     {
         final Node<E> next = head.next;
@@ -250,61 +268,97 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
         return size;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean isEmpty()
     {
         return head == tail;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean contains(final Object o)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public Iterator<E> iterator()
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public Object[] toArray()
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public <T> T[] toArray(final T[] a)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean remove(final Object o)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean containsAll(final Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean addAll(final Collection<? extends E> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean removeAll(final Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean retainAll(final Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void clear()
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();

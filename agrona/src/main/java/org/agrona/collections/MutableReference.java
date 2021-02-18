@@ -67,6 +67,9 @@ public class MutableReference<T> implements Serializable
         this.ref = ref;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -84,11 +87,17 @@ public class MutableReference<T> implements Serializable
         return ref != null ? ref.equals(that.ref) : that.ref == null;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int hashCode()
     {
         return ref != null ? ref.hashCode() : 0;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return null == ref ? "null" : ref.toString();

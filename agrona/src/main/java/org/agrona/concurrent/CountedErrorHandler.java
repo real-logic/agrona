@@ -62,6 +62,9 @@ public class CountedErrorHandler implements ErrorHandler, AutoCloseable
         return isClosed;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void onError(final Throwable throwable)
     {
         if (isClosed)

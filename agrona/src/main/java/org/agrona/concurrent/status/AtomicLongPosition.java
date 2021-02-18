@@ -56,46 +56,73 @@ public class AtomicLongPosition extends Position
         this.value = new AtomicLong(initialValue);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isClosed()
     {
         return isClosed;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int id()
     {
         return id;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long get()
     {
         return value.get();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getVolatile()
     {
         return value.get();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void set(final long value)
     {
         this.value.lazySet(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setOrdered(final long value)
     {
         this.value.lazySet(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setVolatile(final long value)
     {
         this.value.set(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean proposeMax(final long proposedValue)
     {
         return proposeMaxOrdered(proposedValue);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean proposeMaxOrdered(final long proposedValue)
     {
         boolean updated = false;
@@ -109,11 +136,17 @@ public class AtomicLongPosition extends Position
         return updated;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close()
     {
         isClosed = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "AtomicLongPosition{" +

@@ -69,11 +69,17 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
         private static final long serialVersionUID = 9183617352140354854L;
         private Iterator<E> delegate;
 
+        /**
+         *  {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return delegate.hasNext();
         }
 
+        /**
+         *  {@inheritDoc}
+         */
         public V next()
         {
             return viewer.apply(delegate.next());

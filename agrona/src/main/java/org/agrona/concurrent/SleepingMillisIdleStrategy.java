@@ -102,6 +102,9 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
         return ALIAS;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return "SleepingMillisIdleStrategy{" +

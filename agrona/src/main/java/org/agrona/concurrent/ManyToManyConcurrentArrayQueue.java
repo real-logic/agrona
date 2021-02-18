@@ -76,6 +76,9 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         this.sequences = sequences;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean offer(final E e)
     {
         if (null == e)
@@ -110,6 +113,9 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public E poll()
     {
@@ -143,6 +149,9 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public E peek()
     {
@@ -177,11 +186,17 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int drain(final Consumer<E> elementConsumer)
     {
         return drain(elementConsumer, size());
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int drain(final Consumer<E> elementConsumer, final int limit)
     {
         int count = 0;
@@ -196,6 +211,9 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         return count;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int drainTo(final Collection<? super E> target, final int limit)
     {
         int count = 0;

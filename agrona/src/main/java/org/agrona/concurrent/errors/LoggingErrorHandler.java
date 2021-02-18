@@ -94,6 +94,9 @@ public class LoggingErrorHandler implements ErrorHandler, AutoCloseable
         return errorOverflow;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onError(final Throwable throwable)
     {
         if (isClosed)

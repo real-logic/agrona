@@ -150,6 +150,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Integer get(
         @DoNotSub final int index)
     {
@@ -172,6 +175,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         return elements[index];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean add(final Integer element)
     {
         return addInt(null == element ? nullValue : element);
@@ -193,6 +199,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void add(
         @DoNotSub final int index,
         final Integer element)
@@ -224,6 +233,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         size++;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Integer set(
         @DoNotSub final int index,
         final Integer element)

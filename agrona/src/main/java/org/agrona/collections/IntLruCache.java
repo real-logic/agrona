@@ -130,6 +130,9 @@ public final class IntLruCache<E> implements AutoCloseable
         return capacity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public void close()
     {

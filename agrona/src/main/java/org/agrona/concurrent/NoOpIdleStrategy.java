@@ -64,6 +64,9 @@ public final class NoOpIdleStrategy implements IdleStrategy
         return ALIAS;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "NoOpIdleStrategy{alias=" + ALIAS + "}";

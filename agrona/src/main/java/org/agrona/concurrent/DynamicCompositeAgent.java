@@ -132,6 +132,9 @@ public class DynamicCompositeAgent implements Agent
         status = Status.ACTIVE;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int doWork() throws Exception
     {
         int workCount = 0;
@@ -198,6 +201,9 @@ public class DynamicCompositeAgent implements Agent
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String roleName()
     {
         return roleName;

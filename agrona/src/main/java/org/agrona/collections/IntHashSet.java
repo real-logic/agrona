@@ -737,6 +737,9 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return remaining > 0;
@@ -752,6 +755,9 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return remaining;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextValue();
@@ -779,6 +785,9 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
             return values[position(values)];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void remove()
         {
             if (isPositionValid)

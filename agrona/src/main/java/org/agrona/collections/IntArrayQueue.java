@@ -427,11 +427,17 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return index != tail;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextValue();

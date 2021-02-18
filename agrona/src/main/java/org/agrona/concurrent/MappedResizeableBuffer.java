@@ -76,6 +76,9 @@ public class MappedResizeableBuffer implements AutoCloseable
         map(offset, initialLength);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void close()
     {
         unmap();
@@ -1459,6 +1462,9 @@ public class MappedResizeableBuffer implements AutoCloseable
         IoUtil.unmap(fileChannel, addressOffset, capacity);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return "MappedResizeableBuffer{" +

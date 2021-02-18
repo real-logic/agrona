@@ -29,11 +29,17 @@ public final class NullReference
     {
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int hashCode()
     {
         return 0;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean equals(final Object obj)
     {
         return obj == this;

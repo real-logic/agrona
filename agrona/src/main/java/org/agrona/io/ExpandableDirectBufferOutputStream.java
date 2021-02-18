@@ -140,6 +140,9 @@ public class ExpandableDirectBufferOutputStream extends OutputStream
         position += length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close()
     {
     }

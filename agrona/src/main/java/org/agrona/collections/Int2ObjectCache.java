@@ -586,11 +586,17 @@ public class Int2ObjectCache<V>
     {
         private final KeyIterator iterator = new KeyIterator();
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean contains(final Object o)
         {
             return Int2ObjectCache.this.containsKey(o);
@@ -607,6 +613,9 @@ public class Int2ObjectCache<V>
             return Int2ObjectCache.this.containsKey(key);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public KeyIterator iterator()
         {
             iterator.reset();
@@ -614,11 +623,17 @@ public class Int2ObjectCache<V>
             return iterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean remove(final Object o)
         {
             throw new UnsupportedOperationException("Cannot remove on iterator");
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectCache.this.clear();
@@ -633,16 +648,25 @@ public class Int2ObjectCache<V>
         private static final long serialVersionUID = 4345278262685013239L;
         private final ValueIterator iterator = new ValueIterator();
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean contains(final Object o)
         {
             return Int2ObjectCache.this.containsValue(o);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public ValueIterator iterator()
         {
             iterator.reset();
@@ -650,6 +674,9 @@ public class Int2ObjectCache<V>
             return iterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectCache.this.clear();
@@ -663,11 +690,17 @@ public class Int2ObjectCache<V>
     {
         private final EntryIterator iterator = new EntryIterator();
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectCache.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public EntryIterator iterator()
         {
             iterator.reset();
@@ -675,6 +708,9 @@ public class Int2ObjectCache<V>
             return iterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectCache.this.clear();
@@ -705,6 +741,9 @@ public class Int2ObjectCache<V>
             return position;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return remaining > 0;
@@ -735,8 +774,14 @@ public class Int2ObjectCache<V>
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public abstract T next();
 
+        /**
+         * {@inheritDoc}
+         */
         public void remove()
         {
             throw new UnsupportedOperationException("Remove not supported on Iterator");
@@ -754,6 +799,9 @@ public class Int2ObjectCache<V>
      */
     public final class ValueIterator extends AbstractIterator<V>
     {
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public V next()
         {
@@ -767,6 +815,9 @@ public class Int2ObjectCache<V>
      */
     public final class KeyIterator extends AbstractIterator<Integer>
     {
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextInt();
@@ -791,6 +842,9 @@ public class Int2ObjectCache<V>
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>
     {
+        /**
+         * {@inheritDoc}
+         */
         public Entry<Integer, V> next()
         {
             findNext();
@@ -798,6 +852,9 @@ public class Int2ObjectCache<V>
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer getKey()
         {
             return getIntKey();
@@ -813,12 +870,18 @@ public class Int2ObjectCache<V>
             return keys[position()];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public V getValue()
         {
             return (V)values[position()];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public V setValue(final V value)
         {
             throw new UnsupportedOperationException("no set on this iterator");

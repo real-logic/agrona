@@ -25,6 +25,9 @@ public class SystemEpochClock implements EpochClock
      */
     public static final SystemEpochClock INSTANCE = new SystemEpochClock();
 
+    /**
+     *  {@inheritDoc}
+     */
     public long time()
     {
         return System.currentTimeMillis();

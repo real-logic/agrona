@@ -66,6 +66,9 @@ public final class YieldingIdleStrategy implements IdleStrategy
         return ALIAS;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "YieldingIdleStrategy{alias=" + ALIAS + "}";

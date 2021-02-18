@@ -155,32 +155,50 @@ public abstract class AbstractConcurrentArrayQueue<E>
         buffer = (E[])new Object[capacity];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long addedCount()
     {
         return tail;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long removedCount()
     {
         return head;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int capacity()
     {
         return capacity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int remainingCapacity()
     {
         return capacity - size();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public E peek()
     {
         return (E)UNSAFE.getObjectVolatile(buffer, sequenceToBufferOffset(head, capacity - 1));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean add(final E e)
     {
         if (offer(e))
@@ -191,6 +209,9 @@ public abstract class AbstractConcurrentArrayQueue<E>
         throw new IllegalStateException("Queue is full");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public E remove()
     {
         final E e = poll();
@@ -202,6 +223,9 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return e;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public E element()
     {
         final E e = peek();
@@ -213,6 +237,9 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return e;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean contains(final Object o)
     {
         if (null == o)
@@ -235,26 +262,41 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<E> iterator()
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object[] toArray()
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T[] toArray(final T[] a)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Object o)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsAll(final Collection<?> c)
     {
         for (final Object o : c)
@@ -268,6 +310,9 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean addAll(final Collection<? extends E> c)
     {
         for (final E e : c)
@@ -278,16 +323,25 @@ public abstract class AbstractConcurrentArrayQueue<E>
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeAll(final Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean retainAll(final Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clear()
     {
         Object value;
@@ -298,11 +352,17 @@ public abstract class AbstractConcurrentArrayQueue<E>
         while (null != value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isEmpty()
     {
         return head >= tail;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int size()
     {
         long currentHeadBefore;
@@ -334,7 +394,7 @@ public abstract class AbstractConcurrentArrayQueue<E>
      * Compute buffer offset based on the given sequence and the mask.
      *
      * @param sequence to compute the offset from.
-     * @param mask to apply.
+     * @param mask     to apply.
      * @return buffer offset.
      */
     public static long sequenceToBufferOffset(final long sequence, final long mask)

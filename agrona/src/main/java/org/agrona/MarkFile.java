@@ -234,6 +234,9 @@ public class MarkFile implements AutoCloseable
         return isClosed;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void close()
     {
         if (!isClosed)

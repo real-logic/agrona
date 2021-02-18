@@ -381,6 +381,9 @@ public class AtomicCounter implements AutoCloseable
         return updated;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "AtomicCounter{" +

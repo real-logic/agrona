@@ -634,11 +634,17 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
             return remaining;
         }
 
+        /**
+         *  {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return remaining > 0;
         }
 
+        /**
+         *  {@inheritDoc}
+         */
         public T next()
         {
             return nextValue();
@@ -675,6 +681,9 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
             throw new IllegalStateException();
         }
 
+        /**
+         *  {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public void remove()
         {

@@ -90,6 +90,9 @@ public final class SleepingIdleStrategy implements IdleStrategy
         return ALIAS;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "SleepingIdleStrategy{" +

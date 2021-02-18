@@ -34,5 +34,8 @@ public abstract class ReadablePosition implements AutoCloseable
      */
     public abstract long getVolatile();
 
+    /**
+     * {@inheritDoc}
+     */
     public abstract void close();
 }

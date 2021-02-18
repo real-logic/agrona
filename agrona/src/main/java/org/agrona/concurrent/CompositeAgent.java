@@ -65,6 +65,9 @@ public class CompositeAgent implements Agent
         roleName = sb.toString();
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String roleName()
     {
         return roleName;
@@ -103,6 +106,9 @@ public class CompositeAgent implements Agent
         }
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int doWork() throws Exception
     {
         int workCount = 0;

@@ -65,6 +65,9 @@ public class MutableBoolean implements Serializable
         this.value = value;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -82,11 +85,17 @@ public class MutableBoolean implements Serializable
         return value == that.value;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int hashCode()
     {
         return Boolean.hashCode(value);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return Boolean.toString(value);

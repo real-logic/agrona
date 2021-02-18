@@ -697,11 +697,17 @@ public class Int2ObjectHashMap<V>
             return keyIterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean contains(final Object o)
         {
             return Int2ObjectHashMap.this.containsKey(o);
@@ -718,6 +724,9 @@ public class Int2ObjectHashMap<V>
             return Int2ObjectHashMap.this.containsKey(key);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean remove(final Object o)
         {
             return null != Int2ObjectHashMap.this.remove(o);
@@ -734,6 +743,9 @@ public class Int2ObjectHashMap<V>
             return null != Int2ObjectHashMap.this.remove(key);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectHashMap.this.clear();
@@ -763,21 +775,33 @@ public class Int2ObjectHashMap<V>
             return valueIterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean contains(final Object o)
         {
             return Int2ObjectHashMap.this.containsValue(o);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectHashMap.this.clear();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void forEach(final Consumer<? super V> action)
         {
             @DoNotSub int remaining =
@@ -817,11 +841,17 @@ public class Int2ObjectHashMap<V>
             return entryIterator;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @DoNotSub public int size()
         {
             return Int2ObjectHashMap.this.size();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear()
         {
             Int2ObjectHashMap.this.clear();
@@ -916,6 +946,9 @@ public class Int2ObjectHashMap<V>
             return remaining;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean hasNext()
         {
             return remaining > 0;
@@ -952,8 +985,14 @@ public class Int2ObjectHashMap<V>
             throw new IllegalStateException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public abstract T next();
 
+        /**
+         * {@inheritDoc}
+         */
         public void remove()
         {
             if (isPositionValid)
@@ -1003,6 +1042,9 @@ public class Int2ObjectHashMap<V>
     {
         private static final long serialVersionUID = -410109102792377049L;
 
+        /**
+         * {@inheritDoc}
+         */
         public V next()
         {
             findNext();
@@ -1018,6 +1060,9 @@ public class Int2ObjectHashMap<V>
     {
         private static final long serialVersionUID = -4905479491707153377L;
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextInt();
@@ -1045,6 +1090,9 @@ public class Int2ObjectHashMap<V>
     {
         private static final long serialVersionUID = 2227334666048171527L;
 
+        /**
+         * {@inheritDoc}
+         */
         public Entry<Integer, V> next()
         {
             findNext();
@@ -1061,6 +1109,9 @@ public class Int2ObjectHashMap<V>
             return new MapEntry(getIntKey(), getValue());
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer getKey()
         {
             return getIntKey();
@@ -1076,11 +1127,17 @@ public class Int2ObjectHashMap<V>
             return keys[position()];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public V getValue()
         {
             return unmapNullValue(values[position()]);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public V setValue(final V value)
         {
@@ -1118,26 +1175,41 @@ public class Int2ObjectHashMap<V>
                 this.v = v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public Integer getKey()
             {
                 return k;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public V getValue()
             {
                 return v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public V setValue(final V value)
             {
                 return Int2ObjectHashMap.this.put(k, value);
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @DoNotSub public int hashCode()
             {
                 return Integer.hashCode(getIntKey()) ^ (v != null ? v.hashCode() : 0);
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public boolean equals(final Object o)
             {
                 if (!(o instanceof Map.Entry))
@@ -1151,6 +1223,9 @@ public class Int2ObjectHashMap<V>
                     ((e.getValue() == null && v == null) || e.getValue().equals(v));
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public String toString()
             {
                 return k + "=" + v;

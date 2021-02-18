@@ -227,6 +227,9 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
         return ALIAS;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return "BackoffIdleStrategy{" +

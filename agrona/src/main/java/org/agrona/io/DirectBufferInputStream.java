@@ -118,16 +118,25 @@ public class DirectBufferInputStream extends InputStream
         return buffer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean markSupported()
     {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int available()
     {
         return length - position;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long skip(final long n)
     {
         final int skipped = (int)Math.min(n, available());
@@ -136,6 +145,9 @@ public class DirectBufferInputStream extends InputStream
         return skipped;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int read()
     {
         int b = -1;
@@ -148,6 +160,9 @@ public class DirectBufferInputStream extends InputStream
         return b;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int read(final byte[] dstBytes, final int dstOffset, final int length)
     {
         int bytesRead = -1;
@@ -162,6 +177,9 @@ public class DirectBufferInputStream extends InputStream
         return bytesRead;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close()
     {
     }

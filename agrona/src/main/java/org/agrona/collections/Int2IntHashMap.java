@@ -652,6 +652,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
         return size == that.size() && entrySet().equals(that.entrySet());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @DoNotSub public int hashCode()
     {
         return entrySet().hashCode();
@@ -812,6 +815,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private static final long serialVersionUID = 9151493609653852972L;
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextValue();
@@ -836,6 +842,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private static final long serialVersionUID = -5670291734793552927L;
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer next()
         {
             return nextValue();
@@ -862,6 +871,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     {
         private static final long serialVersionUID = 1744408438593481051L;
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer getKey()
         {
             return getIntKey();
@@ -877,6 +889,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return entries[keyPosition()];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer getValue()
         {
             return getIntValue();
@@ -892,6 +907,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return entries[keyPosition() + 1];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Integer setValue(final Integer value)
         {
             return setValue(value.intValue());
@@ -921,6 +939,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
             return prevValue;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Entry<Integer, Integer> next()
         {
             findNext();
@@ -986,26 +1007,41 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 this.v = v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public Integer getKey()
             {
                 return k;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public Integer getValue()
             {
                 return v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public Integer setValue(final Integer value)
             {
                 return Int2IntHashMap.this.put(k, value.intValue());
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @DoNotSub public int hashCode()
             {
                 return Integer.hashCode(getIntKey()) ^ Integer.hashCode(getIntValue());
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @DoNotSub public boolean equals(final Object o)
             {
                 if (!(o instanceof Map.Entry))
@@ -1018,6 +1054,9 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
                 return (e.getKey() != null && e.getValue() != null) && (e.getKey().equals(k) && e.getValue().equals(v));
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public String toString()
             {
                 return k + "=" + v;

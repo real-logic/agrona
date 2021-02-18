@@ -206,6 +206,9 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return value += delta;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -223,16 +226,25 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
         return value == that.value;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int hashCode()
     {
         return Long.hashCode(value);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return Long.toString(value);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int compareTo(final MutableLong that)
     {
         return compare(this.value, that.value);

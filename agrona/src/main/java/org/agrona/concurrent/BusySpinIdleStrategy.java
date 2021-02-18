@@ -64,16 +64,19 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     {
     }
 
-    public String toString()
-    {
-        return "BusySpinIdleStrategy{alias=" + ALIAS + "}";
-    }
-
     /**
      *  {@inheritDoc}
      */
     public String alias()
     {
         return ALIAS;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "BusySpinIdleStrategy{alias=" + ALIAS + "}";
     }
 }

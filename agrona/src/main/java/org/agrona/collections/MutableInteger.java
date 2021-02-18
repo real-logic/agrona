@@ -206,6 +206,9 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return value += delta;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -223,16 +226,25 @@ public class MutableInteger extends Number implements Comparable<MutableInteger>
         return value == that.value;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int hashCode()
     {
         return Integer.hashCode(value);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         return Integer.toString(value);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public int compareTo(final MutableInteger that)
     {
         return compare(this.value, that.value);

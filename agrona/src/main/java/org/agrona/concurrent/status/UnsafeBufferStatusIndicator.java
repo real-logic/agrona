@@ -76,6 +76,9 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
         return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "UnsafeBufferStatusIndicator{" +

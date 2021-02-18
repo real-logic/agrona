@@ -20,6 +20,9 @@ package org.agrona.concurrent;
  */
 public class SystemEpochMicroClock implements EpochMicroClock
 {
+    /**
+     *  {@inheritDoc}
+     */
     public long microTime()
     {
         return HighResolutionClock.epochMicros();

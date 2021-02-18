@@ -349,6 +349,9 @@ public class BiInt2ObjectMap<V> implements Serializable
         return 0 == size;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();

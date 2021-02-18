@@ -53,7 +53,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     }
 
     /**
-     * Create a map with initiail capacity and load factor.
+     * Create a map with initial capacity and load factor.
      *
      * @param initialCapacity for the map to override {@link #MIN_CAPACITY}
      * @param loadFactor      for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
@@ -125,6 +125,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         return size == 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public V get(final Object key)
     {
         return unmapNullValue(getMapped(key));
@@ -465,6 +468,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
         return size == that.size() && entrySet().equals(that.entrySet());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int hashCode()
     {
         return entrySet().hashCode();
@@ -638,6 +644,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     {
         private static final long serialVersionUID = 2381081253326969359L;
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public K next()
         {
@@ -653,6 +662,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     {
         private static final long serialVersionUID = -9021925571373462472L;
 
+        /**
+         * {@inheritDoc}
+         */
         public V next()
         {
             findNext();
@@ -669,17 +681,26 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
     {
         private static final long serialVersionUID = 7273758986584625427L;
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public K getKey()
         {
             return (K)entries[keyPosition()];
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public V getValue()
         {
             return unmapNullValue(entries[keyPosition() + 1]);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public V setValue(final V value)
         {
@@ -698,9 +719,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             final int keyPosition = keyPosition();
             final Object prevValue = entries[keyPosition + 1];
             entries[keyPosition + 1] = val;
+
             return unmapNullValue(prevValue);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Entry<K, V> next()
         {
             findNext();
@@ -763,27 +788,42 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                 this.v = v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public K getKey()
             {
                 return k;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public V getValue()
             {
                 return v;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public V setValue(final V value)
             {
                 return Object2ObjectHashMap.this.put(k, value);
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public int hashCode()
             {
                 final V v = getValue();
                 return getKey().hashCode() ^ (v != null ? v.hashCode() : 0);
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public boolean equals(final Object o)
             {
                 if (!(o instanceof Map.Entry))
@@ -797,6 +837,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
                     ((e.getValue() == null && v == null) || e.getValue().equals(v));
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public String toString()
             {
                 return k + "=" + v;
@@ -859,6 +902,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return containsKey(o);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @SuppressWarnings("unchecked")
         public void forEach(final Consumer<? super K> action)
         {
@@ -914,6 +960,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
             return containsValue(o);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void forEach(final Consumer<? super V> action)
         {
             int remaining = Object2ObjectHashMap.this.size;
