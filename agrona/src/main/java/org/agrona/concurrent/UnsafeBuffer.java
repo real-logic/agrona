@@ -57,7 +57,7 @@ public class UnsafeBuffer implements AtomicBuffer
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
 
     /**
-     * Should bounds checks be done or not. Controled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     * Should bounds checks be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
      *
      * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
@@ -155,6 +155,9 @@ public class UnsafeBuffer implements AtomicBuffer
         wrap(address, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final byte[] buffer)
     {
         addressOffset = ARRAY_BASE_OFFSET;
@@ -167,6 +170,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final byte[] buffer, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -184,6 +190,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final ByteBuffer buffer)
     {
         if (buffer != byteBuffer)
@@ -205,6 +214,9 @@ public class UnsafeBuffer implements AtomicBuffer
         capacity = buffer.capacity();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final ByteBuffer buffer, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -231,6 +243,9 @@ public class UnsafeBuffer implements AtomicBuffer
         capacity = length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final DirectBuffer buffer)
     {
         addressOffset = buffer.addressOffset();
@@ -249,6 +264,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final DirectBuffer buffer, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -272,6 +290,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void wrap(final long address, final int length)
     {
         addressOffset = address;
@@ -280,21 +301,33 @@ public class UnsafeBuffer implements AtomicBuffer
         byteBuffer = null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long addressOffset()
     {
         return addressOffset;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public byte[] byteArray()
     {
         return byteArray;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ByteBuffer byteBuffer()
     {
         return byteBuffer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setMemory(final int index, final int length, final byte value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -316,11 +349,17 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int capacity()
     {
         return capacity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void checkLimit(final int limit)
     {
         if (limit > capacity)
@@ -329,11 +368,17 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isExpandable()
     {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void verifyAlignment()
     {
         if (0 != (addressOffset & (ALIGNMENT - 1)))
@@ -346,6 +391,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public long getLong(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -362,6 +410,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return bits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putLong(final int index, final long value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -378,6 +429,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putLong(byteArray, addressOffset + index, bits);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getLong(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -388,6 +442,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getLong(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putLong(final int index, final long value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -398,6 +455,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putLong(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getLongVolatile(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -408,6 +468,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getLongVolatile(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putLongVolatile(final int index, final long value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -418,6 +481,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putLongVolatile(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putLongOrdered(final int index, final long value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -428,6 +494,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long addLongOrdered(final int index, final long increment)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -443,6 +512,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean compareAndSetLong(final int index, final long expectedValue, final long updateValue)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -453,6 +525,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.compareAndSwapLong(byteArray, addressOffset + index, expectedValue, updateValue);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getAndSetLong(final int index, final long value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -463,6 +538,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getAndSetLong(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getAndAddLong(final int index, final long delta)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -475,6 +553,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInt(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -491,6 +572,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return bits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putInt(final int index, final int value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -507,6 +591,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInt(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -517,6 +604,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getInt(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putInt(final int index, final int value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -527,6 +617,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putInt(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getIntVolatile(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -537,6 +630,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getIntVolatile(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putIntVolatile(final int index, final int value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -547,6 +643,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putIntVolatile(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putIntOrdered(final int index, final int value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -557,6 +656,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putOrderedInt(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int addIntOrdered(final int index, final int increment)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -572,6 +674,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean compareAndSetInt(final int index, final int expectedValue, final int updateValue)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -582,6 +687,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.compareAndSwapInt(byteArray, addressOffset + index, expectedValue, updateValue);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getAndSetInt(final int index, final int value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -592,6 +700,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getAndSetInt(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getAndAddInt(final int index, final int delta)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -604,6 +715,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public double getDouble(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -622,6 +736,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putDouble(final int index, final double value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -640,6 +757,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public double getDouble(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -650,6 +770,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getDouble(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putDouble(final int index, final double value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -662,6 +785,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public float getFloat(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -680,6 +806,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putFloat(final int index, final float value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -698,6 +827,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getFloat(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -708,6 +840,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getFloat(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putFloat(final int index, final float value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -720,6 +855,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public short getShort(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -736,6 +874,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return bits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putShort(final int index, final short value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -752,6 +893,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putShort(byteArray, addressOffset + index, bits);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public short getShort(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -762,6 +906,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getShort(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putShort(final int index, final short value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -772,6 +919,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putShort(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public short getShortVolatile(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -782,6 +932,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getShortVolatile(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putShortVolatile(final int index, final short value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -794,6 +947,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public byte getByte(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -804,6 +960,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getByte(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putByte(final int index, final byte value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -814,6 +973,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putByte(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public byte getByteVolatile(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -824,6 +986,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putByteVolatile(final int index, final byte value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -834,6 +999,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void getBytes(final int index, final byte[] dst)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -844,6 +1012,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void getBytes(final int index, final byte[] dst, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -856,11 +1027,17 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length)
     {
         dstBuffer.putBytes(dstIndex, this, index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int length)
     {
         final int dstOffset = dstBuffer.position();
@@ -868,6 +1045,9 @@ public class UnsafeBuffer implements AtomicBuffer
         dstBuffer.position(dstOffset + length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -893,6 +1073,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putBytes(final int index, final byte[] src)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -903,6 +1086,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putBytes(final int index, final byte[] src, final int offset, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -915,6 +1101,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int length)
     {
         final int srcIndex = srcBuffer.position();
@@ -922,6 +1111,9 @@ public class UnsafeBuffer implements AtomicBuffer
         srcBuffer.position(srcIndex + length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -947,6 +1139,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -966,6 +1161,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public char getChar(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -982,6 +1180,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return bits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putChar(final int index, final char value, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -998,6 +1199,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putChar(byteArray, addressOffset + index, bits);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public char getChar(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1008,6 +1212,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getChar(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putChar(final int index, final char value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1018,6 +1225,9 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putChar(byteArray, addressOffset + index, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public char getCharVolatile(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1028,6 +1238,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getCharVolatile(byteArray, addressOffset + index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putCharVolatile(final int index, final char value)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1040,6 +1253,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringAscii(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1052,6 +1268,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getStringAscii(final int index, final Appendable appendable)
     {
         boundsCheck0(index, STR_HEADER_LEN);
@@ -1061,6 +1280,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length, appendable);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1079,6 +1301,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
     {
         boundsCheck0(index, STR_HEADER_LEN);
@@ -1094,6 +1319,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringAscii(index, length, appendable);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1107,6 +1335,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return new String(dst, US_ASCII);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getStringAscii(final int index, final int length, final Appendable appendable)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1130,6 +1361,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringAscii(final int index, final String value)
     {
         final int length = value != null ? value.length() : 0;
@@ -1155,6 +1389,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return STR_HEADER_LEN + length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringAscii(final int index, final String value, final ByteOrder byteOrder)
     {
         final int length = value != null ? value.length() : 0;
@@ -1186,6 +1423,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return STR_HEADER_LEN + length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringWithoutLengthAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1199,6 +1439,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return new String(dst, US_ASCII);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getStringWithoutLengthAscii(final int index, final int length, final Appendable appendable)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1222,6 +1465,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringWithoutLengthAscii(final int index, final String value)
     {
         final int length = value != null ? value.length() : 0;
@@ -1245,6 +1491,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset, final int length)
     {
         final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
@@ -1270,6 +1519,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringUtf8(final int index)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1282,6 +1534,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringUtf8(index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringUtf8(final int index, final ByteOrder byteOrder)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1300,6 +1555,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return getStringUtf8(index, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringUtf8(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1313,16 +1571,25 @@ public class UnsafeBuffer implements AtomicBuffer
         return new String(stringInBytes, UTF_8);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringUtf8(final int index, final String value)
     {
         return putStringUtf8(index, value, Integer.MAX_VALUE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder)
     {
         return putStringUtf8(index, value, byteOrder, Integer.MAX_VALUE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringUtf8(final int index, final String value, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
@@ -1342,6 +1609,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return STR_HEADER_LEN + bytes.length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder, final int maxEncodedLength)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
@@ -1367,6 +1637,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return STR_HEADER_LEN + bytes.length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getStringWithoutLengthUtf8(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1380,6 +1653,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return new String(stringInBytes, UTF_8);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putStringWithoutLengthUtf8(final int index, final String value)
     {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
@@ -1395,6 +1671,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public int parseNaturalIntAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1417,6 +1696,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return tally;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long parseNaturalLongAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1439,6 +1721,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return tally;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int parseIntAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1478,6 +1763,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return tally;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long parseLongAscii(final int index, final int length)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -1517,6 +1805,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return tally;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putIntAscii(final int index, final int value)
     {
         if (value == 0)
@@ -1561,6 +1852,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putNaturalIntAscii(final int index, final int value)
     {
         if (value == 0)
@@ -1589,6 +1883,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void putNaturalPaddedIntAscii(final int offset, final int length, final int value)
     {
         final int end = offset + length;
@@ -1606,6 +1903,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putNaturalIntAsciiFromEnd(final int value, final int endExclusive)
     {
         int remainder = value;
@@ -1621,6 +1921,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return index;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putNaturalLongAscii(final int index, final long value)
     {
         if (value == 0)
@@ -1649,6 +1952,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int putLongAscii(final int index, final long value)
     {
         if (value == 0)
@@ -1731,6 +2037,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void boundsCheck(final int index, final int length)
     {
         boundsCheck0(index, length);
@@ -1744,6 +2053,9 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int wrapAdjustment()
     {
         final long offset = byteArray != null ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
@@ -1753,6 +2065,9 @@ public class UnsafeBuffer implements AtomicBuffer
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean equals(final Object obj)
     {
         if (this == obj)
@@ -1788,6 +2103,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int hashCode()
     {
         int hashCode = 1;
@@ -1802,6 +2120,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return hashCode;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int compareTo(final DirectBuffer that)
     {
         final int thisCapacity = this.capacity;
@@ -1831,6 +2152,9 @@ public class UnsafeBuffer implements AtomicBuffer
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "UnsafeBuffer{" +
