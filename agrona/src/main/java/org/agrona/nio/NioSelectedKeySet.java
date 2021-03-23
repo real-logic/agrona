@@ -66,13 +66,21 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     }
 
     /**
-     * Capacity of the current set
+     * Capacity of the current set.
      *
-     * @return capacity of the set
+     * @return capacity of the set.
      */
     public int capacity()
     {
         return keys.length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isEmpty()
+    {
+        return 0 == size;
     }
 
     /**
@@ -96,6 +104,17 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public boolean remove(final Object o)
     {
+        for (int i = 0; i < size; i++)
+        {
+            final SelectionKey key = keys[i];
+            if (key.equals(o))
+            {
+                keys[i] = keys[--size];
+                keys[size] = null;
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -104,6 +123,15 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
      */
     public boolean contains(final Object o)
     {
+        for (int i = 0; i < size; i++)
+        {
+            final SelectionKey key = keys[i];
+            if (key.equals(o))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -161,7 +189,7 @@ public class NioSelectedKeySet extends AbstractSet<SelectionKey>
     }
 
     /**
-     * Iterate over the key set and apply the given function.
+     * Iterate over the key set and apply a given function.
      *
      * @param function to apply to each {@link java.nio.channels.SelectionKey}
      * @return number of handled frames.
