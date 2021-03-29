@@ -117,7 +117,6 @@ public class MarkFile implements AutoCloseable
      * @param versionCheck         to use for existing {@link MarkFile} and version field.
      * @param logger               to use to signal progress or null.
      */
-
     public MarkFile(
         final File markFile,
         final boolean shouldPreExist,
