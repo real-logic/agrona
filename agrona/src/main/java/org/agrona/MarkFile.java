@@ -601,7 +601,7 @@ public class MarkFile implements AutoCloseable
 
                 if (null != logger)
                 {
-                    logger.accept("INFO: heartbeat is (ms): " + timestampAgeMs);
+                    logger.accept("INFO: heartbeat timestampMs=" + timestampMs + " ageMs=" + timestampAgeMs);
                 }
 
                 if (timestampAgeMs < timeoutMs)
@@ -696,7 +696,7 @@ public class MarkFile implements AutoCloseable
 
         if (null != logger)
         {
-            logger.accept("INFO: heartbeat is (ms): " + timestampAgeMs);
+            logger.accept("INFO: heartbeat timestampMs=" + timestampMs + " ageMs=" + timestampAgeMs);
         }
 
         return timestampAgeMs <= timeoutMs;
