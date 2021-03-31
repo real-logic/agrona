@@ -185,18 +185,21 @@ public final class SystemUtil
      */
     public static void threadDump(final StringBuilder sb)
     {
-        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        final ThreadMXBean mxBean = ManagementFactory.getThreadMXBean();
 
-        for (final ThreadInfo info : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), Integer.MAX_VALUE))
+        for (final ThreadInfo threadInfo : mxBean.getThreadInfo(mxBean.getAllThreadIds(), Integer.MAX_VALUE))
         {
-            sb.append('"').append(info.getThreadName()).append("\": ").append(info.getThreadState());
-
-            for (final StackTraceElement stackTraceElement : info.getStackTrace())
+            if (null != threadInfo)
             {
-                sb.append("\n    at ").append(stackTraceElement.toString());
-            }
+                sb.append('"').append(threadInfo.getThreadName()).append("\": ").append(threadInfo.getThreadState());
 
-            sb.append("\n\n");
+                for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace())
+                {
+                    sb.append("\n    at ").append(stackTraceElement.toString());
+                }
+
+                sb.append("\n\n");
+            }
         }
     }
 
