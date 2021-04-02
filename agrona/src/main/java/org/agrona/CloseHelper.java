@@ -34,15 +34,15 @@ public final class CloseHelper
      */
     public static void quietClose(final AutoCloseable closeable)
     {
-        try
+        if (null != closeable)
         {
-            if (null != closeable)
+            try
             {
                 closeable.close();
             }
-        }
-        catch (final Throwable ignore)
-        {
+            catch (final Throwable ignore)
+            {
+            }
         }
     }
 
@@ -53,21 +53,19 @@ public final class CloseHelper
      */
     public static void quietCloseAll(final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null || closeables.isEmpty())
+        if (null != closeables)
         {
-            return;
-        }
-
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
-                }
-                catch (final Throwable ignore)
-                {
+                    try
+                    {
+                        closeable.close();
+                    }
+                    catch (final Throwable ignore)
+                    {
+                    }
                 }
             }
         }
@@ -80,21 +78,19 @@ public final class CloseHelper
      */
     public static void quietCloseAll(final AutoCloseable... closeables)
     {
-        if (closeables == null || closeables.length == 0)
+        if (null != closeables)
         {
-            return;
-        }
-
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
-                }
-                catch (final Throwable ignore)
-                {
+                    try
+                    {
+                        closeable.close();
+                    }
+                    catch (final Throwable ignore)
+                    {
+                    }
                 }
             }
         }
@@ -108,16 +104,16 @@ public final class CloseHelper
      */
     public static void close(final AutoCloseable closeable)
     {
-        try
+        if (null != closeable)
         {
-            if (null != closeable)
+            try
             {
                 closeable.close();
             }
-        }
-        catch (final Throwable ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
+            catch (final Throwable ex)
+            {
+                LangUtil.rethrowUnchecked(ex);
+            }
         }
     }
 
@@ -130,37 +126,36 @@ public final class CloseHelper
      */
     public static void closeAll(final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null || closeables.isEmpty())
+        if (null != closeables)
         {
-            return;
-        }
+            Throwable error = null;
 
-        Throwable error = null;
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
-                }
-                catch (final Throwable ex)
-                {
-                    if (error == null)
+                    try
                     {
-                        error = ex;
+                        closeable.close();
                     }
-                    else
+                    catch (final Throwable ex)
                     {
-                        error.addSuppressed(ex);
+                        if (null == error)
+                        {
+                            error = ex;
+                        }
+                        else
+                        {
+                            error.addSuppressed(ex);
+                        }
                     }
                 }
             }
-        }
 
-        if (error != null)
-        {
-            LangUtil.rethrowUnchecked(error);
+            if (null != error)
+            {
+                LangUtil.rethrowUnchecked(error);
+            }
         }
     }
 
@@ -173,37 +168,36 @@ public final class CloseHelper
      */
     public static void closeAll(final AutoCloseable... closeables)
     {
-        if (closeables == null || closeables.length == 0)
+        if (null != closeables)
         {
-            return;
-        }
+            Throwable error = null;
 
-        Throwable error = null;
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
-                }
-                catch (final Throwable ex)
-                {
-                    if (error == null)
+                    try
                     {
-                        error = ex;
+                        closeable.close();
                     }
-                    else
+                    catch (final Throwable ex)
                     {
-                        error.addSuppressed(ex);
+                        if (error == null)
+                        {
+                            error = ex;
+                        }
+                        else
+                        {
+                            error.addSuppressed(ex);
+                        }
                     }
                 }
             }
-        }
 
-        if (error != null)
-        {
-            LangUtil.rethrowUnchecked(error);
+            if (null != error)
+            {
+                LangUtil.rethrowUnchecked(error);
+            }
         }
     }
 
@@ -215,16 +209,23 @@ public final class CloseHelper
      */
     public static void close(final ErrorHandler errorHandler, final AutoCloseable closeable)
     {
-        try
+        if (null != closeable)
         {
-            if (null != closeable)
+            try
             {
                 closeable.close();
             }
-        }
-        catch (final Throwable ex)
-        {
-            errorHandler.onError(ex);
+            catch (final Throwable ex)
+            {
+                if (null == errorHandler)
+                {
+                    final NullPointerException error = new NullPointerException("errorHandler is null");
+                    error.addSuppressed(ex);
+                    throw error;
+                }
+
+                errorHandler.onError(ex);
+            }
         }
     }
 
@@ -236,23 +237,40 @@ public final class CloseHelper
      */
     public static void closeAll(final ErrorHandler errorHandler, final Collection<? extends AutoCloseable> closeables)
     {
-        if (closeables == null || closeables.isEmpty())
+        if (null != closeables)
         {
-            return;
-        }
+            NullPointerException error = null;
 
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
+                    try
+                    {
+                        closeable.close();
+                    }
+                    catch (final Throwable ex)
+                    {
+                        if (null == errorHandler)
+                        {
+                            if (null == error)
+                            {
+                                error = new NullPointerException("errorHandler is null");
+                            }
+
+                            error.addSuppressed(ex);
+                        }
+                        else
+                        {
+                            errorHandler.onError(ex);
+                        }
+                    }
                 }
-                catch (final Throwable ex)
-                {
-                    errorHandler.onError(ex);
-                }
+            }
+
+            if (null != error)
+            {
+                LangUtil.rethrowUnchecked(error);
             }
         }
     }
@@ -265,23 +283,40 @@ public final class CloseHelper
      */
     public static void closeAll(final ErrorHandler errorHandler, final AutoCloseable... closeables)
     {
-        if (closeables == null || closeables.length == 0)
+        if (null != closeables)
         {
-            return;
-        }
+            NullPointerException error = null;
 
-        for (final AutoCloseable closeable : closeables)
-        {
-            if (closeable != null)
+            for (final AutoCloseable closeable : closeables)
             {
-                try
+                if (null != closeable)
                 {
-                    closeable.close();
+                    try
+                    {
+                        closeable.close();
+                    }
+                    catch (final Throwable ex)
+                    {
+                        if (null == errorHandler)
+                        {
+                            if (null == error)
+                            {
+                                error = new NullPointerException("errorHandler is null");
+                            }
+
+                            error.addSuppressed(ex);
+                        }
+                        else
+                        {
+                            errorHandler.onError(ex);
+                        }
+                    }
                 }
-                catch (final Throwable ex)
-                {
-                    errorHandler.onError(ex);
-                }
+            }
+
+            if (null != error)
+            {
+                LangUtil.rethrowUnchecked(error);
             }
         }
     }
