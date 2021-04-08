@@ -230,7 +230,7 @@ subprojects {
 
     javadoc {
         title = '<h1>Agrona</h1>'
-        options.bottom = '<i>Copyright &#169; 2014-2020 Real Logic Limited. All Rights Reserved.</i>'
+        options.bottom = '<i>Copyright &#169; 2014-2021 Real Logic Limited. All Rights Reserved.</i>'
         options.encoding = 'UTF-8'
         options.docEncoding = 'UTF-8'
         options.charSet = 'UTF-8'
