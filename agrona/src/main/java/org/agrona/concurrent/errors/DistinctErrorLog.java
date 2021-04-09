@@ -157,7 +157,7 @@ public class DistinctErrorLog
      */
     public boolean record(final Throwable observation)
     {
-        final long timestamp = clock.time();
+        final long timestampMs = clock.time();
         DistinctObservation distinctObservation;
 
         synchronized (this)
@@ -165,7 +165,7 @@ public class DistinctErrorLog
             distinctObservation = find(distinctObservations, observation);
             if (null == distinctObservation)
             {
-                distinctObservation = newObservation(timestamp, observation);
+                distinctObservation = newObservation(timestampMs, observation);
                 if (INSUFFICIENT_SPACE == distinctObservation)
                 {
                     return false;
@@ -175,7 +175,7 @@ public class DistinctErrorLog
 
         final int offset = distinctObservation.offset;
         buffer.getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        buffer.putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
+        buffer.putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampMs);
 
         return true;
     }
@@ -252,7 +252,7 @@ public class DistinctErrorLog
         return true;
     }
 
-    private DistinctObservation newObservation(final long timestamp, final Throwable observation)
+    private DistinctObservation newObservation(final long timestampMs, final Throwable observation)
     {
         final StringWriter stringWriter = new StringWriter();
         observation.printStackTrace(new PrintWriter(stringWriter));
@@ -267,7 +267,7 @@ public class DistinctErrorLog
         }
 
         buffer.putBytes(offset + ENCODED_ERROR_OFFSET, encodedError);
-        buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
+        buffer.putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampMs);
         nextOffset = align(offset + length, RECORD_ALIGNMENT);
 
         final DistinctObservation distinctObservation = new DistinctObservation(observation, offset);
@@ -291,8 +291,8 @@ public class DistinctErrorLog
 
     static final class DistinctObservation
     {
-        public final Throwable throwable;
-        public final int offset;
+        final Throwable throwable;
+        final int offset;
 
         DistinctObservation(final Throwable throwable, final int offset)
         {
