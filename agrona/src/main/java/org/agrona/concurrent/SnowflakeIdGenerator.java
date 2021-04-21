@@ -163,8 +163,9 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
 
         do
         {
-            final long timestampMs = clock.time() - timestampOffsetMs;
             oldTimestampSequence = timestampSequence;
+
+            final long timestampMs = clock.time() - timestampOffsetMs;
             final long oldTimestampMs = oldTimestampSequence >>> (NODE_ID_BITS + SEQUENCE_BITS);
 
             if (oldTimestampMs < timestampMs)
