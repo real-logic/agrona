@@ -145,7 +145,7 @@ class SnowflakeIdGeneratorTest
         final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(nodeId, timestampOffset, clock);
         clockCounter.set(0);
 
-        for (int i = 0; i < SnowflakeIdGenerator.MAX_SEQUENCE; i++)
+        for (int i = 0; i <= SnowflakeIdGenerator.MAX_SEQUENCE; i++)
         {
             final long id = idGenerator.nextId();
 
@@ -153,8 +153,6 @@ class SnowflakeIdGeneratorTest
             assertEquals(nodeId, extractNodeId(id));
             assertEquals(i, extractSequence(id));
         }
-
-        assertEquals(SnowflakeIdGenerator.MAX_SEQUENCE, extractSequence(idGenerator.nextId()));
 
         final Thread thread = new Thread(() -> generatedId.set(idGenerator.nextId()));
         thread.setDaemon(true);
