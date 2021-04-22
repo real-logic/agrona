@@ -39,7 +39,7 @@ abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGene
  * Generate unique identifiers based on the Twitter
  * <a href="https://github.com/twitter-archive/snowflake/tree/snowflake-2010">Snowflake</a> algorithm.
  * <p>
- * This implementation is lock-less resulting is less contention and jitter.
+ * This implementation is lock-less resulting in greater throughput plus less contention and latency jitter.
  * <p>
  * <b>Note:</b> ntpd, or alternative clock source, should be setup correctly to ensure the clock does not go backwards.
  */
