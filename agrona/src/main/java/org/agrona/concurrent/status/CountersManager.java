@@ -379,6 +379,11 @@ public class CountersManager extends CountersReader
         validateCounterId(counterId);
         final int offset = metaDataOffset(counterId);
 
+        if (RECORD_ALLOCATED != metaDataBuffer.getIntVolatile(offset))
+        {
+            throw new IllegalStateException("counter not allocated: id=" + counterId);
+        }
+
         metaDataBuffer.putIntOrdered(offset, RECORD_RECLAIMED);
         metaDataBuffer.setMemory(offset + KEY_OFFSET, MAX_KEY_LENGTH, (byte)0);
         metaDataBuffer.putLong(offset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
