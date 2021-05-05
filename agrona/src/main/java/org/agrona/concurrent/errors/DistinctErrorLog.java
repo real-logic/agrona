@@ -157,12 +157,14 @@ public class DistinctErrorLog
      */
     public boolean record(final Throwable observation)
     {
-        final long timestampMs = clock.time();
+        final long timestampMs;
         DistinctObservation distinctObservation;
 
         synchronized (this)
         {
+            timestampMs = clock.time();
             distinctObservation = find(distinctObservations, observation);
+
             if (null == distinctObservation)
             {
                 distinctObservation = newObservation(timestampMs, observation);
