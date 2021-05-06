@@ -160,8 +160,8 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public void wrap(final byte[] buffer)
     {
-        addressOffset = ARRAY_BASE_OFFSET;
         capacity = buffer.length;
+        addressOffset = ARRAY_BASE_OFFSET;
         byteBuffer = null;
 
         if (buffer != byteArray)
@@ -180,8 +180,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheckWrap(offset, length, buffer.length);
         }
 
-        addressOffset = ARRAY_BASE_OFFSET + offset;
         capacity = length;
+        addressOffset = ARRAY_BASE_OFFSET + offset;
         byteBuffer = null;
 
         if (buffer != byteArray)
@@ -195,6 +195,8 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public void wrap(final ByteBuffer buffer)
     {
+        capacity = buffer.capacity();
+
         if (buffer != byteBuffer)
         {
             byteBuffer = buffer;
@@ -210,8 +212,6 @@ public class UnsafeBuffer implements AtomicBuffer
             byteArray = array(buffer);
             addressOffset = ARRAY_BASE_OFFSET + arrayOffset(buffer);
         }
-
-        capacity = buffer.capacity();
     }
 
     /**
@@ -223,6 +223,8 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             boundsCheckWrap(offset, length, buffer.capacity());
         }
+
+        capacity = length;
 
         if (buffer != byteBuffer)
         {
@@ -239,8 +241,6 @@ public class UnsafeBuffer implements AtomicBuffer
             byteArray = array(buffer);
             addressOffset = ARRAY_BASE_OFFSET + arrayOffset(buffer) + offset;
         }
-
-        capacity = length;
     }
 
     /**
@@ -248,8 +248,8 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public void wrap(final DirectBuffer buffer)
     {
-        addressOffset = buffer.addressOffset();
         capacity = buffer.capacity();
+        addressOffset = buffer.addressOffset();
 
         final byte[] byteArray = buffer.byteArray();
         if (byteArray != this.byteArray)
@@ -274,8 +274,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheckWrap(offset, length, buffer.capacity());
         }
 
-        addressOffset = buffer.addressOffset() + offset;
         capacity = length;
+        addressOffset = buffer.addressOffset() + offset;
 
         final byte[] byteArray = buffer.byteArray();
         if (byteArray != this.byteArray)
@@ -295,8 +295,8 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public void wrap(final long address, final int length)
     {
-        addressOffset = address;
         capacity = length;
+        addressOffset = address;
         byteArray = null;
         byteBuffer = null;
     }
