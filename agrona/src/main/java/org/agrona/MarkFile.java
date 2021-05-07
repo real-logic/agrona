@@ -242,7 +242,7 @@ public class MarkFile implements AutoCloseable
         {
             if (null != mappedBuffer)
             {
-                IoUtil.unmap(mappedBuffer);
+                BufferUtil.free(mappedBuffer);
             }
 
             isClosed = true;
@@ -420,7 +420,7 @@ public class MarkFile implements AutoCloseable
                 }
                 finally
                 {
-                    IoUtil.unmap(byteBuffer);
+                    BufferUtil.free(byteBuffer);
                 }
             }
 
@@ -544,7 +544,7 @@ public class MarkFile implements AutoCloseable
         }
         catch (final Throwable ex)
         {
-            IoUtil.unmap(byteBuffer);
+            BufferUtil.free(byteBuffer);
             LangUtil.rethrowUnchecked(ex);
         }
 
@@ -613,7 +613,7 @@ public class MarkFile implements AutoCloseable
         {
             if (null != byteBuffer)
             {
-                IoUtil.unmap(byteBuffer);
+                BufferUtil.free(byteBuffer);
             }
 
             throw new RuntimeException(ex);
