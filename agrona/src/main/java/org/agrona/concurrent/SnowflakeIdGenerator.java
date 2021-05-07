@@ -61,23 +61,83 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
     public static final int EPOCH_BITS = 41;
 
     /**
-     * Number of bits used to represent the distributed node or application allowing for 1024 nodes, 0-1023.
+     * Total number of bits used to represent the distributed node and the sequence within a millisecond.
      */
-    public static final int NODE_ID_BITS = 10;
+    public static final int NODE_ID_AND_SEQUENCE_BITS = 22;
 
     /**
-     * Number of bits used to represent the sequence within a millisecond which is 0-4095, supporting 4,096,000
-     * ids per second per node.
+     * Name of the system property that can be used to set number of bits used to represent the distributed node or
+     * application. Default value is {@code 10} bits allowing for 1024 nodes (0-1023). Minimal value is {@code 0}
+     * allowing a single node (0).
+     *
+     * <p>
+     * Note: The total number of bits defined by this property and {@link #SEQUENCE_BITS_PROP_NAME} cannot exceed
+     * {@link #NODE_ID_AND_SEQUENCE_BITS}.
+     * </p>
+     *
+     * @see #SEQUENCE_BITS_PROP_NAME
      */
-    public static final int SEQUENCE_BITS = 12;
+    public static final String NODE_ID_BITS_PROP_NAME = "agrona.snowflake.nodeIdBits";
 
     /**
-     * Maximum number of nodes given {@link #NODE_ID_BITS} which is 0-1023.
+     * Number of bits used to represent the distributed node or application.
+     *
+     * @see #NODE_ID_BITS_PROP_NAME
+     */
+    public static final int NODE_ID_BITS;
+
+    /**
+     * Name of the system property that can be used to set number of bits used to represent the sequence within a
+     * millisecond. Default value is {@code 12} bits supporting 4,096,000 ids per second per node. Minimal value
+     * is {@code 0} which supports only 1 id per second per node.
+     *
+     * <p>
+     * Note: The total number of bits defined by this property and {@link #NODE_ID_BITS_PROP_NAME} cannot exceed
+     * {@link #NODE_ID_AND_SEQUENCE_BITS}.
+     * </p>
+     *
+     * @see #NODE_ID_BITS_PROP_NAME
+     */
+    public static final String SEQUENCE_BITS_PROP_NAME = "agrona.snowflake.sequenceBits";
+
+    /**
+     * Number of bits used to represent the sequence within a millisecond.
+     *
+     * @see #SEQUENCE_BITS_PROP_NAME
+     */
+    public static final int SEQUENCE_BITS;
+
+    static
+    {
+        final int nodeIdBits = Integer.getInteger(NODE_ID_BITS_PROP_NAME, 10);
+        if (nodeIdBits < 0)
+        {
+            throw new IllegalArgumentException("must be >= 0: " + NODE_ID_BITS_PROP_NAME + "=" + nodeIdBits);
+        }
+
+        final int sequenceBits = Integer.getInteger(SEQUENCE_BITS_PROP_NAME, 12);
+        if (sequenceBits < 0)
+        {
+            throw new IllegalArgumentException("must be >= 0: " + SEQUENCE_BITS_PROP_NAME + "=" + sequenceBits);
+        }
+
+        if ((nodeIdBits + sequenceBits) > NODE_ID_AND_SEQUENCE_BITS)
+        {
+            throw new IllegalArgumentException("too many bits used, must not exceed " + NODE_ID_AND_SEQUENCE_BITS +
+                ": " + NODE_ID_BITS_PROP_NAME + "=" + nodeIdBits + ", " + SEQUENCE_BITS_PROP_NAME + "=" + sequenceBits);
+        }
+
+        NODE_ID_BITS = nodeIdBits;
+        SEQUENCE_BITS = sequenceBits;
+    }
+
+    /**
+     * Maximum number of nodes given {@link #NODE_ID_BITS}.
      */
     public static final long MAX_NODE_ID = (long)(Math.pow(2, NODE_ID_BITS) - 1);
 
     /**
-     * Maximum sequence within a given millisecond given {@link #SEQUENCE_BITS} which is 0-4095.
+     * Maximum sequence within a given millisecond given {@link #SEQUENCE_BITS}.
      */
     public static final long MAX_SEQUENCE = (long)(Math.pow(2, SEQUENCE_BITS) - 1);
 

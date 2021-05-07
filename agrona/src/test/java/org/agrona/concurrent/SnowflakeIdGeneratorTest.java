@@ -18,9 +18,23 @@ package org.agrona.concurrent;
 import org.agrona.collections.LongArrayList;
 import org.agrona.collections.LongHashSet;
 import org.agrona.collections.MutableLong;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.agrona.concurrent.SnowflakeIdGenerator.*;
 import java.util.concurrent.CyclicBarrier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,6 +44,154 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SnowflakeIdGeneratorTest
 {
+    private static final String NODE_ID_BITS_FIELD = "NODE_ID_BITS";
+    private static final String SEQUENCE_BITS_FIELD = "SEQUENCE_BITS";
+    private static final String NODE_ID_AND_SEQUENCE_BITS_FIELD = "NODE_ID_AND_SEQUENCE_BITS";
+    private static URL[] urls;
+
+    @BeforeAll
+    static void beforeAll() throws MalformedURLException
+    {
+        final Path modulePath = new File("").toPath().toAbsolutePath();
+        urls = new URL[]{ modulePath.resolve("build/classes/java/main").toUri().toURL() };
+    }
+
+    @Test
+    void shouldInitializeNodeIdBitsFromSystemProperty() throws Exception
+    {
+        System.setProperty(NODE_ID_BITS_PROP_NAME, "7");
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            assertEquals(7, getFieldValue(clazz, NODE_ID_BITS_FIELD));
+            assertEquals(10, NODE_ID_BITS); // default value
+        }
+        finally
+        {
+            System.clearProperty(NODE_ID_BITS_PROP_NAME);
+        }
+    }
+
+    @Test
+    void shouldInitializeSequenceBitsFromSystemProperty() throws Exception
+    {
+        System.setProperty(SEQUENCE_BITS_PROP_NAME, "11");
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            assertEquals(11, getFieldValue(clazz, SEQUENCE_BITS_FIELD));
+            assertEquals(12, SEQUENCE_BITS); // default value
+        }
+        finally
+        {
+            System.clearProperty(SEQUENCE_BITS_PROP_NAME);
+        }
+    }
+
+    @Test
+    void shouldThrowExceptionIfNodeIdBitsIsSetToNegativeValue() throws Exception
+    {
+        System.setProperty(NODE_ID_BITS_PROP_NAME, "-3");
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            final ExceptionInInitializerError exception = assertThrows(
+                ExceptionInInitializerError.class, () -> getFieldValue(clazz, NODE_ID_AND_SEQUENCE_BITS_FIELD));
+            final Throwable cause = exception.getException();
+            assertEquals(IllegalArgumentException.class, cause.getClass());
+            assertEquals("must be >= 0: " + NODE_ID_BITS_PROP_NAME + "=-3", cause.getMessage());
+        }
+        finally
+        {
+            System.clearProperty(NODE_ID_BITS_PROP_NAME);
+        }
+    }
+
+    @Test
+    void shouldThrowExceptionIfSequenceBitsIsSetToNegativeValue() throws Exception
+    {
+        System.setProperty(SEQUENCE_BITS_PROP_NAME, "-1");
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            final ExceptionInInitializerError exception = assertThrows(
+                ExceptionInInitializerError.class, () -> getFieldValue(clazz, NODE_ID_AND_SEQUENCE_BITS_FIELD));
+            final Throwable cause = exception.getException();
+            assertEquals(IllegalArgumentException.class, cause.getClass());
+            assertEquals("must be >= 0: " + SEQUENCE_BITS_PROP_NAME + "=-1", cause.getMessage());
+        }
+        finally
+        {
+            System.clearProperty(SEQUENCE_BITS_PROP_NAME);
+        }
+    }
+
+    static List<Arguments> exceedMaxNumberOfBits()
+    {
+        return Arrays.asList(
+            Arguments.arguments(0, NODE_ID_AND_SEQUENCE_BITS + 1),
+            Arguments.arguments(NODE_ID_AND_SEQUENCE_BITS + 1, 0),
+            Arguments.arguments(10, 13),
+            Arguments.arguments(13, 10));
+    }
+
+    @ParameterizedTest
+    @MethodSource("exceedMaxNumberOfBits")
+    void shouldThrowExceptionIfACombinationOfNodeIdBitsAndSequenceBitsExceedsMaxValue(
+        final int nodeIdBits, final int sequenceBits) throws Exception
+    {
+        System.setProperty(NODE_ID_BITS_PROP_NAME, "" + nodeIdBits);
+        System.setProperty(SEQUENCE_BITS_PROP_NAME, "" + sequenceBits);
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            final ExceptionInInitializerError exception = assertThrows(
+                ExceptionInInitializerError.class, () -> getFieldValue(clazz, NODE_ID_AND_SEQUENCE_BITS_FIELD));
+            final Throwable cause = exception.getException();
+            assertEquals(IllegalArgumentException.class, cause.getClass());
+            assertEquals("too many bits used, must not exceed " + NODE_ID_AND_SEQUENCE_BITS + ": " +
+                NODE_ID_BITS_PROP_NAME + "=" + nodeIdBits + ", " + SEQUENCE_BITS_PROP_NAME + "=" + sequenceBits,
+                cause.getMessage());
+        }
+        finally
+        {
+            System.clearProperty(NODE_ID_BITS_PROP_NAME);
+            System.clearProperty(SEQUENCE_BITS_PROP_NAME);
+        }
+    }
+
+    static List<Arguments> configureBoth()
+    {
+        return Arrays.asList(
+            Arguments.arguments(0, NODE_ID_AND_SEQUENCE_BITS),
+            Arguments.arguments(0, 1),
+            Arguments.arguments(0, 0),
+            Arguments.arguments(1, 0),
+            Arguments.arguments(NODE_ID_AND_SEQUENCE_BITS, 0),
+            Arguments.arguments(8, NODE_ID_AND_SEQUENCE_BITS - 8),
+            Arguments.arguments(12, 10),
+            Arguments.arguments(3, 5));
+    }
+
+    @ParameterizedTest
+    @MethodSource("configureBoth")
+    void shouldInitializeNodeIdAndSequenceBits(final int nodeIdBits, final int sequenceBits) throws Exception
+    {
+        System.setProperty(NODE_ID_BITS_PROP_NAME, "" + nodeIdBits);
+        System.setProperty(SEQUENCE_BITS_PROP_NAME, "" + sequenceBits);
+        try
+        {
+            final Class<?> clazz = loadSnowflakeClass();
+            assertEquals(nodeIdBits, getFieldValue(clazz, NODE_ID_BITS_FIELD));
+            assertEquals(sequenceBits, getFieldValue(clazz, SEQUENCE_BITS_FIELD));
+        }
+        finally
+        {
+            System.clearProperty(NODE_ID_BITS_PROP_NAME);
+            System.clearProperty(SEQUENCE_BITS_PROP_NAME);
+        }
+    }
+
     @Test
     void shouldInitialiseGenerator()
     {
@@ -147,12 +309,12 @@ class SnowflakeIdGeneratorTest
 
         final MutableLong clockCounter = new MutableLong();
         final MutableLong generatedId = new MutableLong();
-        final EpochClock clock = () -> clockCounter.getAndIncrement() <= SnowflakeIdGenerator.MAX_SEQUENCE ? 1L : 2L;
+        final EpochClock clock = () -> clockCounter.getAndIncrement() <= MAX_SEQUENCE ? 1L : 2L;
 
         final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(nodeId, timestampOffset, clock);
         clockCounter.set(0);
 
-        for (int i = 0; i <= SnowflakeIdGenerator.MAX_SEQUENCE; i++)
+        for (int i = 0; i <= MAX_SEQUENCE; i++)
         {
             final long id = idGenerator.nextId();
 
@@ -280,16 +442,33 @@ class SnowflakeIdGeneratorTest
 
     private static long extractTimestamp(final long id)
     {
-        return id >>> (SnowflakeIdGenerator.NODE_ID_BITS + SnowflakeIdGenerator.SEQUENCE_BITS);
+        return id >>> (NODE_ID_BITS + SEQUENCE_BITS);
     }
 
     private static long extractNodeId(final long id)
     {
-        return (id >>> SnowflakeIdGenerator.SEQUENCE_BITS) & (SnowflakeIdGenerator.MAX_NODE_ID);
+        return (id >>> SEQUENCE_BITS) & (MAX_NODE_ID);
     }
 
     private static long extractSequence(final long id)
     {
-        return id & (SnowflakeIdGenerator.MAX_SEQUENCE);
+        return id & MAX_SEQUENCE;
+    }
+
+    private static Class<?> loadSnowflakeClass() throws ClassNotFoundException
+    {
+        final URLClassLoader classLoader = new URLClassLoader(urls, null);
+        final Class<?> clazz = classLoader.loadClass(SnowflakeIdGenerator.class.getName());
+        assertNotEquals(SnowflakeIdGenerator.class, clazz);
+
+        return clazz;
+    }
+
+    private static int getFieldValue(
+        final Class<?> clazz, final String name) throws NoSuchFieldException, IllegalAccessException
+    {
+        final Field field = clazz.getDeclaredField(name);
+        field.setAccessible(true);
+        return (Integer)field.get(null);
     }
 }
