@@ -158,13 +158,11 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
      */
     public long nextId()
     {
-        long oldTimestampSequence;
-        long newTimestampSequence = 0;
+        long newTimestampSequence;
 
-        do
+        while (true)
         {
-            oldTimestampSequence = timestampSequence;
-
+            final long oldTimestampSequence = timestampSequence;
             final long timestampMs = clock.time() - timestampOffsetMs;
             final long oldTimestampMs = oldTimestampSequence >>> (NODE_ID_BITS + SEQUENCE_BITS);
 
@@ -193,8 +191,14 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
                 throw new IllegalStateException(
                     "clock has gone backwards: timestampMs=" + timestampMs + " < oldTimestampMs=" + oldTimestampMs);
             }
+
+            if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
+            {
+                break;
+            }
+
+            ThreadHints.onSpinWait();
         }
-        while (!TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence));
 
         return newTimestampSequence | nodeBits;
     }

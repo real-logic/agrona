@@ -15,9 +15,13 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.collections.LongArrayList;
+import org.agrona.collections.LongHashSet;
 import org.agrona.collections.MutableLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import java.util.concurrent.CyclicBarrier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -171,6 +175,81 @@ class SnowflakeIdGeneratorTest
             thread.interrupt();
             throw ex;
         }
+    }
+
+    @Test
+    @Timeout(10)
+    void shouldAllowConcurrentAccess() throws InterruptedException
+    {
+        final int iterations = 10;
+        for (int i = 0; i < iterations; i++)
+        {
+            testConcurrentAccess();
+        }
+    }
+
+    private static void testConcurrentAccess() throws InterruptedException
+    {
+        final int idsPerThread = 50_000;
+        final int numThreads = 2;
+
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(4, 0, SystemEpochClock.INSTANCE);
+        final CyclicBarrier barrier = new CyclicBarrier(numThreads);
+
+        class GetIdTask extends Thread
+        {
+            final LongArrayList ids = new LongArrayList(idsPerThread, Long.MIN_VALUE);
+
+            public void run()
+            {
+                try
+                {
+                    barrier.await();
+                }
+                catch (final Exception ignore)
+                {
+                    fail();
+                }
+
+                long lastId = -1;
+                for (int j = 0; j < idsPerThread; j++)
+                {
+                    final long id = idGenerator.nextId();
+                    if (id <= lastId)
+                    {
+                        fail("id went backwards: lastId=" + lastId + ", newId=" + id);
+                    }
+
+                    ids.add(id);
+                    lastId = id;
+                }
+            }
+        }
+
+        final GetIdTask[] tasks = new GetIdTask[numThreads];
+
+        for (int i = 0; i < numThreads; i++)
+        {
+            tasks[i] = new GetIdTask();
+            tasks[i].start();
+        }
+
+        for (final GetIdTask task : tasks)
+        {
+            task.join();
+        }
+
+        final LongHashSet allIds = new LongHashSet(numThreads * idsPerThread);
+        for (final GetIdTask task : tasks)
+        {
+            final LongArrayList ids = task.ids;
+            final LongHashSet set = new LongHashSet(ids.size());
+            assertTrue(set.addAll(ids));
+            assertEquals(ids.size(), set.size(), "non-unique ids within a thread");
+            assertTrue(allIds.addAll(set));
+        }
+
+        assertEquals(numThreads * idsPerThread, allIds.size(), "non-unique ids across threads");
     }
 
     private static long extractTimestamp(final long id)
