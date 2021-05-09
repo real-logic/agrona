@@ -158,33 +158,31 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
      */
     public long nextId()
     {
-        long newTimestampSequence;
-
         while (true)
         {
             final long oldTimestampSequence = timestampSequence;
             final long timestampMs = clock.time() - timestampOffsetMs;
             final long oldTimestampMs = oldTimestampSequence >>> (NODE_ID_BITS + SEQUENCE_BITS);
 
-            if (oldTimestampMs < timestampMs)
+            if (timestampMs > oldTimestampMs)
             {
-                newTimestampSequence = timestampMs << (NODE_ID_BITS + SEQUENCE_BITS);
+                final long newTimestampSequence = timestampMs << (NODE_ID_BITS + SEQUENCE_BITS);
+                if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
+                {
+                    return newTimestampSequence | nodeBits;
+                }
             }
-            else if (oldTimestampMs == timestampMs)
+            else if (timestampMs == oldTimestampMs)
             {
                 final long oldSequence = oldTimestampSequence & SEQUENCE_MASK;
-                if (oldSequence >= MAX_SEQUENCE)
+                if (oldSequence < MAX_SEQUENCE)
                 {
-                    if (Thread.currentThread().isInterrupted())
+                    final long newTimestampSequence = oldTimestampSequence + 1;
+                    if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
                     {
-                        throw new IllegalStateException("unexpected thread interrupt");
+                        return newTimestampSequence | nodeBits;
                     }
-
-                    ThreadHints.onSpinWait();
-                    continue;
                 }
-
-                newTimestampSequence = oldTimestampSequence + 1;
             }
             else
             {
@@ -192,14 +190,12 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
                     "clock has gone backwards: timestampMs=" + timestampMs + " < oldTimestampMs=" + oldTimestampMs);
             }
 
-            if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
+            if (Thread.currentThread().isInterrupted())
             {
-                break;
+                throw new IllegalStateException("unexpected thread interrupt");
             }
 
             ThreadHints.onSpinWait();
         }
-
-        return newTimestampSequence | nodeBits;
     }
 }
