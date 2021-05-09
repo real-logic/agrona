@@ -178,7 +178,7 @@ class SnowflakeIdGeneratorTest
     }
 
     @Test
-    @Timeout(10)
+    @Timeout(30)
     void shouldAllowConcurrentAccess() throws InterruptedException
     {
         final int iterations = 10;
@@ -193,7 +193,7 @@ class SnowflakeIdGeneratorTest
         final int idsPerThread = 50_000;
         final int numThreads = 2;
 
-        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(4, 0, SystemEpochClock.INSTANCE);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(4);
         final CyclicBarrier barrier = new CyclicBarrier(numThreads);
 
         class GetIdTask extends Thread
@@ -239,17 +239,17 @@ class SnowflakeIdGeneratorTest
             task.join();
         }
 
-        final LongHashSet allIds = new LongHashSet(numThreads * idsPerThread);
+        final LongHashSet allIdsSet = new LongHashSet(numThreads * idsPerThread);
         for (final GetIdTask task : tasks)
         {
             final LongArrayList ids = task.ids;
-            final LongHashSet set = new LongHashSet(ids.size());
-            assertTrue(set.addAll(ids));
-            assertEquals(ids.size(), set.size(), "non-unique ids within a thread");
-            assertTrue(allIds.addAll(set));
+            final LongHashSet idsSet = new LongHashSet(ids.size());
+            assertTrue(idsSet.addAll(ids));
+            assertEquals(ids.size(), idsSet.size(), "non-unique ids within a thread");
+            assertTrue(allIdsSet.addAll(idsSet));
         }
 
-        assertEquals(numThreads * idsPerThread, allIds.size(), "non-unique ids across threads");
+        assertEquals(numThreads * idsPerThread, allIdsSet.size(), "non-unique ids across threads");
     }
 
     private static long extractTimestamp(final long id)
