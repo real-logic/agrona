@@ -181,10 +181,18 @@ class SnowflakeIdGeneratorTest
     @Timeout(30)
     void shouldAllowConcurrentAccess() throws InterruptedException
     {
-        final int iterations = 10;
-        for (int i = 0; i < iterations; i++)
+        HighResolutionTimer.enable();
+        try
         {
-            testConcurrentAccess();
+            final int iterations = 10;
+            for (int i = 0; i < iterations; i++)
+            {
+                testConcurrentAccess();
+            }
+        }
+        finally
+        {
+            HighResolutionTimer.disable();
         }
     }
 
