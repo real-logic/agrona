@@ -175,7 +175,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
             else if (oldTimestampMs == timestampMs)
             {
                 final long oldSequence = oldTimestampSequence & SEQUENCE_MASK;
-                if (MAX_SEQUENCE == oldSequence)
+                if (oldSequence >= MAX_SEQUENCE)
                 {
                     if (Thread.currentThread().isInterrupted())
                     {
