@@ -72,8 +72,8 @@ class SnowflakeIdGeneratorTest
         final IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> new SnowflakeIdGenerator(nodeIdBits, sequenceBits, 0, 0, SystemEpochClock.INSTANCE));
-        assertEquals("too many bits used for payload, must not exceed " + MAX_NODE_ID_AND_SEQUENCE_BITS +
-            ": nodeIdBits=" + nodeIdBits + " sequenceBits=" + sequenceBits,
+        assertEquals("too many bits used:" +
+            " nodeIdBits=" + nodeIdBits + " + sequenceBits=" + sequenceBits + " > " + MAX_NODE_ID_AND_SEQUENCE_BITS,
             exception.getMessage());
     }
 

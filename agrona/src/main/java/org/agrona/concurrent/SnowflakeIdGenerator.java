@@ -80,7 +80,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
      */
     public static final int SEQUENCE_BITS_DEFAULT = 12;
 
-    private final int payloadBits;
+    private final int nodeIdAndSequenceBits;
     private final int sequenceBits;
     private final long maxNodeId;
     private final long maxSequence;
@@ -114,11 +114,12 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
             throw new IllegalArgumentException("must be >= 0: sequenceBits=" + sequenceBits);
         }
 
-        final int payloadBits = (nodeIdBits + sequenceBits);
-        if (payloadBits > MAX_NODE_ID_AND_SEQUENCE_BITS)
+        final int nodeIdAndSequenceBits = (nodeIdBits + sequenceBits);
+        if (nodeIdAndSequenceBits > MAX_NODE_ID_AND_SEQUENCE_BITS)
         {
-            throw new IllegalArgumentException("too many bits used for payload, must not exceed " +
-                MAX_NODE_ID_AND_SEQUENCE_BITS + ": nodeIdBits=" + nodeIdBits + " sequenceBits=" + sequenceBits);
+            throw new IllegalArgumentException("too many bits used:" +
+                " nodeIdBits=" + nodeIdBits + " + sequenceBits=" + sequenceBits +
+                " > " + MAX_NODE_ID_AND_SEQUENCE_BITS);
         }
 
         final long maxNodeId = (long)(Math.pow(2, nodeIdBits) - 1);
@@ -138,7 +139,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
             throw new IllegalArgumentException("timestampOffsetMs=" + timestampOffsetMs + " > nowMs=" + nowMs);
         }
 
-        this.payloadBits = payloadBits;
+        this.nodeIdAndSequenceBits = nodeIdAndSequenceBits;
         this.maxNodeId = maxNodeId;
         this.sequenceBits = sequenceBits;
         this.maxSequence = (long)(Math.pow(2, sequenceBits) - 1);
@@ -182,7 +183,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
     }
 
     /**
-     * The max node identity value given the configured number for the node ID bits.
+     * The max node identity value possible given the configured number of node ID bits.
      *
      * @return max node identity value.
      */
@@ -192,7 +193,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
     }
 
     /**
-     * The max sequence value given the configured number for the sequence bits.
+     * The max sequence value possible given the configured number of sequence bits.
      *
      * @return max sequence value.
      */
@@ -214,11 +215,11 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
         {
             final long oldTimestampSequence = timestampSequence;
             final long timestampMs = clock.time() - timestampOffsetMs;
-            final long oldTimestampMs = oldTimestampSequence >>> payloadBits;
+            final long oldTimestampMs = oldTimestampSequence >>> nodeIdAndSequenceBits;
 
             if (timestampMs > oldTimestampMs)
             {
-                final long newTimestampSequence = timestampMs << payloadBits;
+                final long newTimestampSequence = timestampMs << nodeIdAndSequenceBits;
                 if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
                 {
                     return newTimestampSequence | nodeBits;
@@ -253,7 +254,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
 
     long extractTimestamp(final long id)
     {
-        return id >>> payloadBits;
+        return id >>> nodeIdAndSequenceBits;
     }
 
     long extractNodeId(final long id)
