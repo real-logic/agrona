@@ -19,7 +19,7 @@ import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-abstract class AbstractSnowflakeIdGeneratorPadding
+abstract class AbstractSnowflakeIdGeneratorPaddingLhs
 {
     byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
     byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
@@ -27,12 +27,20 @@ abstract class AbstractSnowflakeIdGeneratorPadding
     byte p048, p049, p050, p051, p052, p053, p054, p055, p056, p057, p058, p059, p060, p061, p062, p063;
 }
 
-abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGeneratorPadding
+abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGeneratorPaddingLhs
 {
     static final AtomicLongFieldUpdater<AbstractSnowflakeIdGeneratorValue> TIMESTAMP_SEQUENCE_UPDATER =
         AtomicLongFieldUpdater.newUpdater(AbstractSnowflakeIdGeneratorValue.class, "timestampSequence");
 
     volatile long timestampSequence;
+}
+
+abstract class AbstractSnowflakeIdGeneratorPaddingRhs extends AbstractSnowflakeIdGeneratorValue
+{
+    byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
+    byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
+    byte p032, p033, p034, p035, p036, p037, p038, p039, p040, p041, p042, p043, p044, p045, p046, p047;
+    byte p048, p049, p050, p051, p052, p053, p054, p055, p056, p057, p058, p059, p060, p061, p062, p063;
 }
 
 /**
@@ -43,13 +51,8 @@ abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGene
  * <p>
  * <b>Note:</b> ntpd, or alternative clock source, should be setup correctly to ensure the clock does not go backwards.
  */
-public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValue implements IdGenerator
+public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPaddingRhs implements IdGenerator
 {
-    byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
-    byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
-    byte p032, p033, p034, p035, p036, p037, p038, p039, p040, p041, p042, p043, p044, p045, p046, p047;
-    byte p048, p049, p050, p051, p052, p053, p054, p055, p056, p057, p058, p059, p060, p061, p062, p063;
-
     /**
      * High order 2's compliment bit which is unused.
      */
@@ -61,28 +64,26 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
     public static final int EPOCH_BITS = 41;
 
     /**
-     * Number of bits used to represent the distributed node or application allowing for 1024 nodes, 0-1023.
+     * Total number of bits used to represent the distributed node and the sequence within a millisecond.
      */
-    public static final int NODE_ID_BITS = 10;
+    public static final int MAX_NODE_ID_AND_SEQUENCE_BITS = 22;
 
     /**
-     * Number of bits used to represent the sequence within a millisecond which is 0-4095, supporting 4,096,000
-     * ids per second per node.
+     * Default number of bits used to represent the distributed node or application which is {@code 10} bits allowing
+     * for 1024 nodes (0-1023).
      */
-    public static final int SEQUENCE_BITS = 12;
+    public static final int NODE_ID_BITS_DEFAULT = 10;
 
     /**
-     * Maximum number of nodes given {@link #NODE_ID_BITS} which is 0-1023.
+     * Default number of bits used to represent the sequence within a millisecond which is {@code 12} bits supporting
+     * 4,096,000 ids per second per node.
      */
-    public static final long MAX_NODE_ID = (long)(Math.pow(2, NODE_ID_BITS) - 1);
+    public static final int SEQUENCE_BITS_DEFAULT = 12;
 
-    /**
-     * Maximum sequence within a given millisecond given {@link #SEQUENCE_BITS} which is 0-4095.
-     */
-    public static final long MAX_SEQUENCE = (long)(Math.pow(2, SEQUENCE_BITS) - 1);
-
-    private static final long SEQUENCE_MASK = MAX_SEQUENCE;
-
+    private final int payloadBits;
+    private final int sequenceBits;
+    private final long maxNodeId;
+    private final long maxSequence;
     private final long nodeBits;
     private final long timestampOffsetMs;
     private final EpochClock clock;
@@ -90,15 +91,40 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
     /**
      * Construct a new Snowflake id generator for a given node with a provided offset and {@link EpochClock}.
      *
+     * @param nodeIdBits        number of bits used to represent the distributed node or application.
+     * @param sequenceBits      number of bits used to represent the sequence within a millisecond.
      * @param nodeId            for the node generating ids.
      * @param timestampOffsetMs to adjust the base offset from 1 Jan 1970 UTC to extend the 69 year range.
      * @param clock             to provide timestamps.
      */
-    public SnowflakeIdGenerator(final long nodeId, final long timestampOffsetMs, final EpochClock clock)
+    public SnowflakeIdGenerator(
+        final int nodeIdBits,
+        final int sequenceBits,
+        final long nodeId,
+        final long timestampOffsetMs,
+        final EpochClock clock)
     {
-        if (nodeId < 0 || nodeId > MAX_NODE_ID)
+        if (nodeIdBits < 0)
         {
-            throw new IllegalArgumentException("must be >= 0 && <= " + MAX_NODE_ID + ": nodeId=" + nodeId);
+            throw new IllegalArgumentException("must be >= 0: nodeIdBits=" + nodeIdBits);
+        }
+
+        if (sequenceBits < 0)
+        {
+            throw new IllegalArgumentException("must be >= 0: sequenceBits=" + sequenceBits);
+        }
+
+        final int payloadBits = (nodeIdBits + sequenceBits);
+        if (payloadBits > MAX_NODE_ID_AND_SEQUENCE_BITS)
+        {
+            throw new IllegalArgumentException("too many bits used for payload, must not exceed " +
+                MAX_NODE_ID_AND_SEQUENCE_BITS + ": nodeIdBits=" + nodeIdBits + ", sequenceBits=" + sequenceBits);
+        }
+
+        final long maxNodeId = (long)(Math.pow(2, nodeIdBits) - 1);
+        if (nodeId < 0 || nodeId > maxNodeId)
+        {
+            throw new IllegalArgumentException("must be >= 0 && <= " + maxNodeId + ": nodeId=" + nodeId);
         }
 
         if (timestampOffsetMs < 0)
@@ -112,30 +138,35 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
             throw new IllegalArgumentException("timestampOffsetMs=" + timestampOffsetMs + " > nowMs=" + nowMs);
         }
 
-        this.nodeBits = nodeId << SEQUENCE_BITS;
+        this.payloadBits = payloadBits;
+        this.maxNodeId = maxNodeId;
+        this.sequenceBits = sequenceBits;
+        maxSequence = (long)(Math.pow(2, sequenceBits) - 1);
+        this.nodeBits = nodeId << sequenceBits;
         this.timestampOffsetMs = timestampOffsetMs;
         this.clock = clock;
     }
 
     /**
      * Construct a new Snowflake id generator for a given node with a 0 offset from 1 Jan 1970 UTC and use
-     * {@link SystemEpochClock#INSTANCE}.
+     * {@link SystemEpochClock#INSTANCE} with {@link #NODE_ID_BITS_DEFAULT} node ID bits and
+     * {@link #SEQUENCE_BITS_DEFAULT} sequence bits.
      *
      * @param nodeId for the node generating ids.
      */
     public SnowflakeIdGenerator(final long nodeId)
     {
-        this(nodeId, 0, SystemEpochClock.INSTANCE);
+        this(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, 0, SystemEpochClock.INSTANCE);
     }
 
     /**
-     * Node identity which scopes the id generation. This is limited to {@link #MAX_NODE_ID}.
+     * Node identity which scopes the id generation. This is limited to {@link #maxNodeId()}.
      *
      * @return the node identity which scopes the id generation.
      */
     public long nodeId()
     {
-        return nodeBits >>> SEQUENCE_BITS;
+        return nodeBits >>> sequenceBits;
     }
 
     /**
@@ -151,7 +182,27 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
     }
 
     /**
-     * Generate the next id in sequence. If {@link #MAX_SEQUENCE} is reached within the same millisecond then this
+     * The max node identity value given the configured number for the node ID bits.
+     *
+     * @return max node identity value.
+     */
+    public long maxNodeId()
+    {
+        return maxNodeId;
+    }
+
+    /**
+     * The max sequence value given the configured number for the sequence bits.
+     *
+     * @return max sequence value.
+     */
+    public long maxSequence()
+    {
+        return maxSequence;
+    }
+
+    /**
+     * Generate the next id in sequence. If {@link #maxSequence()} is reached within the same millisecond then this
      * implementation will busy spin until the next millisecond using {@link ThreadHints#onSpinWait()}.
      *
      * @return the next unique id for this node.
@@ -162,11 +213,11 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
         {
             final long oldTimestampSequence = timestampSequence;
             final long timestampMs = clock.time() - timestampOffsetMs;
-            final long oldTimestampMs = oldTimestampSequence >>> (NODE_ID_BITS + SEQUENCE_BITS);
+            final long oldTimestampMs = oldTimestampSequence >>> payloadBits;
 
             if (timestampMs > oldTimestampMs)
             {
-                final long newTimestampSequence = timestampMs << (NODE_ID_BITS + SEQUENCE_BITS);
+                final long newTimestampSequence = timestampMs << payloadBits;
                 if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
                 {
                     return newTimestampSequence | nodeBits;
@@ -174,8 +225,8 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
             }
             else if (timestampMs == oldTimestampMs)
             {
-                final long oldSequence = oldTimestampSequence & SEQUENCE_MASK;
-                if (oldSequence < MAX_SEQUENCE)
+                final long oldSequence = oldTimestampSequence & maxSequence;
+                if (oldSequence < maxSequence)
                 {
                     final long newTimestampSequence = oldTimestampSequence + 1;
                     if (TIMESTAMP_SEQUENCE_UPDATER.compareAndSet(this, oldTimestampSequence, newTimestampSequence))
@@ -197,5 +248,20 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValu
 
             ThreadHints.onSpinWait();
         }
+    }
+
+    long extractTimestamp(final long id)
+    {
+        return id >>> payloadBits;
+    }
+
+    long extractNodeId(final long id)
+    {
+        return (id >>> sequenceBits) & maxNodeId;
+    }
+
+    long extractSequence(final long id)
+    {
+        return id & maxSequence;
     }
 }
