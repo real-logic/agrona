@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Timeout;
 
 import java.util.concurrent.CyclicBarrier;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SnowflakeIdGeneratorTest
@@ -198,10 +201,12 @@ class SnowflakeIdGeneratorTest
 
     private static void testConcurrentAccess() throws InterruptedException
     {
+        final long nodeId = 16;
         final int idsPerThread = 50_000;
         final int numThreads = 2;
 
-        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(4);
+        final EpochClock clock = SystemEpochClock.INSTANCE;
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(nodeId, 0, clock);
         final CyclicBarrier barrier = new CyclicBarrier(numThreads);
 
         class GetIdTask extends Thread
@@ -235,6 +240,7 @@ class SnowflakeIdGeneratorTest
         }
 
         final GetIdTask[] tasks = new GetIdTask[numThreads];
+        final long beginTimeMs = clock.time();
 
         for (int i = 0; i < numThreads; i++)
         {
@@ -247,13 +253,25 @@ class SnowflakeIdGeneratorTest
             task.join();
         }
 
+        final long endTimeMs = clock.time();
         final LongHashSet allIdsSet = new LongHashSet(numThreads * idsPerThread);
+
         for (final GetIdTask task : tasks)
         {
-            final LongArrayList ids = task.ids;
-            final LongHashSet idsSet = new LongHashSet(ids.size());
-            assertTrue(idsSet.addAll(ids));
-            assertEquals(ids.size(), idsSet.size(), "non-unique ids within a thread");
+            final LongHashSet idsSet = new LongHashSet(task.ids.size());
+
+            for (final long id : task.ids)
+            {
+                assertEquals(extractNodeId(id), nodeId);
+
+                final long timestampMs = extractTimestamp(id);
+                assertThat(timestampMs, greaterThanOrEqualTo(beginTimeMs));
+                assertThat(timestampMs, lessThanOrEqualTo(endTimeMs));
+
+                idsSet.add(id);
+            }
+
+            assertEquals(task.ids.size(), idsSet.size(), "non-unique ids within a thread");
             assertTrue(allIdsSet.addAll(idsSet));
         }
 
