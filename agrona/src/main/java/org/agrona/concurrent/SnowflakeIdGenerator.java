@@ -19,7 +19,7 @@ import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-abstract class AbstractSnowflakeIdGeneratorPadding
+abstract class AbstractSnowflakeIdGeneratorPaddingLhs
 {
     byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
     byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
@@ -27,12 +27,20 @@ abstract class AbstractSnowflakeIdGeneratorPadding
     byte p048, p049, p050, p051, p052, p053, p054, p055, p056, p057, p058, p059, p060, p061, p062, p063;
 }
 
-abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGeneratorPadding
+abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGeneratorPaddingLhs
 {
     static final AtomicLongFieldUpdater<AbstractSnowflakeIdGeneratorValue> TIMESTAMP_SEQUENCE_UPDATER =
         AtomicLongFieldUpdater.newUpdater(AbstractSnowflakeIdGeneratorValue.class, "timestampSequence");
 
     volatile long timestampSequence;
+}
+
+abstract class AbstractSnowflakeIdGeneratorPaddingRhs extends AbstractSnowflakeIdGeneratorValue
+{
+    byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
+    byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
+    byte p032, p033, p034, p035, p036, p037, p038, p039, p040, p041, p042, p043, p044, p045, p046, p047;
+    byte p048, p049, p050, p051, p052, p053, p054, p055, p056, p057, p058, p059, p060, p061, p062, p063;
 }
 
 /**
@@ -43,7 +51,7 @@ abstract class AbstractSnowflakeIdGeneratorValue extends AbstractSnowflakeIdGene
  * <p>
  * <b>Note:</b> ntpd, or alternative clock source, should be setup correctly to ensure the clock does not go backwards.
  */
-public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorValue implements IdGenerator
+public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPaddingRhs implements IdGenerator
 {
     byte p000, p001, p002, p003, p004, p005, p006, p007, p008, p009, p010, p011, p012, p013, p014, p015;
     byte p016, p017, p018, p019, p020, p021, p022, p023, p024, p025, p026, p027, p028, p029, p030, p031;
