@@ -73,7 +73,7 @@ class SnowflakeIdGeneratorTest
             IllegalArgumentException.class,
             () -> new SnowflakeIdGenerator(nodeIdBits, sequenceBits, 0, 0, SystemEpochClock.INSTANCE));
         assertEquals("too many bits used for payload, must not exceed " + MAX_NODE_ID_AND_SEQUENCE_BITS +
-            ": nodeIdBits=" + nodeIdBits + ", sequenceBits=" + sequenceBits,
+            ": nodeIdBits=" + nodeIdBits + " sequenceBits=" + sequenceBits,
             exception.getMessage());
     }
 
@@ -122,8 +122,8 @@ class SnowflakeIdGeneratorTest
     @MethodSource("configurePayloadBits")
     void shouldInitializeNodeIdAndSequenceBits(final int nodeIdBits, final int sequenceBits)
     {
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(nodeIdBits, sequenceBits, 0, 0, SystemEpochClock.INSTANCE);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            nodeIdBits, sequenceBits, 0, 0, SystemEpochClock.INSTANCE);
         assertEquals((long)Math.pow(2, nodeIdBits) - 1, idGenerator.maxNodeId());
         assertEquals((long)Math.pow(2, sequenceBits) - 1, idGenerator.maxSequence());
     }
@@ -135,8 +135,8 @@ class SnowflakeIdGeneratorTest
         final long timestampOffset = 19;
         final EpochClock clock = new SystemEpochClock();
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
 
         assertEquals(nodeId, idGenerator.nodeId());
         assertEquals(timestampOffset, idGenerator.timestampOffsetMs());
@@ -149,8 +149,8 @@ class SnowflakeIdGeneratorTest
         final long timestampOffset = 0;
         final CachedEpochClock clock = new CachedEpochClock();
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clock.advance(1);
 
         final long id = idGenerator.nextId();
@@ -167,8 +167,8 @@ class SnowflakeIdGeneratorTest
         final long timestampOffset = 0;
         final CachedEpochClock clock = new CachedEpochClock();
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clock.advance(3);
 
         final long idOne = idGenerator.nextId();
@@ -191,8 +191,8 @@ class SnowflakeIdGeneratorTest
         final long timestampOffset = 0;
         final CachedEpochClock clock = new CachedEpochClock();
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clock.advance(3);
 
         final long idOne = idGenerator.nextId();
@@ -216,8 +216,8 @@ class SnowflakeIdGeneratorTest
         final long timestampOffset = 0;
         final CachedEpochClock clock = new CachedEpochClock();
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clock.update(7);
 
         idGenerator.nextId();
@@ -238,8 +238,8 @@ class SnowflakeIdGeneratorTest
         final int maxSequence = 1023;
         final EpochClock clock = () -> clockCounter.getAndIncrement() <= maxSequence ? 1L : 2L;
 
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clockCounter.set(0);
 
         for (int i = 0; i <= maxSequence; i++)
@@ -314,8 +314,8 @@ class SnowflakeIdGeneratorTest
         final int idsPerThread) throws InterruptedException
     {
         final EpochClock clock = SystemEpochClock.INSTANCE;
-        final SnowflakeIdGenerator idGenerator =
-            new SnowflakeIdGenerator(nodeIdBits, sequenceBits, nodeId, timestampOffsetMs, clock);
+        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
+            nodeIdBits, sequenceBits, nodeId, timestampOffsetMs, clock);
         final CyclicBarrier barrier = new CyclicBarrier(numThreads);
 
         class GetIdTask extends Thread

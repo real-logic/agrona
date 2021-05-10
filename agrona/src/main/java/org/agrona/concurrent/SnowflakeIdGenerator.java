@@ -118,7 +118,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
         if (payloadBits > MAX_NODE_ID_AND_SEQUENCE_BITS)
         {
             throw new IllegalArgumentException("too many bits used for payload, must not exceed " +
-                MAX_NODE_ID_AND_SEQUENCE_BITS + ": nodeIdBits=" + nodeIdBits + ", sequenceBits=" + sequenceBits);
+                MAX_NODE_ID_AND_SEQUENCE_BITS + ": nodeIdBits=" + nodeIdBits + " sequenceBits=" + sequenceBits);
         }
 
         final long maxNodeId = (long)(Math.pow(2, nodeIdBits) - 1);
@@ -141,7 +141,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
         this.payloadBits = payloadBits;
         this.maxNodeId = maxNodeId;
         this.sequenceBits = sequenceBits;
-        maxSequence = (long)(Math.pow(2, sequenceBits) - 1);
+        this.maxSequence = (long)(Math.pow(2, sequenceBits) - 1);
         this.nodeBits = nodeId << sequenceBits;
         this.timestampOffsetMs = timestampOffsetMs;
         this.clock = clock;
@@ -203,7 +203,8 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
 
     /**
      * Generate the next id in sequence. If {@link #maxSequence()} is reached within the same millisecond then this
-     * implementation will busy spin until the next millisecond using {@link ThreadHints#onSpinWait()}.
+     * implementation will busy spin until the next millisecond using {@link ThreadHints#onSpinWait()} and checking
+     * for {@link Thread#isInterrupted()}.
      *
      * @return the next unique id for this node.
      */
