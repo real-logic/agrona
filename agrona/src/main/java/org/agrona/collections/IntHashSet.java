@@ -156,11 +156,11 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     }
 
     /**
-     * Primitive specialised overload of {this#add(Integer)}
+     * Primitive specialised overload of {this#add(Integer)}.
      *
-     * @param value the value to add
-     * @return true if the collection has changed, false otherwise
-     * @throws IllegalArgumentException if value is missingValue
+     * @param value the value to add.
+     * @return true if the collection has changed, false otherwise.
+     * @throws IllegalArgumentException if value is missingValue.
      */
     public boolean add(final int value)
     {
@@ -243,8 +243,8 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     /**
      * An int specialised version of {this#remove(Object)}.
      *
-     * @param value the value to remove
-     * @return true if the value was present, false otherwise
+     * @param value the value to remove.
+     * @return true if the value was present, false otherwise.
      */
     public boolean remove(final int value)
     {
@@ -400,10 +400,10 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
 
     /**
      * Alias for {@link #addAll(Collection)} for the specialized case when adding another IntHashSet,
-     * avoids boxing and allocations
+     * avoids boxing and allocations.
      *
      * @param coll containing the values to be added.
-     * @return {@code true} if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call.
      */
     public boolean addAll(final IntHashSet coll)
     {
@@ -449,8 +449,8 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
      * <p>
      * <b>Note:</b> garbage free in the identical case, allocates otherwise.
      *
-     * @param other the other set to subtract
-     * @return null if identical, otherwise the set of differences
+     * @param other the other set to subtract.
+     * @return null if identical, otherwise the set of differences.
      */
     public IntHashSet difference(final IntHashSet other)
     {
@@ -502,7 +502,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
      * avoids boxing and allocations
      *
      * @param coll containing the values to be removed.
-     * @return {@code true} if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call.
      */
     public boolean removeAll(final IntHashSet coll)
     {
