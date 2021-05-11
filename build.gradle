@@ -281,14 +281,15 @@ project(':agrona') {
         }
     }
 
-    compileGeneratedJava.dependsOn 'generatePrimitiveSpecialisations'
-    compileTestJava.dependsOn compileGeneratedJava
-
     task generatePrimitiveSpecialisations(type: JavaExec) {
         main = 'org.agrona.generation.SpecialisationGenerator'
         classpath = sourceSets.main.runtimeClasspath
         outputs.dir generatedDir
     }
+
+    compileGeneratedJava.dependsOn generatePrimitiveSpecialisations
+    compileTestJava.dependsOn compileGeneratedJava
+    javadoc.dependsOn generatePrimitiveSpecialisations
 
     jar {
         from sourceSets.generated.output
