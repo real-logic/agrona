@@ -30,14 +30,20 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for an int value. This is a no op.
+     * Generate a hash for an int value.
      *
      * @param value to be hashed.
      * @return the hashed value.
      */
     public static int hash(final int value)
     {
-        return value * 31;
+        int x = value;
+
+        x = ((x >>> 16) ^ x) * 0x119de1f3;
+        x = ((x >>> 16) ^ x) * 0x119de1f3;
+        x = (x >>> 16) ^ x;
+
+        return x;
     }
 
     /**
@@ -48,14 +54,17 @@ public final class Hashing
      */
     public static int hash(final long value)
     {
-        long hash = value * 31;
-        hash = (int)hash ^ (int)(hash >>> 32);
+        long x = value;
 
-        return (int)hash;
+        x = (x ^ (x >>> 30)) * 0xbf58476d1ce4e5b9L;
+        x = (x ^ (x >>> 27)) * 0x94d049bb133111ebL;
+        x = x ^ (x >>> 31);
+
+        return (int)x ^ (int)(x >>> 32);
     }
 
     /**
-     * Generate a hash for a int value.
+     * Generate a hash for a int value and apply mask to get reminder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -63,13 +72,11 @@ public final class Hashing
      */
     public static int hash(final int value, final int mask)
     {
-        final int hash = value * 31;
-
-        return hash & mask;
+        return hash(value) & mask;
     }
 
     /**
-     * Generate a hash for an object.
+     * Generate a hash for an object and apply mask to get a reminder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -77,13 +84,11 @@ public final class Hashing
      */
     public static int hash(final Object value, final int mask)
     {
-        final int hash = value.hashCode() * 31;
-
-        return hash & mask;
+        return hash(value.hashCode()) & mask;
     }
 
     /**
-     * Generate a hash for a long value.
+     * Generate a hash for a long value and apply mask to get a reminder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -91,14 +96,11 @@ public final class Hashing
      */
     public static int hash(final long value, final int mask)
     {
-        long hash = value * 31;
-        hash = (int)hash ^ (int)(hash >>> 32);
-
-        return (int)hash & mask;
+        return hash(value) & mask;
     }
 
     /**
-     * Generate an even hash for a int value.
+     * Generate an even hash for a int value and apply mask to get a reminder that will be even.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -106,13 +108,14 @@ public final class Hashing
      */
     public static int evenHash(final int value, final int mask)
     {
-        final int hash = (value << 1) - (value << 8);
+        final int hash = hash(value);
+        final int evenHash = (hash << 1) - (hash << 8);
 
-        return hash & mask;
+        return evenHash & mask;
     }
 
     /**
-     * Generate an even hash for a long value.
+     * Generate an even hash for a long value and apply mask to get a reminder that will be even.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -120,10 +123,10 @@ public final class Hashing
      */
     public static int evenHash(final long value, final int mask)
     {
-        int hash = (int)value ^ (int)(value >>> 32);
-        hash = (hash << 1) - (hash << 8);
+        final int hash = hash(value);
+        final int evenHash = (hash << 1) - (hash << 8);
 
-        return hash & mask;
+        return evenHash & mask;
     }
 
     /**

@@ -107,8 +107,8 @@ public class Int2IntCounterMapTest
         map.forEach(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
-        inOrder.verify(mockConsumer).accept(1, 1);
         inOrder.verify(mockConsumer).accept(100, 100);
+        inOrder.verify(mockConsumer).accept(1, 1);
         inOrder.verifyNoMoreInteractions();
     }
 

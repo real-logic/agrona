@@ -622,7 +622,7 @@ public class ObjectHashSetIntegerTest
             testSet.add(testEntry);
         }
 
-        final String mapAsAString = "{1, 19, 11, 7, 3, -1, 12}";
+        final String mapAsAString = "{-1, 11, 19, 7, 1, 12, 3}";
         assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 

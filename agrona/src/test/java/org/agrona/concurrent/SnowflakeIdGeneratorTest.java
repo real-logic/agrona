@@ -273,8 +273,8 @@ class SnowflakeIdGeneratorTest
     static List<Arguments> concurrentTests()
     {
         return Arrays.asList(
-            Arguments.arguments(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, 16L, 0L, 10, 2, 50_000),
-            Arguments.arguments(0, MAX_NODE_ID_AND_SEQUENCE_BITS, 0, SystemEpochClock.INSTANCE.time(), 5, 2, 100_000),
+            Arguments.arguments(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, 16L, 0L, 10, 2, 200_000),
+            Arguments.arguments(0, MAX_NODE_ID_AND_SEQUENCE_BITS, 0, SystemEpochClock.INSTANCE.time(), 5, 2, 200_000),
             Arguments.arguments(2, 0, 3L, 0L, 3, 3, 100)
         );
     }

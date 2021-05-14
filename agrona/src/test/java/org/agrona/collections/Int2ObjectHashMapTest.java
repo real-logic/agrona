@@ -233,8 +233,11 @@ public class Int2ObjectHashMapTest
             copyToSetTwo.add(s);
         }
 
-        assertEquals(initialSet, copyToSetOne);
-        assertEquals(initialSet, copyToSetTwo);
+        assertEquals(initialSet.size(), copyToSetOne.size());
+        assertTrue(initialSet.containsAll(copyToSetOne));
+
+        assertEquals(initialSet.size(), copyToSetTwo.size());
+        assertTrue(initialSet.containsAll(copyToSetTwo));
     }
 
     @Test
@@ -386,7 +389,7 @@ public class Int2ObjectHashMapTest
             intToObjectMap.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{1=1, 19=19, 3=3, 7=7, 11=11, 12=12}";
+        final String mapAsAString = "{19=19, 1=1, 11=11, 7=7, 3=3, 12=12}";
         assertThat(intToObjectMap.toString(), equalTo(mapAsAString));
     }
 

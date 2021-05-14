@@ -799,7 +799,7 @@ public class IntHashSetTest
             testSet.add(testEntry);
         }
 
-        final String mapAsAString = "{1, 19, 11, 7, 3, 12, -1}";
+        final String mapAsAString = "{11, 19, 7, 1, 12, 3, -1}";
         assertThat(testSet.toString(), equalTo(mapAsAString));
     }
 

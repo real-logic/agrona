@@ -120,8 +120,8 @@ public class Int2IntHashMapTest
         map.intForEach(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
-        inOrder.verify(mockConsumer).accept(1, 1);
         inOrder.verify(mockConsumer).accept(100, 100);
+        inOrder.verify(mockConsumer).accept(1, 1);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -610,7 +610,7 @@ public class Int2IntHashMapTest
             map.put(testEntry, testEntry + 1000);
         }
 
-        final String mapAsAString = "{12=1012, 11=1011, 7=1007, 19=1019, 3=1003, 1=1001}";
+        final String mapAsAString = "{19=1019, 1=1001, 11=1011, 7=1007, 3=1003, 12=1012}";
         assertThat(map.toString(), equalTo(mapAsAString));
     }
 

@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -129,80 +128,6 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldIterateValues()
-    {
-        final Collection<String> initialSet = new HashSet<>();
-
-        for (int i = 0; i < (CAPACITY - 1); i++)
-        {
-            final String value = Integer.toString(i);
-            cache.put(i, value);
-            initialSet.add(value);
-        }
-
-        final Collection<String> copyToSet = new HashSet<>();
-
-        for (final String s : cache.values())
-        {
-            //noinspection UseBulkOperation
-            copyToSet.add(s);
-        }
-
-        assertThat(copyToSet, is(initialSet));
-    }
-
-    @Test
-    public void shouldIterateKeysGettingIntAsPrimitive()
-    {
-        final Collection<Integer> initialSet = new HashSet<>();
-
-        for (int i = 0; i < (CAPACITY - 1); i++)
-        {
-            final String value = Integer.toString(i);
-            cache.put(i, value);
-            initialSet.add(i);
-        }
-
-        final Collection<Integer> copyToSet = new HashSet<>();
-
-        for (final Int2ObjectCache<String>.KeyIterator iter = cache.keySet().iterator(); iter.hasNext(); )
-        {
-            copyToSet.add(iter.nextInt());
-        }
-
-        assertThat(copyToSet, is(initialSet));
-    }
-
-    @Test
-    public void shouldIterateKeys()
-    {
-        final Collection<Integer> initialSet = new HashSet<>();
-
-        for (int i = 0; i < (CAPACITY - 1); i++)
-        {
-            final String value = Integer.toString(i);
-            cache.put(i, value);
-            initialSet.add(i);
-        }
-
-        assertIterateKeys(initialSet);
-        assertIterateKeys(initialSet);
-        assertIterateKeys(initialSet);
-    }
-
-    private void assertIterateKeys(final Collection<Integer> initialSet)
-    {
-        final Collection<Integer> copyToSet = new HashSet<>();
-        for (final Integer aInteger : cache.keySet())
-        {
-            //noinspection UseBulkOperation
-            copyToSet.add(aInteger);
-        }
-
-        assertThat(copyToSet, is(initialSet));
-    }
-
-    @Test
     public void shouldIterateEntries()
     {
         final int count = CAPACITY - 1;
@@ -228,7 +153,7 @@ public class Int2ObjectCacheTest
             cache.put(testEntry, String.valueOf(testEntry));
         }
 
-        final String mapAsAString = "{12=12, 11=11, 7=7, 19=19, 3=3, 1=1}";
+        final String mapAsAString = "{12=12, 3=3, 7=7, 11=11, 19=19, 1=1}";
         assertThat(cache.toString(), equalTo(mapAsAString));
     }
 
