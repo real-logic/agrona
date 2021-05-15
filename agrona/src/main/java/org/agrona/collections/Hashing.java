@@ -21,9 +21,9 @@ package org.agrona.collections;
 public final class Hashing
 {
     /**
-     * Default load factor to be used in open addressing hashed data structures.
+     * Default load factor to be used in open-addressing hashed data structures.
      */
-    public static final float DEFAULT_LOAD_FACTOR = 0.55f;
+    public static final float DEFAULT_LOAD_FACTOR = 0.65f;
 
     private Hashing()
     {
