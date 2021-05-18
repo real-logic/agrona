@@ -16,6 +16,8 @@
  */
 package org.agrona.hints;
 
+import org.agrona.SystemUtil;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 
@@ -41,7 +43,7 @@ public final class ThreadHints
     {
         MethodHandle methodHandle = null;
 
-        if (!Boolean.getBoolean(DISABLE_ON_SPIN_WAIT_PROP_NAME))
+        if (!"true".equals(SystemUtil.getProperty(DISABLE_ON_SPIN_WAIT_PROP_NAME)))
         {
             try
             {

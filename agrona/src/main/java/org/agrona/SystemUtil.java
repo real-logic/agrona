@@ -38,6 +38,14 @@ public final class SystemUtil
      */
     public static final long PID_NOT_FOUND = 0;
 
+    /**
+     * Value a {@link System#getProperties()} can be set to so that {@code null} will be returned as if the property
+     * was not set.
+     *
+     * @see #getProperty(String)
+     */
+    public static final String NULL_PROPERTY_VALUE = "@null";
+
     private static final String SUN_PID_PROP_NAME = "sun.java.launcher.pid";
     private static final long MAX_G_VALUE = 8589934591L;
     private static final long MAX_M_VALUE = 8796093022207L;
@@ -284,6 +292,43 @@ public final class SystemUtil
         {
             loadPropertiesFile(propertyAction, filenameOrUrl);
         }
+    }
+
+    /**
+     * Get the value of a {@link System#getProperty(String)} with the exception that if the value is
+     * {@link #NULL_PROPERTY_VALUE} then return {@code null}.
+     *
+     * @param propertyName to get the value for.
+     * @return the value of a {@link System#getProperty(String)} with the exception that if the value is
+     * {@link #NULL_PROPERTY_VALUE} then return {@code null}.
+     */
+    public static String getProperty(final String propertyName)
+    {
+        final String propertyValue = System.getProperty(propertyName);
+
+        return NULL_PROPERTY_VALUE.equals(propertyValue) ? null : propertyValue;
+    }
+
+    /**
+     * Get the value of a {@link System#getProperty(String, String)} with the exception that if the value is
+     * {@link #NULL_PROPERTY_VALUE} then return {@code null}, otherwise if the value is not set then return the default
+     * value.
+     *
+     * @param propertyName to get the value for.
+     * @param defaultValue to use if the property is not set.
+     * @return the value of a {@link System#getProperty(String, String)} with the exception that if the value is
+     * {@link #NULL_PROPERTY_VALUE} then return {@code null}, otherwise if the value is not set then return the default
+     * value.
+     */
+    public static String getProperty(final String propertyName, final String defaultValue)
+    {
+        final String propertyValue = System.getProperty(propertyName);
+        if (NULL_PROPERTY_VALUE.equals(propertyValue))
+        {
+            return null;
+        }
+
+        return null == propertyValue ? defaultValue : propertyValue;
     }
 
     /**

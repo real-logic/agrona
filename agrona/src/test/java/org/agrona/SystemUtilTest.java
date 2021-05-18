@@ -23,10 +23,10 @@ import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SystemUtilTest
+class SystemUtilTest
 {
     @Test
-    public void shouldParseSizesWithSuffix()
+    void shouldParseSizesWithSuffix()
     {
         assertEquals(1L, parseSize("", "1"));
         assertEquals(1024L, parseSize("", "1k"));
@@ -38,7 +38,7 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldParseTimesWithSuffix()
+    void shouldParseTimesWithSuffix()
     {
         assertEquals(1L, parseDuration("", "1"));
         assertEquals(1L, parseDuration("", "1ns"));
@@ -53,25 +53,25 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldThrowWhenParseTimeHasBadSuffix()
+    void shouldThrowWhenParseTimeHasBadSuffix()
     {
         assertThrows(NumberFormatException.class, () -> parseDuration("", "1g"));
     }
 
     @Test
-    public void shouldThrowWhenParseTimeHasBadTwoLetterSuffix()
+    void shouldThrowWhenParseTimeHasBadTwoLetterSuffix()
     {
         assertThrows(NumberFormatException.class, () -> parseDuration("", "1zs"));
     }
 
     @Test
-    public void shouldThrowWhenParseSizeOverflows()
+    void shouldThrowWhenParseSizeOverflows()
     {
         assertThrows(NumberFormatException.class, () -> parseSize("", 8589934592L + "g"));
     }
 
     @Test
-    public void shouldDoNothingToSystemPropsWhenLoadingFileWhichDoesNotExist()
+    void shouldDoNothingToSystemPropsWhenLoadingFileWhichDoesNotExist()
     {
         final int originalSystemPropSize = System.getProperties().size();
 
@@ -80,7 +80,7 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldMergeMultiplePropFilesTogether()
+    void shouldMergeMultiplePropFilesTogether()
     {
         assertThat(System.getProperty("TestFileA.foo"), is(emptyOrNullString()));
         assertThat(System.getProperty("TestFileB.foo"), is(emptyOrNullString()));
@@ -99,7 +99,7 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldOverrideSystemPropertiesWithConfigFromPropFile()
+    void shouldOverrideSystemPropertiesWithConfigFromPropFile()
     {
         System.setProperty("TestFileA.foo", "ToBeOverridden");
         assertEquals("ToBeOverridden", System.getProperty("TestFileA.foo"));
@@ -116,7 +116,7 @@ public class SystemUtilTest
     }
 
     @Test
-    public void shouldNotOverrideSystemPropertiesWithConfigFromPropFile()
+    void shouldNotOverrideSystemPropertiesWithConfigFromPropFile()
     {
         System.setProperty("TestFileA.foo", "ToBeNotOverridden");
         assertEquals("ToBeNotOverridden", System.getProperty("TestFileA.foo"));
@@ -136,5 +136,68 @@ public class SystemUtilTest
     void shouldReturnPid()
     {
         assertNotEquals(PID_NOT_FOUND, getPid());
+    }
+
+    @Test
+    void shouldGetNormalProperty()
+    {
+        final String key = "org.agrona.test.case";
+        final String value = "wibble";
+
+        System.setProperty(key, value);
+
+        try
+        {
+            assertEquals(value, SystemUtil.getProperty(key));
+        }
+        finally
+        {
+            System.clearProperty(key);
+        }
+    }
+
+    @Test
+    void shouldGetNullProperty()
+    {
+        final String key = "org.agrona.test.case";
+        final String value = "@null";
+
+        System.setProperty(key, value);
+
+        try
+        {
+            assertNull(SystemUtil.getProperty(key));
+        }
+        finally
+        {
+            System.clearProperty(key);
+        }
+    }
+
+    @Test
+    void shouldGetNullPropertyWithDefault()
+    {
+        final String key = "org.agrona.test.case";
+        final String value = "@null";
+
+        System.setProperty(key, value);
+
+        try
+        {
+            assertNull(SystemUtil.getProperty(key, "default"));
+        }
+        finally
+        {
+            System.clearProperty(key);
+        }
+    }
+
+    @Test
+    void shouldGetDefaultProperty()
+    {
+        final String key = "org.agrona.test.case";
+        final String defaultValue = "default";
+
+        assertEquals(defaultValue, SystemUtil.getProperty(key, defaultValue));
     }
 }

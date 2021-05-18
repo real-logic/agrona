@@ -61,7 +61,8 @@ public class UnsafeBuffer implements AtomicBuffer
      *
      * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
-    public static final boolean SHOULD_BOUNDS_CHECK = !Boolean.getBoolean(DISABLE_BOUNDS_CHECKS_PROP_NAME);
+    public static final boolean SHOULD_BOUNDS_CHECK =
+        !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
 
     private long addressOffset;
     private int capacity;
