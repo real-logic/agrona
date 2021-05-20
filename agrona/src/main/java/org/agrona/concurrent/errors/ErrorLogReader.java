@@ -21,7 +21,7 @@ import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
 /**
- * Reader for the log created by a {@link DistinctErrorLog}.
+ * Reader for the log created by a {@link DistinctErrorLog} encoded as UTF-8 errors.
  * <p>
  * The read methods are thread safe.
  */

@@ -15,13 +15,11 @@
  */
 package org.agrona.concurrent.errors;
 
+import org.agrona.concurrent.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.agrona.BitUtil;
-import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.EpochClock;
-import org.agrona.concurrent.UnsafeBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -29,15 +27,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
-public class DistinctErrorLogTest
+class DistinctErrorLogTest
 {
-    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
+    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(64 * 1024));
     private final AtomicBuffer buffer = spy(unsafeBuffer);
     private final EpochClock clock = mock(EpochClock.class);
     private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);
 
     @Test
-    public void shouldRecordFirstObservation()
+    void shouldRecordFirstObservation()
     {
         final long timestamp = 7;
         final int offset = 0;
@@ -56,7 +54,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldRecordFirstObservationOnly()
+    void shouldRecordFirstObservationOnly()
     {
         final long timestampOne = 7;
         final long timestampTwo = 8;
@@ -80,7 +78,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldRecordDifferentMessage()
+    void shouldRecordDifferentMessage()
     {
         final long timestampOne = 7;
         final long timestampTwo = 8;
@@ -111,7 +109,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldSummariseObservations()
+    void shouldSummariseObservations()
     {
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -135,7 +133,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldRecordTwoDistinctObservations()
+    void shouldRecordTwoDistinctObservations()
     {
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -167,7 +165,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldRecordTwoDistinctObservationsOnCause()
+    void shouldRecordTwoDistinctObservationsOnCause()
     {
         final long timestampOne = 7;
         final long timestampTwo = 10;
@@ -201,7 +199,7 @@ public class DistinctErrorLogTest
     }
 
     @Test
-    public void shouldFailToRecordWhenInsufficientSpace()
+    void shouldFailToRecordWhenInsufficientSpace()
     {
         final long timestamp = 7;
         final RuntimeException error = new RuntimeException("Test Error");
@@ -210,5 +208,60 @@ public class DistinctErrorLogTest
         when(buffer.capacity()).thenReturn(32);
 
         assertFalse(log.record(error));
+    }
+
+    @Test
+    void shouldTestRecordingWithoutStackTrace()
+    {
+        final CachedEpochClock clock = new CachedEpochClock();
+        final DistinctErrorLog log = new DistinctErrorLog(unsafeBuffer, clock);
+
+        clock.advance(10);
+        log.record(new TestEvent("event one"));
+
+        clock.advance(10);
+        log.record(new TestEvent("event one"));
+
+        clock.advance(10);
+        log.record(new TestEvent("event two"));
+
+        assertTrue(ErrorLogReader.hasErrors(unsafeBuffer));
+
+        final StringBuilder sb = new StringBuilder();
+        final int errorCount = ErrorLogReader.read(
+            unsafeBuffer,
+            (observationCount, firstObservationTimestamp, lastObservationTimestamp, encodedException) ->
+            {
+                sb
+                    .append(observationCount)
+                    .append(',')
+                    .append(firstObservationTimestamp)
+                    .append(',')
+                    .append(lastObservationTimestamp)
+                    .append(',')
+                    .append(encodedException);
+            });
+
+        assertEquals(2, errorCount);
+
+        final String expectedOutput =
+            "2,10,20,org.agrona.concurrent.errors.DistinctErrorLogTest$TestEvent: event one" + System.lineSeparator() +
+            "1,30,30,org.agrona.concurrent.errors.DistinctErrorLogTest$TestEvent: event two" + System.lineSeparator();
+        assertEquals(expectedOutput, sb.toString());
+    }
+
+    static class TestEvent extends RuntimeException
+    {
+        private static final long serialVersionUID = 5487718852587392272L;
+
+        TestEvent(final String message)
+        {
+            super(message);
+        }
+
+        public Throwable fillInStackTrace()
+        {
+            return this;
+        }
     }
 }

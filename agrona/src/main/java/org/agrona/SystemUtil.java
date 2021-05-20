@@ -25,8 +25,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.getProperty;
-
 /**
  * Utilities for inspecting the system.
  */

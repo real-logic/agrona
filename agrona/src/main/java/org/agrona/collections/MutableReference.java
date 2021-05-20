@@ -16,6 +16,7 @@
 package org.agrona.collections;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Mutable reference that is useful for capturing an object reference when using lambdas.
@@ -84,7 +85,7 @@ public class MutableReference<T> implements Serializable
 
         final MutableReference<?> that = (MutableReference<?>)o;
 
-        return ref != null ? ref.equals(that.ref) : that.ref == null;
+        return Objects.equals(ref, that.ref);
     }
 
     /**
