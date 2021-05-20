@@ -1853,7 +1853,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
         if (quotient < 10)
         {
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + (byte)quotient));
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient));
         }
         else
         {
@@ -2001,12 +2001,50 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        while (i >= 0)
+        while (quotient >= 100000000)
         {
-            final long remainder = quotient % 10L;
-            quotient = quotient / 10L;
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + remainder));
-            i--;
+            final int a = (int)(quotient % 100000000);
+            quotient /= 100000000;
+
+            final int b = a / 10000;
+            final int c = a % 10000;
+
+            final int b1 = (b / 100) << 1;
+            final int b2 = (b % 100) << 1;
+            final int c1 = (c / 100) << 1;
+            final int c2 = (c % 100) << 1;
+
+            UNSAFE.putByte(byteArray, addressOffset + i - 7 + start, ASCII_DIGITS[b1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 6 + start, ASCII_DIGITS[b1 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 5 + start, ASCII_DIGITS[b2]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 4 + start, ASCII_DIGITS[b2 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 3 + start, ASCII_DIGITS[c1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 2 + start, ASCII_DIGITS[c1 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[c2]);
+            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[c2 + 1]);
+
+            i -= 8;
+        }
+
+        int quotient32 = (int)quotient;
+        while (quotient32 >= 100)
+        {
+            final int position = (quotient32 % 100) << 1;
+            quotient32 /= 100;
+            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient32 < 10)
+        {
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient32));
+        }
+        else
+        {
+            final int position = quotient32 << 1;
+            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
         }
 
         return length;
