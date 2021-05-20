@@ -22,6 +22,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UnsafeBufferTest
 {
+    private static final int ROUND_TRIP_ITERATIONS = 100_000_000;
     private static final byte VALUE = 42;
     private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
@@ -267,6 +270,36 @@ public class UnsafeBufferTest
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 0, -1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 8, 1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 7, 3));
+    }
+
+    @Test
+    void putIntAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        final long seed = ThreadLocalRandom.current().nextLong();
+        final Random random = new Random(seed);
+        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
+        {
+            final int value = random.nextInt();
+            final int length = buffer.putIntAscii(0, value);
+            final int parsedValue = buffer.parseIntAscii(0, length);
+            assertEquals(value, parsedValue);
+        }
+    }
+
+    @Test
+    void putLongAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        final long seed = ThreadLocalRandom.current().nextLong();
+        final Random random = new Random(seed);
+        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
+        {
+            final long value = random.nextLong();
+            final int length = buffer.putLongAscii(0, value);
+            final long parsedValue = buffer.parseLongAscii(0, length);
+            assertEquals(value, parsedValue);
+        }
     }
 
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
