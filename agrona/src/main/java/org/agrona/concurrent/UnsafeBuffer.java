@@ -1842,12 +1842,24 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        while (i >= 0)
+        while (quotient >= 100)
         {
-            final int remainder = quotient % 10;
-            quotient = quotient / 10;
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + remainder));
-            i--;
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient < 10)
+        {
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + (byte)quotient));
+        }
+        else
+        {
+            final int position = quotient << 1;
+            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
         }
 
         return length;
