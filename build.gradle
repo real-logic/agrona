@@ -304,7 +304,7 @@ project(':agrona') {
         """
     }
 
-    task sourcesJar(type: Jar) {
+    task sourcesJar(type: Jar, dependsOn: generatePrimitiveSpecialisations) {
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
@@ -379,7 +379,7 @@ project(':agrona-agent') {
 
     jar.finalizedBy shadowJar
 
-    task sourcesJar(type: Jar) {
+    task sourcesJar(type: Jar, dependsOn: ':agrona:generatePrimitiveSpecialisations') {
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from project(':agrona').sourceSets.main.allSource
@@ -391,6 +391,7 @@ project(':agrona-agent') {
         source += project(':agrona').sourceSets.main.allJava
         source += project(':agrona').sourceSets.generated.allJava
     }
+    javadoc.dependsOn ':agrona:generatePrimitiveSpecialisations'
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
         archiveClassifier.set('javadoc')
