@@ -333,13 +333,6 @@ public class UnsafeBufferTest
         );
     }
 
-    @Test
-    void foo()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
-        buffer.putLongAscii(0, 123456789);
-    }
-
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
     {
         assertEquals(value, buffer.getStringWithoutLengthAscii(INDEX, length));
