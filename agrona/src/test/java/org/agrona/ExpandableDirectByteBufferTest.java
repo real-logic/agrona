@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExpandableDirectByteBufferTest
 {
-    private static final int ROUND_TRIP_ITERATIONS = 25_000_000;
+    private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
 
     @Test
     void putIntAsciiRoundTrip()
