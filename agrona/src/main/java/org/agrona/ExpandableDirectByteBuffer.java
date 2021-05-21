@@ -1225,12 +1225,25 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         ensureCapacity(index, length);
 
-        while (i >= 0)
+        final ByteBuffer dest = byteBuffer;
+        while (quotient >= 100)
         {
-            final int remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + start, (byte)(ZERO + remainder));
-            i--;
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            dest.put(i + start, ASCII_DIGITS[position + 1]);
+            dest.put(i - 1 + start, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient < 10)
+        {
+            dest.put(i + start, (byte)(ZERO + quotient));
+        }
+        else
+        {
+            final int position = quotient << 1;
+            dest.put(i + start, ASCII_DIGITS[position + 1]);
+            dest.put(i - 1 + start, ASCII_DIGITS[position]);
         }
 
         return length;
@@ -1253,13 +1266,25 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         ensureCapacity(index, length);
 
         int quotient = value;
-        while (i >= 0)
+        final ByteBuffer dest = byteBuffer;
+        while (quotient >= 100)
         {
-            final int remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + index, (byte)(ZERO + remainder));
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            dest.put(i + index, ASCII_DIGITS[position + 1]);
+            dest.put(i - 1 + index, ASCII_DIGITS[position]);
+            i -= 2;
+        }
 
-            i--;
+        if (quotient < 10)
+        {
+            dest.put(i + index, (byte)(ZERO + quotient));
+        }
+        else
+        {
+            final int position = quotient << 1;
+            dest.put(i + index, ASCII_DIGITS[position + 1]);
+            dest.put(i - 1 + index, ASCII_DIGITS[position]);
         }
 
         return length;
@@ -1320,13 +1345,50 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         ensureCapacity(index, length);
 
         long quotient = value;
-        while (i >= 0)
+        final ByteBuffer dest = byteBuffer;
+        while (quotient >= 100000000)
         {
-            final long remainder = quotient % 10;
-            quotient = quotient / 10;
-            byteBuffer.put(i + index, (byte)(ZERO + remainder));
+            final int lastEightDigits = (int)(quotient % 100000000);
+            quotient /= 100000000;
 
-            i--;
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            dest.put(index + i + 1, ASCII_DIGITS[u1]);
+            dest.put(index + i + 2, ASCII_DIGITS[u1 + 1]);
+            dest.put(index + i + 3, ASCII_DIGITS[u2]);
+            dest.put(index + i + 4, ASCII_DIGITS[u2 + 1]);
+            dest.put(index + i + 5, ASCII_DIGITS[l1]);
+            dest.put(index + i + 6, ASCII_DIGITS[l1 + 1]);
+            dest.put(index + i + 7, ASCII_DIGITS[l2]);
+            dest.put(index + i + 8, ASCII_DIGITS[l2 + 1]);
+        }
+
+        while (quotient >= 100)
+        {
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
+            dest.put(index + i, ASCII_DIGITS[position + 1]);
+            dest.put(index + i - 1, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient < 10)
+        {
+            dest.put(index + i, (byte)(ZERO + quotient));
+        }
+        else
+        {
+            final int position = (int)(quotient << 1);
+            dest.put(index + i, ASCII_DIGITS[position + 1]);
+            dest.put(index + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
@@ -1365,12 +1427,50 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         ensureCapacity(index, length);
 
-        while (i >= 0)
+        final ByteBuffer dest = byteBuffer;
+        while (quotient >= 100000000)
         {
-            final long remainder = quotient % 10L;
-            quotient = quotient / 10L;
-            byteBuffer.put(i + start, (byte)(ZERO + remainder));
-            i--;
+            final int lastEightDigits = (int)(quotient % 100000000);
+            quotient /= 100000000;
+
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            dest.put(start + i + 1, ASCII_DIGITS[u1]);
+            dest.put(start + i + 2, ASCII_DIGITS[u1 + 1]);
+            dest.put(start + i + 3, ASCII_DIGITS[u2]);
+            dest.put(start + i + 4, ASCII_DIGITS[u2 + 1]);
+            dest.put(start + i + 5, ASCII_DIGITS[l1]);
+            dest.put(start + i + 6, ASCII_DIGITS[l1 + 1]);
+            dest.put(start + i + 7, ASCII_DIGITS[l2]);
+            dest.put(start + i + 8, ASCII_DIGITS[l2 + 1]);
+        }
+
+        while (quotient >= 100)
+        {
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
+            dest.put(start + i, ASCII_DIGITS[position + 1]);
+            dest.put(start + i - 1, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient < 10)
+        {
+            dest.put(start + i, (byte)(ZERO + quotient));
+        }
+        else
+        {
+            final int position = (int)(quotient << 1);
+            dest.put(start + i, ASCII_DIGITS[position + 1]);
+            dest.put(start + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
