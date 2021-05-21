@@ -2015,46 +2015,45 @@ public class UnsafeBuffer implements AtomicBuffer
 
         while (quotient >= 100000000)
         {
-            final int a = (int)(quotient % 100000000);
+            final int lastEightDigits = (int)(quotient % 100000000);
             quotient /= 100000000;
 
-            final int b = a / 10000;
-            final int c = a % 10000;
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
 
-            final int b1 = (b / 100) << 1;
-            final int b2 = (b % 100) << 1;
-            final int c1 = (c / 100) << 1;
-            final int c2 = (c % 100) << 1;
-
-            UNSAFE.putByte(byteArray, addressOffset + i - 7 + start, ASCII_DIGITS[b1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 6 + start, ASCII_DIGITS[b1 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 5 + start, ASCII_DIGITS[b2]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 4 + start, ASCII_DIGITS[b2 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 3 + start, ASCII_DIGITS[c1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 2 + start, ASCII_DIGITS[c1 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[c2]);
-            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[c2 + 1]);
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
 
             i -= 8;
+
+            UNSAFE.putByte(byteArray, addressOffset + i + 1 + start, ASCII_DIGITS[u1]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 2 + start, ASCII_DIGITS[u1 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 3 + start, ASCII_DIGITS[u2]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 4 + start, ASCII_DIGITS[u2 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 5 + start, ASCII_DIGITS[l1]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 6 + start, ASCII_DIGITS[l1 + 1]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 7 + start, ASCII_DIGITS[l2]);
+            UNSAFE.putByte(byteArray, addressOffset + i + 8 + start, ASCII_DIGITS[l2 + 1]);
         }
 
-        int quotient32 = (int)quotient;
-        while (quotient32 >= 100)
+        while (quotient >= 100)
         {
-            final int position = (quotient32 % 100) << 1;
-            quotient32 /= 100;
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
             UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
             UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
             i -= 2;
         }
 
-        if (quotient32 < 10)
+        if (quotient < 10)
         {
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient32));
+            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient));
         }
         else
         {
-            final int position = quotient32 << 1;
+            final int position = (int)(quotient << 1);
             UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
             UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
         }

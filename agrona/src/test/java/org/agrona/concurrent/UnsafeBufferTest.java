@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UnsafeBufferTest
 {
-    private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
+    private static final int ROUND_TRIP_ITERATIONS = 25_000_000;
     private static final byte VALUE = 42;
     private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
@@ -331,6 +331,13 @@ public class UnsafeBufferTest
                 assertEquals(value, parsedValue);
             }
         );
+    }
+
+    @Test
+    void foo()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        buffer.putLongAscii(0, 123456789);
     }
 
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
