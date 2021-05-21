@@ -1842,24 +1842,25 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        final long offset = addressOffset + start;
         while (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
             i -= 2;
         }
 
         if (quotient < 10)
         {
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient));
+            UNSAFE.putByte(byteArray, offset + i, (byte)(ZERO + quotient));
         }
         else
         {
             final int position = quotient << 1;
-            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
@@ -1885,24 +1886,25 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         int quotient = value;
+        final long offset = addressOffset + index;
         while (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(byteArray, addressOffset + i + index, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + index, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
             i -= 2;
         }
 
         if (quotient < 10)
         {
-            UNSAFE.putByte(byteArray, addressOffset + i + index, (byte)(ZERO + quotient));
+            UNSAFE.putByte(byteArray, offset + i, (byte)(ZERO + quotient));
         }
         else
         {
             final int position = quotient << 1;
-            UNSAFE.putByte(byteArray, addressOffset + i + index, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + index, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
@@ -2013,6 +2015,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        final long offset = addressOffset + start;
         while (quotient >= 100000000)
         {
             final int lastEightDigits = (int)(quotient % 100000000);
@@ -2028,34 +2031,34 @@ public class UnsafeBuffer implements AtomicBuffer
 
             i -= 8;
 
-            UNSAFE.putByte(byteArray, addressOffset + i + 1 + start, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 2 + start, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 3 + start, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 4 + start, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 5 + start, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 6 + start, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 7 + start, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(byteArray, addressOffset + i + 8 + start, ASCII_DIGITS[l2 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 1, ASCII_DIGITS[u1]);
+            UNSAFE.putByte(byteArray, offset + i + 2, ASCII_DIGITS[u1 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 3, ASCII_DIGITS[u2]);
+            UNSAFE.putByte(byteArray, offset + i + 4, ASCII_DIGITS[u2 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 5, ASCII_DIGITS[l1]);
+            UNSAFE.putByte(byteArray, offset + i + 6, ASCII_DIGITS[l1 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 7, ASCII_DIGITS[l2]);
+            UNSAFE.putByte(byteArray, offset + i + 8, ASCII_DIGITS[l2 + 1]);
         }
 
         while (quotient >= 100)
         {
             final int position = (int)((quotient % 100) << 1);
             quotient /= 100;
-            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
             i -= 2;
         }
 
         if (quotient < 10)
         {
-            UNSAFE.putByte(byteArray, addressOffset + i + start, (byte)(ZERO + quotient));
+            UNSAFE.putByte(byteArray, offset + i, (byte)(ZERO + quotient));
         }
         else
         {
             final int position = (int)(quotient << 1);
-            UNSAFE.putByte(byteArray, addressOffset + i + start, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(byteArray, addressOffset + i - 1 + start, ASCII_DIGITS[position]);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
