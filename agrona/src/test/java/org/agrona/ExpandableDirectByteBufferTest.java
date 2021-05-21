@@ -17,7 +17,6 @@ package org.agrona;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,11 +29,9 @@ class ExpandableDirectByteBufferTest
     void putIntAsciiRoundTrip()
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
-        final long seed = ThreadLocalRandom.current().nextLong();
-        final Random random = new Random(seed);
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
-            final int value = random.nextInt();
+            final int value = ThreadLocalRandom.current().nextInt();
             final int length = buffer.putIntAscii(0, value);
             final int parsedValue = buffer.parseIntAscii(0, length);
             assertEquals(value, parsedValue);
@@ -45,11 +42,9 @@ class ExpandableDirectByteBufferTest
     void putLongAsciiRoundTrip()
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
-        final long seed = ThreadLocalRandom.current().nextLong();
-        final Random random = new Random(seed);
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
-            final long value = random.nextLong();
+            final long value = ThreadLocalRandom.current().nextLong();
             final int length = buffer.putLongAscii(0, value);
             final long parsedValue = buffer.parseLongAscii(0, length);
             assertEquals(value, parsedValue);
@@ -60,9 +55,7 @@ class ExpandableDirectByteBufferTest
     void putNaturalIntAsciiRoundTrip()
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
-        final long seed = ThreadLocalRandom.current().nextLong();
-        final Random random = new Random(seed);
-        random.ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
+        ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
             value ->
             {
                 final int length = buffer.putNaturalIntAscii(0, value);
@@ -75,9 +68,7 @@ class ExpandableDirectByteBufferTest
     void putNaturalLongAsciiRoundTrip()
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
-        final long seed = ThreadLocalRandom.current().nextLong();
-        final Random random = new Random(seed);
-        random.longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
+        ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
             value ->
             {
                 final int length = buffer.putNaturalLongAscii(0, value);
