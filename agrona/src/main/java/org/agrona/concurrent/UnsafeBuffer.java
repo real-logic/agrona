@@ -1968,12 +1968,50 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         long quotient = value;
-        while (i >= 0)
+        final long offset = addressOffset + index;
+        while (quotient >= 100000000)
         {
-            final long remainder = quotient % 10;
-            quotient = quotient / 10;
-            UNSAFE.putByte(byteArray, addressOffset + i + index, (byte)(ZERO + remainder));
-            i--;
+            final int lastEightDigits = (int)(quotient % 100000000);
+            quotient /= 100000000;
+
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            UNSAFE.putByte(byteArray, offset + i + 1, ASCII_DIGITS[u1]);
+            UNSAFE.putByte(byteArray, offset + i + 2, ASCII_DIGITS[u1 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 3, ASCII_DIGITS[u2]);
+            UNSAFE.putByte(byteArray, offset + i + 4, ASCII_DIGITS[u2 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 5, ASCII_DIGITS[l1]);
+            UNSAFE.putByte(byteArray, offset + i + 6, ASCII_DIGITS[l1 + 1]);
+            UNSAFE.putByte(byteArray, offset + i + 7, ASCII_DIGITS[l2]);
+            UNSAFE.putByte(byteArray, offset + i + 8, ASCII_DIGITS[l2 + 1]);
+        }
+
+        while (quotient >= 100)
+        {
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient < 10)
+        {
+            UNSAFE.putByte(byteArray, offset + i, (byte)(ZERO + quotient));
+        }
+        else
+        {
+            final int position = (int)(quotient << 1);
+            UNSAFE.putByte(byteArray, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(byteArray, offset + i - 1, ASCII_DIGITS[position]);
         }
 
         return length;
