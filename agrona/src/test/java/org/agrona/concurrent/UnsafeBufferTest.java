@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UnsafeBufferTest
+class UnsafeBufferTest
 {
     private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
     private static final byte VALUE = 42;
@@ -42,7 +42,7 @@ public class UnsafeBufferTest
     private final byte[] wibbleBytes2 = "Wibble2".getBytes(US_ASCII);
 
     @Test
-    public void shouldEqualOnInstance()
+    void shouldEqualOnInstance()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
 
@@ -50,7 +50,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldEqualOnContent()
+    void shouldEqualOnContent()
     {
         final UnsafeBuffer wibbleBufferOne = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wibbleBufferTwo = new UnsafeBuffer(wibbleBytes.clone());
@@ -59,7 +59,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldNotEqual()
+    void shouldNotEqual()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wobbleBuffer = new UnsafeBuffer(wobbleBytes);
@@ -68,7 +68,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldEqualOnHashCode()
+    void shouldEqualOnHashCode()
     {
         final UnsafeBuffer wibbleBufferOne = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wibbleBufferTwo = new UnsafeBuffer(wibbleBytes.clone());
@@ -77,7 +77,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldEqualOnCompareContents()
+    void shouldEqualOnCompareContents()
     {
         final UnsafeBuffer wibbleBufferOne = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wibbleBufferTwo = new UnsafeBuffer(wibbleBytes.clone());
@@ -86,7 +86,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldCompareLessThanOnContents()
+    void shouldCompareLessThanOnContents()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wobbleBuffer = new UnsafeBuffer(wobbleBytes);
@@ -95,7 +95,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldCompareGreaterThanOnContents()
+    void shouldCompareGreaterThanOnContents()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wobbleBuffer = new UnsafeBuffer(wobbleBytes);
@@ -104,7 +104,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldCompareLessThanOnContentsOfDifferingCapacity()
+    void shouldCompareLessThanOnContentsOfDifferingCapacity()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
         final UnsafeBuffer wibbleBuffer2 = new UnsafeBuffer(wibbleBytes2);
@@ -113,7 +113,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldExposePositionAtWhichByteArrayGetsWrapped()
+    void shouldExposePositionAtWhichByteArrayGetsWrapped()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
             wibbleBytes, ADJUSTMENT_OFFSET, wibbleBytes.length - ADJUSTMENT_OFFSET);
@@ -124,31 +124,21 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldExposePositionAtWhichHeapByteBufferGetsWrapped()
+    void shouldExposePositionAtWhichHeapByteBufferGetsWrapped()
     {
         final ByteBuffer wibbleByteBuffer = ByteBuffer.wrap(wibbleBytes);
         shouldExposePositionAtWhichByteBufferGetsWrapped(wibbleByteBuffer);
     }
 
     @Test
-    public void shouldExposePositionAtWhichDirectByteBufferGetsWrapped()
+    void shouldExposePositionAtWhichDirectByteBufferGetsWrapped()
     {
         final ByteBuffer wibbleByteBuffer = ByteBuffer.allocateDirect(wibbleBytes.length);
         shouldExposePositionAtWhichByteBufferGetsWrapped(wibbleByteBuffer);
     }
 
-    private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
-    {
-        final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
-            byteBuffer, ADJUSTMENT_OFFSET, byteBuffer.capacity() - ADJUSTMENT_OFFSET);
-
-        wibbleBuffer.putByte(0, VALUE);
-
-        assertEquals(VALUE, byteBuffer.get(wibbleBuffer.wrapAdjustment()));
-    }
-
     @Test
-    public void shouldGetIntegerValuesAtSpecifiedOffset()
+    void shouldGetIntegerValuesAtSpecifiedOffset()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
         putAscii(buffer, "123");
@@ -159,7 +149,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldDecodeNegativeIntegers()
+    void shouldDecodeNegativeIntegers()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -171,7 +161,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWriteIntZero()
+    void shouldWriteIntZero()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -182,7 +172,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWritePositiveIntValues()
+    void shouldWritePositiveIntValues()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -193,7 +183,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWriteNegativeIntValues()
+    void shouldWriteNegativeIntValues()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -204,7 +194,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWriteMaxIntValue()
+    void shouldWriteMaxIntValue()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -214,7 +204,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWriteMinIntValue()
+    void shouldWriteMinIntValue()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
 
@@ -225,7 +215,7 @@ public class UnsafeBufferTest
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    public void shouldPutNaturalFromEnd(final int[] valueAndLength)
+    void shouldPutNaturalFromEnd(final int[] valueAndLength)
     {
         final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
         final int value = valueAndLength[0];
@@ -242,7 +232,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldWrapValidRange()
+    void shouldWrapValidRange()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
         final UnsafeBuffer slice = new UnsafeBuffer();
@@ -260,7 +250,7 @@ public class UnsafeBufferTest
     }
 
     @Test
-    public void shouldNotWrapInValidRange()
+    void shouldNotWrapInValidRange()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
         final UnsafeBuffer slice = new UnsafeBuffer();
@@ -275,6 +265,7 @@ public class UnsafeBufferTest
     void putIntAsciiRoundTrip()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final int value = ThreadLocalRandom.current().nextInt();
@@ -288,6 +279,7 @@ public class UnsafeBufferTest
     void putLongAsciiRoundTrip()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final long value = ThreadLocalRandom.current().nextLong();
@@ -302,7 +294,7 @@ public class UnsafeBufferTest
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
         ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
-            value ->
+            (value) ->
             {
                 final int length = buffer.putNaturalIntAscii(0, value);
                 final int parsedValue = buffer.parseNaturalIntAscii(0, length);
@@ -315,13 +307,23 @@ public class UnsafeBufferTest
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
         ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
-            value ->
+            (value) ->
             {
                 final int length = buffer.putNaturalLongAscii(0, value);
                 final long parsedValue = buffer.parseNaturalLongAscii(0, length);
                 assertEquals(value, parsedValue);
             }
         );
+    }
+
+    private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
+    {
+        final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
+            byteBuffer, ADJUSTMENT_OFFSET, byteBuffer.capacity() - ADJUSTMENT_OFFSET);
+
+        wibbleBuffer.putByte(0, VALUE);
+
+        assertEquals(VALUE, byteBuffer.get(wibbleBuffer.wrapAdjustment()));
     }
 
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)

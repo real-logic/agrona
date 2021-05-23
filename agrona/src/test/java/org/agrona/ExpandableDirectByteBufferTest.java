@@ -56,7 +56,7 @@ class ExpandableDirectByteBufferTest
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
         ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
-            value ->
+            (value) ->
             {
                 final int length = buffer.putNaturalIntAscii(0, value);
                 final int parsedValue = buffer.parseNaturalIntAscii(0, length);
@@ -69,7 +69,7 @@ class ExpandableDirectByteBufferTest
     {
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
         ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
-            value ->
+            (value) ->
             {
                 final int length = buffer.putNaturalLongAscii(0, value);
                 final long parsedValue = buffer.parseNaturalLongAscii(0, length);
@@ -77,5 +77,4 @@ class ExpandableDirectByteBufferTest
             }
         );
     }
-
 }
