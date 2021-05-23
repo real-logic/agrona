@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UnsafeBufferTest
 {
+    private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
     private static final byte VALUE = 42;
     private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
@@ -267,6 +269,59 @@ public class UnsafeBufferTest
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 0, -1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 8, 1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 7, 3));
+    }
+
+    @Test
+    void putIntAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
+        {
+            final int value = ThreadLocalRandom.current().nextInt();
+            final int length = buffer.putIntAscii(0, value);
+            final int parsedValue = buffer.parseIntAscii(0, length);
+            assertEquals(value, parsedValue);
+        }
+    }
+
+    @Test
+    void putLongAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
+        {
+            final long value = ThreadLocalRandom.current().nextLong();
+            final int length = buffer.putLongAscii(0, value);
+            final long parsedValue = buffer.parseLongAscii(0, length);
+            assertEquals(value, parsedValue);
+        }
+    }
+
+    @Test
+    void putNaturalIntAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
+            value ->
+            {
+                final int length = buffer.putNaturalIntAscii(0, value);
+                final int parsedValue = buffer.parseNaturalIntAscii(0, length);
+                assertEquals(value, parsedValue);
+            });
+    }
+
+    @Test
+    void putNaturalLongAsciiRoundTrip()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
+            value ->
+            {
+                final int length = buffer.putNaturalLongAscii(0, value);
+                final long parsedValue = buffer.parseNaturalLongAscii(0, length);
+                assertEquals(value, parsedValue);
+            }
+        );
     }
 
     private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
