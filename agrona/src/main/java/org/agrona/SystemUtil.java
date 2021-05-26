@@ -340,7 +340,7 @@ public final class SystemUtil
      */
     public static int getSizeAsInt(final String propertyName, final int defaultValue)
     {
-        final String propertyValue = getProperty(propertyName);
+        final String propertyValue = System.getProperty(propertyName);
         if (propertyValue != null)
         {
             final long value = parseSize(propertyName, propertyValue);
@@ -367,7 +367,7 @@ public final class SystemUtil
      */
     public static long getSizeAsLong(final String propertyName, final long defaultValue)
     {
-        final String propertyValue = getProperty(propertyName);
+        final String propertyValue = System.getProperty(propertyName);
         if (propertyValue != null)
         {
             final long value = parseSize(propertyName, propertyValue);
@@ -447,7 +447,7 @@ public final class SystemUtil
      */
     public static long getDurationInNanos(final String propertyName, final long defaultValue)
     {
-        final String propertyValue = getProperty(propertyName);
+        final String propertyValue = System.getProperty(propertyName);
         if (propertyValue != null)
         {
             final long value = parseDuration(propertyName, propertyValue);
