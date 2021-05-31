@@ -364,6 +364,8 @@ project(':agrona-agent') {
     }
 
     shadowJar {
+        archiveClassifier.set('')
+
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': agronaVersion,
