@@ -364,7 +364,6 @@ project(':agrona-agent') {
     }
 
     shadowJar {
-        archiveClassifier.set('')
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': agronaVersion,
@@ -375,6 +374,8 @@ project(':agrona-agent') {
             'Can-Retransform-Classes': 'true',
             'Automatic-Module-Name': 'org.agrona.agent'
         )
+
+        relocate 'net.bytebuddy', 'org.agrona.shadow.net.bytebuddy'
     }
 
     jar.finalizedBy shadowJar
