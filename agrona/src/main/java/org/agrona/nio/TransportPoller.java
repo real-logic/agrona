@@ -27,17 +27,34 @@ import java.nio.channels.Selector;
 public class TransportPoller implements AutoCloseable
 {
     /**
+     * System property name for the threshold beyond which individual channel/socket polling will swap to to using
+     * a {@link Selector}.
+     */
+    public static final String ITERATION_THRESHOLD_PROP_NAME = "org.agrona.transport.iteration.threshold";
+
+    /**
+     * Default threshold beyond which individual channel/socket polling will swap to to using a {@link Selector}.
+     */
+    public static final int ITERATION_THRESHOLD_DEFAULT = 5;
+
+    /**
+     * Threshold beyond which individual channel/socket polling will swap to to using a {@link Selector}.
+     *
+     * @see #ITERATION_THRESHOLD_PROP_NAME
+     * @see #ITERATION_THRESHOLD_DEFAULT
+     */
+    public static final int ITERATION_THRESHOLD = Integer.getInteger(
+        ITERATION_THRESHOLD_PROP_NAME, ITERATION_THRESHOLD_DEFAULT);
+
+    /**
      * Reference to the {@code selectedKeys} field in the {@link Selector} class.
      */
     protected static final Field SELECTED_KEYS_FIELD;
+
     /**
      * Reference to the {@code publicSelectedKeys} field in the {@link Selector} class.
      */
     protected static final Field PUBLIC_SELECTED_KEYS_FIELD;
-    /**
-     * Number of iterations.
-     */
-    protected static final int ITERATION_THRESHOLD = 5;
 
     private static final String SELECTOR_IMPL = "sun.nio.ch.SelectorImpl";
 
@@ -71,12 +88,12 @@ public class TransportPoller implements AutoCloseable
     }
 
     /**
-     * KeySet used by the {@link Selector}.
+     * KeySet used by the {@link Selector} which will be reused to avoid allocation.
      */
     protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();
 
     /**
-     * Reference to the {@link Selector}.
+     * Reference to the {@link Selector} for the transport.
      */
     protected final Selector selector;
 
