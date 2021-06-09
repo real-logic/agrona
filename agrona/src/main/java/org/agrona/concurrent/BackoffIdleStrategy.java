@@ -34,14 +34,17 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
      * Denotes a non-idle state.
      */
     protected static final int NOT_IDLE = 0;
+
     /**
      * Denotes a spinning state.
      */
     protected static final int SPINNING = 1;
+
     /**
      * Denotes an yielding state.
      */
     protected static final int YIELDING = 2;
+
     /**
      * Denotes a parking state.
      */
@@ -51,14 +54,17 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
      * Max number of spins.
      */
     protected final long maxSpins;
+
     /**
      * Max number of yields.
      */
     protected final long maxYields;
+
     /**
      * Min park period in nanoseconds.
      */
     protected final long minParkPeriodNs;
+
     /**
      * Max park period in nanoseconds.
      */
@@ -68,14 +74,17 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
      * Current state.
      */
     protected int state = NOT_IDLE;
+
     /**
      * Number of spins.
      */
     protected long spins;
+
     /**
      * Number of yields.
      */
     protected long yields;
+
     /**
      * Park period in nanoseconds.
      */
@@ -116,12 +125,12 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     public static final long DEFAULT_MAX_YIELDS = 5L;
 
     /**
-     * Default interval the strategy will park the thread on entering the park state.
+     * Default minimum interval the strategy will park a thread.
      */
     public static final long DEFAULT_MIN_PARK_PERIOD_NS = 1000L;
 
     /**
-     * Default interval the strategy will park the thread will expand interval to as a max.
+     * Default maximum interval the strategy will park a thread.
      */
     public static final long DEFAULT_MAX_PARK_PERIOD_NS = 1_000_000L;
 
