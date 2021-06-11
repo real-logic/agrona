@@ -17,7 +17,7 @@ For the latest version information and changes see the [Change Log](https://gith
 
 The latest release and **downloads** can be found in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cagrona).
 
-Utilities Included:
+Utilities Include:
 
 * Buffers - Thread safe direct and atomic buffers for working with on and off heap memory with memory ordering semantics.
 * Lists - Array backed lists of int/long primitives to avoid boxing.
@@ -35,19 +35,20 @@ Utilities Included:
 * Off-heap counters implementation for application telemetry, position tracking, and coordination.
 * Implementations of InputStream and OutputStream that can wrap direct buffers.
 * DistinctErrorLog - A log of distinct errors to avoid filling disks with existing logging approaches.
+* IdGenerator - Concurrent and distributed unique id generator employing a lock-less implementation of the Twitter Snowflake algorithm.
 
 Build
 -----
 
 ### Java Build
 
-The project is built with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
+Build the project with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
 
 You require the following to build Agrona:
 
 * The Latest release of Java 8. Agrona is tested with Java 8, 11, 16 and 17-ea.
 
-Full clean, build, and install into local maven repository
+Full clean and build:
 
     $ ./gradlew
 
