@@ -17,7 +17,7 @@
 package org.agrona;
 
 /**
- * Useful utils for hex dump of the Arona's buffers.
+ * Useful utils to hex dump the Agrona's buffers.
  *
  * This is code adapted from <a href="https://netty.io/">the Netty project</a> adopted to support {@link DirectBuffer}.
  */
@@ -29,7 +29,6 @@ public final class PrintBufferUtil
 
     static
     {
-        // Generate the lookup table that converts a byte into a 2-digit hexadecimal integer.
         int i;
         for (i = 0; i < 10; i++)
         {
@@ -277,7 +276,7 @@ public final class PrintBufferUtil
         {
             if (length < 0)
             {
-                throw new IllegalArgumentException("length: " + length);
+                throw new IllegalArgumentException("length < 0: " + length);
             }
 
             if (length == 0)
@@ -349,54 +348,52 @@ public final class PrintBufferUtil
                 .append(NEWLINE)
                 .append("+--------+-------------------------------------------------+----------------+");
 
-            final int startIndex = offset;
             final int fullRows = length >>> 4;
             final int remainder = length & 0xF;
 
             // Dump the rows which have 16 bytes.
             for (int row = 0; row < fullRows; row++)
             {
-                final int rowStartIndex = (row << 4) + startIndex;
+                final int rowStartIndex = (row << 4) + offset;
 
-                // Per-row prefix.
                 appendHexDumpRowPrefix(dump, row, rowStartIndex);
 
-                // Hex dump
                 final int rowEndIndex = rowStartIndex + 16;
                 for (int j = rowStartIndex; j < rowEndIndex; j++)
                 {
                     dump.append(BYTE2HEX[getUnsignedByte(buffer, j)]);
                 }
+
                 dump.append(" |");
 
-                // ASCII dump
                 for (int j = rowStartIndex; j < rowEndIndex; j++)
                 {
                     dump.append(BYTE2CHAR[getUnsignedByte(buffer, j)]);
                 }
+
                 dump.append('|');
             }
 
             // Dump the last row which has less than 16 bytes.
             if (remainder != 0)
             {
-                final int rowStartIndex = (fullRows << 4) + startIndex;
+                final int rowStartIndex = (fullRows << 4) + offset;
                 appendHexDumpRowPrefix(dump, fullRows, rowStartIndex);
 
-                // Hex dump
                 final int rowEndIndex = rowStartIndex + remainder;
                 for (int j = rowStartIndex; j < rowEndIndex; j++)
                 {
                     dump.append(BYTE2HEX[getUnsignedByte(buffer, j)]);
                 }
+
                 dump.append(HEX_PADDING[remainder]);
                 dump.append(" |");
 
-                // Ascii dump
                 for (int j = rowStartIndex; j < rowEndIndex; j++)
                 {
                     dump.append(BYTE2CHAR[getUnsignedByte(buffer, j)]);
                 }
+
                 dump.append(BYTE_PADDING[remainder]);
                 dump.append('|');
             }
