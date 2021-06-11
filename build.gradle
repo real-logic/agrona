@@ -58,7 +58,7 @@ def junit4Version = '4.13.2'
 def jmhVersion = '1.32'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '1.11.0'
+def agronaVersion = '1.11.1-SNAPSHOT'
 
 def getConfigProperty(final String projectPropertyName, final String envVarName) {
     String value = project.findProperty(projectPropertyName)
