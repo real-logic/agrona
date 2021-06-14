@@ -13,12 +13,13 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Java ${{ matrix.java }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         java: [ '8', '11', '16', '17-ea' ]
-    name: Java ${{ matrix.java }}
+        os: ['ubuntu-20.04', 'windows-latest']
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
