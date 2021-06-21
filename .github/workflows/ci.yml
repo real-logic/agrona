@@ -60,7 +60,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew
       - name: Run jcstress tests
-        run: ./gradlew concurrencyTests
+        run: ./gradlew :agrona-concurrency-tests:concurrencyTests
       - name: Copy test logs
         id: copy_test_logs
         if: failure()
