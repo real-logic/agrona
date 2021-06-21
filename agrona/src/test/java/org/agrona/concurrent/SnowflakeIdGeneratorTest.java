@@ -15,8 +15,6 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.collections.LongArrayList;
-import org.agrona.collections.LongHashSet;
 import org.agrona.collections.MutableLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -27,13 +25,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 
 import static org.agrona.concurrent.SnowflakeIdGenerator.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SnowflakeIdGeneratorTest
 {
@@ -268,122 +263,5 @@ class SnowflakeIdGeneratorTest
             thread.interrupt();
             throw ex;
         }
-    }
-
-    static List<Arguments> concurrentTests()
-    {
-        return Arrays.asList(
-            Arguments.arguments(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, 16L, 0L, 10, 2, 200_000),
-            Arguments.arguments(0, MAX_NODE_ID_AND_SEQUENCE_BITS, 0, SystemEpochClock.INSTANCE.time(), 5, 2, 200_000),
-            Arguments.arguments(2, 0, 3L, 0L, 3, 3, 100)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("concurrentTests")
-    @Timeout(30)
-    void shouldAllowConcurrentAccess(
-        final int nodeIdBits,
-        final int sequenceBits,
-        final long nodeId,
-        final long timestampOffsetMs,
-        final int iterations,
-        final int numThreads,
-        final int idsPerThread) throws InterruptedException
-    {
-        HighResolutionTimer.enable();
-        try
-        {
-            for (int i = 0; i < iterations; i++)
-            {
-                testConcurrentAccess(nodeIdBits, sequenceBits, nodeId, timestampOffsetMs, numThreads, idsPerThread);
-            }
-        }
-        finally
-        {
-            HighResolutionTimer.disable();
-        }
-    }
-
-    private static void testConcurrentAccess(
-        final int nodeIdBits,
-        final int sequenceBits,
-        final long nodeId,
-        final long timestampOffsetMs,
-        final int numThreads,
-        final int idsPerThread) throws InterruptedException
-    {
-        final EpochClock clock = SystemEpochClock.INSTANCE;
-        final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
-            nodeIdBits, sequenceBits, nodeId, timestampOffsetMs, clock);
-        final CyclicBarrier barrier = new CyclicBarrier(numThreads);
-
-        class GetIdTask extends Thread
-        {
-            final LongArrayList ids = new LongArrayList(idsPerThread, Long.MIN_VALUE);
-
-            public void run()
-            {
-                try
-                {
-                    barrier.await();
-                }
-                catch (final Exception ignore)
-                {
-                    fail();
-                }
-
-                long lastId = -1;
-                for (int j = 0; j < idsPerThread; j++)
-                {
-                    final long id = idGenerator.nextId();
-                    if (id <= lastId)
-                    {
-                        fail("id went backwards: lastId=" + lastId + ", newId=" + id);
-                    }
-
-                    ids.add(id);
-                    lastId = id;
-                }
-            }
-        }
-
-        final GetIdTask[] tasks = new GetIdTask[numThreads];
-        final long beginTimeMs = clock.time();
-
-        for (int i = 0; i < numThreads; i++)
-        {
-            tasks[i] = new GetIdTask();
-            tasks[i].start();
-        }
-
-        for (final GetIdTask task : tasks)
-        {
-            task.join();
-        }
-
-        final long endTimeMs = clock.time();
-        final LongHashSet allIdsSet = new LongHashSet(numThreads * idsPerThread);
-
-        for (final GetIdTask task : tasks)
-        {
-            final LongHashSet idsSet = new LongHashSet(task.ids.size());
-
-            for (final long id : task.ids)
-            {
-                assertEquals(idGenerator.extractNodeId(id), nodeId);
-
-                final long timestampMs = idGenerator.extractTimestamp(id) + timestampOffsetMs;
-                assertThat(timestampMs, greaterThanOrEqualTo(beginTimeMs));
-                assertThat(timestampMs, lessThanOrEqualTo(endTimeMs));
-
-                idsSet.add(id);
-            }
-
-            assertEquals(task.ids.size(), idsSet.size(), "non-unique ids within a thread");
-            assertTrue(allIdsSet.addAll(idsSet));
-        }
-
-        assertEquals(numThreads * idsPerThread, allIdsSet.size(), "non-unique ids across threads");
     }
 }
