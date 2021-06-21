@@ -497,6 +497,17 @@ tasks.named("dependencyUpdates").configure {
     }
 }
 
+task copyTestLogs(type: Copy) {
+    from '.'
+    include '**/*.log'
+    include '**/jcstress-results-*.gz'
+    include 'LICENSE'
+    exclude 'build'
+    into 'build/test_logs'
+
+    includeEmptyDirs = false
+}
+
 wrapper {
     gradleVersion = '7.0.2'
     distributionType = 'ALL'
