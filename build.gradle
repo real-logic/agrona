@@ -471,7 +471,7 @@ project(':agrona-concurrency-tests') {
 
     jar.finalizedBy shadowJar
 
-    task runConcurrencyTests(type: JavaExec) {
+    task concurrencyTests(type: JavaExec, group: 'verification') {
         classpath = files(tasks.shadowJar)
         workingDir = project.buildDir
         args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelGC']
