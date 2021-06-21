@@ -16,12 +16,10 @@
 package org.agrona.concurrent;
 
 import org.openjdk.jcstress.annotations.*;
-import org.openjdk.jcstress.infra.results.JJZ_Result;
 import org.openjdk.jcstress.infra.results.JJ_Result;
+import org.openjdk.jcstress.infra.results.Z_Result;
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.agrona.concurrent.SnowflakeIdGenerator.*;
 
 /**
  * Set of concurrency tests for the {@link SnowflakeIdGenerator} class.
@@ -33,16 +31,14 @@ public class SnowflakeIdGeneratorTests
      * Test to ensure that the generated id is unique.s
      */
     @JCStressTest
-    @Outcome(id = ".*, true", expect = Expect.ACCEPTABLE, desc = "Ids are unique")
+    @Outcome(id = "true", expect = Expect.ACCEPTABLE, desc = "Ids are unique")
     @State
     public static class UniquenessTest
     {
-        public final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(
-            NODE_ID_BITS_DEFAULT,
-            SEQUENCE_BITS_DEFAULT,
-            3,
-            SystemEpochClock.INSTANCE.time(),
-            SystemEpochClock.INSTANCE);
+        public final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(3);
+
+        private long v1;
+        private long v2;
 
         /**
          * First thread calling increment.
@@ -50,9 +46,9 @@ public class SnowflakeIdGeneratorTests
          * @param result object.
          */
         @Actor
-        public void actor1(final JJZ_Result result)
+        public void actor1(final Z_Result result)
         {
-            result.r1 = idGenerator.nextId();
+            v1 = idGenerator.nextId();
         }
 
         /**
@@ -61,9 +57,9 @@ public class SnowflakeIdGeneratorTests
          * @param result object.
          */
         @Actor
-        public void actor2(final JJZ_Result result)
+        public void actor2(final Z_Result result)
         {
-            result.r2 = idGenerator.nextId();
+            v2 = idGenerator.nextId();
         }
 
         /**
@@ -72,9 +68,9 @@ public class SnowflakeIdGeneratorTests
          * @param result object.
          */
         @Arbiter
-        public void arbiter(final JJZ_Result result)
+        public void arbiter(final Z_Result result)
         {
-            result.r3 = result.r1 != result.r2;
+            result.r1 = v1 != v2;
         }
     }
 
