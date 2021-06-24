@@ -28,7 +28,7 @@ public class SnowflakeIdGeneratorTests
 {
 
     /**
-     * Test to ensure that the generated id is unique.s
+     * Test to ensure that the generated id is unique.
      */
     @JCStressTest
     @Outcome(id = "true", expect = Expect.ACCEPTABLE, desc = "Ids are unique")
