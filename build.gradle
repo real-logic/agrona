@@ -459,10 +459,6 @@ project(':agrona-concurrency-tests') {
         implementation project(':agrona')
     }
 
-    compileJava {
-        options.compilerArgs.add('-Xlint:-processing,-rawtypes') // jcstress generator produces code with warnings
-    }
-
     shadowJar {
         archiveFileName = 'concurrency-tests.jar'
         archiveClassifier.set('concurrency-tests')
