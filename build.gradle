@@ -459,6 +459,12 @@ project(':agrona-concurrency-tests') {
         implementation project(':agrona')
     }
 
+    compileJava {
+        if (11 == buildJavaVersion) {
+            options.compilerArgs.add('-Xlint:-processing')
+        }
+    }
+
     shadowJar {
         archiveFileName = 'concurrency-tests.jar'
         archiveClassifier.set('concurrency-tests')
