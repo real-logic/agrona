@@ -17,20 +17,28 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.collections.MutableInteger;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.IntConsumer;
 
 import static java.lang.Boolean.TRUE;
 import static org.agrona.BitUtil.align;
+import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
+import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,10 +48,10 @@ public class ManyToOneRingBufferTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 4096;
-    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + RingBufferDescriptor.TRAILER_LENGTH;
-    private static final int TAIL_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.TAIL_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
+    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + TRAILER_LENGTH;
+    private static final int TAIL_COUNTER_INDEX = CAPACITY + TAIL_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_INDEX = CAPACITY + HEAD_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + HEAD_CACHE_POSITION_OFFSET;
 
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private ManyToOneRingBuffer ringBuffer;
@@ -54,6 +62,31 @@ public class ManyToOneRingBufferTest
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
         ringBuffer = new ManyToOneRingBuffer(buffer);
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(ints = { 2, 4 })
+    void shouldThrowExceptionIfCapacityIsBelowMinCapacity(final int capacity)
+    {
+        when(buffer.capacity()).thenReturn(TRAILER_LENGTH + capacity);
+
+        final IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> new ManyToOneRingBuffer(buffer));
+
+        assertEquals("insufficient capacity: minCapacity=" + (TRAILER_LENGTH + MIN_CAPACITY) +
+            ", capacity=" + (TRAILER_LENGTH + capacity),
+            exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("maxMessageLengths")
+    void shouldComputeMaxMessageLength(final int capacity, final int maxMessageLength)
+    {
+        when(buffer.capacity()).thenReturn(TRAILER_LENGTH + capacity);
+
+        final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(buffer);
+        assertEquals(maxMessageLength, ringBuffer.maxMsgLength());
     }
 
     @Test
@@ -421,8 +454,8 @@ public class ManyToOneRingBufferTest
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
-        final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
-        assertThrows(IllegalStateException.class,
+        final int totalBufferLength = capacity + TRAILER_LENGTH;
+        assertThrows(IllegalArgumentException.class,
             () -> new ManyToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
     }
 
@@ -786,5 +819,15 @@ public class ManyToOneRingBufferTest
         final IllegalStateException exception = assertThrows(
             IllegalStateException.class, () -> action.accept(index));
         assertEquals("claimed space previously aborted", exception.getMessage());
+    }
+
+    private static List<Arguments> maxMessageLengths()
+    {
+        return Arrays.asList(
+            Arguments.arguments(MIN_CAPACITY, 0),
+            Arguments.arguments(MIN_CAPACITY * 2, HEADER_LENGTH),
+            Arguments.arguments(MIN_CAPACITY * MIN_CAPACITY, 8),
+            Arguments.arguments(1024, 128)
+        );
     }
 }

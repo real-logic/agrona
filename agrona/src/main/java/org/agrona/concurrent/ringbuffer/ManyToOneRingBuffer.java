@@ -17,8 +17,11 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
 import org.agrona.UnsafeAccess;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
 
+import static java.lang.Math.max;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ControlledMessageHandler.Action.*;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
@@ -29,6 +32,10 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
  */
 public final class ManyToOneRingBuffer implements RingBuffer
 {
+    /**
+     * Minimal required capacity of the ring buffer excluding {@link RingBufferDescriptor#TRAILER_LENGTH}.
+     */
+    static final int MIN_CAPACITY = HEADER_LENGTH;
     private final int capacity;
     private final int maxMsgLength;
     private final int tailPositionIndex;
@@ -44,18 +51,18 @@ public final class ManyToOneRingBuffer implements RingBuffer
      * for the {@link RingBufferDescriptor#TRAILER_LENGTH}.
      *
      * @param buffer via which events will be exchanged.
-     * @throws IllegalStateException if the buffer capacity is not a power of 2
-     *                               plus {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
+     * @throws IllegalArgumentException if the buffer capacity is not a power of 2 plus
+     *                                  {@link RingBufferDescriptor#TRAILER_LENGTH} or if capacity is less than
+     *                                  {@link #MIN_CAPACITY}.
      */
     public ManyToOneRingBuffer(final AtomicBuffer buffer)
     {
-        this.buffer = buffer;
-        checkCapacity(buffer.capacity());
-        capacity = buffer.capacity() - TRAILER_LENGTH;
+        capacity = checkCapacity(buffer.capacity(), MIN_CAPACITY);
 
         buffer.verifyAlignment();
 
-        maxMsgLength = capacity >> 3;
+        this.buffer = buffer;
+        maxMsgLength = MIN_CAPACITY == capacity ? 0 : max(HEADER_LENGTH, capacity >> 3);
         tailPositionIndex = capacity + TAIL_POSITION_OFFSET;
         headCachePositionIndex = capacity + HEAD_CACHE_POSITION_OFFSET;
         headPositionIndex = capacity + HEAD_POSITION_OFFSET;
