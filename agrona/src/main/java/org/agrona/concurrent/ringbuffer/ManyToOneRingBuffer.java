@@ -481,8 +481,10 @@ public final class ManyToOneRingBuffer implements RingBuffer
         long head = buffer.getLongVolatile(headCachePositionIndex);
 
         long tail;
+        long newTail;
         int tailIndex;
         int padding;
+        int writeIndex;
         do
         {
             tail = buffer.getLongVolatile(tailPositionIndex);
@@ -499,14 +501,17 @@ public final class ManyToOneRingBuffer implements RingBuffer
 
                 buffer.putLongOrdered(headCachePositionIndex, head);
             }
+            newTail = tail + requiredCapacity;
 
             padding = 0;
             tailIndex = (int)tail & mask;
+            writeIndex = tailIndex;
             final int toBufferEndLength = capacity - tailIndex;
 
             if (requiredCapacity > toBufferEndLength)
             {
                 int headIndex = (int)head & mask;
+                writeIndex = 0;
 
                 if (requiredCapacity > headIndex)
                 {
@@ -514,16 +519,18 @@ public final class ManyToOneRingBuffer implements RingBuffer
                     headIndex = (int)head & mask;
                     if (requiredCapacity > headIndex)
                     {
-                        return INSUFFICIENT_CAPACITY;
+                        writeIndex = INSUFFICIENT_CAPACITY;
+                        newTail = tail; // Do not claim any actual space, only pad to the buffer end
                     }
 
                     buffer.putLongOrdered(headCachePositionIndex, head);
                 }
 
                 padding = toBufferEndLength;
+                newTail += padding;
             }
         }
-        while (!buffer.compareAndSetLong(tailPositionIndex, tail, tail + requiredCapacity + padding));
+        while (!buffer.compareAndSetLong(tailPositionIndex, tail, newTail));
 
         if (0 != padding)
         {
@@ -532,10 +539,9 @@ public final class ManyToOneRingBuffer implements RingBuffer
 
             buffer.putInt(typeOffset(tailIndex), PADDING_MSG_TYPE_ID);
             buffer.putIntOrdered(lengthOffset(tailIndex), padding);
-            tailIndex = 0;
         }
 
-        return tailIndex;
+        return writeIndex;
     }
 
     private int computeRecordIndex(final int index)

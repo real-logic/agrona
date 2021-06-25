@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.function.IntConsumer;
 
 import static java.lang.Boolean.TRUE;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
@@ -599,10 +600,14 @@ public class ManyToOneRingBufferTest
         final int length = 10;
         final long cachedHeadPosition = 0;
         final long headPosition = CAPACITY + 8;
-        final long tailPosition = 2 * CAPACITY - 16;
+        final int padding = 16;
+        final long tailPosition = 2 * CAPACITY - padding;
+        final int paddingIndex = (int)(tailPosition & (CAPACITY - 1));
         when(buffer.getLongVolatile(HEAD_COUNTER_CACHE_INDEX)).thenReturn(cachedHeadPosition);
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(headPosition);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tailPosition);
+        when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tailPosition, tailPosition + padding))
+            .thenReturn(TRUE);
 
         final int index = ringBuffer.tryClaim(MSG_TYPE_ID, length);
 
@@ -614,6 +619,11 @@ public class ManyToOneRingBufferTest
         inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
         inOrder.verify(buffer).putLongOrdered(HEAD_COUNTER_CACHE_INDEX, headPosition);
         inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
+        inOrder.verify(buffer).putLongOrdered(HEAD_COUNTER_CACHE_INDEX, headPosition);
+        inOrder.verify(buffer).compareAndSetLong(TAIL_COUNTER_INDEX, tailPosition, tailPosition + padding);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(paddingIndex), -padding);
+        inOrder.verify(buffer).putInt(typeOffset(paddingIndex), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(paddingIndex), padding);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -796,6 +806,57 @@ public class ManyToOneRingBufferTest
         assertEquals(2, counter.get());
         assertEquals(2, messagesRead);
         assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
+    }
+
+    @Test
+    void shouldAllowWritingEmptyMessagesWhenCapacityIsMinimal()
+    {
+        final int msgType = 13;
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
+        srcBuffer.putLong(0, Long.MAX_VALUE);
+        final ManyToOneRingBuffer ringBuffer =
+            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        // ring buffer is full so the second write should fail
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        // write will succeed after the read
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
+    }
+
+    @Test
+    void shouldWriteMessageAfterInsertedPaddingIsConsumedThusMakeEnoughContiguousSpace()
+    {
+        final int msgType = 42;
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
+        final ManyToOneRingBuffer ringBuffer =
+            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY * 2 + TRAILER_LENGTH]));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        srcBuffer.putLong(0, Long.MAX_VALUE);
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, MIN_CAPACITY)); // not enough space in the buffer
+
+        // consume the message and move head
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+
+        // not enough contiguous space --> insert padding
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
+
+        // consume the padding and move head
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG)); // message fits
+
+        assertEquals(1, ringBuffer.read(
+            (msgTypeId, buffer, index, length) -> assertEquals(Long.MAX_VALUE, buffer.getLong(index))));
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
     }
 
     private void testAlreadyCommitted(final IntConsumer action)
