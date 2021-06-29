@@ -35,7 +35,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
     /**
      * Minimal required capacity of the ring buffer excluding {@link RingBufferDescriptor#TRAILER_LENGTH}.
      */
-    static final int MIN_CAPACITY = HEADER_LENGTH;
+    public static final int MIN_CAPACITY = HEADER_LENGTH;
     private final int capacity;
     private final int maxMsgLength;
     private final int tailPositionIndex;
