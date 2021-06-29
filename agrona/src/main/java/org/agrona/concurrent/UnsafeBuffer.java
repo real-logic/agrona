@@ -1393,7 +1393,69 @@ public class UnsafeBuffer implements AtomicBuffer
     /**
      * {@inheritDoc}
      */
+    public int putStringAscii(final int index, final CharSequence value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length + STR_HEADER_LEN);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            char c = value.charAt(i);
+            if (c > 127)
+            {
+                c = '?';
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+        }
+
+        return STR_HEADER_LEN + length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int putStringAscii(final int index, final String value, final ByteOrder byteOrder)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length + STR_HEADER_LEN);
+        }
+
+        int bits = length;
+        if (NATIVE_BYTE_ORDER != byteOrder)
+        {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+
+        for (int i = 0; i < length; i++)
+        {
+            char c = value.charAt(i);
+            if (c > 127)
+            {
+                c = '?';
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+        }
+
+        return STR_HEADER_LEN + length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int putStringAscii(final int index, final CharSequence value, final ByteOrder byteOrder)
     {
         final int length = value != null ? value.length() : 0;
 
@@ -1495,7 +1557,60 @@ public class UnsafeBuffer implements AtomicBuffer
     /**
      * {@inheritDoc}
      */
+    public int putStringWithoutLengthAscii(final int index, final CharSequence value)
+    {
+        final int length = value != null ? value.length() : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            char c = value.charAt(i);
+            if (c > 127)
+            {
+                c = '?';
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte)c);
+        }
+
+        return length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset, final int length)
+    {
+        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, len);
+        }
+
+        for (int i = 0; i < len; i++)
+        {
+            char c = value.charAt(valueOffset + i);
+            if (c > 127)
+            {
+                c = '?';
+            }
+
+            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte)c);
+        }
+
+        return len;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
+        final int length)
     {
         final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
 

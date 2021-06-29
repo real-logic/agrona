@@ -38,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BufferAlignmentAgentTest
 {
     private static final String TEST_STRING = "BufferAlignmentTest";
+    private static final CharSequence TEST_CHAR_SEQUENCE = new StringBuilder("BufferAlignmentTest");
+
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
@@ -223,12 +225,15 @@ public class BufferAlignmentAgentTest
         buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING, Integer.MAX_VALUE);
         buffer.putStringUtf8(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN, Integer.MAX_VALUE);
         buffer.putStringAscii(offset + SIZE_OF_INT, TEST_STRING);
+        buffer.putStringAscii(offset + SIZE_OF_INT, TEST_CHAR_SEQUENCE);
         buffer.putStringAscii(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN);
+        buffer.putStringAscii(offset + SIZE_OF_INT, TEST_CHAR_SEQUENCE, BIG_ENDIAN);
 
         // string size is not read for these method => no need for 4-bytes
         // alignment
         buffer.putStringWithoutLengthUtf8(offset + SIZE_OF_BYTE, TEST_STRING);
         buffer.putStringWithoutLengthAscii(offset + SIZE_OF_BYTE, TEST_STRING);
+        buffer.putStringWithoutLengthAscii(offset + SIZE_OF_BYTE, TEST_CHAR_SEQUENCE);
     }
 
     private void testUnAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
@@ -252,7 +257,9 @@ public class BufferAlignmentAgentTest
         assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE, BIG_ENDIAN));
 
         assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE));
         assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING, BIG_ENDIAN));
+        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE, BIG_ENDIAN));
         assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING));
         assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN));
         assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));

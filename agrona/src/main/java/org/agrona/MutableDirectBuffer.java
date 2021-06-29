@@ -274,6 +274,15 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringAscii(int index, String value);
 
     /**
+     * Encode a CharSequence as ASCII bytes to the buffer with a length prefix.
+     *
+     * @param index at which the CharSequence should be encoded.
+     * @param value of the CharSequence to be encoded.
+     * @return the number of bytes put to the buffer.
+     */
+    int putStringAscii(int index, CharSequence value);
+
+    /**
      * Encode a String as ASCII bytes to the buffer with a length prefix.
      *
      * @param index     at which the String should be encoded.
@@ -284,6 +293,16 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringAscii(int index, String value, ByteOrder byteOrder);
 
     /**
+     * Encode a CharSequence as ASCII bytes to the buffer with a length prefix.
+     *
+     * @param index     at which the CharSequence should be encoded.
+     * @param value     of the CharSequence to be encoded.
+     * @param byteOrder for the length prefix.
+     * @return the number of bytes put to the buffer.
+     */
+    int putStringAscii(int index, CharSequence value, ByteOrder byteOrder);
+
+    /**
      * Encode a String as ASCII bytes in the buffer without a length prefix.
      *
      * @param index at which the String begins.
@@ -291,6 +310,15 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @return the number of bytes encoded.
      */
     int putStringWithoutLengthAscii(int index, String value);
+
+    /**
+     * Encode a CharSequence as ASCII bytes in the buffer without a length prefix.
+     *
+     * @param index at which the CharSequence begins.
+     * @param value of the CharSequence to be encoded.
+     * @return the number of bytes encoded.
+     */
+    int putStringWithoutLengthAscii(int index, CharSequence value);
 
     /**
      * Encode a String as ASCII bytes in the buffer without a length prefix taking a range of the value.
@@ -303,6 +331,18 @@ public interface MutableDirectBuffer extends DirectBuffer
      * @return the number of bytes encoded.
      */
     int putStringWithoutLengthAscii(int index, String value, int valueOffset, int length);
+
+    /**
+     * Encode a CharSequence as ASCII bytes in the buffer without a length prefix taking a range of the value.
+     *
+     * @param index       at which the CharSequence begins.
+     * @param value       of the CharSequence to be encoded.
+     * @param valueOffset in the value CharSequence to begin.
+     * @param length      of the value CharSequence to encode. If this is greater than valueOffset - value length then the
+     *                    lesser will be used.
+     * @return the number of bytes encoded.
+     */
+    int putStringWithoutLengthAscii(int index, CharSequence value, int valueOffset, int length);
 
     /**
      * Encode a String as UTF-8 bytes to the buffer with a length prefix.
