@@ -432,11 +432,20 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         int padding = 0;
-        int recordIndex = (int)tail & mask;
+        final int recordIndex = (int)tail & mask;
         final int toBufferEndLength = capacity - recordIndex;
+        int writeIndex = recordIndex;
+        long nextTail = tail + alignedRecordLength;
 
-        if (requiredCapacity > toBufferEndLength)
+        if (alignedRecordLength == toBufferEndLength) // message fits within the end of the buffer
         {
+            buffer.putLongOrdered(tailPositionIndex, nextTail);
+            buffer.putLong(0, 0L); // pre-zero next message header
+            return recordIndex;
+        }
+        else if (requiredCapacity > toBufferEndLength)
+        {
+            writeIndex = 0;
             int headIndex = (int)head & mask;
 
             if (requiredCapacity > headIndex)
@@ -445,16 +454,18 @@ public final class OneToOneRingBuffer implements RingBuffer
                 headIndex = (int)head & mask;
                 if (requiredCapacity > headIndex)
                 {
-                    return INSUFFICIENT_CAPACITY;
+                    writeIndex = INSUFFICIENT_CAPACITY;
+                    nextTail = tail;
                 }
 
                 buffer.putLong(headCachePositionIndex, head);
             }
 
             padding = toBufferEndLength;
+            nextTail += padding;
         }
 
-        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
+        buffer.putLongOrdered(tailPositionIndex, nextTail);
 
         if (0 != padding)
         {
@@ -464,12 +475,14 @@ public final class OneToOneRingBuffer implements RingBuffer
 
             buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
             buffer.putIntOrdered(lengthOffset(recordIndex), padding);
-            recordIndex = 0;
         }
 
-        buffer.putLong(recordIndex + alignedRecordLength, 0L); // pre-zero next message header
+        if (INSUFFICIENT_CAPACITY != writeIndex)
+        {
+            buffer.putLong(writeIndex + alignedRecordLength, 0L); // pre-zero next message header
+        }
 
-        return recordIndex;
+        return writeIndex;
     }
 
     private int computeRecordIndex(final int index)
