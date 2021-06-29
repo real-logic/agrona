@@ -81,17 +81,27 @@ public final class RingBufferDescriptor
     }
 
     /**
-     * Check the the buffer capacity is the correct size (a power of 2 + {@link RingBufferDescriptor#TRAILER_LENGTH}).
+     * Check the the buffer capacity is the correct size (a power of 2 + {@link RingBufferDescriptor#TRAILER_LENGTH})
+     * and that it satisfies minimum capacity size.
      *
-     * @param capacity to be checked.
-     * @throws IllegalStateException if the buffer capacity is incorrect.
+     * @param capacity    to be checked.
+     * @param minCapacity minimum required capacity of the ring buffer.
+     * @return the capacity to store the data in the ring buffer, i.e. {@code capacity - TRAILER_LENGTH}.
+     * @throws IllegalArgumentException if the buffer capacity is incorrect.
      */
-    public static void checkCapacity(final int capacity)
+    public static int checkCapacity(final int capacity, final int minCapacity)
     {
-        if (!BitUtil.isPowerOfTwo(capacity - TRAILER_LENGTH))
+        final int dataCapacity = capacity - TRAILER_LENGTH;
+        if (!BitUtil.isPowerOfTwo(dataCapacity))
         {
-            final String msg = "capacity must be a positive power of 2 + TRAILER_LENGTH: capacity=" + capacity;
-            throw new IllegalStateException(msg);
+            throw new IllegalArgumentException(
+                "capacity must be a positive power of 2 + TRAILER_LENGTH: capacity=" + capacity);
         }
+        if (dataCapacity < minCapacity)
+        {
+            throw new IllegalArgumentException(
+                "insufficient capacity: minCapacity=" + (minCapacity + TRAILER_LENGTH) + ", capacity=" + capacity);
+        }
+        return dataCapacity;
     }
 }

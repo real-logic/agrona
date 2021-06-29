@@ -17,19 +17,28 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.collections.MutableInteger;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.IntConsumer;
 
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.BitUtil.align;
-import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.PADDING_MSG_TYPE_ID;
+import static org.agrona.concurrent.ringbuffer.OneToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
 import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
+import static org.agrona.concurrent.ringbuffer.RingBuffer.PADDING_MSG_TYPE_ID;
+import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,10 +48,10 @@ public class OneToOneRingBufferTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 4096;
-    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + RingBufferDescriptor.TRAILER_LENGTH;
-    private static final int TAIL_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.TAIL_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_INDEX = CAPACITY + RingBufferDescriptor.HEAD_POSITION_OFFSET;
-    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
+    private static final int TOTAL_BUFFER_LENGTH = CAPACITY + TRAILER_LENGTH;
+    private static final int TAIL_COUNTER_INDEX = CAPACITY + TAIL_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_INDEX = CAPACITY + HEAD_POSITION_OFFSET;
+    private static final int HEAD_COUNTER_CACHE_INDEX = CAPACITY + HEAD_CACHE_POSITION_OFFSET;
 
     private final UnsafeBuffer buffer = mock(UnsafeBuffer.class);
     private OneToOneRingBuffer ringBuffer;
@@ -53,6 +62,30 @@ public class OneToOneRingBufferTest
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
         ringBuffer = new OneToOneRingBuffer(buffer);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 2, 4, 8 })
+    void shouldThrowExceptionIfCapacityIsBelowMinCapacity(final int capacity)
+    {
+        when(buffer.capacity()).thenReturn(TRAILER_LENGTH + capacity);
+
+        final IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> new OneToOneRingBuffer(buffer));
+
+        assertEquals("insufficient capacity: minCapacity=" + (TRAILER_LENGTH + MIN_CAPACITY) +
+            ", capacity=" + (TRAILER_LENGTH + capacity),
+            exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("maxMessageLengths")
+    void shouldComputeMaxMessageLength(final int capacity, final int maxMessageLength)
+    {
+        when(buffer.capacity()).thenReturn(TRAILER_LENGTH + capacity);
+
+        final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(buffer);
+        assertEquals(maxMessageLength, ringBuffer.maxMsgLength());
     }
 
     @Test
@@ -335,8 +368,8 @@ public class OneToOneRingBufferTest
     public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
-        final int totalBufferLength = capacity + RingBufferDescriptor.TRAILER_LENGTH;
-        assertThrows(IllegalStateException.class,
+        final int totalBufferLength = capacity + TRAILER_LENGTH;
+        assertThrows(IllegalArgumentException.class,
             () -> new OneToOneRingBuffer(new UnsafeBuffer(new byte[totalBufferLength])));
     }
 
@@ -443,6 +476,13 @@ public class OneToOneRingBufferTest
         inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
         inOrder.verify(buffer).putLong(HEAD_COUNTER_CACHE_INDEX, CAPACITY + 111L);
         inOrder.verify(buffer).getLongVolatile(HEAD_COUNTER_INDEX);
+        inOrder.verify(buffer).putLong(HEAD_COUNTER_CACHE_INDEX, 3L);
+        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, CAPACITY * 2L);
+        final int paddingIndex = CAPACITY - 10;
+        inOrder.verify(buffer).putLong(0, 0L);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(paddingIndex), -10);
+        inOrder.verify(buffer).putInt(typeOffset(paddingIndex), PADDING_MSG_TYPE_ID);
+        inOrder.verify(buffer).putIntOrdered(lengthOffset(paddingIndex), 10);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -625,6 +665,61 @@ public class OneToOneRingBufferTest
         assertEquals(ringBuffer.producerPosition(), ringBuffer.consumerPosition());
     }
 
+    @Test
+    void shouldAllowWritingEmptyMessagesWhenCapacityIsMinimal()
+    {
+        final int msgType = 13;
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
+        srcBuffer.putLong(0, Long.MAX_VALUE);
+        final OneToOneRingBuffer ringBuffer =
+            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        // ring buffer is full so the second write should fail
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        // write will succeed after the read
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
+
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
+    }
+
+    @Test
+    void shouldWriteMessageAfterInsertedPaddingIsConsumedThusMakeEnoughContiguousSpace()
+    {
+        final int msgType = 42;
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
+        final OneToOneRingBuffer ringBuffer =
+            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY * 2 + TRAILER_LENGTH]));
+
+        srcBuffer.putLong(0, Long.MAX_VALUE);
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0)); // an empty message
+
+        srcBuffer.putLong(0, Long.MIN_VALUE);
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG)); // not enough space in the buffer
+
+        // consume one message and move head
+        assertEquals(1, ringBuffer.read(
+            (msgTypeId, buffer, index, length) -> assertEquals(Long.MAX_VALUE, buffer.getLong(index)), 1));
+
+        // not enough contiguous space --> insert padding
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
+
+        // consume the empty message and move head
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG)); // message fits
+
+        assertEquals(1, ringBuffer.read(
+            (msgTypeId, buffer, index, length) -> assertEquals(Long.MIN_VALUE, buffer.getLong(index))));
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
+    }
+
     private void testAlreadyCommitted(final IntConsumer action)
     {
         final int index = HEADER_LENGTH;
@@ -646,5 +741,15 @@ public class OneToOneRingBufferTest
         final IllegalStateException exception = assertThrows(
             IllegalStateException.class, () -> action.accept(index));
         assertEquals("claimed space previously aborted", exception.getMessage());
+    }
+
+    private static List<Arguments> maxMessageLengths()
+    {
+        return Arrays.asList(
+            Arguments.arguments(MIN_CAPACITY, 0),
+            Arguments.arguments(MIN_CAPACITY * 2, HEADER_LENGTH),
+            Arguments.arguments(MIN_CAPACITY * MIN_CAPACITY, 32),
+            Arguments.arguments(1024, 128)
+        );
     }
 }

@@ -17,8 +17,11 @@ package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
 import org.agrona.UnsafeAccess;
-import org.agrona.concurrent.*;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MessageHandler;
 
+import static java.lang.Math.max;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ControlledMessageHandler.Action.*;
 import static org.agrona.concurrent.ringbuffer.RecordDescriptor.*;
@@ -32,6 +35,10 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.*;
  */
 public final class OneToOneRingBuffer implements RingBuffer
 {
+    /**
+     * Minimal required capacity of the ring buffer excluding {@link RingBufferDescriptor#TRAILER_LENGTH}.
+     */
+    public static final int MIN_CAPACITY = HEADER_LENGTH * 2;
     private final int capacity;
     private final int maxMsgLength;
     private final int tailPositionIndex;
@@ -47,18 +54,18 @@ public final class OneToOneRingBuffer implements RingBuffer
      * for the {@link RingBufferDescriptor#TRAILER_LENGTH}.
      *
      * @param buffer via which events will be exchanged.
-     * @throws IllegalStateException if the buffer capacity is not a power of 2 plus
-     *                               {@link RingBufferDescriptor#TRAILER_LENGTH} in capacity.
+     * @throws IllegalArgumentException if the buffer capacity is not a power of 2 plus
+     *                                  {@link RingBufferDescriptor#TRAILER_LENGTH} or if capacity is less than
+     *                                  {@link #MIN_CAPACITY}.
      */
     public OneToOneRingBuffer(final AtomicBuffer buffer)
     {
-        this.buffer = buffer;
-        checkCapacity(buffer.capacity());
-        capacity = buffer.capacity() - TRAILER_LENGTH;
+        capacity = checkCapacity(buffer.capacity(), MIN_CAPACITY);
 
         buffer.verifyAlignment();
 
-        maxMsgLength = capacity >> 3;
+        this.buffer = buffer;
+        maxMsgLength = MIN_CAPACITY == capacity ? 0 : max(HEADER_LENGTH, capacity >> 3);
         tailPositionIndex = capacity + TAIL_POSITION_OFFSET;
         headCachePositionIndex = capacity + HEAD_CACHE_POSITION_OFFSET;
         headPositionIndex = capacity + HEAD_POSITION_OFFSET;
@@ -425,11 +432,20 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         int padding = 0;
-        int recordIndex = (int)tail & mask;
+        final int recordIndex = (int)tail & mask;
         final int toBufferEndLength = capacity - recordIndex;
+        int writeIndex = recordIndex;
+        long nextTail = tail + alignedRecordLength;
 
-        if (requiredCapacity > toBufferEndLength)
+        if (alignedRecordLength == toBufferEndLength) // message fits within the end of the buffer
         {
+            buffer.putLongOrdered(tailPositionIndex, nextTail);
+            buffer.putLong(0, 0L); // pre-zero next message header
+            return recordIndex;
+        }
+        else if (requiredCapacity > toBufferEndLength)
+        {
+            writeIndex = 0;
             int headIndex = (int)head & mask;
 
             if (requiredCapacity > headIndex)
@@ -438,16 +454,18 @@ public final class OneToOneRingBuffer implements RingBuffer
                 headIndex = (int)head & mask;
                 if (requiredCapacity > headIndex)
                 {
-                    return INSUFFICIENT_CAPACITY;
+                    writeIndex = INSUFFICIENT_CAPACITY;
+                    nextTail = tail;
                 }
 
                 buffer.putLong(headCachePositionIndex, head);
             }
 
             padding = toBufferEndLength;
+            nextTail += padding;
         }
 
-        buffer.putLongOrdered(tailPositionIndex, tail + alignedRecordLength + padding);
+        buffer.putLongOrdered(tailPositionIndex, nextTail);
 
         if (0 != padding)
         {
@@ -457,12 +475,14 @@ public final class OneToOneRingBuffer implements RingBuffer
 
             buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
             buffer.putIntOrdered(lengthOffset(recordIndex), padding);
-            recordIndex = 0;
         }
 
-        buffer.putLong(recordIndex + alignedRecordLength, 0L); // pre-zero next message header
+        if (INSUFFICIENT_CAPACITY != writeIndex)
+        {
+            buffer.putLong(writeIndex + alignedRecordLength, 0L); // pre-zero next message header
+        }
 
-        return recordIndex;
+        return writeIndex;
     }
 
     private int computeRecordIndex(final int index)
