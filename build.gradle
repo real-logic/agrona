@@ -454,8 +454,8 @@ project(':agrona-concurrency-tests') {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
-        implementation "org.openjdk.jcstress:jcstress-core:${jcstressVersion}"
         annotationProcessor "org.openjdk.jcstress:jcstress-core:${jcstressVersion}"
+        implementation "org.openjdk.jcstress:jcstress-core:${jcstressVersion}"
         implementation project(':agrona')
     }
 
