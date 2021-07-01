@@ -21,9 +21,11 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.II_Result;
 import org.openjdk.jcstress.infra.results.IJ_Result;
+import org.openjdk.jcstress.infra.results.JJJ_Result;
 
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.concurrent.ringbuffer.OneToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
 /**
@@ -216,6 +218,52 @@ public class OneToOneRingBufferTests
         public void consumer(final II_Result result)
         {
             result.r1 = ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+        }
+    }
+
+    /**
+     * Test for {@link OneToOneRingBuffer#nextCorrelationId()} method which must be thread safe.
+     */
+    @JCStressTest
+    @Outcome(id = "0, 1, 2", expect = Expect.ACCEPTABLE, desc = "t1 -> t2")
+    @Outcome(id = "1, 0, 2", expect = Expect.ACCEPTABLE, desc = "t2 -> t1")
+    @State
+    public static class CorrelationId
+    {
+        private final OneToOneRingBuffer ringBuffer =
+            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+
+        /**
+         * First thread.
+         *
+         * @param result object.
+         */
+        @Actor
+        public void actor1(final JJJ_Result result)
+        {
+            result.r1 = ringBuffer.nextCorrelationId();
+        }
+
+        /**
+         * Second thread.
+         *
+         * @param result object.
+         */
+        @Actor
+        public void actor2(final JJJ_Result result)
+        {
+            result.r2 = ringBuffer.nextCorrelationId();
+        }
+
+        /**
+         * Arbiter thread.
+         *
+         * @param result object.
+         */
+        @Arbiter
+        public void arbiter(final JJJ_Result result)
+        {
+            result.r3 = ringBuffer.nextCorrelationId();
         }
     }
 }
