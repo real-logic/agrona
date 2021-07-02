@@ -35,10 +35,8 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 @State(Scope.Benchmark)
-@SuppressWarnings("FieldCanBeLocal")
 public class UnsafeBufferPutCharSequenceBenchmark
 {
-
     private static final int BUFFER_CAPACITY = 128;
 
     private final UnsafeBuffer unsafeArrayBuffer = new UnsafeBuffer(new byte[BUFFER_CAPACITY]);
