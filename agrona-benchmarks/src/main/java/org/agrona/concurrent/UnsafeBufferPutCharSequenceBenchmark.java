@@ -36,62 +36,119 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 10, time = 1)
 @State(Scope.Benchmark)
 @SuppressWarnings("FieldCanBeLocal")
-public class UnsafeBufferPutCharSequenceBenchmark {
+public class UnsafeBufferPutCharSequenceBenchmark
+{
 
     private static final int BUFFER_CAPACITY = 128;
 
     private final UnsafeBuffer unsafeArrayBuffer = new UnsafeBuffer(new byte[BUFFER_CAPACITY]);
     private final UnsafeBuffer unsafeDirectBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
     private final ExpandableArrayBuffer expandableArrayBuffer = new ExpandableArrayBuffer(BUFFER_CAPACITY);
-    private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
+    private final ExpandableDirectByteBuffer expandableDirectByteBuffer
+        = new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
 
-    private final CharSequence charSequence = new StringBuilder("Cupcake ipsum dolor sit amet chupa chups sweet jelly topping.");
+    private final CharSequence charSequence = new StringBuilder(
+        "Cupcake ipsum dolor sit amet chupa chups sweet jelly topping.");
     private final String string = charSequence.toString();
 
+    /**
+     * Benchmark {@link UnsafeBuffer#putStringAscii(int, String)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int unsafeArrayBuffer_string() {
+    public int unsafeArrayBufferString()
+    {
         return unsafeArrayBuffer.putStringAscii(0, string);
     }
 
+    /**
+     * Benchmark {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int unsafeArrayBuffer_charSequence() {
+    public int unsafeArrayBufferCharSequence()
+    {
         return unsafeArrayBuffer.putStringAscii(0, charSequence);
     }
 
+    /**
+     * Benchmark {@link UnsafeBuffer#putStringAscii(int, String)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int unsafeDirectBuffer_string() {
+    public int unsafeDirectBufferString()
+    {
         return unsafeDirectBuffer.putStringAscii(0, string);
     }
 
+    /**
+     * Benchmark {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int unsafeDirectBuffer_charSequence() {
+    public int unsafeDirectBufferCharSequence()
+    {
         return unsafeDirectBuffer.putStringAscii(0, charSequence);
     }
 
+    /**
+     * Benchmark {@link ExpandableArrayBuffer#putStringAscii(int, String)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int expandableArrayBuffer_string() {
+    public int expandableArrayBufferString()
+    {
         return expandableArrayBuffer.putStringAscii(0, string);
     }
 
+    /**
+     * Benchmark {@link ExpandableArrayBuffer#putStringAscii(int, CharSequence)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int expandableArrayBuffer_charSequence() {
+    public int expandableArrayBufferCharSequence()
+    {
         return expandableArrayBuffer.putStringAscii(0, charSequence);
     }
 
+    /**
+     * Benchmark {@link ExpandableDirectByteBuffer#putStringAscii(int, String)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int expandableDirectByteBuffer_string() {
+    public int expandableDirectByteBufferString()
+    {
         return expandableDirectByteBuffer.putStringAscii(0, string);
     }
 
+    /**
+     * Benchmark {@link ExpandableDirectByteBuffer#putStringAscii(int, CharSequence)} method.
+     *
+     * @return length in bytes of the written value.
+     */
     @Benchmark
-    public int expandableDirectByteBuffer_charSequence() {
+    public int expandableDirectByteBufferCharSequence()
+    {
         return expandableDirectByteBuffer.putStringAscii(0, charSequence);
     }
 
-    public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + UnsafeBufferPutCharSequenceBenchmark.class.getSimpleName() + ".*")
-                .build();
+    /**
+     * Benchmark entry point.
+     *
+     * @param args program arguments (ignored)
+     */
+    public static void main(final String[] args) throws RunnerException
+    {
+        final Options opt = new OptionsBuilder()
+            .include(".*" + UnsafeBufferPutCharSequenceBenchmark.class.getSimpleName() + ".*")
+            .build();
 
         new Runner(opt).run();
     }
