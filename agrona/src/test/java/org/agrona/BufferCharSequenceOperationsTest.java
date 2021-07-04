@@ -27,7 +27,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BufferCharSequenceOperationsTest
+class BufferCharSequenceOperationsTest
 {
     private static final int BUFFER_CAPACITY = 256;
     private static final int INDEX = 8;
@@ -43,7 +43,7 @@ public class BufferCharSequenceOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
+    void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
     {
         final CharSequence value = new StringBuilder("Hello World £");
         final CharSequence expected = "Hello World ?";
@@ -54,7 +54,7 @@ public class BufferCharSequenceOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAppendAsciiStringInParts(final MutableDirectBuffer buffer)
+    void shouldAppendAsciiStringInParts(final MutableDirectBuffer buffer)
     {
         final CharSequence value = new StringBuilder("Hello World Test");
         final String expected = "Hello World Test";
@@ -80,7 +80,7 @@ public class BufferCharSequenceOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringNativeLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringNativeLength(final MutableDirectBuffer buffer)
     {
         final CharSequence value = new StringBuilder("Hello World");
         final String expected = "Hello World";
@@ -92,7 +92,7 @@ public class BufferCharSequenceOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringBigEndianLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringBigEndianLength(final MutableDirectBuffer buffer)
     {
         final CharSequence value = new StringBuilder("Hello World");
         final String expected = "Hello World";
@@ -104,7 +104,7 @@ public class BufferCharSequenceOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringWithoutLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringWithoutLength(final MutableDirectBuffer buffer)
     {
         final CharSequence value = new StringBuilder("Hello World");
         final String expected = "Hello World";

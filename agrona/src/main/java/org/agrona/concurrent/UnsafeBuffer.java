@@ -1609,8 +1609,8 @@ public class UnsafeBuffer implements AtomicBuffer
     /**
      * {@inheritDoc}
      */
-    public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
-        final int length)
+    public int putStringWithoutLengthAscii(
+        final int index, final CharSequence value, final int valueOffset, final int length)
     {
         final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
 

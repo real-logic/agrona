@@ -215,7 +215,7 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Put an array of src into the underlying buffer.
      *
      * @param index in the underlying buffer to start from.
-     * @param src   to be copied to the underlying buffer.
+     * @param src   to be copied into the underlying buffer.
      */
     void putBytes(int index, byte[] src);
 
@@ -265,45 +265,45 @@ public interface MutableDirectBuffer extends DirectBuffer
     void putBytes(int index, DirectBuffer srcBuffer, int srcIndex, int length);
 
     /**
-     * Encode a String as ASCII bytes to the buffer with a length prefix.
+     * Encode a {@link String} as ASCII bytes to the buffer with a length prefix.
      *
      * @param index at which the String should be encoded.
      * @param value of the String to be encoded.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringAscii(int index, String value);
 
     /**
-     * Encode a CharSequence as ASCII bytes to the buffer with a length prefix.
+     * Encode a {@link CharSequence} as ASCII bytes to the buffer with a length prefix.
      *
      * @param index at which the CharSequence should be encoded.
      * @param value of the CharSequence to be encoded.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringAscii(int index, CharSequence value);
 
     /**
-     * Encode a String as ASCII bytes to the buffer with a length prefix.
+     * Encode a {@link String} as ASCII bytes to the buffer with a length prefix.
      *
      * @param index     at which the String should be encoded.
      * @param value     of the String to be encoded.
      * @param byteOrder for the length prefix.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringAscii(int index, String value, ByteOrder byteOrder);
 
     /**
-     * Encode a CharSequence as ASCII bytes to the buffer with a length prefix.
+     * Encode a {@link CharSequence} as ASCII bytes to the buffer with a length prefix.
      *
      * @param index     at which the CharSequence should be encoded.
      * @param value     of the CharSequence to be encoded.
      * @param byteOrder for the length prefix.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringAscii(int index, CharSequence value, ByteOrder byteOrder);
 
     /**
-     * Encode a String as ASCII bytes in the buffer without a length prefix.
+     * Encode a {@link String} as ASCII bytes in the buffer without a length prefix.
      *
      * @param index at which the String begins.
      * @param value of the String to be encoded.
@@ -312,7 +312,7 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringWithoutLengthAscii(int index, String value);
 
     /**
-     * Encode a CharSequence as ASCII bytes in the buffer without a length prefix.
+     * Encode a {@link CharSequence} as ASCII bytes in the buffer without a length prefix.
      *
      * @param index at which the CharSequence begins.
      * @param value of the CharSequence to be encoded.
@@ -321,7 +321,7 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringWithoutLengthAscii(int index, CharSequence value);
 
     /**
-     * Encode a String as ASCII bytes in the buffer without a length prefix taking a range of the value.
+     * Encode a {@link String} as ASCII bytes in the buffer without a length prefix taking a range of the value.
      *
      * @param index       at which the String begins.
      * @param value       of the String to be encoded.
@@ -333,7 +333,7 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringWithoutLengthAscii(int index, String value, int valueOffset, int length);
 
     /**
-     * Encode a CharSequence as ASCII bytes in the buffer without a length prefix taking a range of the value.
+     * Encode a {@link CharSequence} as ASCII bytes in the buffer without a length prefix taking a range of the value.
      *
      * @param index       at which the CharSequence begins.
      * @param value       of the CharSequence to be encoded.
@@ -345,49 +345,49 @@ public interface MutableDirectBuffer extends DirectBuffer
     int putStringWithoutLengthAscii(int index, CharSequence value, int valueOffset, int length);
 
     /**
-     * Encode a String as UTF-8 bytes to the buffer with a length prefix.
+     * Encode a {@link String} as UTF-8 bytes to the buffer with a length prefix.
      *
      * @param index at which the String should be encoded.
      * @param value of the String to be encoded.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringUtf8(int index, String value);
 
     /**
-     * Encode a String as UTF-8 bytes to the buffer with a length prefix.
+     * Encode a {@link String} as UTF-8 bytes to the buffer with a length prefix.
      *
      * @param index     at which the String should be encoded.
      * @param value     of the String to be encoded.
      * @param byteOrder for the length prefix.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      */
     int putStringUtf8(int index, String value, ByteOrder byteOrder);
 
     /**
-     * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
+     * Encode a {@link String} as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
      *
      * @param index            at which the String should be encoded.
      * @param value            of the String to be encoded.
      * @param maxEncodedLength to be checked before writing to the buffer.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedLength.
      */
     int putStringUtf8(int index, String value, int maxEncodedLength);
 
     /**
-     * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
+     * Encode a {@link String} as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
      *
      * @param index            at which the String should be encoded.
      * @param value            of the String to be encoded.
      * @param byteOrder        for the length prefix.
      * @param maxEncodedLength to be checked before writing to the buffer.
-     * @return the number of bytes put to the buffer.
+     * @return the number of bytes put into the buffer.
      * @throws java.lang.IllegalArgumentException if the encoded bytes are greater than maxEncodedLength.
      */
     int putStringUtf8(int index, String value, ByteOrder byteOrder, int maxEncodedLength);
 
     /**
-     * Encode a String as UTF-8 bytes in the buffer without a length prefix.
+     * Encode a {@link String} as UTF-8 bytes in the buffer without a length prefix.
      *
      * @param index at which the String begins.
      * @param value of the String to be encoded.
