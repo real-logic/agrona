@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Benchmark for the {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
  */
-@Fork(1)
+@Fork(3)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 5, time = 1)
