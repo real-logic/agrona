@@ -64,7 +64,7 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for a int value and apply mask to get reminder.
+     * Generate a hash for a int value and apply mask to get remainder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -76,7 +76,7 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for an object and apply mask to get a reminder.
+     * Generate a hash for an object and apply mask to get a remainder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -88,7 +88,7 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for a long value and apply mask to get a reminder.
+     * Generate a hash for a long value and apply mask to get a remainder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -100,7 +100,7 @@ public final class Hashing
     }
 
     /**
-     * Generate an even hash for a int value and apply mask to get a reminder that will be even.
+     * Generate an even hash for a int value and apply mask to get a remainder that will be even.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -115,7 +115,7 @@ public final class Hashing
     }
 
     /**
-     * Generate an even hash for a long value and apply mask to get a reminder that will be even.
+     * Generate an even hash for a long value and apply mask to get a remainder that will be even.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -130,7 +130,7 @@ public final class Hashing
     }
 
     /**
-     * Combined two 32 bit keys into a 64-bit compound.
+     * Combined two 32-bit keys into a 64-bit compound.
      *
      * @param keyPartA to make the upper bits
      * @param keyPartB to make the lower bits.
