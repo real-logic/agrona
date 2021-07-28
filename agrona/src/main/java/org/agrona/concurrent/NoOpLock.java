@@ -78,7 +78,7 @@ public final class NoOpLock implements Lock
      * Not supported.
      *
      * @return never returns.
-     * @throws UnsupportedOperationException always.
+     * @throws UnsupportedOperationException if used.
      */
     public Condition newCondition()
     {

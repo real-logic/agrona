@@ -32,7 +32,7 @@ public final class AsciiSequenceView implements CharSequence
     }
 
     /**
-     * Construct a view over a {@link DirectBuffer} from an offset for a given length..
+     * Construct a view over a {@link DirectBuffer} from an offset for a given length.
      *
      * @param buffer containing the ASCII sequence.
      * @param offset at which the ASCII sequence begins.

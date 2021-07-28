@@ -63,7 +63,7 @@ public class PackageOutputManager implements OutputManager
      *
      * @param name the name of the Java class.
      * @return a {@link java.io.Writer} to which the source code should be written.
-     * @throws IOException if a issue occurs when creating the file.
+     * @throws IOException if an issue occurs when creating the file.
      */
     public Writer createOutput(final String name) throws IOException
     {

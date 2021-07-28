@@ -65,7 +65,7 @@ public final class IntLruCache<E> implements AutoCloseable
      * Looks up an element in the cache, creating a new element if it doesn't exist and evicting the least recently
      * used element if there's no space left in the cache.
      *
-     * @param key the key to lookup the element by.
+     * @param key the key to look up the element by.
      * @return the element associated with this key.
      */
     @SuppressWarnings("unchecked")

@@ -169,7 +169,7 @@ public class AgentInvoker implements AutoCloseable
     /**
      * Mark the invoker as closed and call the {@link Agent#onClose()} logic for clean up.
      * <p>
-     * The clean up logic will only be performed once.
+     * The cleanup logic will only be performed once.
      */
     public final void close()
     {

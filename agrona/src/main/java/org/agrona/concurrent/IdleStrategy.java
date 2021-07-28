@@ -26,7 +26,7 @@ package org.agrona.concurrent;
  * <p>
  * <b>Note regarding potential for TTSP(Time To Safe Point) issues</b>
  * <p>
- * If the caller spins in a 'counted' loop, and the implementation does not include a a safepoint poll this may cause a
+ * If the caller spins in a 'counted' loop, and the implementation does not include a safepoint poll this may cause a
  * TTSP (Time To SafePoint) problem. If this is the case for your application you can solve it by preventing the idle
  * method from being inlined by using a Hotspot compiler command as a JVM argument e.g:
  * <code>-XX:CompileCommand=dontinline,org.agrona.concurrent.NoOpIdleStrategy::idle</code>

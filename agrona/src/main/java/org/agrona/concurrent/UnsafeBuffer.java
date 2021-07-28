@@ -34,8 +34,8 @@ import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
  * byte[], one of the various {@link ByteBuffer} implementations, or an off Java heap memory address.
  * <p>
  * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeBuffer}. {@link UnsafeBuffer}s are
- * effectively stateless and can be used concurrently, with the exception of wrapping. To control {@link ByteOrder}
- * use the appropriate method with the {@link ByteOrder} overload.
+ * effectively stateless and can be used concurrently, the wrapping methods are an exception. To control
+ * {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
  * <p>
  * <b>Note:</b> This class has a natural ordering that is inconsistent with equals.
  * Types may be different but equal on buffer contents.
@@ -57,7 +57,8 @@ public class UnsafeBuffer implements AtomicBuffer
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
 
     /**
-     * Should bounds checks be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     * Should bounds-checks operations be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME}
+     * system property.
      *
      * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
      */

@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
+ * Group several {@link Agent}s into one composite, so they can be scheduled as a unit.
  * <p>
  * {@link Agent}s can be dynamically added and removed.
  * <p>
@@ -253,7 +253,7 @@ public class DynamicCompositeAgent implements Agent
     /**
      * Try and remove an {@link Agent} from the composite. The agent is removed during the next {@link #doWork()}
      * duty cycle if this operation is successful. This method does not block and will return false if another
-     * concurrent attempt to remove is in progress..
+     * concurrent attempt to remove is in progress.
      * <p>
      * The {@link Agent} is removed by identity. Only the first found is removed.
      *

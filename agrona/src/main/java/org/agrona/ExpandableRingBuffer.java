@@ -24,7 +24,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
- * Ring buffer for storing messages which can expand to accommodate the messages written into it. Message are written
+ * Ring-buffer for storing messages which can expand to accommodate the messages written into it. Message are written
  * and read in a FIFO order with capacity up to {@link #maxCapacity()}. Messages can be iterated via for-each methods
  * without consuming and having the option to begin iteration an offset from the current {@link #head()} position.
  * <p>
@@ -33,7 +33,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 public class ExpandableRingBuffer
 {
     /**
-     * Maximum capacity to which the ring buffer can grow which is 1GB.
+     * Maximum capacity to which the ring buffer can grow which is 1 GB.
      */
     public static final int MAX_CAPACITY = 1 << 30;
 
@@ -92,7 +92,7 @@ public class ExpandableRingBuffer
      * Create a new ring buffer providing configuration for initial and max capacity, plus whether it is direct or not.
      *
      * @param initialCapacity required in the buffer.
-     * @param maxCapacity     the the buffer can expand to.
+     * @param maxCapacity     the buffer can expand to.
      * @param isDirect        is the {@link ByteBuffer} allocated direct or heap based.
      */
     public ExpandableRingBuffer(final int initialCapacity, final int maxCapacity, final boolean isDirect)

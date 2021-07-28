@@ -167,7 +167,7 @@ public class BufferAlignmentAgentTest
         buffer.getStringAscii(offset + SIZE_OF_INT);
         buffer.getStringAscii(offset + SIZE_OF_INT, BIG_ENDIAN);
 
-        // string size is not read for these method => no need for 4-bytes
+        // string size is not read for these methods => no need for 4-bytes
         // alignment
         buffer.getStringUtf8(offset + SIZE_OF_BYTE, 7);
         buffer.getStringWithoutLengthUtf8(offset + SIZE_OF_BYTE, 7);
@@ -229,7 +229,7 @@ public class BufferAlignmentAgentTest
         buffer.putStringAscii(offset + SIZE_OF_INT, TEST_STRING, BIG_ENDIAN);
         buffer.putStringAscii(offset + SIZE_OF_INT, TEST_CHAR_SEQUENCE, BIG_ENDIAN);
 
-        // string size is not read for these method => no need for 4-bytes
+        // string size is not read for these methods => no need for 4-bytes
         // alignment
         buffer.putStringWithoutLengthUtf8(offset + SIZE_OF_BYTE, TEST_STRING);
         buffer.putStringWithoutLengthAscii(offset + SIZE_OF_BYTE, TEST_STRING);

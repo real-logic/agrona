@@ -42,7 +42,7 @@ public interface RingBuffer
     int capacity();
 
     /**
-     * Non-blocking write of an message to an underlying ring-buffer.
+     * Non-blocking write of a message to an underlying ring-buffer.
      *
      * @param msgTypeId type of the message encoding.
      * @param srcBuffer containing the encoded binary message.
@@ -145,7 +145,7 @@ public interface RingBuffer
     /**
      * Read as many messages as are available to the end of the ring buffer.
      * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * If the ring buffer wraps or encounters a type of record, such a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
@@ -157,7 +157,7 @@ public interface RingBuffer
     /**
      * Read as many messages as are available to end of the ring buffer to up a supplied maximum.
      * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * If the ring buffer wraps or encounters a type of record, such a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
@@ -170,7 +170,7 @@ public interface RingBuffer
     /**
      * Read as many messages as are available to the end of the ring buffer with the handler able to control progress.
      * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * If the ring buffer wraps or encounters a type of record, such a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
@@ -182,7 +182,7 @@ public interface RingBuffer
     /**
      * Read messages up to a limit of available to the end of the ring buffer with the handler able to control progress.
      * <p>
-     * If the ring buffer wraps or encounters a type of record, such a a padding record, then an implementation
+     * If the ring buffer wraps or encounters a type of record, such a padding record, then an implementation
      * may choose to return and expect the caller to try again. The {@link #size()} method may be called to
      * determine of a backlog of message bytes remains in the ring buffer.
      *
@@ -200,7 +200,7 @@ public interface RingBuffer
     int maxMsgLength();
 
     /**
-     * Get the next value that can be used for a correlation id on an message when a response needs to be correlated.
+     * Get the next value that can be used for a correlation id on a message when a response needs to be correlated.
      * <p>
      * This method should be thread safe.
      *

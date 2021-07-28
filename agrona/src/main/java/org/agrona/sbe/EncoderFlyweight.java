@@ -33,7 +33,7 @@ public interface EncoderFlyweight extends Flyweight
      * Wrap a buffer for encoding at a given offset.
      *
      * @param buffer to be wrapped and into which the type will be encoded.
-     * @param offset at which the encoded object will be begin.
+     * @param offset at which the encoded object will begin.
      * @return the {@link EncoderFlyweight} for fluent API design.
      */
     EncoderFlyweight wrap(MutableDirectBuffer buffer, int offset);

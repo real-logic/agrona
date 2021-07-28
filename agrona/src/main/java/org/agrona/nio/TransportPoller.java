@@ -27,18 +27,18 @@ import java.nio.channels.Selector;
 public class TransportPoller implements AutoCloseable
 {
     /**
-     * System property name for the threshold beyond which individual channel/socket polling will swap to to using
+     * System property name for the threshold beyond which individual channel/socket polling will swap to using
      * a {@link Selector}.
      */
     public static final String ITERATION_THRESHOLD_PROP_NAME = "org.agrona.transport.iteration.threshold";
 
     /**
-     * Default threshold beyond which individual channel/socket polling will swap to to using a {@link Selector}.
+     * Default threshold beyond which individual channel/socket polling will swap to using a {@link Selector}.
      */
     public static final int ITERATION_THRESHOLD_DEFAULT = 5;
 
     /**
-     * Threshold beyond which individual channel/socket polling will swap to to using a {@link Selector}.
+     * Threshold beyond which individual channel/socket polling will swap to using a {@link Selector}.
      *
      * @see #ITERATION_THRESHOLD_PROP_NAME
      * @see #ITERATION_THRESHOLD_DEFAULT

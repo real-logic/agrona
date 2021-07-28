@@ -172,7 +172,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     /**
      * Offer an element to the tail of the queue without boxing.
      *
-     * @param element to be offer to the queue.
+     * @param element to be offered to the queue.
      * @return will always be true as long as the underlying array can be expanded.
      */
     public boolean offerInt(final int element)
@@ -204,7 +204,7 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     /**
      * Offer an element to the tail of the queue without boxing.
      *
-     * @param element to be offer to the queue.
+     * @param element to be offered to the queue.
      * @return will always be true as long as the underlying array can be expanded.
      */
     public boolean addInt(final int element)

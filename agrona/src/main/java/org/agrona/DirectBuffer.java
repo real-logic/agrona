@@ -107,9 +107,9 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     void wrap(long address, int length);
 
     /**
-     * Reads the underlying offset to to the memory address.
+     * Reads the underlying offset to the memory address.
      *
-     * @return the underlying offset to to the memory address.
+     * @return the underlying offset to the memory address.
      */
     long addressOffset();
 
@@ -337,7 +337,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     void getBytes(int index, ByteBuffer dstBuffer, int length);
 
     /**
-     * Get from the underlying buffer into a supplied {@link ByteBuffer} at a offset.
+     * Get from the underlying buffer into a supplied {@link ByteBuffer} at an offset.
      * <p>
      * The destination buffer will not have its {@link ByteBuffer#position()} advanced as a result.
      *
@@ -464,7 +464,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param index  from which to check.
      * @param length in bytes of the range to check.
-     * @throws java.lang.IndexOutOfBoundsException if the length goes outside of the capacity range.
+     * @throws java.lang.IndexOutOfBoundsException if the length goes outside the capacity range.
      */
     void boundsCheck(int index, int length);
 

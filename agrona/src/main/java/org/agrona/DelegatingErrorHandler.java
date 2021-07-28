@@ -16,8 +16,8 @@
 package org.agrona;
 
 /**
- * {@link ErrorHandler} that can insert into a chain of responsibility so it handles an error and then delegates
- * on to the next in the chain. This allows for taking action pre or post invocation of the next delegate.
+ * {@link ErrorHandler} that can insert into a chain of responsibility, so it handles an error and then delegates
+ * on to the next in the chain. This allows for taking action pre, or post, invocation of the next delegate.
  * <p>
  * Implementations are responsible for calling the next in the chain.
  */

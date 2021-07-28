@@ -252,7 +252,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Allocate a counter with the minimum of allocation by allowing the label an key to be provided and copied.
+     * Allocate a counter with the minimum of allocation by allowing the label a key to be provided and copied.
      * <p>
      * If the keyBuffer is null then a copy of the key is not attempted.
      *

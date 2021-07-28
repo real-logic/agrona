@@ -76,7 +76,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
 
     /**
      * Default number of bits used to represent the sequence within a millisecond which is {@code 12} bits supporting
-     * 4,096,000 ids per second per node.
+     * 4,096,000 ids per-second per-node.
      */
     public static final int SEQUENCE_BITS_DEFAULT = 12;
 
@@ -94,7 +94,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
      * @param nodeIdBits        number of bits used to represent the distributed node or application.
      * @param sequenceBits      number of bits used to represent the sequence within a millisecond.
      * @param nodeId            for the node generating ids.
-     * @param timestampOffsetMs to adjust the base offset from 1 Jan 1970 UTC to extend the 69 year range.
+     * @param timestampOffsetMs to adjust the base offset from 1 Jan 1970 UTC to extend the 69-year range.
      * @param clock             to provide timestamps.
      */
     public SnowflakeIdGenerator(

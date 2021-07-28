@@ -86,8 +86,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      *
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
-     * @throws IllegalArgumentException if the initialSize is is less than 0 or greater than the length of the
-     *                                  initial array.
+     * @throws IllegalArgumentException if the initialSize is less than 0 or greater than the length of the
+     * initial array.
      */
     public void wrap(
         final int[] initialElements,
@@ -210,7 +210,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
-     * Add a element without boxing at a given index.
+     * Add an element without boxing at a given index.
      *
      * @param index   at which the element should be added.
      * @param element to be added.

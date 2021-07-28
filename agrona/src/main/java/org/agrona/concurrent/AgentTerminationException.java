@@ -69,10 +69,8 @@ public class AgentTerminationException extends RuntimeException
      *
      * @param message            to assign.
      * @param cause              of the error.
-     * @param enableSuppression  whether or not suppression is enabled
-     *                           or disabled.
-     * @param writableStackTrace whether or not the stack trace should
-     *                           be writable.
+     * @param enableSuppression  true to enable suppression.
+     * @param writableStackTrace true to enable writing a full stack trace.
      */
     public AgentTerminationException(
         final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace)

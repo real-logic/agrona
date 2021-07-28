@@ -131,7 +131,7 @@ public class CountersReader
     public static final long DEFAULT_OWNER_ID = 0;
 
     /**
-     * Can be used to representing a null counter id when passed as a argument.
+     * Can be used to representing a null counter id when passed as an argument.
      */
     public static final int NULL_COUNTER_ID = -1;
 
@@ -204,7 +204,7 @@ public class CountersReader
     public static final int MAX_KEY_LENGTH = (CACHE_LINE_LENGTH * 2) - (SIZE_OF_INT * 2) - SIZE_OF_LONG;
 
     /**
-     * Length of a meta data record in bytes.
+     * Length of a metadata record in bytes.
      */
     public static final int METADATA_LENGTH = LABEL_OFFSET + FULL_LABEL_LENGTH;
 
@@ -217,14 +217,17 @@ public class CountersReader
      * Max counter Id.
      */
     protected final int maxCounterId;
+
     /**
      * Meta-data buffer.
      */
     protected final AtomicBuffer metaDataBuffer;
+
     /**
      * Values buffer.
      */
     protected final AtomicBuffer valuesBuffer;
+
     /**
      * Charset for the label.
      */

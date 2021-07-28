@@ -199,7 +199,7 @@ public final class PrintBufferUtil
                 HEX_PADDING[i] = buf.toString();
             }
 
-            // Generate the lookup table for the start-offset header in each row (up to 64KiB).
+            // Generate the lookup table for the start-offset header in each row (up to 64 KiB).
             for (i = 0; i < HEXDUMP_ROW_PREFIXES.length; i++)
             {
                 final StringBuilder buf = new StringBuilder(12);

@@ -81,7 +81,7 @@ public final class RingBufferDescriptor
     }
 
     /**
-     * Check the the buffer capacity is the correct size (a power of 2 + {@link RingBufferDescriptor#TRAILER_LENGTH})
+     * Check the buffer capacity is the correct size (a power of 2 + {@link RingBufferDescriptor#TRAILER_LENGTH})
      * and that it satisfies minimum capacity size.
      *
      * @param capacity    to be checked.

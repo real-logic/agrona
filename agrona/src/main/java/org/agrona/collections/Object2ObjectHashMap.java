@@ -27,7 +27,7 @@ import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
- * A open addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
+ * An open-addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
  */
 public class Object2ObjectHashMap<K, V> implements Map<K, V>, Serializable
 {

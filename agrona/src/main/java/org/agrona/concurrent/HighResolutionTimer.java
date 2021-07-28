@@ -25,7 +25,7 @@ public class HighResolutionTimer
     /**
      * Has the high resolution timer been enabled?
      *
-     * @return true if the we believe it is enabled otherwise false.
+     * @return true if we believe it is enabled otherwise false.
      */
     public static boolean isEnabled()
     {

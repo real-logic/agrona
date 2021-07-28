@@ -38,7 +38,7 @@ import java.lang.ref.Reference;
  * will adapt in a portable way), such strengthening will be avoided.
  * <p>
  * For example, the JDK's own internal {@code WeakIdentityHashMap} implementation could,
- * when using these two methods, have it's get() and set() methods work without requiring
+ * when using these two methods, have its get() and set() methods work without requiring
  * the force-strengthening of unrelated keys and without forcing unrelated entries and
  * values to stay alive.
  * <p>

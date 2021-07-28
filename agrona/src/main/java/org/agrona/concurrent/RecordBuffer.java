@@ -28,7 +28,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  * sized header, then a series of records. Each record has a status
  * tag and a key.
  * <p>
- * NB: its possible for an element to be overwritten as you're reading
+ * NB: it's possible for an element to be overwritten as you're reading
  * Out of the buffer, take care.
  *
  * <pre>
@@ -197,7 +197,7 @@ public class RecordBuffer
      *
      * @param key    the key to associate the record with.
      * @param writer the callback which is passed the record to write.
-     * @return whether the write succeeded or not.
+     * @return whether the write operation succeeded or not.
      */
     public boolean withRecord(final int key, final RecordWriter writer)
     {

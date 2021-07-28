@@ -103,7 +103,7 @@ public final class IoUtil
     }
 
     /**
-     * Fill a region of a file with a given byte value.
+     * Fill region of a file with a given byte value.
      *
      * @param fileChannel to fill.
      * @param position    at which to start writing.
@@ -154,7 +154,7 @@ public final class IoUtil
      * Recursively delete a file or directory tree.
      *
      * @param file           to be deleted.
-     * @param ignoreFailures don't throw an exception if a delete fails.
+     * @param ignoreFailures don't throw an exception if delete fails.
      */
     public static void delete(final File file, final boolean ignoreFailures)
     {
@@ -466,7 +466,7 @@ public final class IoUtil
      *
      * @param location      of the file to create and map.
      * @param length        of the file to create and map.
-     * @param fillWithZeros to force allocation..
+     * @param fillWithZeros to force allocation.
      * @return {@link java.nio.MappedByteBuffer} for the file.
      */
     public static MappedByteBuffer mapNewFile(final File location, final long length, final boolean fillWithZeros)

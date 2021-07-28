@@ -33,7 +33,7 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
  * replacing a matching key.
  * <p>
  * A good set size would be in the range of 2 to 16 so that the references/keys can fit in a cache-line (assuming
- * references are 32 bit references and 64 byte cache lines, YMMV). A linear search within a cache line is much much
+ * references are 32-bit references and 64-byte cache lines, YMMV). A linear search within a cache line is much
  * less costly than a cache-miss to another line.
  * <p>
  * Null values are not supported by this cache.

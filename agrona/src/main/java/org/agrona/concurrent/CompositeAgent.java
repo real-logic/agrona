@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Group several {@link Agent}s into one composite so they can be scheduled as a unit.
+ * Group several {@link Agent}s into one composite, so they can be scheduled as a unit.
  */
 public class CompositeAgent implements Agent
 {

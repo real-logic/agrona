@@ -16,7 +16,7 @@
 package org.agrona.concurrent;
 
 /**
- * Functional interface for return the current time as system wide monotonic tick of 1 nanosecond precision.
+ * Functional interface for return the current time as system-wide monotonic tick of 1 nanosecond precision.
  */
 @FunctionalInterface
 public interface NanoClock

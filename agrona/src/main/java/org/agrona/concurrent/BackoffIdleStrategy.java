@@ -41,7 +41,7 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
     protected static final int SPINNING = 1;
 
     /**
-     * Denotes an yielding state.
+     * Denotes a yielding state.
      */
     protected static final int YIELDING = 2;
 

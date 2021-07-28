@@ -62,7 +62,7 @@ public final class BroadcastBufferDescriptor
     }
 
     /**
-     * Check the the buffer capacity is the correct size.
+     * Check the buffer capacity is the correct size.
      *
      * @param capacity to be checked.
      * @throws IllegalStateException if the buffer capacity is not a power of 2.

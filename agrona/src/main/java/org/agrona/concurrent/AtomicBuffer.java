@@ -125,7 +125,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
     int addIntOrdered(int index, int increment);
 
     /**
-     * Atomic compare and set of a int given an expected value.
+     * Atomic compare and set of an int given an expected value.
      *
      * @param index         in bytes for where to put.
      * @param expectedValue at to be compared.

@@ -1426,7 +1426,7 @@ public class MappedResizeableBuffer implements AutoCloseable
      *
      * @param index  from which to check.
      * @param length in bytes of the range to check.
-     * @throws java.lang.IndexOutOfBoundsException if the length goes outside of the capacity range.
+     * @throws java.lang.IndexOutOfBoundsException if the length goes outside the capacity range.
      */
     public void boundsCheck(final long index, final int length)
     {

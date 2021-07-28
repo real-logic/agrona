@@ -84,7 +84,7 @@ public class OneToOneRingBufferTests
     }
 
     /**
-     * Test for when a write thread can only succeed if reader read an existing message
+     * Test for when a writing thread can only succeed if reader read an existing message
      */
     @JCStressTest
     @Outcome(id = "19, 0", expect = Expect.ACCEPTABLE, desc = "Write before read")
@@ -94,8 +94,8 @@ public class OneToOneRingBufferTests
     public static class WriteFullBuffer
     {
         private static final int MSG_TYPE = 7;
-        private final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(new byte[TRAILER_LENGTH + 32]));
+        private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(
+            new UnsafeBuffer(new byte[TRAILER_LENGTH + 32]));
 
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 

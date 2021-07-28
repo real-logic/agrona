@@ -80,7 +80,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Disconnect from {@link CountersManager} if allocated so it can be closed without freeing the slot.
+     * Disconnect from {@link CountersManager} if allocated, so it can be closed without freeing the slot.
      */
     public void disconnectCountersManager()
     {

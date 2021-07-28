@@ -360,7 +360,7 @@ public class MarkFile implements AutoCloseable
     }
 
     /**
-     * Ensure the the directory exists, i.e. create if it does not exist yet and re-create if it already exists.
+     * Ensure the directory exists, i.e. create if it does not exist yet and re-create if it already exists.
      *
      * @param directory             to create.
      * @param filename              of the {@link MarkFile}.

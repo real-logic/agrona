@@ -25,7 +25,7 @@ import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
- * A open-addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
+ * An open-addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
  * counters which hit {@link #initialValue} as deleted. This means that changing a counter may impact {@link #size()}.
  */
 public class Int2IntCounterMap implements Serializable
@@ -389,7 +389,7 @@ public class Int2IntCounterMap implements Serializable
     }
 
     /**
-     * Try get a value for a key and if not present then apply mapping function.
+     * Try {@link #get(int)} a value for a key and if not present then apply mapping function.
      *
      * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns null.

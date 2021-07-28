@@ -241,7 +241,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     }
 
     /**
-     * An int specialised version of {this#remove(Object)}.
+     * Specialised version of {this#remove(Object)} for int.
      *
      * @param value the value to remove.
      * @return true if the value was present, false otherwise.
@@ -327,7 +327,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     /**
      * Contains method that does not box values.
      *
-     * @param value to be check for if the set contains it.
+     * @param value to be checked for if the set contains it.
      * @return true if the value is contained in the set otherwise false.
      * @see Collection#contains(Object)
      */
@@ -701,7 +701,7 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     }
 
     /**
-     * Iterator which supports unboxed access to values via {@link #nextValue()}.
+     * Iterator which supports unboxed access to the values via {@link #nextValue()}.
      */
     public final class IntIterator implements Iterator<Integer>, Serializable
     {

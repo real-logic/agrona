@@ -55,7 +55,7 @@ public class CountedErrorHandler implements ErrorHandler, AutoCloseable
     /**
      * Has this instance been closed.
      *
-     * @return true if {@link #close()} has previously be called, otherwise false.
+     * @return true if {@link #close()} has previously been called, otherwise false.
      */
     public boolean isClosed()
     {
