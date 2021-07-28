@@ -47,7 +47,7 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for an long value.
+     * Generate a hash for a long value.
      *
      * @param value to be hashed.
      * @return the hashed value.
@@ -64,7 +64,7 @@ public final class Hashing
     }
 
     /**
-     * Generate a hash for a int value and apply mask to get remainder.
+     * Generate a hash for an int value and apply mask to get remainder.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
@@ -100,7 +100,7 @@ public final class Hashing
     }
 
     /**
-     * Generate an even hash for a int value and apply mask to get a remainder that will be even.
+     * Generate an even hash for an int value and apply mask to get a remainder that will be even.
      *
      * @param value to be hashed.
      * @param mask  mask to be applied that must be a power of 2 - 1.
