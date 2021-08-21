@@ -18,7 +18,7 @@ package org.agrona;
 /**
  * View over a {@link DirectBuffer} which contains an ASCII string for a given range.
  */
-public final class AsciiSequenceView implements CharSequence
+public class AsciiSequenceView implements CharSequence
 {
     private DirectBuffer buffer;
     private int offset;
