@@ -28,6 +28,7 @@ public final class UnsafeAccess
      * Reference to the {@link Unsafe} instance.
      */
     public static final Unsafe UNSAFE;
+
     /**
      * Byte array base offset.
      */
@@ -56,7 +57,7 @@ public final class UnsafeAccess
         }
 
         UNSAFE = unsafe;
-        ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
+        ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
     }
 
     private UnsafeAccess()
