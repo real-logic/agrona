@@ -40,7 +40,7 @@ public final class CloseHelper
             {
                 closeable.close();
             }
-            catch (final Throwable ignore)
+            catch (final Exception ignore)
             {
             }
         }
@@ -63,7 +63,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ignore)
+                    catch (final Exception ignore)
                     {
                     }
                 }
@@ -88,7 +88,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ignore)
+                    catch (final Exception ignore)
                     {
                     }
                 }
@@ -110,7 +110,7 @@ public final class CloseHelper
             {
                 closeable.close();
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 LangUtil.rethrowUnchecked(ex);
             }
@@ -128,7 +128,7 @@ public final class CloseHelper
     {
         if (null != closeables)
         {
-            Throwable error = null;
+            Exception error = null;
 
             for (final AutoCloseable closeable : closeables)
             {
@@ -138,7 +138,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ex)
+                    catch (final Exception ex)
                     {
                         if (null == error)
                         {
@@ -170,7 +170,7 @@ public final class CloseHelper
     {
         if (null != closeables)
         {
-            Throwable error = null;
+            Exception error = null;
 
             for (final AutoCloseable closeable : closeables)
             {
@@ -180,7 +180,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ex)
+                    catch (final Exception ex)
                     {
                         if (error == null)
                         {
@@ -215,7 +215,7 @@ public final class CloseHelper
             {
                 closeable.close();
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 if (null == errorHandler)
                 {
@@ -249,7 +249,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ex)
+                    catch (final Exception ex)
                     {
                         if (null == errorHandler)
                         {
@@ -295,7 +295,7 @@ public final class CloseHelper
                     {
                         closeable.close();
                     }
-                    catch (final Throwable ex)
+                    catch (final Exception ex)
                     {
                         if (null == errorHandler)
                         {

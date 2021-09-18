@@ -542,7 +542,7 @@ public class MarkFile implements AutoCloseable
                 sleep(1);
             }
         }
-        catch (final Throwable ex)
+        catch (final Exception ex)
         {
             BufferUtil.free(byteBuffer);
             LangUtil.rethrowUnchecked(ex);
