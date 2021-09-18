@@ -182,7 +182,7 @@ public class DynamicCompositeAgent implements Agent
             {
                 agent.onClose();
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 if (ce == null)
                 {
@@ -195,7 +195,7 @@ public class DynamicCompositeAgent implements Agent
 
         agents = EMPTY_AGENTS;
 
-        if (ce != null)
+        if (null != ce)
         {
             throw ce;
         }
@@ -298,9 +298,17 @@ public class DynamicCompositeAgent implements Agent
         {
             agent.onStart();
         }
-        catch (final Throwable ex)
+        catch (final Exception ex)
         {
-            agent.onClose();
+            try
+            {
+                agent.onClose();
+            }
+            catch (final Exception se)
+            {
+                ex.addSuppressed(se);
+            }
+
             throw ex;
         }
 
