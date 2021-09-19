@@ -158,32 +158,30 @@ public final class IoUtil
      */
     public static void delete(final File file, final boolean ignoreFailures)
     {
-        if (!file.exists())
+        if (file.exists())
         {
-            return;
-        }
-
-        if (file.isDirectory())
-        {
-            final File[] files = file.listFiles();
-            if (null != files)
+            if (file.isDirectory())
             {
-                for (final File f : files)
+                final File[] files = file.listFiles();
+                if (null != files)
                 {
-                    delete(f, ignoreFailures);
+                    for (final File f : files)
+                    {
+                        delete(f, ignoreFailures);
+                    }
                 }
             }
-        }
 
-        if (!file.delete() && !ignoreFailures)
-        {
-            try
+            if (!file.delete() && !ignoreFailures)
             {
-                Files.delete(file.toPath());
-            }
-            catch (final IOException ex)
-            {
-                LangUtil.rethrowUnchecked(ex);
+                try
+                {
+                    Files.delete(file.toPath());
+                }
+                catch (final IOException ex)
+                {
+                    LangUtil.rethrowUnchecked(ex);
+                }
             }
         }
     }
@@ -196,33 +194,31 @@ public final class IoUtil
      */
     public static void delete(final File file, final ErrorHandler errorHandler)
     {
-        if (!file.exists())
+        try
         {
-            return;
-        }
-
-        if (file.isDirectory())
-        {
-            final File[] files = file.listFiles();
-            if (null != files)
+            if (file.exists())
             {
-                for (final File f : files)
+                if (file.isDirectory())
                 {
-                    delete(f, errorHandler);
+                    final File[] files = file.listFiles();
+                    if (null != files)
+                    {
+                        for (final File f : files)
+                        {
+                            delete(f, errorHandler);
+                        }
+                    }
+                }
+
+                if (!file.delete())
+                {
+                    Files.delete(file.toPath());
                 }
             }
         }
-
-        if (!file.delete())
+        catch (final Exception ex)
         {
-            try
-            {
-                Files.delete(file.toPath());
-            }
-            catch (final Throwable ex)
-            {
-                errorHandler.onError(ex);
-            }
+            errorHandler.onError(ex);
         }
     }
 
@@ -296,7 +292,7 @@ public final class IoUtil
         {
             Files.deleteIfExists(file.toPath());
         }
-        catch (final Throwable ex)
+        catch (final Exception ex)
         {
             errorHandler.onError(ex);
         }

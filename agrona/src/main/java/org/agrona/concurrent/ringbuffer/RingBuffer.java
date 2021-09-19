@@ -99,7 +99,7 @@ public interface RingBuffer
      *             ...
      *             ringBuffer.commit(index); // commit message
      *         }
-     *         catch (final Throwable t)
+     *         catch (final Exception ex)
      *         {
      *             ringBuffer.abort(index); // allow consumer to proceed
      *             ...

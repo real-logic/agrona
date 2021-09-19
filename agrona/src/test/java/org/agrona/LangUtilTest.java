@@ -24,16 +24,16 @@ public class LangUtilTest
     @Test
     public void shouldCatchCheckedException()
     {
-        assertThrows(Throwable.class, LangUtilTest::throwHiddenCheckedException);
+        assertThrows(Exception.class, LangUtilTest::throwHiddenCheckedException);
     }
 
     private static void throwHiddenCheckedException()
     {
         try
         {
-            throw new Throwable("Test Exception");
+            throw new Exception("Test Exception");
         }
-        catch (final Throwable t)
+        catch (final Exception t)
         {
             LangUtil.rethrowUnchecked(t);
         }
