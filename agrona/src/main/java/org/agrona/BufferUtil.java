@@ -255,9 +255,9 @@ public final class BufferUtil
                     }
                 }
             }
-            catch (final Throwable throwable)
+            catch (final Throwable t)
             {
-                LangUtil.rethrowUnchecked(throwable);
+                LangUtil.rethrowUnchecked(t);
             }
         }
     }

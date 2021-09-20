@@ -114,9 +114,14 @@ public class AgentInvoker implements AutoCloseable
                 isRunning = true;
             }
         }
-        catch (final Throwable throwable)
+        catch (final Throwable t)
         {
-            errorHandler.onError(throwable);
+            errorHandler.onError(t);
+            if (t instanceof Error)
+            {
+                throw (Error)t;
+            }
+
             close();
         }
     }
@@ -152,12 +157,22 @@ public class AgentInvoker implements AutoCloseable
                 handleError(ex);
                 close();
             }
-            catch (final Throwable throwable)
+            catch (final Throwable t)
             {
-                handleError(throwable);
-                if (Thread.currentThread().isInterrupted())
+                final boolean isInterrupted = Thread.currentThread().isInterrupted();
+                if (isInterrupted)
                 {
                     isRunning = false;
+                }
+
+                handleError(t);
+                if (t instanceof Error)
+                {
+                    throw (Error)t;
+                }
+
+                if (isInterrupted)
+                {
                     close();
                 }
             }
@@ -182,9 +197,13 @@ public class AgentInvoker implements AutoCloseable
                 agent.onClose();
             }
         }
-        catch (final Throwable throwable)
+        catch (final Throwable t)
         {
-            errorHandler.onError(throwable);
+            errorHandler.onError(t);
+            if (t instanceof Error)
+            {
+                throw (Error)t;
+            }
         }
     }
 

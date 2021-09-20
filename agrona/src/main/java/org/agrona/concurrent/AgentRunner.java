@@ -143,35 +143,36 @@ public class AgentRunner implements Runnable, AutoCloseable
     {
         try
         {
-            if (!thread.compareAndSet(null, Thread.currentThread()))
+            if (thread.compareAndSet(null, Thread.currentThread()))
             {
-                return;
-            }
+                try
+                {
+                    agent.onStart();
+                }
+                catch (final Throwable t)
+                {
+                    isRunning = false;
+                    errorHandler.onError(t);
+                    if (t instanceof Error)
+                    {
+                        throw (Error)t;
+                    }
+                }
 
-            final IdleStrategy idleStrategy = this.idleStrategy;
-            final Agent agent = this.agent;
-            try
-            {
-                agent.onStart();
-            }
-            catch (final Throwable throwable)
-            {
-                errorHandler.onError(throwable);
-                isRunning = false;
-            }
+                workLoop(idleStrategy, agent);
 
-            while (isRunning)
-            {
-                doWork(idleStrategy, agent);
-            }
-
-            try
-            {
-                agent.onClose();
-            }
-            catch (final Throwable throwable)
-            {
-                errorHandler.onError(throwable);
+                try
+                {
+                    agent.onClose();
+                }
+                catch (final Throwable t)
+                {
+                    errorHandler.onError(t);
+                    if (t instanceof Error)
+                    {
+                        throw (Error)t;
+                    }
+                }
             }
         }
         finally
@@ -221,9 +222,13 @@ public class AgentRunner implements Runnable, AutoCloseable
             {
                 agent.onClose();
             }
-            catch (final Throwable throwable)
+            catch (final Throwable t)
             {
-                errorHandler.onError(throwable);
+                errorHandler.onError(t);
+                if (t instanceof Error)
+                {
+                    throw (Error)t;
+                }
             }
             finally
             {
@@ -258,7 +263,6 @@ public class AgentRunner implements Runnable, AutoCloseable
                 catch (final InterruptedException ignore)
                 {
                     Thread.currentThread().interrupt();
-
                     failAction(closeFailAction, thread, "thread interrupt");
 
                     if (!isClosed && !thread.isInterrupted())
@@ -282,6 +286,14 @@ public class AgentRunner implements Runnable, AutoCloseable
         else
         {
             closeFailAction.accept(thread);
+        }
+    }
+
+    private void workLoop(final IdleStrategy idleStrategy, final Agent agent)
+    {
+        while (isRunning)
+        {
+            doWork(idleStrategy, agent);
         }
     }
 
@@ -309,12 +321,17 @@ public class AgentRunner implements Runnable, AutoCloseable
             isRunning = false;
             handleError(ex);
         }
-        catch (final Throwable throwable)
+        catch (final Throwable t)
         {
-            handleError(throwable);
             if (Thread.currentThread().isInterrupted())
             {
                 isRunning = false;
+            }
+
+            handleError(t);
+            if (t instanceof Error)
+            {
+                throw (Error)t;
             }
         }
     }
