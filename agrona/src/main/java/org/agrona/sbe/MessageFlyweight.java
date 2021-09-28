@@ -42,13 +42,6 @@ public interface MessageFlyweight extends Flyweight
     String sbeSemanticType();
 
     /**
-     * The current offset in the buffer from which the message is being encoded or decoded.
-     *
-     * @return the current offset in the buffer from which the message is being encoded or decoded.
-     */
-    int offset();
-
-    /**
      * The current limit in the buffer at which the message is being encoded or decoded.
      *
      * @return the current limit in the buffer at which the message is being encoded or decoded.
