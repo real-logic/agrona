@@ -42,32 +42,12 @@ public interface MessageDecoderFlyweight extends MessageFlyweight, DecoderFlywei
     StringBuilder appendTo(StringBuilder builder);
 
     /**
-     * Gets the total length of this flyweight by moving from the end of the block though all of the variable
+     * Gets the total length of this flyweight by moving from the end of the block though all the variable
      * length fields.
      *
      * @return the total decoded length for the flyweight.
      */
     default int sbeDecodedLength()
-    {
-        throw new UnsupportedOperationException("not implemented by this version of SBE");
-    }
-
-    /**
-     * Gets the current limit for this decoder flyweight.
-     *
-     * @return the current limit.
-     */
-    default int sbeLimit()
-    {
-        throw new UnsupportedOperationException("not implemented by this version of SBE");
-    }
-
-    /**
-     * Sets the current limit for this flyweight.
-     *
-     * @param limit the new limit for this flyweight.
-     */
-    default void sbeLimit(int limit)
     {
         throw new UnsupportedOperationException("not implemented by this version of SBE");
     }

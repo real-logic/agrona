@@ -47,4 +47,18 @@ public interface MessageFlyweight extends Flyweight
      * @return the current offset in the buffer from which the message is being encoded or decoded.
      */
     int offset();
+
+    /**
+     * The current limit in the buffer at which the message is being encoded or decoded.
+     *
+     * @return the current limit in the buffer at which the message is being encoded or decoded.
+     */
+    int limit();
+
+    /**
+     * The current limit in the buffer at which the message is being encoded or decoded.
+     *
+     * @param limit in the buffer at which the message is being encoded or decoded.
+     */
+    void limit(int limit);
 }
