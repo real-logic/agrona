@@ -78,6 +78,31 @@ public final class AsciiEncoding
         999999999_999999999L, Long.MAX_VALUE
     };
 
+    private static final long[] INT_DIGITS =
+        {
+        4294967295L, 8589934582L, 8589934582L, 8589934582L, 12884901788L, 12884901788L, 12884901788L, 17179868184L,
+        17179868184L, 17179868184L, 21474826480L, 21474826480L, 21474826480L, 21474826480L, 25769703776L, 25769703776L,
+        25769703776L, 30063771072L, 30063771072L, 30063771072L, 34349738368L, 34349738368L, 34349738368L, 34349738368L,
+        38554705664L, 38554705664L, 38554705664L, 41949672960L, 41949672960L, 41949672960L, 42949672960L, 42949672960L
+        };
+
+    private static final long[] LONG_DIGITS =
+        {
+        4503599627370495L, 9007199254740982L, 9007199254740982L, 9007199254740982L, 13510798882111438L,
+        13510798882111438L, 13510798882111438L, 18014398509481484L, 18014398509481734L, 18014398509481734L,
+        22517998136849980L, 22517998136849980L, 22517998136851230L, 22517998136851230L, 27021597764210476L,
+        27021597764210476L, 27021597764216726L, 31525197391530972L, 31525197391530972L, 31525197391530972L,
+        36028797018651468L, 36028797018651468L, 36028797018651468L, 36028797018651468L, 40532396644771964L,
+        40532396644771964L, 40532396644771964L, 45035996258079960L, 45035996265892460L, 45035996265892460L,
+        49539595822950456L, 49539595822950456L, 49539595862012956L, 49539595862012956L, 54043195137820952L,
+        54043195137820952L, 54043195333133452L, 58546793202691448L, 58546793202691448L, 58546793202691448L,
+        63050385017561944L, 63050385017561944L, 63050385017561944L, 63050385017561944L, 67553945582432440L,
+        67553945582432440L, 67553945582432440L, 72057105756677936L, 72057349897302936L, 72057349897302936L,
+        76558752259048432L, 76558752259048432L, 76559972962173432L, 76559972962173432L, 81052586261418928L,
+        81052586261418928L, 81058689777043928L, 85507357763789424L, 85507357763789424L, 85507357763789424L,
+        89766816766159920L, 89766816766159920L, 89766816766159920L, 89766816766159920L
+        };
+
     private AsciiEncoding()
     {
     }
@@ -114,6 +139,44 @@ public final class AsciiEncoding
                 return i;
             }
         }
+    }
+
+    /**
+     * Count number of digits in a positive {@code int} value.
+     *
+     * <p>Implementation is based on the Kendall Willets' idea as presented in the
+     * <a href="https://lemire.me/blog/2021/06/03/computing-the-number-of-digits-of-an-integer-even-faster/"
+     * target="_blank">Computing the number of digits of an integer even faster</a> blog post.
+     *
+     * <p>
+     * Use {@code org.agrona.AsciiEncodingTest#printDigitCountIntTable()} to regenerate lookup table.
+     *
+     * @param value to count number of digits int.
+     * @return number of digits in a number, e.g. if input value is {@code 123} then the result will be {@code 3}.
+     */
+    public static int digitCount(final int value)
+    {
+        return (int)((value + INT_DIGITS[31 - Integer.numberOfLeadingZeros(value | 1)]) >> 32);
+    }
+
+    /**
+     * Count number of digits in a positive {@code long} value.
+     *
+     * <p>Implementation is based on the Kendall Willets' idea as presented in the
+     * <a href="https://lemire.me/blog/2021/06/03/computing-the-number-of-digits-of-an-integer-even-faster/"
+     * target="_blank">Computing the number of digits of an integer even faster</a> blog post.
+     *
+     * <p>
+     * Use {@code org.agrona.AsciiEncodingTest#printDigitCountLongTable()} to regenerate lookup table.
+     *
+     * @param value to count number of digits int.
+     * @return number of digits in a number, e.g. if input value is {@code 12345678909876} then the result will be
+     * {@code 14}.
+     */
+    public static int digitCount(final long value)
+    {
+        final int floorLog2 = 63 ^ Long.numberOfLeadingZeros(value);
+        return (int)((LONG_DIGITS[floorLog2] + (value >> (floorLog2 >> 2))) >> 52);
     }
 
     /**
