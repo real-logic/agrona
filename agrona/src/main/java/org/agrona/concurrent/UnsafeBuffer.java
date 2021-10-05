@@ -1941,17 +1941,21 @@ public class UnsafeBuffer implements AtomicBuffer
 
         int start = index;
         int quotient = value;
-        int length = 1;
+        final int length;
+        int i;
         if (value < 0)
         {
             putByte(index, MINUS_SIGN);
             start++;
-            length++;
             quotient = -quotient;
+            length = digitCount(quotient) + 1;
+            i = length - 2;
         }
-
-        int i = endOffset(quotient);
-        length += i;
+        else
+        {
+            length = digitCount(quotient);
+            i = length - 1;
+        }
 
         if (SHOULD_BOUNDS_CHECK)
         {
@@ -1994,14 +1998,14 @@ public class UnsafeBuffer implements AtomicBuffer
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int length = digitCount(value);
 
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
         }
 
+        int i = length - 1;
         int quotient = value;
         final long offset = addressOffset + index;
         final byte[] dest = byteArray;
@@ -2077,14 +2081,14 @@ public class UnsafeBuffer implements AtomicBuffer
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int length = digitCount(value);
 
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
         }
 
+        int i = length - 1;
         long quotient = value;
         final long offset = addressOffset + index;
         final byte[] dest = byteArray;
@@ -2155,17 +2159,21 @@ public class UnsafeBuffer implements AtomicBuffer
 
         int start = index;
         long quotient = value;
-        int length = 1;
+        final int length;
+        int i;
         if (value < 0)
         {
             putByte(index, MINUS_SIGN);
             start++;
-            length++;
             quotient = -quotient;
+            length = digitCount(quotient) + 1;
+            i = length - 2;
         }
-
-        int i = endOffset(quotient);
-        length += i;
+        else
+        {
+            length = digitCount(quotient);
+            i = length - 1;
+        }
 
         if (SHOULD_BOUNDS_CHECK)
         {

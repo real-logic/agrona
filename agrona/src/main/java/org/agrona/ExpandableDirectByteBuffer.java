@@ -21,9 +21,9 @@ import java.nio.ByteOrder;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.agrona.AsciiEncoding.*;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.AsciiEncoding.*;
 import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
@@ -1314,17 +1314,21 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         int start = index;
         int quotient = value;
-        int length = 1;
+        final int length;
+        int i;
         if (value < 0)
         {
             putByte0(index, MINUS_SIGN);
             start++;
-            length++;
             quotient = -quotient;
+            length = digitCount(quotient) + 1;
+            i = length - 2;
         }
-
-        int i = endOffset(quotient);
-        length += i;
+        else
+        {
+            length = digitCount(quotient);
+            i = length - 1;
+        }
 
         ensureCapacity(index, length);
 
@@ -1363,11 +1367,11 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int length = digitCount(value);
 
         ensureCapacity(index, length);
 
+        int i = length - 1;
         int quotient = value;
         final ByteBuffer dest = byteBuffer;
         while (quotient >= 100)
@@ -1442,11 +1446,11 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int length = digitCount(value);
 
         ensureCapacity(index, length);
 
+        int i = length - 1;
         long quotient = value;
         final ByteBuffer dest = byteBuffer;
         while (quotient >= 100000000)
@@ -1516,17 +1520,21 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         int start = index;
         long quotient = value;
-        int length = 1;
+        final int length;
+        int i;
         if (value < 0)
         {
             putByte0(index, MINUS_SIGN);
             start++;
-            length++;
             quotient = -quotient;
+            length = digitCount(quotient) + 1;
+            i = length - 2;
         }
-
-        int i = endOffset(quotient);
-        length += i;
+        else
+        {
+            length = digitCount(quotient);
+            i = length - 1;
+        }
 
         ensureCapacity(index, length);
 
