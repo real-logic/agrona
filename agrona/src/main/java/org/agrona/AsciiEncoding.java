@@ -65,19 +65,6 @@ public final class AsciiEncoding
     private static final byte[] MIN_LONG_DIGITS = "9223372036854775808".getBytes(US_ASCII);
     private static final byte[] MAX_LONG_DIGITS = "9223372036854775807".getBytes(US_ASCII);
 
-    private static final int[] INT_ROUNDS =
-    {
-        9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE
-    };
-
-    private static final long[] LONG_ROUNDS =
-    {
-        9L, 99L, 999L, 9999L, 99999L, 999999L, 9999999L, 99999999L, 999999999L,
-        9_999999999L, 99_999999999L, 999_999999999L, 9999_999999999L,
-        99999_999999999L, 999999_999999999L, 9999999_999999999L, 99999999_999999999L,
-        999999999_999999999L, Long.MAX_VALUE
-    };
-
     private static final long[] INT_DIGITS =
         {
         4294967295L, 8589934582L, 8589934582L, 8589934582L, 12884901788L, 12884901788L, 12884901788L, 17179868184L,
@@ -108,37 +95,37 @@ public final class AsciiEncoding
     }
 
     /**
-     * Get the end offset of an ASCII encoded value.
+     * Calling this method is equivalent of doing:
+     * <pre>
+     * {@code digitCount(value) - 1}
+     * </pre>
      *
      * @param value to find the end encoded character offset.
      * @return the offset at which the encoded value will end.
+     * @deprecated Use {@link #digitCount(int)} instead.
+     * @see #digitCount(int)
      */
+    @Deprecated
     public static int endOffset(final int value)
     {
-        for (int i = 0; true; i++)
-        {
-            if (value <= INT_ROUNDS[i])
-            {
-                return i;
-            }
-        }
+        return digitCount(value) - 1;
     }
 
     /**
-     * Get the end offset of an ASCII encoded value.
+     * Calling this method is equivalent of doing:
+     * <pre>
+     * {@code digitCount(value) - 1}
+     * </pre>
      *
      * @param value to find the end encoded character offset.
      * @return the offset at which the encoded value will end.
+     * @deprecated Use {@link #digitCount(long)} instead.
+     * @see #digitCount(long)
      */
+    @Deprecated
     public static int endOffset(final long value)
     {
-        for (int i = 0; true; i++)
-        {
-            if (value <= LONG_ROUNDS[i])
-            {
-                return i;
-            }
-        }
+        return digitCount(value) - 1;
     }
 
     /**
