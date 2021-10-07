@@ -15,7 +15,7 @@
  */
 package org.agrona;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -167,7 +167,10 @@ class AsciiEncodingTest
     void digitCountIntValue()
     {
         final int[] values =
-            { 9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, Integer.MAX_VALUE };
+        {
+            9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, Integer.MAX_VALUE
+        };
+
         for (int i = 0; i < values.length; i++)
         {
             assertEquals(i + 1, digitCount(values[i]));
@@ -178,11 +181,12 @@ class AsciiEncodingTest
     void digitCountLongValue()
     {
         final long[] values =
-            {
+        {
             9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, 9_999_999_999L,
             99_999_999_999L, 999_999_999_999L, 9_999_999_999_999L, 99_999_999_999_999L, 999999_999999999L,
             9_999_999_999_999_999L, 99_999_999_999_999_999L, 999_999_999_999_999_999L, Long.MAX_VALUE
-            };
+        };
+
         for (int i = 0; i < values.length; i++)
         {
             final int iter = i;
@@ -192,7 +196,7 @@ class AsciiEncodingTest
 
     // prints a lookup table for org.agrona.AsciiEncoding.digitCount(int)
     @Test
-    @Ignore
+    @Disabled
     void printDigitCountIntTable()
     {
         for (int i = 1; i < 33; i++)
@@ -212,7 +216,7 @@ class AsciiEncodingTest
 
     // prints a lookup table for org.agrona.AsciiEncoding.digitCount(long)
     @Test
-    @Ignore
+    @Disabled
     void printDigitCountLongTable()
     {
         final BigInteger[] pow10 = IntStream.rangeClosed(0, 19)
