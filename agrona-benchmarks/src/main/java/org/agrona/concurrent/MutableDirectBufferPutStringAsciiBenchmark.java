@@ -27,7 +27,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmark for the {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
+ * Benchmark for the {@link org.agrona.MutableDirectBuffer#putStringAscii(int, String)} and
+ * {@link org.agrona.MutableDirectBuffer#putStringAscii(int, CharSequence)} methods.
  */
 @Fork(3)
 @BenchmarkMode(Mode.AverageTime)
@@ -35,12 +36,11 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 @State(Scope.Benchmark)
-public class UnsafeBufferPutCharSequenceBenchmark
+public class MutableDirectBufferPutStringAsciiBenchmark
 {
     private static final int BUFFER_CAPACITY = 128;
 
-    private final UnsafeBuffer unsafeArrayBuffer = new UnsafeBuffer(new byte[BUFFER_CAPACITY]);
-    private final UnsafeBuffer unsafeDirectBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
+    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
     private final ExpandableArrayBuffer expandableArrayBuffer = new ExpandableArrayBuffer(BUFFER_CAPACITY);
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer
         = new ExpandableDirectByteBuffer(BUFFER_CAPACITY);
@@ -50,51 +50,29 @@ public class UnsafeBufferPutCharSequenceBenchmark
     private final String string = charSequence.toString();
 
     /**
-     * Benchmark {@link UnsafeBuffer#putStringAscii(int, String)} method.
+     * Benchmark the {@link UnsafeBuffer#putStringAscii(int, String)} method.
      *
      * @return length in bytes of the written value.
      */
     @Benchmark
-    public int unsafeArrayBufferString()
+    public int unsafeBufferString()
     {
-        return unsafeArrayBuffer.putStringAscii(0, string);
+        return unsafeBuffer.putStringAscii(0, string);
     }
 
     /**
-     * Benchmark {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
+     * Benchmark the {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
      *
      * @return length in bytes of the written value.
      */
     @Benchmark
-    public int unsafeArrayBufferCharSequence()
+    public int unsafeBufferCharSequence()
     {
-        return unsafeArrayBuffer.putStringAscii(0, charSequence);
+        return unsafeBuffer.putStringAscii(0, charSequence);
     }
 
     /**
-     * Benchmark {@link UnsafeBuffer#putStringAscii(int, String)} method.
-     *
-     * @return length in bytes of the written value.
-     */
-    @Benchmark
-    public int unsafeDirectBufferString()
-    {
-        return unsafeDirectBuffer.putStringAscii(0, string);
-    }
-
-    /**
-     * Benchmark {@link UnsafeBuffer#putStringAscii(int, CharSequence)} method.
-     *
-     * @return length in bytes of the written value.
-     */
-    @Benchmark
-    public int unsafeDirectBufferCharSequence()
-    {
-        return unsafeDirectBuffer.putStringAscii(0, charSequence);
-    }
-
-    /**
-     * Benchmark {@link ExpandableArrayBuffer#putStringAscii(int, String)} method.
+     * Benchmark the {@link ExpandableArrayBuffer#putStringAscii(int, String)} method.
      *
      * @return length in bytes of the written value.
      */
@@ -105,7 +83,7 @@ public class UnsafeBufferPutCharSequenceBenchmark
     }
 
     /**
-     * Benchmark {@link ExpandableArrayBuffer#putStringAscii(int, CharSequence)} method.
+     * Benchmark the {@link ExpandableArrayBuffer#putStringAscii(int, CharSequence)} method.
      *
      * @return length in bytes of the written value.
      */
@@ -116,7 +94,7 @@ public class UnsafeBufferPutCharSequenceBenchmark
     }
 
     /**
-     * Benchmark {@link ExpandableDirectByteBuffer#putStringAscii(int, String)} method.
+     * Benchmark the {@link ExpandableDirectByteBuffer#putStringAscii(int, String)} method.
      *
      * @return length in bytes of the written value.
      */
@@ -127,7 +105,7 @@ public class UnsafeBufferPutCharSequenceBenchmark
     }
 
     /**
-     * Benchmark {@link ExpandableDirectByteBuffer#putStringAscii(int, CharSequence)} method.
+     * Benchmark the {@link ExpandableDirectByteBuffer#putStringAscii(int, CharSequence)} method.
      *
      * @return length in bytes of the written value.
      */
@@ -145,7 +123,7 @@ public class UnsafeBufferPutCharSequenceBenchmark
     public static void main(final String[] args) throws RunnerException
     {
         final Options opt = new OptionsBuilder()
-            .include(".*" + UnsafeBufferPutCharSequenceBenchmark.class.getSimpleName() + ".*")
+            .include(".*" + MutableDirectBufferPutStringAsciiBenchmark.class.getSimpleName() + ".*")
             .build();
 
         new Runner(opt).run();
