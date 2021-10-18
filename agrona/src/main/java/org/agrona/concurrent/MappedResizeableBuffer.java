@@ -1341,7 +1341,6 @@ public class MappedResizeableBuffer implements AutoCloseable
         return putStringUtf8(offset, value, byteOrder, Integer.MAX_VALUE);
     }
 
-
     /**
      * Encode a String as UTF-8 bytes the buffer with a length prefix with a maximum encoded size check.
      *
