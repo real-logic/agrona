@@ -1939,31 +1939,36 @@ public class UnsafeBuffer implements AtomicBuffer
             return MIN_INTEGER_VALUE.length;
         }
 
-        int start = index;
+        long offset = addressOffset + index;
+        final byte[] dest = byteArray;
         int quotient = value;
         final int length;
         int i;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
-            start++;
             quotient = -quotient;
             length = digitCount(quotient) + 1;
             i = length - 2;
+
+            if (SHOULD_BOUNDS_CHECK)
+            {
+                boundsCheck0(index, length);
+            }
+
+            UNSAFE.putByte(dest, offset, MINUS_SIGN);
+            offset++;
         }
         else
         {
             length = digitCount(quotient);
             i = length - 1;
+
+            if (SHOULD_BOUNDS_CHECK)
+            {
+                boundsCheck0(index, length);
+            }
         }
 
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            boundsCheck0(index, length);
-        }
-
-        final long offset = addressOffset + start;
-        final byte[] dest = byteArray;
         while (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
@@ -2157,31 +2162,37 @@ public class UnsafeBuffer implements AtomicBuffer
             return MIN_LONG_VALUE.length;
         }
 
-        int start = index;
+        long offset = addressOffset + index;
+        final byte[] dest = byteArray;
         long quotient = value;
         final int length;
         int i;
         if (value < 0)
         {
-            putByte(index, MINUS_SIGN);
-            start++;
             quotient = -quotient;
             length = digitCount(quotient) + 1;
             i = length - 2;
+
+
+            if (SHOULD_BOUNDS_CHECK)
+            {
+                boundsCheck0(index, length);
+            }
+
+            UNSAFE.putByte(dest, offset, MINUS_SIGN);
+            offset++;
         }
         else
         {
             length = digitCount(quotient);
             i = length - 1;
+
+            if (SHOULD_BOUNDS_CHECK)
+            {
+                boundsCheck0(index, length);
+            }
         }
 
-        if (SHOULD_BOUNDS_CHECK)
-        {
-            boundsCheck0(index, length);
-        }
-
-        final long offset = addressOffset + start;
-        final byte[] dest = byteArray;
         while (quotient >= 100000000)
         {
             final int lastEightDigits = (int)(quotient % 100000000);
