@@ -19,6 +19,7 @@ import org.agrona.MutableDirectBuffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -27,8 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UnsafeBufferTest
 {
@@ -314,6 +314,40 @@ class UnsafeBufferTest
                 assertEquals(value, parsedValue);
             }
         );
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 123, -25 })
+    void putIntAsciiShouldBoundsCheckBeforeWritingAnyData(final int value)
+    {
+        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
+
+        final int index = 6;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
+        assertEquals(0, buffer.getByte(index));
+
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.putIntAscii(index, value));
+        assertEquals("index=6 length=3 capacity=8", exception.getMessage());
+
+        assertEquals(0, buffer.getByte(index));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = { -251463777, 1234567890 })
+    void putLongAsciiShouldBoundsCheckBeforeWritingAnyData(final long value)
+    {
+        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
+
+        final int index = 1;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[10]);
+        assertEquals(0, buffer.getByte(index));
+
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.putLongAscii(index, value));
+        assertEquals("index=1 length=10 capacity=10", exception.getMessage());
+
+        assertEquals(0, buffer.getByte(index));
     }
 
     private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
