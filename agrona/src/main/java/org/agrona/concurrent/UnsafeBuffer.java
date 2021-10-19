@@ -1021,7 +1021,6 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(dst, offset, length);
         }
@@ -1054,7 +1053,6 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
         }
@@ -1095,7 +1093,6 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(src, offset, length);
         }
@@ -1120,7 +1117,6 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            lengthCheck(length);
             boundsCheck0(index, length);
             BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
         }
@@ -1148,7 +1144,6 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         if (SHOULD_BOUNDS_CHECK)
         {
-            lengthCheck(length);
             boundsCheck0(index, length);
             srcBuffer.boundsCheck(srcIndex, length);
         }
@@ -1939,16 +1934,15 @@ public class UnsafeBuffer implements AtomicBuffer
             return MIN_INTEGER_VALUE.length;
         }
 
-        long offset = addressOffset + index;
         final byte[] dest = byteArray;
+        long offset = addressOffset + index;
         int quotient = value;
-        final int length;
-        int i;
+        final int digitCount, length;
         if (value < 0)
         {
             quotient = -quotient;
-            length = digitCount(quotient) + 1;
-            i = length - 2;
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
             if (SHOULD_BOUNDS_CHECK)
             {
@@ -1960,8 +1954,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            length = digitCount(quotient);
-            i = length - 1;
+            length = digitCount = digitCount(quotient);
 
             if (SHOULD_BOUNDS_CHECK)
             {
@@ -1969,25 +1962,7 @@ public class UnsafeBuffer implements AtomicBuffer
             }
         }
 
-        while (quotient >= 100)
-        {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
-        }
-        else
-        {
-            final int position = quotient << 1;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-        }
+        putPositiveIntAscii(dest, offset, quotient, digitCount);
 
         return length;
     }
@@ -2003,38 +1978,16 @@ public class UnsafeBuffer implements AtomicBuffer
             return 1;
         }
 
-        final int length = digitCount(value);
+        final int digitCount = digitCount(value);
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, length);
+            boundsCheck0(index, digitCount);
         }
 
-        int i = length - 1;
-        int quotient = value;
-        final long offset = addressOffset + index;
-        final byte[] dest = byteArray;
-        while (quotient >= 100)
-        {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
+        putPositiveIntAscii(byteArray, addressOffset + index, value, digitCount);
 
-        if (quotient < 10)
-        {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
-        }
-        else
-        {
-            final int position = quotient << 1;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -2086,63 +2039,16 @@ public class UnsafeBuffer implements AtomicBuffer
             return 1;
         }
 
-        final int length = digitCount(value);
+        final int digitCount = digitCount(value);
 
         if (SHOULD_BOUNDS_CHECK)
         {
-            boundsCheck0(index, length);
+            boundsCheck0(index, digitCount);
         }
 
-        int i = length - 1;
-        long quotient = value;
-        final long offset = addressOffset + index;
-        final byte[] dest = byteArray;
-        while (quotient >= 100000000)
-        {
-            final int lastEightDigits = (int)(quotient % 100000000);
-            quotient /= 100000000;
+        putPositiveLongAscii(byteArray, addressOffset + index, value, digitCount);
 
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(dest, offset + i + 8, ASCII_DIGITS[l2 + 1]);
-        }
-
-        while (quotient >= 100)
-        {
-            final int position = (int)((quotient % 100) << 1);
-            quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
-        }
-        else
-        {
-            final int position = (int)(quotient << 1);
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -2162,17 +2068,15 @@ public class UnsafeBuffer implements AtomicBuffer
             return MIN_LONG_VALUE.length;
         }
 
-        long offset = addressOffset + index;
         final byte[] dest = byteArray;
+        long offset = addressOffset + index;
         long quotient = value;
-        final int length;
-        int i;
+        final int digitCount, length;
         if (value < 0)
         {
             quotient = -quotient;
-            length = digitCount(quotient) + 1;
-            i = length - 2;
-
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
             if (SHOULD_BOUNDS_CHECK)
             {
@@ -2184,8 +2088,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            length = digitCount(quotient);
-            i = length - 1;
+            length = digitCount = digitCount(quotient);
 
             if (SHOULD_BOUNDS_CHECK)
             {
@@ -2193,90 +2096,9 @@ public class UnsafeBuffer implements AtomicBuffer
             }
         }
 
-        while (quotient >= 100000000)
-        {
-            final int lastEightDigits = (int)(quotient % 100000000);
-            quotient /= 100000000;
-
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(dest, offset + i + 8, ASCII_DIGITS[l2 + 1]);
-        }
-
-        while (quotient >= 100)
-        {
-            final int position = (int)((quotient % 100) << 1);
-            quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
-        }
-        else
-        {
-            final int position = (int)(quotient << 1);
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-        }
+        putPositiveLongAscii(dest, offset, quotient, digitCount);
 
         return length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static void boundsCheckWrap(final int offset, final int length, final int capacity)
-    {
-        if (offset < 0)
-        {
-            throw new IllegalArgumentException("invalid offset: " + offset);
-        }
-
-        if (length < 0)
-        {
-            throw new IllegalArgumentException("invalid length: " + length);
-        }
-
-        if ((offset > capacity - length) || (length > capacity - offset))
-        {
-            throw new IllegalArgumentException(
-                "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
-        }
-    }
-
-    private void boundsCheck(final int index)
-    {
-        if (index < 0 || index >= capacity)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
-        }
-    }
-
-    private void boundsCheck0(final int index, final int length)
-    {
-        final long resultingPosition = index + (long)length;
-        if (index < 0 || length < 0 || resultingPosition > capacity)
-        {
-            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
-        }
     }
 
     /**
@@ -2285,14 +2107,6 @@ public class UnsafeBuffer implements AtomicBuffer
     public void boundsCheck(final int index, final int length)
     {
         boundsCheck0(index, length);
-    }
-
-    private static void lengthCheck(final int length)
-    {
-        if (length < 0)
-        {
-            throw new IllegalArgumentException("negative length: " + length);
-        }
     }
 
     /**
@@ -2304,8 +2118,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
         return (int)(addressOffset - offset);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -2405,5 +2217,117 @@ public class UnsafeBuffer implements AtomicBuffer
             ", byteArray=" + byteArray + // lgtm [java/print-array]
             ", byteBuffer=" + byteBuffer +
             '}';
+    }
+
+    private void boundsCheck(final int index)
+    {
+        if (index < 0 || index >= capacity)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
+        }
+    }
+
+    private void boundsCheck0(final int index, final int length)
+    {
+        final long resultingPosition = index + (long)length;
+        if (index < 0 || length < 0 || resultingPosition > capacity)
+        {
+            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
+        }
+    }
+
+    private static void boundsCheckWrap(final int offset, final int length, final int capacity)
+    {
+        if (offset < 0)
+        {
+            throw new IllegalArgumentException("invalid offset: " + offset);
+        }
+
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("invalid length: " + length);
+        }
+
+        if ((offset > capacity - length) || (length > capacity - offset))
+        {
+            throw new IllegalArgumentException(
+                "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
+        }
+    }
+
+    private static void putPositiveIntAscii(final byte[] dest, final long offset, final int value, final int digitCount)
+    {
+        int i = digitCount - 1;
+        int quotient = value;
+        while (quotient >= 100)
+        {
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient >= 10)
+        {
+            final int position = quotient << 1;
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
+        }
+        else
+        {
+            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
+        }
+    }
+
+    private static void putPositiveLongAscii(
+        final byte[] dest, final long offset, final long value, final int digitCount)
+    {
+        long quotient = value;
+        int i = digitCount - 1;
+        while (quotient >= 100000000)
+        {
+            final int lastEightDigits = (int)(quotient % 100000000);
+            quotient /= 100000000;
+
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1]);
+            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u1 + 1]);
+            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2]);
+            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[u2 + 1]);
+            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1]);
+            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l1 + 1]);
+            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2]);
+            UNSAFE.putByte(dest, offset + i + 8, ASCII_DIGITS[l2 + 1]);
+        }
+
+        while (quotient >= 100)
+        {
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
+            i -= 2;
+        }
+
+        if (quotient >= 10)
+        {
+            final int position = (int)(quotient << 1);
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
+        }
+        else
+        {
+            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
+        }
     }
 }

@@ -1261,46 +1261,29 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return MIN_INTEGER_VALUE.length;
         }
 
-        int start = index;
+        final byte[] dest = byteArray;
+        int offset = index;
         int quotient = value;
-        final int length;
-        int i;
+        final int digitCount, length;
         if (value < 0)
         {
-            putByte0(index, MINUS_SIGN);
-            start++;
             quotient = -quotient;
-            length = digitCount(quotient) + 1;
-            i = length - 2;
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
+
+            ensureCapacity(index, length);
+
+            dest[offset] = MINUS_SIGN;
+            offset++;
         }
         else
         {
-            length = digitCount(quotient);
-            i = length - 1;
+            length = digitCount = digitCount(quotient);
+
+            ensureCapacity(index, length);
         }
 
-        ensureCapacity(index, length);
-
-        final byte[] dest = byteArray;
-        while (quotient >= 100)
-        {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest[i + start] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + start] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            dest[i + start] = (byte)(ZERO + quotient);
-        }
-        else
-        {
-            final int position = quotient << 1;
-            dest[i + start] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + start] = ASCII_DIGITS[position];
-        }
+        putPositiveIntAscii(dest, offset, quotient, digitCount);
 
         return length;
     }
@@ -1316,34 +1299,13 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return 1;
         }
 
-        final int length = digitCount(value);
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        int i = length - 1;
-        int quotient = value;
-        final byte[] dest = byteArray;
-        while (quotient >= 100)
-        {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest[i + index] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + index] = ASCII_DIGITS[position];
-            i -= 2;
-        }
+        putPositiveIntAscii(byteArray, index, value, digitCount);
 
-        if (quotient < 10)
-        {
-            dest[i + index] = (byte)(ZERO + quotient);
-        }
-        else
-        {
-            final int position = quotient << 1;
-            dest[i + index] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + index] = ASCII_DIGITS[position];
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1351,13 +1313,16 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public void putNaturalPaddedIntAscii(final int offset, final int length, final int value)
     {
+        ensureCapacity(offset, length);
+
+        final byte[] dest = byteArray;
         final int end = offset + length;
         int remainder = value;
         for (int index = end - 1; index >= offset; index--)
         {
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte0(index, (byte)(ZERO + digit));
+            dest[index] = (byte)(ZERO + digit);
         }
 
         if (remainder != 0)
@@ -1395,59 +1360,13 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return 1;
         }
 
-        final int length = digitCount(value);
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        int i = length - 1;
-        long quotient = value;
-        final byte[] dest = byteArray;
-        while (quotient >= 100000000)
-        {
-            final int lastEightDigits = (int)(quotient % 100000000);
-            quotient /= 100000000;
+        putPositiveLongAscii(byteArray, index, value, digitCount);
 
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest[index + i + 1] = ASCII_DIGITS[u1];
-            dest[index + i + 2] = ASCII_DIGITS[u1 + 1];
-            dest[index + i + 3] = ASCII_DIGITS[u2];
-            dest[index + i + 4] = ASCII_DIGITS[u2 + 1];
-            dest[index + i + 5] = ASCII_DIGITS[l1];
-            dest[index + i + 6] = ASCII_DIGITS[l1 + 1];
-            dest[index + i + 7] = ASCII_DIGITS[l2];
-            dest[index + i + 8] = ASCII_DIGITS[l2 + 1];
-        }
-
-        while (quotient >= 100)
-        {
-            final int position = (int)((quotient % 100) << 1);
-            quotient /= 100;
-            dest[index + i] = ASCII_DIGITS[position + 1];
-            dest[index + i - 1] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            dest[index + i] = (byte)(ZERO + quotient);
-        }
-        else
-        {
-            final int position = (int)(quotient << 1);
-            dest[index + i] = ASCII_DIGITS[position + 1];
-            dest[index + i - 1] = ASCII_DIGITS[position];
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1467,124 +1386,31 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return MIN_LONG_VALUE.length;
         }
 
-        int start = index;
+        final byte[] dest = byteArray;
+        int offset = index;
         long quotient = value;
-        final int length;
-        int i;
+        final int digitCount, length;
         if (value < 0)
         {
-            putByte0(index, MINUS_SIGN);
-            start++;
             quotient = -quotient;
-            length = digitCount(quotient) + 1;
-            i = length - 2;
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
+
+            ensureCapacity(index, length);
+
+            dest[offset] = MINUS_SIGN;
+            offset++;
         }
         else
         {
-            length = digitCount(quotient);
-            i = length - 1;
+            length = digitCount = digitCount(quotient);
+
+            ensureCapacity(index, length);
         }
 
-        ensureCapacity(index, length);
-
-        final byte[] dest = byteArray;
-        while (quotient >= 100000000)
-        {
-            final int lastEightDigits = (int)(quotient % 100000000);
-            quotient /= 100000000;
-
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest[start + i + 1] = ASCII_DIGITS[u1];
-            dest[start + i + 2] = ASCII_DIGITS[u1 + 1];
-            dest[start + i + 3] = ASCII_DIGITS[u2];
-            dest[start + i + 4] = ASCII_DIGITS[u2 + 1];
-            dest[start + i + 5] = ASCII_DIGITS[l1];
-            dest[start + i + 6] = ASCII_DIGITS[l1 + 1];
-            dest[start + i + 7] = ASCII_DIGITS[l2];
-            dest[start + i + 8] = ASCII_DIGITS[l2 + 1];
-        }
-
-        while (quotient >= 100)
-        {
-            final int position = (int)((quotient % 100) << 1);
-            quotient /= 100;
-            dest[start + i] = ASCII_DIGITS[position + 1];
-            dest[start + i - 1] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10)
-        {
-            dest[start + i] = (byte)(ZERO + quotient);
-        }
-        else
-        {
-            final int position = (int)(quotient << 1);
-            dest[start + i] = ASCII_DIGITS[position + 1];
-            dest[start + i - 1] = ASCII_DIGITS[position];
-        }
+        putPositiveLongAscii(dest, offset, quotient, digitCount);
 
         return length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void ensureCapacity(final int index, final int length)
-    {
-        if (index < 0 || length < 0)
-        {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
-        }
-
-        final long resultingPosition = index + (long)length;
-        final int currentArrayLength = byteArray.length;
-        if (resultingPosition > currentArrayLength)
-        {
-            if (resultingPosition > MAX_ARRAY_LENGTH)
-            {
-                throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
-            }
-
-            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, resultingPosition));
-        }
-    }
-
-    private int calculateExpansion(final int currentLength, final long requiredLength)
-    {
-        long value = Math.max(currentLength, INITIAL_CAPACITY);
-
-        while (value < requiredLength)
-        {
-            value = value + (value >> 1);
-
-            if (value > MAX_ARRAY_LENGTH)
-            {
-                value = MAX_ARRAY_LENGTH;
-            }
-        }
-
-        return (int)value;
-    }
-
-    private void boundsCheck0(final int index, final int length)
-    {
-        final int currentArrayLength = byteArray.length;
-        final long resultingPosition = index + (long)length;
-        if (index < 0 || length < 0 || resultingPosition > currentArrayLength)
-        {
-            throw new IndexOutOfBoundsException(
-                "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
-        }
     }
 
     /**
@@ -1602,8 +1428,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         return 0;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1674,5 +1498,130 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             "byteArray=" + byteArray + // lgtm [java/print-array]
             " byteArray.length" + (null == byteArray ? 0 : byteArray.length) +
             '}';
+    }
+
+    private void ensureCapacity(final int index, final int length)
+    {
+        if (index < 0 || length < 0)
+        {
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+        }
+
+        final long resultingPosition = index + (long)length;
+        final int currentArrayLength = byteArray.length;
+        if (resultingPosition > currentArrayLength)
+        {
+            if (resultingPosition > MAX_ARRAY_LENGTH)
+            {
+                throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
+            }
+
+            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, resultingPosition));
+        }
+    }
+
+    private int calculateExpansion(final int currentLength, final long requiredLength)
+    {
+        long value = Math.max(currentLength, INITIAL_CAPACITY);
+
+        while (value < requiredLength)
+        {
+            value = value + (value >> 1);
+
+            if (value > MAX_ARRAY_LENGTH)
+            {
+                value = MAX_ARRAY_LENGTH;
+            }
+        }
+
+        return (int)value;
+    }
+
+    private void boundsCheck0(final int index, final int length)
+    {
+        final int currentArrayLength = byteArray.length;
+        final long resultingPosition = index + (long)length;
+        if (index < 0 || length < 0 || resultingPosition > currentArrayLength)
+        {
+            throw new IndexOutOfBoundsException(
+                "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
+        }
+    }
+
+    private static void putPositiveIntAscii(final byte[] dest, final int offset, final int value, final int digitCount)
+    {
+        int quotient = value;
+        int i = digitCount - 1;
+        while (quotient >= 100)
+        {
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            dest[offset + i] = ASCII_DIGITS[position + 1];
+            dest[offset + i - 1] = ASCII_DIGITS[position];
+            i -= 2;
+        }
+
+        if (quotient >= 10)
+        {
+            final int position = quotient << 1;
+            dest[offset + i] = ASCII_DIGITS[position + 1];
+            dest[offset + i - 1] = ASCII_DIGITS[position];
+        }
+        else
+        {
+            dest[offset + i] = (byte)(ZERO + quotient);
+        }
+    }
+
+    private static void putPositiveLongAscii(
+        final byte[] dest, final int offset, final long value, final int digitCount)
+    {
+        long quotient = value;
+        int i = digitCount - 1;
+        while (quotient >= 100000000)
+        {
+            final int lastEightDigits = (int)(quotient % 100000000);
+            quotient /= 100000000;
+
+            final int upperPart = lastEightDigits / 10000;
+            final int lowerPart = lastEightDigits % 10000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            dest[offset + i + 1] = ASCII_DIGITS[u1];
+            dest[offset + i + 2] = ASCII_DIGITS[u1 + 1];
+            dest[offset + i + 3] = ASCII_DIGITS[u2];
+            dest[offset + i + 4] = ASCII_DIGITS[u2 + 1];
+            dest[offset + i + 5] = ASCII_DIGITS[l1];
+            dest[offset + i + 6] = ASCII_DIGITS[l1 + 1];
+            dest[offset + i + 7] = ASCII_DIGITS[l2];
+            dest[offset + i + 8] = ASCII_DIGITS[l2 + 1];
+        }
+
+        while (quotient >= 100)
+        {
+            final int position = (int)((quotient % 100) << 1);
+            quotient /= 100;
+            dest[offset + i] = ASCII_DIGITS[position + 1];
+            dest[offset + i - 1] = ASCII_DIGITS[position];
+            i -= 2;
+        }
+
+        if (quotient >= 10)
+        {
+            final int position = (int)(quotient << 1);
+            dest[offset + i] = ASCII_DIGITS[position + 1];
+            dest[offset + i - 1] = ASCII_DIGITS[position];
+        }
+        else
+        {
+            dest[offset + i] = (byte)(ZERO + quotient);
+        }
     }
 }
