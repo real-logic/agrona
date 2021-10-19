@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Benchmark for the {@link org.agrona.MutableDirectBuffer#putLongAscii(int, long)} method.
  */
-@Fork(3)
+@Fork(value = 3, jvmArgsPrepend = "-Dagrona.disable.bounds.checks=true")
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 5, time = 1)
