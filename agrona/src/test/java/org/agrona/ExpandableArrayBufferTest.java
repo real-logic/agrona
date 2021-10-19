@@ -77,4 +77,24 @@ class ExpandableArrayBufferTest
             }
         );
     }
+
+    @Test
+    void setMemory()
+    {
+        final int index = 2;
+        final int length = 6;
+        final byte value = (byte)11;
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(10);
+
+        buffer.setMemory(index, length, value);
+
+        assertEquals(0, buffer.getByte(0));
+        assertEquals(0, buffer.getByte(1));
+        assertEquals(0, buffer.getByte(8));
+        assertEquals(0, buffer.getByte(9));
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(value, buffer.getByte(index + i));
+        }
+    }
 }

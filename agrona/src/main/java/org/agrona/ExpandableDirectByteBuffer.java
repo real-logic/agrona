@@ -162,18 +162,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, length);
 
-        final long indexOffset = address + index;
-        if (0 == (indexOffset & 1) && length > 64)
-        {
-            // This horrible filth is to encourage the JVM to call memset() when address is even.
-            // TODO: check if this still applies when Java 9 is out!!!
-            UNSAFE.putByte(null, indexOffset, value);
-            UNSAFE.setMemory(null, indexOffset + 1, length - 1, value);
-        }
-        else
-        {
-            UNSAFE.setMemory(null, indexOffset, length, value);
-        }
+        UNSAFE.setMemory(null, address + index, length, value);
     }
 
     /**

@@ -133,6 +133,26 @@ public class MappedResizeableBufferTest
         assertThat(buffer.getInt(96), is((int)value));
     }
 
+    @Test
+    void setMemory()
+    {
+        final int index = 2;
+        final int length = 6;
+        final byte value = (byte)11;
+        final MappedResizeableBuffer buffer = new MappedResizeableBuffer(channel, 0, 10);
+
+        buffer.setMemory(index, length, value);
+
+        assertEquals(0, buffer.getByte(0));
+        assertEquals(0, buffer.getByte(1));
+        assertEquals(0, buffer.getByte(8));
+        assertEquals(0, buffer.getByte(9));
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(value, buffer.getByte(index + i));
+        }
+    }
+
     private void exchangeDataAt(final long index)
     {
         buffer.putInt(index, VALUE);
