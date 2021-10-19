@@ -1601,7 +1601,23 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         int quotient = value;
         int i = digitCount - 1;
-        while (quotient >= 100)
+        while (quotient >= 10_000)
+        {
+            final int lastFourDigits = quotient % 10_000;
+            quotient /= 10_000;
+
+            final int p1 = (lastFourDigits / 100) << 1;
+            final int p2 = (lastFourDigits % 100) << 1;
+
+            i -= 4;
+
+            UNSAFE.putByte(null, offset + i + 1, ASCII_DIGITS[p1]);
+            UNSAFE.putByte(null, offset + i + 2, ASCII_DIGITS[p1 + 1]);
+            UNSAFE.putByte(null, offset + i + 3, ASCII_DIGITS[p2]);
+            UNSAFE.putByte(null, offset + i + 4, ASCII_DIGITS[p2 + 1]);
+        }
+
+        if (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
