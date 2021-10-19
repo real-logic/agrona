@@ -2290,13 +2290,13 @@ public class UnsafeBuffer implements AtomicBuffer
     {
         long quotient = value;
         int i = digitCount - 1;
-        while (quotient >= 100000000)
+        while (quotient >= 100_000_000)
         {
-            final int lastEightDigits = (int)(quotient % 100000000);
-            quotient /= 100000000;
+            final int lastEightDigits = (int)(quotient % 100_000_000);
+            quotient /= 100_000_000;
 
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
+            final int upperPart = lastEightDigits / 10_000;
+            final int lowerPart = lastEightDigits % 10_000;
 
             final int u1 = (upperPart / 100) << 1;
             final int u2 = (upperPart % 100) << 1;
@@ -2315,24 +2315,6 @@ public class UnsafeBuffer implements AtomicBuffer
             UNSAFE.putByte(dest, offset + i + 8, ASCII_DIGITS[l2 + 1]);
         }
 
-        while (quotient >= 100)
-        {
-            final int position = (int)((quotient % 100) << 1);
-            quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient >= 10)
-        {
-            final int position = (int)(quotient << 1);
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-        }
-        else
-        {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
-        }
+        putPositiveIntAscii(dest, offset, (int)quotient, i + 1);
     }
 }

@@ -35,7 +35,16 @@ public class MutableDirectBufferPutLongAsciiBenchmark
 {
     private static final int CAPACITY = 32;
 
-    @Param({ "-9223372036854775808", "0", "-9182", "97385146", "-6180362504315475", "9223372036854775807" })
+    @Param(
+        { "-9223372036854775808",
+            "0",
+            "-9182",
+            "123456",
+            "97385146",
+            "10101010101",
+            "-6180362504315475",
+            "9223372036854775807"
+        })
     private long value;
 
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(CAPACITY));
