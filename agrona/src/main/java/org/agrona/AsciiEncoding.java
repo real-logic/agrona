@@ -15,6 +15,8 @@
  */
 package org.agrona;
 
+import java.math.BigInteger;
+
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**
@@ -63,9 +65,14 @@ public final class AsciiEncoding
     public static final byte MINUS_SIGN = '-';
 
     /**
-     * Byte value of zero character ('{@code 0}').
+     * Byte value of the zero character ('{@code 0}').
      */
     public static final byte ZERO = '0';
+
+    /**
+     * Byte value of the dot character ('{@code .}').
+     */
+    public static final byte DOT = '.';
 
     /**
      * Lookup table used for encoding ints/longs as ASCII characters.
@@ -118,6 +125,147 @@ public final class AsciiEncoding
         81052586261418928L, 81058689777043928L, 85507357763789424L, 85507357763789424L, 85507357763789424L,
         89766816766159920L, 89766816766159920L, 89766816766159920L, 89766816766159920L
     };
+
+    /**
+     * US-ASCII-encoded byte representation of the {@link Double#NaN}.
+     */
+    public static final byte[] DOUBLE_NAN_VALUE = "NaN".getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@link Double#POSITIVE_INFINITY}.
+     */
+    public static final byte[] DOUBLE_INFINITY_VALUE = "Infinity".getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@link Double#NEGATIVE_INFINITY}.
+     */
+    public static final byte[] DOUBLE_NEGATIVE_INFINITY_VALUE = "-Infinity".getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@code 0.0} value.
+     */
+    public static final byte[] DOUBLE_ZERO_VALUE = "0.0".getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@code -0.0} value.
+     */
+    public static final byte[] DOUBLE_NEGATIVE_ZERO_VALUE = "-0.0".getBytes(US_ASCII);
+
+    /**
+     * Number of bits in the mantissa of the double value.
+     */
+    public static final int DOUBLE_MANTISSA_SIZE = 52;
+
+    /**
+     * Mask to extract mantissa from a double value.
+     */
+    public static final long DOUBLE_MANTISSA_MASK = (1L << DOUBLE_MANTISSA_SIZE) - 1;
+
+    /**
+     * Number of bits in the exponent of the double value.
+     */
+    public static final int DOUBLE_EXPONENT_SIZE = 11;
+
+    /**
+     * Mask to extract exponent from a double value.
+     */
+    public static final int DOUBLE_EXPONENT_MASK = (1 << DOUBLE_EXPONENT_SIZE) - 1;
+
+    /**
+     * Exponent bias of a double value as per <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> standard.
+     */
+    public static final int DOUBLE_EXPONENT_BIAS = (1 << DOUBLE_EXPONENT_SIZE - 1) - 1;
+
+    /**
+     * Number of bits required to store {@code (2^k/5^q) + 1} in the lookup table.
+     *
+     * @see <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>
+     */
+    public static final int RYU_DOUBLE_B0 = 122;
+
+    /**
+     * The lookup table containing pre-computed {@code (2^k/5^q) + 1} values.
+     *
+     * @see <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>
+     */
+    public static final int[][] RYU_DOUBLE_TABLE_GTE = new int[291][4];
+
+    /**
+     * Number of bits required to store {@code 5^(−e2 −q)/2^k} in the lookup table.
+     *
+     * @see <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>
+     */
+    public static final int RYU_DOUBLE_B1 = 121;
+
+    /**
+     * The lookup table containing pre-computed {@code 5^(−e2 −q)/2^k} values.
+     *
+     * @see <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>
+     */
+    public static final int[][] RYU_DOUBLE_TABLE_LT = new int[326][4];
+
+    /**
+     * Powers of ten for {@code int} values.
+     */
+    public static final int[] INT_POWER_OF_TEN = new int[10];
+
+    /**
+     * Powers of ten for {@code long} values.
+     */
+    public static final long[] LONG_POWER_OF_TEN = new long[19];
+
+    private static final long[] LONG_POWER_OF_FIVE = new long[28];
+    private static final int[] INT_POWER_OF_FIVE = new int[14];
+
+    static
+    {
+        long powerOf10 = 1;
+        for (int i = 0; i < 19; i++)
+        {
+            if (powerOf10 < Integer.MAX_VALUE)
+            {
+                INT_POWER_OF_TEN[i] = (int)powerOf10;
+            }
+            LONG_POWER_OF_TEN[i] = powerOf10;
+
+            powerOf10 *= 10;
+        }
+
+        final BigInteger five = BigInteger.valueOf(5);
+        final BigInteger mask = BigInteger.ONE.shiftLeft(31).subtract(BigInteger.ONE);
+        final BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
+        for (int i = 0; i < RYU_DOUBLE_TABLE_LT.length; i++)
+        {
+            final BigInteger pow = five.pow(i);
+            final int log2Power5 = pow.bitLength();
+
+            if (pow.compareTo(maxLong) <= 0)
+            {
+                final long power = pow.longValueExact();
+                if (power < Integer.MAX_VALUE)
+                {
+                    INT_POWER_OF_FIVE[i] = (int)power;
+                }
+                LONG_POWER_OF_FIVE[i] = power;
+            }
+
+            if (i < RYU_DOUBLE_TABLE_GTE.length)
+            {
+                final int k = RYU_DOUBLE_B0 + log2Power5 - 1;
+                final BigInteger value = BigInteger.ONE.shiftLeft(k).divide(pow).add(BigInteger.ONE);
+                for (int j = 0; j < 4; j++)
+                {
+                    RYU_DOUBLE_TABLE_GTE[i][j] = value.shiftRight((3 - j) * 31).and(mask).intValueExact();
+                }
+            }
+
+            for (int j = 0; j < 4; j++)
+            {
+                RYU_DOUBLE_TABLE_LT[i][j] = pow.shiftRight(log2Power5 - RYU_DOUBLE_B1 + (3 - j) * 31).and(mask)
+                    .intValueExact();
+            }
+        }
+    }
 
     private AsciiEncoding()
     {
@@ -377,6 +525,57 @@ public final class AsciiEncoding
         val = (((val & 0x000000FF000000FFL) * 0x000F424000000064L) +
             (((val >> 16) & 0x000000FF000000FFL) * 0x0000271000000001L)) >> 32;
         return (int)val;
+    }
+    /**
+     * Computes number of bits in a power of five number, i.e. {@code 5^power}
+     *
+     * @param power to which five is raised.
+     * @return number of bits in a number that be computed by raising five to the given {@code power}.
+     */
+    public static int powerOfFiveBitCount(final int power)
+    {
+        return ((power * 1217359) >>> 19) + 1;
+    }
+
+    /**
+     * Determines if the given value is multiple to the given power of five, i.e. if the {@code value} is divisible
+     * by {@code 5^power}.
+     *
+     * @param value to check.
+     * @param power of five factor.s
+     * @return {@code true} if value is divisible by the given power of five.
+     */
+    public static boolean isMultipleOfPowerOfFive(final long value, final int power)
+    {
+        // FIXME: Avoid modulo here
+        return power < LONG_POWER_OF_FIVE.length && 0L == value % LONG_POWER_OF_FIVE[power];
+    }
+
+    /**
+     * Performs 128 bit multiplication keeping only the high 64 bits of the result.
+     *
+     * @param value      to be multiplied.
+     * @param multiplier split into four 32 bit values.
+     * @param shift      number of bits to shift by.s
+     * @return high 64 bits of the multiplications.
+     */
+    public static long ryuMultiplyHigh128(final long value, final int[] multiplier, final int shift)
+    {
+        final long mHigh = value >>> 31;
+        final long mLow = value & 0x7fffffff;
+        final long bits13 = mHigh * multiplier[0];
+        final long bits03 = mLow * multiplier[0];
+        final long bits12 = mHigh * multiplier[1];
+        final long bits02 = mLow * multiplier[1];
+        final long bits11 = mHigh * multiplier[2];
+        final long bits01 = mLow * multiplier[2];
+        final long bits10 = mHigh * multiplier[3];
+        final long bits00 = mLow * multiplier[3];
+
+        return ((((((((bits00 >>> 31) + bits01 + bits10) >>> 31) +
+            bits02 + bits11) >>> 31) +
+            bits03 + bits12) >>> 21) +
+            (bits13 << 10)) >>> (shift - 114);
     }
 
     private static int parsePositiveIntAscii(

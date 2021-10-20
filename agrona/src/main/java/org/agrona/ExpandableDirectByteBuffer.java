@@ -1145,6 +1145,301 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("MethodLength")
+    public int putDoubleAscii(final int index, final double value)
+    {
+        // Step 1. Decode the floating point number, and unify normalized and subnormal cases.
+        final long rawBits = Double.doubleToRawLongBits(value);
+        final long mantissa = rawBits & DOUBLE_MANTISSA_MASK;
+        final int rawExponent = (int)((rawBits >>> DOUBLE_MANTISSA_SIZE) & DOUBLE_EXPONENT_MASK);
+        final boolean isEven = 0 == (mantissa & 1);
+        final long mf;
+        final int e2;
+        if (rawExponent != 0)
+        {
+            if (DOUBLE_EXPONENT_MASK == rawExponent) // NaN, -Infinity, Infinity
+            {
+                if (0L != mantissa)
+                {
+                    putBytes(index, DOUBLE_NAN_VALUE);
+                    return DOUBLE_NAN_VALUE.length;
+                }
+
+                final byte[] bytes = rawBits < 0 ? DOUBLE_NEGATIVE_INFINITY_VALUE : DOUBLE_INFINITY_VALUE;
+                putBytes(index, bytes);
+                return bytes.length;
+            }
+
+            mf = (1L << DOUBLE_MANTISSA_SIZE) + mantissa;
+            e2 = (rawExponent - DOUBLE_EXPONENT_BIAS - DOUBLE_MANTISSA_SIZE) - 2;
+        }
+        else
+        {
+            if (0L == mantissa) // -0.0, 0.0
+            {
+                final byte[] bytes = rawBits < 0 ? DOUBLE_NEGATIVE_ZERO_VALUE : DOUBLE_ZERO_VALUE;
+                putBytes(index, bytes);
+                return bytes.length;
+            }
+
+            mf = mantissa;
+            e2 = (1 - DOUBLE_EXPONENT_BIAS - DOUBLE_MANTISSA_SIZE) - 2;
+        }
+
+        // Step 2: Determine the interval of information-preserving outputs.
+        final long v = 4 * mf;
+        final long w = v + 2;
+        final long u = v - (0L == mantissa && rawExponent > 1 ? 1 : 2);
+
+        // Step 3. Convert (u, v, w) * 2^e2 to a decimal power base.
+        final int e10;
+        long dv, dw, du;
+        boolean dvHasTrailingZeros = false, duHasTrailingZeros = false;
+        if (e2 >= 0)
+        {
+            final int q = Math.max(0, ((e2 * 78913) >>> 18) - 1);
+            final int k = RYU_DOUBLE_B0 + powerOfFiveBitCount(q) - 1;
+            final int i = -e2 + q + k;
+            e10 = q;
+            final int[] multiplier = RYU_DOUBLE_TABLE_GTE[q];
+            dv = ryuMultiplyHigh128(v, multiplier, i);
+            du = ryuMultiplyHigh128(u, multiplier, i);
+            dw = ryuMultiplyHigh128(w, multiplier, i);
+
+            if (q <= 21)
+            {
+                if (v % 5 == 0)
+                {
+                    dvHasTrailingZeros = isMultipleOfPowerOfFive(v, q);
+                }
+                else if (isEven)
+                {
+                    duHasTrailingZeros = isMultipleOfPowerOfFive(u, q);
+                }
+                else if (isMultipleOfPowerOfFive(w, q))
+                {
+                    dw--;
+                }
+            }
+        }
+        else
+        {
+            final int q = Math.max(0, ((-e2 * 732923) >>> 20) - 1);
+            final int i = -e2 - q;
+            final int k = powerOfFiveBitCount(i) - RYU_DOUBLE_B1;
+            final int j = q - k;
+            e10 = q + e2;
+            final int[] multiplier = RYU_DOUBLE_TABLE_LT[i];
+            dv = ryuMultiplyHigh128(v, multiplier, j);
+            du = ryuMultiplyHigh128(u, multiplier, j);
+            dw = ryuMultiplyHigh128(w, multiplier, j);
+
+            if (q <= 1)
+            {
+                dvHasTrailingZeros = true;
+                if (isEven)
+                {
+                    duHasTrailingZeros = u == v - 2;
+                }
+                else
+                {
+                    dw--;
+                }
+            }
+            else if (q < 63)
+            {
+                dvHasTrailingZeros = (v & ((1L << q) - 1)) == 0;
+            }
+        }
+
+        // Step 4: Find the shortest decimal representation in the interval of legal representations.
+        int removed = 0;
+        int lastRemovedDigit = 0;
+        final long digits;
+        if (duHasTrailingZeros || dvHasTrailingZeros)
+        {
+            while (true)
+            {
+                final long dw10 = dw / 10L;
+                final long du10 = du / 10L;
+                if (du10 >= dw10)
+                {
+                    break;
+                }
+                duHasTrailingZeros = 0L == (du - 10L * du10);
+                dvHasTrailingZeros = 0 == lastRemovedDigit;
+                final long dv10 = dv / 10L;
+                lastRemovedDigit = (int)(dv - 10L * dv10);
+                du = du10;
+                dv = dv10;
+                dw = dw10;
+                removed++;
+            }
+
+            if (duHasTrailingZeros)
+            {
+                while (true)
+                {
+                    final long du10 = du / 10L;
+                    if (0L != (du - 10L * du10))
+                    {
+                        break;
+                    }
+                    dvHasTrailingZeros = 0 == lastRemovedDigit;
+                    final long dv10 = dv / 10L;
+                    lastRemovedDigit = (int)(dv - 10L * dv10);
+                    du = du10;
+                    dv = dv10;
+                    dw /= 10L;
+                    removed++;
+                }
+            }
+
+            if (dvHasTrailingZeros && 5 == lastRemovedDigit && 0 == (dv & 1))
+            {
+                // Round even if the exact number is .....50..0.
+                lastRemovedDigit = 4;
+            }
+
+            // We need to take dv + 1 if v is outside bounds, or we need to round up.
+            digits = dv + (((dv == du && (!isEven || !duHasTrailingZeros)) || lastRemovedDigit >= 5) ? 1 : 0);
+        }
+        else
+        {
+            boolean roundUp = false;
+            final long dw100 = dw / 100L;
+            final long du100 = du / 100L;
+            if (dw100 > du100)
+            {
+                final long dv100 = dv / 100L;
+                roundUp = (dv - 100L * dv100) >= 50L;
+                dv = dv100;
+                dw = dw100;
+                du = du100;
+                removed += 2;
+            }
+
+            while (true)
+            {
+                final long dw10 = dw / 10L;
+                final long du10 = du / 10L;
+                if (du10 >= dw10)
+                {
+                    break;
+                }
+                final long dv10 = dv / 10L;
+                roundUp = (dv - 10L * dv10) >= 5L;
+                du = du10;
+                dv = dv10;
+                dw = dw10;
+                removed++;
+            }
+
+            // We need to take dv + 1 if v is outside bounds, or we need to round up.
+            digits = dv + ((dv == du || roundUp) ? 1 : 0);
+        }
+
+        // Step 5: Print the decimal representation.
+        final int digitCount = digitCount(digits);
+        final int exp = e10 + removed + digitCount - 1;
+        final int length;
+        long offset = address + index;
+        if (exp < 0)
+        {
+            final int leadingZeros = -exp - 1;
+            if (rawBits < 0)
+            {
+                length = digitCount + 3 + leadingZeros;
+                ensureCapacity(index, length);
+
+                UNSAFE.putByte(null, offset, MINUS_SIGN);
+                offset++;
+            }
+            else
+            {
+                length = digitCount + 2 + leadingZeros;
+                ensureCapacity(index, length);
+            }
+
+            UNSAFE.putByte(null, offset, ZERO);
+            offset++;
+            UNSAFE.putByte(null, offset, DOT);
+            offset++;
+
+            UNSAFE.setMemory(null, offset, leadingZeros, ZERO);
+            offset += leadingZeros;
+
+            putPositiveLongAscii(offset, digits, digitCount);
+        }
+        else if (exp >= digitCount - 1)
+        {
+            final int trailingZeros = exp - (digitCount - 1);
+            if (rawBits < 0)
+            {
+                length = digitCount + 3 + trailingZeros;
+                ensureCapacity(index, length);
+
+                UNSAFE.putByte(null, offset, MINUS_SIGN);
+                offset++;
+            }
+            else
+            {
+                length = digitCount + 2 + trailingZeros;
+                ensureCapacity(index, length);
+            }
+
+            putPositiveLongAscii(offset, digits, digitCount);
+            offset += digitCount;
+
+            UNSAFE.setMemory(null, offset, trailingZeros, ZERO);
+            offset += trailingZeros;
+
+            UNSAFE.putByte(null, offset, DOT);
+            offset++;
+            UNSAFE.putByte(null, offset, ZERO);
+        }
+        else
+        {
+            if (rawBits < 0)
+            {
+                length = digitCount + 2;
+                ensureCapacity(index, length);
+
+                UNSAFE.putByte(null, offset, MINUS_SIGN);
+                offset++;
+            }
+            else
+            {
+                length = digitCount + 1;
+                ensureCapacity(index, length);
+            }
+
+            final int digitsAfterDot = digitCount - exp - 1;
+            final long pow10 = LONG_POWER_OF_TEN[digitsAfterDot];
+            final long beforeDot = digits / pow10;
+            final long afterDot = digits - pow10 * beforeDot;
+
+            putPositiveLongAscii(offset + digitCount - digitsAfterDot + 1, afterDot, digitsAfterDot);
+
+            UNSAFE.putByte(null, offset + digitCount - digitsAfterDot, DOT);
+
+            putPositiveLongAscii(offset, beforeDot, digitCount - digitsAfterDot);
+        }
+
+        return length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double parseDoubleAscii(final int index, final int length)
+    {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int parseNaturalIntAscii(final int index, final int length)
     {
         boundsCheck0(index, length);

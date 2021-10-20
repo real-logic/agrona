@@ -96,14 +96,14 @@ public interface MutableDirectBuffer extends DirectBuffer
 
     /**
      * Encode a natural number with a specified maximum length.
-     *
+     * <p>
      * If ascii encoding of the number is less than the specified length then the start will be
      * pre-padded with zeros, if the value takes up more space than the allowed length then a
      * <code>{@link NumberFormatException}</code> will be thrown.
      *
-     * @param index the offset to start encoding at.
+     * @param index  the offset to start encoding at.
      * @param length the maximum length to encode.
-     * @param value the value to encode.
+     * @param value  the value to encode.
      * @throws NumberFormatException if the value won't fit within the length.
      */
     void putNaturalPaddedIntAscii(int index, int length, int value) throws NumberFormatException;
@@ -130,10 +130,36 @@ public interface MutableDirectBuffer extends DirectBuffer
      * Puts an ASCII encoded long integer into the buffer.
      *
      * @param index the offset at which to put the int.
-     * @param value the int to write.
-     * @return the number of bytes that the int took up encoded.
+     * @param value the long to write.
+     * @return the number of bytes that the long took up encoded.
      */
     int putLongAscii(int index, long value);
+
+    /**
+     * Puts an ASCII encoded double into the buffer. This method will attempt to encode a double with a minimum number
+     * of characters so that parsing such value back will yield the original value. For example:
+     * <ul>
+     *     <li>{@code 3.875} will be encoded as {@code 3.875}.</li>
+     *     <li>{@code -0.0} will be encoded as {@code -0.0}.</li>
+     *     <li>{@code -1024} will be encoded as {@code -1024.0}.</li>
+     *     <li>{@code 0.100000000000000005551115123125787021181583404541015625} will be encoded as {@code 0.1}.</li>
+     *     <li>{@code 1.5501284640872244e-24} will be encoded as {@code 0.0000000000000000000000015501284640872244}.</li>
+     * </ul>
+     *
+     * <p>
+     * There are several values that are treated specially, i.e.:
+     * <ul>
+     *     <li>{@link Double#NaN} - will be encoded as {@code NaN}.</li>
+     *     <li>{@link Double#POSITIVE_INFINITY} - will be encoded as {@code Infinity}.</li>
+     *     <li>{@link Double#NEGATIVE_INFINITY} - will be encoded as {@code -Infinity}.</li>
+     * </ul>
+     *
+     * <p>The implementation is based on the <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>.
+     * @param index the offset at which to put the double.
+     * @param value the double to write.
+     * @return the number of bytes that the double took up encoded.
+     */
+    int putDoubleAscii(int index, double value);
 
     /**
      * Put a value to a given index.

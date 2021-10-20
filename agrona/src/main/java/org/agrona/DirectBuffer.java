@@ -221,6 +221,15 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     long parseLongAscii(int index, int length);
 
     /**
+     * Parse the ASCII encoded double value at a given index.
+     *
+     * @param index  in bytes from which to get.
+     * @param length the length in bytes to parse.
+     * @return the value at a given index.
+     */
+    double parseDoubleAscii(int index, int length);
+
+    /**
      * Get the value at a given index.
      *
      * @param index     in bytes from which to get.

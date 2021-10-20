@@ -19,15 +19,24 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.agrona.AsciiEncoding.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AsciiEncodingTest
@@ -379,5 +388,29 @@ class AsciiEncodingTest
             assertEquals(parsedValue, value);
             buffer.delete(prefix.length(), 64);
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("longPowerOfFive")
+    void isMultipleOfPowerOfFiveShouldHandlePositiveValuesUntilMaxLongPower(final int power, final long value)
+    {
+        assertTrue(isMultipleOfPowerOfFive(value, power));
+        if (0 != power)
+        {
+            assertFalse(isMultipleOfPowerOfFive(value - 1, power));
+            assertFalse(isMultipleOfPowerOfFive(value + 1, power));
+        }
+    }
+
+    private static List<Arguments> longPowerOfFive()
+    {
+        final BigInteger five = BigInteger.valueOf(5);
+        final List<Arguments> result = new ArrayList<>();
+        for (int i = 0; i < 28; i++)
+        {
+            final BigInteger pow = five.pow(i);
+            result.add(Arguments.arguments(i, pow.longValueExact()));
+        }
+        return result;
     }
 }
