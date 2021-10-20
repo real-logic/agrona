@@ -15,9 +15,11 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.BitUtil;
 import org.agrona.BufferUtil;
 import org.openjdk.jmh.annotations.*;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,11 +33,49 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class SetMemoryBenchmark
 {
-    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(2048, 32));
+    @Param
+    private Type type;
     @Param({ "0", "1" })
     private int index;
     @Param({ "128", "1024" })
     private int length;
+
+    private UnsafeBuffer buffer;
+
+    /**
+     * Type of the {@link ByteBuffer} to create.
+     */
+    public enum Type
+    {
+        ARRAY,
+        HEAP_BB,
+        DIRECT_BB,
+        DIRECT_ALIGNED_BB;
+    }
+
+    /**
+     * Setup.
+     */
+    @Setup
+    public void setup()
+    {
+        final int capacity = BitUtil.findNextPositivePowerOfTwo(1 + index + length);
+        switch (type)
+        {
+            case ARRAY:
+                buffer = new UnsafeBuffer(new byte[capacity]);
+                break;
+            case HEAP_BB:
+                buffer = new UnsafeBuffer(ByteBuffer.allocate(capacity));
+                break;
+            case DIRECT_BB:
+                buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(capacity));
+                break;
+            case DIRECT_ALIGNED_BB:
+                buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(capacity, 32));
+                break;
+        }
+    }
 
     /**
      * Benchmark the {@link UnsafeBuffer#putIntAscii(int, int)} method.
@@ -43,6 +83,6 @@ public class SetMemoryBenchmark
     @Benchmark
     public void benchmark()
     {
-        unsafeBuffer.setMemory(index, length, (byte)0xFF);
+        buffer.setMemory(index, length, (byte)0xFF);
     }
 }
