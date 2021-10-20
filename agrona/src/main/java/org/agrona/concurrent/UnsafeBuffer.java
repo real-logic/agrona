@@ -2246,7 +2246,7 @@ public class UnsafeBuffer implements AtomicBuffer
 
     private static void putPositiveIntAscii(final byte[] dest, final long offset, final int value, final int digitCount)
     {
-        int i = digitCount - 1;
+        int i = digitCount;
         int quotient = value;
         while (quotient >= 10_000)
         {
@@ -2258,30 +2258,29 @@ public class UnsafeBuffer implements AtomicBuffer
 
             i -= 4;
 
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[p1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[p1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[p2]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[p2 + 1]);
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[p1]);
+            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[p1 + 1]);
+            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[p2]);
+            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[p2 + 1]);
         }
 
         if (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
+            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset + i - 2, ASCII_DIGITS[position]);
         }
 
         if (quotient >= 10)
         {
             final int position = quotient << 1;
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position]);
+            UNSAFE.putByte(dest, offset + 1, ASCII_DIGITS[position + 1]);
+            UNSAFE.putByte(dest, offset, ASCII_DIGITS[position]);
         }
         else
         {
-            UNSAFE.putByte(dest, offset + i, (byte)(ZERO + quotient));
+            UNSAFE.putByte(dest, offset, (byte)(ZERO + quotient));
         }
     }
 
@@ -2289,7 +2288,7 @@ public class UnsafeBuffer implements AtomicBuffer
         final byte[] dest, final long offset, final long value, final int digitCount)
     {
         long quotient = value;
-        int i = digitCount - 1;
+        int i = digitCount;
         while (quotient >= 100_000_000)
         {
             final int lastEightDigits = (int)(quotient % 100_000_000);
@@ -2305,16 +2304,16 @@ public class UnsafeBuffer implements AtomicBuffer
 
             i -= 8;
 
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(dest, offset + i + 8, ASCII_DIGITS[l2 + 1]);
+            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[u1]);
+            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1 + 1]);
+            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u2]);
+            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2 + 1]);
+            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[l1]);
+            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1 + 1]);
+            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l2]);
+            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2 + 1]);
         }
 
-        putPositiveIntAscii(dest, offset, (int)quotient, i + 1);
+        putPositiveIntAscii(dest, offset, (int)quotient, i);
     }
 }
