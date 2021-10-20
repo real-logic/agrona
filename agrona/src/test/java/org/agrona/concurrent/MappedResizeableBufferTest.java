@@ -139,7 +139,7 @@ public class MappedResizeableBufferTest
         final int index = 2;
         final int length = 6;
         final byte value = (byte)11;
-        final MappedResizeableBuffer buffer = new MappedResizeableBuffer(channel, 0, 10);
+        buffer = new MappedResizeableBuffer(channel, 0, 10);
 
         buffer.setMemory(index, length, value);
 
