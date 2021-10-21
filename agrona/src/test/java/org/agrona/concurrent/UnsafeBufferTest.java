@@ -350,6 +350,26 @@ class UnsafeBufferTest
         assertEquals(0, buffer.getByte(index));
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = { 11, 64, 1011 })
+    void setMemory(final int length)
+    {
+        final int index = 2;
+        final byte value = (byte)11;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[2 * index + length]);
+
+        buffer.setMemory(index, length, value);
+
+        assertEquals(0, buffer.getByte(0));
+        assertEquals(0, buffer.getByte(1));
+        assertEquals(0, buffer.getByte(index + length));
+        assertEquals(0, buffer.getByte(index + length + 1));
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(value, buffer.getByte(index + i));
+        }
+    }
+
     private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(

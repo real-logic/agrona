@@ -21,6 +21,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,6 +133,27 @@ public class MappedResizeableBufferTest
         final UnsafeBuffer offHeapDirectBuffer = new UnsafeBuffer(buffer.addressOffset(), (int)buffer.capacity());
         buffer.putBytes(96, offHeapDirectBuffer, 24, 4);
         assertThat(buffer.getInt(96), is((int)value));
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(ints = { 11, 64, 1011 })
+    void setMemory(final int length)
+    {
+        final int index = 2;
+        final byte value = (byte)11;
+        buffer = new MappedResizeableBuffer(channel, 0, 2 * index + length);
+
+        buffer.setMemory(index, length, value);
+
+        assertEquals(0, buffer.getByte(0));
+        assertEquals(0, buffer.getByte(1));
+        assertEquals(0, buffer.getByte(index + length));
+        assertEquals(0, buffer.getByte(index + length + 1));
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(value, buffer.getByte(index + i));
+        }
     }
 
     private void exchangeDataAt(final long index)
