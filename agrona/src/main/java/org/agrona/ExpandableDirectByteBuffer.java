@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.AsciiEncoding.*;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.UnsafeAccess.*;
 
 /**
  * Expandable {@link MutableDirectBuffer} that is backed by a direct {@link ByteBuffer}. When values are put into the
@@ -162,7 +162,17 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, length);
 
-        UNSAFE.setMemory(null, address + index, length, value);
+        final long offset = address + index;
+        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
+        {
+            // This horrible filth is to encourage the JVM to call memset() when address is even.
+            UNSAFE.putByte(null, offset, value);
+            UNSAFE.setMemory(null, offset + 1, length - 1, value);
+        }
+        else
+        {
+            UNSAFE.setMemory(null, offset, length, value);
+        }
     }
 
     /**

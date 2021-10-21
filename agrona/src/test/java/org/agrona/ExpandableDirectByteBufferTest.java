@@ -16,6 +16,8 @@
 package org.agrona;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -78,20 +80,20 @@ class ExpandableDirectByteBufferTest
         );
     }
 
-    @Test
-    void setMemory()
+    @ParameterizedTest
+    @ValueSource(ints = { 11, 64, 1011 })
+    void setMemory(final int length)
     {
         final int index = 2;
-        final int length = 6;
         final byte value = (byte)11;
-        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(10);
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(2 * index + length);
 
         buffer.setMemory(index, length, value);
 
         assertEquals(0, buffer.getByte(0));
         assertEquals(0, buffer.getByte(1));
-        assertEquals(0, buffer.getByte(8));
-        assertEquals(0, buffer.getByte(9));
+        assertEquals(0, buffer.getByte(index + length));
+        assertEquals(0, buffer.getByte(index + length + 1));
         for (int i = 0; i < length; i++)
         {
             assertEquals(value, buffer.getByte(index + i));

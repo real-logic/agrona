@@ -27,7 +27,7 @@ import java.nio.channels.FileChannel;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.UnsafeAccess.*;
 import static org.agrona.concurrent.UnsafeBuffer.*;
 
 /**
@@ -191,7 +191,17 @@ public class MappedResizeableBuffer implements AutoCloseable
             boundsCheck0(index, length);
         }
 
-        UNSAFE.setMemory(null, addressOffset + index, length, value);
+        final long offset = addressOffset + index;
+        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
+        {
+            // This horrible filth is to encourage the JVM to call memset() when address is even.
+            UNSAFE.putByte(null, offset, value);
+            UNSAFE.setMemory(null, offset + 1, length - 1, value);
+        }
+        else
+        {
+            UNSAFE.setMemory(null, offset, length, value);
+        }
     }
 
     /**

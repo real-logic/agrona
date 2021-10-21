@@ -26,7 +26,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.AsciiEncoding.*;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.UnsafeAccess.UNSAFE;
+import static org.agrona.UnsafeAccess.*;
 import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 
 /**
@@ -337,7 +337,17 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
-        UNSAFE.setMemory(byteArray, addressOffset + index, length, value);
+        final long offset = addressOffset + index;
+        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
+        {
+            // This horrible filth is to encourage the JVM to call memset() when address is even.
+            UNSAFE.putByte(byteArray, offset, value);
+            UNSAFE.setMemory(byteArray, offset + 1, length - 1, value);
+        }
+        else
+        {
+            UNSAFE.setMemory(byteArray, offset, length, value);
+        }
     }
 
     /**
