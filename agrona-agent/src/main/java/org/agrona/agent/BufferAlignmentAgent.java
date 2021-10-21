@@ -84,7 +84,8 @@ public class BufferAlignmentAgent
         // all Int methods, and all String method other than
         // XXXStringWithoutLengthXXX or getStringXXX(int, int)
         final Junction<MethodDescription> intVerifierMatcher = nameContains("Int")
-            .or(nameMatches(".*String[^W].*").and(not(ElementMatchers.takesArguments(int.class, int.class))));
+            .or(nameMatches(".*String[^W].*").and(not(ElementMatchers.takesArguments(int.class, int.class))))
+            .and(not(ElementMatchers.isPrivate()));
 
         alignmentTransformer = new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED))
             .with(new AgentBuilderListener())
@@ -93,8 +94,8 @@ public class BufferAlignmentAgent
                 AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED)
             .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
             .transform((builder, typeDescription, classLoader, module) -> builder
-                .visit(to(LongVerifier.class).on(nameContains("Long")))
-                .visit(to(DoubleVerifier.class).on(nameContains("Double")))
+                .visit(to(LongVerifier.class).on(nameContains("Long").and(not(ElementMatchers.isPrivate()))))
+                .visit(to(DoubleVerifier.class).on(nameContains("Double").and(not(ElementMatchers.isPrivate()))))
                 .visit(to(IntVerifier.class).on(intVerifierMatcher))
                 .visit(to(FloatVerifier.class).on(nameContains("Float")))
                 .visit(to(ShortVerifier.class).on(nameContains("Short")))
