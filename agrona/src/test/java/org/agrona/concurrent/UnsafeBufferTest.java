@@ -19,6 +19,7 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -230,6 +231,25 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertEquals(value, buffer.parseLongAscii(index, length));
     }
 
+    @ParameterizedTest
+    @MethodSource("doubleValuesWithInsufficientLength")
+    void putDoubleAsciiShouldBoundsCheckBeforeWritingAnyData(final double value, final int length)
+    {
+        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
+
+        final int index = 4;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[index + length - 1]);
+        assertEquals(0, buffer.getByte(index));
+
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.putDoubleAscii(index, value));
+        assertEquals(
+            "index=" + index + " length=" + length + " capacity=" + buffer.capacity(),
+            exception.getMessage());
+
+        assertEquals(0, buffer.getByte(index));
+    }
+
     private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
@@ -243,5 +263,17 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     private static List<ByteOrder> byteOrders()
     {
         return Arrays.asList(ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN);
+    }
+
+    private static List<Arguments> doubleValuesWithInsufficientLength()
+    {
+        return Arrays.asList(
+            Arguments.arguments(-5.212680729440889e17, 21),
+            Arguments.arguments(6.157934106540014e15, 18),
+            Arguments.arguments(1.5501284640872244e-24, 42),
+            Arguments.arguments(-4.7477675821412186e-9, 27),
+            Arguments.arguments(10096.357534152876, 18),
+            Arguments.arguments(-1348197.6786845152, 19)
+        );
     }
 }
