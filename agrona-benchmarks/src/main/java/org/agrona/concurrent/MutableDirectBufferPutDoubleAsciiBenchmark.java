@@ -21,6 +21,7 @@ import org.openjdk.jmh.annotations.*;
 
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +43,16 @@ public class MutableDirectBufferPutDoubleAsciiBenchmark
     private final ExpandableArrayBuffer expandableArrayBuffer = new ExpandableArrayBuffer(CAPACITY);
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(CAPACITY);
 
+    @Param({
+        "0",
+        "3.875",
+        "1000000",
+        "1.5501284640872244e-24",
+        "-5.212680729440889e17",
+        "1.7976930114055267e308",
+        "random:[1e-3,1e7)"
+    })
+    private String value;
     private int index;
     private double[] values;
 
@@ -51,7 +62,16 @@ public class MutableDirectBufferPutDoubleAsciiBenchmark
     @Setup(Level.Trial)
     public void setup()
     {
-        values = new Random(4732847239L).doubles(8192, -10_000_000, 10_000_000).toArray();
+        final int size = 2048;
+        if (value.startsWith("random:"))
+        {
+            values = new Random(4732847239L).doubles(2048, 1e-3, 1e7).toArray();
+        }
+        else
+        {
+            values = new double[size];
+            Arrays.fill(values, Double.parseDouble(value));
+        }
     }
 
     /**
