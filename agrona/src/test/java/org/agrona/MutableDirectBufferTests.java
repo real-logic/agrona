@@ -27,6 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -308,6 +309,142 @@ public abstract class MutableDirectBufferTests
         assertEquals("long overflow parsing: " + value, exception.getMessage());
     }
 
+    @ParameterizedTest
+    @MethodSource("doubleSpecialValues")
+    void putDoubleAsciiShouldHandleSpecialValues(final double value, final String expected)
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 4;
+        final int length = buffer.putDoubleAscii(index, value);
+
+        assertEquals(expected.length(), length);
+        assertEquals(expected, buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeNumberThatCanBeExactlyRepresentedInBinary()
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 8;
+        final int length = buffer.putDoubleAscii(index, 3.875);
+
+        assertEquals(5, length);
+        assertEquals("3.875", buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeNumberThatCannotBeRepresentedExactlyInBinary()
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 1;
+        final int length = buffer.putDoubleAscii(index, 0.100000000000000005551115123125787021181583404541015625);
+
+        assertEquals(3, length);
+        assertEquals("0.1", buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeNumberWithLeadingZerosAfterTheDot()
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 6;
+        final int length = buffer.putDoubleAscii(index, -0.0012534);
+
+        assertEquals(10, length);
+        assertEquals("-0.0012534", buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeNumberWithTrailingZerosBeforeTheDot()
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 0;
+        final int length = buffer.putDoubleAscii(index, 198400000000000d);
+
+        assertEquals(17, length);
+        assertEquals("198400000000000.0", buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeMaxValue()
+    {
+        final MutableDirectBuffer buffer = newBuffer(321);
+
+        final int index = 10;
+        final int length = buffer.putDoubleAscii(index, Double.MAX_VALUE);
+
+        assertEquals(311, length);
+        assertEquals(
+            "17976931348623157000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0",
+            buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeMinValue()
+    {
+        final MutableDirectBuffer buffer = newBuffer(328);
+
+        final int index = 2;
+        final int length = buffer.putDoubleAscii(index, Double.MIN_VALUE);
+
+        assertEquals(326, length);
+        assertEquals(
+            "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000005",
+            buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiShouldEncodeMinNormal()
+    {
+        final MutableDirectBuffer buffer = newBuffer(328);
+
+        final int index = 0;
+        final int length = buffer.putDoubleAscii(index, Double.MIN_NORMAL);
+
+        assertEquals(326, length);
+        assertEquals(
+            "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
+            "22250738585072014",
+            buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @Test
+    void putDoubleAsciiNegativeNumberWithDotInTheMiddle()
+    {
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int index = 4;
+        final int length = buffer.putDoubleAscii(index, -12.667);
+
+        assertEquals(7, length);
+        assertEquals("-12.667", buffer.getStringWithoutLengthAscii(index, length));
+    }
+
+    @ParameterizedTest
+    @MethodSource("doubleValuesWithMixedOutput")
+    void putDoubleAsciiShouldHandleAllOutputCombinations(final double value, final String expected)
+    {
+        final MutableDirectBuffer buffer = newBuffer(384);
+
+        final int index = 4;
+        final int length = buffer.putDoubleAscii(index, value);
+
+        assertEquals(expected.length(), length);
+        assertEquals(expected, buffer.getStringWithoutLengthAscii(index, length));
+    }
+
     private static List<Arguments> valuesAndLengths()
     {
         return Arrays.asList(
@@ -348,6 +485,34 @@ public abstract class MutableDirectBufferTests
             Arguments.arguments("-", 0),
             Arguments.arguments("+", 0),
             Arguments.arguments("123456789^123456789", 9)
+        );
+    }
+
+    private static List<Arguments> doubleSpecialValues()
+    {
+        return Arrays.asList(
+            arguments(Double.NaN, "NaN"),
+            arguments(Double.NEGATIVE_INFINITY, "-Infinity"),
+            arguments(Double.POSITIVE_INFINITY, "Infinity"),
+            arguments(0.0d, "0.0"),
+            arguments(-0.0d, "-0.0")
+        );
+    }
+
+    private static List<Arguments> doubleValuesWithMixedOutput()
+    {
+        return Arrays.asList(
+            arguments(-5.212680729440889e17, "-521268072944088900.0"),
+            arguments(6.157934106540014e15, "6157934106540014.0"),
+            arguments(1.5501284640872244e-24, "0.0000000000000000000000015501284640872244"),
+            arguments(-4.7477675821412186e-9, "-0.000000004747767582141219"),
+            arguments(10096.357534152876, "10096.357534152876"),
+            arguments(-1348197.6786845152, "-1348197.6786845152"),
+            arguments(3.997640515505592E22, "39976405155055920000000.0"),
+            arguments(-2.9928867511316713E24, "-2992886751131671300000000.0"),
+            arguments(2.4647073177022235E15, "2464707317702223.5"),
+            arguments(7.7723803003247168E16, "77723803003247170.0"),
+            arguments(-1.1379008962552722E15, "-1137900896255272.2")
         );
     }
 }
