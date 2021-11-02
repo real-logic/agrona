@@ -445,6 +445,23 @@ public abstract class MutableDirectBufferTests
         assertEquals(expected, buffer.getStringWithoutLengthAscii(index, length));
     }
 
+    @Test
+    void putDoubleAsciiRoundTrip()
+    {
+        final int index = 22;
+        final MutableDirectBuffer buffer = newBuffer(384);
+
+        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
+        {
+            final long rawBits = ThreadLocalRandom.current().nextLong();
+            final double value = Double.longBitsToDouble(rawBits);
+            final int length = buffer.putDoubleAscii(index, value);
+            final String strValue = buffer.getStringWithoutLengthAscii(index, length);
+            final double parsedValue = Double.parseDouble(strValue);
+            assertEquals(value, parsedValue);
+        }
+    }
+
     private static List<Arguments> valuesAndLengths()
     {
         return Arrays.asList(
