@@ -2385,9 +2385,9 @@ public class UnsafeBuffer implements AtomicBuffer
             final int digitsAfterDot = digitCount - exp - 1;
             final long pow10 = LONG_POWER_OF_TEN[digitsAfterDot];
             final long beforeDot = digits / pow10;
-            final long afterDot = digits - pow10 * beforeDot;
+            final long afterDot = pow10 + (digits - pow10 * beforeDot); // account for leading zeros
 
-            putPositiveLongAscii(dest, offset + digitCount - digitsAfterDot + 1, afterDot, digitsAfterDot);
+            putPositiveLongAscii(dest, offset + digitCount - digitsAfterDot, afterDot, digitsAfterDot + 1);
 
             UNSAFE.putByte(dest, offset + digitCount - digitsAfterDot, DOT);
 

@@ -1417,9 +1417,9 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             final int digitsAfterDot = digitCount - exp - 1;
             final long pow10 = LONG_POWER_OF_TEN[digitsAfterDot];
             final long beforeDot = digits / pow10;
-            final long afterDot = digits - pow10 * beforeDot;
+            final long afterDot = pow10 + (digits - pow10 * beforeDot); // account for leading zeros
 
-            putPositiveLongAscii(offset + digitCount - digitsAfterDot + 1, afterDot, digitsAfterDot);
+            putPositiveLongAscii(offset + digitCount - digitsAfterDot, afterDot, digitsAfterDot + 1);
 
             UNSAFE.putByte(null, offset + digitCount - digitsAfterDot, DOT);
 
