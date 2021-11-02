@@ -1229,8 +1229,8 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
                 {
                     break;
                 }
-                duHasTrailingZeros = 0L == (du - 10L * du10);
-                dvHasTrailingZeros = 0 == lastRemovedDigit;
+                duHasTrailingZeros &= 0L == (du - 10L * du10);
+                dvHasTrailingZeros &= 0 == lastRemovedDigit;
                 final long dv10 = dv / 10L;
                 lastRemovedDigit = (int)(dv - 10L * dv10);
                 du = du10;
