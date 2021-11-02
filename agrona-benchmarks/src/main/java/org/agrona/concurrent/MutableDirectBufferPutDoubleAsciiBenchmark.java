@@ -51,7 +51,7 @@ public class MutableDirectBufferPutDoubleAsciiBenchmark
     @Setup(Level.Trial)
     public void setup()
     {
-        values = new Random(4732847239L).doubles(8192, -1_000_000_000, 1_000_000_000).toArray();
+        values = new Random(4732847239L).doubles(8192, -10_000_000, 10_000_000).toArray();
     }
 
     /**
