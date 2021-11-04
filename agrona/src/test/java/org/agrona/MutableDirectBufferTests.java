@@ -59,13 +59,14 @@ public abstract class MutableDirectBufferTests
     @Test
     void putIntAsciiRoundTrip()
     {
+        final int index = 4;
         final MutableDirectBuffer buffer = newBuffer(64);
 
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final int value = ThreadLocalRandom.current().nextInt();
-            final int length = buffer.putIntAscii(0, value);
-            final int parsedValue = buffer.parseIntAscii(0, length);
+            final int length = buffer.putIntAscii(index, value);
+            final int parsedValue = buffer.parseIntAscii(index, length);
             assertEquals(value, parsedValue);
         }
     }
@@ -73,13 +74,14 @@ public abstract class MutableDirectBufferTests
     @Test
     void putLongAsciiRoundTrip()
     {
+        final int index = 16;
         final MutableDirectBuffer buffer = newBuffer(64);
 
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final long value = ThreadLocalRandom.current().nextLong();
-            final int length = buffer.putLongAscii(0, value);
-            final long parsedValue = buffer.parseLongAscii(0, length);
+            final int length = buffer.putLongAscii(index, value);
+            final long parsedValue = buffer.parseLongAscii(index, length);
             assertEquals(value, parsedValue);
         }
     }
@@ -87,12 +89,14 @@ public abstract class MutableDirectBufferTests
     @Test
     void putNaturalIntAsciiRoundTrip()
     {
+        final int index = 8;
         final MutableDirectBuffer buffer = newBuffer(64);
+
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final int value = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
-            final int length = buffer.putNaturalIntAscii(0, value);
-            final int parsedValue = buffer.parseNaturalIntAscii(0, length);
+            final int length = buffer.putNaturalIntAscii(index, value);
+            final int parsedValue = buffer.parseNaturalIntAscii(index, length);
             assertEquals(value, parsedValue);
         }
     }
@@ -100,12 +104,14 @@ public abstract class MutableDirectBufferTests
     @Test
     void putNaturalLongAsciiRoundTrip()
     {
+        final int index = 12;
         final MutableDirectBuffer buffer = newBuffer(64);
+
         for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
         {
             final long value = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
-            final int length = buffer.putNaturalLongAscii(0, value);
-            final long parsedValue = buffer.parseNaturalLongAscii(0, length);
+            final int length = buffer.putNaturalLongAscii(index, value);
+            final long parsedValue = buffer.parseNaturalLongAscii(index, length);
             assertEquals(value, parsedValue);
         }
     }
@@ -173,55 +179,135 @@ public abstract class MutableDirectBufferTests
     }
 
     @ParameterizedTest
-    @MethodSource("nonParsableIntegerValues")
-    void parseIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    @MethodSource("nonParsableIntValues")
+    void parseIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
+        final String value, final int baseIndex)
     {
         final int index = 2;
-        final MutableDirectBuffer buffer = newBuffer(10);
+        final MutableDirectBuffer buffer = newBuffer(16);
         final int length = buffer.putStringWithoutLengthAscii(index, value);
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseIntAscii(index, length));
-        assertTrue(exception.getMessage().contains("is not a valid digit"));
+        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
     }
 
     @ParameterizedTest
-    @MethodSource("nonParsableIntegerValues")
-    void parseLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    @MethodSource("nonParsableLongValues")
+    void parseLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
+        final String value, final int baseIndex)
     {
-        final int index = 2;
-        final MutableDirectBuffer buffer = newBuffer(10);
+        final int index = 7;
+        final MutableDirectBuffer buffer = newBuffer(32);
         final int length = buffer.putStringWithoutLengthAscii(index, value);
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseLongAscii(index, length));
-        assertTrue(exception.getMessage().contains("is not a valid digit"));
+        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
     }
 
     @ParameterizedTest
-    @MethodSource("nonParsableIntegerValues")
-    void parseNaturalIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    @MethodSource("nonParsableIntValues")
+    void parseNaturalIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
+        final String value, final int baseIndex)
     {
-        final int index = 2;
-        final MutableDirectBuffer buffer = newBuffer(10);
+        final int index = 1;
+        final MutableDirectBuffer buffer = newBuffer(16);
         final int length = buffer.putStringWithoutLengthAscii(index, value);
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalIntAscii(index, length));
-        assertTrue(exception.getMessage().contains("is not a valid digit"));
+        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
     }
 
     @ParameterizedTest
-    @MethodSource("nonParsableIntegerValues")
-    void parseNaturalLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    @MethodSource("nonParsableLongValues")
+    void parseNaturalLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
+        final String value, final int baseIndex)
     {
-        final int index = 2;
-        final MutableDirectBuffer buffer = newBuffer(10);
+        final int index = 8;
+        final MutableDirectBuffer buffer = newBuffer(32);
         final int length = buffer.putStringWithoutLengthAscii(index, value);
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalLongAscii(index, length));
-        assertTrue(exception.getMessage().contains("is not a valid digit"));
+        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "-5547483650",
+        "-2147483649",
+        "2147483648",
+        "2147483649",
+        "9999999991",
+        "-999999999999999999",
+        "12345678901234567890" })
+    void parseIntAsciiShouldThrowAsciiNumberFormatExceptionIfValueIsOutOfRange(final String value)
+    {
+        final int index = 4;
+        final MutableDirectBuffer buffer = newBuffer(32);
+
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseIntAscii(index, length));
+        assertEquals("int overflow parsing: " + value, exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "-9223372036854775810",
+        "-9223372036854775809",
+        "9223372036854775808",
+        "9223372036854775809",
+        "-19191919191919191919",
+        "123456789012345678901234567890" })
+    void parseLongAsciiShouldThrowAsciiNumberFormatExceptionIfValueIsOutOfRange(final String value)
+    {
+        final int index = 7;
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseLongAscii(index, length));
+        assertEquals("long overflow parsing: " + value, exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "2147483648",
+        "2147483649",
+        "9999999991",
+        "12345678901234567890" })
+    void parseNaturalIntAsciiShouldThrowAsciiNumberFormatExceptionIfValueIsOutOfRange(final String value)
+    {
+        final int index = 4;
+        final MutableDirectBuffer buffer = newBuffer(32);
+
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalIntAscii(index, length));
+        assertEquals("int overflow parsing: " + value, exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "9223372036854775808",
+        "9223372036854775809",
+        "123456789012345678901234567890" })
+    void parseNaturalLongAsciiShouldThrowAsciiNumberFormatExceptionIfValueIsOutOfRange(final String value)
+    {
+        final int index = 7;
+        final MutableDirectBuffer buffer = newBuffer(64);
+
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalLongAscii(index, length));
+        assertEquals("long overflow parsing: " + value, exception.getMessage());
     }
 
     private static List<Arguments> valuesAndLengths()
@@ -240,8 +326,31 @@ public abstract class MutableDirectBufferTests
             Arguments.arguments(9999, 4));
     }
 
-    private static String[] nonParsableIntegerValues()
+    private static List<Arguments> nonParsableIntValues()
     {
-        return new String[]{ "-23.5", "+1", "a14349", "0xFF", "999v" };
+        return Arrays.asList(
+            Arguments.arguments("23.5", 2),
+            Arguments.arguments("+1", 0),
+            Arguments.arguments("a14349", 0),
+            Arguments.arguments("0xFF", 1),
+            Arguments.arguments("999v", 3),
+            Arguments.arguments("-", 0),
+            Arguments.arguments("+", 0),
+            Arguments.arguments("1234%67890", 4)
+        );
+    }
+
+    private static List<Arguments> nonParsableLongValues()
+    {
+        return Arrays.asList(
+            Arguments.arguments("23.5", 2),
+            Arguments.arguments("+1", 0),
+            Arguments.arguments("a14349", 0),
+            Arguments.arguments("0xFF", 1),
+            Arguments.arguments("999v", 3),
+            Arguments.arguments("-", 0),
+            Arguments.arguments("+", 0),
+            Arguments.arguments("123456789^123456789", 9)
+        );
     }
 }

@@ -35,7 +35,7 @@ public class MutableDirectBufferParseIntAsciiBenchmark
 {
     private static final int CAPACITY = 16;
 
-    @Param({ "-2147483648", "0", "-9182", "27085146", "-123456789", "2147483647" })
+    @Param({ "-2147483648", "-1234567890", "0", "-9182", "27085146", "1999999999", "2147483647" })
     private String value;
     private int length;
 

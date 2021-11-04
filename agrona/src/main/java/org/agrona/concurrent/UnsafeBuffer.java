@@ -1776,16 +1776,39 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final long offset = addressOffset + index;
-        final byte[] src = byteArray;
-        int tally = 0;
-        for (int i = 0; i < length; i++)
+        else if (length > INT_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final long offset = addressOffset;
+        final byte[] src = byteArray;
+        final int firstDigit = AsciiEncoding.getDigit(index, UNSAFE.getByte(src, offset + index));
+
+        if (length < INT_MAX_DIGITS || firstDigit < 2)
+        {
+            int tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+            return tally;
+        }
+        else
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+
+            if (tally >= INTEGER_ABSOLUTE_MIN_VALUE)
+            {
+                throw new AsciiNumberFormatException("int overflow parsing: " +
+                    getStringWithoutLengthAscii(index, length));
+            }
+            return (int)tally;
+        }
     }
 
     /**
@@ -1802,16 +1825,29 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final long offset = addressOffset + index;
-        final byte[] src = byteArray;
-        long tally = 0;
-        for (int i = 0; i < length; i++)
+        else if (length > LONG_MAX_DIGITS)
         {
-            tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            throw new AsciiNumberFormatException("long overflow parsing: " +
+                getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final long offset = addressOffset;
+        final byte[] src = byteArray;
+        final int firstDigit = AsciiEncoding.getDigit(index, UNSAFE.getByte(src, offset + index));
+
+        if (length < LONG_MAX_DIGITS || firstDigit < 9)
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+            return tally;
+        }
+        else
+        {
+            return parseLongAsciiOverflowCheck(index, length, src, offset, MAX_LONG_VALUE, 1, firstDigit);
+        }
     }
 
     /**
@@ -1833,17 +1869,49 @@ public class UnsafeBuffer implements AtomicBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
-        final long offset = addressOffset + index;
+        final long offset = addressOffset;
         final byte[] src = byteArray;
-        final byte first = UNSAFE.getByte(src, offset);
-        int tally = MINUS_SIGN == first ? 0 : AsciiEncoding.getDigit(index, first);
-
-        for (int i = 1; i < length; i++)
+        final byte first = UNSAFE.getByte(src, offset + index);
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            digitCount = length - 1;
+            firstDigit = getDigit(i, UNSAFE.getByte(src, offset + i));
+            i++;
+        }
+        else
+        {
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        return MINUS_SIGN == first ? -tally : tally;
+        if (digitCount < INT_MAX_DIGITS || INT_MAX_DIGITS == digitCount && firstDigit < 2)
+        {
+            int tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (INT_MAX_DIGITS == digitCount)
+        {
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+
+            if (tally < INTEGER_ABSOLUTE_MIN_VALUE || tally == INTEGER_ABSOLUTE_MIN_VALUE && negativeValue)
+            {
+                return (int)(negativeValue ? -tally : tally);
+            }
+        }
+
+        throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -1865,17 +1933,47 @@ public class UnsafeBuffer implements AtomicBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
-        final long offset = addressOffset + index;
+        final long offset = addressOffset;
         final byte[] src = byteArray;
-        final byte first = UNSAFE.getByte(src, offset);
-        long tally = MINUS_SIGN == first ? 0L : AsciiEncoding.getDigit(index, first);
-
-        for (int i = 1; i < length; i++)
+        final byte first = UNSAFE.getByte(src, offset + index);
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
-            tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            digitCount = length - 1;
+            firstDigit = getDigit(i, UNSAFE.getByte(src, offset + i));
+            i++;
+        }
+        else
+        {
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        return MINUS_SIGN == first ? -tally : tally;
+        if (digitCount < LONG_MAX_DIGITS || LONG_MAX_DIGITS == digitCount && firstDigit < 9)
+        {
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (LONG_MAX_DIGITS == digitCount)
+        {
+            if (negativeValue)
+            {
+                return -parseLongAsciiOverflowCheck(index, length, src, offset, MIN_LONG_VALUE, 2, firstDigit);
+            }
+            else
+            {
+                return parseLongAsciiOverflowCheck(index, length, src, offset, MAX_LONG_VALUE, 1, firstDigit);
+            }
+        }
+
+        throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -2195,6 +2293,37 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
         }
+    }
+
+    private long parseLongAsciiOverflowCheck(
+        final int index,
+        final int length,
+        final byte[] src,
+        final long offset,
+        final byte[] maxValue,
+        final int position,
+        final int first)
+    {
+        long tally = first;
+        boolean checkOverflow = true;
+        for (int i = index + position, end = index + length; i < end; i++)
+        {
+            final byte b = UNSAFE.getByte(src, offset + i);
+            if (checkOverflow)
+            {
+                if (b > maxValue[i - index])
+                {
+                    throw new AsciiNumberFormatException("long overflow parsing: " +
+                        getStringWithoutLengthAscii(index, length));
+                }
+                else if (b < maxValue[i - index])
+                {
+                    checkOverflow = false;
+                }
+            }
+            tally = (tally * 10L) + AsciiEncoding.getDigit(i, b);
+        }
+        return tally;
     }
 
     private static void boundsCheckWrap(final int offset, final int length, final int capacity)
