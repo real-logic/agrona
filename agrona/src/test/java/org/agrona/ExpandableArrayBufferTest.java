@@ -15,88 +15,10 @@
  */
 package org.agrona;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import java.util.concurrent.ThreadLocalRandom;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class ExpandableArrayBufferTest
+class ExpandableArrayBufferTest extends MutableDirectBufferTests
 {
-    private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
-
-    @Test
-    void putIntAsciiRoundTrip()
+    protected MutableDirectBuffer newBuffer(final int capacity)
     {
-        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(64);
-        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
-        {
-            final int value = ThreadLocalRandom.current().nextInt();
-            final int length = buffer.putIntAscii(0, value);
-            final int parsedValue = buffer.parseIntAscii(0, length);
-            assertEquals(value, parsedValue);
-        }
-    }
-
-    @Test
-    void putLongAsciiRoundTrip()
-    {
-        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(64);
-        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
-        {
-            final long value = ThreadLocalRandom.current().nextLong();
-            final int length = buffer.putLongAscii(0, value);
-            final long parsedValue = buffer.parseLongAscii(0, length);
-            assertEquals(value, parsedValue);
-        }
-    }
-
-    @Test
-    void putNaturalIntAsciiRoundTrip()
-    {
-        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(64);
-        ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
-            (value) ->
-            {
-                final int length = buffer.putNaturalIntAscii(0, value);
-                final int parsedValue = buffer.parseNaturalIntAscii(0, length);
-                assertEquals(value, parsedValue);
-            });
-    }
-
-    @Test
-    void putNaturalLongAsciiRoundTrip()
-    {
-        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(64);
-        ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
-            (value) ->
-            {
-                final int length = buffer.putNaturalLongAscii(0, value);
-                final long parsedValue = buffer.parseNaturalLongAscii(0, length);
-                assertEquals(value, parsedValue);
-            }
-        );
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = { 11, 64, 1011 })
-    void setMemory(final int length)
-    {
-        final int index = 2;
-        final byte value = (byte)11;
-        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(2 * index + length);
-
-        buffer.setMemory(index, length, value);
-
-        assertEquals(0, buffer.getByte(0));
-        assertEquals(0, buffer.getByte(1));
-        assertEquals(0, buffer.getByte(index + length));
-        assertEquals(0, buffer.getByte(index + length + 1));
-        for (int i = 0; i < length; i++)
-        {
-            assertEquals(value, buffer.getByte(index + i));
-        }
+        return new ExpandableArrayBuffer(capacity);
     }
 }
