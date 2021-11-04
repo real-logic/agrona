@@ -204,8 +204,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -258,8 +256,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putLong(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -301,8 +297,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         return UNSAFE.getInt(null, address + index);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -360,8 +354,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putDouble(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -418,8 +410,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putFloat(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -471,8 +461,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         UNSAFE.putShort(null, address + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -635,8 +623,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -688,8 +674,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         UNSAFE.putChar(null, address + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1028,8 +1012,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1159,8 +1141,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1173,11 +1153,11 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final long offset = address + index;
         int tally = 0;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
         }
 
         return tally;
@@ -1195,11 +1175,11 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final long offset = address + index;
         long tally = 0L;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
         }
 
         return tally;
@@ -1221,26 +1201,16 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
-        int i = index;
-        if (first == MINUS_SIGN)
+        final long offset = address + index;
+        final byte first = UNSAFE.getByte(null, offset);
+        int tally = MINUS_SIGN == first ? 0 : AsciiEncoding.getDigit(index, first);
+
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
         }
 
-        int tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**
@@ -1259,26 +1229,16 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
-        int i = index;
-        if (first == MINUS_SIGN)
+        final long offset = address + index;
+        final byte first = UNSAFE.getByte(null, offset);
+        long tally = MINUS_SIGN == first ? 0L : AsciiEncoding.getDigit(index, first);
+
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
         }
 
-        long tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**

@@ -390,8 +390,6 @@ public class UnsafeBuffer implements AtomicBuffer
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -551,8 +549,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
         return UNSAFE.getAndAddLong(byteArray, addressOffset + index, delta);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -714,8 +710,6 @@ public class UnsafeBuffer implements AtomicBuffer
         return UNSAFE.getAndAddInt(byteArray, addressOffset + index, delta);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -784,8 +778,6 @@ public class UnsafeBuffer implements AtomicBuffer
         UNSAFE.putDouble(byteArray, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -853,8 +845,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
         UNSAFE.putFloat(byteArray, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -945,8 +935,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
         UNSAFE.putShortVolatile(byteArray, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1155,8 +1143,6 @@ public class UnsafeBuffer implements AtomicBuffer
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1246,8 +1232,6 @@ public class UnsafeBuffer implements AtomicBuffer
 
         UNSAFE.putCharVolatile(byteArray, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1628,8 +1612,6 @@ public class UnsafeBuffer implements AtomicBuffer
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1780,8 +1762,6 @@ public class UnsafeBuffer implements AtomicBuffer
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1797,11 +1777,12 @@ public class UnsafeBuffer implements AtomicBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final long offset = addressOffset + index;
+        final byte[] src = byteArray;
         int tally = 0;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
         }
 
         return tally;
@@ -1822,11 +1803,12 @@ public class UnsafeBuffer implements AtomicBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final long offset = addressOffset + index;
+        final byte[] src = byteArray;
         long tally = 0;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
+            tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
         }
 
         return tally;
@@ -1851,27 +1833,17 @@ public class UnsafeBuffer implements AtomicBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = UNSAFE.getByte(byteArray, addressOffset + index);
-        int i = index;
+        final long offset = addressOffset + index;
+        final byte[] src = byteArray;
+        final byte first = UNSAFE.getByte(src, offset);
+        int tally = MINUS_SIGN == first ? 0 : AsciiEncoding.getDigit(index, first);
 
-        if (first == MINUS_SIGN)
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
         }
 
-        int tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**
@@ -1893,27 +1865,17 @@ public class UnsafeBuffer implements AtomicBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(byteArray, addressOffset + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = UNSAFE.getByte(byteArray, addressOffset + index);
-        int i = index;
+        final long offset = addressOffset + index;
+        final byte[] src = byteArray;
+        final byte first = UNSAFE.getByte(src, offset);
+        long tally = MINUS_SIGN == first ? 0L : AsciiEncoding.getDigit(index, first);
 
-        if (first == MINUS_SIGN)
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(src, offset + i));
         }
 
-        long tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(byteArray, addressOffset + i));
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**

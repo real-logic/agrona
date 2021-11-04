@@ -182,8 +182,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -236,8 +234,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putLong(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -289,8 +285,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putInt(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -348,8 +342,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putDouble(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -406,8 +398,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putFloat(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -459,8 +449,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putShort(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -611,8 +599,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -664,8 +650,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putChar(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1120,8 +1104,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1134,11 +1116,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final byte[] src = byteArray;
         int tally = 0;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, src[i]);
         }
 
         return tally;
@@ -1156,11 +1138,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
+        final byte[] src = byteArray;
         long tally = 0;
-        for (int i = index; i < end; i++)
+        for (int i = 0; i < length; i++)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, src[i]);
         }
 
         return tally;
@@ -1182,27 +1164,16 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
-        int i = index;
+        final byte[] src = byteArray;
+        final byte first = src[index];
+        int tally = MINUS_SIGN == first ? 0 : AsciiEncoding.getDigit(index, first);
 
-        if (first == MINUS_SIGN)
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, src[index + i]);
         }
 
-        int tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**
@@ -1221,27 +1192,16 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
-        int i = index;
+        final byte[] src = byteArray;
+        final byte first = src[index];
+        long tally = MINUS_SIGN == first ? 0L : AsciiEncoding.getDigit(index, first);
 
-        if (first == MINUS_SIGN)
+        for (int i = 1; i < length; i++)
         {
-            i++;
+            tally = (tally * 10) + AsciiEncoding.getDigit(i, src[index + i]);
         }
 
-        long tally = 0;
-        for (; i < endExclusive; i++)
-        {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
-        }
-
-        if (first == MINUS_SIGN)
-        {
-            tally = -tally;
-        }
-
-        return tally;
+        return MINUS_SIGN == first ? -tally : tally;
     }
 
     /**

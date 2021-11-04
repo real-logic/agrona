@@ -17,13 +17,16 @@ package org.agrona;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -42,20 +45,15 @@ public abstract class MutableDirectBufferTests
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    void shouldPutNaturalFromEnd(final int[] valueAndLength)
+    void shouldPutNaturalFromEnd(final int value, final int length)
     {
         final MutableDirectBuffer buffer = newBuffer(8 * 1024);
-        final int value = valueAndLength[0];
-        final int length = valueAndLength[1];
 
         final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
-        final String message = "for " + Arrays.toString(valueAndLength);
-        assertEquals(0, start, message);
+        final Supplier<String> messageSupplier = () -> "value=" + value + " length=" + length;
+        assertEquals(0, start, messageSupplier);
 
-        assertEquals(
-            String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(0, length),
-            message);
+        assertEquals(String.valueOf(value), buffer.getStringWithoutLengthAscii(0, length), messageSupplier);
     }
 
     @Test
@@ -174,21 +172,76 @@ public abstract class MutableDirectBufferTests
         assertEquals(value, buffer.parseIntAscii(index, length));
     }
 
-    private static int[][] valuesAndLengths()
+    @ParameterizedTest
+    @MethodSource("nonParsableIntegerValues")
+    void parseIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
     {
-        return new int[][]
-            {
-                { 1, 1 },
-                { 10, 2 },
-                { 100, 3 },
-                { 1000, 4 },
-                { 12, 2 },
-                { 123, 3 },
-                { 2345, 4 },
-                { 9, 1 },
-                { 99, 2 },
-                { 999, 3 },
-                { 9999, 4 },
-            };
+        final int index = 2;
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseIntAscii(index, length));
+        assertTrue(exception.getMessage().contains("is not a valid digit"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("nonParsableIntegerValues")
+    void parseLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    {
+        final int index = 2;
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseLongAscii(index, length));
+        assertTrue(exception.getMessage().contains("is not a valid digit"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("nonParsableIntegerValues")
+    void parseNaturalIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    {
+        final int index = 2;
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalIntAscii(index, length));
+        assertTrue(exception.getMessage().contains("is not a valid digit"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("nonParsableIntegerValues")
+    void parseNaturalLongAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
+    {
+        final int index = 2;
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int length = buffer.putStringWithoutLengthAscii(index, value);
+
+        final AsciiNumberFormatException exception =
+            assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalLongAscii(index, length));
+        assertTrue(exception.getMessage().contains("is not a valid digit"));
+    }
+
+    private static List<Arguments> valuesAndLengths()
+    {
+        return Arrays.asList(
+            Arguments.arguments(1, 1),
+            Arguments.arguments(10, 2),
+            Arguments.arguments(100, 3),
+            Arguments.arguments(1000, 4),
+            Arguments.arguments(12, 2),
+            Arguments.arguments(123, 3),
+            Arguments.arguments(2345, 4),
+            Arguments.arguments(9, 1),
+            Arguments.arguments(99, 2),
+            Arguments.arguments(999, 3),
+            Arguments.arguments(9999, 4));
+    }
+
+    private static String[] nonParsableIntegerValues()
+    {
+        return new String[]{ "-23.5", "+1", "a14349", "0xFF", "999v" };
     }
 }
