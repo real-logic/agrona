@@ -16,30 +16,31 @@
 package org.agrona.concurrent;
 
 import org.agrona.MutableDirectBuffer;
+import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UnsafeBufferTest
+class UnsafeBufferTest extends MutableDirectBufferTests
 {
-    private static final int ROUND_TRIP_ITERATIONS = 10_000_000;
     private static final byte VALUE = 42;
-    private static final int INDEX = 1;
     private static final int ADJUSTMENT_OFFSET = 3;
 
     private final byte[] wibbleBytes = "Wibble".getBytes(US_ASCII);
     private final byte[] wobbleBytes = "Wobble".getBytes(US_ASCII);
     private final byte[] wibbleBytes2 = "Wibble2".getBytes(US_ASCII);
+
+    protected MutableDirectBuffer newBuffer(final int capacity)
+    {
+        return new UnsafeBuffer(new byte[capacity]);
+    }
 
     @Test
     void shouldEqualOnInstance()
@@ -138,100 +139,6 @@ class UnsafeBufferTest
     }
 
     @Test
-    void shouldGetIntegerValuesAtSpecifiedOffset()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-        putAscii(buffer, "123");
-
-        final int value = buffer.parseNaturalIntAscii(INDEX, 3);
-
-        assertEquals(123, value);
-    }
-
-    @Test
-    void shouldDecodeNegativeIntegers()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        putAscii(buffer, "-1");
-
-        final int value = buffer.parseIntAscii(INDEX, 2);
-
-        assertEquals(-1, value);
-    }
-
-    @Test
-    void shouldWriteIntZero()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        final int length = buffer.putIntAscii(INDEX, 0);
-
-        assertEquals(1, length);
-        assertContainsString(buffer, "0", 1);
-    }
-
-    @Test
-    void shouldWritePositiveIntValues()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        final int length = buffer.putIntAscii(INDEX, 123);
-
-        assertEquals(3, length);
-        assertContainsString(buffer, "123", 3);
-    }
-
-    @Test
-    void shouldWriteNegativeIntValues()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        final int length = buffer.putIntAscii(INDEX, -123);
-
-        assertEquals(4, length);
-        assertContainsString(buffer, "-123", 4);
-    }
-
-    @Test
-    void shouldWriteMaxIntValue()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        final int length = buffer.putIntAscii(INDEX, Integer.MAX_VALUE);
-
-        assertContainsString(buffer, String.valueOf(Integer.MAX_VALUE), length);
-    }
-
-    @Test
-    void shouldWriteMinIntValue()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[128]);
-
-        final int length = buffer.putIntAscii(INDEX, Integer.MIN_VALUE);
-
-        assertContainsString(buffer, String.valueOf(Integer.MIN_VALUE), length);
-    }
-
-    @ParameterizedTest
-    @MethodSource("valuesAndLengths")
-    void shouldPutNaturalFromEnd(final int[] valueAndLength)
-    {
-        final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[8 * 1024]);
-        final int value = valueAndLength[0];
-        final int length = valueAndLength[1];
-
-        final int start = buffer.putNaturalIntAsciiFromEnd(value, length);
-        final String message = "for " + Arrays.toString(valueAndLength);
-        assertEquals(0, start, message);
-
-        assertEquals(
-            String.valueOf(value),
-            buffer.getStringWithoutLengthAscii(0, length),
-            message);
-    }
-
-    @Test
     void shouldWrapValidRange()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
@@ -259,61 +166,6 @@ class UnsafeBufferTest
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 0, -1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 8, 1));
         assertThrows(IllegalArgumentException.class, () -> slice.wrap(buffer, 7, 3));
-    }
-
-    @Test
-    void putIntAsciiRoundTrip()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
-
-        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
-        {
-            final int value = ThreadLocalRandom.current().nextInt();
-            final int length = buffer.putIntAscii(0, value);
-            final int parsedValue = buffer.parseIntAscii(0, length);
-            assertEquals(value, parsedValue);
-        }
-    }
-
-    @Test
-    void putLongAsciiRoundTrip()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
-
-        for (int i = 0; i < ROUND_TRIP_ITERATIONS; i++)
-        {
-            final long value = ThreadLocalRandom.current().nextLong();
-            final int length = buffer.putLongAscii(0, value);
-            final long parsedValue = buffer.parseLongAscii(0, length);
-            assertEquals(value, parsedValue);
-        }
-    }
-
-    @Test
-    void putNaturalIntAsciiRoundTrip()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
-        ThreadLocalRandom.current().ints(ROUND_TRIP_ITERATIONS, 0, Integer.MAX_VALUE).forEach(
-            (value) ->
-            {
-                final int length = buffer.putNaturalIntAscii(0, value);
-                final int parsedValue = buffer.parseNaturalIntAscii(0, length);
-                assertEquals(value, parsedValue);
-            });
-    }
-
-    @Test
-    void putNaturalLongAsciiRoundTrip()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
-        ThreadLocalRandom.current().longs(ROUND_TRIP_ITERATIONS, 0, Long.MAX_VALUE).forEach(
-            (value) ->
-            {
-                final int length = buffer.putNaturalLongAscii(0, value);
-                final long parsedValue = buffer.parseNaturalLongAscii(0, length);
-                assertEquals(value, parsedValue);
-            }
-        );
     }
 
     @ParameterizedTest
@@ -350,26 +202,6 @@ class UnsafeBufferTest
         assertEquals(0, buffer.getByte(index));
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = { 11, 64, 1011 })
-    void setMemory(final int length)
-    {
-        final int index = 2;
-        final byte value = (byte)11;
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[2 * index + length]);
-
-        buffer.setMemory(index, length, value);
-
-        assertEquals(0, buffer.getByte(0));
-        assertEquals(0, buffer.getByte(1));
-        assertEquals(0, buffer.getByte(index + length));
-        assertEquals(0, buffer.getByte(index + length + 1));
-        for (int i = 0; i < length; i++)
-        {
-            assertEquals(value, buffer.getByte(index + i));
-        }
-    }
-
     private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
@@ -378,33 +210,5 @@ class UnsafeBufferTest
         wibbleBuffer.putByte(0, VALUE);
 
         assertEquals(VALUE, byteBuffer.get(wibbleBuffer.wrapAdjustment()));
-    }
-
-    private void assertContainsString(final UnsafeBuffer buffer, final String value, final int length)
-    {
-        assertEquals(value, buffer.getStringWithoutLengthAscii(INDEX, length));
-    }
-
-    private void putAscii(final UnsafeBuffer buffer, final String value)
-    {
-        buffer.putBytes(INDEX, value.getBytes(US_ASCII));
-    }
-
-    private static int[][] valuesAndLengths()
-    {
-        return new int[][]
-            {
-                { 1, 1 },
-                { 10, 2 },
-                { 100, 3 },
-                { 1000, 4 },
-                { 12, 2 },
-                { 123, 3 },
-                { 2345, 4 },
-                { 9, 1 },
-                { 99, 2 },
-                { 999, 3 },
-                { 9999, 4 },
-            };
     }
 }

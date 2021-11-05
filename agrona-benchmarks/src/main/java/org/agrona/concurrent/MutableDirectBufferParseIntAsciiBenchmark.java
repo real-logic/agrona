@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmark for the {@link org.agrona.MutableDirectBuffer#putIntAscii(int, int)} method.
+ * Benchmark for the {@link org.agrona.MutableDirectBuffer#parseIntAscii(int, int)} method.
  */
 @Fork(value = 3, jvmArgsPrepend = "-Dagrona.disable.bounds.checks=true")
 @BenchmarkMode(Mode.AverageTime)
@@ -31,58 +31,71 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 @State(Scope.Benchmark)
-public class MutableDirectBufferPutIntAsciiBenchmark
+public class MutableDirectBufferParseIntAsciiBenchmark
 {
     private static final int CAPACITY = 16;
 
     @Param({ "-2147483648", "-1234567890", "0", "-9182", "27085146", "1999999999", "2147483647" })
-    private int value;
+    private String value;
+    private int length;
 
     private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(CAPACITY));
     private final ExpandableArrayBuffer expandableArrayBuffer = new ExpandableArrayBuffer(CAPACITY);
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(CAPACITY);
 
     /**
-     * Benchmark the {@link UnsafeBuffer#putIntAscii(int, int)} method.
+     * Setup test data.
+     */
+    @Setup
+    public void setup()
+    {
+        length = value.length();
+        unsafeBuffer.putStringWithoutLengthAscii(0, value);
+        expandableArrayBuffer.putStringWithoutLengthAscii(0, value);
+        expandableDirectByteBuffer.putStringWithoutLengthAscii(0, value);
+    }
+
+    /**
+     * Benchmark the {@link UnsafeBuffer#parseIntAscii(int, int)} method.
      *
-     * @return length in bytes of the written value.
+     * @return parsed value.
      */
     @Benchmark
     public int unsafeBuffer()
     {
-        return unsafeBuffer.putIntAscii(0, value);
+        return unsafeBuffer.parseIntAscii(0, length);
     }
 
     /**
-     * Benchmark the {@link ExpandableArrayBuffer#putIntAscii(int, int)} method.
+     * Benchmark the {@link ExpandableArrayBuffer#parseIntAscii(int, int)} method.
      *
-     * @return length in bytes of the written value.
+     * @return parsed value.
      */
     @Benchmark
     public int expandableArrayBuffer()
     {
-        return expandableArrayBuffer.putIntAscii(0, value);
+        return expandableArrayBuffer.parseIntAscii(0, length);
     }
 
     /**
-     * Benchmark the {@link ExpandableDirectByteBuffer#putIntAscii(int, int)} method.
+     * Benchmark the {@link ExpandableDirectByteBuffer#parseIntAscii(int, int)} method.
      *
-     * @return length in bytes of the written value.
+     * @return parsed value.
      */
     @Benchmark
     public int expandableDirectByteBuffer()
     {
-        return expandableDirectByteBuffer.putIntAscii(0, value);
+        return expandableDirectByteBuffer.parseIntAscii(0, length);
     }
 
     /**
-     * Benchmark the {@link Integer#toString(int)} method.
+     * Benchmark the {@link Integer#parseInt(String)} method.
      *
-     * @return string representation of an int value.
+     * @return parsed value.
      */
     @Benchmark
-    public String integerToString()
+    public int integerParseInt()
     {
-        return Integer.toString(value);
+        return Integer.parseInt(value);
     }
 }

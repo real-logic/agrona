@@ -204,8 +204,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -258,8 +256,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putLong(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -301,8 +297,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         return UNSAFE.getInt(null, address + index);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -360,8 +354,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putDouble(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -418,8 +410,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         UNSAFE.putFloat(null, address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -471,8 +461,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         UNSAFE.putShort(null, address + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -635,8 +623,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -688,8 +674,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
 
         UNSAFE.putChar(null, address + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1028,8 +1012,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1159,8 +1141,6 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1172,15 +1152,38 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final int end = index + length;
-        int tally = 0;
-        for (int i = index; i < end; i++)
+        else if (length > INT_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final long offset = address;
+        final int firstDigit = AsciiEncoding.getDigit(index, UNSAFE.getByte(null, offset + index));
+
+        if (length < INT_MAX_DIGITS || firstDigit < 2)
+        {
+            int tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+            return tally;
+        }
+        else
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+
+            if (tally >= INTEGER_ABSOLUTE_MIN_VALUE)
+            {
+                throw new AsciiNumberFormatException("int overflow parsing: " +
+                    getStringWithoutLengthAscii(index, length));
+            }
+            return (int)tally;
+        }
     }
 
     /**
@@ -1194,15 +1197,28 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final int end = index + length;
-        long tally = 0L;
-        for (int i = index; i < end; i++)
+        else if (length > LONG_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            throw new AsciiNumberFormatException("long overflow parsing: " +
+                getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final long offset = address;
+        final int firstDigit = AsciiEncoding.getDigit(index, UNSAFE.getByte(null, offset + index));
+
+        if (length < LONG_MAX_DIGITS || firstDigit < 9)
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+            return tally;
+        }
+        else
+        {
+            return parseLongAsciiOverflowCheck(index, length, offset, MAX_LONG_VALUE, 1, firstDigit);
+        }
     }
 
     /**
@@ -1221,26 +1237,48 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
-        int i = index;
-        if (first == MINUS_SIGN)
+        final long offset = address;
+        final byte first = UNSAFE.getByte(null, offset + index);
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
+            digitCount = length - 1;
+            firstDigit = getDigit(i, UNSAFE.getByte(null, offset + i));
             i++;
         }
-
-        int tally = 0;
-        for (; i < endExclusive; i++)
+        else
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        if (first == MINUS_SIGN)
+        if (digitCount < INT_MAX_DIGITS || INT_MAX_DIGITS == digitCount && firstDigit < 2)
         {
-            tally = -tally;
+            int tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (INT_MAX_DIGITS == digitCount)
+        {
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+
+            if (tally < INTEGER_ABSOLUTE_MIN_VALUE || tally == INTEGER_ABSOLUTE_MIN_VALUE && negativeValue)
+            {
+                return (int)(negativeValue ? -tally : tally);
+            }
         }
 
-        return tally;
+        throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -1259,26 +1297,46 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, UNSAFE.getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
-        int i = index;
-        if (first == MINUS_SIGN)
+        final long offset = address;
+        final byte first = UNSAFE.getByte(null, offset + index);
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
+            digitCount = length - 1;
+            firstDigit = getDigit(i, UNSAFE.getByte(null, offset + i));
             i++;
         }
-
-        long tally = 0;
-        for (; i < endExclusive; i++)
+        else
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, address + i));
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        if (first == MINUS_SIGN)
+        if (digitCount < LONG_MAX_DIGITS || LONG_MAX_DIGITS == digitCount && firstDigit < 9)
         {
-            tally = -tally;
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, UNSAFE.getByte(null, offset + i));
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (LONG_MAX_DIGITS == digitCount)
+        {
+            if (negativeValue)
+            {
+                return -parseLongAsciiOverflowCheck(index, length, offset, MIN_LONG_VALUE, 2, firstDigit);
+            }
+            else
+            {
+                return parseLongAsciiOverflowCheck(index, length, offset, MAX_LONG_VALUE, 1, firstDigit);
+            }
         }
 
-        return tally;
+        throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -1604,6 +1662,36 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             throw new IndexOutOfBoundsException(
                 "index=" + index + " length=" + length + " capacity=" + currentCapacity);
         }
+    }
+
+    private long parseLongAsciiOverflowCheck(
+        final int index,
+        final int length,
+        final long offset,
+        final byte[] maxValue,
+        final int position,
+        final int first)
+    {
+        long tally = first;
+        boolean checkOverflow = true;
+        for (int i = index + position, end = index + length; i < end; i++)
+        {
+            final byte b = UNSAFE.getByte(null, offset + i);
+            if (checkOverflow)
+            {
+                if (b > maxValue[i - index])
+                {
+                    throw new AsciiNumberFormatException("long overflow parsing: " +
+                        getStringWithoutLengthAscii(index, length));
+                }
+                else if (b < maxValue[i - index])
+                {
+                    checkOverflow = false;
+                }
+            }
+            tally = (tally * 10L) + AsciiEncoding.getDigit(i, b);
+        }
+        return tally;
     }
 
     private static void putPositiveIntAscii(

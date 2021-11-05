@@ -182,8 +182,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -236,8 +234,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putLong(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -289,8 +285,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putInt(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -348,8 +342,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putDouble(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -406,8 +398,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         UNSAFE.putFloat(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -459,8 +449,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putShort(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -611,8 +599,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -664,8 +650,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         UNSAFE.putChar(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1120,8 +1104,6 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * {@inheritDoc}
      */
@@ -1133,15 +1115,38 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final int end = index + length;
-        int tally = 0;
-        for (int i = index; i < end; i++)
+        else if (length > INT_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final byte[] src = byteArray;
+        final int firstDigit = AsciiEncoding.getDigit(index, src[index]);
+
+        if (length < INT_MAX_DIGITS || firstDigit < 2)
+        {
+            int tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, src[i]);
+            }
+            return tally;
+        }
+        else
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, src[i]);
+            }
+
+            if (tally >= INTEGER_ABSOLUTE_MIN_VALUE)
+            {
+                throw new AsciiNumberFormatException("int overflow parsing: " +
+                    getStringWithoutLengthAscii(index, length));
+            }
+            return (int)tally;
+        }
     }
 
     /**
@@ -1155,15 +1160,28 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
-
-        final int end = index + length;
-        long tally = 0;
-        for (int i = index; i < end; i++)
+        else if (length > LONG_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            throw new AsciiNumberFormatException("long overflow parsing: " +
+                getStringWithoutLengthAscii(index, length));
         }
 
-        return tally;
+        final byte[] src = byteArray;
+        final int firstDigit = AsciiEncoding.getDigit(index, src[index]);
+
+        if (length < LONG_MAX_DIGITS || firstDigit < 9)
+        {
+            long tally = firstDigit;
+            for (int i = index + 1, end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, src[i]);
+            }
+            return tally;
+        }
+        else
+        {
+            return parseLongAsciiOverflowCheck(index, length, src, MAX_LONG_VALUE, 1, firstDigit);
+        }
     }
 
     /**
@@ -1182,27 +1200,48 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
-        int i = index;
-
-        if (first == MINUS_SIGN)
+        final byte[] src = byteArray;
+        final byte first = src[index];
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
+            digitCount = length - 1;
+            firstDigit = getDigit(i, src[i]);
             i++;
         }
-
-        int tally = 0;
-        for (; i < endExclusive; i++)
+        else
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        if (first == MINUS_SIGN)
+        if (digitCount < INT_MAX_DIGITS || INT_MAX_DIGITS == digitCount && firstDigit < 2)
         {
-            tally = -tally;
+            int tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10) + AsciiEncoding.getDigit(i, src[i]);
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (INT_MAX_DIGITS == digitCount)
+        {
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, src[i]);
+            }
+
+            if (tally < INTEGER_ABSOLUTE_MIN_VALUE || tally == INTEGER_ABSOLUTE_MIN_VALUE && negativeValue)
+            {
+                return (int)(negativeValue ? -tally : tally);
+            }
         }
 
-        return tally;
+        throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -1221,27 +1260,46 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
-        int i = index;
-
-        if (first == MINUS_SIGN)
+        final byte[] src = byteArray;
+        final byte first = src[index];
+        final boolean negativeValue = MINUS_SIGN == first;
+        final int digitCount;
+        final int firstDigit;
+        int i = index + 1;
+        if (negativeValue)
         {
+            digitCount = length - 1;
+            firstDigit = getDigit(i, src[i]);
             i++;
         }
-
-        long tally = 0;
-        for (; i < endExclusive; i++)
+        else
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+            digitCount = length;
+            firstDigit = getDigit(index, first);
         }
 
-        if (first == MINUS_SIGN)
+        if (digitCount < LONG_MAX_DIGITS || LONG_MAX_DIGITS == digitCount && firstDigit < 9)
         {
-            tally = -tally;
+            long tally = firstDigit;
+            for (int end = index + length; i < end; i++)
+            {
+                tally = (tally * 10L) + AsciiEncoding.getDigit(i, src[i]);
+            }
+            return negativeValue ? -tally : tally;
+        }
+        else if (LONG_MAX_DIGITS == digitCount)
+        {
+            if (negativeValue)
+            {
+                return -parseLongAsciiOverflowCheck(index, length, src, MIN_LONG_VALUE, 2, firstDigit);
+            }
+            else
+            {
+                return parseLongAsciiOverflowCheck(index, length, src, MAX_LONG_VALUE, 1, firstDigit);
+            }
         }
 
-        return tally;
+        throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
     /**
@@ -1547,6 +1605,36 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             throw new IndexOutOfBoundsException(
                 "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
         }
+    }
+
+    private long parseLongAsciiOverflowCheck(
+        final int index,
+        final int length,
+        final byte[] src,
+        final byte[] maxValue,
+        final int position,
+        final int first)
+    {
+        long tally = first;
+        boolean checkOverflow = true;
+        for (int i = index + position, end = index + length; i < end; i++)
+        {
+            final byte b = src[i];
+            if (checkOverflow)
+            {
+                if (b > maxValue[i - index])
+                {
+                    throw new AsciiNumberFormatException("long overflow parsing: " +
+                        getStringWithoutLengthAscii(index, length));
+                }
+                else if (b < maxValue[i - index])
+                {
+                    checkOverflow = false;
+                }
+            }
+            tally = (tally * 10L) + AsciiEncoding.getDigit(i, b);
+        }
+        return tally;
     }
 
     private static void putPositiveIntAscii(final byte[] dest, final int offset, final int value, final int digitCount)

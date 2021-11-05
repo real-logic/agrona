@@ -23,14 +23,39 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 public final class AsciiEncoding
 {
     /**
+     * Maximum number of digits in a US-ASCII-encoded int.
+     */
+    public static final int INT_MAX_DIGITS = 10;
+
+    /**
+     * Maximum number of digits in a US-ASCII-encoded long.
+     */
+    public static final int LONG_MAX_DIGITS = 19;
+
+    /**
+     * A absolute value of the {@link Integer#MIN_VALUE} as long.
+     */
+    public static final long INTEGER_ABSOLUTE_MIN_VALUE = Math.abs((long)Integer.MIN_VALUE);
+
+    /**
      * US-ASCII-encoded byte representation of the {@link Integer#MIN_VALUE}.
      */
     public static final byte[] MIN_INTEGER_VALUE = String.valueOf(Integer.MIN_VALUE).getBytes(US_ASCII);
 
     /**
+     * US-ASCII-encoded byte representation of the {@link Integer#MAX_VALUE}.
+     */
+    public static final byte[] MAX_INTEGER_VALUE = String.valueOf(Integer.MAX_VALUE).getBytes(US_ASCII);
+
+    /**
      * US-ASCII-encoded byte representation of the {@link Long#MIN_VALUE}.
      */
     public static final byte[] MIN_LONG_VALUE = String.valueOf(Long.MIN_VALUE).getBytes(US_ASCII);
+
+    /**
+     * US-ASCII-encoded byte representation of the {@link Long#MAX_VALUE}.
+     */
+    public static final byte[] MAX_LONG_VALUE = String.valueOf(Long.MAX_VALUE).getBytes(US_ASCII);
 
     /**
      * Byte value of the minus sign ('{@code -}').
@@ -102,8 +127,8 @@ public final class AsciiEncoding
      *
      * @param value to find the end encoded character offset.
      * @return the offset at which the encoded value will end.
-     * @deprecated Use {@link #digitCount(int)} instead.
      * @see #digitCount(int)
+     * @deprecated Use {@link #digitCount(int)} instead.
      */
     @Deprecated
     public static int endOffset(final int value)
@@ -119,8 +144,8 @@ public final class AsciiEncoding
      *
      * @param value to find the end encoded character offset.
      * @return the offset at which the encoded value will end.
-     * @deprecated Use {@link #digitCount(long)} instead.
      * @see #digitCount(long)
+     * @deprecated Use {@link #digitCount(long)} instead.
      */
     @Deprecated
     public static int endOffset(final long value)
