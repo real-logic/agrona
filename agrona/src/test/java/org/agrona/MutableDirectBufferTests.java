@@ -180,8 +180,7 @@ public abstract class MutableDirectBufferTests
 
     @ParameterizedTest
     @MethodSource("nonParsableIntValues")
-    void parseIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
-        final String value, final int baseIndex)
+    void parseIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
     {
         final int index = 2;
         final MutableDirectBuffer buffer = newBuffer(16);
@@ -189,7 +188,7 @@ public abstract class MutableDirectBufferTests
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseIntAscii(index, length));
-        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
+        assertEquals("error parsing int: " + value, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -203,13 +202,12 @@ public abstract class MutableDirectBufferTests
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseLongAscii(index, length));
-        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
+        assertEquals("error parsing long: " + value, exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("nonParsableIntValues")
-    void parseNaturalIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(
-        final String value, final int baseIndex)
+    void parseNaturalIntAsciiThrowsAsciiNumberFormatExceptionIfValueContainsInvalidCharacters(final String value)
     {
         final int index = 1;
         final MutableDirectBuffer buffer = newBuffer(16);
@@ -217,7 +215,7 @@ public abstract class MutableDirectBufferTests
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalIntAscii(index, length));
-        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
+        assertEquals("error parsing int: " + value, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -231,7 +229,7 @@ public abstract class MutableDirectBufferTests
 
         final AsciiNumberFormatException exception =
             assertThrowsExactly(AsciiNumberFormatException.class, () -> buffer.parseNaturalLongAscii(index, length));
-        assertTrue(exception.getMessage().endsWith("is not a valid digit @ " + (index + baseIndex)));
+        assertEquals("error parsing long: " + value, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -326,18 +324,17 @@ public abstract class MutableDirectBufferTests
             Arguments.arguments(9999, 4));
     }
 
-    private static List<Arguments> nonParsableIntValues()
+    private static List<String> nonParsableIntValues()
     {
         return Arrays.asList(
-            Arguments.arguments("23.5", 2),
-            Arguments.arguments("+1", 0),
-            Arguments.arguments("a14349", 0),
-            Arguments.arguments("0xFF", 1),
-            Arguments.arguments("999v", 3),
-            Arguments.arguments("-", 0),
-            Arguments.arguments("+", 0),
-            Arguments.arguments("1234%67890", 4)
-        );
+            "23.5",
+            "+1",
+            "a14349",
+            "0xFF",
+            "999v",
+            "-",
+            "+",
+            "1234%67890");
     }
 
     private static List<Arguments> nonParsableLongValues()

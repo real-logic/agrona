@@ -18,8 +18,11 @@ package org.agrona;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigInteger;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
@@ -29,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AsciiEncodingTest
 {
+    private static final int ITERATIONS = 1_000_000;
+
     @Test
     void shouldParseInt()
     {
@@ -153,16 +158,18 @@ class AsciiEncodingTest
         assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("+", 0, 1));
     }
 
-    @Test
-    void shouldThrowExceptionWhenParsingEmptyInteger()
+    @ParameterizedTest
+    @ValueSource(ints = { -3, 0 })
+    void shouldThrowExceptionWhenParsingEmptyInteger(final int length)
     {
-        assertThrows(AsciiNumberFormatException.class, () -> parseIntAscii("", 0, 0));
+        assertThrows(AsciiNumberFormatException.class, () -> parseIntAscii("123", 0, length));
     }
 
-    @Test
-    void shouldThrowExceptionWhenParsingEmptyLong()
+    @ParameterizedTest
+    @ValueSource(ints = { -1, 0 })
+    void shouldThrowExceptionWhenParsingEmptyLong(final int length)
     {
-        assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("", 0, 0));
+        assertThrows(AsciiNumberFormatException.class, () -> parseLongAscii("900000", 0, length));
     }
 
     @Test
@@ -312,6 +319,65 @@ class AsciiEncodingTest
             buffer.putIntAscii(index, i);
             final long bytes = buffer.getLong(index, LITTLE_ENDIAN);
             assertEquals(i, parseEightDigitsLittleEndian(bytes));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(bytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' })
+    void isDigitReturnsTrueForAsciiEncodedDigits(final byte value)
+    {
+        assertTrue(isDigit(value));
+    }
+
+    @Test
+    void isDigitReturnsFalseForAnyOtherByte()
+    {
+        for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++)
+        {
+            final byte value = (byte)i;
+            if (value >= 0x30 && value <= 0x39)
+            {
+                continue;
+            }
+            assertFalse(isDigit(value), () -> Integer.toHexString(value));
+        }
+    }
+
+    @Test
+    void parseIntAsciiRoundTrip()
+    {
+        final String prefix = "testInt";
+        final StringBuilder buffer = new StringBuilder(24);
+        buffer.append(prefix);
+
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+            final int value = ThreadLocalRandom.current().nextInt();
+            buffer.append(value);
+
+            final int parsedValue = parseIntAscii(buffer, prefix.length(), buffer.length() - prefix.length());
+
+            assertEquals(parsedValue, value);
+            buffer.delete(prefix.length(), 24);
+        }
+    }
+
+    @Test
+    void parseLongAsciiRoundTrip()
+    {
+        final String prefix = "long to test";
+        final StringBuilder buffer = new StringBuilder(64);
+        buffer.append(prefix);
+
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+            final long value = ThreadLocalRandom.current().nextLong();
+            buffer.append(value);
+
+            final long parsedValue = parseLongAscii(buffer, prefix.length(), buffer.length() - prefix.length());
+
+            assertEquals(parsedValue, value);
+            buffer.delete(prefix.length(), 64);
         }
     }
 }
