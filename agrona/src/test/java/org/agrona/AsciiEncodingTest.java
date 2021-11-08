@@ -15,15 +15,17 @@
  */
 package org.agrona;
 
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.stream.IntStream;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.agrona.AsciiEncoding.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AsciiEncodingTest
 {
@@ -235,5 +237,81 @@ class AsciiEncodingTest
             System.out.print("L");
         }
         System.out.println();
+    }
+
+    @Test
+    void shouldDetectFourDigitsAsciiEncodedNumbers()
+    {
+        final int index = 2;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
+
+        for (int i = 0; i < 1000; i++)
+        {
+            buffer.putIntAscii(index, i);
+            assertFalse(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, LITTLE_ENDIAN)));
+            assertFalse(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, BIG_ENDIAN)));
+        }
+
+        for (int i = 1000; i < 10000; i++)
+        {
+            buffer.putIntAscii(index, i);
+            assertTrue(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, LITTLE_ENDIAN)));
+            assertTrue(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, BIG_ENDIAN)));
+        }
+
+        buffer.putIntAscii(index, 1234);
+        buffer.putByte(index, (byte)'a');
+        assertFalse(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, LITTLE_ENDIAN)));
+        assertFalse(isFourDigitsAsciiEncodedNumber(buffer.getInt(index, BIG_ENDIAN)));
+    }
+
+    @Test
+    void shouldParseFourDigitsFromAnAsciiEncodedNumberInLittleEndianByteOrder()
+    {
+        final int index = 2;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
+
+        for (int i = 1000; i < 10000; i++)
+        {
+            buffer.putIntAscii(index, i);
+            final int bytes = buffer.getInt(index, LITTLE_ENDIAN);
+            assertEquals(i, parseFourDigitsLittleEndian(bytes));
+        }
+    }
+
+    @Test
+    void shouldDetectEightDigitsAsciiEncodedNumbers()
+    {
+        final int index = 4;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[16]);
+
+        buffer.putIntAscii(index, 1234);
+        assertFalse(isEightDigitAsciiEncodedNumber(buffer.getLong(index, LITTLE_ENDIAN)));
+        assertFalse(isEightDigitAsciiEncodedNumber(buffer.getLong(index, BIG_ENDIAN)));
+
+        for (int i = 10_000_000; i < 100_000_000; i += 111)
+        {
+            buffer.putLongAscii(index, i);
+            assertTrue(isEightDigitAsciiEncodedNumber(buffer.getLong(index, LITTLE_ENDIAN)));
+            assertTrue(isEightDigitAsciiEncodedNumber(buffer.getLong(index, BIG_ENDIAN)));
+        }
+
+        buffer.putByte(index, (byte)'a');
+        assertFalse(isEightDigitAsciiEncodedNumber(buffer.getLong(index, LITTLE_ENDIAN)));
+        assertFalse(isEightDigitAsciiEncodedNumber(buffer.getLong(index, BIG_ENDIAN)));
+    }
+
+    @Test
+    void shouldParseEightDigitsFromAnAsciiEncodedNumberInLittleEndianByteOrder()
+    {
+        final int index = 3;
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[16]);
+
+        for (int i = 10_000_000; i < 100_000_000; i += 111)
+        {
+            buffer.putIntAscii(index, i);
+            final long bytes = buffer.getLong(index, LITTLE_ENDIAN);
+            assertEquals(i, parseEightDigitsLittleEndian(bytes));
+        }
     }
 }
