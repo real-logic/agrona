@@ -1542,17 +1542,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     {
         final byte[] src = byteArray;
         int i = startIndex;
-        int tally = 0;
-        int bytes;
-
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(bytes = UNSAFE.getInt(src, ARRAY_BASE_OFFSET + i)))
+        int tally = 0, quartet;
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(src, ARRAY_BASE_OFFSET + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
-                bytes = Integer.reverseBytes(bytes);
+                quartet = Integer.reverseBytes(quartet);
             }
 
-            tally = (tally * 10_000) + parseFourDigitsLittleEndian(bytes);
+            tally = (tally * 10_000) + parseFourDigitsLittleEndian(quartet);
             i += 4;
         }
 
@@ -1581,15 +1579,15 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
 
         final byte[] src = byteArray;
         int i = startIndex;
-        long rawBytes = UNSAFE.getLong(src, ARRAY_BASE_OFFSET + i);
         long tally = 0;
-        if (isEightDigitAsciiEncodedNumber(rawBytes))
+        long octet = UNSAFE.getLong(src, ARRAY_BASE_OFFSET + i);
+        if (isEightDigitAsciiEncodedNumber(octet))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
-                rawBytes = Long.reverseBytes(rawBytes);
+                octet = Long.reverseBytes(octet);
             }
-            tally = parseEightDigitsLittleEndian(rawBytes);
+            tally = parseEightDigitsLittleEndian(octet);
             i += 8;
 
             byte digit;

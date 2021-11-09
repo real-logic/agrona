@@ -383,8 +383,7 @@ public final class AsciiEncoding
         final CharSequence cs, final int index, final int length, final int startIndex, final int end)
     {
         int i = startIndex;
-        int tally = 0;
-        int quartet;
+        int tally = 0, quartet;
         while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = readFourBytesLittleEndian(cs, i)))
         {
             tally = (tally * 10_000) + parseFourDigitsLittleEndian(quartet);

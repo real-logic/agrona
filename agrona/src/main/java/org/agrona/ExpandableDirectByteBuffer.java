@@ -1600,8 +1600,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     {
         final long offset = address;
         int i = startIndex;
-        int tally = 0;
-        int quartet;
+        int tally = 0, quartet;
         while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(null, offset + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
