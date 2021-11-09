@@ -101,31 +101,6 @@ public final class AsciiEncoding
      */
     public static final int[] LONG_MIN_VALUE_DIGITS = new int[]{ 92233720, 36854775, 808 };
 
-    private static final long[] INT_DIGITS =
-    {
-        4294967295L, 8589934582L, 8589934582L, 8589934582L, 12884901788L, 12884901788L, 12884901788L, 17179868184L,
-        17179868184L, 17179868184L, 21474826480L, 21474826480L, 21474826480L, 21474826480L, 25769703776L, 25769703776L,
-        25769703776L, 30063771072L, 30063771072L, 30063771072L, 34349738368L, 34349738368L, 34349738368L, 34349738368L,
-        38554705664L, 38554705664L, 38554705664L, 41949672960L, 41949672960L, 41949672960L, 42949672960L, 42949672960L
-    };
-
-    private static final long[] LONG_DIGITS =
-    {
-        4503599627370495L, 9007199254740982L, 9007199254740982L, 9007199254740982L, 13510798882111438L,
-        13510798882111438L, 13510798882111438L, 18014398509481484L, 18014398509481734L, 18014398509481734L,
-        22517998136849980L, 22517998136849980L, 22517998136851230L, 22517998136851230L, 27021597764210476L,
-        27021597764210476L, 27021597764216726L, 31525197391530972L, 31525197391530972L, 31525197391530972L,
-        36028797018651468L, 36028797018651468L, 36028797018651468L, 36028797018651468L, 40532396644771964L,
-        40532396644771964L, 40532396644771964L, 45035996258079960L, 45035996265892460L, 45035996265892460L,
-        49539595822950456L, 49539595822950456L, 49539595862012956L, 49539595862012956L, 54043195137820952L,
-        54043195137820952L, 54043195333133452L, 58546793202691448L, 58546793202691448L, 58546793202691448L,
-        63050385017561944L, 63050385017561944L, 63050385017561944L, 63050385017561944L, 67553945582432440L,
-        67553945582432440L, 67553945582432440L, 72057105756677936L, 72057349897302936L, 72057349897302936L,
-        76558752259048432L, 76558752259048432L, 76559972962173432L, 76559972962173432L, 81052586261418928L,
-        81052586261418928L, 81058689777043928L, 85507357763789424L, 85507357763789424L, 85507357763789424L,
-        89766816766159920L, 89766816766159920L, 89766816766159920L, 89766816766159920L
-    };
-
     /**
      * US-ASCII-encoded byte representation of the {@link Double#NaN}.
      */
@@ -217,9 +192,13 @@ public final class AsciiEncoding
     private static final long[] LONG_POWER_OF_FIVE = new long[28];
     private static final int[] INT_POWER_OF_FIVE = new int[14];
 
+    private static final long[] INT_DIGITS = new long[32];
+    private static final long[] LONG_DIGITS = new long[64];
+
     static
     {
         long powerOf10 = 1;
+        final BigInteger[] pow10 = new BigInteger[20];
         for (int i = 0; i < 19; i++)
         {
             if (powerOf10 < Integer.MAX_VALUE)
@@ -227,8 +206,25 @@ public final class AsciiEncoding
                 INT_POWER_OF_TEN[i] = (int)powerOf10;
             }
             LONG_POWER_OF_TEN[i] = powerOf10;
+            pow10[i] = BigInteger.valueOf(powerOf10);
 
             powerOf10 *= 10;
+        }
+        pow10[pow10.length - 1] = pow10[pow10.length - 2].multiply(BigInteger.TEN);
+
+        for (int i = 1; i < 33; i++)
+        {
+            final double smallest = Math.pow(2, i - 1);
+            final long log10 = (long)Math.ceil(Math.log10(smallest));
+            final long value = (long)((i < 31 ? (Math.pow(2, 32) - Math.pow(10, log10)) : 0) + (log10 << 32));
+            INT_DIGITS[i - 1] = value;
+        }
+
+        for (int i = 0; i < 64; i++)
+        {
+            final int upper = i == 0 ? 0 : ((i * 1262611) >> 22) + 1;
+            final long value = ((long)(upper + 1) << 52) - pow10[upper].shiftRight(i / 4).longValue();
+            LONG_DIGITS[i] = value;
         }
 
         final BigInteger five = BigInteger.valueOf(5);
@@ -526,6 +522,7 @@ public final class AsciiEncoding
             (((val >> 16) & 0x000000FF000000FFL) * 0x0000271000000001L)) >> 32;
         return (int)val;
     }
+
     /**
      * Computes number of bits in a power of five number, i.e. {@code 5^power}
      *

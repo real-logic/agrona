@@ -16,7 +16,6 @@
 package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,13 +29,10 @@ import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.agrona.AsciiEncoding.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AsciiEncodingTest
@@ -210,49 +206,6 @@ class AsciiEncodingTest
             final int iter = i;
             assertEquals(i + 1, digitCount(values[i]), () -> iter + " -> " + values[iter]);
         }
-    }
-
-    // prints a lookup table for org.agrona.AsciiEncoding.digitCount(int)
-    @Test
-    @Disabled
-    void printDigitCountIntTable()
-    {
-        for (int i = 1; i < 33; i++)
-        {
-            final double smallest = Math.pow(2, i - 1);
-            final long log10 = (long)Math.ceil(Math.log10(smallest));
-            final long value = (long)((i < 31 ? (Math.pow(2, 32) - Math.pow(10, log10)) : 0) + (log10 << 32));
-            if (i != 1)
-            {
-                System.out.println(",");
-            }
-            System.out.print(value);
-            System.out.print("L");
-        }
-        System.out.println();
-    }
-
-    // prints a lookup table for org.agrona.AsciiEncoding.digitCount(long)
-    @Test
-    @Disabled
-    void printDigitCountLongTable()
-    {
-        final BigInteger[] pow10 = IntStream.rangeClosed(0, 19)
-            .mapToObj(BigInteger.TEN::pow)
-            .toArray(BigInteger[]::new);
-
-        for (int i = 0; i < 64; i++)
-        {
-            final int upper = i == 0 ? 0 : ((i * 1262611) >> 22) + 1;
-            final long value = ((long)(upper + 1) << 52) - pow10[upper].shiftRight(i / 4).longValue();
-            if (i != 0)
-            {
-                System.out.println(",");
-            }
-            System.out.print(value);
-            System.out.print("L");
-        }
-        System.out.println();
     }
 
     @Test
