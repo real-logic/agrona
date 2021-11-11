@@ -19,9 +19,13 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -202,7 +206,31 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertEquals(0, buffer.getByte(index));
     }
 
-    private void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
+    @ParameterizedTest
+    @MethodSource("byteOrders")
+    void parseIntAsciiIsNotDependentOnTheBufferEndianness(final ByteOrder byteOrder)
+    {
+        final int index = 13;
+        final int value = 1690021;
+        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocate(32).order(byteOrder));
+        final int length = buffer.putIntAscii(index, value);
+
+        assertEquals(value, buffer.parseIntAscii(index, length));
+    }
+
+    @ParameterizedTest
+    @MethodSource("byteOrders")
+    void parseLongAsciiIsNotDependentOnTheBufferEndianness(final ByteOrder byteOrder)
+    {
+        final int index = 4;
+        final long value = 16900210032L;
+        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocate(64).order(byteOrder));
+        final int length = buffer.putLongAscii(index, value);
+
+        assertEquals(value, buffer.parseLongAscii(index, length));
+    }
+
+    private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
             byteBuffer, ADJUSTMENT_OFFSET, byteBuffer.capacity() - ADJUSTMENT_OFFSET);
@@ -210,5 +238,10 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         wibbleBuffer.putByte(0, VALUE);
 
         assertEquals(VALUE, byteBuffer.get(wibbleBuffer.wrapAdjustment()));
+    }
+
+    private static List<ByteOrder> byteOrders()
+    {
+        return Arrays.asList(ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN);
     }
 }
