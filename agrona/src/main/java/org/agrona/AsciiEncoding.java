@@ -84,11 +84,15 @@ public final class AsciiEncoding
         '9', '0', '9', '1', '9', '2', '9', '3', '9', '4', '9', '5', '9', '6', '9', '7', '9', '8', '9', '9'
     };
 
-    private static final byte[] MIN_INT_DIGITS = "2147483648".getBytes(US_ASCII);
-    private static final byte[] MAX_INT_DIGITS = "2147483647".getBytes(US_ASCII);
+    /**
+     * {@link Long#MAX_VALUE} split into components by 8 digits max.
+     */
+    public static final int[] LONG_MAX_VALUE_DIGITS = new int[]{ 92233720, 36854775, 807 };
 
-    private static final byte[] MIN_LONG_DIGITS = "9223372036854775808".getBytes(US_ASCII);
-    private static final byte[] MAX_LONG_DIGITS = "9223372036854775807".getBytes(US_ASCII);
+    /**
+     * {@link Long#MIN_VALUE} split into components by 8 digits max.
+     */
+    public static final int[] LONG_MIN_VALUE_DIGITS = new int[]{ 92233720, 36854775, 808 };
 
     private static final long[] INT_DIGITS =
     {
@@ -192,6 +196,17 @@ public final class AsciiEncoding
     }
 
     /**
+     * Check if the {@code value} is an ASCII-encoded digit.
+     *
+     * @param value ti be checked.
+     * @return {@code true} if the {@code value} is an ASCII-encoded digit.
+     */
+    public static boolean isDigit(final byte value)
+    {
+        return value >= 0x30 && value <= 0x39;
+    }
+
+    /**
      * Get the digit value of an ASCII encoded {@code byte}.
      *
      * @param index within the string the value is encoded.
@@ -234,37 +249,41 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @return the parsed value.
-     * @throws AsciiNumberFormatException if <code>cs</code> is not an int value
-     * @throws IndexOutOfBoundsException  if parsing results in access outside string boundaries, or length is negative
+     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not an int value
      */
     public static int parseIntAscii(final CharSequence cs, final int index, final int length)
     {
-        if (length <= 1)
+        if (length <= 0)
         {
-            return parseSingleDigit(cs, index, length);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean hasSign = cs.charAt(index) == MINUS_SIGN;
-        final int endExclusive = index + length;
-        int i = hasSign ? index + 1 : index;
-
-        if (length >= 10)
+        final boolean negative = MINUS_SIGN == cs.charAt(index);
+        int i = index;
+        if (negative)
         {
-            checkIntLimits(cs, index, length, i, hasSign);
+            i++;
+            if (1 == length)
+            {
+                throwParseIntError(cs, index, length);
+            }
         }
 
-        int tally = 0;
-        for (; i < endExclusive; i++)
+        final int end = index + length;
+        if (end - i < INT_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
+            final int tally = parsePositiveIntAscii(cs, index, length, i, end);
+            return negative ? -tally : tally;
         }
-
-        if (hasSign)
+        else
         {
-            tally = -tally;
+            final long tally = parsePositiveIntAsciiOverflowCheck(cs, index, length, i, end);
+            if (tally > INTEGER_ABSOLUTE_MIN_VALUE || INTEGER_ABSOLUTE_MIN_VALUE == tally && !negative)
+            {
+                throwParseIntOverflowError(cs, index, length);
+            }
+            return (int)(negative ? -tally : tally);
         }
-
-        return tally;
     }
 
     /**
@@ -274,119 +293,275 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @return the parsed value.
-     * @throws AsciiNumberFormatException if <code>cs</code> is not a long value
-     * @throws IndexOutOfBoundsException  if parsing results in access outside string boundaries, or length is negative
+     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not a long value
      */
     public static long parseLongAscii(final CharSequence cs, final int index, final int length)
     {
-        if (length <= 1)
+        if (length <= 0)
         {
-            return parseSingleDigit(cs, index, length);
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean hasSign = cs.charAt(index) == MINUS_SIGN;
-        final int endExclusive = index + length;
-        int i = hasSign ? index + 1 : index;
-
-        if (length >= 19)
+        final boolean negative = MINUS_SIGN == cs.charAt(index);
+        int i = index;
+        if (negative)
         {
-            checkLongLimits(cs, index, length, i, hasSign);
+            i++;
+            if (1 == length)
+            {
+                throwParseLongError(cs, index, length);
+            }
         }
 
-        long tally = 0;
-        for (; i < endExclusive; i++)
+        final int end = index + length;
+        if (end - i < LONG_MAX_DIGITS)
         {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, cs.charAt(i));
+            final long tally = parsePositiveLongAscii(cs, index, length, i, end);
+            return negative ? -tally : tally;
+        }
+        else if (negative)
+        {
+            return -parseLongAsciiOverflowCheck(cs, index, length, LONG_MIN_VALUE_DIGITS, i, end);
+        }
+        else
+        {
+            return parseLongAsciiOverflowCheck(cs, index, length, LONG_MAX_VALUE_DIGITS, i, end);
+        }
+    }
+
+    /**
+     * Checks if the provided {@code value} represents an ASCII-encoded number which contains exactly four digits.
+     *
+     * @param value four ASCII-encoded bytes to check.
+     * @return {@code true} if the {@code value} is an ASCII-encoded number with four digits in it.
+     */
+    public static boolean isFourDigitsAsciiEncodedNumber(final int value)
+    {
+        return 0 == ((((value + 0x46464646) | (value - 0x30303030)) & 0x80808080));
+    }
+
+    /**
+     * Parses a four-digit number out of an ASCII-encoded value assuming little-endian byte order.
+     *
+     * @param bytes ASCII-encoded value in little-endian byte order.
+     * @return {@code int} value with four digits.
+     */
+    public static int parseFourDigitsLittleEndian(final int bytes)
+    {
+        int val = bytes & 0x0F0F0F0F;
+        val = (val * 10) + (val >> 8);
+        return ((val & 0x00FF00FF) * 6553601) >> 16;
+    }
+
+    /**
+     * Checks if the provided {@code value} represents an ASCII-encoded number which contains exactly eight digits.
+     *
+     * @param value eoght ASCII-encoded bytes to check.
+     * @return {@code true} if the {@code value} is an ASCII-encoded number with eight digits in it.
+     */
+    public static boolean isEightDigitAsciiEncodedNumber(final long value)
+    {
+        return 0L == ((((value + 0x4646464646464646L) | (value - 0x3030303030303030L)) & 0x8080808080808080L));
+    }
+
+    /**
+     * Parses an eight-digit number out of an ASCII-encoded value assuming little-endian byte order.
+     *
+     * @param bytes ASCII-encoded value in little-endian byte order.
+     * @return {@code int} value with eight digits.
+     */
+    public static int parseEightDigitsLittleEndian(final long bytes)
+    {
+        long val = bytes - 0x3030303030303030L;
+        val = (val * 10) + (val >> 8);
+        val = (((val & 0x000000FF000000FFL) * 0x000F424000000064L) +
+            (((val >> 16) & 0x000000FF000000FFL) * 0x0000271000000001L)) >> 32;
+        return (int)val;
+    }
+
+    private static int parsePositiveIntAscii(
+        final CharSequence cs, final int index, final int length, final int startIndex, final int end)
+    {
+        int i = startIndex;
+        int tally = 0, quartet;
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = readFourBytesLittleEndian(cs, i)))
+        {
+            tally = (tally * 10_000) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
         }
 
-        if (hasSign)
+        byte digit;
+        while (i < end && isDigit(digit = (byte)cs.charAt(i)))
         {
-            tally = -tally;
+            tally = (tally * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end)
+        {
+            throwParseIntError(cs, index, length);
         }
 
         return tally;
     }
 
-    private static int parseSingleDigit(final CharSequence cs, final int index, final int length)
+    private static long parsePositiveIntAsciiOverflowCheck(
+        final CharSequence cs, final int index, final int length, final int startIndex, final int end)
     {
-        if (1 == length)
+        if ((end - startIndex) > INT_MAX_DIGITS)
         {
-            return AsciiEncoding.getDigit(index, cs.charAt(index));
+            throwParseIntOverflowError(cs, index, length);
         }
-        else if (0 == length)
+
+        int i = startIndex;
+        long tally = 0;
+        final long octet = readEightBytesLittleEndian(cs, i);
+        if (isEightDigitAsciiEncodedNumber(octet))
         {
-            throw new AsciiNumberFormatException("'' is not a valid digit @ " + index);
+            tally = parseEightDigitsLittleEndian(octet);
+            i += 8;
+
+            byte digit;
+            while (i < end && isDigit(digit = (byte)cs.charAt(i)))
+            {
+                tally = (tally * 10L) + (digit - 0x30);
+                i++;
+            }
         }
-        else
+
+        if (i != end)
         {
-            throw new IndexOutOfBoundsException("length=" + length);
+            throwParseIntError(cs, index, length);
         }
+
+        return tally;
     }
 
-    private static void checkIntLimits(
-        final CharSequence cs, final int index, final int length, final int i, final boolean hasSign)
+    private static void throwParseIntError(final CharSequence cs, final int index, final int length)
     {
-        if (10 == length)
-        {
-            if (!hasSign && isOverflow(MAX_INT_DIGITS, cs, i))
-            {
-                throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
-            }
-        }
-        else if (11 == length && hasSign)
-        {
-            if (isOverflow(MIN_INT_DIGITS, cs, i))
-            {
-                throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
-            }
-        }
-        else
-        {
-            throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
-        }
+        throw new AsciiNumberFormatException("error parsing int: " + cs.subSequence(index, index + length));
     }
 
-    private static void checkLongLimits(
-        final CharSequence cs, final int index, final int length, final int i, final boolean hasSign)
+    private static void throwParseIntOverflowError(final CharSequence cs, final int index, final int length)
     {
-        if (19 == length)
-        {
-            if (!hasSign && isOverflow(MAX_LONG_DIGITS, cs, i))
-            {
-                throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
-            }
-        }
-        else if (20 == length && hasSign)
-        {
-            if (isOverflow(MIN_LONG_DIGITS, cs, i))
-            {
-                throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
-            }
-        }
-        else
-        {
-            throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
-        }
+        throw new AsciiNumberFormatException("int overflow parsing: " + cs.subSequence(index, index + length));
     }
 
-    private static boolean isOverflow(final byte[] limitDigits, final CharSequence cs, final int index)
+    private static long parsePositiveLongAscii(
+        final CharSequence cs, final int index, final int length, final int startIndex, final int end)
     {
-        for (int i = 0; i < limitDigits.length; i++)
+        int i = startIndex;
+        long tally = 0, octet;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = readEightBytesLittleEndian(cs, i)))
         {
-            final int digit = AsciiEncoding.getDigit(i, cs.charAt(index + i));
-            final int limitDigit = limitDigits[i] - 0x30;
-
-            if (digit < limitDigit)
-            {
-                break;
-            }
-
-            if (digit > limitDigit)
-            {
-                return true;
-            }
+            tally = (tally * 100_000_000L) + parseEightDigitsLittleEndian(octet);
+            i += 8;
         }
 
-        return false;
+        int quartet;
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = readFourBytesLittleEndian(cs, i)))
+        {
+            tally = (tally * 10_000L) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = (byte)cs.charAt(i)))
+        {
+            tally = (tally * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end)
+        {
+            throwParseLongError(cs, index, length);
+        }
+
+        return tally;
+    }
+
+    private static long parseLongAsciiOverflowCheck(
+        final CharSequence cs,
+        final int index,
+        final int length,
+        final int[] maxValue,
+        final int startIndex,
+        final int end)
+    {
+        if ((end - startIndex) > LONG_MAX_DIGITS)
+        {
+            throwParseLongOverflowError(cs, index, length);
+        }
+
+        int i = startIndex, k = 0;
+        boolean checkOverflow = true;
+        long tally = 0, octet;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = readEightBytesLittleEndian(cs, i)))
+        {
+            final int eightDigits = parseEightDigitsLittleEndian(octet);
+            if (checkOverflow)
+            {
+                if (eightDigits > maxValue[k])
+                {
+                    throwParseLongOverflowError(cs, index, length);
+                }
+                else if (eightDigits < maxValue[k])
+                {
+                    checkOverflow = false;
+                }
+                k++;
+            }
+            tally = (tally * 100_000_000L) + eightDigits;
+            i += 8;
+        }
+
+        byte digit;
+        int lastDigits = 0;
+        while (i < end && isDigit(digit = (byte)cs.charAt(i)))
+        {
+            lastDigits = (lastDigits * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end)
+        {
+            throwParseLongError(cs, index, length);
+        }
+        else if (checkOverflow && lastDigits > maxValue[k])
+        {
+            throwParseLongOverflowError(cs, index, length);
+        }
+
+        return (tally * 1000L) + lastDigits;
+    }
+
+    private static void throwParseLongError(final CharSequence cs, final int index, final int length)
+    {
+        throw new AsciiNumberFormatException("error parsing long: " + cs.subSequence(index, index + length));
+    }
+
+    private static void throwParseLongOverflowError(final CharSequence cs, final int index, final int length)
+    {
+        throw new AsciiNumberFormatException("long overflow parsing: " + cs.subSequence(index, index + length));
+    }
+
+    private static int readFourBytesLittleEndian(final CharSequence cs, final int index)
+    {
+        return cs.charAt(index + 3) << 24 |
+            cs.charAt(index + 2) << 16 |
+            cs.charAt(index + 1) << 8 |
+            cs.charAt(index);
+    }
+
+    private static long readEightBytesLittleEndian(final CharSequence cs, final int index)
+    {
+        return (long)cs.charAt(index + 7) << 56 |
+            (long)cs.charAt(index + 6) << 48 |
+            (long)cs.charAt(index + 5) << 40 |
+            (long)cs.charAt(index + 4) << 32 |
+            (long)cs.charAt(index + 3) << 24 |
+            (long)cs.charAt(index + 2) << 16 |
+            cs.charAt(index + 1) << 8 |
+            cs.charAt(index);
     }
 }
