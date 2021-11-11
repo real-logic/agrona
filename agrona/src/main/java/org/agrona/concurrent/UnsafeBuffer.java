@@ -2402,7 +2402,42 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public double parseDoubleAscii(final int index, final int length)
     {
-        return 0;
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
+
+        if (length <= 0)
+        {
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
+        }
+
+        final byte first = UNSAFE.getByte(byteArray, addressOffset + index);
+        if (MINUS_SIGN == first)
+        {
+            if (1 == length)
+            {
+                throwParseDoubleError(index, length);
+            }
+            if (UNSAFE.getByte(byteArray, addressOffset + index + 1) == DOUBLE_NEGATIVE_INFINITY_VALUE[1]) // -Infinity
+            {
+                return parseSpecialDoubleValue(
+                    index, length, DOUBLE_NEGATIVE_INFINITY_VALUE, Double.NEGATIVE_INFINITY, 2);
+            }
+            return -parseDoubleAsciiNoSpecialValues(index, length, index + 1);
+        }
+        else if (first == DOUBLE_NAN_VALUE[0])
+        {
+            return parseSpecialDoubleValue(index, length, DOUBLE_NAN_VALUE, Double.NaN, 1);
+        }
+        else if (first == DOUBLE_INFINITY_VALUE[0])
+        {
+            return parseSpecialDoubleValue(index, length, DOUBLE_INFINITY_VALUE, Double.POSITIVE_INFINITY, 1);
+        }
+        else
+        {
+            return parseDoubleAsciiNoSpecialValues(index, length, index);
+        }
     }
 
     /**
@@ -2734,6 +2769,201 @@ public class UnsafeBuffer implements AtomicBuffer
     private void throwParseLongOverflowError(final int index, final int length)
     {
         throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private double parseSpecialDoubleValue(
+        final int index,
+        final int length,
+        final byte[] specialValueBytes,
+        final double specialValue,
+        final int startCheckAt)
+    {
+        if (length != specialValueBytes.length)
+        {
+            throwParseDoubleError(index, length);
+        }
+
+        final long offset = addressOffset;
+        final byte[] src = byteArray;
+        for (int j = startCheckAt; j < specialValueBytes.length; j++)
+        {
+            if (specialValueBytes[j] != UNSAFE.getByte(src, offset + (index + j)))
+            {
+                throwParseDoubleError(index, length);
+            }
+        }
+        return specialValue;
+    }
+
+    @SuppressWarnings("MethodLength")
+    private double parseDoubleAsciiNoSpecialValues(final int index, final int length, final int startIndex)
+    {
+        final long offset = addressOffset;
+        final byte[] src = byteArray;
+        final int end = index + length;
+        int i = startIndex;
+        long octet, mantissa = 0;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(src, offset + i)))
+        {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
+            {
+                octet = Long.reverseBytes(octet);
+            }
+
+            mantissa = mantissa * 100_000_000L + parseEightDigitsLittleEndian(octet);
+            i += 8;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i)))
+        {
+            mantissa = (mantissa * 10L) + (digit - 0x30);
+            i++;
+        }
+        final int endOfDigitsIndex = i;
+        int digitCount = endOfDigitsIndex - startIndex;
+        int exponent = 0;
+
+        if (i < end && DOT == UNSAFE.getByte(src, offset + i))
+        {
+            i++;
+            while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(src, offset + i)))
+            {
+                if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
+                {
+                    octet = Long.reverseBytes(octet);
+                }
+
+                mantissa = mantissa * 100_000_000L + parseEightDigitsLittleEndian(octet);
+                i += 8;
+            }
+
+            while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i)))
+            {
+                mantissa = (mantissa * 10L) + (digit - 0x30);
+                i++;
+            }
+
+            exponent = endOfDigitsIndex + 1 - i;
+            digitCount -= exponent;
+        }
+
+        if (0 == digitCount)
+        {
+            throwParseDoubleError(index, length);
+        }
+
+        int explicitExponent = 0;
+        if (i < end)
+        {
+            byte b = UNSAFE.getByte(src, offset + i);
+            if (LOWER_CASE_E == b || UPPER_CASE_E == b)
+            {
+                i++;
+                boolean negativeExponent = false;
+                if (i < end)
+                {
+                    b = UNSAFE.getByte(src, offset + i);
+                    if (MINUS_SIGN == b)
+                    {
+                        negativeExponent = true;
+                        i++;
+                    }
+                    else if (PLUS_SIGN == b)
+                    {
+                        i++;
+                    }
+
+                    while (i < end && isDigit(b = UNSAFE.getByte(src, offset + i)))
+                    {
+                        if (explicitExponent < 0x10000000)
+                        {
+                            explicitExponent = 10 * explicitExponent + (b - 0x30);
+                        }
+                        i++;
+                    }
+
+                    if (negativeExponent)
+                    {
+                        explicitExponent = -explicitExponent;
+                    }
+                    exponent += explicitExponent;
+                }
+            }
+        }
+
+        if (i != end)
+        {
+            throwParseDoubleError(index, length);
+        }
+
+        boolean tooManyDigits = false;
+        if (digitCount > LONG_MAX_DIGITS)
+        {
+            i = startIndex;
+            while (i < end)
+            {
+                final byte b = UNSAFE.getByte(src, offset + i);
+                if (ZERO == b)
+                {
+                    digitCount--;
+                }
+                else if (DOT != b)
+                {
+                    break;
+                }
+                i++;
+            }
+
+            if (digitCount > 19)
+            {
+                tooManyDigits = true;
+                mantissa = 0;
+                i = startIndex;
+                while (i < endOfDigitsIndex && mantissa < LONG_MIN_NINETEEN_DIGIT_VALUE)
+                {
+                    mantissa = (mantissa * 10L) + (UNSAFE.getByte(src, offset + i) - 0x30);
+                    i++;
+                }
+
+                if (mantissa >= LONG_MIN_NINETEEN_DIGIT_VALUE)
+                {
+                    exponent = endOfDigitsIndex - i + explicitExponent;
+                }
+                else
+                {
+                    final int exponentStart = endOfDigitsIndex + 1;
+                    i = exponentStart;
+                    while (i < end && mantissa < LONG_MIN_NINETEEN_DIGIT_VALUE)
+                    {
+                        mantissa = (mantissa * 10L) + (UNSAFE.getByte(src, offset + i) - 0x30);
+                        i++;
+                    }
+                    exponent = exponentStart - i + explicitExponent;
+                }
+            }
+        }
+
+        if (exponent >= DOUBLE_MIN_EXPONENT_FAST_PATH && exponent <= DOUBLE_MAX_EXPONENT_FAST_PATH &&
+            mantissa <= DOUBLE_MAX_MANTISSA_FAST_PATH && !tooManyDigits)
+        {
+            if (exponent < 0)
+            {
+                return (double)mantissa / DOUBLE_POWER_OF_TEN[-exponent];
+            }
+            else
+            {
+                return (double)mantissa * DOUBLE_POWER_OF_TEN[exponent];
+            }
+        }
+
+        return computeDouble(mantissa, exponent);
+    }
+
+    private void throwParseDoubleError(final int index, final int length)
+    {
+        throw new AsciiNumberFormatException("error parsing double: value=" +
+            getStringWithoutLengthAscii(index, length));
     }
 
     private static void boundsCheckWrap(final int offset, final int length, final int capacity)

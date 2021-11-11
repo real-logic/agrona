@@ -65,6 +65,11 @@ public final class AsciiEncoding
     public static final byte MINUS_SIGN = '-';
 
     /**
+     * Byte value of the minus sign ('{@code +}').
+     */
+    public static final byte PLUS_SIGN = '+';
+
+    /**
      * Byte value of the zero character ('{@code 0}').
      */
     public static final byte ZERO = '0';
@@ -73,6 +78,16 @@ public final class AsciiEncoding
      * Byte value of the dot character ('{@code .}').
      */
     public static final byte DOT = '.';
+
+    /**
+     * Byte value of the lower case letter ('{@code e}').
+     */
+    public static final byte LOWER_CASE_E = 'e';
+
+    /**
+     * Byte value of the upper case letter ('{@code E}').
+     */
+    public static final byte UPPER_CASE_E = 'E';
 
     /**
      * Lookup table used for encoding ints/longs as ASCII characters.
@@ -189,28 +204,74 @@ public final class AsciiEncoding
      */
     public static final long[] LONG_POWER_OF_TEN = new long[19];
 
+    /**
+     * Powers of ten for {@code double} values.
+     */
+    public static final double[] DOUBLE_POWER_OF_TEN = new double[22];
+
+    /**
+     * Minimal {@code long} value that contains 19 digits.
+     */
+    public static final long LONG_MIN_NINETEEN_DIGIT_VALUE = 1_000_000_000_000_000_000L;
+
+    /**
+     * Min double exponent for which fast path conversion should be attempted.
+     */
+    public static final int DOUBLE_MIN_EXPONENT_FAST_PATH = -22;
+
+    /**
+     * Max double exponent for which fast path conversion should be attempted.
+     */
+    public static final int DOUBLE_MAX_EXPONENT_FAST_PATH = 22;
+
+    /**
+     * Max double mantissa for which fast path conversion should be attempted.
+     */
+    public static final long DOUBLE_MAX_MANTISSA_FAST_PATH = 2L << 52;
+
+    /**
+     * Smallest decimal exponent for the double exponent.
+     */
+    public static final int DOUBLE_SMALLEST_DECIMAL_EXPONENT = -342;
+
+    /**
+     * Biggest decimal exponent for the double exponent.
+     */
+    public static final int DOUBLE_BIGGEST_DECIMAL_EXPONENT = 308;
+
     private static final long[] LONG_POWER_OF_FIVE = new long[28];
     private static final int[] INT_POWER_OF_FIVE = new int[14];
 
     private static final long[] INT_DIGITS = new long[32];
     private static final long[] LONG_DIGITS = new long[64];
 
+    private static final long[] POWER_OF_FIVE_128_BIT = new long[2 * (DOUBLE_BIGGEST_DECIMAL_EXPONENT - DOUBLE_SMALLEST_DECIMAL_EXPONENT + 1)];
+
     static
     {
-        long powerOf10 = 1;
+        BigInteger powerOf10 = BigInteger.ONE;
         final BigInteger[] pow10 = new BigInteger[20];
-        for (int i = 0; i < 19; i++)
+        for (int i = 0; i < DOUBLE_POWER_OF_TEN.length; i++)
         {
-            if (powerOf10 < Integer.MAX_VALUE)
+            if (i < INT_POWER_OF_TEN.length)
             {
-                INT_POWER_OF_TEN[i] = (int)powerOf10;
+                INT_POWER_OF_TEN[i] = powerOf10.intValueExact();
             }
-            LONG_POWER_OF_TEN[i] = powerOf10;
-            pow10[i] = BigInteger.valueOf(powerOf10);
 
-            powerOf10 *= 10;
+            if (i < LONG_POWER_OF_TEN.length)
+            {
+                LONG_POWER_OF_TEN[i] = powerOf10.longValueExact();
+            }
+
+            if (i < pow10.length)
+            {
+                pow10[i] = powerOf10;
+            }
+
+            DOUBLE_POWER_OF_TEN[i] = powerOf10.doubleValue();
+
+            powerOf10 = powerOf10.multiply(BigInteger.TEN);
         }
-        pow10[pow10.length - 1] = pow10[pow10.length - 2].multiply(BigInteger.TEN);
 
         for (int i = 1; i < 33; i++)
         {
@@ -261,6 +322,69 @@ public final class AsciiEncoding
                     .intValueExact();
             }
         }
+
+        int i = 0;
+        final BigInteger maxPowerOfFive = BigInteger.ONE.shiftLeft(128);
+        final BigInteger oneBelowMaxPowerOfFive = maxPowerOfFive.shiftRight(1);
+        final BigInteger mask64 = BigInteger.ONE.shiftLeft(64).subtract(BigInteger.ONE);
+
+        for (int q = DOUBLE_SMALLEST_DECIMAL_EXPONENT; q < -27; q++)
+        {
+            final BigInteger pow5 = five.pow(-q);
+            int z = 0;
+            while (BigInteger.ONE.shiftLeft(z).compareTo(pow5) < 0)
+            {
+                z++;
+            }
+            final int b = 2 * z + 128;
+            BigInteger c = BigInteger.ONE.shiftLeft(b).divide(pow5).add(BigInteger.ONE);
+            while (c.compareTo(maxPowerOfFive) >= 0)
+            {
+                c = c.shiftRight(1);
+            }
+
+            final BigInteger hi64 = c.shiftRight(64);
+            final BigInteger lo64 = c.and(mask64);
+            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
+            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+        }
+
+        for (int q = -27; q < 0; q++)
+        {
+            final BigInteger pow5 = five.pow(-q);
+            int z = 0;
+            while (BigInteger.ONE.shiftLeft(z).compareTo(pow5) < 0)
+            {
+                z++;
+            }
+            final int b = z + 127;
+            final BigInteger c = BigInteger.ONE.shiftLeft(b).divide(pow5).add(BigInteger.ONE);
+
+            final BigInteger hi64 = c.shiftRight(64);
+            final BigInteger lo64 = c.and(mask64);
+            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
+            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+        }
+
+        for (int q = 0; q <= DOUBLE_BIGGEST_DECIMAL_EXPONENT; q++)
+        {
+            BigInteger pow5 = five.pow(q);
+
+            while (pow5.compareTo(oneBelowMaxPowerOfFive) < 0)
+            {
+                pow5 = pow5.shiftLeft(1);
+            }
+            while (pow5.compareTo(maxPowerOfFive) >= 0)
+            {
+                pow5 = pow5.shiftRight(1);
+            }
+
+            final BigInteger hi64 = pow5.shiftRight(64);
+            final BigInteger lo64 = pow5.and(mask64);
+            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
+            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+        }
+
     }
 
     private AsciiEncoding()
@@ -573,6 +697,30 @@ public final class AsciiEncoding
             bits02 + bits11) >>> 31) +
             bits03 + bits12) >>> 21) +
             (bits13 << 10)) >>> (shift - 114);
+    }
+
+    /**
+     * Converts from a decimal form {@code (w * 10^q)} into a binary form of a double value.
+     *
+     * @param w decimal mantissa.
+     * @param q decimal exponent.
+     * @return converted double value or {@link Double#NaN} if conversion fails.
+     */
+    public static double computeDouble(final long w, final int q)
+    {
+        if (0 == w || q < DOUBLE_SMALLEST_DECIMAL_EXPONENT)
+        {
+            return 0;
+        }
+        else if (q > DOUBLE_BIGGEST_DECIMAL_EXPONENT)
+        {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        final int numLeadingZeros = Long.numberOfLeadingZeros(w);
+        final long w1 = w << numLeadingZeros;
+
+        return 0;
     }
 
     private static int parsePositiveIntAscii(
