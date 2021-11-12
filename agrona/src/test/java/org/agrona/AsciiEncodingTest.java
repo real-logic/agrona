@@ -352,6 +352,17 @@ class AsciiEncodingTest
         }
     }
 
+    @Test
+    void multiplyHighUnsignedRandomTest()
+    {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+            final long x = ThreadLocalRandom.current().nextLong();
+            final long y = ThreadLocalRandom.current().nextLong();
+            assertEquals(multiplyHighUnsignedManual(x, y), multiplyHighUnsigned(x, y), () -> x + " * " + y);
+        }
+    }
+
     private static List<Arguments> longPowerOfFive()
     {
         final BigInteger five = BigInteger.valueOf(5);
@@ -362,5 +373,21 @@ class AsciiEncodingTest
             result.add(Arguments.arguments(i, pow.longValueExact()));
         }
         return result;
+    }
+
+    private static long multiplyHighUnsignedManual(final long x, final long y)
+    {
+        final long x0 = x & 0xFFFFFFFFL;
+        final long x1 = x >> 32;
+        final long y0 = y & 0xFFFFFFFFL;
+        final long y1 = y >> 32;
+        final long w0 = x0 * y0;
+        final long t = x1 * y0 + (w0 >>> 32);
+        long w1 = t & 0xFFFFFFFFL;
+        final long w2 = t >> 32;
+        w1 = x0 * y1 + w1;
+        final long mulHi = x1 * y1 + w2 + (w1 >> 32);
+
+        return mulHi + (y & (x >> 63)) + (x & (y >> 63));
     }
 }

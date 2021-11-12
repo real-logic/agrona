@@ -15,6 +15,9 @@
  */
 package org.agrona;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.math.BigInteger;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -207,7 +210,7 @@ public final class AsciiEncoding
     /**
      * Powers of ten for {@code double} values.
      */
-    public static final double[] DOUBLE_POWER_OF_TEN = new double[22];
+    public static final double[] DOUBLE_POWER_OF_TEN = new double[23];
 
     /**
      * Minimal {@code long} value that contains 19 digits.
@@ -240,12 +243,20 @@ public final class AsciiEncoding
     public static final int DOUBLE_BIGGEST_DECIMAL_EXPONENT = 308;
 
     private static final long[] LONG_POWER_OF_FIVE = new long[28];
-    private static final int[] INT_POWER_OF_FIVE = new int[14];
 
     private static final long[] INT_DIGITS = new long[32];
     private static final long[] LONG_DIGITS = new long[64];
 
-    private static final long[] POWER_OF_FIVE_128_BIT = new long[2 * (DOUBLE_BIGGEST_DECIMAL_EXPONENT - DOUBLE_SMALLEST_DECIMAL_EXPONENT + 1)];
+    private static final long[] POWER_OF_FIVE_128 =
+        new long[2 * (DOUBLE_BIGGEST_DECIMAL_EXPONENT - DOUBLE_SMALLEST_DECIMAL_EXPONENT + 1)];
+
+    private static final long DOUBLE_MULTIPLICATION_PRECISION_MASK = -1L >>> 55;
+    private static final int DOUBLE_MIN_EXPONENT_ROUND_TO_EVEN = -4;
+    private static final int DOUBLE_MAX_EXPONENT_ROUND_TO_EVEN = 23;
+    private static final int DOUBLE_MINIMUM_EXPONENT = -1023;
+
+    private static final MethodHandle UNSIGNED_MULTIPLY_HIGH;
+    private static final MethodHandle MULTIPLY_HIGH;
 
     static
     {
@@ -290,20 +301,14 @@ public final class AsciiEncoding
 
         final BigInteger five = BigInteger.valueOf(5);
         final BigInteger mask = BigInteger.ONE.shiftLeft(31).subtract(BigInteger.ONE);
-        final BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
         for (int i = 0; i < RYU_DOUBLE_TABLE_LT.length; i++)
         {
             final BigInteger pow = five.pow(i);
             final int log2Power5 = pow.bitLength();
 
-            if (pow.compareTo(maxLong) <= 0)
+            if (i < LONG_POWER_OF_FIVE.length)
             {
-                final long power = pow.longValueExact();
-                if (power < Integer.MAX_VALUE)
-                {
-                    INT_POWER_OF_FIVE[i] = (int)power;
-                }
-                LONG_POWER_OF_FIVE[i] = power;
+                LONG_POWER_OF_FIVE[i] = pow.longValueExact();
             }
 
             if (i < RYU_DOUBLE_TABLE_GTE.length)
@@ -345,8 +350,8 @@ public final class AsciiEncoding
 
             final BigInteger hi64 = c.shiftRight(64);
             final BigInteger lo64 = c.and(mask64);
-            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
-            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+            POWER_OF_FIVE_128[i++] = hi64.longValue();
+            POWER_OF_FIVE_128[i++] = lo64.longValue();
         }
 
         for (int q = -27; q < 0; q++)
@@ -362,8 +367,8 @@ public final class AsciiEncoding
 
             final BigInteger hi64 = c.shiftRight(64);
             final BigInteger lo64 = c.and(mask64);
-            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
-            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+            POWER_OF_FIVE_128[i++] = hi64.longValue();
+            POWER_OF_FIVE_128[i++] = lo64.longValue();
         }
 
         for (int q = 0; q <= DOUBLE_BIGGEST_DECIMAL_EXPONENT; q++)
@@ -381,10 +386,39 @@ public final class AsciiEncoding
 
             final BigInteger hi64 = pow5.shiftRight(64);
             final BigInteger lo64 = pow5.and(mask64);
-            POWER_OF_FIVE_128_BIT[i++] = hi64.longValue();
-            POWER_OF_FIVE_128_BIT[i++] = lo64.longValue();
+            POWER_OF_FIVE_128[i++] = hi64.longValue();
+            POWER_OF_FIVE_128[i++] = lo64.longValue();
         }
 
+        MethodHandle unsignedMultiplyHigh = null;
+        MethodHandle multiplyHigh = null;
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final MethodType methodType = MethodType.methodType(long.class, long.class, long.class);
+        try
+        {
+            unsignedMultiplyHigh = lookup.findStatic(Math.class, "unsignedMultiplyHigh", methodType); // JDK 18+
+        }
+        catch (final NoSuchMethodException | IllegalAccessException ex)
+        {
+            try
+            {
+                multiplyHigh = lookup.findStatic(Math.class, "multiplyHigh", methodType); // JDK 9+
+            }
+            catch (final NoSuchMethodException | IllegalAccessException ex2)
+            {
+                try
+                {
+                    multiplyHigh = lookup.findStatic(AsciiEncoding.class, "multiplyHigh0", methodType);
+                }
+                catch (final NoSuchMethodException | IllegalAccessException ex3)
+                {
+                    throw new Error(ex3);
+                }
+            }
+        }
+
+        UNSIGNED_MULTIPLY_HIGH = unsignedMultiplyHigh;
+        MULTIPLY_HIGH = multiplyHigh;
     }
 
     private AsciiEncoding()
@@ -700,11 +734,13 @@ public final class AsciiEncoding
     }
 
     /**
-     * Converts from a decimal form {@code (w * 10^q)} into a binary form of a double value.
+     * Converts from a decimal form {@code (w * 10^q)} to a binary form of a double value using the algorithm described
+     * in the <a href="https://arxiv.org/pdf/2101.11408.pdf">Daniel Lemire, Number Parsing at a Gigabyte per Second,
+     * Software: Practice and Experience 51 (8), 2021. arXiv.2101.11408v3 [cs.DS] 24 Feb 2021</a> paper.
      *
      * @param w decimal mantissa.
      * @param q decimal exponent.
-     * @return converted double value or {@link Double#NaN} if conversion fails.
+     * @return double value or {@link Double#NaN} if conversions fails.
      */
     public static double computeDouble(final long w, final int q)
     {
@@ -720,7 +756,85 @@ public final class AsciiEncoding
         final int numLeadingZeros = Long.numberOfLeadingZeros(w);
         final long w1 = w << numLeadingZeros;
 
-        return 0;
+        final int powerIndex = (q - DOUBLE_SMALLEST_DECIMAL_EXPONENT) << 1;
+        final long pow5 = POWER_OF_FIVE_128[powerIndex];
+        long productHi = multiplyHighUnsigned(w1, pow5);
+        long productLo = w1 * pow5;
+        if (DOUBLE_MULTIPLICATION_PRECISION_MASK == (productHi & DOUBLE_MULTIPLICATION_PRECISION_MASK))
+        {
+            final long product2Hi = multiplyHighUnsigned(w1, POWER_OF_FIVE_128[powerIndex + 1]);
+            productLo += product2Hi;
+            if (Long.compareUnsigned(product2Hi, productLo) > 0)
+            {
+                productHi++;
+            }
+        }
+
+        if (-1L == productLo && (q < -27 || q > 55))
+        {
+            return Double.NaN;
+        }
+
+        final int power = (((152170 + 65536) * q) >> 16) + 63;
+        final int upperBit = (int)(productHi >>> 63);
+        long mantissa = productHi >>> (upperBit + 64 - DOUBLE_MANTISSA_SIZE - 3);
+        int binaryExponent = power + upperBit - numLeadingZeros - DOUBLE_MINIMUM_EXPONENT;
+
+        if (binaryExponent <= 0) // Subnormal?
+        {
+            // Here have that answer.power2 <= 0 so -answer.power2 >= 0
+            final int numBits = -binaryExponent + 1;
+            if (numBits >= 64) // if we have more than 64 bits below the minimum exponent, you have a zero for sure.
+            {
+                return 0;
+            }
+
+            mantissa >>= numBits;
+            // Thankfully, we can't have both "round-to-even" and subnormals because
+            // "round-to-even" only occurs for powers close to 0.
+            mantissa += (mantissa & 1); // round-up
+            mantissa >>= 1;
+            // There is a weird scenario where we don't have a subnormal but just.
+            // Suppose we start with 2.2250738585072013e-308, we end up
+            // with 0x3fffffffffffff x 2^-1023-53 which is technically subnormal
+            // whereas 0x40000000000000 x 2^-1023-53  is normal. Now, we need to round
+            // up 0x3fffffffffffff x 2^-1023-53  and once we do, we are no longer
+            // subnormal, but we can only know this after rounding.
+            // So we only declare a subnormal if we are smaller than the threshold.
+            binaryExponent = mantissa < (1L << DOUBLE_MANTISSA_SIZE) ? 0 : 1;
+            return toDouble(mantissa, binaryExponent);
+        }
+
+        // usually, we round *up*, but if we fall right in between and and we have an
+        // even basis, we need to round down
+        // We are only concerned with the cases where 5**q fits in single 64-bit word.
+        if (productLo <= 1 && q >= DOUBLE_MIN_EXPONENT_ROUND_TO_EVEN && q <= DOUBLE_MAX_EXPONENT_ROUND_TO_EVEN &&
+            (mantissa & 3) == 1)  // we may fall between two floats!
+        {
+            // To be in-between two floats we need that in doing
+            //   answer.mantissa = product.high >> (upperbit + 64 - binary::mantissa_explicit_bits() - 3);
+            // ... we dropped out only zeroes. But if this happened, then we can go back!!!
+            if ((mantissa << (upperBit + 64 - DOUBLE_MANTISSA_SIZE - 3)) == productHi)
+            {
+                mantissa &= ~1L; // flip it so that we do not round up
+            }
+        }
+
+        mantissa += (mantissa & 1); // round-up
+        mantissa >>= 1;
+        if (mantissa >= DOUBLE_MAX_MANTISSA_FAST_PATH)
+        {
+            mantissa = 1L << DOUBLE_MANTISSA_SIZE;
+            binaryExponent++;
+        }
+
+        mantissa &= ~(1L << DOUBLE_MANTISSA_SIZE);
+        if (binaryExponent >= DOUBLE_EXPONENT_MASK)
+        {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        return toDouble(mantissa, binaryExponent);
     }
 
     private static int parsePositiveIntAscii(
@@ -907,5 +1021,52 @@ public final class AsciiEncoding
             (long)cs.charAt(index + 2) << 16 |
             cs.charAt(index + 1) << 8 |
             cs.charAt(index);
+    }
+
+    static long multiplyHighUnsigned(final long x, final long y)
+    {
+        try
+        {
+            if (null != UNSIGNED_MULTIPLY_HIGH)
+            {
+                return (long)UNSIGNED_MULTIPLY_HIGH.invokeExact(x, y);
+            }
+            else
+            {
+                final long mulHi = (long)MULTIPLY_HIGH.invokeExact(x, y);
+                return mulHi + (y & (x >> 63)) + (x & (y >> 63));
+            }
+        }
+        catch (final Throwable ex)
+        {
+            LangUtil.rethrowUnchecked(ex);
+            return 0;
+        }
+    }
+
+    // Stub for the java.lang.Math.multiplyHigh added in the JDK 9
+    private static long multiplyHigh0(final long x, final long y)
+    {
+        // Use technique from section 8-2 of Henry S. Warren, Jr.,
+        // Hacker's Delight (2nd ed.) (Addison Wesley, 2013), 173-174.
+        final long x0 = x & 0xFFFFFFFFL;
+        final long x1 = x >> 32;
+        final long y0 = y & 0xFFFFFFFFL;
+        final long y1 = y >> 32;
+        final long w0 = x0 * y0;
+        final long t = x1 * y0 + (w0 >>> 32);
+        long w1 = t & 0xFFFFFFFFL;
+        final long w2 = t >> 32;
+        w1 = x0 * y1 + w1;
+        return x1 * y1 + w2 + (w1 >> 32);
+    }
+
+    private static double toDouble(final long mantissa, final int binaryExponent)
+    {
+        if (binaryExponent < 0)
+        {
+            return Double.NaN;
+        }
+        return Double.longBitsToDouble((long)(binaryExponent) << DOUBLE_MANTISSA_SIZE | mantissa);
     }
 }

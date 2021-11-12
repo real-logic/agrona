@@ -387,7 +387,7 @@ public class UnsafeBuffer implements AtomicBuffer
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
-                " is not divisible by " + ALIGNMENT);
+                    " is not divisible by " + ALIGNMENT);
         }
     }
 
@@ -2424,7 +2424,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 return parseSpecialDoubleValue(
                     index, length, DOUBLE_NEGATIVE_INFINITY_VALUE, Double.NEGATIVE_INFINITY, 2);
             }
-            return -parseDoubleAsciiNoSpecialValues(index, length, index + 1);
+            return -parsePositiveDoubleAscii(index, length, index + 1);
         }
         else if (first == DOUBLE_NAN_VALUE[0])
         {
@@ -2436,7 +2436,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
         else
         {
-            return parseDoubleAsciiNoSpecialValues(index, length, index);
+            return parsePositiveDoubleAscii(index, length, index);
         }
     }
 
@@ -2796,7 +2796,7 @@ public class UnsafeBuffer implements AtomicBuffer
     }
 
     @SuppressWarnings("MethodLength")
-    private double parseDoubleAsciiNoSpecialValues(final int index, final int length, final int startIndex)
+    private double parsePositiveDoubleAscii(final int index, final int length, final int startIndex)
     {
         final long offset = addressOffset;
         final byte[] src = byteArray;
@@ -2920,13 +2920,13 @@ public class UnsafeBuffer implements AtomicBuffer
                 tooManyDigits = true;
                 mantissa = 0;
                 i = startIndex;
-                while (i < endOfDigitsIndex && mantissa < LONG_MIN_NINETEEN_DIGIT_VALUE)
+                while (i < endOfDigitsIndex && Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) < 0)
                 {
                     mantissa = (mantissa * 10L) + (UNSAFE.getByte(src, offset + i) - 0x30);
                     i++;
                 }
 
-                if (mantissa >= LONG_MIN_NINETEEN_DIGIT_VALUE)
+                if (Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) >= 0)
                 {
                     exponent = endOfDigitsIndex - i + explicitExponent;
                 }
@@ -2934,7 +2934,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 {
                     final int exponentStart = endOfDigitsIndex + 1;
                     i = exponentStart;
-                    while (i < end && mantissa < LONG_MIN_NINETEEN_DIGIT_VALUE)
+                    while (i < end && Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) < 0)
                     {
                         mantissa = (mantissa * 10L) + (UNSAFE.getByte(src, offset + i) - 0x30);
                         i++;
@@ -2957,7 +2957,26 @@ public class UnsafeBuffer implements AtomicBuffer
             }
         }
 
-        return computeDouble(mantissa, exponent);
+        double result = computeDouble(mantissa, exponent);
+        if (tooManyDigits && !Double.isNaN(result))
+        {
+            final double m1 = computeDouble(mantissa + 1, exponent);
+            if (Double.compare(result, m1) == 0)
+            {
+                return result;
+            }
+            else
+            {
+                result = Double.NaN;
+            }
+        }
+
+        if (Double.isNaN(result))
+        {
+            // FIXME: Hard fallback
+        }
+
+        return result;
     }
 
     private void throwParseDoubleError(final int index, final int length)
