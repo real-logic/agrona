@@ -727,7 +727,7 @@ public abstract class MutableDirectBufferTests
             arguments("971778443352269300.0", 9.7177844335226931E17));
     }
 
-    private static String addTrailingZeroes(final String value, final int numberOfZeroes)
+    static String addTrailingZeroes(final String value, final int numberOfZeroes)
     {
         final char[] result = new char[value.length() + numberOfZeroes];
         System.arraycopy(value.toCharArray(), 0, result, 0, value.length());
@@ -735,7 +735,7 @@ public abstract class MutableDirectBufferTests
         return new String(result);
     }
 
-    private static final double[] EXACT_POWERS_OF_TEN =
+    static final double[] EXACT_POWERS_OF_TEN =
     {
         1e-307, 1e-306, 1e-305, 1e-304, 1e-303, 1e-302, 1e-301, 1e-300, 1e-299,
         1e-298, 1e-297, 1e-296, 1e-295, 1e-294, 1e-293, 1e-292, 1e-291, 1e-290,

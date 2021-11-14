@@ -20,7 +20,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.math.BigInteger;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.agrona.BufferUtil.NATIVE_BYTE_ORDER;
 
 /**
  * Helper for dealing with ASCII encoding of numbers.
@@ -551,7 +553,7 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @return the parsed value.
-     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not an int value
+     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not an int value.
      */
     public static int parseIntAscii(final CharSequence cs, final int index, final int length)
     {
@@ -595,7 +597,7 @@ public final class AsciiEncoding
      * @param index  at which the number begins.
      * @param length of the encoded number in characters.
      * @return the parsed value.
-     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not a long value
+     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not a long value.
      */
     public static long parseLongAscii(final CharSequence cs, final int index, final int length)
     {
@@ -628,6 +630,61 @@ public final class AsciiEncoding
         else
         {
             return parseLongAsciiOverflowCheck(cs, index, length, LONG_MAX_VALUE_DIGITS, i, end);
+        }
+    }
+
+    /**
+     * Parse an ASCII encoded double from a {@link CharSequence} at a given index. The following formats are supported:
+     * <ul>
+     *     <li>leading zeroes before the first digit (e.g. {@code 004.5} will yield {@code 4.5})</li>
+     *     <li>trailing zeroes after the dot (e.g. {@code 1.230000000} will yield {@code 1.23})</li>
+     *     <li>number starting with a dot (e.g. {@code .5} will yield {@code 0.5})</li>
+     *     <li>number ending with a dot (e.g. {@code -2.} will yield {@code -2.0})</li>
+     *     <li>number in scientific notation (e.g. {@code 1.79e101} will yield {@code 1.79e101})</li>
+     * </ul>
+     *
+     * <p>The implementation is based on the algorithm described in the
+     * <a href="https://arxiv.org/pdf/2101.11408.pdf">Daniel Lemire, Number Parsing at a Gigabyte per Second,
+     * Software: Practice and Experience 51 (8), 2021. arXiv.2101.11408v3 [cs.DS] 24 Feb 2021</a> paper.
+     *
+     * @param cs     to parse.
+     * @param index  at which the number begins.
+     * @param length of the encoded number in characters.
+     * @return the parsed value.
+     * @throws AsciiNumberFormatException if {@code length <= 0} or {@code cs} is not a double value.
+     */
+    public static double parseDoubleAscii(final CharSequence cs, final int index, final int length)
+    {
+        if (length <= 0)
+        {
+            throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
+        }
+
+        final byte first = (byte)cs.charAt(index);
+        if (MINUS_SIGN == first)
+        {
+            if (1 == length)
+            {
+                throwParseDoubleError(cs, index, length);
+            }
+            if (cs.charAt(index + 1) == DOUBLE_NEGATIVE_INFINITY_VALUE[1]) // -Infinity
+            {
+                return parseSpecialDoubleValue(
+                    cs, index, length, DOUBLE_NEGATIVE_INFINITY_VALUE, Double.NEGATIVE_INFINITY, 2);
+            }
+            return -parsePositiveDoubleAscii(cs, index, length, index + 1);
+        }
+        else if (first == DOUBLE_NAN_VALUE[0])
+        {
+            return parseSpecialDoubleValue(cs, index, length, DOUBLE_NAN_VALUE, Double.NaN, 1);
+        }
+        else if (first == DOUBLE_INFINITY_VALUE[0])
+        {
+            return parseSpecialDoubleValue(cs, index, length, DOUBLE_INFINITY_VALUE, Double.POSITIVE_INFINITY, 1);
+        }
+        else
+        {
+            return parsePositiveDoubleAscii(cs, index, length, index);
         }
     }
 
@@ -1068,5 +1125,218 @@ public final class AsciiEncoding
             return Double.NaN;
         }
         return Double.longBitsToDouble((long)(binaryExponent) << DOUBLE_MANTISSA_SIZE | mantissa);
+    }
+
+    private static void throwParseDoubleError(final CharSequence cs, final int index, final int length)
+    {
+        throw new AsciiNumberFormatException("error parsing double: value=" +
+            cs.subSequence(index, length));
+    }
+
+    private static double parseSpecialDoubleValue(
+        final CharSequence cs,
+        final int index,
+        final int length,
+        final byte[] specialValueBytes,
+        final double specialValue,
+        final int startCheckAt)
+    {
+        if (length != specialValueBytes.length)
+        {
+            throwParseDoubleError(cs, index, length);
+        }
+
+        for (int j = startCheckAt; j < specialValueBytes.length; j++)
+        {
+            if (specialValueBytes[j] != cs.charAt(index + j))
+            {
+                throwParseDoubleError(cs, index, length);
+            }
+        }
+        return specialValue;
+    }
+
+    @SuppressWarnings("MethodLength")
+    private static double parsePositiveDoubleAscii(
+        final CharSequence cs, final int index, final int length, final int startIndex)
+    {
+        final int end = index + length;
+        int i = startIndex;
+        long octet, mantissa = 0;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = readEightBytesLittleEndian(cs, i)))
+        {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
+            {
+                octet = Long.reverseBytes(octet);
+            }
+
+            mantissa = mantissa * 100_000_000L + parseEightDigitsLittleEndian(octet);
+            i += 8;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = (byte)cs.charAt(i)))
+        {
+            mantissa = (mantissa * 10L) + (digit - 0x30);
+            i++;
+        }
+        final int endOfDigitsIndex = i;
+        int digitCount = endOfDigitsIndex - startIndex;
+        int exponent = 0;
+
+        if (i < end && DOT == cs.charAt(i))
+        {
+            i++;
+            while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = readEightBytesLittleEndian(cs, i)))
+            {
+                if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
+                {
+                    octet = Long.reverseBytes(octet);
+                }
+
+                mantissa = mantissa * 100_000_000L + parseEightDigitsLittleEndian(octet);
+                i += 8;
+            }
+
+            while (i < end && isDigit(digit = (byte)cs.charAt(i)))
+            {
+                mantissa = (mantissa * 10L) + (digit - 0x30);
+                i++;
+            }
+
+            exponent = endOfDigitsIndex + 1 - i;
+            digitCount -= exponent;
+        }
+
+        if (0 == digitCount)
+        {
+            throwParseDoubleError(cs, index, length);
+        }
+
+        int explicitExponent = 0;
+        if (i < end)
+        {
+            byte b = (byte)cs.charAt(i);
+            if (LOWER_CASE_E == b || UPPER_CASE_E == b)
+            {
+                i++;
+                boolean negativeExponent = false;
+                if (i < end)
+                {
+                    b = (byte)cs.charAt(i);
+                    if (MINUS_SIGN == b)
+                    {
+                        negativeExponent = true;
+                        i++;
+                    }
+                    else if (PLUS_SIGN == b)
+                    {
+                        i++;
+                    }
+
+                    while (i < end && isDigit(b = (byte)cs.charAt(i)))
+                    {
+                        if (explicitExponent < 0x10000000)
+                        {
+                            explicitExponent = 10 * explicitExponent + (b - 0x30);
+                        }
+                        i++;
+                    }
+
+                    if (negativeExponent)
+                    {
+                        explicitExponent = -explicitExponent;
+                    }
+                    exponent += explicitExponent;
+                }
+            }
+        }
+
+        if (i != end)
+        {
+            throwParseDoubleError(cs, index, length);
+        }
+
+        boolean tooManyDigits = false;
+        if (digitCount >= LONG_MAX_DIGITS)
+        {
+            i = startIndex;
+            while (i < end)
+            {
+                final byte b = (byte)cs.charAt(i);
+                if (ZERO == b)
+                {
+                    digitCount--;
+                }
+                else if (DOT != b)
+                {
+                    break;
+                }
+                i++;
+            }
+
+            if (digitCount >= LONG_MAX_DIGITS)
+            {
+                tooManyDigits = true;
+                mantissa = 0;
+                i = startIndex;
+                while (i < endOfDigitsIndex && Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) < 0)
+                {
+                    mantissa = (mantissa * 10L) + (cs.charAt(i) - 0x30);
+                    i++;
+                }
+
+                if (Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) >= 0)
+                {
+                    exponent = endOfDigitsIndex - i + explicitExponent;
+                }
+                else
+                {
+                    final int exponentStart = endOfDigitsIndex + 1;
+                    i = exponentStart;
+                    while (i < end && Long.compareUnsigned(mantissa, LONG_MIN_NINETEEN_DIGIT_VALUE) < 0)
+                    {
+                        mantissa = (mantissa * 10L) + (cs.charAt(i) - 0x30);
+                        i++;
+                    }
+                    exponent = exponentStart - i + explicitExponent;
+                }
+            }
+        }
+
+        if (exponent >= DOUBLE_MIN_EXPONENT_FAST_PATH && exponent <= DOUBLE_MAX_EXPONENT_FAST_PATH &&
+            mantissa <= DOUBLE_MAX_MANTISSA_FAST_PATH && !tooManyDigits)
+        {
+            if (exponent < 0)
+            {
+                return (double)mantissa / DOUBLE_POWER_OF_TEN[-exponent];
+            }
+            else
+            {
+                return (double)mantissa * DOUBLE_POWER_OF_TEN[exponent];
+            }
+        }
+
+        double result = computeDouble(mantissa, exponent);
+        if (tooManyDigits && !Double.isNaN(result))
+        {
+            final double m1 = computeDouble(mantissa + 1, exponent);
+            if (Double.compare(result, m1) == 0)
+            {
+                return result;
+            }
+            else
+            {
+                result = Double.NaN;
+            }
+        }
+
+        if (Double.isNaN(result)) // Fallback
+        {
+            return Double.parseDouble(
+                cs.subSequence(startIndex, index == startIndex ? length : length - 1).toString());
+        }
+
+        return result;
     }
 }

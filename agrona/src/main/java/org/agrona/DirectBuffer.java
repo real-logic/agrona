@@ -221,7 +221,14 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     long parseLongAscii(int index, int length);
 
     /**
-     * Parse the ASCII encoded double value at a given index.
+     * Parse the ASCII encoded double value at a given index. The following formats are supported:
+     * <ul>
+     *     <li>leading zeroes before the first digit (e.g. {@code 004.5} will yield {@code 4.5})</li>
+     *     <li>trailing zeroes after the dot (e.g. {@code 1.230000000} will yield {@code 1.23})</li>
+     *     <li>number starting with a dot (e.g. {@code .5} will yield {@code 0.5})</li>
+     *     <li>number ending with a dot (e.g. {@code -2.} will yield {@code -2.0})</li>
+     *     <li>number in scientific notation (e.g. {@code 1.79e101} will yield {@code 1.79e101})</li>
+     * </ul>
      *
      * <p>The implementation is based on the algorithm described in the
      * <a href="https://arxiv.org/pdf/2101.11408.pdf">Daniel Lemire, Number Parsing at a Gigabyte per Second,
