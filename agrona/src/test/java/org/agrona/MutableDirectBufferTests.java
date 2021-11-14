@@ -419,9 +419,8 @@ public abstract class MutableDirectBufferTests
             final long rawBits = ThreadLocalRandom.current().nextLong();
             final double value = Double.longBitsToDouble(rawBits);
             final int length = buffer.putDoubleAscii(index, value);
-            final String strValue = buffer.getStringWithoutLengthAscii(index, length);
-            final double parsedValue = Double.parseDouble(strValue);
-            assertEquals(value, parsedValue);
+            final double parsedValue = buffer.parseDoubleAscii(index, length);
+            assertEquals(value, parsedValue, () -> buffer.getStringWithoutLengthAscii(index, length));
         }
     }
 
@@ -712,7 +711,8 @@ public abstract class MutableDirectBufferTests
             arguments("3.14159265358979323846264338327950288419716939937510", 3.141592653589793),
             arguments("2.71828182845904523536028747135266249775724709369995", 2.718281828459045),
             arguments("7.3177701707893310e+15", 7317770170789331.0),
-            arguments("7.2057594037927933e+16", 7.2057594037927933e+16));
+            arguments("7.2057594037927933e+16", 7.2057594037927933e+16),
+            arguments("971778443352269300.0", 9.7177844335226931E17));
     }
 
     private static String addTrailingZeroes(final String value, final int numberOfZeroes)

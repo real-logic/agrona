@@ -2898,7 +2898,7 @@ public class UnsafeBuffer implements AtomicBuffer
         }
 
         boolean tooManyDigits = false;
-        if (digitCount > LONG_MAX_DIGITS)
+        if (digitCount >= LONG_MAX_DIGITS)
         {
             i = startIndex;
             while (i < end)
@@ -2915,7 +2915,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 i++;
             }
 
-            if (digitCount > 19)
+            if (digitCount >= LONG_MAX_DIGITS)
             {
                 tooManyDigits = true;
                 mantissa = 0;
