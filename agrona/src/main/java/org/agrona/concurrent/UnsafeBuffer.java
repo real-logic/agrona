@@ -2971,9 +2971,10 @@ public class UnsafeBuffer implements AtomicBuffer
             }
         }
 
-        if (Double.isNaN(result))
+        if (Double.isNaN(result)) // Fallback
         {
-            // FIXME: Hard fallback
+            return Double.parseDouble(
+                getStringWithoutLengthAscii(startIndex, index == startIndex ? length : length - 1));
         }
 
         return result;
