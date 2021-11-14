@@ -154,7 +154,11 @@ public interface MutableDirectBuffer extends DirectBuffer
      *     <li>{@link Double#NEGATIVE_INFINITY} - will be encoded as {@code -Infinity}.</li>
      * </ul>
      *
-     * <p>The implementation is based on the <a href="https://dl.acm.org/doi/10.1145/3192366.3192369">ryu algorithm</a>.
+     * <p>The implementation is based on the algorithm described in the
+     * <a href="https://doi.org/10.1145/3192366.3192369">Adams U. Ryū: Fast Float-to-String Conversion. In: Proceedings
+     * of the 39th ACM SIGPLAN Conference on Programming Language Design and Implementation PLDI 2018, New York, NY,
+     * USA: Association for Computing Machinery; 2018. p. 270–282.</a> paper.
+     *
      * @param index the offset at which to put the double.
      * @param value the double to write.
      * @return the number of bytes that the double took up encoded.

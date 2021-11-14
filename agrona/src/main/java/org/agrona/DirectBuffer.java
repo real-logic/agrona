@@ -223,6 +223,10 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     /**
      * Parse the ASCII encoded double value at a given index.
      *
+     * <p>The implementation is based on the algorithm described in the
+     * <a href="https://arxiv.org/pdf/2101.11408.pdf">Daniel Lemire, Number Parsing at a Gigabyte per Second,
+     * Software: Practice and Experience 51 (8), 2021. arXiv.2101.11408v3 [cs.DS] 24 Feb 2021</a> paper.
+     *
      * @param index  in bytes from which to get.
      * @param length the length in bytes to parse.
      * @return the value at a given index.
