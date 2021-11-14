@@ -646,6 +646,7 @@ public abstract class MutableDirectBufferTests
             arguments(addTrailingZeroes("0.", 323) + "5", Double.MIN_VALUE),
             arguments(addTrailingZeroes("0.", 307) + "22250738585072014", Double.MIN_NORMAL),
             arguments("0000000000000000000123.45", 123.45),
+            arguments("00012345678901234567.45", 1.2345678901234568E16),
             arguments("-123.45000000000000000000000000000000000000000000", -123.45),
             arguments("1230000000000000000000.0000045", 1230000000000000000000.0000045),
             arguments("-2.2222222222223e-322", -0x1.68p-1069),

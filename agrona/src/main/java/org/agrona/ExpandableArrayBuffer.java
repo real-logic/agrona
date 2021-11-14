@@ -2182,7 +2182,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
         }
 
         boolean tooManyDigits = false;
-        if (digitCount >= LONG_MAX_DIGITS)
+        if (digitCount > LONG_MAX_DIGITS || LONG_MAX_DIGITS == digitCount && mantissa < 0L)
         {
             i = startIndex;
             while (i < end)
@@ -2199,7 +2199,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
                 i++;
             }
 
-            if (digitCount >= LONG_MAX_DIGITS)
+            if (digitCount > LONG_MAX_DIGITS || LONG_MAX_DIGITS == digitCount && mantissa < 0L)
             {
                 tooManyDigits = true;
                 mantissa = 0;
