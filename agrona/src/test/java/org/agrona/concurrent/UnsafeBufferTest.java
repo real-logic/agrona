@@ -250,20 +250,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertEquals(0, buffer.getByte(index));
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = { 10, -5 })
-    void parseDoubleAsciiShouldBoundsCheck(final int length)
-    {
-        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
-
-        final int index = 2;
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[6]);
-
-        final IndexOutOfBoundsException exception =
-            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.parseDoubleAscii(index, length));
-        assertEquals("index=2 length=" + length + " capacity=6", exception.getMessage());
-    }
-
     private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(

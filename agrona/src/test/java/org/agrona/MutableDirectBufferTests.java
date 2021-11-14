@@ -424,6 +424,18 @@ public abstract class MutableDirectBufferTests
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = { 10, -5 })
+    void parseDoubleAsciiShouldBoundsCheck(final int length)
+    {
+        final int index = 2;
+        final MutableDirectBuffer buffer = newBuffer(6);
+
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.parseDoubleAscii(index, length));
+        assertEquals("index=2 length=" + length + " capacity=6", exception.getMessage());
+    }
+
     @Test
     void parseDoubleAsciiShouldRejectZeroLength()
     {
