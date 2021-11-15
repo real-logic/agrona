@@ -1109,7 +1109,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      * {@inheritDoc}
      */
     @SuppressWarnings("MethodLength")
-    public int putDoubleAscii(final int index, final double value)
+    public final int putDoubleAscii(final int index, final double value)
     {
         // Step 1. Decode the floating point number, and unify normalized and subnormal cases.
         final long rawBits = Double.doubleToRawLongBits(value);
@@ -1396,7 +1396,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     /**
      * {@inheritDoc}
      */
-    public double parseDoubleAscii(final int index, final int length)
+    public final double parseDoubleAscii(final int index, final int length)
     {
         boundsCheck0(index, length);
         if (length <= 0)
