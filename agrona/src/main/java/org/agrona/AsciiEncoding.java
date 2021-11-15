@@ -862,10 +862,11 @@ public final class AsciiEncoding
             return toDouble(mantissa, binaryExponent);
         }
 
-        // usually, we round *up*, but if we fall right in between and and we have an
+        // usually, we round *up*, but if we fall right in between and we have an
         // even basis, we need to round down
         // We are only concerned with the cases where 5**q fits in single 64-bit word.
-        if (productLo <= 1 && q >= DOUBLE_MIN_EXPONENT_ROUND_TO_EVEN && q <= DOUBLE_MAX_EXPONENT_ROUND_TO_EVEN &&
+        if (Long.compareUnsigned(productLo, 1) <= 0 &&
+            q >= DOUBLE_MIN_EXPONENT_ROUND_TO_EVEN && q <= DOUBLE_MAX_EXPONENT_ROUND_TO_EVEN &&
             (mantissa & 3) == 1)  // we may fall between two floats!
         {
             // To be in-between two floats we need that in doing

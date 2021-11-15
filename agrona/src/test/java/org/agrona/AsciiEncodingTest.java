@@ -38,7 +38,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class AsciiEncodingTest
 {
-    private static final int ITERATIONS = 1_000_000;
+    private static final int ITERATIONS = 10_000_000;
 
     @Test
     void shouldParseInt()
@@ -371,7 +371,7 @@ class AsciiEncodingTest
     void parseDoubleAsciiRoundTrip()
     {
         final String prefix = "parse_double_test";
-        final StringBuilder buffer = new StringBuilder(256);
+        final StringBuilder buffer = new StringBuilder(1024);
         buffer.append(prefix);
 
         for (int i = 0; i < ITERATIONS; i++)
@@ -381,8 +381,8 @@ class AsciiEncodingTest
 
             final double parsedValue = parseDoubleAscii(buffer, prefix.length(), buffer.length() - prefix.length());
 
-            assertEquals(parsedValue, value);
-            buffer.delete(prefix.length(), 256);
+            assertEquals(parsedValue, value, () -> buffer.substring(prefix.length()));
+            buffer.delete(prefix.length(), 1024);
         }
     }
 
@@ -603,6 +603,12 @@ class AsciiEncodingTest
             arguments("2.71828182845904523536028747135266249775724709369995", 2.718281828459045),
             arguments("7.3177701707893310e+15", 7317770170789331.0),
             arguments("7.2057594037927933e+16", 7.2057594037927933e+16),
-            arguments("971778443352269300.0", 9.7177844335226931E17));
+            arguments("971778443352269300.0", 9.7177844335226931E17),
+            arguments("-4.2336496951542226E38", -0x1.3e81209173ecep+128),
+            arguments("-4.233649695154223E38", -0x1.3e81209173ecfp+128),
+            arguments("-5.8081984879362226E38", -5.8081984879362226E38),
+            arguments("-5.808198487936223E38", -5.808198487936223E38),
+            arguments("-2.9619366646299568E38", -2.9619366646299568E38),
+            arguments("-2.961936664629957E38", -2.961936664629957E38));
     }
 }
