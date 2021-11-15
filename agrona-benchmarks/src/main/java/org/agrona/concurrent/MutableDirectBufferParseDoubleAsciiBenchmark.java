@@ -48,7 +48,7 @@ public class MutableDirectBufferParseDoubleAsciiBenchmark
         "-2402844368454405395.2",
         "1090544144181609348835077142190",
         "-2e3000",
-        "Infinity"
+        "1.7976930114055267e308"
     })
     private String value;
     private int length;
