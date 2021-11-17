@@ -63,7 +63,7 @@ public class CountedErrorHandler implements ErrorHandler, AutoCloseable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void onError(final Throwable throwable)
     {

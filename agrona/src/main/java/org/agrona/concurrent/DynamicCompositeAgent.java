@@ -133,7 +133,7 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int doWork() throws Exception
     {
@@ -202,7 +202,7 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String roleName()
     {

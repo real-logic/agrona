@@ -34,7 +34,7 @@ public final class NoOpIdleStrategy implements IdleStrategy
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -43,21 +43,21 @@ public final class NoOpIdleStrategy implements IdleStrategy
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {

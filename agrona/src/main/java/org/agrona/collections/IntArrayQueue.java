@@ -18,7 +18,6 @@ package org.agrona.collections;
 import org.agrona.BitUtil;
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -30,7 +29,7 @@ import java.util.function.IntConsumer;
  * <p>
  * <b>Note:</b> This class is not threadsafe.
  */
-public class IntArrayQueue extends AbstractQueue<Integer> implements Serializable
+public class IntArrayQueue extends AbstractQueue<Integer>
 {
     /**
      * Default representation of null for an element.
@@ -41,7 +40,6 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
      * Minimum capacity for the queue which must also be a power of 2.
      */
     @DoNotSub public static final int MIN_CAPACITY = 8;
-    private static final long serialVersionUID = 8043508567156267834L;
 
     private final boolean shouldAvoidAllocation;
     @DoNotSub private int head;
@@ -416,9 +414,8 @@ public class IntArrayQueue extends AbstractQueue<Integer> implements Serializabl
     /**
      * Specialised {@link Iterator} from which the value can be retrieved without boxing via {@link #nextValue()}.
      */
-    public final class IntIterator implements Iterator<Integer>, Serializable
+    public final class IntIterator implements Iterator<Integer>
     {
-        private static final long serialVersionUID = -7596692870537894897L;
         @DoNotSub private int index;
 
         IntIterator reset()

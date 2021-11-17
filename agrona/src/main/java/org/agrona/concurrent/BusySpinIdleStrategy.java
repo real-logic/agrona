@@ -37,7 +37,7 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      *
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -50,7 +50,7 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
@@ -58,14 +58,14 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {

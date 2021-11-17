@@ -28,7 +28,7 @@ public class SystemNanoClock implements NanoClock
     public static final SystemNanoClock INSTANCE = new SystemNanoClock();
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public long nanoTime()
     {

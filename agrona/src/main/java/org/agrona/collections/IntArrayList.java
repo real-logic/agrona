@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -26,7 +25,7 @@ import java.util.stream.IntStream;
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
  */
-public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess, Serializable
+public class IntArrayList extends AbstractList<Integer> implements List<Integer>, RandomAccess
 {
     /**
      * The default value that will be used in place of null for an element.
@@ -37,7 +36,6 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * Initial capacity to which the array will be sized.
      */
     @DoNotSub public static final int INITIAL_CAPACITY = 10;
-    private static final long serialVersionUID = -2257879229511649624L;
 
     private final int nullValue;
     @DoNotSub private int size = 0;

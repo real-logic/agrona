@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -39,7 +38,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see IntIterator
  * @see Set
  */
-public class IntHashSet extends AbstractSet<Integer> implements Serializable
+public class IntHashSet extends AbstractSet<Integer>
 {
     /**
      * The initial capacity used when none is specified in the constructor.
@@ -47,7 +46,6 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     static final int MISSING_VALUE = -1;
-    private static final long serialVersionUID = 8717061229749503234L;
 
     private final boolean shouldAvoidAllocation;
     private boolean containsMissingValue;
@@ -703,9 +701,8 @@ public class IntHashSet extends AbstractSet<Integer> implements Serializable
     /**
      * Iterator which supports unboxed access to the values via {@link #nextValue()}.
      */
-    public final class IntIterator implements Iterator<Integer>, Serializable
+    public final class IntIterator implements Iterator<Integer>
     {
-        private static final long serialVersionUID = 351844349377836408L;
         @DoNotSub private int remaining;
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;

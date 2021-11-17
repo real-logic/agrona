@@ -77,7 +77,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean offer(final E e)
     {
@@ -114,7 +114,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public E poll()
@@ -150,7 +150,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public E peek()
@@ -187,7 +187,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int drain(final Consumer<E> elementConsumer)
     {
@@ -195,7 +195,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int drain(final Consumer<E> elementConsumer, final int limit)
     {
@@ -212,7 +212,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int drainTo(final Collection<? super E> target, final int limit)
     {

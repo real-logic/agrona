@@ -147,7 +147,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean add(final E e)
     {
@@ -155,7 +155,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean offer(final E e)
     {
@@ -172,7 +172,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public E remove()
     {
@@ -186,7 +186,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public E poll()
     {
@@ -216,7 +216,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public E element()
     {
@@ -230,7 +230,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public E peek()
     {
@@ -269,7 +269,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean isEmpty()
     {
@@ -277,7 +277,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean contains(final Object o)
     {
@@ -285,7 +285,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Iterator<E> iterator()
     {
@@ -293,7 +293,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Object[] toArray()
     {
@@ -301,7 +301,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public <T> T[] toArray(final T[] a)
     {
@@ -309,7 +309,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean remove(final Object o)
     {
@@ -317,7 +317,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean containsAll(final Collection<?> c)
     {
@@ -325,7 +325,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean addAll(final Collection<? extends E> c)
     {
@@ -333,7 +333,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean removeAll(final Collection<?> c)
     {
@@ -341,7 +341,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean retainAll(final Collection<?> c)
     {
@@ -349,7 +349,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void clear()
     {
@@ -357,7 +357,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

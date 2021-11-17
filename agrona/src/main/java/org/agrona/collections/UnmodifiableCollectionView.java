@@ -15,7 +15,6 @@
  */
 package org.agrona.collections;
 
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
@@ -64,14 +63,12 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
     /**
      * A stateful reusable iterator.
      */
-    @SuppressWarnings("serial")
-    public final class ReusableIterator implements Iterator<V>, Serializable
+    public final class ReusableIterator implements Iterator<V>
     {
-        private static final long serialVersionUID = 9183617352140354854L;
         private Iterator<E> delegate;
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public boolean hasNext()
         {
@@ -79,7 +76,7 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public V next()
         {

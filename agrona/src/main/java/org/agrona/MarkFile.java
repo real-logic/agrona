@@ -234,7 +234,7 @@ public class MarkFile implements AutoCloseable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void close()
     {
