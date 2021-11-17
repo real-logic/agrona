@@ -15,14 +15,11 @@
  */
 package org.agrona.collections;
 
-import java.io.Serializable;
-
 /**
  * Mutable boolean valid that is useful for capturing a value when using lambdas or collections.
  */
-public class MutableBoolean implements Serializable
+public class MutableBoolean
 {
-    private static final long serialVersionUID = 4524695016393435450L;
     /**
      * For convenient access.
      */
@@ -66,7 +63,7 @@ public class MutableBoolean implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean equals(final Object o)
     {
@@ -86,7 +83,7 @@ public class MutableBoolean implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int hashCode()
     {
@@ -94,7 +91,7 @@ public class MutableBoolean implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.ToIntFunction;
 
@@ -31,12 +30,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  *
  * @param <K> type of keys stored in the {@link java.util.Map}
  */
-@SuppressWarnings("serial")
-public class Object2IntHashMap<K>
-    implements Map<K, Integer>, Serializable
+public class Object2IntHashMap<K> implements Map<K, Integer>
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
-    private static final long serialVersionUID = -6664980642816252596L;
 
     private final float loadFactor;
     private final int missingValue;
@@ -678,9 +674,8 @@ public class Object2IntHashMap<K>
     /**
      * Set of keys that can optionally cache iterators to avoid allocation.
      */
-    public final class KeySet extends AbstractSet<K> implements Serializable
+    public final class KeySet extends AbstractSet<K>
     {
-        private static final long serialVersionUID = -1234547139181649343L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -735,9 +730,8 @@ public class Object2IntHashMap<K>
     /**
      * Collection of values which can optionally cache iterators to avoid allocation.
      */
-    public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
+    public final class ValueCollection extends AbstractCollection<Integer>
     {
-        private static final long serialVersionUID = -6589907057505627813L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -783,9 +777,8 @@ public class Object2IntHashMap<K>
     /**
      * Set of entries which can optionally cache iterators to avoid allocation.
      */
-    public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>>
     {
-        private static final long serialVersionUID = -5640061430571657431L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**
@@ -881,9 +874,8 @@ public class Object2IntHashMap<K>
      *
      * @param <T> type of elements.
      */
-    abstract class AbstractIterator<T> implements Iterator<T>, Serializable
+    abstract class AbstractIterator<T> implements Iterator<T>
     {
-        private static final long serialVersionUID = -5613227376239486119L;
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
@@ -993,10 +985,8 @@ public class Object2IntHashMap<K>
     /**
      * Iterator over values providing unboxed access via {@link #nextInt()}.
      */
-    public final class ValueIterator extends AbstractIterator<Integer> implements Serializable
+    public final class ValueIterator extends AbstractIterator<Integer>
     {
-        private static final long serialVersionUID = 6755174304344657841L;
-
         /**
          * {@inheritDoc}
          */
@@ -1020,10 +1010,8 @@ public class Object2IntHashMap<K>
     /**
      * Iterator over keys.
      */
-    public final class KeyIterator extends AbstractIterator<K> implements Serializable
+    public final class KeyIterator extends AbstractIterator<K>
     {
-        private static final long serialVersionUID = -5782758367804714619L;
-
         /**
          * {@inheritDoc}
          */
@@ -1039,10 +1027,8 @@ public class Object2IntHashMap<K>
      */
     public final class EntryIterator
         extends AbstractIterator<Entry<K, Integer>>
-        implements Entry<K, Integer>, Serializable
+        implements Entry<K, Integer>
     {
-        private static final long serialVersionUID = 951101238418327235L;
-
         /**
          * {@inheritDoc}
          */
@@ -1120,9 +1106,8 @@ public class Object2IntHashMap<K>
         /**
          * An {@link java.util.Map.Entry} implementation.
          */
-        public final class MapEntry implements Entry<K, Integer>, Serializable
+        public final class MapEntry implements Entry<K, Integer>
         {
-            private static final long serialVersionUID = 7716717237784090877L;
             private final K k;
             private final int v;
 

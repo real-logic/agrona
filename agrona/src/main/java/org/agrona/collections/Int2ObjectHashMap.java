@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -32,12 +31,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  *
  * @param <V> type of values stored in the {@link java.util.Map}
  */
-@SuppressWarnings("serial")
-public class Int2ObjectHashMap<V>
-    implements Map<Integer, V>, Serializable
+public class Int2ObjectHashMap<V> implements Map<Integer, V>
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
-    private static final long serialVersionUID = -87577678740521569L;
 
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
@@ -678,9 +674,8 @@ public class Int2ObjectHashMap<V>
     /**
      * Set of keys which supports optionally cached iterators to avoid allocation.
      */
-    public final class KeySet extends AbstractSet<Integer> implements Serializable
+    public final class KeySet extends AbstractSet<Integer>
     {
-        private static final long serialVersionUID = 174654887531298424L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -756,9 +751,8 @@ public class Int2ObjectHashMap<V>
     /**
      * Collection of values which supports optionally cached iterators to avoid allocation.
      */
-    public final class ValueCollection extends AbstractCollection<V> implements Serializable
+    public final class ValueCollection extends AbstractCollection<V>
     {
-        private static final long serialVersionUID = 6851282235497568109L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -822,9 +816,8 @@ public class Int2ObjectHashMap<V>
     /**
      * Set of entries which supports access via an optionally cached iterator to avoid allocation.
      */
-    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
-        private static final long serialVersionUID = 6797969139720339177L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**
@@ -919,9 +912,8 @@ public class Int2ObjectHashMap<V>
      *
      * @param <T> type of elements.
      */
-    abstract class AbstractIterator<T> implements Iterator<T>, Serializable
+    abstract class AbstractIterator<T> implements Iterator<T>
     {
-        private static final long serialVersionUID = 7955640333577513200L;
         @DoNotSub private int posCounter;
         @DoNotSub private int stopCounter;
         @DoNotSub private int remaining;
@@ -1039,10 +1031,8 @@ public class Int2ObjectHashMap<V>
     /**
      * Iterator over values.
      */
-    public class ValueIterator extends AbstractIterator<V> implements Serializable
+    public final class ValueIterator extends AbstractIterator<V>
     {
-        private static final long serialVersionUID = -410109102792377049L;
-
         /**
          * {@inheritDoc}
          */
@@ -1057,10 +1047,8 @@ public class Int2ObjectHashMap<V>
     /**
      * Iterator over keys which supports access to unboxed keys via {@link #nextInt()}.
      */
-    public class KeyIterator extends AbstractIterator<Integer> implements Serializable
+    public final class KeyIterator extends AbstractIterator<Integer>
     {
-        private static final long serialVersionUID = -4905479491707153377L;
-
         /**
          * {@inheritDoc}
          */
@@ -1085,12 +1073,10 @@ public class Int2ObjectHashMap<V>
     /**
      * Iterator over entries which supports access to unboxed keys via {@link #getIntKey()}.
      */
-    public class EntryIterator
+    public final class EntryIterator
         extends AbstractIterator<Entry<Integer, V>>
-        implements Entry<Integer, V>, Serializable
+        implements Entry<Integer, V>
     {
-        private static final long serialVersionUID = 2227334666048171527L;
-
         /**
          * {@inheritDoc}
          */
@@ -1160,9 +1146,8 @@ public class Int2ObjectHashMap<V>
         /**
          * An {@link java.util.Map.Entry} implementation.
          */
-        public final class MapEntry implements Entry<Integer, V>, Serializable
+        public final class MapEntry implements Entry<Integer, V>
         {
-            private static final long serialVersionUID = -6648311124347304211L;
             private final int k;
             private final V v;
 

@@ -53,7 +53,7 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -73,7 +73,7 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
@@ -88,14 +88,14 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {
@@ -103,7 +103,7 @@ public final class SleepingMillisIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

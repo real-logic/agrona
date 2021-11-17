@@ -66,7 +66,7 @@ public class CompositeAgent implements Agent
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String roleName()
     {
@@ -107,7 +107,7 @@ public class CompositeAgent implements Agent
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int doWork() throws Exception
     {

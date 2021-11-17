@@ -123,7 +123,7 @@ public final class ControllableIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {
@@ -131,7 +131,7 @@ public final class ControllableIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

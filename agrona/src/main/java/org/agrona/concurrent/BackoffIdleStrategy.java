@@ -178,7 +178,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
@@ -218,7 +218,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
@@ -229,7 +229,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {
@@ -237,7 +237,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

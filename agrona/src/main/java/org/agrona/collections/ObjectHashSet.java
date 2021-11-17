@@ -15,9 +15,10 @@
  */
 package org.agrona.collections;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.Predicate;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -35,8 +36,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * @see ObjectIterator
  * @see Set
  */
-@SuppressWarnings("serial")
-public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
+public class ObjectHashSet<T> extends AbstractSet<T>
 {
     /**
      * The initial capacity used when none is specified in the constructor.
@@ -44,7 +44,6 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     static final Object MISSING_VALUE = null;
-    private static final long serialVersionUID = -1323058412234306050L;
 
     private final boolean shouldAvoidAllocation;
     private final float loadFactor;
@@ -591,9 +590,8 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
     /**
      * Iterator over the set which can be optionally cached to avoid allocation.
      */
-    public final class ObjectIterator implements Iterator<T>, Serializable
+    public final class ObjectIterator implements Iterator<T>
     {
-        private static final long serialVersionUID = 5661111157418381153L;
         private int remaining;
         private int positionCounter;
         private int stopCounter;
@@ -636,7 +634,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public boolean hasNext()
         {
@@ -644,7 +642,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public T next()
         {
@@ -683,7 +681,7 @@ public class ObjectHashSet<T> extends AbstractSet<T> implements Serializable
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         @SuppressWarnings("unchecked")
         public void remove()

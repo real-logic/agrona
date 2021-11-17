@@ -31,7 +31,7 @@ public final class YieldingIdleStrategy implements IdleStrategy
     public static final YieldingIdleStrategy INSTANCE = new YieldingIdleStrategy();
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -44,7 +44,7 @@ public final class YieldingIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
@@ -52,14 +52,14 @@ public final class YieldingIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {

@@ -15,7 +15,6 @@
  */
 package org.agrona.collections;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -23,10 +22,8 @@ import java.util.Objects;
  *
  * @param <T> type of the reference.
  */
-@SuppressWarnings("serial")
-public class MutableReference<T> implements Serializable
+public class MutableReference<T>
 {
-    private static final long serialVersionUID = 321431528882718691L;
     /**
      * For convenient access.
      */
@@ -70,7 +67,7 @@ public class MutableReference<T> implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean equals(final Object o)
     {
@@ -90,7 +87,7 @@ public class MutableReference<T> implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int hashCode()
     {
@@ -98,7 +95,7 @@ public class MutableReference<T> implements Serializable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {

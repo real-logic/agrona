@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 
@@ -28,10 +27,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  * An open-addressing with linear probing hash map specialised for primitive key and counter pairs. A counter map views
  * counters which hit {@link #initialValue} as deleted. This means that changing a counter may impact {@link #size()}.
  */
-public class Int2IntCounterMap implements Serializable
+public class Int2IntCounterMap
 {
     @DoNotSub private static final int MIN_CAPACITY = 8;
-    private static final long serialVersionUID = -3044319458317497461L;
 
     @DoNotSub private final float loadFactor;
     private final int initialValue;

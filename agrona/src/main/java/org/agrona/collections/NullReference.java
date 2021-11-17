@@ -30,7 +30,7 @@ public final class NullReference
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int hashCode()
     {
@@ -38,7 +38,7 @@ public final class NullReference
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean equals(final Object obj)
     {

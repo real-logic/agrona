@@ -15,14 +15,9 @@
  */
 package org.agrona.collections;
 
-import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -412,8 +407,6 @@ public class Int2ObjectHashMapTest
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<String>()
         {
-            private static final long serialVersionUID = 4728671632683628332L;
-
             private final Object nullRef = new Object();
 
             protected Object mapNullValue(final Object value)

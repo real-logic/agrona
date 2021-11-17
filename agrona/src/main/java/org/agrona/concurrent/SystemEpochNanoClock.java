@@ -23,7 +23,7 @@ package org.agrona.concurrent;
 public class SystemEpochNanoClock implements EpochNanoClock
 {
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public long nanoTime()
     {

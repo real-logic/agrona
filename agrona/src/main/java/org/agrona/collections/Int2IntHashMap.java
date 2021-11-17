@@ -17,7 +17,6 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -29,10 +28,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * An open-addressing with linear probing hash map specialised for primitive key and value pairs.
  */
-public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
+public class Int2IntHashMap implements Map<Integer, Integer>
 {
     @DoNotSub static final int MIN_CAPACITY = 8;
-    private static final long serialVersionUID = -690554872053575793L;
 
     private final float loadFactor;
     private final int missingValue;
@@ -688,9 +686,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Base iterator implementation.
      */
-    abstract class AbstractIterator implements Serializable
+    abstract class AbstractIterator
     {
-        private static final long serialVersionUID = 5262459454112462433L;
         /**
          * Is current position valid.
          */
@@ -811,10 +808,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Iterator over keys which supports access to unboxed keys via {@link #nextValue()}.
      */
-    public final class KeyIterator extends AbstractIterator implements Iterator<Integer>, Serializable
+    public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
-        private static final long serialVersionUID = 9151493609653852972L;
-
         /**
          * {@inheritDoc}
          */
@@ -838,10 +833,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Iterator over values which supports access to unboxed values.
      */
-    public final class ValueIterator extends AbstractIterator implements Iterator<Integer>, Serializable
+    public final class ValueIterator extends AbstractIterator implements Iterator<Integer>
     {
-        private static final long serialVersionUID = -5670291734793552927L;
-
         /**
          * {@inheritDoc}
          */
@@ -867,10 +860,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
      */
     public final class EntryIterator
         extends AbstractIterator
-        implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>, Serializable
+        implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
     {
-        private static final long serialVersionUID = 1744408438593481051L;
-
         /**
          * {@inheritDoc}
          */
@@ -1067,9 +1058,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Set of keys which supports optional cached iterators to avoid allocation.
      */
-    public final class KeySet extends AbstractSet<Integer> implements Serializable
+    public final class KeySet extends AbstractSet<Integer>
     {
-        private static final long serialVersionUID = -7645453993079742625L;
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
@@ -1135,9 +1125,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Collection of values which supports optionally cached iterators to avoid allocation.
      */
-    public final class ValueCollection extends AbstractCollection<Integer> implements Serializable
+    public final class ValueCollection extends AbstractCollection<Integer>
     {
-        private static final long serialVersionUID = -8925598924781601919L;
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
@@ -1187,9 +1176,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>, Serializable
     /**
      * Set of entries which supports optionally cached iterators to avoid allocation.
      */
-    public final class EntrySet extends AbstractSet<Map.Entry<Integer, Integer>> implements Serializable
+    public final class EntrySet extends AbstractSet<Map.Entry<Integer, Integer>>
     {
-        private static final long serialVersionUID = 63641283589916174L;
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
 
         /**

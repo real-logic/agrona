@@ -112,7 +112,7 @@ public class OffsetEpochNanoClock implements EpochNanoClock
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public long nanoTime()
     {

@@ -15,13 +15,11 @@
  */
 package org.agrona.collections;
 
-import java.io.Serializable;
-
 /**
  * Holder for a long value that is mutable. Useful for being a counter in a {@link java.util.Map} or for passing by
  * reference.
  */
-public class MutableLong extends Number implements Comparable<MutableLong>, Serializable
+public class MutableLong extends Number implements Comparable<MutableLong>
 {
     private static final long serialVersionUID = -3537098518545563995L;
     /**
@@ -207,7 +205,7 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean equals(final Object o)
     {
@@ -227,7 +225,7 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int hashCode()
     {
@@ -235,7 +233,7 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {
@@ -243,7 +241,7 @@ public class MutableLong extends Number implements Comparable<MutableLong>, Seri
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public int compareTo(final MutableLong that)
     {

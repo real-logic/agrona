@@ -55,7 +55,7 @@ public final class SleepingIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle(final int workCount)
     {
@@ -68,7 +68,7 @@ public final class SleepingIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void idle()
     {
@@ -76,14 +76,14 @@ public final class SleepingIdleStrategy implements IdleStrategy
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void reset()
     {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String alias()
     {

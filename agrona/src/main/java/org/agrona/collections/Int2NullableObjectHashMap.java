@@ -24,8 +24,6 @@ import org.agrona.generation.DoNotSub;
  */
 public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
 {
-    private static final long serialVersionUID = -7081946803848112161L;
-
     /**
      * Constructs map with default settings.
      */

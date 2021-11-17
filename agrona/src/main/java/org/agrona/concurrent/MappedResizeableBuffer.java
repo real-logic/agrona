@@ -77,7 +77,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void close()
     {
@@ -1472,7 +1472,7 @@ public class MappedResizeableBuffer implements AutoCloseable
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public String toString()
     {
