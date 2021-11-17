@@ -64,6 +64,7 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
     /**
      * A stateful reusable iterator.
      */
+    @SuppressWarnings("serial")
     public final class ReusableIterator implements Iterator<V>, Serializable
     {
         private static final long serialVersionUID = 9183617352140354854L;

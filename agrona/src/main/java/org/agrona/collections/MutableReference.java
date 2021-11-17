@@ -23,6 +23,7 @@ import java.util.Objects;
  *
  * @param <T> type of the reference.
  */
+@SuppressWarnings("serial")
 public class MutableReference<T> implements Serializable
 {
     private static final long serialVersionUID = 321431528882718691L;

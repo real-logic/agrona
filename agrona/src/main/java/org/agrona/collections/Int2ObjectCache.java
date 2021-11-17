@@ -643,6 +643,7 @@ public class Int2ObjectCache<V>
     /**
      * Collection of values which supports cached iterator to avoid allocation.
      */
+    @SuppressWarnings("serial")
     public final class ValueCollection extends AbstractCollection<V> implements Serializable
     {
         private static final long serialVersionUID = 4345278262685013239L;
