@@ -175,31 +175,32 @@ class AsciiEncodingTest
     @Test
     void digitCountIntValue()
     {
-        final int[] values =
+        for (int i = 0; i < INT_MAX_DIGITS; i++)
         {
-            9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, Integer.MAX_VALUE
-        };
-
-        for (int i = 0; i < values.length; i++)
-        {
-            assertEquals(i + 1, digitCount(values[i]));
+            final int min = 0 == i ? 0 : INT_POW_10[i];
+            final int max = INT_MAX_DIGITS - 1 == i ? Integer.MAX_VALUE : INT_POW_10[i + 1] - 1;
+            final int expectedDigitCount = i + 1;
+            assertEquals(expectedDigitCount, digitCount(min));
+            assertEquals(expectedDigitCount, digitCount(min + 1));
+            assertEquals(expectedDigitCount, digitCount(min + (max - min) >>> 1));
+            assertEquals(expectedDigitCount, digitCount(max - 1));
+            assertEquals(expectedDigitCount, digitCount(max));
         }
     }
 
     @Test
     void digitCountLongValue()
     {
-        final long[] values =
+        for (int i = 0; i < LONG_MAX_DIGITS; i++)
         {
-            9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, 9_999_999_999L,
-            99_999_999_999L, 999_999_999_999L, 9_999_999_999_999L, 99_999_999_999_999L, 999999_999999999L,
-            9_999_999_999_999_999L, 99_999_999_999_999_999L, 999_999_999_999_999_999L, Long.MAX_VALUE
-        };
-
-        for (int i = 0; i < values.length; i++)
-        {
-            final int iter = i;
-            assertEquals(i + 1, digitCount(values[i]), () -> iter + " -> " + values[iter]);
+            final long min = 0 == i ? 0 : LONG_POW_10[i];
+            final long max = LONG_MAX_DIGITS - 1 == i ? Long.MAX_VALUE : LONG_POW_10[i + 1] - 1;
+            final int expectedDigitCount = i + 1;
+            assertEquals(expectedDigitCount, digitCount(min));
+            assertEquals(expectedDigitCount, digitCount(min + 1));
+            assertEquals(expectedDigitCount, digitCount(min + (max - min) >>> 1));
+            assertEquals(expectedDigitCount, digitCount(max - 1));
+            assertEquals(expectedDigitCount, digitCount(max));
         }
     }
 
