@@ -16,14 +16,11 @@
 package org.agrona;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
@@ -175,75 +172,33 @@ class AsciiEncodingTest
     @Test
     void digitCountIntValue()
     {
-        final int[] values =
+        for (int i = 0; i < INT_MAX_DIGITS; i++)
         {
-            9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, Integer.MAX_VALUE
-        };
-
-        for (int i = 0; i < values.length; i++)
-        {
-            assertEquals(i + 1, digitCount(values[i]));
+            final int min = 0 == i ? 0 : INT_POW_10[i];
+            final int max = INT_MAX_DIGITS - 1 == i ? Integer.MAX_VALUE : INT_POW_10[i + 1] - 1;
+            final int expectedDigitCount = i + 1;
+            assertEquals(expectedDigitCount, digitCount(min));
+            assertEquals(expectedDigitCount, digitCount(min + 1));
+            assertEquals(expectedDigitCount, digitCount(min + (max - min) >>> 1));
+            assertEquals(expectedDigitCount, digitCount(max - 1));
+            assertEquals(expectedDigitCount, digitCount(max));
         }
     }
 
     @Test
     void digitCountLongValue()
     {
-        final long[] values =
+        for (int i = 0; i < LONG_MAX_DIGITS; i++)
         {
-            9, 99, 999, 9_999, 99_999, 999_999, 9_999_999, 99_999_999, 999_999_999, 9_999_999_999L,
-            99_999_999_999L, 999_999_999_999L, 9_999_999_999_999L, 99_999_999_999_999L, 999999_999999999L,
-            9_999_999_999_999_999L, 99_999_999_999_999_999L, 999_999_999_999_999_999L, Long.MAX_VALUE
-        };
-
-        for (int i = 0; i < values.length; i++)
-        {
-            final int iter = i;
-            assertEquals(i + 1, digitCount(values[i]), () -> iter + " -> " + values[iter]);
+            final long min = 0 == i ? 0 : LONG_POW_10[i];
+            final long max = LONG_MAX_DIGITS - 1 == i ? Long.MAX_VALUE : LONG_POW_10[i + 1] - 1;
+            final int expectedDigitCount = i + 1;
+            assertEquals(expectedDigitCount, digitCount(min));
+            assertEquals(expectedDigitCount, digitCount(min + 1));
+            assertEquals(expectedDigitCount, digitCount(min + (max - min) >>> 1));
+            assertEquals(expectedDigitCount, digitCount(max - 1));
+            assertEquals(expectedDigitCount, digitCount(max));
         }
-    }
-
-    // prints a lookup table for org.agrona.AsciiEncoding.digitCount(int)
-    @Test
-    @Disabled
-    void printDigitCountIntTable()
-    {
-        for (int i = 1; i < 33; i++)
-        {
-            final double smallest = Math.pow(2, i - 1);
-            final long log10 = (long)Math.ceil(Math.log10(smallest));
-            final long value = (long)((i < 31 ? (Math.pow(2, 32) - Math.pow(10, log10)) : 0) + (log10 << 32));
-            if (i != 1)
-            {
-                System.out.println(",");
-            }
-            System.out.print(value);
-            System.out.print("L");
-        }
-        System.out.println();
-    }
-
-    // prints a lookup table for org.agrona.AsciiEncoding.digitCount(long)
-    @Test
-    @Disabled
-    void printDigitCountLongTable()
-    {
-        final BigInteger[] pow10 = IntStream.rangeClosed(0, 19)
-            .mapToObj(BigInteger.TEN::pow)
-            .toArray(BigInteger[]::new);
-
-        for (int i = 0; i < 64; i++)
-        {
-            final int upper = i == 0 ? 0 : ((i * 1262611) >> 22) + 1;
-            final long value = ((long)(upper + 1) << 52) - pow10[upper].shiftRight(i / 4).longValue();
-            if (i != 0)
-            {
-                System.out.println(",");
-            }
-            System.out.print(value);
-            System.out.print("L");
-        }
-        System.out.println();
     }
 
     @Test
