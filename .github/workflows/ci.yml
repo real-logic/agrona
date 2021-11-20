@@ -3,10 +3,12 @@ on:
   push:
     branches:
       - master
+      - 'release/**'
   pull_request:
     types: [opened, synchronize]
     branches:
       - master
+      - 'release/**'
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail"
