@@ -141,6 +141,43 @@ public class AgentInvokerTest
     }
 
     @Test
+    public void shouldStopRunningOnRuntimeException() throws Exception
+    {
+        try
+        {
+            final RuntimeException expectedException = new RuntimeException();
+            when(mockAgent.doWork()).thenThrow(expectedException);
+            doAnswer(
+                (invocation) ->
+                {
+                    Thread.currentThread().interrupt();
+                    return null;
+                })
+                .when(mockErrorHandler).onError(expectedException);
+
+            invoker.start();
+            invoker.invoke();
+
+            verify(mockAgent).doWork();
+            verify(mockErrorHandler).onError(expectedException);
+            verify(mockAtomicCounter).increment();
+            verify(mockAgent).onClose();
+            assertTrue(invoker.isClosed());
+            assertFalse(invoker.isRunning());
+
+            reset(mockAgent);
+            invoker.invoke();
+
+            verify(mockAgent, never()).doWork();
+            assertTrue(invoker.isClosed());
+        }
+        finally
+        {
+            assertTrue(Thread.interrupted());
+        }
+    }
+
+    @Test
     public void shouldNotReportClosedByInterruptException() throws Exception
     {
         when(mockAgent.doWork()).thenThrow(new ClosedByInterruptException());
