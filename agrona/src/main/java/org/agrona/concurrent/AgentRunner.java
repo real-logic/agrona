@@ -303,12 +303,9 @@ public class AgentRunner implements Runnable, AutoCloseable
         {
             final int workCount = agent.doWork();
             idleStrategy.idle(workCount);
-            if (0 >= workCount)
+            if (workCount <= 0 && Thread.currentThread().isInterrupted())
             {
-                if (Thread.currentThread().isInterrupted())
-                {
-                    isRunning = false;
-                }
+                isRunning = false;
             }
         }
         catch (final InterruptedException | ClosedByInterruptException ignore)
@@ -329,6 +326,11 @@ public class AgentRunner implements Runnable, AutoCloseable
             }
 
             handleError(t);
+            if (isRunning && Thread.currentThread().isInterrupted())
+            {
+                isRunning = false;
+            }
+
             if (t instanceof Error)
             {
                 throw (Error)t;

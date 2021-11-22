@@ -145,6 +145,10 @@ public class AgentInvoker implements AutoCloseable
             try
             {
                 workCount = agent.doWork();
+                if (workCount <= 0 && Thread.currentThread().isInterrupted())
+                {
+                    isRunning = false;
+                }
             }
             catch (final InterruptedException | ClosedByInterruptException ignore)
             {
@@ -171,8 +175,9 @@ public class AgentInvoker implements AutoCloseable
                     throw (Error)t;
                 }
 
-                if (isInterrupted)
+                if (isInterrupted || Thread.currentThread().isInterrupted())
                 {
+                    isRunning = false;
                     close();
                 }
             }
