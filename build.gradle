@@ -477,6 +477,14 @@ project(':agrona-concurrency-tests') {
         standardOutput = new NullOutputStream()
         errorOutput = new NullOutputStream()
     }
+
+    def jcstressResults = project.hasProperty('jcstress-results') ? project.getProperty('jcstress-results') : ''
+
+    task parseResultsFile(type: JavaExec, group: 'verification', dependsOn: shadowJar) {
+        classpath = files(tasks.shadowJar)
+        workingDir = project.buildDir
+        args = ['-p', jcstressResults, '-r', 'reports/jcstress']
+    }
 }
 
 task testReport(type: TestReport) {
