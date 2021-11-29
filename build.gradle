@@ -470,10 +470,12 @@ project(':agrona-concurrency-tests') {
 
     jar.finalizedBy shadowJar
 
-    task concurrencyTests(type: JavaExec, group: 'verification') {
+    task concurrencyTests(type: JavaExec, group: 'verification', dependsOn: shadowJar) {
         classpath = files(tasks.shadowJar)
         workingDir = project.buildDir
-        args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelGC']
+        args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
+        standardOutput = new NullOutputStream()
+        errorOutput = new NullOutputStream()
     }
 }
 
@@ -510,4 +512,19 @@ task copyTestLogs(type: Copy) {
 wrapper {
     gradleVersion = '7.2'
     distributionType = 'ALL'
+}
+
+class NullOutputStream extends OutputStream
+{
+    void write(final int b) throws IOException
+    {
+    }
+
+    void write(final byte[] b) throws IOException
+    {
+    }
+
+    void write(final byte[] b, final int off, final int len) throws IOException
+    {
+    }
 }
