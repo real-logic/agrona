@@ -47,8 +47,9 @@ def toolchainJavadocTool = javaToolchains.javadocToolFor {
     languageVersion = JavaLanguageVersion.of(buildJavaVersion)
 }
 
-def byteBuddyVersion = '1.12.3'
-def findbugsAnnotations = '3.0.1'
+def byteBuddyVersion = '1.12.4'
+def findbugsAnnotationsVersion = '3.0.1'
+def findbugsJsr305Version = '3.0.2'
 def checkstyleVersion = '9.2'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '4.1.0'
@@ -155,7 +156,9 @@ allprojects {
         resolutionStrategy {
             failOnVersionConflict()
 
-            force "junit:junit:${junit4Version}"
+            force "junit:junit:${junit4Version}",
+                  "net.bytebuddy:byte-buddy:${byteBuddyVersion}",
+                  "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
         }
     }
 
@@ -354,8 +357,10 @@ project(':agrona-agent') {
         implementation project(':agrona')
         implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
         // Avoid Javac warning about missing dependency from ByteBuddy
-        compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
-        testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotations}"
+        compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
+        compileOnly "com.google.code.findbugs:jsr305:${findbugsJsr305Version}"
+        testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
+        testCompileOnly "com.google.code.findbugs:jsr305:${findbugsJsr305Version}"
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
