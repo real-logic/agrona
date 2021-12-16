@@ -47,7 +47,7 @@ def toolchainJavadocTool = javaToolchains.javadocToolFor {
     languageVersion = JavaLanguageVersion.of(buildJavaVersion)
 }
 
-def byteBuddyVersion = '1.12.4'
+def byteBuddyVersion = '1.12.5'
 def findbugsAnnotationsVersion = '3.0.1'
 def findbugsJsr305Version = '3.0.2'
 def checkstyleVersion = '9.2'
