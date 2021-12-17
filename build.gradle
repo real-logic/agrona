@@ -49,7 +49,6 @@ def toolchainJavadocTool = javaToolchains.javadocToolFor {
 
 def byteBuddyVersion = '1.12.5'
 def findbugsAnnotationsVersion = '3.0.1'
-def findbugsJsr305Version = '3.0.2'
 def checkstyleVersion = '9.2'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '4.2.0'
@@ -358,9 +357,7 @@ project(':agrona-agent') {
         implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
         // Avoid Javac warning about missing dependency from ByteBuddy
         compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        compileOnly "com.google.code.findbugs:jsr305:${findbugsJsr305Version}"
         testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        testCompileOnly "com.google.code.findbugs:jsr305:${findbugsJsr305Version}"
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
