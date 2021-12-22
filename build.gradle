@@ -202,7 +202,9 @@ subprojects {
             options.forkOptions.javaHome = javaHome.toFile()
         }
 
-        options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
+        if (buildJavaVersion < 18) {
+            options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
+        }
         options.compilerArgs.add('-XDignore.symbol.file') // Suppress warnings about using Unsafe
         options.encoding = 'UTF-8'
         options.deprecation = true
