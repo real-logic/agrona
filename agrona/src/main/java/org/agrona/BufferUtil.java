@@ -29,6 +29,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Common functions for buffer implementations.
  */
+@SuppressWarnings("deprecation")
 public final class BufferUtil
 {
     /**
@@ -44,7 +45,6 @@ public final class BufferUtil
     /**
      * Byte array base offset.
      */
-    @SuppressWarnings("deprecation")
     public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
 
     /**
