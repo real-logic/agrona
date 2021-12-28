@@ -25,6 +25,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Pad out a cache line to the left of a tail to prevent false sharing.
  */
+@SuppressWarnings("deprecation")
 abstract class ManyToOneConcurrentLinkedQueuePadding1
 {
     /**
