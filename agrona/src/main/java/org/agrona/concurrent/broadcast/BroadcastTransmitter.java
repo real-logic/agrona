@@ -17,8 +17,8 @@ package org.agrona.concurrent.broadcast;
 
 import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
-import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.MemoryAccess;
 
 import static org.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
 import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
@@ -128,7 +128,7 @@ public class BroadcastTransmitter
     private void signalTailIntent(final AtomicBuffer buffer, final long newTail)
     {
         buffer.putLongOrdered(tailIntentCountIndex, newTail);
-        UnsafeAccess.UNSAFE.storeFence();
+        MemoryAccess.releaseFence();
     }
 
     private static void insertPaddingRecord(final AtomicBuffer buffer, final int recordOffset, final int length)

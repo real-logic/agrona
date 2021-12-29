@@ -16,9 +16,9 @@
 package org.agrona.concurrent.ringbuffer;
 
 import org.agrona.DirectBuffer;
-import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.ControlledMessageHandler;
+import org.agrona.concurrent.MemoryAccess;
 import org.agrona.concurrent.MessageHandler;
 
 import static java.lang.Math.max;
@@ -100,7 +100,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
-        UnsafeAccess.UNSAFE.storeFence();
+        MemoryAccess.releaseFence();
 
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
@@ -127,7 +127,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
-        UnsafeAccess.UNSAFE.storeFence();
+        MemoryAccess.releaseFence();
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
 
         return encodedMsgOffset(recordIndex);
@@ -472,7 +472,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         {
             buffer.putLong(0, 0L);
             buffer.putIntOrdered(lengthOffset(recordIndex), -padding);
-            UnsafeAccess.UNSAFE.storeFence();
+            MemoryAccess.releaseFence();
 
             buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
             buffer.putIntOrdered(lengthOffset(recordIndex), padding);

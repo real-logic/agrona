@@ -17,11 +17,11 @@ package org.agrona.concurrent.broadcast;
 
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.MemoryAccess;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.agrona.BitUtil.align;
-import static org.agrona.UnsafeAccess.UNSAFE;
 import static org.agrona.concurrent.broadcast.BroadcastBufferDescriptor.*;
 import static org.agrona.concurrent.broadcast.RecordDescriptor.*;
 
@@ -191,7 +191,7 @@ public class BroadcastReceiver
      */
     public boolean validate()
     {
-        UNSAFE.loadFence();
+        MemoryAccess.acquireFence();
 
         return validate(cursor, buffer, capacity);
     }
