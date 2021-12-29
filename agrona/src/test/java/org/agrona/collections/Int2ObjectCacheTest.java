@@ -31,10 +31,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Int2ObjectCacheTest
 {
-    public static final int NUM_SETS = 16;
-    public static final int SET_SIZE = 4;
-    public static final int CAPACITY = NUM_SETS * SET_SIZE;
-    public static final Consumer<String> EVICTION_CONSUMER = (s) -> {};
+    private static final int NUM_SETS = 16;
+    private static final int SET_SIZE = 4;
+    private static final int CAPACITY = NUM_SETS * SET_SIZE;
+    private static final Consumer<String> EVICTION_CONSUMER = (s) -> {};
 
     private final Int2ObjectCache<String> cache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 

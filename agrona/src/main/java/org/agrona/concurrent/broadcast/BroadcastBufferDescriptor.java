@@ -39,7 +39,7 @@ public final class BroadcastBufferDescriptor
     public static final int LATEST_COUNTER_OFFSET;
 
     /**
-     * Total size of the trailer
+     * Total size of the trailer.
      */
     public static final int TRAILER_LENGTH;
 

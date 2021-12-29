@@ -35,7 +35,7 @@ public final class AsciiEncoding
     public static final int LONG_MAX_DIGITS = 19;
 
     /**
-     * A absolute value of the {@link Integer#MIN_VALUE} as long.
+     * An absolute value of the {@link Integer#MIN_VALUE} as long.
      */
     public static final long INTEGER_ABSOLUTE_MIN_VALUE = Math.abs((long)Integer.MIN_VALUE);
 

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 
 public class Int2IntCounterMapTest
 {
-    public static final int INITIAL_VALUE = 0;
+    private static final int INITIAL_VALUE = 0;
 
     private final Int2IntCounterMap map = new Int2IntCounterMap(INITIAL_VALUE);
 

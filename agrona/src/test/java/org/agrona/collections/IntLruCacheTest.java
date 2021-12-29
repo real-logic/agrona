@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 public class IntLruCacheTest
 {
-    public static final int CAPACITY = 2;
+    private static final int CAPACITY = 2;
 
     @SuppressWarnings("unchecked")
     private final IntFunction<AutoCloseable> mockFactory = mock(IntFunction.class);

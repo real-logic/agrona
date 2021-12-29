@@ -39,6 +39,7 @@ public final class OneToOneRingBuffer implements RingBuffer
      * Minimal required capacity of the ring buffer excluding {@link RingBufferDescriptor#TRAILER_LENGTH}.
      */
     public static final int MIN_CAPACITY = HEADER_LENGTH * 2;
+
     private final int capacity;
     private final int maxMsgLength;
     private final int tailPositionIndex;
