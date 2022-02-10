@@ -25,6 +25,7 @@ public interface EpochClock
      * Time in milliseconds since 1 Jan 1970 UTC.
      *
      * @return the number of milliseconds since 1 Jan 1970 UTC.
+     * @see System#currentTimeMillis()
      */
     long time();
 }
