@@ -1908,16 +1908,10 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public int putIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte(index, ZERO);
             return 1;
-        }
-
-        if (value == Integer.MIN_VALUE)
-        {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
         }
 
         final byte[] dest = byteArray;
@@ -1926,6 +1920,12 @@ public class UnsafeBuffer implements AtomicBuffer
         final int digitCount, length;
         if (value < 0)
         {
+            if (Integer.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_INTEGER_VALUE);
+                return MIN_INTEGER_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;
@@ -1958,7 +1958,7 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public int putNaturalIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte(index, ZERO);
             return 1;
@@ -2019,7 +2019,7 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public int putNaturalLongAscii(final int index, final long value)
     {
-        if (value == 0)
+        if (0L == value)
         {
             putByte(index, ZERO);
             return 1;
@@ -2042,16 +2042,10 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public int putLongAscii(final int index, final long value)
     {
-        if (value == 0)
+        if (0L == value)
         {
             putByte(index, ZERO);
             return 1;
-        }
-
-        if (value == Long.MIN_VALUE)
-        {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
         }
 
         final byte[] dest = byteArray;
@@ -2060,6 +2054,12 @@ public class UnsafeBuffer implements AtomicBuffer
         final int digitCount, length;
         if (value < 0)
         {
+            if (Long.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_LONG_VALUE);
+                return MIN_LONG_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;

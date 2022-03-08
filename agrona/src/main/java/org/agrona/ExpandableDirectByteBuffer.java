@@ -1285,28 +1285,29 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
      */
     public int putIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Integer.MIN_VALUE)
-        {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
-        }
-
-        long offset = address + index;
+        long offset;
         int quotient = value;
         final int digitCount, length;
         if (value < 0)
         {
+            if (Integer.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_INTEGER_VALUE);
+                return MIN_INTEGER_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;
 
             ensureCapacity(index, length);
+            offset = address + index;
 
             UNSAFE.putByte(null, offset, MINUS_SIGN);
             offset++;
@@ -1316,6 +1317,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             length = digitCount = digitCount(quotient);
 
             ensureCapacity(index, length);
+            offset = address + index;
         }
 
         putPositiveIntAscii(offset, quotient, digitCount);
@@ -1328,7 +1330,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
      */
     public int putNaturalIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
@@ -1386,7 +1388,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
      */
     public int putNaturalLongAscii(final int index, final long value)
     {
-        if (value == 0L)
+        if (0L == value)
         {
             putByte0(index, ZERO);
             return 1;
@@ -1406,28 +1408,29 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
      */
     public int putLongAscii(final int index, final long value)
     {
-        if (value == 0)
+        if (0L == value)
         {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Long.MIN_VALUE)
-        {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
-        }
-
-        long offset = address + index;
+        long offset;
         long quotient = value;
         final int digitCount, length;
         if (value < 0)
         {
+            if (Long.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_LONG_VALUE);
+                return MIN_LONG_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;
 
             ensureCapacity(index, length);
+            offset = address + index;
 
             UNSAFE.putByte(null, offset, MINUS_SIGN);
             offset++;
@@ -1437,6 +1440,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
             length = digitCount = digitCount(quotient);
 
             ensureCapacity(index, length);
+            offset = address + index;
         }
 
         putPositiveLongAscii(offset, quotient, digitCount);
