@@ -1238,31 +1238,30 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int putIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Integer.MIN_VALUE)
-        {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
-        }
-
-        final byte[] dest = byteArray;
         int offset = index;
         int quotient = value;
         final int digitCount, length;
         if (value < 0)
         {
+            if (Integer.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_INTEGER_VALUE);
+                return MIN_INTEGER_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;
 
             ensureCapacity(index, length);
 
-            dest[offset] = MINUS_SIGN;
+            byteArray[offset] = MINUS_SIGN;
             offset++;
         }
         else
@@ -1272,7 +1271,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             ensureCapacity(index, length);
         }
 
-        putPositiveIntAscii(dest, offset, quotient, digitCount);
+        putPositiveIntAscii(byteArray, offset, quotient, digitCount);
 
         return length;
     }
@@ -1282,7 +1281,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int putNaturalIntAscii(final int index, final int value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
@@ -1343,7 +1342,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int putNaturalLongAscii(final int index, final long value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
@@ -1363,31 +1362,30 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int putLongAscii(final int index, final long value)
     {
-        if (value == 0)
+        if (0 == value)
         {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Long.MIN_VALUE)
-        {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
-        }
-
-        final byte[] dest = byteArray;
         int offset = index;
         long quotient = value;
         final int digitCount, length;
         if (value < 0)
         {
+            if (Long.MIN_VALUE == value)
+            {
+                putBytes(index, MIN_LONG_VALUE);
+                return MIN_LONG_VALUE.length;
+            }
+
             quotient = -quotient;
             digitCount = digitCount(quotient);
             length = digitCount + 1;
 
             ensureCapacity(index, length);
 
-            dest[offset] = MINUS_SIGN;
+            byteArray[offset] = MINUS_SIGN;
             offset++;
         }
         else
@@ -1397,7 +1395,7 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
             ensureCapacity(index, length);
         }
 
-        putPositiveLongAscii(dest, offset, quotient, digitCount);
+        putPositiveLongAscii(byteArray, offset, quotient, digitCount);
 
         return length;
     }

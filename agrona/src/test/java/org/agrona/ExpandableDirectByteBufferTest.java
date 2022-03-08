@@ -15,10 +15,63 @@
  */
 package org.agrona;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 {
     protected MutableDirectBuffer newBuffer(final int capacity)
     {
         return new ExpandableDirectByteBuffer(capacity);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { -123, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 77777 })
+    void putIntAsciiShouldExpandCapacity(final int value)
+    {
+        final int initialCapacity = 2;
+        final int index = 5;
+        final MutableDirectBuffer buffer = newBuffer(initialCapacity);
+
+        final int length = buffer.putIntAscii(index, value);
+        assertEquals(value, buffer.parseIntAscii(index, length));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { Integer.MAX_VALUE, 0, 77777, 1 })
+    void putNaturalIntAsciiShouldExpandCapacity(final int value)
+    {
+        final int initialCapacity = 2;
+        final int index = initialCapacity;
+        final MutableDirectBuffer buffer = newBuffer(initialCapacity);
+
+        final int length = buffer.putNaturalIntAscii(index, value);
+        assertEquals(value, buffer.parseIntAscii(index, length));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = { Long.MIN_VALUE + 1, Long.MIN_VALUE, Long.MAX_VALUE, 0, 1754837658435L })
+    void putLongAsciiShouldExpandCapacity(final long value)
+    {
+        final int initialCapacity = 12;
+        final int index = 50;
+        final MutableDirectBuffer buffer = newBuffer(initialCapacity);
+
+        final int length = buffer.putLongAscii(index, value);
+        assertEquals(value, buffer.parseLongAscii(index, length));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = { Long.MAX_VALUE, 0, 1754837658435L, Long.MAX_VALUE - 111 })
+    void putNaturalLongAsciiShouldExpandCapacity(final long value)
+    {
+        final int initialCapacity = 2;
+        final int index = initialCapacity * 2;
+        final MutableDirectBuffer buffer = newBuffer(initialCapacity);
+
+        final int length = buffer.putNaturalLongAscii(index, value);
+        assertEquals(value, buffer.parseNaturalLongAscii(index, length));
     }
 }
