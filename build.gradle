@@ -490,9 +490,9 @@ project(':agrona-concurrency-tests') {
 }
 
 task testReport(type: TestReport) {
-    destinationDir = file("$buildDir/reports/allTests")
+    destinationDirectory = file("$buildDir/reports/allTests")
     // Include the results from the `test` task in all subprojects
-    reportOn subprojects*.test
+    testResults.setFrom(subprojects*.test)
 }
 
 def isNonStable = { String version ->
@@ -520,7 +520,7 @@ task copyTestLogs(type: Copy) {
 }
 
 wrapper {
-    gradleVersion = '7.3.3'
+    gradleVersion = '7.4.1'
     distributionType = 'ALL'
 }
 
