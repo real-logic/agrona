@@ -59,7 +59,7 @@ def jmhVersion = '1.34'
 def jcstressVersion = '0.15'
 
 def agronaGroup = 'org.agrona'
-def agronaVersion = '1.15.0-SNAPSHOT'
+def agronaVersion = '1.15.0'
 
 def getConfigProperty(final String projectPropertyName, final String envVarName) {
     String value = project.findProperty(projectPropertyName)
