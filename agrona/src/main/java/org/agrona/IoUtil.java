@@ -471,19 +471,20 @@ public final class IoUtil
         try (FileChannel channel = FileChannel.open(location.toPath(), CREATE_NEW, READ, WRITE))
         {
             mappedByteBuffer = channel.map(READ_WRITE, 0, length);
-            if (fillWithZeros)
-            {
-                int pos = 0;
-                while (pos < length)
-                {
-                    mappedByteBuffer.put(pos, (byte)0);
-                    pos += BLOCK_SIZE;
-                }
-            }
         }
         catch (final IOException ex)
         {
             LangUtil.rethrowUnchecked(ex);
+        }
+
+        if (fillWithZeros)
+        {
+            int pos = 0;
+            while (pos < length)
+            {
+                mappedByteBuffer.put(pos, (byte)0);
+                pos += BLOCK_SIZE;
+            }
         }
 
         return mappedByteBuffer;
