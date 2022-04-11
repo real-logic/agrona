@@ -17,6 +17,7 @@ package org.agrona.concurrent.errors;
 
 import org.agrona.concurrent.AtomicBuffer;
 
+import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
@@ -35,7 +36,7 @@ public class ErrorLogReader
      */
     public static boolean hasErrors(final AtomicBuffer buffer)
     {
-        return buffer.capacity() > 0 && 0 != buffer.getIntVolatile(LENGTH_OFFSET);
+        return buffer.capacity() >= SIZE_OF_INT && 0 != buffer.getIntVolatile(LENGTH_OFFSET);
     }
 
     /**
