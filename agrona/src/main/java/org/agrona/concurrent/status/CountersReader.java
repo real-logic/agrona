@@ -332,8 +332,8 @@ public class CountersReader
     public void forEach(final IntObjConsumer<String> consumer)
     {
         int counterId = 0;
-
         final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
+
         for (int i = 0, capacity = metaDataBuffer.capacity(); i < capacity; i += METADATA_LENGTH)
         {
             final int recordStatus = metaDataBuffer.getIntVolatile(i);
@@ -359,7 +359,6 @@ public class CountersReader
     public void forEach(final CounterConsumer consumer)
     {
         int counterId = 0;
-
         final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
         final AtomicBuffer valuesBuffer = this.valuesBuffer;
 
@@ -389,7 +388,6 @@ public class CountersReader
     public void forEach(final MetaData metaData)
     {
         int counterId = 0;
-
         final AtomicBuffer metaDataBuffer = this.metaDataBuffer;
 
         for (int offset = 0, capacity = metaDataBuffer.capacity(); offset < capacity; offset += METADATA_LENGTH)
@@ -582,7 +580,7 @@ public class CountersReader
         if (counterId < 0 || counterId > maxCounterId)
         {
             throw new IllegalArgumentException(
-                "counter id " + counterId + " out of range: maxCounterId=" + maxCounterId);
+                "counter id " + counterId + " out of range: 0 - maxCounterId=" + maxCounterId);
         }
     }
 
