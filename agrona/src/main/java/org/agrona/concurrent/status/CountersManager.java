@@ -231,10 +231,11 @@ public class CountersManager extends CountersReader
     public int allocate(final String label, final int typeId, final Consumer<MutableDirectBuffer> keyFunc)
     {
         final int counterId = nextCounterId();
-        final int recordOffset = metaDataOffset(counterId);
 
         try
         {
+            final int recordOffset = metaDataOffset(counterId);
+
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
             keyFunc.accept(new UnsafeBuffer(metaDataBuffer, recordOffset + KEY_OFFSET, MAX_KEY_LENGTH));
             metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
@@ -275,10 +276,11 @@ public class CountersManager extends CountersReader
         final int labelLength)
     {
         final int counterId = nextCounterId();
-        final int recordOffset = metaDataOffset(counterId);
 
         try
         {
+            final int recordOffset = metaDataOffset(counterId);
+
             metaDataBuffer.putInt(recordOffset + TYPE_ID_OFFSET, typeId);
             metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
 
@@ -553,7 +555,7 @@ public class CountersManager extends CountersReader
     {
         if (counterId > maxCounterId)
         {
-            throw new IllegalStateException("unable to allocate counter, buffer is full");
+            throw new IllegalStateException("unable to allocate counter, buffer is full: maxCounterId=" + maxCounterId);
         }
     }
 }
