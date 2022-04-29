@@ -17,7 +17,12 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.ToIntFunction;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -259,7 +264,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         int value;
         while (missingValue != (value = values[index]))
         {
-            if (key.equals(keys[index]))
+            if (key == keys[index] || keys[index].equals(key))
             {
                 break;
             }

@@ -17,7 +17,13 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -142,7 +148,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         Object value = null;
         while (entries[index + 1] != null)
         {
-            if (entries[index] == key || entries[index].equals(key))
+            if (key == entries[index] || entries[index].equals(key))
             {
                 value = entries[index + 1];
                 break;
