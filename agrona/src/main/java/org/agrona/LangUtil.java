@@ -43,7 +43,7 @@ public final class LangUtil
     /**
      * Performs an equality between {@code src} and {@code dst} by first checking the referential equality and if that
      * fails invoking {@code src.equals(dst)}.
-     * </p>
+     * <p>
      * Calling this method is equivalent to:
      * <pre>
      * {@code src == dst || src.equals(dst)}
