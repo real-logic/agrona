@@ -30,14 +30,14 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-abstract class MapKeyEqualityTests
+abstract class MapKeyEqualityTests<T extends Number>
 {
     static final CharSequenceKey THIS = new CharSequenceKey("this");
-    Map<Object, Number> map;
+    Map<Object, T> map;
 
-    abstract Map<Object, Number> newMap();
+    abstract Map<Object, T> newMap();
 
-    abstract Number convert(Integer value);
+    abstract T convert(Integer value);
 
     @BeforeEach
     void beforeEach()
@@ -91,9 +91,9 @@ abstract class MapKeyEqualityTests
     @Test
     void entrySetContains()
     {
-        final Set<Map.Entry<Object, Number>> entrySet = map.entrySet();
-        final ArrayList<Map.Entry<Object, Number>> entries = new ArrayList<>(entrySet);
-        for (final Map.Entry<Object, Number> e : entries)
+        final Set<Map.Entry<Object, T>> entrySet = map.entrySet();
+        final ArrayList<Map.Entry<Object, T>> entries = new ArrayList<>(entrySet);
+        for (final Map.Entry<Object, T> e : entries)
         {
             assertTrue(entrySet.contains(e));
         }

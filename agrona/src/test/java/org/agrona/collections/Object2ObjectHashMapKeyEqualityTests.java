@@ -27,9 +27,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Object2ObjectHashMapKeyEqualityTest extends MapKeyEqualityTests
+class Object2ObjectHashMapKeyEqualityTests extends MapKeyEqualityTests<Integer>
 {
-    Map<Object, Number> newMap()
+    Map<Object, Integer> newMap()
     {
         return new Object2ObjectHashMap<>();
     }

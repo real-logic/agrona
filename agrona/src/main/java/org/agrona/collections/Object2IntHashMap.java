@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import org.agrona.LangUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.util.AbstractCollection;
@@ -186,24 +187,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * @param key for indexing the {@link Map}
      * @return true if the key is found otherwise false.
      */
+    @SuppressWarnings("unchecked")
     public boolean containsKey(final Object key)
     {
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = Hashing.hash(key, mask);
-
-        boolean found = false;
-        while (missingValue != values[index])
-        {
-            if (key.equals(keys[index]))
-            {
-                found = true;
-                break;
-            }
-
-            index = ++index & mask;
-        }
-
-        return found;
+        return missingValue != getValue((K)key);
     }
 
     /**
@@ -222,12 +209,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public boolean containsValue(final int value)
     {
-        if (value == missingValue)
+        if (missingValue == value)
         {
             return false;
         }
 
         boolean found = false;
+        final int[] values = this.values;
         for (final int v : values)
         {
             if (value == v)
@@ -258,13 +246,15 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int getValue(final K key)
     {
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         int value;
         while (missingValue != (value = values[index]))
         {
-            if (key == keys[index] || keys[index].equals(key))
+            if (LangUtil.exactEquals(keys[index], key))
             {
                 break;
             }
@@ -289,10 +279,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public int computeIfAbsent(final K key, final ToIntFunction<? super K> mappingFunction)
     {
         int value = getValue(key);
-        if (value == missingValue)
+        if (missingValue == value)
         {
             value = mappingFunction.applyAsInt(key);
-            if (value != missingValue)
+            if (missingValue != value)
             {
                 put(key, value);
             }
@@ -318,20 +308,21 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int put(final K key, final int value)
     {
-        if (value == missingValue)
+        if (missingValue == value)
         {
             throw new IllegalArgumentException("cannot accept missingValue");
         }
 
-        int oldValue = missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
-        while (missingValue != values[index])
+        int oldValue;
+        while (missingValue != (oldValue = values[index]))
         {
-            if (key.equals(keys[index]))
+            if (LangUtil.exactEquals(keys[index], key))
             {
-                oldValue = values[index];
                 break;
             }
 
@@ -372,13 +363,15 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int removeKey(final K key)
     {
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         int value;
         while (missingValue != (value = values[index]))
         {
-            if (key.equals(keys[index]))
+            if (LangUtil.exactEquals(keys[index], key))
             {
                 keys[index] = null;
                 values[index] = missingValue;
@@ -515,6 +508,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             return false;
         }
 
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final int thisValue = values[i];
@@ -544,6 +539,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     {
         @DoNotSub int result = 0;
 
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final int value = values[i];
@@ -567,7 +564,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public int replace(final K key, final int value)
     {
         int curValue = getValue(key);
-        if (curValue != missingValue)
+        if (missingValue != curValue)
         {
             curValue = put(key, value);
         }
@@ -586,7 +583,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public boolean replace(final K key, final int oldValue, final int newValue)
     {
         final int curValue = getValue(key);
-        if (curValue == missingValue || curValue != oldValue)
+        if (missingValue == curValue || curValue != oldValue)
         {
             return false;
         }
@@ -617,6 +614,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         final int[] tempValues = new int[newCapacity];
         Arrays.fill(tempValues, missingValue);
 
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final int value = values[i];
@@ -634,31 +633,35 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             }
         }
 
-        keys = tempKeys;
-        values = tempValues;
+        this.keys = tempKeys;
+        this.values = tempValues;
     }
 
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteIndex)
     {
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = deleteIndex;
 
         while (true)
         {
             index = ++index & mask;
-            if (missingValue == values[index])
+            final int value = values[index];
+            if (missingValue == value)
             {
                 break;
             }
 
-            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
+            final K key = keys[index];
+            @DoNotSub final int hash = Hashing.hash(key, mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
-                keys[deleteIndex] = keys[index];
-                values[deleteIndex] = values[index];
+                keys[deleteIndex] = key;
+                values[deleteIndex] = value;
 
                 keys[index] = null;
                 values[index] = missingValue;

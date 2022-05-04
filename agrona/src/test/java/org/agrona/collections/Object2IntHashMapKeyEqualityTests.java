@@ -17,10 +17,15 @@ package org.agrona.collections;
 
 import java.util.Map;
 
-public class Object2ObjectNullableHashMapKeyEqualityTest extends Object2ObjectHashMapKeyEqualityTest
+class Object2IntHashMapKeyEqualityTests extends MapKeyEqualityTests<Integer>
 {
-    Map<Object, Number> newMap()
+    Map<Object, Integer> newMap()
     {
-        return new Object2NullableObjectHashMap<>();
+        return new Object2IntHashMap<>(Integer.MIN_VALUE);
+    }
+
+    Integer convert(final Integer value)
+    {
+        return value;
     }
 }
