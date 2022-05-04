@@ -17,7 +17,12 @@ package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,12 +32,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Object2IntHashMapTest
+class Object2IntHashMapTest
 {
     static final int MISSING_VALUE = -1;
     final Object2IntHashMap<String> objectToIntMap;
 
-    public Object2IntHashMapTest()
+    Object2IntHashMapTest()
     {
         objectToIntMap = newMap(Hashing.DEFAULT_LOAD_FACTOR, Object2IntHashMap.MIN_CAPACITY);
     }
@@ -43,7 +48,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldDoPutAndThenGet()
+    void shouldDoPutAndThenGet()
     {
         final String key = "Seven";
         objectToIntMap.put(key, 7);
@@ -52,7 +57,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldReplaceExistingValueForTheSameKey()
+    void shouldReplaceExistingValueForTheSameKey()
     {
         final int value = 7;
         final String key = "Seven";
@@ -67,7 +72,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldGrowWhenThresholdExceeded()
+    void shouldGrowWhenThresholdExceeded()
     {
         final float loadFactor = 0.5f;
         final int initialCapacity = 32;
@@ -93,7 +98,7 @@ public class Object2IntHashMapTest
 
 
     @Test
-    public void shouldHandleCollisionAndThenLinearProbe()
+    void shouldHandleCollisionAndThenLinearProbe()
     {
         final float loadFactor = 0.5f;
         final int initialCapacity = 32;
@@ -112,7 +117,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldClearCollection()
+    void shouldClearCollection()
     {
         for (int i = 0; i < 15; i++)
         {
@@ -129,7 +134,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldCompactCollection()
+    void shouldCompactCollection()
     {
         final int totalItems = 50;
         for (int i = 0; i < totalItems; i++)
@@ -149,7 +154,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldContainValue()
+    void shouldContainValue()
     {
         final int value = 7;
         final String key = "Seven";
@@ -161,7 +166,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldContainKey()
+    void shouldContainKey()
     {
         final int value = 7;
         final String key = "Seven";
@@ -173,7 +178,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldRemoveEntry()
+    void shouldRemoveEntry()
     {
         final int value = 7;
         final String key = "Seven";
@@ -188,7 +193,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldRemoveEntryAndCompactCollisionChain()
+    void shouldRemoveEntryAndCompactCollisionChain()
     {
         final float loadFactor = 0.5f;
         final Object2IntHashMap<Integer> objectToIntMap = new Object2IntHashMap<>(32, loadFactor, MISSING_VALUE);
@@ -209,7 +214,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateValuesGettingIntAsPrimitive()
+    void shouldIterateValuesGettingIntAsPrimitive()
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
@@ -231,7 +236,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateValues()
+    void shouldIterateValues()
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
@@ -254,7 +259,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateKeys()
+    void shouldIterateKeys()
     {
         final Collection<String> initialSet = new HashSet<>();
 
@@ -270,20 +275,8 @@ public class Object2IntHashMapTest
         assertIterateKeys(initialSet);
     }
 
-    private void assertIterateKeys(final Collection<String> initialSet)
-    {
-        final Collection<String> copyToSet = new HashSet<>();
-        for (final String aInteger : objectToIntMap.keySet())
-        {
-            //noinspection UseBulkOperation
-            copyToSet.add(aInteger);
-        }
-
-        assertThat(copyToSet, is(initialSet));
-    }
-
     @Test
-    public void shouldIterateAndHandleRemove()
+    void shouldIterateAndHandleRemove()
     {
         final Collection<String> initialSet = new HashSet<>();
 
@@ -318,7 +311,7 @@ public class Object2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateEntries()
+    void shouldIterateEntries()
     {
         final int count = 11;
         for (int i = 0; i < count; i++)
@@ -345,6 +338,150 @@ public class Object2IntHashMapTest
         assertThat(objectToIntMap.getValue("7"), equalTo(testValue));
     }
 
+
+    @Test
+    void shouldGenerateStringRepresentation()
+    {
+        final Object2IntHashMap<ControlledHash> objectToIntMap = new Object2IntHashMap<>(MISSING_VALUE);
+
+        final ControlledHash[] testEntries = ControlledHash.create(3, 1, 19, 7, 11, 12, 7);
+
+        for (final ControlledHash testEntry : testEntries)
+        {
+            objectToIntMap.put(testEntry, testEntry.value);
+        }
+
+        final String mapAsAString = "{7=7, 19=19, 11=11, 1=1, 12=12, 3=3}";
+        assertThat(objectToIntMap.toString(), equalTo(mapAsAString));
+    }
+
+    @Test
+    void shouldCopyConstructAndBeEqual()
+    {
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
+
+        for (final int testEntry : testEntries)
+        {
+            objectToIntMap.put(String.valueOf(testEntry), testEntry);
+        }
+
+        final Object2IntHashMap<String> mapCopy = new Object2IntHashMap<>(objectToIntMap);
+        assertThat(mapCopy, is(objectToIntMap));
+    }
+
+    @Test
+    void testToArray()
+    {
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
+
+        final Object[] array = map.entrySet().toArray();
+        for (final Object entry : array)
+        {
+            map.remove(((Entry<?, ?>)entry).getKey());
+        }
+
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    void testToArrayTyped()
+    {
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
+
+        final Entry<?, ?>[] type = new Entry[1];
+        final Entry<?, ?>[] array = map.entrySet().toArray(type);
+        for (final Entry<?, ?> entry : array)
+        {
+            map.remove(entry.getKey());
+        }
+
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    void testToArrayWithArrayListConstructor()
+    {
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
+
+        final List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
+        for (final Map.Entry<String, Integer> entry : list)
+        {
+            map.remove(entry.getKey());
+        }
+
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    void putReturnsMissingValueIfNewMappingIsAdded()
+    {
+        final Object2IntHashMap<TrickyKey> map = new Object2IntHashMap<>(MISSING_VALUE);
+
+        assertEquals(MISSING_VALUE, map.put(new TrickyKey(42, 1), 10));
+        assertEquals(MISSING_VALUE, map.put(new TrickyKey(42, 2), 20));
+        assertEquals(MISSING_VALUE, map.put(new TrickyKey(42, 3), 30));
+        assertEquals(3, map.size());
+    }
+
+    @Test
+    void removeKeyReturnsMissingValueIfRemoveFails()
+    {
+        final int missingValue = -14;
+        final Object2IntHashMap<TrickyKey> map = new Object2IntHashMap<>(missingValue);
+        map.put(new TrickyKey(21, 1), 10);
+        map.put(new TrickyKey(8, 2), 20);
+        map.put(new TrickyKey(21, 3), 30);
+
+        assertEquals(missingValue, map.removeKey(new TrickyKey(21, 21)));
+        assertEquals(3, map.size());
+        assertEquals(30, map.getValue(new TrickyKey(21, 3)));
+    }
+
+    @Test
+    void removeReturnsNullIfRemoveFails()
+    {
+        final Object2IntHashMap<TrickyKey> map = new Object2IntHashMap<>(Integer.MIN_VALUE);
+        map.put(new TrickyKey(21, 1), 10);
+
+        assertNull(map.remove(new TrickyKey(21, 21)));
+        assertEquals(1, map.size());
+        assertEquals(10, map.getValue(new TrickyKey(21, 1)));
+    }
+
+    @Test
+    void getValueReturnsMissingValueIfLookupFails()
+    {
+        final Object2IntHashMap<TrickyKey> map = new Object2IntHashMap<>(MISSING_VALUE);
+        map.put(new TrickyKey(1, 1), 1);
+        map.put(new TrickyKey(2, 2), 2);
+        map.put(new TrickyKey(3, 3), 3);
+
+        assertEquals(MISSING_VALUE, map.getValue(new TrickyKey(3, MISSING_VALUE)));
+        assertEquals(2, map.getValue(new TrickyKey(2, 2)));
+    }
+
+    private void assertIterateKeys(final Collection<String> initialSet)
+    {
+        final Collection<String> copyToSet = new HashSet<>();
+        for (final String aInteger : objectToIntMap.keySet())
+        {
+            //noinspection UseBulkOperation
+            copyToSet.add(aInteger);
+        }
+
+        assertThat(copyToSet, is(initialSet));
+    }
+
     private void iterateEntries()
     {
         for (final Map.Entry<String, Integer> entry : objectToIntMap.entrySet())
@@ -357,7 +494,7 @@ public class Object2IntHashMapTest
     {
         private final int value;
 
-        public static ControlledHash[] create(final int... values)
+        static ControlledHash[] create(final int... values)
         {
             final ControlledHash[] result = new ControlledHash[values.length];
             for (int i = 0; i < values.length; i++)
@@ -407,86 +544,37 @@ public class Object2IntHashMapTest
         }
     }
 
-    @Test
-    public void shouldGenerateStringRepresentation()
+    private static final class TrickyKey
     {
-        final Object2IntHashMap<ControlledHash> objectToIntMap = new Object2IntHashMap<>(MISSING_VALUE);
+        private final int hash;
+        private final int value;
 
-        final ControlledHash[] testEntries = ControlledHash.create(3, 1, 19, 7, 11, 12, 7);
-
-        for (final ControlledHash testEntry : testEntries)
+        private TrickyKey(final int hash, final int value)
         {
-            objectToIntMap.put(testEntry, testEntry.value);
+            this.hash = hash;
+            this.value = value;
         }
 
-        final String mapAsAString = "{7=7, 19=19, 11=11, 1=1, 12=12, 3=3}";
-        assertThat(objectToIntMap.toString(), equalTo(mapAsAString));
-    }
-
-    @Test
-    public void shouldCopyConstructAndBeEqual()
-    {
-        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
-
-        for (final int testEntry : testEntries)
+        public int hashCode()
         {
-            objectToIntMap.put(String.valueOf(testEntry), testEntry);
+            return hash;
         }
 
-        final Object2IntHashMap<String> mapCopy = new Object2IntHashMap<>(objectToIntMap);
-        assertThat(mapCopy, is(objectToIntMap));
-    }
-
-    @Test
-    public void testToArray()
-    {
-        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
-        map.put("a", 1);
-        map.put("b", 2);
-        map.put("c", 3);
-
-        final Object[] array = map.entrySet().toArray();
-        for (final Object entry : array)
+        public boolean equals(final Object obj)
         {
-            map.remove(((Entry<?, ?>)entry).getKey());
+            if (this == obj)
+            {
+                return true;
+            }
+            return obj instanceof TrickyKey && value == ((TrickyKey)obj).value;
         }
 
-        assertTrue(map.isEmpty());
-    }
-
-    @Test
-    @SuppressWarnings("rawtypes")
-    public void testToArrayTyped()
-    {
-        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
-        map.put("a", 1);
-        map.put("b", 2);
-        map.put("c", 3);
-
-        final Entry<?, ?>[] type = new Entry[1];
-        final Entry<?, ?>[] array = map.entrySet().toArray(type);
-        for (final Entry<?, ?> entry : array)
+        public String toString()
         {
-            map.remove(entry.getKey());
+            return "TrickyKey{" +
+                "hash=" + hash +
+                ", value=" + value +
+                '}';
         }
-
-        assertTrue(map.isEmpty());
-    }
-
-    @Test
-    public void testToArrayWithArrayListConstructor()
-    {
-        final Object2IntHashMap<String> map = new Object2IntHashMap<>(-127);
-        map.put("a", 1);
-        map.put("b", 2);
-        map.put("c", 3);
-
-        final List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
-        for (final Map.Entry<String, Integer> entry : list)
-        {
-            map.remove(entry.getKey());
-        }
-
-        assertTrue(map.isEmpty());
     }
 }
