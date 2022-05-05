@@ -246,6 +246,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int getValue(final K key)
     {
+        final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
@@ -308,6 +309,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int put(final K key, final int value)
     {
+        final int missingValue = this.missingValue;
         if (missingValue == value)
         {
             throw new IllegalArgumentException("cannot accept missingValue");
@@ -363,6 +365,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int removeKey(final K key)
     {
+        final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
@@ -510,6 +513,9 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
         final K[] keys = this.keys;
         final int[] values = this.values;
+        final int missingValue = this.missingValue;
+        final int thatMissingValue =
+            o instanceof Object2IntHashMap ? ((Object2IntHashMap<?>)o).missingValue : missingValue;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final int thisValue = values[i];
@@ -522,7 +528,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
                 }
 
                 final int thatValue = (Integer)thatValueObject;
-                if (missingValue == thatValue || thisValue != thatValue)
+                if (thatMissingValue == thatValue || thisValue != thatValue)
                 {
                     return false;
                 }

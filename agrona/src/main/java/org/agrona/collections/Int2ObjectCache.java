@@ -177,6 +177,8 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
             if (null == values[i])
@@ -202,6 +204,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         boolean found = false;
         if (null != value)
         {
+            final Object[] values = this.values;
             for (final Object v : values)
             {
                 if (value.equals(v))
@@ -232,20 +235,22 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     @SuppressWarnings("unchecked")
     public V get(final int key)
     {
-        V value = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        Object value = null;
         for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
-            if (null == values[i])
+            value = values[i];
+            if (null == value)
             {
                 break;
             }
 
             if (key == keys[i])
             {
-                value = (V)values[i];
                 break;
             }
         }
@@ -259,7 +264,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
             cacheHits++;
         }
 
-        return value;
+        return (V)value;
     }
 
     /**
@@ -275,10 +280,10 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         V value = get(key);
-        if (value == null)
+        if (null == value)
         {
             value = mappingFunction.apply(key);
-            if (value != null)
+            if (null != value)
             {
                 put(key, value);
             }
@@ -307,21 +312,23 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     {
         requireNonNull(value, "null values are not supported");
 
-        V evictedValue = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
         @DoNotSub int i = setBeginIndex;
 
+        final Object[] values = this.values;
+        final int[] keys = this.keys;
+        Object evictedValue = null;
         for (@DoNotSub int nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
         {
-            if (null == values[i])
+            evictedValue = values[i];
+            if (null == evictedValue)
             {
                 break;
             }
 
             if (key == keys[i])
             {
-                evictedValue = (V)values[i];
                 shuffleUp(i, nextSetIndex - 1);
 
                 break;
@@ -330,7 +337,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
 
         if (null == evictedValue)
         {
-            evictedValue = (V)values[setBeginIndex + (setSize - 1)];
+            evictedValue = values[setBeginIndex + (setSize - 1)];
         }
 
         shuffleDown(setBeginIndex);
@@ -342,7 +349,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
 
         if (null != evictedValue)
         {
-            evictionConsumer.accept(evictedValue);
+            evictionConsumer.accept((V)evictedValue);
         }
         else
         {
@@ -369,33 +376,37 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     @SuppressWarnings("unchecked")
     public V remove(final int key)
     {
-        V value = null;
         @DoNotSub final int setNumber = Hashing.hash(key, mask);
         @DoNotSub final int setBeginIndex = setNumber << setSizeShift;
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        Object value = null;
         for (@DoNotSub int i = setBeginIndex, nextSetIndex = setBeginIndex + setSize; i < nextSetIndex; i++)
         {
-            if (null == values[i])
+            value = values[i];
+            if (null == value)
             {
                 break;
             }
 
             if (key == keys[i])
             {
-                value = (V)values[i];
                 shuffleUp(i, nextSetIndex - 1);
                 --size;
 
-                evictionConsumer.accept(value);
+                evictionConsumer.accept((V)value);
                 break;
             }
         }
 
-        return value;
+        return (V)value;
     }
 
     @DoNotSub private void shuffleUp(final int fromIndex, final int toIndex)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         values[toIndex] = null;
 
         for (@DoNotSub int i = fromIndex; i < toIndex; i++)
@@ -407,6 +418,8 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
 
     @DoNotSub private void shuffleDown(final int setBeginIndex)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = setBeginIndex + (setSize - 1); i > setBeginIndex; i--)
         {
             values[i] = values[i - 1];
@@ -426,6 +439,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     @SuppressWarnings("unchecked")
     public void clear()
     {
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
@@ -497,6 +511,8 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object value = values[i];
@@ -538,6 +554,8 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
             return false;
         }
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object thisValue = values[i];
@@ -561,6 +579,8 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     {
         @DoNotSub int result = 0;
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object value = values[i];
@@ -754,7 +774,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
             boolean found = false;
             final Object[] values = Int2ObjectCache.this.values;
 
-            for (@DoNotSub int i = position + 1; i < capacity; i++)
+            for (@DoNotSub int i = position + 1, size = capacity; i < size; i++)
             {
                 if (null != values[i])
                 {

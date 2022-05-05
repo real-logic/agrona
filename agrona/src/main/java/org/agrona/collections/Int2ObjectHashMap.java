@@ -171,6 +171,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public boolean containsKey(final int key)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
@@ -202,11 +204,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             @DoNotSub int remaining =
                 Int2ObjectHashMap.this.size;
 
+            final Object[] values = this.values;
             for (@DoNotSub int i = 0, length = values.length; remaining > 0 && i < length; i++)
             {
-                if (null != values[i])
+                final Object existingValue = values[i];
+                if (null != existingValue)
                 {
-                    if (val.equals(values[i]))
+                    if (val.equals(existingValue))
                     {
                         found = true;
                         break;
@@ -247,6 +251,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     @SuppressWarnings("unchecked")
     protected V getMapped(final int key)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
@@ -277,10 +283,10 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         V value = getMapped(key);
-        if (value == null)
+        if (null == value)
         {
             value = mappingFunction.apply(key);
-            if (value != null)
+            if (null != value)
             {
                 put(key, value);
             }
@@ -314,15 +320,16 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         final V val = (V)mapNullValue(value);
         requireNonNull(val, "value cannot be null");
 
-        V oldValue = null;
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
-        while (null != values[index])
+        Object oldValue;
+        while (null != (oldValue = values[index]))
         {
             if (key == keys[index])
             {
-                oldValue = (V)values[index];
                 break;
             }
 
@@ -361,6 +368,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V remove(final int key)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
@@ -502,6 +511,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             return false;
         }
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object thisValue = values[i];
@@ -525,6 +536,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     {
         @DoNotSub int result = 0;
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object value = values[i];
@@ -619,6 +632,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         final int[] tempKeys = new int[newCapacity];
         final Object[] tempValues = new Object[newCapacity];
 
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
@@ -636,30 +651,34 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             }
         }
 
-        keys = tempKeys;
-        values = tempValues;
+        this.keys = tempKeys;
+        this.values = tempValues;
     }
 
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteIndex)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = deleteIndex;
         while (true)
         {
             index = ++index & mask;
-            if (null == values[index])
+            final Object value = values[index];
+            if (null == value)
             {
                 break;
             }
 
-            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
+            final int key = keys[index];
+            @DoNotSub final int hash = Hashing.hash(key, mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
-                keys[deleteIndex] = keys[index];
-                values[deleteIndex] = values[index];
+                keys[deleteIndex] = key;
+                values[deleteIndex] = value;
 
                 values[index] = null;
                 deleteIndex = index;
@@ -802,11 +821,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             @DoNotSub int remaining =
                 Int2ObjectHashMap.this.size;
 
+            final Object[] values = Int2ObjectHashMap.this.values;
             for (@DoNotSub int i = 0, length = values.length; remaining > 0 && i < length; i++)
             {
-                if (null != values[i])
+                final Object value = values[i];
+                if (null != value)
                 {
-                    action.accept(unmapNullValue(values[i]));
+                    action.accept(unmapNullValue(value));
                     --remaining;
                 }
             }
@@ -962,7 +983,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             final Object[] values = Int2ObjectHashMap.this.values;
             @DoNotSub final int mask = values.length - 1;
 
-            for (@DoNotSub int i = posCounter - 1; i >= stopCounter; i--)
+            for (@DoNotSub int i = posCounter - 1, stop = stopCounter; i >= stop; i--)
             {
                 @DoNotSub final int index = i & mask;
                 if (null != values[index])
@@ -1137,6 +1158,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             }
 
             @DoNotSub final int pos = position();
+            final Object[] values = Int2ObjectHashMap.this.values;
             final Object oldValue = values[pos];
             values[pos] = val;
 
