@@ -15,8 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.agrona.LangUtil;
-
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Arrays;
@@ -149,7 +147,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         Object value;
         while (null != (value = entries[keyIndex + 1]))
         {
-            if (LangUtil.exactEquals(entries[keyIndex], key))
+            if (Objects.equals(entries[keyIndex], key))
             {
                 break;
             }
@@ -180,7 +178,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         Object oldValue;
         while (null != (oldValue = entries[keyIndex + 1]))
         {
-            if (LangUtil.exactEquals(entries[keyIndex], key))
+            if (Objects.equals(entries[keyIndex], key))
             {
                 break;
             }
@@ -258,7 +256,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
             for (int valueIndex = 1; valueIndex < length; valueIndex += 2)
             {
                 final Object entry = entries[valueIndex];
-                if (null != entry && LangUtil.exactEquals(entry, val))
+                if (null != entry && Objects.equals(entry, val))
                 {
                     found = true;
                     break;
@@ -381,7 +379,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         Object value;
         while (null != (value = entries[keyIndex + 1]))
         {
-            if (LangUtil.exactEquals(entries[keyIndex], key))
+            if (Objects.equals(entries[keyIndex], key))
             {
                 entries[keyIndex] = null;
                 entries[keyIndex + 1] = null;
@@ -1043,7 +1041,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
 
             final Entry<?, ?> entry = (Entry<?, ?>)o;
             final V value = getMapped(entry.getKey());
-            return null != value && LangUtil.exactEquals(value, mapNullValue(entry.getValue()));
+            return null != value && Objects.equals(value, mapNullValue(entry.getValue()));
         }
 
         /**

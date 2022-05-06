@@ -15,7 +15,6 @@
  */
 package org.agrona.collections;
 
-import org.agrona.LangUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.util.AbstractCollection;
@@ -256,7 +255,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         int value;
         while (missingValue != (value = values[index]))
         {
-            if (LangUtil.exactEquals(keys[index], key))
+            if (Objects.equals(keys[index], key))
             {
                 break;
             }
@@ -324,7 +323,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         int oldValue;
         while (missingValue != (oldValue = values[index]))
         {
-            if (LangUtil.exactEquals(keys[index], key))
+            if (Objects.equals(keys[index], key))
             {
                 break;
             }
@@ -375,7 +374,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         int value;
         while (missingValue != (value = values[index]))
         {
-            if (LangUtil.exactEquals(keys[index], key))
+            if (Objects.equals(keys[index], key))
             {
                 keys[index] = null;
                 values[index] = missingValue;

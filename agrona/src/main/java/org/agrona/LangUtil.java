@@ -40,22 +40,4 @@ public final class LangUtil
         throw (T)t;
     }
 
-    /**
-     * Performs an equality between {@code src} and {@code dst} by first checking the referential equality and if that
-     * fails invoking {@code src.equals(dst)}.
-     * <p>
-     * Calling this method is equivalent to:
-     * <pre>
-     * {@code src == dst || src.equals(dst)}
-     * </pre>
-     *
-     * @param src object
-     * @param dst object
-     * @return {@code true} if {@code src == dst || src.equals(dst)}
-     * @throws NullPointerException if {@code null == src && null != dst}
-     */
-    public static boolean exactEquals(final Object src, final Object dst)
-    {
-        return src == dst || src.equals(dst);
-    }
 }
