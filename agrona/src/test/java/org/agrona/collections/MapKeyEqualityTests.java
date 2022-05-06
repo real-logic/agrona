@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,6 +97,65 @@ abstract class MapKeyEqualityTests<T extends Number>
         for (final Map.Entry<Object, T> e : entries)
         {
             assertTrue(entrySet.contains(e));
+        }
+    }
+
+    @Test
+    void entryEqualAndHashCode()
+    {
+        for (final Map.Entry<Object, T> e : map.entrySet())
+        {
+            assertEquals(e.getKey().hashCode() ^ e.getValue().hashCode(), e.hashCode());
+            assertEquals(e, e);
+            assertEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue()));
+            assertNotEquals(e, new AbstractMap.SimpleImmutableEntry<>(null, e.getValue()));
+            assertNotEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), null));
+        }
+    }
+
+    @Test
+    void entrySetValue()
+    {
+        for (final Map.Entry<Object, T> e : map.entrySet())
+        {
+            final T value = e.getValue();
+            assertNotNull(value);
+            final T newValue = convert(value.intValue() * 2);
+            final T oldValue = e.setValue(newValue);
+            assertEquals(value, oldValue);
+            assertEquals(newValue, e.getValue());
+            assertEquals(newValue, map.get(e.getKey()));
+        }
+    }
+
+    @Test
+    void clonedEntryEqualAndHashCode()
+    {
+        final ArrayList<Map.Entry<Object, T>> entries = new ArrayList<>(map.entrySet());
+        for (final Map.Entry<Object, T> e : entries)
+        {
+            assertEquals(e.getKey().hashCode() ^ e.getValue().hashCode(), e.hashCode());
+            assertEquals(e, e);
+            assertEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue()));
+            assertNotEquals(e, new AbstractMap.SimpleImmutableEntry<>(null, e.getValue()));
+            assertNotEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), null));
+            assertNotEquals(e, new AbstractMap.SimpleImmutableEntry<>(null, null));
+        }
+    }
+
+    @Test
+    void clonedEntrySetValue()
+    {
+        final ArrayList<Map.Entry<Object, T>> entries = new ArrayList<>(map.entrySet());
+        for (final Map.Entry<Object, T> e : entries)
+        {
+            final T value = e.getValue();
+            assertNotNull(value);
+            final T newValue = convert(value.intValue() * 2);
+            final T oldValue = e.setValue(newValue);
+            assertEquals(value, oldValue);
+            assertEquals(newValue, e.getValue());
+            assertEquals(newValue, map.get(e.getKey()));
         }
     }
 

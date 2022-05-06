@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.ToIntFunction;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -1118,12 +1119,39 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         }
 
         /**
+         * {@inheritDoc}
+         */
+        @DoNotSub public int hashCode()
+        {
+            return getKey().hashCode() ^ Integer.hashCode(getIntValue());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof Entry))
+            {
+                return false;
+            }
+
+            final Entry<?, ?> e = (Entry<?, ?>)o;
+            return Objects.equals(getKey(), e.getKey()) && e.getValue() instanceof Integer &&
+                getIntValue() == (Integer)e.getValue();
+        }
+
+        /**
          * An {@link java.util.Map.Entry} implementation.
          */
         public final class MapEntry implements Entry<K, Integer>
         {
             private final K k;
-            private final int v;
+            private int v;
 
             /**
              * @param k key.
@@ -1156,7 +1184,9 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
              */
             public Integer setValue(final Integer value)
             {
-                return Object2IntHashMap.this.put(k, value);
+                final Integer oldValue = Object2IntHashMap.this.put(k, value);
+                v = value;
+                return oldValue;
             }
 
             /**
@@ -1164,22 +1194,26 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
              */
             @DoNotSub public int hashCode()
             {
-                return getKey().hashCode() ^ Integer.hashCode(getIntValue());
+                return getKey().hashCode() ^ Integer.hashCode(v);
             }
 
             /**
              * {@inheritDoc}
              */
-            @DoNotSub public boolean equals(final Object o)
+            public boolean equals(final Object o)
             {
-                if (!(o instanceof Map.Entry))
+                if (this == o)
+                {
+                    return true;
+                }
+                if (!(o instanceof Entry))
                 {
                     return false;
                 }
 
-                @SuppressWarnings("rawtypes") final Entry e = (Entry)o;
-
-                return (e.getKey() != null && e.getValue() != null) && (e.getKey().equals(k) && e.getValue().equals(v));
+                final Entry<?, ?> e = (Entry<?, ?>)o;
+                return Objects.equals(getKey(), e.getKey()) && e.getValue() instanceof Integer &&
+                    v == (Integer)e.getValue();
             }
 
             /**

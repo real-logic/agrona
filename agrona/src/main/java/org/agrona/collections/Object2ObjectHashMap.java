@@ -751,7 +751,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
          */
         public int hashCode()
         {
-            return getKey().hashCode() ^ getValue().hashCode();
+            return getKey().hashCode() ^ Objects.hashCode(getValue());
         }
 
         /**
@@ -779,7 +779,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         public final class MapEntry implements Entry<K, V>
         {
             private final K k;
-            private final V v;
+            private V v;
 
             /**
              * @param k key.
@@ -812,7 +812,9 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
              */
             public V setValue(final V value)
             {
-                return Object2ObjectHashMap.this.put(k, value);
+                final V oldValue = Object2ObjectHashMap.this.put(k, value);
+                v = value;
+                return oldValue;
             }
 
             /**
@@ -820,8 +822,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
              */
             public int hashCode()
             {
-                final V v = getValue();
-                return getKey().hashCode() ^ (v != null ? v.hashCode() : 0);
+                return k.hashCode() ^ Objects.hashCode(v);
             }
 
             /**
@@ -829,15 +830,17 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
              */
             public boolean equals(final Object o)
             {
-                if (!(o instanceof Map.Entry))
+                if (this == o)
+                {
+                    return true;
+                }
+                if (!(o instanceof Entry))
                 {
                     return false;
                 }
 
                 final Entry<?, ?> e = (Entry<?, ?>)o;
-
-                return (e.getKey() != null && e.getKey().equals(k)) &&
-                    ((e.getValue() == null && v == null) || e.getValue().equals(v));
+                return Objects.equals(k, e.getKey()) && Objects.equals(v, e.getValue());
             }
 
             /**

@@ -19,13 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class Object2ObjectHashMapKeyEqualityTests extends MapKeyEqualityTests<Integer>
 {
@@ -77,6 +77,37 @@ class Object2ObjectHashMapKeyEqualityTests extends MapKeyEqualityTests<Integer>
         for (final Map.Entry<CharSequence, CharSequenceKey> e : entries)
         {
             assertTrue(entrySet.contains(e));
+        }
+    }
+
+    @Test
+    void entryEqualsAndHashCode()
+    {
+        final Object2ObjectHashMap<CharSequence, CharSequenceKey> map = new Object2ObjectHashMap<>();
+        map.put(new CharSequenceKey("one"), new CharSequenceKey("one"));
+        map.put(THIS, THIS);
+
+        for (final Map.Entry<CharSequence, CharSequenceKey> e : map.entrySet())
+        {
+            assertEquals(e.getKey().hashCode() ^ e.getValue().hashCode(), e.hashCode());
+            assertEquals(e, e);
+            assertEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue()));
+        }
+    }
+
+    @Test
+    void clonedEntryEqualsAndHashCode()
+    {
+        final Object2ObjectHashMap<CharSequence, CharSequenceKey> map = new Object2ObjectHashMap<>();
+        map.put(new CharSequenceKey("one"), new CharSequenceKey("one"));
+        map.put(THIS, THIS);
+
+        final ArrayList<Map.Entry<CharSequence, CharSequenceKey>> entries = new ArrayList<>(map.entrySet());
+        for (final Map.Entry<CharSequence, CharSequenceKey> e : entries)
+        {
+            assertEquals(e.getKey().hashCode() ^ e.getValue().hashCode(), e.hashCode());
+            assertEquals(e, e);
+            assertEquals(e, new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue()));
         }
     }
 }
