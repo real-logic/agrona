@@ -236,7 +236,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
         for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            final int value = oldEntries[keyIndex + 1];
+            final int value = oldEntries[keyIndex + 1]; // lgtm [java/index-out-of-bounds]
             if (missingValue != value)
             {
                 final int key = oldEntries[keyIndex];

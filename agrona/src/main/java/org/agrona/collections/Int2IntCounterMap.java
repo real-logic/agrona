@@ -598,12 +598,12 @@ public class Int2IntCounterMap
         final int[] newEntries = entries;
         @DoNotSub final int mask = newEntries.length - 1;
 
-        for (@DoNotSub int i = 0; i < length; i += 2)
+        for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            final int value = oldEntries[i + 1];
+            final int value = oldEntries[keyIndex + 1]; // lgtm [java/index-out-of-bounds]
             if (initialValue != value)
             {
-                final int key = oldEntries[i];
+                final int key = oldEntries[keyIndex];
                 @DoNotSub int index = Hashing.evenHash(key, mask);
 
                 while (initialValue != newEntries[index + 1])
