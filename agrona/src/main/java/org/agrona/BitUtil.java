@@ -171,7 +171,7 @@ public final class BitUtil
         for (int i = 0; i < buffer.length; i += 2)
         {
             final int hi = FROM_HEX_DIGIT_TABLE[buffer[i]] << 4;
-            final int lo = FROM_HEX_DIGIT_TABLE[buffer[i + 1]]; // lgtm [java/index-out-of-bounds]
+            final int lo = FROM_HEX_DIGIT_TABLE[buffer[i + 1]]; // lgtm[java/index-out-of-bounds]
             outputBuffer[i >> 1] = (byte)(hi | lo);
         }
 

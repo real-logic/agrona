@@ -600,7 +600,7 @@ public class Int2IntCounterMap
 
         for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            final int value = oldEntries[keyIndex + 1]; // lgtm [java/index-out-of-bounds]
+            final int value = oldEntries[keyIndex + 1]; // lgtm[java/index-out-of-bounds]
             if (initialValue != value)
             {
                 final int key = oldEntries[keyIndex];
