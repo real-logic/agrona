@@ -156,6 +156,30 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     }
 
     /**
+     * Primitive specialised forEach implementation.
+     * <p>
+     * NB: Renamed from forEach to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param consumer a callback called for each key/value pair in the map.
+     */
+    public void intForEach(final IntObjConsumer<V> consumer)
+    {
+        @DoNotSub final int length = values.length;
+        @DoNotSub int remaining = size;
+
+        for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
+        {
+            if (values[index] != null)
+            {
+                final V val = unmapNullValue(values[index]);
+                consumer.accept(keys[index], val);
+                --remaining;
+            }
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean containsKey(final Object key)
