@@ -234,7 +234,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
                 final Object existingValue = values[i];
                 if (null != existingValue)
                 {
-                    if (val.equals(existingValue))
+                    if (Objects.equals(existingValue, val))
                     {
                         found = true;
                         break;

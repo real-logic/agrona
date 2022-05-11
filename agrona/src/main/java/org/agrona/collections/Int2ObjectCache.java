@@ -207,7 +207,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
             final Object[] values = this.values;
             for (final Object v : values)
             {
-                if (value.equals(v))
+                if (Objects.equals(v, value))
                 {
                     found = true;
                     break;
