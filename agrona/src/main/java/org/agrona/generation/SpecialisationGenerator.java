@@ -47,6 +47,7 @@ public final class SpecialisationGenerator
     public static void main(final String[] args) throws IOException
     {
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntIntConsumer", SRC_DIR, DST_DIR);
+        specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntObjConsumer", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayList", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayQueue", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2IntHashMap", SRC_DIR, DST_DIR);
