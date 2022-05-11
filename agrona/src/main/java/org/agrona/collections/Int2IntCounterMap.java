@@ -132,7 +132,7 @@ public class Int2IntCounterMap
     /**
      * Get the value of a counter associated with a key or {@link #initialValue()} if not found.
      *
-     * @param key lookup key
+     * @param key to lookup.
      * @return counter value associated with key or {@link #initialValue()} if not found.
      */
     public int get(final int key)
@@ -159,10 +159,10 @@ public class Int2IntCounterMap
     /**
      * Put the value for a key in the map.
      *
-     * @param key   lookup key
-     * @param value new value, must not be initialValue
-     * @return current counter value associated with key, or {@link #initialValue()} if none found
-     * @throws IllegalArgumentException if value is {@link #initialValue()}
+     * @param key   lookup key.
+     * @param value new value, must not be initialValue.
+     * @return current counter value associated with key, or {@link #initialValue()} if none found.
+     * @throws IllegalArgumentException if value is {@link #initialValue()}.
      */
     public int put(final int key, final int value)
     {
@@ -229,8 +229,7 @@ public class Int2IntCounterMap
      *
      * @param key    new or existing
      * @param amount to be added
-     * @return the new value associated with the specified key, or
-     *         {@link #initialValue()} + amount if there was no mapping for the key.
+     * @return the new value associated with the key, or {@link #initialValue()} + amount if no mapping for key.
      */
     public int addAndGet(final int key, final int amount)
     {
@@ -264,10 +263,9 @@ public class Int2IntCounterMap
      * current value and associate key with {@link #initialValue()} + amount unless amount is 0, in which case map
      * remains unchanged.
      *
-     * @param key    new or existing
-     * @param amount to be added
-     * @return the previous value associated with the specified key, or
-     *         {@link #initialValue()} if there was no mapping for the key.
+     * @param key    new or existing.
+     * @param amount to be added.
+     * @return the previous value associated with the key, or {@link #initialValue()} if no mapping for key.
      */
     public int getAndAdd(final int key, final int amount)
     {
@@ -448,7 +446,7 @@ public class Int2IntCounterMap
     }
 
     /**
-     * Get the minimum value stored in the map. If the map is empty then it will return {@link #initialValue()}
+     * Get the minimum value stored in the map. If the map is empty then it will return {@link #initialValue()}.
      *
      * @return the minimum value stored in the map.
      */
@@ -473,7 +471,7 @@ public class Int2IntCounterMap
     }
 
     /**
-     * Get the maximum value stored in the map. If the map is empty then it will return {@link #initialValue()}
+     * Get the maximum value stored in the map. If the map is empty then it will return {@link #initialValue()}.
      *
      * @return the maximum value stored in the map.
      */
