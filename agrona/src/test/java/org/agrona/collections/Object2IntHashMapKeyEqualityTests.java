@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.agrona;
+package org.agrona.collections;
 
-import org.junit.jupiter.api.Test;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-class LangUtilTest
+class Object2IntHashMapKeyEqualityTests extends MapKeyEqualityTests<Integer>
 {
-    @Test
-    void shouldCatchCheckedException()
+    Map<Object, Integer> newMap()
     {
-        assertThrows(Exception.class, LangUtilTest::throwHiddenCheckedException);
+        return new Object2IntHashMap<>(Integer.MIN_VALUE);
     }
 
-    private static void throwHiddenCheckedException()
+    Integer convert(final Integer value)
     {
-        try
-        {
-            throw new Exception("Test Exception");
-        }
-        catch (final Exception t)
-        {
-            LangUtil.rethrowUnchecked(t);
-        }
+        return value;
     }
 }

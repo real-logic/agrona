@@ -15,7 +15,13 @@
  */
 package org.agrona.collections;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
@@ -299,7 +305,7 @@ public class ObjectHashSet<T> extends AbstractSet<T>
 
         while (values[index] != MISSING_VALUE)
         {
-            if (values[index].equals(value))
+            if (value == values[index] || values[index].equals(value))
             {
                 return true;
             }

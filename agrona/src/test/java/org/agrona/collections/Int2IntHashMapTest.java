@@ -19,8 +19,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -710,6 +717,36 @@ public class Int2IntHashMapTest
         }
 
         assertTrue(map.isEmpty());
+    }
+
+    @Test
+    void shouldCompactMap()
+    {
+        final Int2IntHashMap map = new Int2IntHashMap(2, 0.9f, Integer.MIN_VALUE);
+        assertEquals(8, map.capacity());
+        assertEquals(7, map.resizeThreshold());
+        assertEquals(0, map.size());
+
+        for (int i = 1; i <= 16; i++)
+        {
+            map.put(i, i * -123);
+        }
+        assertEquals(32, map.capacity());
+        assertEquals(28, map.resizeThreshold());
+        assertEquals(16, map.size());
+
+        for (int i = 6; i <= 16; i++)
+        {
+            assertEquals(-123 * i, map.remove(i));
+        }
+        assertEquals(32, map.capacity());
+        assertEquals(28, map.resizeThreshold());
+        assertEquals(5, map.size());
+
+        map.compact();
+        assertEquals(8, map.capacity());
+        assertEquals(7, map.resizeThreshold());
+        assertEquals(5, map.size());
     }
 
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)

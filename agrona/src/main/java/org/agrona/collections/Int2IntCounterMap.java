@@ -126,7 +126,7 @@ public class Int2IntCounterMap
      */
     public boolean isEmpty()
     {
-        return size == 0;
+        return 0 == size;
     }
 
     /**
@@ -137,15 +137,16 @@ public class Int2IntCounterMap
      */
     public int get(final int key)
     {
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
 
-        int value = initialValue;
-        while (entries[index + 1] != initialValue)
+        int value;
+        while (initialValue != (value = entries[index + 1]))
         {
-            if (entries[index] == key)
+            if (key == entries[index])
             {
-                value = entries[index + 1];
                 break;
             }
 
@@ -165,27 +166,28 @@ public class Int2IntCounterMap
      */
     public int put(final int key, final int value)
     {
-        if (value == initialValue)
+        final int initialValue = this.initialValue;
+        if (initialValue == value)
         {
             throw new IllegalArgumentException("cannot accept initialValue");
         }
 
+        final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
-        int oldValue = initialValue;
 
-        while (entries[index + 1] != initialValue)
+        int oldValue;
+        while (initialValue != (oldValue = entries[index + 1]))
         {
-            if (entries[index] == key)
+            if (key == entries[index])
             {
-                oldValue = entries[index + 1];
                 break;
             }
 
             index = next(index, mask);
         }
 
-        if (oldValue == initialValue)
+        if (initialValue == oldValue)
         {
             ++size;
             entries[index] = key;
@@ -269,15 +271,16 @@ public class Int2IntCounterMap
      */
     public int getAndAdd(final int key, final int amount)
     {
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = Hashing.evenHash(key, mask);
-        int oldValue = initialValue;
 
-        while (entries[index + 1] != initialValue)
+        int oldValue;
+        while (initialValue != (oldValue = entries[index + 1]))
         {
-            if (entries[index] == key)
+            if (key == entries[index])
             {
-                oldValue = entries[index + 1];
                 break;
             }
 
@@ -289,13 +292,13 @@ public class Int2IntCounterMap
             final int newValue = oldValue + amount;
             entries[index + 1] = newValue;
 
-            if (oldValue == initialValue)
+            if (initialValue == oldValue)
             {
                 ++size;
                 entries[index] = key;
                 increaseCapacity();
             }
-            else if (newValue == initialValue)
+            else if (initialValue == newValue)
             {
                 size--;
                 compactChain(index);
@@ -312,14 +315,17 @@ public class Int2IntCounterMap
      */
     public void forEach(final IntIntConsumer consumer)
     {
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
         @DoNotSub int remaining = size;
 
         for (@DoNotSub int i = 1; remaining > 0 && i < length; i += 2)
         {
-            if (entries[i] != initialValue)
+            final int value = entries[i];
+            if (initialValue != value)
             {
-                consumer.accept(entries[i - 1], entries[i]);
+                consumer.accept(entries[i - 1], value);
                 --remaining;
             }
         }
@@ -333,7 +339,7 @@ public class Int2IntCounterMap
      */
     public boolean containsKey(final int key)
     {
-        return get(key) != initialValue;
+        return initialValue != get(key);
     }
 
     /**
@@ -347,8 +353,9 @@ public class Int2IntCounterMap
     public boolean containsValue(final int value)
     {
         boolean found = false;
-        if (value != initialValue)
+        if (initialValue != value)
         {
+            final int[] entries = this.entries;
             @DoNotSub final int length = entries.length;
 
             for (@DoNotSub int i = 1; i < length; i += 2)
@@ -396,10 +403,10 @@ public class Int2IntCounterMap
     public int computeIfAbsent(final int key, final IntUnaryOperator mappingFunction)
     {
         int value = get(key);
-        if (value == initialValue)
+        if (initialValue == value)
         {
             value = mappingFunction.applyAsInt(key);
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 put(key, value);
             }
@@ -416,15 +423,16 @@ public class Int2IntCounterMap
      */
     public int remove(final int key)
     {
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
 
-        int oldValue = initialValue;
-        while (entries[keyIndex + 1] != initialValue)
+        int oldValue;
+        while (initialValue != (oldValue = entries[keyIndex + 1]))
         {
-            if (entries[keyIndex] == key)
+            if (key == entries[keyIndex])
             {
-                oldValue = entries[keyIndex + 1];
                 entries[keyIndex + 1] = initialValue;
                 size--;
 
@@ -446,14 +454,16 @@ public class Int2IntCounterMap
      */
     public int minValue()
     {
-        int min = size == 0 ? initialValue : Integer.MAX_VALUE;
+        final int initialValue = this.initialValue;
+        int min = 0 == size ? initialValue : Integer.MAX_VALUE;
 
+        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
         {
             final int value = entries[i];
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 min = Math.min(min, value);
             }
@@ -469,14 +479,16 @@ public class Int2IntCounterMap
      */
     public int maxValue()
     {
-        int max = size == 0 ? initialValue : Integer.MIN_VALUE;
+        final int initialValue = this.initialValue;
+        int max = 0 == size ? initialValue : Integer.MIN_VALUE;
 
+        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
         {
             final int value = entries[i];
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 max = Math.max(max, value);
             }
@@ -493,12 +505,14 @@ public class Int2IntCounterMap
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
 
         for (@DoNotSub int i = 1; i < length; i += 2)
         {
             final int value = entries[i];
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 sb.append(entries[i - 1]).append('=').append(value).append(", ");
             }
@@ -522,24 +536,28 @@ public class Int2IntCounterMap
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteKeyIndex)
     {
+        final int initialValue = this.initialValue;
+        final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
         @DoNotSub int index = deleteKeyIndex;
 
         while (true)
         {
             index = next(index, mask);
-            if (entries[index + 1] == initialValue)
+            final int value = entries[index + 1];
+            if (initialValue == value)
             {
                 break;
             }
 
-            @DoNotSub final int hash = Hashing.evenHash(entries[index], mask);
+            final int key = entries[index];
+            @DoNotSub final int hash = Hashing.evenHash(key, mask);
 
             if ((index < hash && (hash <= deleteKeyIndex || deleteKeyIndex <= index)) ||
                 (hash <= deleteKeyIndex && deleteKeyIndex <= index))
             {
-                entries[deleteKeyIndex] = entries[index];
-                entries[deleteKeyIndex + 1] = entries[index + 1];
+                entries[deleteKeyIndex] = key;
+                entries[deleteKeyIndex + 1] = value;
                 entries[index + 1] = initialValue;
                 deleteKeyIndex = index;
             }
@@ -571,24 +589,24 @@ public class Int2IntCounterMap
 
     private void rehash(@DoNotSub final int newCapacity)
     {
-        final int[] oldEntries = entries;
         final int initialValue = this.initialValue;
-        @DoNotSub final int length = entries.length;
+        final int[] oldEntries = entries;
+        @DoNotSub final int length = oldEntries.length;
 
         capacity(newCapacity);
 
         final int[] newEntries = entries;
-        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub final int mask = newEntries.length - 1;
 
-        for (@DoNotSub int i = 0; i < length; i += 2)
+        for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
         {
-            final int value = oldEntries[i + 1];
-            if (value != initialValue)
+            final int value = oldEntries[keyIndex + 1]; // lgtm[java/index-out-of-bounds]
+            if (initialValue != value)
             {
-                final int key = oldEntries[i];
+                final int key = oldEntries[keyIndex];
                 @DoNotSub int index = Hashing.evenHash(key, mask);
 
-                while (entries[index + 1] != initialValue)
+                while (initialValue != newEntries[index + 1])
                 {
                     index = next(index, mask);
                 }

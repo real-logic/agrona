@@ -71,10 +71,12 @@ public final class IntLruCache<E> implements AutoCloseable
     public E lookup(final int key)
     {
         @DoNotSub int size = this.size;
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
 
         for (@DoNotSub int i = 0; i < size; i++)
         {
-            if (keys[i] == key)
+            if (key == keys[i])
             {
                 final E value = (E)values[i];
 
@@ -88,7 +90,7 @@ public final class IntLruCache<E> implements AutoCloseable
 
         if (value != null)
         {
-            if (size == capacity)
+            if (capacity == size)
             {
                 closer.accept((E)values[size - 1]);
             }
@@ -109,6 +111,8 @@ public final class IntLruCache<E> implements AutoCloseable
         final Object value,
         @DoNotSub final int fromIndex)
     {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         for (@DoNotSub int i = fromIndex; i > 0; i--)
         {
             keys[i] = keys[i - 1];
@@ -135,7 +139,9 @@ public final class IntLruCache<E> implements AutoCloseable
     @SuppressWarnings("unchecked")
     public void close()
     {
-        for (@DoNotSub int i = 0; i < size; i++)
+        final Consumer<E> closer = this.closer;
+        final Object[] values = this.values;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             closer.accept((E)values[i]);
         }

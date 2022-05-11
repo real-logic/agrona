@@ -282,7 +282,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public @DoNotSub int indexOf(
         final int value)
     {
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             if (value == elements[i])
             {
@@ -302,6 +303,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public @DoNotSub int lastIndexOf(
         final int value)
     {
+        final int[] elements = this.elements;
         for (@DoNotSub int i = size - 1; i >= 0; i--)
         {
             if (value == elements[i])
@@ -432,7 +434,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEachOrderedInt(final IntConsumer action)
     {
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             action.accept(elements[i]);
         }
@@ -502,14 +505,17 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
         boolean isEqual = false;
 
-        if (this.size == that.size)
+        final int size = this.size;
+        if (size == that.size)
         {
             isEqual = true;
 
+            final int[] elements = this.elements;
+            final int[] thatElements = that.elements;
             for (@DoNotSub int i = 0; i < size; i++)
             {
-                final int thisValue = this.elements[i];
-                final int thatValue = that.elements[i];
+                final int thisValue = elements[i];
+                final int thatValue = thatElements[i];
 
                 if (thisValue != thatValue)
                 {
@@ -545,14 +551,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         {
             final List<?> that = (List<?>)other;
 
-            if (this.size == that.size())
+            if (size == that.size())
             {
                 isEqual = true;
                 @DoNotSub int i = 0;
 
                 for (final Object o : that)
                 {
-                    if (o == null || o instanceof Integer)
+                    if (null == o || o instanceof Integer)
                     {
                         final Integer thisValue = get(i++);
                         final Integer thatValue = (Integer)o;
@@ -578,10 +584,12 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     @DoNotSub public int hashCode()
     {
         @DoNotSub int hashCode = 1;
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int nullValue = this.nullValue;
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             final int value = elements[i];
-            hashCode = 31 * hashCode + (value == nullValue ? 0 : Integer.hashCode(value));
+            hashCode = 31 * hashCode + (nullValue == value ? 0 : Integer.hashCode(value));
         }
 
         return hashCode;
@@ -592,10 +600,12 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEach(final Consumer<? super Integer> action)
     {
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int nullValue = this.nullValue;
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             final int value = elements[i];
-            action.accept(value != nullValue ? value : null);
+            action.accept(nullValue != value ? value : null);
         }
     }
 
@@ -606,7 +616,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEachInt(final IntConsumer action)
     {
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             action.accept(elements[i]);
         }
@@ -620,7 +631,9 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         final StringBuilder sb = new StringBuilder();
         sb.append('[');
 
-        for (@DoNotSub int i = 0; i < size; i++)
+        final int nullValue = this.nullValue;
+        final int[] elements = this.elements;
+        for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
             final int value = elements[i];
             sb.append(value != nullValue ? value : null).append(", ");
