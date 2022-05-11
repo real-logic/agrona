@@ -21,36 +21,40 @@ import org.mockito.InOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.IntUnaryOperator;
+import java.util.function.ObjIntConsumer;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
-public class Int2IntCounterMapTest
+class Object2IntCounterMapTest
 {
     private static final int INITIAL_VALUE = 0;
 
-    private final Int2IntCounterMap map = new Int2IntCounterMap(INITIAL_VALUE);
+    private final Object2IntCounterMap<Integer> map = new Object2IntCounterMap<>(INITIAL_VALUE);
 
     @Test
-    public void shouldInitiallyBeEmpty()
+    void shouldInitiallyBeEmpty()
     {
         assertEquals(0, map.size());
         assertTrue(map.isEmpty());
     }
 
     @Test
-    public void getShouldReturnInitialValueWhenEmpty()
+    void getShouldReturnInitialValueWhenEmpty()
     {
         assertEquals(INITIAL_VALUE, map.get(1));
     }
 
     @Test
-    public void getShouldReturnInitialValueWhenThereIsNoElement()
+    void getShouldReturnInitialValueWhenThereIsNoElement()
     {
         map.put(1, 1);
 
@@ -58,7 +62,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void getShouldReturnPutValues()
+    void getShouldReturnPutValues()
     {
         map.put(1, 1);
 
@@ -66,7 +70,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void putShouldReturnOldValue()
+    void putShouldReturnOldValue()
     {
         map.put(1, 1);
 
@@ -74,7 +78,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void clearShouldResetSize()
+    void clearShouldResetSize()
     {
         map.put(1, 1);
         map.put(100, 100);
@@ -86,7 +90,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void clearShouldRemoveValues()
+    void clearShouldRemoveValues()
     {
         map.put(1, 1);
         map.put(100, 100);
@@ -97,13 +101,14 @@ public class Int2IntCounterMapTest
         assertEquals(INITIAL_VALUE, map.get(100));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void forEachShouldLoopOverEveryElement()
+    void forEachShouldLoopOverEveryElement()
     {
         map.put(1, 1);
         map.put(100, 100);
 
-        final IntIntConsumer mockConsumer = mock(IntIntConsumer.class);
+        final ObjIntConsumer<Integer> mockConsumer = mock(ObjIntConsumer.class);
         map.forEach(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
@@ -113,13 +118,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldNotContainKeyOfAMissingKey()
+    void shouldNotContainKeyOfAMissingKey()
     {
         assertFalse(map.containsKey(1));
     }
 
     @Test
-    public void shouldContainKeyOfAPresentKey()
+    void shouldContainKeyOfAPresentKey()
     {
         map.put(1, 1);
 
@@ -127,13 +132,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldNotContainValueForAMissingEntry()
+    void shouldNotContainValueForAMissingEntry()
     {
         assertFalse(map.containsValue(1));
     }
 
     @Test
-    public void shouldContainValueForAPresentEntry()
+    void shouldContainValueForAPresentEntry()
     {
         map.put(1, 1);
 
@@ -141,13 +146,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void removeShouldReturnMissing()
+    void removeShouldReturnMissing()
     {
         assertEquals(INITIAL_VALUE, map.remove(1));
     }
 
     @Test
-    public void removeShouldReturnValueRemoved()
+    void removeShouldReturnValueRemoved()
     {
         map.put(1, 2);
 
@@ -155,7 +160,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void removeShouldRemoveEntry()
+    void removeShouldRemoveEntry()
     {
         map.put(1, 2);
 
@@ -167,7 +172,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldOnlyRemoveTheSpecifiedEntry()
+    void shouldOnlyRemoveTheSpecifiedEntry()
     {
         IntStream.range(1, 8).forEach((i) -> map.put(i, i * 2));
 
@@ -184,7 +189,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldResizeWhenMoreElementsAreAdded()
+    void shouldResizeWhenMoreElementsAreAdded()
     {
         IntStream
             .range(1, 100)
@@ -197,13 +202,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldHaveNoMinValueForEmptyCollection()
+    void shouldHaveNoMinValueForEmptyCollection()
     {
         assertEquals(INITIAL_VALUE, map.minValue());
     }
 
     @Test
-    public void shouldFindMinValue()
+    void shouldFindMinValue()
     {
         map.put(1, 2);
         map.put(2, 10);
@@ -213,13 +218,13 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldHaveNoMaxValueForEmptyCollection()
+    void shouldHaveNoMaxValueForEmptyCollection()
     {
         assertEquals(INITIAL_VALUE, map.maxValue());
     }
 
     @Test
-    public void shouldFindMaxValue()
+    void shouldFindMaxValue()
     {
         map.put(1, 2);
         map.put(2, 10);
@@ -229,7 +234,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void sizeShouldReturnNumberOfEntries()
+    void sizeShouldReturnNumberOfEntries()
     {
         final int count = 100;
         for (int key = 0; key < count; key++)
@@ -241,19 +246,19 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldNotSupportLoadFactorOfGreaterThanOne()
+    void shouldNotSupportLoadFactorOfGreaterThanOne()
     {
         assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 2, 0));
     }
 
     @Test
-    public void shouldNotSupportLoadFactorOfOne()
+    void shouldNotSupportLoadFactorOfOne()
     {
         assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 1, 0));
     }
 
     @Test
-    public void correctSizeAfterRehash()
+    void correctSizeAfterRehash()
     {
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
@@ -267,12 +272,12 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsent()
+    void shouldComputeIfAbsent()
     {
         final int testKey = 7;
         final int testValue = 7;
 
-        final IntUnaryOperator function = (i) -> testValue;
+        final ToIntFunction<Integer> function = (i) -> testValue;
 
         assertEquals(map.initialValue(), map.get(testKey));
 
@@ -281,7 +286,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldContainValueForIncAndDecEntries()
+    void shouldContainValueForIncAndDecEntries()
     {
         map.incrementAndGet(1);
         map.getAndIncrement(2);
@@ -299,7 +304,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldResultInEmptyAfterIncAndDecWhenEmpty()
+    void shouldResultInEmptyAfterIncAndDecWhenEmpty()
     {
         map.incrementAndGet(1);
         map.decrementAndGet(1);
@@ -323,7 +328,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldResultInNotEmptyAfterIncAndDecWhenHaveKey()
+    void shouldResultInNotEmptyAfterIncAndDecWhenHaveKey()
     {
         map.put(1, 1);
 
@@ -335,7 +340,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldReturnInitialValueForGetAndAdd0IfKeyMissing()
+    void shouldReturnInitialValueForGetAndAdd0IfKeyMissing()
     {
         final int val = map.getAndAdd(1, 0);
 
@@ -344,7 +349,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldReturnOldValueForGetAndAdd0IfKeyExists()
+    void shouldReturnOldValueForGetAndAdd0IfKeyExists()
     {
         map.put(1, 1);
         final int val = map.getAndAdd(1, 0);
@@ -354,7 +359,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldReturnOldValueForGetAndAddNot0IfKeyExists()
+    void shouldReturnOldValueForGetAndAddNot0IfKeyExists()
     {
         map.put(1, 1);
         int amount;
@@ -370,7 +375,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldRemoveEntryAfterDecToInitialVal()
+    void shouldRemoveEntryAfterDecToInitialVal()
     {
         map.put(1, INITIAL_VALUE + 1);
 
@@ -382,7 +387,7 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldRemoveEntryAfterIncToInitialVal()
+    void shouldRemoveEntryAfterIncToInitialVal()
     {
         map.put(1, INITIAL_VALUE - 1);
 
@@ -394,40 +399,46 @@ public class Int2IntCounterMapTest
     }
 
     @Test
-    public void shouldNotAllowInitialValueAsValue()
+    void shouldNotAllowInitialValueAsValue()
     {
         assertThrows(IllegalArgumentException.class, () -> map.put(1, INITIAL_VALUE));
     }
 
     @Test
-    public void shouldAllowInitialValueAsKey()
+    void shouldNotContainInitialValue()
     {
+        assertFalse(map.containsValue(INITIAL_VALUE));
         map.put(INITIAL_VALUE, 1);
-
-        assertEquals(1, map.get(INITIAL_VALUE));
-        assertTrue(map.containsKey(INITIAL_VALUE));
-        assertEquals(1, map.size());
-
-        final int[] tuple = new int[2];
-        map.forEach((k, v) ->
-        {
-            tuple[0] = k;
-            tuple[1] = v;
-        });
-
-        assertEquals(INITIAL_VALUE, tuple[0]);
-        assertEquals(1, tuple[1]);
-
-        assertEquals(1, map.remove(INITIAL_VALUE));
-        assertEquals(0, map.size());
-        assertEquals(INITIAL_VALUE, map.get(INITIAL_VALUE));
+        assertFalse(map.containsValue(INITIAL_VALUE));
     }
 
     @Test
-    public void shouldNotContainInitialValue()
+    void shouldCompactMap()
     {
-        assertFalse(map.containsValue(INITIAL_VALUE));
-        map.put(INITIAL_VALUE, 1);
-        assertFalse(map.containsValue(INITIAL_VALUE));
+        final Int2IntCounterMap map = new Int2IntCounterMap(2, 0.9f, Integer.MIN_VALUE);
+        assertEquals(8, map.capacity());
+        assertEquals(7, map.resizeThreshold());
+        assertEquals(0, map.size());
+
+        for (int i = 1; i <= 16; i++)
+        {
+            map.put(i, i * -123);
+        }
+        assertEquals(32, map.capacity());
+        assertEquals(28, map.resizeThreshold());
+        assertEquals(16, map.size());
+
+        for (int i = 6; i <= 16; i++)
+        {
+            assertEquals(-123 * i, map.remove(i));
+        }
+        assertEquals(32, map.capacity());
+        assertEquals(28, map.resizeThreshold());
+        assertEquals(5, map.size());
+
+        map.compact();
+        assertEquals(8, map.capacity());
+        assertEquals(7, map.resizeThreshold());
+        assertEquals(5, map.size());
     }
 }
