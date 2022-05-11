@@ -170,7 +170,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
 
         for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
         {
-            if (values[index] != null)
+            if (null != values[index])
             {
                 final V val = unmapNullValue(values[index]);
                 consumer.accept(keys[index], val);
@@ -254,8 +254,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     /**
      * Overloaded version of {@link Map#get(Object)} that takes a primitive int key.
      *
-     * @param key for indexing the {@link Map}
-     * @return the value if found otherwise null
+     * @param key for indexing the {@link Map}.
+     * @return the value if found otherwise null.
      */
     public V get(final int key)
     {
@@ -301,10 +301,10 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         V value = getMapped(key);
-        if (value == null)
+        if (null == value)
         {
             value = mappingFunction.apply(key);
-            if (value != null)
+            if (null != value)
             {
                 put(key, value);
             }
@@ -328,9 +328,9 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     /**
      * Overloaded version of {@link Map#put(Object, Object)} that takes a primitive int key.
      *
-     * @param key   for indexing the {@link Map}
-     * @param value to be inserted in the {@link Map}
-     * @return the previous value if found otherwise null
+     * @param key   for indexing the {@link Map}.
+     * @param value to be inserted in the {@link Map}.
+     * @return the previous value if found otherwise null.
      */
     @SuppressWarnings("unchecked")
     public V put(final int key, final V value)
@@ -380,8 +380,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     /**
      * Overloaded version of {@link Map#remove(Object)} that takes a primitive int key.
      *
-     * @param key for indexing the {@link Map}
-     * @return the value if found otherwise null
+     * @param key for indexing the {@link Map}.
+     * @return the value if found otherwise null.
      */
     public V remove(final int key)
     {
@@ -595,7 +595,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V replace(final int key, final V value)
     {
         V currentValue = get(key);
-        if (currentValue != null)
+        if (null != currentValue)
         {
             currentValue = put(key, value);
         }
@@ -613,8 +613,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public boolean replace(final int key, final V oldValue, final V newValue)
     {
-        final Object curValue = get(key);
-        if (curValue == null || !Objects.equals(unmapNullValue(curValue), oldValue))
+        final Object value = get(key);
+        if (null == value || !Objects.equals(unmapNullValue(value), oldValue))
         {
             return false;
         }
@@ -888,7 +888,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             final Entry<?, ?> entry = (Entry<?, ?>)o;
             final int key = (Integer)entry.getKey();
             final V value = getMapped(key);
-            return value != null && value.equals(mapNullValue(entry.getValue()));
+            return null != value && value.equals(mapNullValue(entry.getValue()));
         }
 
         /**
@@ -1214,7 +1214,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
              */
             @DoNotSub public int hashCode()
             {
-                return Integer.hashCode(getIntKey()) ^ (v != null ? v.hashCode() : 0);
+                return Integer.hashCode(getIntKey()) ^ (null != v ? v.hashCode() : 0);
             }
 
             /**

@@ -257,6 +257,7 @@ public class Int2ObjectHashMapTest
         }
 
         final Collection<String> copySet = new HashSet<>();
+        //noinspection UseBulkOperation
         intToObjectMap.values().forEach(copySet::add);
 
         assertEquals(expected, copySet);
@@ -395,12 +396,14 @@ public class Int2ObjectHashMapTest
         }
 
         final Collection<Integer> copyToSet = new HashSet<>();
-        intToObjectMap.intForEach((key, value) ->
-        {
-            assertThat(String.valueOf(key), equalTo(value));
-            // not copying values, because they match keys
-            copyToSet.add(key);
-        });
+        intToObjectMap.intForEach(
+            (key, value) ->
+            {
+                assertEquals(value, String.valueOf(key));
+
+                // not copying values, because they match keys
+                copyToSet.add(key);
+            });
         assertEquals(copyToSet, intToObjectMap.keySet());
     }
 

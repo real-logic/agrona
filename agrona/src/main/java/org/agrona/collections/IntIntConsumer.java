@@ -16,7 +16,7 @@
 package org.agrona.collections;
 
 /**
- * Primitive specialisation of a BiConsumer for int int.
+ * Primitive specialisation of a BiConsumer for a pair of ints.
  */
 @FunctionalInterface
 public interface
