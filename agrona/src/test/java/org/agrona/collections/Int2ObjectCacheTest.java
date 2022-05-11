@@ -29,7 +29,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Int2ObjectCacheTest
+class Int2ObjectCacheTest
 {
     private static final int NUM_SETS = 16;
     private static final int SET_SIZE = 4;
@@ -39,7 +39,7 @@ public class Int2ObjectCacheTest
     private final Int2ObjectCache<String> cache = new Int2ObjectCache<>(NUM_SETS, SET_SIZE, EVICTION_CONSUMER);
 
     @Test
-    public void shouldDoPutAndThenGet()
+    void shouldDoPutAndThenGet()
     {
         final String value = "Seven";
         cache.put(7, value);
@@ -48,7 +48,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldReplaceExistingValueForTheSameKey()
+    void shouldReplaceExistingValueForTheSameKey()
     {
         final int key = 7;
         final String value = "Seven";
@@ -62,7 +62,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldLimitSizeToMaxSize()
+    void shouldLimitSizeToMaxSize()
     {
         for (int i = 0; i < (CAPACITY * 2); i++)
         {
@@ -74,7 +74,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldClearCollection()
+    void shouldClearCollection()
     {
         for (int i = 0; i < CAPACITY; i++)
         {
@@ -89,7 +89,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldContainValue()
+    void shouldContainValue()
     {
         final int key = 7;
         final String value = "Seven";
@@ -101,7 +101,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldContainKey()
+    void shouldContainKey()
     {
         final int key = 7;
         final String value = "Seven";
@@ -113,7 +113,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldRemoveEntry()
+    void shouldRemoveEntry()
     {
         final int key = 7;
         final String value = "Seven";
@@ -128,7 +128,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldIterateEntries()
+    void shouldIterateEntries()
     {
         final int count = CAPACITY - 1;
         for (int i = 0; i < count; i++)
@@ -144,7 +144,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldGenerateStringRepresentation()
+    void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
@@ -158,7 +158,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldEvictAsMaxSizeIsExceeded()
+    void shouldEvictAsMaxSizeIsExceeded()
     {
         final HashSet<String> evictedItems = new HashSet<>();
         final Consumer<String> evictionConsumer = evictedItems::add;
@@ -175,7 +175,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldComputeIfAbsent()
+    void shouldComputeIfAbsent()
     {
         final int testKey = 7;
         final String testValue = "7";
@@ -189,7 +189,7 @@ public class Int2ObjectCacheTest
     }
 
     @Test
-    public void shouldTestStats()
+    void shouldTestStats()
     {
         assertThat(cache.cachePuts(), is(0L));
         assertThat(cache.cacheMisses(), is(0L));
@@ -214,5 +214,26 @@ public class Int2ObjectCacheTest
         assertThat(cache.cachePuts(), is(0L));
         assertThat(cache.cacheMisses(), is(0L));
         assertThat(cache.cacheHits(), is(0L));
+    }
+
+    @Test
+    void containsValueShouldUseValueStoredInTheCacheToPerformAnEqualityCheck()
+    {
+        final Int2ObjectCache<CharSequence> cache = new Int2ObjectCache<>(4, 2, (key) -> {});
+        final CharSequenceKey key = new CharSequenceKey("one");
+        cache.put(1, key);
+
+        assertTrue(cache.containsValue("one"));
+        assertTrue(cache.containsValue(new CharSequenceKey("one")));
+        assertTrue(cache.containsValue(key));
+
+        final Int2ObjectCache<CharSequence>.ValueCollection values = cache.values();
+        assertTrue(values.contains("one"));
+        assertTrue(values.contains(new CharSequenceKey("one")));
+        assertTrue(values.contains(key));
+
+        assertFalse(cache.containsValue(null));
+        assertFalse(cache.containsValue("two"));
+        assertFalse(cache.containsValue(new CharSequenceKey("two")));
     }
 }

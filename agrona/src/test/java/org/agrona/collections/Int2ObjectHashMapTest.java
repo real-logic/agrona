@@ -17,7 +17,12 @@ package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -26,11 +31,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Int2ObjectHashMapTest
+class Int2ObjectHashMapTest
 {
     final Int2ObjectHashMap<String> intToObjectMap;
 
-    public Int2ObjectHashMapTest()
+    Int2ObjectHashMapTest()
     {
         intToObjectMap = newMap(Hashing.DEFAULT_LOAD_FACTOR, Int2ObjectHashMap.MIN_CAPACITY);
     }
@@ -41,7 +46,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldDoPutAndThenGet()
+    void shouldDoPutAndThenGet()
     {
         final String value = "Seven";
         intToObjectMap.put(7, value);
@@ -50,7 +55,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldReplaceExistingValueForTheSameKey()
+    void shouldReplaceExistingValueForTheSameKey()
     {
         final int key = 7;
         final String value = "Seven";
@@ -65,7 +70,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldGrowWhenThresholdExceeded()
+    void shouldGrowWhenThresholdExceeded()
     {
         final float loadFactor = 0.5f;
         final int initialCapacity = 32;
@@ -90,7 +95,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldHandleCollisionAndThenLinearProbe()
+    void shouldHandleCollisionAndThenLinearProbe()
     {
         final float loadFactor = 0.5f;
         final int initialCapacity = 32;
@@ -109,7 +114,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldClearCollection()
+    void shouldClearCollection()
     {
         for (int i = 0; i < 15; i++)
         {
@@ -126,7 +131,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldCompactCollection()
+    void shouldCompactCollection()
     {
         final int totalItems = 50;
         for (int i = 0; i < totalItems; i++)
@@ -146,7 +151,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldContainValue()
+    void shouldContainValue()
     {
         final int key = 7;
         final String value = "Seven";
@@ -158,7 +163,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldContainKey()
+    void shouldContainKey()
     {
         final int key = 7;
         final String value = "Seven";
@@ -170,7 +175,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldRemoveEntry()
+    void shouldRemoveEntry()
     {
         final int key = 7;
         final String value = "Seven";
@@ -185,7 +190,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldRemoveEntryAndCompactCollisionChain()
+    void shouldRemoveEntryAndCompactCollisionChain()
     {
         final int key = 12;
         final String value = "12";
@@ -203,7 +208,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldIterateValues()
+    void shouldIterateValues()
     {
         final Collection<String> initialSet = new ArrayList<>();
 
@@ -236,7 +241,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldForEachValues()
+    void shouldForEachValues()
     {
         final Collection<String> expected = new HashSet<>();
         for (int i = 0; i < 11; i++)
@@ -253,7 +258,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldIterateKeysGettingIntAsPrimitive()
+    void shouldIterateKeysGettingIntAsPrimitive()
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
@@ -275,7 +280,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldIterateKeys()
+    void shouldIterateKeys()
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
@@ -304,7 +309,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldIterateAndHandleRemove()
+    void shouldIterateAndHandleRemove()
     {
         final Collection<Integer> initialSet = new HashSet<>();
 
@@ -339,7 +344,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldIterateEntries()
+    void shouldIterateEntries()
     {
         final int count = 11;
         for (int i = 0; i < count; i++)
@@ -375,7 +380,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldGenerateStringRepresentation()
+    void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
@@ -389,7 +394,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldCopyConstructAndBeEqual()
+    void shouldCopyConstructAndBeEqual()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
@@ -403,7 +408,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldAllowNullValuesWithNullMapping()
+    void shouldAllowNullValuesWithNullMapping()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<String>()
         {
@@ -450,7 +455,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void testToArray()
+    void testToArray()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");
@@ -468,7 +473,7 @@ public class Int2ObjectHashMapTest
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void testToArrayTyped()
+    void testToArrayTyped()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");
@@ -486,7 +491,7 @@ public class Int2ObjectHashMapTest
     }
 
     @Test
-    public void testToArrayWithArrayListConstructor()
+    void testToArrayWithArrayListConstructor()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");
@@ -500,5 +505,28 @@ public class Int2ObjectHashMapTest
         }
 
         assertTrue(map.isEmpty());
+    }
+
+    @Test
+    void containsValueShouldPerformEqualityCheckBasedOnTheValueStoredInTheMap()
+    {
+        final Int2ObjectHashMap<CharSequence> map = new Int2ObjectHashMap<>();
+        map.put(11, new CharSequenceKey("abc"));
+        final CharSequenceKey xyzKey = new CharSequenceKey("xyz");
+        map.put(42, xyzKey);
+
+        assertTrue(map.containsValue("abc"));
+        assertTrue(map.containsValue(new CharSequenceKey("abc")));
+        assertTrue(map.containsValue(xyzKey));
+        assertTrue(map.containsValue(new CharSequenceKey("xyz")));
+
+        final Int2ObjectHashMap<CharSequence>.ValueCollection values = map.values();
+        assertTrue(values.contains("abc"));
+        assertTrue(values.contains(new CharSequenceKey("abc")));
+        assertTrue(values.contains(xyzKey));
+
+        assertFalse(map.containsValue(null));
+        assertFalse(map.containsValue("null"));
+        assertFalse(map.containsValue(new CharSequenceKey("test")));
     }
 }
