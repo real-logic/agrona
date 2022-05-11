@@ -21,20 +21,24 @@ import org.mockito.InOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.IntUnaryOperator;
+import java.util.function.ObjIntConsumer;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
-class Int2IntCounterMapTest
+class Object2IntCounterMapTest
 {
     private static final int INITIAL_VALUE = 0;
 
-    private final Int2IntCounterMap map = new Int2IntCounterMap(INITIAL_VALUE);
+    private final Object2IntCounterMap<Integer> map = new Object2IntCounterMap<>(INITIAL_VALUE);
 
     @Test
     void shouldInitiallyBeEmpty()
@@ -97,13 +101,14 @@ class Int2IntCounterMapTest
         assertEquals(INITIAL_VALUE, map.get(100));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void forEachShouldLoopOverEveryElement()
     {
         map.put(1, 1);
         map.put(100, 100);
 
-        final IntIntConsumer mockConsumer = mock(IntIntConsumer.class);
+        final ObjIntConsumer<Integer> mockConsumer = mock(ObjIntConsumer.class);
         map.forEach(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
@@ -272,7 +277,7 @@ class Int2IntCounterMapTest
         final int testKey = 7;
         final int testValue = 7;
 
-        final IntUnaryOperator function = (i) -> testValue;
+        final ToIntFunction<Integer> function = (i) -> testValue;
 
         assertEquals(map.initialValue(), map.get(testKey));
 
@@ -397,30 +402,6 @@ class Int2IntCounterMapTest
     void shouldNotAllowInitialValueAsValue()
     {
         assertThrows(IllegalArgumentException.class, () -> map.put(1, INITIAL_VALUE));
-    }
-
-    @Test
-    void shouldAllowInitialValueAsKey()
-    {
-        map.put(INITIAL_VALUE, 1);
-
-        assertEquals(1, map.get(INITIAL_VALUE));
-        assertTrue(map.containsKey(INITIAL_VALUE));
-        assertEquals(1, map.size());
-
-        final int[] tuple = new int[2];
-        map.forEach((k, v) ->
-        {
-            tuple[0] = k;
-            tuple[1] = v;
-        });
-
-        assertEquals(INITIAL_VALUE, tuple[0]);
-        assertEquals(1, tuple[1]);
-
-        assertEquals(1, map.remove(INITIAL_VALUE));
-        assertEquals(0, map.size());
-        assertEquals(INITIAL_VALUE, map.get(INITIAL_VALUE));
     }
 
     @Test
