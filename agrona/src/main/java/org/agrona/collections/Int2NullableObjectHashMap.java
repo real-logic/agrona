@@ -68,12 +68,12 @@ public class Int2NullableObjectHashMap<V> extends Int2ObjectHashMap<V>
 
     protected Object mapNullValue(final Object value)
     {
-        return value == null ? NullReference.INSTANCE : value;
+        return null == value ? NullReference.INSTANCE : value;
     }
 
     @SuppressWarnings("unchecked")
     protected V unmapNullValue(final Object value)
     {
-        return value == NullReference.INSTANCE ? null : (V)value;
+        return NullReference.INSTANCE == value ? null : (V)value;
     }
 }

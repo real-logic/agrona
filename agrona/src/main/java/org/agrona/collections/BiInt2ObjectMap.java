@@ -164,15 +164,16 @@ public class BiInt2ObjectMap<V>
     {
         final long key = compoundKey(keyPartA, keyPartB);
 
-        V oldValue = null;
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         final int mask = values.length - 1;
         int index = Hashing.hash(key, mask);
 
-        while (null != values[index])
+        Object oldValue;
+        while (null != (oldValue = values[index]))
         {
             if (key == keys[index])
             {
-                oldValue = (V)values[index];
                 break;
             }
 
@@ -192,7 +193,7 @@ public class BiInt2ObjectMap<V>
             increaseCapacity();
         }
 
-        return oldValue;
+        return (V)oldValue;
     }
 
     /**
@@ -206,6 +207,8 @@ public class BiInt2ObjectMap<V>
     public V get(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         final int mask = values.length - 1;
         int index = Hashing.hash(key, mask);
 
@@ -234,6 +237,8 @@ public class BiInt2ObjectMap<V>
     public V remove(final int keyPartA, final int keyPartB)
     {
         final long key = compoundKey(keyPartA, keyPartB);
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         final int mask = values.length - 1;
         int index = Hashing.hash(key, mask);
 
@@ -268,10 +273,10 @@ public class BiInt2ObjectMap<V>
     public V computeIfAbsent(final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
     {
         V value = get(keyPartA, keyPartB);
-        if (value == null)
+        if (null == value)
         {
             value = mappingFunction.apply(keyPartA, keyPartB);
-            if (value != null)
+            if (null != value)
             {
                 put(keyPartA, keyPartB, value);
             }
@@ -290,6 +295,7 @@ public class BiInt2ObjectMap<V>
     {
         int remaining = size;
 
+        final Object[] values = this.values;
         for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
         {
             final Object value = values[i];
@@ -311,6 +317,8 @@ public class BiInt2ObjectMap<V>
     {
         int remaining = size;
 
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
         {
             final Object value = values[i];
@@ -354,6 +362,8 @@ public class BiInt2ObjectMap<V>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         for (int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
@@ -385,6 +395,8 @@ public class BiInt2ObjectMap<V>
         final long[] tempKeys = new long[newCapacity];
         final Object[] tempValues = new Object[newCapacity];
 
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         for (int i = 0, size = values.length; i < size; i++)
         {
             final Object value = values[i];
@@ -403,8 +415,8 @@ public class BiInt2ObjectMap<V>
             }
         }
 
-        keys = tempKeys;
-        values = tempValues;
+        this.keys = tempKeys;
+        this.values = tempValues;
     }
 
     @SuppressWarnings("FinalParameters")
@@ -412,10 +424,13 @@ public class BiInt2ObjectMap<V>
     {
         final int mask = values.length - 1;
         int index = deleteIndex;
+        final long[] keys = this.keys;
+        final Object[] values = this.values;
         while (true)
         {
             index = ++index & mask;
-            if (null == values[index])
+            final Object value = values[index];
+            if (null == value)
             {
                 break;
             }
@@ -427,7 +442,7 @@ public class BiInt2ObjectMap<V>
                 (hash <= deleteIndex && deleteIndex <= index))
             {
                 keys[deleteIndex] = key;
-                values[deleteIndex] = values[index];
+                values[deleteIndex] = value;
 
                 values[index] = null;
                 deleteIndex = index;

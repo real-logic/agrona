@@ -39,4 +39,5 @@ public final class LangUtil
     {
         throw (T)t;
     }
+
 }
