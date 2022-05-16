@@ -58,6 +58,7 @@ public final class SpecialisationGenerator
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2ObjectHashMap", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2NullableObjectHashMap", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Object2IntHashMap", SRC_DIR, DST_DIR);
+        specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Object2IntCounterMap", SRC_DIR, DST_DIR);
     }
 
     /**
