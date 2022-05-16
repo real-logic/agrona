@@ -439,4 +439,23 @@ class Object2IntCounterMapTest
         assertEquals(7, map.resizeThreshold());
         assertEquals(5, map.size());
     }
+
+    @Test
+    void shouldCompareKeyCorrectly()
+    {
+        final Object2IntCounterMap<CharSequenceKey> map = new Object2IntCounterMap<>(0);
+        map.put(new CharSequenceKey("abc"), 100);
+        final CharSequenceKey xyzKey = new CharSequenceKey("xyz");
+        map.put(xyzKey, 2);
+
+        assertEquals(100, map.get(new CharSequenceKey("abc")));
+        assertEquals(101, map.incrementAndGet(new CharSequenceKey("abc")));
+        assertEquals(100, map.decrementAndGet(new CharSequenceKey("abc")));
+        assertTrue(map.containsKey(new CharSequenceKey("abc")));
+
+        assertEquals(2, map.get(xyzKey));
+        assertEquals(17, map.addAndGet(xyzKey, 15));
+        assertEquals(3, map.addAndGet(new CharSequenceKey("xyz"), -14));
+        assertTrue(map.containsKey(xyzKey));
+    }
 }
