@@ -76,6 +76,7 @@ public class Object2IntCounterMap<K>
         values = new int[capacity];
         Arrays.fill(values, initialValue);
 
+        /* @DoNotSub */ resizeThreshold = (int)(capacity * loadFactor);
     }
 
     /**

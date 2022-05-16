@@ -27,10 +27,7 @@ import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
@@ -415,7 +412,8 @@ class Object2IntCounterMapTest
     @Test
     void shouldCompactMap()
     {
-        final Int2IntCounterMap map = new Int2IntCounterMap(2, 0.9f, Integer.MIN_VALUE);
+        final Object2IntCounterMap<Integer> map =
+            new Object2IntCounterMap<>(2, 0.9f, Integer.MIN_VALUE);
         assertEquals(8, map.capacity());
         assertEquals(7, map.resizeThreshold());
         assertEquals(0, map.size());
