@@ -148,6 +148,9 @@ public class Object2IntCounterMap<K>
      */
     public int get(final K key)
     {
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
@@ -175,11 +178,14 @@ public class Object2IntCounterMap<K>
      */
     public int put(final K key, final int value)
     {
-        if (value == initialValue)
+        final int initialValue = this.initialValue;
+        if (initialValue == value)
         {
             throw new IllegalArgumentException("cannot accept initialValue");
         }
 
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
         int oldValue = initialValue;
@@ -279,11 +285,14 @@ public class Object2IntCounterMap<K>
      */
     public int getAndAdd(final K key, final int amount)
     {
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
         int oldValue = initialValue;
 
-        while (values[index] != initialValue)
+        while (initialValue != values[index])
         {
             if (Objects.equals(keys[index], key))
             {
@@ -299,13 +308,13 @@ public class Object2IntCounterMap<K>
             final int newValue = oldValue + amount;
             values[index] = newValue;
 
-            if (oldValue == initialValue)
+            if (initialValue == oldValue)
             {
                 ++size;
                 keys[index] = key;
                 increaseCapacity();
             }
-            else if (newValue == initialValue)
+            else if (initialValue == newValue)
             {
                 size--;
                 compactChain(index);
@@ -322,12 +331,15 @@ public class Object2IntCounterMap<K>
      */
     public void forEach(final ObjIntConsumer<K> consumer)
     {
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int length = values.length;
         @DoNotSub int remaining = size;
 
         for (@DoNotSub int i = 0; remaining > 0 && i < length; i++)
         {
-            if (values[i] != initialValue)
+            if (initialValue != values[i])
             {
                 consumer.accept(keys[i], values[i]);
                 --remaining;
@@ -343,7 +355,7 @@ public class Object2IntCounterMap<K>
      */
     public boolean containsKey(final K key)
     {
-        return get(key) != initialValue;
+        return initialValue != get(key);
     }
 
     /**
@@ -357,7 +369,7 @@ public class Object2IntCounterMap<K>
     public boolean containsValue(final int value)
     {
         boolean found = false;
-        if (value != initialValue)
+        if (initialValue != value)
         {
             for (final int v : values)
             {
@@ -405,10 +417,10 @@ public class Object2IntCounterMap<K>
     public int computeIfAbsent(final K key, final ToIntFunction<? super K> mappingFunction)
     {
         int value = get(key);
-        if (value == initialValue)
+        if (initialValue == value)
         {
             value = mappingFunction.applyAsInt(key);
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 put(key, value);
             }
@@ -425,11 +437,14 @@ public class Object2IntCounterMap<K>
      */
     public int remove(final K key)
     {
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = Hashing.hash(key, mask);
 
         int oldValue = initialValue;
-        while (values[index] != initialValue)
+        while (initialValue != values[index])
         {
             if (Objects.equals(keys[index], key))
             {
@@ -455,11 +470,12 @@ public class Object2IntCounterMap<K>
      */
     public int minValue()
     {
-        int min = size == 0 ? initialValue : Integer.MAX_VALUE;
+        final int initialValue = this.initialValue;
+        int min = 0 == size ? initialValue : Integer.MAX_VALUE;
 
         for (final int value : values)
         {
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 min = Math.min(min, value);
             }
@@ -475,11 +491,12 @@ public class Object2IntCounterMap<K>
      */
     public int maxValue()
     {
-        int max = size == 0 ? initialValue : Integer.MIN_VALUE;
+        final int initialValue = this.initialValue;
+        int max = 0 == size ? initialValue : Integer.MIN_VALUE;
 
         for (final int value : values)
         {
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 max = Math.max(max, value);
             }
@@ -496,12 +513,15 @@ public class Object2IntCounterMap<K>
         final StringBuilder sb = new StringBuilder();
         sb.append('{');
 
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int length = values.length;
 
         for (@DoNotSub int i = 0; i < length; i++)
         {
             final int value = values[i];
-            if (value != initialValue)
+            if (initialValue != value)
             {
                 sb.append(keys[i]).append('=').append(value).append(", ");
             }
@@ -520,24 +540,29 @@ public class Object2IntCounterMap<K>
     @SuppressWarnings("FinalParameters")
     private void compactChain(@DoNotSub int deleteIndex)
     {
+        final int initialValue = this.initialValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         @DoNotSub final int mask = values.length - 1;
         @DoNotSub int index = deleteIndex;
 
         while (true)
         {
             index = ++index & mask;
-            if (initialValue == values[index])
+            final int value = values[index];
+            if (initialValue == value)
             {
                 break;
             }
 
-            @DoNotSub final int hash = Hashing.hash(keys[index], mask);
+            final K key = keys[index];
+            @DoNotSub final int hash = Hashing.hash(key, mask);
 
             if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
                 (hash <= deleteIndex && deleteIndex <= index))
             {
-                keys[deleteIndex] = keys[index];
-                values[deleteIndex] = values[index];
+                keys[deleteIndex] = key;
+                values[deleteIndex] = value;
 
                 keys[index] = null;
                 values[index] = initialValue;
@@ -564,8 +589,11 @@ public class Object2IntCounterMap<K>
         @SuppressWarnings("unchecked")
         final K[] tempKeys = (K[])new Object[newCapacity];
         final int[] tempValues = new int[newCapacity];
+        final int initialValue = this.initialValue;
         Arrays.fill(tempValues, initialValue);
 
+        final K[] keys = this.keys;
+        final int[] values = this.values;
         for (@DoNotSub int i = 0, size = values.length; i < size; i++)
         {
             final int value = values[i];
@@ -583,7 +611,7 @@ public class Object2IntCounterMap<K>
             }
         }
 
-        keys = tempKeys;
-        values = tempValues;
+        this.keys = tempKeys;
+        this.values = tempValues;
     }
 }
