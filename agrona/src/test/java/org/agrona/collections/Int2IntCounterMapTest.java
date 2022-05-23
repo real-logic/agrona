@@ -18,8 +18,6 @@ package org.agrona.collections;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
@@ -243,27 +241,13 @@ class Int2IntCounterMapTest
     @Test
     void shouldNotSupportLoadFactorOfGreaterThanOne()
     {
-        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 2, 0));
+        assertThrows(IllegalArgumentException.class, () -> new Int2IntCounterMap(4, 2, 0));
     }
 
     @Test
     void shouldNotSupportLoadFactorOfOne()
     {
-        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 1, 0));
-    }
-
-    @Test
-    void correctSizeAfterRehash()
-    {
-        final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
-
-        IntStream.range(1, 17).forEach((i) -> map.put(i, i));
-        assertEquals(16, map.size(), "Map has correct size");
-
-        final List<Integer> keys = new ArrayList<>(map.keySet());
-        keys.forEach(map::remove);
-
-        assertTrue(map.isEmpty(), "Map isn't empty");
+        assertThrows(IllegalArgumentException.class, () -> new Int2IntCounterMap(4, 1, 0));
     }
 
     @Test

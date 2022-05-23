@@ -18,8 +18,6 @@ package org.agrona.collections;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
@@ -245,27 +243,13 @@ class Object2IntCounterMapTest
     @Test
     void shouldNotSupportLoadFactorOfGreaterThanOne()
     {
-        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 2, 0));
+        assertThrows(IllegalArgumentException.class, () -> new Object2IntCounterMap<>(4, 2, 0));
     }
 
     @Test
     void shouldNotSupportLoadFactorOfOne()
     {
-        assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 1, 0));
-    }
-
-    @Test
-    void correctSizeAfterRehash()
-    {
-        final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
-
-        IntStream.range(1, 17).forEach((i) -> map.put(i, i));
-        assertEquals(16, map.size(), "Map has correct size");
-
-        final List<Integer> keys = new ArrayList<>(map.keySet());
-        keys.forEach(map::remove);
-
-        assertTrue(map.isEmpty(), "Map isn't empty");
+        assertThrows(IllegalArgumentException.class, () -> new Object2IntCounterMap<>(4, 1, 0));
     }
 
     @Test
@@ -412,8 +396,7 @@ class Object2IntCounterMapTest
     @Test
     void shouldCompactMap()
     {
-        final Object2IntCounterMap<Integer> map =
-            new Object2IntCounterMap<>(2, 0.9f, Integer.MIN_VALUE);
+        final Object2IntCounterMap<Integer> map = new Object2IntCounterMap<>(2, 0.9f, Integer.MIN_VALUE);
         assertEquals(8, map.capacity());
         assertEquals(7, map.resizeThreshold());
         assertEquals(0, map.size());
@@ -445,6 +428,7 @@ class Object2IntCounterMapTest
     {
         final Object2IntCounterMap<CharSequenceKey> map = new Object2IntCounterMap<>(0);
         map.put(new CharSequenceKey("abc"), 100);
+
         final CharSequenceKey xyzKey = new CharSequenceKey("xyz");
         map.put(xyzKey, 2);
 

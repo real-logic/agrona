@@ -123,7 +123,7 @@ public class Object2IntCounterMap<K>
     /**
      * The current size of the map which at not at {@link #initialValue()}.
      *
-     * @return map size, counters at {@link #initialValue()} are not counted
+     * @return map size, counters at {@link #initialValue()} are not counted.
      */
     @DoNotSub public int size()
     {
@@ -143,7 +143,7 @@ public class Object2IntCounterMap<K>
     /**
      * Get the value of a counter associated with a key or {@link #initialValue()} if not found.
      *
-     * @param key lookup key
+     * @param key lookup key.
      * @return counter value associated with key or {@link #initialValue()} if not found.
      */
     public int get(final K key)
@@ -171,10 +171,10 @@ public class Object2IntCounterMap<K>
     /**
      * Put the value for a key in the map.
      *
-     * @param key   lookup key
-     * @param value new value, must not be initialValue
-     * @return current counter value associated with key, or {@link #initialValue()} if none found
-     * @throws IllegalArgumentException if value is {@link #initialValue()}
+     * @param key   lookup key.
+     * @param value new value, must not be initialValue.
+     * @return current counter value associated with key, or {@link #initialValue()} if none found.
+     * @throws IllegalArgumentException if value is {@link #initialValue()}.
      */
     public int put(final K key, final int value)
     {
@@ -241,8 +241,8 @@ public class Object2IntCounterMap<K>
      * current value and associate key with {@link #initialValue()} + amount unless amount is 0, in which case map
      * remains unchanged.
      *
-     * @param key    new or existing
-     * @param amount to be added
+     * @param key    new or existing.
+     * @param amount to be added.
      * @return the new value associated with the specified key, or
      *         {@link #initialValue()} + amount if there was no mapping for the key.
      */
@@ -278,8 +278,8 @@ public class Object2IntCounterMap<K>
      * current value and associate key with {@link #initialValue()} + amount unless amount is 0, in which case map
      * remains unchanged.
      *
-     * @param key    new or existing
-     * @param amount to be added
+     * @param key    new or existing.
+     * @param amount to be added.
      * @return the previous value associated with the specified key, or
      *         {@link #initialValue()} if there was no mapping for the key.
      */
@@ -432,8 +432,8 @@ public class Object2IntCounterMap<K>
     /**
      * Remove a counter value for a given key.
      *
-     * @param key to be removed
-     * @return old value for key
+     * @param key to be removed.
+     * @return old value for key.
      */
     public int remove(final K key)
     {
