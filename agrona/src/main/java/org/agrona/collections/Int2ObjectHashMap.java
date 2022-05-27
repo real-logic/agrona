@@ -295,8 +295,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     }
 
     /**
-     * Get a value for a given key, or if it does not exist then default the value via a
-     * {@link java.util.function.IntFunction} and put it in the map.
+     * Get a value for a given key, or if it does not exist then default the value
+     * via a {@link java.util.function.IntFunction} and put it in the map.
      * <p>
      * Primitive specialized version of {@link java.util.Map#computeIfAbsent}.
      *
@@ -306,21 +306,135 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
-        V value = getMapped(key);
-        if (null == value)
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = values[index]))
         {
-            value = mappingFunction.apply(key);
-            if (null != value)
+            if (key == keys[index])
             {
-                put(key, value);
+                break;
             }
+
+            index = ++index & mask;
         }
-        else
+        V value = unmapNullValue(mappedValue);
+        if (value == null && (value = mappingFunction.apply(key)) != null)
         {
-            value = unmapNullValue(value);
+            values[index] = value;
+            if (mappedValue == null)
+            {
+                keys[index] = key;
+                if (++size > resizeThreshold)
+                {
+                    increaseCapacity();
+                }
+            }
         }
 
         return value;
+    }
+
+    /**
+     * If the value for the specified key is present and non-null, attempts to compute a new
+     * mapping given the key and its current mapped value.
+     * <p>
+     * If the function returns {@code null}, the mapping is removed
+     * <p>
+     * Primitive specialized version of {@link java.util.Map#computeIfPresent}.
+     *
+     * @param key               to search on.
+     * @param remappingFunction to provide a value if the get returns missingValue.
+     * @return the new value associated with the specified key, or {@code null} if none
+     */
+    public V computeIfPresent(final int key, final IntObjToObjFunction<? super V, ? extends V> remappingFunction)
+    {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = values[index]))
+        {
+            if (key == keys[index])
+            {
+                break;
+            }
+
+            index = ++index & mask;
+        }
+        V value = unmapNullValue(mappedValue);
+        if (value != null)
+        {
+            value = remappingFunction.apply(key, value);
+            values[index] = value;
+            if (value == null)
+            {
+                --size;
+                compactChain(index);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Attempts to compute a mapping for the specified key and its current mapped
+     * value (or {@code null} if there is no current mapping).
+     * <p>
+     * If the function returns {@code null}, the mapping is removed (or remains
+     * absent if initially absent).
+     * <p>
+     * Primitive specialized version of {@link java.util.Map#compute}.
+     *
+     * @param key               to search on.
+     * @param remappingFunction to provide a value if the get returns missingValue.
+     * @return the new value associated with the specified key, or {@code null} if none
+     */
+    public V compute(final int key, final IntObjToObjFunction<? super V, ? extends V> remappingFunction)
+    {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedvalue;
+        while (null != (mappedvalue = values[index]))
+        {
+            if (key == keys[index])
+            {
+                break;
+            }
+
+            index = ++index & mask;
+        }
+        final V oldValue = unmapNullValue(mappedvalue);
+        final V newValue = remappingFunction.apply(key, oldValue);
+
+        if (newValue != null)
+        {
+            // add or replace old mapping
+            values[index] = newValue;
+            if (mappedvalue == null)
+            {
+                keys[index] = key;
+                if (++size > resizeThreshold)
+                {
+                    increaseCapacity();
+                }
+            }
+        }
+        else if (mappedvalue != null || containsKey(key))
+        {
+            // delete mapping
+            values[index] = null;
+            size--;
+            compactChain(index);
+        }
+        return newValue;
     }
 
     /**

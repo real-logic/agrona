@@ -34,6 +34,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -408,10 +409,14 @@ public class Int2IntHashMapTest
     {
         final int testKey = 7;
         final int testValue = 7;
+        final int testValue2 = 8;
 
         assertEquals(map.missingValue(), map.get(testKey));
 
         assertThat(map.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
+
+        assertThat(map.computeIfAbsent(testKey, (i) -> testValue2), is(testValue));
         assertThat(map.get(testKey), is(testValue));
     }
 
@@ -422,9 +427,76 @@ public class Int2IntHashMapTest
 
         final int testKey = 7;
         final int testValue = 7;
+        final int testValue2 = 8;
 
         assertThat(map.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
         assertThat(map.get(testKey), is(testValue));
+
+        assertThat(map.computeIfAbsent(testKey, (i) -> testValue2), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfPresent()
+    {
+        final int testKey = 7;
+        final int testValue = 7;
+        final int testValue2 = 8;
+
+        assertThat(map.computeIfPresent(testKey, (k, v) -> testValue), is(map.missingValue()));
+        assertThat(map.get(testKey), is(map.missingValue()));
+
+        map.put(testKey, testValue);
+        assertThat(map.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(map.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeIfPresentBoxed()
+    {
+        final Map<Integer, Integer> map = this.map;
+
+        final int testKey = 7;
+        final int testValue = 7;
+        final int testValue2 = 8;
+
+        assertThat(map.computeIfPresent(testKey, (k, v) -> testValue), nullValue());
+        assertThat(map.get(testKey), nullValue());
+
+        map.put(testKey, testValue);
+        assertThat(map.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(map.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldCompute()
+    {
+        final int testKey = 7;
+        final int testValue = 7;
+        final int testValue2 = 8;
+
+        assertEquals(map.missingValue(), map.get(testKey));
+        assertThat(map.compute(testKey, (k, v) -> testValue), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
+
+        assertThat(map.compute(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(map.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeBoxed()
+    {
+        final Map<Integer, Integer> map = this.map;
+
+        final int testKey = 7;
+        final int testValue = 7;
+        final int testValue2 = 8;
+
+        assertThat(map.compute(testKey, (k, v) -> testValue), is(testValue));
+        assertThat(map.get(testKey), is(testValue));
+
+        assertThat(map.compute(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(map.get(testKey), is(testValue2));
     }
 
     @Test

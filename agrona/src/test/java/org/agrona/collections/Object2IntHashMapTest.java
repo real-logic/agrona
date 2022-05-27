@@ -24,11 +24,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.ToIntFunction;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -151,6 +153,106 @@ class Object2IntHashMapTest
         objectToIntMap.compact();
 
         assertThat(objectToIntMap.capacity(), lessThan(capacityBeforeCompaction));
+    }
+
+    @Test
+    public void shouldCompute()
+    {
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+
+        assertThat(objectToIntMap.getValue(testKey), is(objectToIntMap.missingValue()));
+        assertThat(objectToIntMap.compute(testKey, (final String k, final int v) -> testValue), is(testValue));
+        assertThat(objectToIntMap.getValue(testKey), is(testValue));
+
+        assertThat(objectToIntMap.compute(testKey, (final String k, final int v) -> testValue2), is(testValue2));
+        assertThat(objectToIntMap.getValue(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeBoxed()
+    {
+        final Map<String, Integer> objectToIntMap = this.objectToIntMap;
+
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+
+        assertThat(objectToIntMap.compute(testKey, (k, v) -> testValue), is(testValue));
+        assertThat(objectToIntMap.get(testKey), is(testValue));
+
+        assertThat(objectToIntMap.compute(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(objectToIntMap.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeIfAbsent()
+    {
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+
+        assertThat(objectToIntMap.getValue(testKey), is(objectToIntMap.missingValue()));
+
+        final ToIntFunction<String> function = (i) -> testValue;
+        assertThat(objectToIntMap.computeIfAbsent(testKey, function), is(testValue));
+        assertThat(objectToIntMap.getValue(testKey), is(testValue));
+
+        final ToIntFunction<String> function2 = (i) -> testValue2;
+        assertThat(objectToIntMap.computeIfAbsent(testKey, function2), is(testValue));
+        assertThat(objectToIntMap.getValue(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfAbsentBoxed()
+    {
+        final Map<String, Integer> objectToIntMap = this.objectToIntMap;
+
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+
+        assertThat(objectToIntMap.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
+        assertThat(objectToIntMap.get(testKey), is(testValue));
+
+        assertThat(objectToIntMap.computeIfAbsent(testKey, (i) -> testValue2), is(testValue));
+        assertThat(objectToIntMap.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfPresent()
+    {
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+        final int missingValue = objectToIntMap.missingValue();
+
+        assertThat(objectToIntMap.computeIfPresent(testKey, (final String k, final int v) -> testValue),
+            is(missingValue));
+        assertThat(objectToIntMap.getValue(testKey), is(missingValue));
+
+        objectToIntMap.put(testKey, testValue);
+        assertThat(objectToIntMap.computeIfPresent(testKey, (final String k, final int v) -> testValue2),
+            is(testValue2));
+        assertThat(objectToIntMap.getValue(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeIfPresentBoxed()
+    {
+        final Map<String, Integer> objectToIntMap = this.objectToIntMap;
+
+        final String testKey = "Seven";
+        final int testValue = 7;
+        final int testValue2 = -7;
+
+        assertThat(objectToIntMap.computeIfPresent(testKey, (k, v) -> testValue), nullValue());
+        assertThat(objectToIntMap.get(testKey), nullValue());
+
+        objectToIntMap.put(testKey, testValue);
+        assertThat(objectToIntMap.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(objectToIntMap.get(testKey), is(testValue2));
     }
 
     @Test

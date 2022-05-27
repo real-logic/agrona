@@ -279,17 +279,136 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     @SuppressWarnings("overloads")
     public int computeIfAbsent(final K key, final ToIntFunction<? super K> mappingFunction)
     {
-        int value = getValue(key);
-        if (missingValue == value)
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int value;
+        while (missingValue != (value = values[index]))
         {
-            value = mappingFunction.applyAsInt(key);
-            if (missingValue != value)
+            if (Objects.equals(keys[index], key))
             {
-                put(key, value);
+                break;
+            }
+
+            index = ++index & mask;
+        }
+        if (missingValue == value && (value = mappingFunction.applyAsInt(key)) != missingValue)
+        {
+            keys[index] = key;
+            values[index] = value;
+            if (++size > resizeThreshold)
+            {
+                increaseCapacity();
             }
         }
 
         return value;
+    }
+
+    /**
+     * If the value for the specified key is present, attempts to compute a new
+     * mapping given the key and its current mapped value.
+     * <p>
+     * If the function returns missingValue, the mapping is removed
+     * <p>
+     * Primitive specialized version of {@link java.util.Map#computeIfPresent}.
+     *
+     * @param key               to search on.
+     * @param remappingFunction to provide a value if the get returns missingValue.
+     * @return the new value associated with the specified key, or missingValue if none
+     */
+    @SuppressWarnings("overloads")
+    public int computeIfPresent(final K key, final ObjIntToIntFunction<? super K> remappingFunction)
+    {
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int value;
+        while (missingValue != (value = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                break;
+            }
+
+            index = ++index & mask;
+        }
+        if (value != missingValue)
+        {
+            value = remappingFunction.apply(key, value);
+            values[index] = value;
+            if (value == missingValue)
+            {
+                keys[index] = null;
+                size--;
+                compactChain(index);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Attempts to compute a mapping for the specified key and its current mapped
+     * value (or missingValue if there is no current mapping).
+     * <p>
+     * If the function returns missingValue, the mapping is removed (or remains
+     * absent if initially absent).
+     * <p>
+     * Primitive specialized version of {@link java.util.Map#compute}.
+     *
+     * @param key               to search on.
+     * @param remappingFunction to provide a value if the get returns missingValue.
+     * @return the new value associated with the specified key, or missingValue if none
+     */
+    @SuppressWarnings("overloads")
+    public int compute(final K key, final ObjIntToIntFunction<? super K> remappingFunction)
+    {
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                break;
+            }
+
+            index = ++index & mask;
+        }
+        final int newValue = remappingFunction.apply(key, oldValue);
+        if (newValue != missingValue)
+        {
+            // add or replace old mapping
+            values[index] = newValue;
+            if (oldValue == missingValue)
+            {
+                keys[index] = key;
+                if (++size > resizeThreshold)
+                {
+                    increaseCapacity();
+                }
+            }
+        }
+        else if (oldValue != missingValue)
+        {
+            // something to remove
+            keys[index] = null;
+            values[index] = missingValue;
+            --size;
+            compactChain(index);
+
+        }
+        return newValue;
     }
 
     /**

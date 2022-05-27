@@ -48,6 +48,8 @@ public final class SpecialisationGenerator
     {
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntIntConsumer", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntObjConsumer", SRC_DIR, DST_DIR);
+        specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntObjToObjFunction", SRC_DIR, DST_DIR);
+        specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "ObjIntToIntFunction", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayList", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "IntArrayQueue", SRC_DIR, DST_DIR);
         specialise(SUBSTITUTIONS, COLLECTIONS_PACKAGE, "Int2IntHashMap", SRC_DIR, DST_DIR);
