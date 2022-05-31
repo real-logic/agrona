@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -46,7 +47,7 @@ public class MarkFile implements AutoCloseable
     private final MappedByteBuffer mappedBuffer;
     private final UnsafeBuffer buffer;
 
-    private volatile boolean isClosed = false;
+    private final AtomicBoolean isClosed = new AtomicBoolean();
 
     /**
      * Create a directory and mark file if none present. Checking if an active Mark file exists and is active.
@@ -230,7 +231,7 @@ public class MarkFile implements AutoCloseable
      */
     public boolean isClosed()
     {
-        return isClosed;
+        return isClosed.get();
     }
 
     /**
@@ -238,14 +239,9 @@ public class MarkFile implements AutoCloseable
      */
     public void close()
     {
-        if (!isClosed)
+        if (isClosed.compareAndSet(false, true))
         {
-            if (null != mappedBuffer)
-            {
-                BufferUtil.free(mappedBuffer);
-            }
-
-            isClosed = true;
+            BufferUtil.free(mappedBuffer);
         }
     }
 
