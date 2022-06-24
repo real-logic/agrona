@@ -151,6 +151,101 @@ class Int2ObjectHashMapTest
     }
 
     @Test
+    public void shouldCompute()
+    {
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.get(testKey), nullValue());
+        assertThat(intToObjectMap.compute(testKey, (k, v) -> testValue), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+
+        assertThat(intToObjectMap.compute(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(intToObjectMap.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeBoxed()
+    {
+        final Map<Integer, String> intToObjectMap = this.intToObjectMap;
+
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.compute(testKey, (k, v) -> testValue), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+
+        assertThat(intToObjectMap.compute(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(intToObjectMap.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeIfAbsent()
+    {
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.get(testKey), nullValue());
+
+        assertThat(intToObjectMap.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+
+        assertThat(intToObjectMap.computeIfAbsent(testKey, (i) -> testValue2), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfAbsentBoxed()
+    {
+        final Map<Integer, String> intToObjectMap = this.intToObjectMap;
+
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.computeIfAbsent(testKey, (i) -> testValue), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+
+        assertThat(intToObjectMap.computeIfAbsent(testKey, (i) -> testValue2), is(testValue));
+        assertThat(intToObjectMap.get(testKey), is(testValue));
+    }
+
+    @Test
+    public void shouldComputeIfPresent()
+    {
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.computeIfPresent(testKey, (k, v) -> testValue), nullValue());
+        assertThat(intToObjectMap.get(testKey), nullValue());
+
+        intToObjectMap.put(testKey, testValue);
+        assertThat(intToObjectMap.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(intToObjectMap.get(testKey), is(testValue2));
+    }
+
+    @Test
+    public void shouldComputeIfPresentBoxed()
+    {
+        final Map<Integer, String> intToObjectMap = this.intToObjectMap;
+
+        final int testKey = 7;
+        final String testValue = "Seven";
+        final String testValue2 = "7";
+
+        assertThat(intToObjectMap.computeIfPresent(testKey, (k, v) -> testValue), nullValue());
+        assertThat(intToObjectMap.get(testKey), nullValue());
+
+        intToObjectMap.put(testKey, testValue);
+        assertThat(intToObjectMap.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
+        assertThat(intToObjectMap.get(testKey), is(testValue2));
+    }
+
+    @Test
     void shouldContainValue()
     {
         final int key = 7;

@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -480,6 +482,126 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     public int hashCode()
     {
         return entrySet().hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction)
+    {
+
+        final Object[] entries = this.entries;
+        final int mask = entries.length - 1;
+        int keyIndex = Hashing.evenHash(key.hashCode(), mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = entries[keyIndex + 1]))
+        {
+            if (Objects.equals(entries[keyIndex], key))
+            {
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
+        }
+
+        V value = unmapNullValue(mappedValue);
+        if (value == null && (value = mappingFunction.apply(key)) != null)
+        {
+            // insert new mapping (or update an existing mapping with NullValue)
+            entries[keyIndex + 1] = value;
+            if (mappedValue == null)
+            {
+                entries[keyIndex] = key;
+                ++size;
+                increaseCapacity();
+            }
+        }
+        return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public V computeIfPresent(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction)
+    {
+
+        final Object[] entries = this.entries;
+        final int mask = entries.length - 1;
+        int keyIndex = Hashing.evenHash(key.hashCode(), mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = entries[keyIndex + 1]))
+        {
+            if (Objects.equals(entries[keyIndex], key))
+            {
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
+        }
+
+        V value = unmapNullValue(mappedValue);
+        if (value != null)
+        {
+            value = remappingFunction.apply(key, value);
+            entries[keyIndex + 1] = value;
+            if (value == null)
+            {
+                entries[keyIndex] = null;
+                size--;
+                compactChain(keyIndex);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public V compute(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction)
+    {
+
+        final Object[] entries = this.entries;
+        final int mask = entries.length - 1;
+        int keyIndex = Hashing.evenHash(key.hashCode(), mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = entries[keyIndex + 1]))
+        {
+            if (Objects.equals(entries[keyIndex], key))
+            {
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
+        }
+        final V oldValue = unmapNullValue(mappedValue);
+        final V newValue = remappingFunction.apply(key, oldValue);
+
+        if (newValue != null)
+        {
+            // add or replace old mapping
+            entries[keyIndex + 1] = newValue;
+            if (mappedValue == null)
+            {
+                entries[keyIndex] = key;
+                size++;
+                increaseCapacity();
+            }
+
+        }
+        else if (mappedValue != null)
+        {
+            // delete mapping
+            entries[keyIndex] = null;
+            entries[keyIndex + 1] = null;
+            size--;
+            compactChain(keyIndex);
+        }
+        return newValue;
     }
 
     /**

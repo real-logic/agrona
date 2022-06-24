@@ -20,6 +20,7 @@ import org.agrona.generation.DoNotSub;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -354,17 +355,112 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int computeIfAbsent(final int key, final IntUnaryOperator mappingFunction)
     {
-        int value = get(key);
-        if (missingValue == value)
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+
+        int value;
+        while (missingValue != (value = entries[index + 1]))
         {
-            value = mappingFunction.applyAsInt(key);
-            if (missingValue != value)
+            if (key == entries[index])
             {
-                put(key, value);
+                break;
             }
+
+            index = next(index, mask);
+        }
+        if (value == missingValue && (value = mappingFunction.applyAsInt(key)) != missingValue)
+        {
+            entries[index] = key;
+            entries[index + 1] = value;
+            size++;
+            increaseCapacity();
         }
 
         return value;
+    }
+
+    /**
+     * Primitive specialised version of {@link java.util.Map#computeIfPresent}
+     *
+     * @param key               to search on.
+     * @param remappingFunction to compute a value if a mapping is found.
+     * @return the updated value if a mapping was found, otherwise the missing value.
+     */
+    public int computeIfPresent(final int key, final IntBinaryOperator remappingFunction)
+    {
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+
+        int value;
+        while (missingValue != (value = entries[index + 1]))
+        {
+            if (key == entries[index])
+            {
+                break;
+            }
+
+            index = next(index, mask);
+        }
+        if (value != missingValue)
+        {
+            value = remappingFunction.applyAsInt(key, value);
+            entries[index + 1] = value;
+            if (value == missingValue)
+            {
+                size--;
+                compactChain(index);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Primitive specialised version of {@link java.util.Map#compute}
+     *
+     * @param key               to search on.
+     * @param remappingFunction to compute a value.
+     * @return the updated value.
+     */
+    public int compute(final int key, final IntBinaryOperator remappingFunction)
+    {
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = entries[index + 1]))
+        {
+            if (key == entries[index])
+            {
+                break;
+            }
+
+            index = next(index, mask);
+        }
+        final int newValue = remappingFunction.applyAsInt(key, oldValue);
+        if (newValue != missingValue)
+        {
+            // add or replace old mapping
+            entries[index + 1] = newValue;
+            if (oldValue == missingValue)
+            {
+                entries[index] = key;
+                size++;
+                increaseCapacity();
+            }
+        }
+        else if (oldValue != missingValue)
+        {
+            entries[index + 1] = missingValue;
+            size--;
+            compactChain(index);
+        }
+        return newValue;
     }
 
     // ---------------- Boxed Versions Below ----------------
