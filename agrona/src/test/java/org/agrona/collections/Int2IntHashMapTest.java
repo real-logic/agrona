@@ -662,7 +662,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void computeIfAbsentUsingImplementation()
+    public void shouldComputeIfAbsentUsingImplementation()
     {
         final Int2IntHashMap int2IntHashMap = new Int2IntHashMap(-1);
         final int key = 0;
@@ -671,7 +671,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void computeIfAbsentUsingInterface()
+    public void shouldComputeIfAbsentUsingInterface()
     {
         final Map<Integer, Integer> map = new Int2IntHashMap(-1);
         final int key = 0;

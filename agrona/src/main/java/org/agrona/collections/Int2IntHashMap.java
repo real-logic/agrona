@@ -347,7 +347,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #computeIfAbsent(Object, Function)}
+     * Primitive specialised version of {@link #computeIfAbsent(Object, Function)}.
      *
      * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns null.
@@ -370,6 +370,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             index = next(index, mask);
         }
+
         if (value == missingValue && (value = mappingFunction.applyAsInt(key)) != missingValue)
         {
             entries[index] = key;
@@ -382,7 +383,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link java.util.Map#computeIfPresent}
+     * Primitive specialised version of {@link java.util.Map#computeIfPresent}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value if a mapping is found.
@@ -405,6 +406,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             index = next(index, mask);
         }
+
         if (value != missingValue)
         {
             value = remappingFunction.applyAsInt(key, value);
@@ -415,11 +417,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 compactChain(index);
             }
         }
+
         return value;
     }
 
     /**
-     * Primitive specialised version of {@link java.util.Map#compute}
+     * Primitive specialised version of {@link java.util.Map#compute}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value.
@@ -442,10 +445,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             index = next(index, mask);
         }
+
         final int newValue = remappingFunction.applyAsInt(key, oldValue);
         if (newValue != missingValue)
         {
-            // add or replace old mapping
             entries[index + 1] = newValue;
             if (oldValue == missingValue)
             {
@@ -460,6 +463,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             size--;
             compactChain(index);
         }
+
         return newValue;
     }
 
@@ -628,7 +632,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Get the minimum value stored in the map. If the map is empty then it will return {@link #missingValue()}
+     * Get the minimum value stored in the map. If the map is empty then it will return {@link #missingValue()}.
      *
      * @return the minimum value stored in the map.
      */
@@ -652,7 +656,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Get the maximum value stored in the map. If the map is empty then it will return {@link #missingValue()}
+     * Get the maximum value stored in the map. If the map is empty then it will return {@link #missingValue()}.
      *
      * @return the maximum value stored in the map.
      */
@@ -702,10 +706,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object)}
+     * Primitive specialised version of {@link #replace(Object, Object)}.
      *
-     * @param key key with which the specified value is associated
-     * @param value value to be associated with the specified key
+     * @param key key with which the specified value is associated.
+     * @param value value to be associated with the specified key.
      * @return the previous value associated with the specified key, or
      *         {@link #missingValue()} if there was no mapping for the key.
      */
@@ -721,12 +725,12 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object, Object)}
+     * Primitive specialised version of {@link #replace(Object, Object, Object)}.
      *
-     * @param key      key with which the specified value is associated
-     * @param oldValue value expected to be associated with the specified key
-     * @param newValue value to be associated with the specified key
-     * @return {@code true} if the value was replaced
+     * @param key      key with which the specified value is associated.
+     * @param oldValue value expected to be associated with the specified key.
+     * @param newValue value to be associated with the specified key.
+     * @return {@code true} if the value was replaced.
      */
     public boolean replace(final int key, final int oldValue, final int newValue)
     {

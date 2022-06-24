@@ -573,7 +573,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    void testToArray()
+    void shouldToArray()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");
@@ -591,7 +591,7 @@ class Int2ObjectHashMapTest
 
     @Test
     @SuppressWarnings("rawtypes")
-    void testToArrayTyped()
+    void shouldToArrayTyped()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");
@@ -609,7 +609,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    void testToArrayWithArrayListConstructor()
+    void shouldToArrayWithArrayListConstructor()
     {
         final Int2ObjectHashMap<String> map = new Int2ObjectHashMap<>();
         map.put(1, "a");

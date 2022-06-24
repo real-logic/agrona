@@ -321,7 +321,9 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
 
             index = ++index & mask;
         }
+
         V value = unmapNullValue(mappedValue);
+
         if (value == null && (value = mappingFunction.apply(key)) != null)
         {
             values[index] = value;
@@ -342,15 +344,16 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      * If the value for the specified key is present and non-null, attempts to compute a new
      * mapping given the key and its current mapped value.
      * <p>
-     * If the function returns {@code null}, the mapping is removed
+     * If the function returns {@code null}, the mapping is removed.
      * <p>
      * Primitive specialized version of {@link java.util.Map#computeIfPresent}.
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
-     * @return the new value associated with the specified key, or {@code null} if none
+     * @return the new value associated with the specified key, or {@code null} if none.
      */
-    public V computeIfPresent(final int key, final IntObjToObjFunction<? super V, ? extends V> remappingFunction)
+    public V computeIfPresent(
+        final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
         final int[] keys = this.keys;
         final Object[] values = this.values;
@@ -367,7 +370,9 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
 
             index = ++index & mask;
         }
+
         V value = unmapNullValue(mappedValue);
+
         if (value != null)
         {
             value = remappingFunction.apply(key, value);
@@ -378,6 +383,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
                 compactChain(index);
             }
         }
+
         return value;
     }
 
@@ -392,9 +398,9 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
-     * @return the new value associated with the specified key, or {@code null} if none
+     * @return the new value associated with the specified key, or {@code null} if none.
      */
-    public V compute(final int key, final IntObjToObjFunction<? super V, ? extends V> remappingFunction)
+    public V compute(final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
         final int[] keys = this.keys;
         final Object[] values = this.values;
@@ -411,12 +417,12 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
 
             index = ++index & mask;
         }
+
         final V oldValue = unmapNullValue(mappedvalue);
         final V newValue = remappingFunction.apply(key, oldValue);
 
         if (newValue != null)
         {
-            // add or replace old mapping
             values[index] = newValue;
             if (mappedvalue == null)
             {
@@ -429,11 +435,11 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         }
         else if (mappedvalue != null || containsKey(key))
         {
-            // delete mapping
             values[index] = null;
             size--;
             compactChain(index);
         }
+
         return newValue;
     }
 

@@ -16,18 +16,18 @@
 package org.agrona.collections;
 
 /**
- * This is an (int, Object) -&gt; Object primitive specialisation of a BiFunction.
+ * This is an (Object, int) -&gt; int primitive specialisation of a BiFunction.
  */
 @FunctionalInterface
 public interface
-    IntObjToObjFunction<T, R>
+    ObjectIntToIntFunction<T>
 {
     /**
      * Applies this function to the given arguments.
      *
-     * @param i the second function argument
      * @param t the first function argument
+     * @param i the second function argument
      * @return the function result
      */
-    R apply(int i, T t);
+    int apply(T t, int i);
 }

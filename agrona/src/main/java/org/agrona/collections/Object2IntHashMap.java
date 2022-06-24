@@ -295,6 +295,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
             index = ++index & mask;
         }
+
         if (missingValue == value && (value = mappingFunction.applyAsInt(key)) != missingValue)
         {
             keys[index] = key;
@@ -321,7 +322,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * @return the new value associated with the specified key, or missingValue if none
      */
     @SuppressWarnings("overloads")
-    public int computeIfPresent(final K key, final ObjIntToIntFunction<? super K> remappingFunction)
+    public int computeIfPresent(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
     {
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
@@ -339,6 +340,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
             index = ++index & mask;
         }
+
         if (value != missingValue)
         {
             value = remappingFunction.apply(key, value);
@@ -350,6 +352,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
                 compactChain(index);
             }
         }
+
         return value;
     }
 
@@ -367,7 +370,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * @return the new value associated with the specified key, or missingValue if none
      */
     @SuppressWarnings("overloads")
-    public int compute(final K key, final ObjIntToIntFunction<? super K> remappingFunction)
+    public int compute(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
     {
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
@@ -385,10 +388,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
             index = ++index & mask;
         }
+
         final int newValue = remappingFunction.apply(key, oldValue);
         if (newValue != missingValue)
         {
-            // add or replace old mapping
             values[index] = newValue;
             if (oldValue == missingValue)
             {
@@ -401,13 +404,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         }
         else if (oldValue != missingValue)
         {
-            // something to remove
             keys[index] = null;
             values[index] = missingValue;
             --size;
             compactChain(index);
 
         }
+
         return newValue;
     }
 

@@ -489,7 +489,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
      */
     public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction)
     {
-
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int keyIndex = Hashing.evenHash(key.hashCode(), mask);
@@ -508,7 +507,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         V value = unmapNullValue(mappedValue);
         if (value == null && (value = mappingFunction.apply(key)) != null)
         {
-            // insert new mapping (or update an existing mapping with NullValue)
             entries[keyIndex + 1] = value;
             if (mappedValue == null)
             {
@@ -517,6 +515,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
                 increaseCapacity();
             }
         }
+
         return value;
     }
 
@@ -526,7 +525,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     @Override
     public V computeIfPresent(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction)
     {
-
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int keyIndex = Hashing.evenHash(key.hashCode(), mask);
@@ -554,6 +552,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
                 compactChain(keyIndex);
             }
         }
+
         return value;
     }
 
@@ -563,7 +562,6 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     @Override
     public V compute(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction)
     {
-
         final Object[] entries = this.entries;
         final int mask = entries.length - 1;
         int keyIndex = Hashing.evenHash(key.hashCode(), mask);
@@ -578,12 +576,12 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
 
             keyIndex = next(keyIndex, mask);
         }
+
         final V oldValue = unmapNullValue(mappedValue);
         final V newValue = remappingFunction.apply(key, oldValue);
 
         if (newValue != null)
         {
-            // add or replace old mapping
             entries[keyIndex + 1] = newValue;
             if (mappedValue == null)
             {
@@ -595,12 +593,12 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         }
         else if (mappedValue != null)
         {
-            // delete mapping
             entries[keyIndex] = null;
             entries[keyIndex + 1] = null;
             size--;
             compactChain(keyIndex);
         }
+
         return newValue;
     }
 
