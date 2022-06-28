@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * <b>Caveats</b>
  * <p>
- * Timers that expire in the same tick are not be ordered with one another. As ticks are
+ * Timers that expire in the same tick are not ordered with one another. As ticks are
  * fairly coarse resolution normally, this means that some timers may expire out of order.
  * <p>
  * <b>Note:</b> Not threadsafe.
