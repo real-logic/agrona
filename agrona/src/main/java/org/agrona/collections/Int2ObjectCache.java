@@ -240,10 +240,9 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
 
         final int[] keys = this.keys;
         final Object[] values = this.values;
-        Object value = null;
         for (@DoNotSub int i = setBeginIndex, setEndIndex = setBeginIndex + setSize; i < setEndIndex; i++)
         {
-            value = values[i];
+            final Object value = values[i];
             if (null == value)
             {
                 break;
@@ -251,20 +250,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
 
             if (key == keys[i])
             {
-                break;
+                cacheHits++;
+                return (V)value;
             }
         }
 
-        if (null == value)
-        {
-            cacheMisses++;
-        }
-        else
-        {
-            cacheHits++;
-        }
-
-        return (V)value;
+        cacheMisses++;
+        return null;
     }
 
     /**

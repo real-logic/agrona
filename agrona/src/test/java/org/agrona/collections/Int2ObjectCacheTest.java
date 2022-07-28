@@ -62,6 +62,23 @@ class Int2ObjectCacheTest
     }
 
     @Test
+    void shouldReturnNullForAnUnknownKeyWhenAnEntireSetIsUnmatched()
+    {
+        final Int2ObjectCache<String> cache = new Int2ObjectCache<>(1, 1, EVICTION_CONSUMER);
+        final int key = 42;
+        final String value = "value";
+        cache.put(key, value);
+        assertSame(value, cache.get(key));
+
+        final int unknownKey = -1;
+        assertNull(cache.get(unknownKey));
+        assertNull(cache.get((Object)unknownKey));
+
+        assertEquals(1, cache.cacheHits());
+        assertEquals(2, cache.cacheMisses());
+    }
+
+    @Test
     void shouldLimitSizeToMaxSize()
     {
         for (int i = 0; i < (CAPACITY * 2); i++)
