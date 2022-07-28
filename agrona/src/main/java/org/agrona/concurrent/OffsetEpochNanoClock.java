@@ -24,7 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * {@link System#nanoTime()} to the UNIX epoch.
  * <p>
  * The {@link #sample()} method can be used in order to reset these initial values if your system clock gets updated.
- *
+ * <p>
  * This class can be used from multiple threads safely.
  *
  * @see org.agrona.concurrent.SystemEpochNanoClock

@@ -63,11 +63,11 @@ public class TransportPoller implements AutoCloseable
         Field selectKeysField = null;
         Field publicSelectKeysField = null;
 
-        try
+        try (Selector selector = Selector.open())
         {
             final Class<?> clazz = Class.forName(SELECTOR_IMPL, false, ClassLoader.getSystemClassLoader());
 
-            if (clazz.isAssignableFrom(Selector.open().getClass()))
+            if (clazz.isAssignableFrom(selector.getClass()))
             {
                 selectKeysField = clazz.getDeclaredField("selectedKeys");
                 selectKeysField.setAccessible(true);

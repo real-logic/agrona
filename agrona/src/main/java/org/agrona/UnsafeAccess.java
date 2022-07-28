@@ -20,7 +20,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 
 /**
- * Obtain access the the {@link Unsafe} class for direct memory operations.
+ * Obtain access the {@link Unsafe} class for direct memory operations.
  */
 public final class UnsafeAccess
 {

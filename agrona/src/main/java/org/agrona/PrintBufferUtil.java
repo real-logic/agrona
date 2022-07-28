@@ -18,7 +18,7 @@ package org.agrona;
 
 /**
  * Useful utils to hex dump the Agrona's buffers.
- *
+ * <p>
  * This is code adapted from <a href="https://netty.io/">the Netty project</a> adopted to support {@link DirectBuffer}.
  */
 public final class PrintBufferUtil
@@ -91,7 +91,7 @@ public final class PrintBufferUtil
 
     /**
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-     * of the specified byte array's sub-region.
+     * of the specified byte array's subregion.
      *
      * @param array     dumped array.
      * @param fromIndex where should we start to print.

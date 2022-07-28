@@ -23,7 +23,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Many producer to one consumer concurrent queue that is array backed. The algorithm is a variation of Fast Flow
  * consumer adapted to work with the Java Memory Model on arrays by using {@link sun.misc.Unsafe}.
- *
+ * <p>
  * <b>Note:</b> This queue breaks the contract for peek and poll in that it can return null when the queue has no item
  * available but size could be greater than zero if an offer is in progress. This is due to the offer being a multi-step
  * process which can start and be interrupted before completion, the thread will later be resumed and the offer process

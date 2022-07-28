@@ -54,7 +54,7 @@ public class HighResolutionClock
 
     /**
      * The number of nanoseconds since the 1 Jan 1970 UTC.
-     *
+     * <p>
      * Precision depends upon the JVM version used. Hotspot/OpenJDK 8 provides millisecond level precision, 11 provides
      * microsecond or lower granularity.
      *

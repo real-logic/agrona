@@ -96,7 +96,7 @@ public interface MutableDirectBuffer extends DirectBuffer
 
     /**
      * Encode a natural number with a specified maximum length.
-     *
+     * <p>
      * If ascii encoding of the number is less than the specified length then the start will be
      * pre-padded with zeros, if the value takes up more space than the allowed length then a
      * <code>{@link NumberFormatException}</code> will be thrown.

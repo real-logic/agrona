@@ -33,7 +33,7 @@ public final class NoOpIdleStrategy implements IdleStrategy
 
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
-     *
+     * <p>
      * {@inheritDoc}
      */
     public void idle(final int workCount)
@@ -42,7 +42,7 @@ public final class NoOpIdleStrategy implements IdleStrategy
 
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
-     *
+     * <p>
      * {@inheritDoc}
      */
     public void idle()

@@ -17,7 +17,7 @@ package org.agrona.concurrent;
 
 /**
  * An Agent is scheduled to do work on a thread on a duty cycle. Each Agent should have a defined role in a system.
- *
+ * <p>
  * {@link #onStart()}, {@link #doWork()}, and {@link #onClose()} will all be called by the same thread and in a
  * threadsafe manner if the agent runs successfully. {@link #onClose()} will be called if the agent fails to run.
  */

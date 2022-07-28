@@ -62,7 +62,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * When using this method to wrap the view of the ByteBuffer the entire ByteBuffer gets wrapped
      * between index 0 and capacity. If you want to just wrap the ByteBuffer between the position
      * and the limit then you should use the {@link #wrap(ByteBuffer, int, int)} method, eg:
-     *
+     * <p>
      * <code>
      * directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.remaining());
      * </code>

@@ -36,7 +36,7 @@ public final class BusySpinIdleStrategy implements IdleStrategy
 
     /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
-     *
+     * <p>
      * {@inheritDoc}
      */
     public void idle(final int workCount)

@@ -50,7 +50,7 @@ public class SetMemoryBenchmark
         ARRAY,
         HEAP_BB,
         DIRECT_BB,
-        DIRECT_ALIGNED_BB;
+        DIRECT_ALIGNED_BB
     }
 
     /**

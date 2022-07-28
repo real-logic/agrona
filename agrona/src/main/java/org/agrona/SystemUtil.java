@@ -22,6 +22,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -248,7 +249,7 @@ public final class SystemUtil
         final File file = new File(filenameOrUrl);
         if (file.exists())
         {
-            try (InputStream in = new FileInputStream(file))
+            try (InputStream in = Files.newInputStream(file.toPath()))
             {
                 loadProperties(propertyAction, in);
             }

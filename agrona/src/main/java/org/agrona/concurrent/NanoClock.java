@@ -23,7 +23,7 @@ public interface NanoClock
 {
     /**
      * The number of ticks in nanoseconds the clock has advanced since starting.
-     *
+     * <p>
      * This method can only be used to measure elapsed time and is not related to any other notion of system or
      * wall-clock time. The value returned represents nanoseconds since some fixed but arbitrary origin time
      * (perhaps in the future, so values may be negative). The same origin is used by all invocations of this method
