@@ -582,13 +582,10 @@ public class MarkFile implements AutoCloseable
 
             if (shouldPreExist)
             {
-                final int minExpectedLength = Math.max(
-                    versionFieldOffset + SIZE_OF_INT, timestampFieldOffset + SIZE_OF_LONG);
-
-                if (buffer.capacity() < minExpectedLength)
+                if (buffer.capacity() < (timestampFieldOffset + SIZE_OF_LONG))
                 {
                     throw new IllegalStateException("active MarkFile too short capacity=" + buffer.capacity() +
-                        " < " + minExpectedLength);
+                        " < " + (timestampFieldOffset + SIZE_OF_LONG));
                 }
 
                 final int version = buffer.getIntVolatile(versionFieldOffset);
