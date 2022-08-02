@@ -89,7 +89,7 @@ public class BufferAlignmentAgent
             .and(not(ElementMatchers.isPrivate()));
 
         final AgentBuilder.Transformer transformer =
-            (builder, typeDescription, classLoader, javaModule) ->
+            (builder, typeDescription, classLoader, javaModule, protectionDomain) ->
             {
                 return builder
                     .visit(to(LongVerifier.class).on(nameContains("Long").and(not(ElementMatchers.isPrivate()))))
