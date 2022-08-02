@@ -190,6 +190,8 @@ public final class BufferUtil
 
     /**
      * Allocate a new direct {@link ByteBuffer} that is aligned on a given alignment boundary.
+     * <p>
+     * <b>Note:</b> Aligned buffers are a {@link ByteBuffer#slice()} so cannot be passed to {@link #free(ByteBuffer)}.
      *
      * @param capacity  required for the buffer.
      * @param alignment boundary at which the buffer should begin.
