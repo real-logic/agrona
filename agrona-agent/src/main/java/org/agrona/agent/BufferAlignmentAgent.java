@@ -81,25 +81,34 @@ public class BufferAlignmentAgent
     private static synchronized void agent(final boolean shouldRedefine, final Instrumentation instrumentation)
     {
         BufferAlignmentAgent.instrumentation = instrumentation;
+
         // all Int methods, and all String method other than
         // XXXStringWithoutLengthXXX or getStringXXX(int, int)
         final Junction<MethodDescription> intVerifierMatcher = nameContains("Int")
             .or(nameMatches(".*String[^W].*").and(not(ElementMatchers.takesArguments(int.class, int.class))))
             .and(not(ElementMatchers.isPrivate()));
 
+        final AgentBuilder.Transformer transformer =
+            (builder, typeDescription, classLoader, javaModule) ->
+            {
+                return builder
+                    .visit(to(LongVerifier.class).on(nameContains("Long").and(not(ElementMatchers.isPrivate()))))
+                    .visit(to(DoubleVerifier.class).on(nameContains("Double").and(not(ElementMatchers.isPrivate()))))
+                    .visit(to(IntVerifier.class).on(intVerifierMatcher))
+                    .visit(to(FloatVerifier.class).on(nameContains("Float")))
+                    .visit(to(ShortVerifier.class).on(nameContains("Short")))
+                    .visit(to(CharVerifier.class).on(nameContains("Char")));
+            };
+
+        final AgentBuilder.RedefinitionStrategy redefinitionStrategy = shouldRedefine ?
+            AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED;
+
         alignmentTransformer = new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED))
             .with(new AgentBuilderListener())
             .disableClassFormatChanges()
-            .with(shouldRedefine ?
-                AgentBuilder.RedefinitionStrategy.RETRANSFORMATION : AgentBuilder.RedefinitionStrategy.DISABLED)
+            .with(redefinitionStrategy)
             .type(isSubTypeOf(DirectBuffer.class).and(not(isInterface())))
-            .transform((builder, typeDescription, classLoader, module) -> builder
-                .visit(to(LongVerifier.class).on(nameContains("Long").and(not(ElementMatchers.isPrivate()))))
-                .visit(to(DoubleVerifier.class).on(nameContains("Double").and(not(ElementMatchers.isPrivate()))))
-                .visit(to(IntVerifier.class).on(intVerifierMatcher))
-                .visit(to(FloatVerifier.class).on(nameContains("Float")))
-                .visit(to(ShortVerifier.class).on(nameContains("Short")))
-                .visit(to(CharVerifier.class).on(nameContains("Char"))))
+            .transform(transformer)
             .installOn(instrumentation);
     }
 
@@ -121,7 +130,7 @@ public class BufferAlignmentAgent
         public void onDiscovery(
             final String typeName,
             final ClassLoader classLoader,
-            final JavaModule module,
+            final JavaModule javaModule,
             final boolean loaded)
         {
         }
@@ -129,7 +138,7 @@ public class BufferAlignmentAgent
         public void onTransformation(
             final TypeDescription typeDescription,
             final ClassLoader classLoader,
-            final JavaModule module,
+            final JavaModule javaModule,
             final boolean loaded,
             final DynamicType dynamicType)
         {
@@ -138,7 +147,7 @@ public class BufferAlignmentAgent
         public void onIgnored(
             final TypeDescription typeDescription,
             final ClassLoader classLoader,
-            final JavaModule module,
+            final JavaModule javaModule,
             final boolean loaded)
         {
         }
@@ -146,7 +155,7 @@ public class BufferAlignmentAgent
         public void onError(
             final String typeName,
             final ClassLoader classLoader,
-            final JavaModule module,
+            final JavaModule javaModule,
             final boolean loaded,
             final Throwable throwable)
         {
@@ -157,7 +166,7 @@ public class BufferAlignmentAgent
         public void onComplete(
             final String typeName,
             final ClassLoader classLoader,
-            final JavaModule module,
+            final JavaModule javaModule,
             final boolean loaded)
         {
         }
