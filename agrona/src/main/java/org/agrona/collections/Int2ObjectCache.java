@@ -260,6 +260,21 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     }
 
     /**
+     * Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the
+     * key.
+     *
+     * @param key          whose associated value is to be returned.
+     * @param defaultValue the default mapping of the key.
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} if this map contains no mapping for the key.
+     */
+    public V getOrDefault(final int key, final V defaultValue)
+    {
+        final V value = get(key);
+        return null != value ? value : defaultValue;
+    }
+
+    /**
      * Get a value for a given key, or if it does ot exist then default the value via a
      * {@link java.util.function.IntFunction} and put it in the  cache.
      * <p>

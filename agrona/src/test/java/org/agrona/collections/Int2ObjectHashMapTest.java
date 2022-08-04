@@ -647,4 +647,24 @@ class Int2ObjectHashMapTest
         assertFalse(map.containsValue("null"));
         assertFalse(map.containsValue(new CharSequenceKey("test")));
     }
+
+    @Test
+    void getOrDefaultShouldReturnDefaultValueIfNoMappingExistsForAGivenKey()
+    {
+        final int key = 121;
+        final String defaultValue = "fallback";
+
+        assertEquals(defaultValue, intToObjectMap.getOrDefault(key, defaultValue));
+    }
+
+    @Test
+    void getOrDefaultShouldReturnValueForAnExistingKey()
+    {
+        final int key = 121;
+        final String value = "found";
+        final String defaultValue = "fallback";
+        intToObjectMap.put(key, value);
+
+        assertEquals(value, intToObjectMap.getOrDefault(key, defaultValue));
+    }
 }

@@ -821,6 +821,26 @@ public class Int2IntHashMapTest
         assertEquals(5, map.size());
     }
 
+    @Test
+    void getOrDefaultShouldReturnADefaultValueWhenNoMappingExists()
+    {
+        final int key = 42;
+        final int defaultValue = 8;
+
+        assertEquals(defaultValue, map.getOrDefault(key, defaultValue));
+    }
+
+    @Test
+    void getOrDefaultShouldReturnAValueWhenExists()
+    {
+        final int key = 42;
+        final int value = 21;
+        final int defaultValue = 8;
+        map.put(key, value);
+
+        assertEquals(value, map.getOrDefault(key, defaultValue));
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());

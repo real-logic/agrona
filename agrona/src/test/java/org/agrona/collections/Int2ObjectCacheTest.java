@@ -253,4 +253,28 @@ class Int2ObjectCacheTest
         assertFalse(cache.containsValue("two"));
         assertFalse(cache.containsValue(new CharSequenceKey("two")));
     }
+
+    @Test
+    void getOrDefaultShouldReturnDefaultValueIfNoMappingExistsForAGivenKey()
+    {
+        final int key = 121;
+        final String defaultValue = "fallback";
+
+        assertEquals(defaultValue, cache.getOrDefault(key, defaultValue));
+        assertEquals(0, cache.cacheHits());
+        assertEquals(1, cache.cacheMisses());
+    }
+
+    @Test
+    void getOrDefaultShouldReturnValueForAnExistingKey()
+    {
+        final int key = 121;
+        final String value = "found";
+        final String defaultValue = "fallback";
+        cache.put(key, value);
+
+        assertEquals(value, cache.getOrDefault(key, defaultValue));
+        assertEquals(1, cache.cacheHits());
+        assertEquals(0, cache.cacheMisses());
+    }
 }
