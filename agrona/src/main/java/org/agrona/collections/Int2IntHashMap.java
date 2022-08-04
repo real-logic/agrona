@@ -144,6 +144,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Returns the value to which the specified key is mapped, or
+     * {@code defaultValue} if this map contains no mapping for the key.
+     *
+     * @param key          whose associated value is to be returned.
+     * @param defaultValue to be returned if there is no value in the map for a given {@code key}.
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} if this map contains no mapping for the key.
+     */
+    public int getOrDefault(final int key, final int defaultValue)
+    {
+        final int value = get(key);
+        return missingValue != value ? value : defaultValue;
+    }
+
+    /**
      * Get a value using provided key avoiding boxing.
      *
      * @param key lookup key.
@@ -708,10 +723,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     /**
      * Primitive specialised version of {@link #replace(Object, Object)}.
      *
-     * @param key key with which the specified value is associated.
+     * @param key   key with which the specified value is associated.
      * @param value value to be associated with the specified key.
      * @return the previous value associated with the specified key, or
-     *         {@link #missingValue()} if there was no mapping for the key.
+     * {@link #missingValue()} if there was no mapping for the key.
      */
     public int replace(final int key, final int value)
     {
