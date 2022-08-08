@@ -520,21 +520,21 @@ task copyTestLogs(type: Copy) {
 }
 
 wrapper {
-    gradleVersion = '7.4.2'
+    gradleVersion = '7.5.1'
     distributionType = 'ALL'
 }
 
 class NullOutputStream extends OutputStream
 {
-    void write(final int b) throws IOException
+    void write(final int bytes) throws IOException
     {
     }
 
-    void write(final byte[] b) throws IOException
+    void write(final byte[] bytes) throws IOException
     {
     }
 
-    void write(final byte[] b, final int off, final int len) throws IOException
+    void write(final byte[] bytes, final int offset, final int length) throws IOException
     {
     }
 }
