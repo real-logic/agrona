@@ -19,6 +19,7 @@ import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.IntConsumer;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -547,6 +548,30 @@ public class IntHashSet extends AbstractSet<Integer>
         }
 
         return iterator.reset();
+    }
+
+    /**
+     * Iterate over the collection without boxing.
+     *
+     * @param action to be taken for each element.
+     */
+    public void forEachInt(final IntConsumer action)
+    {
+        if (sizeOfArrayValues > 0)
+        {
+            final int[] values = this.values;
+            for (final int v : values)
+            {
+                if (MISSING_VALUE != v)
+                {
+                    action.accept(v);
+                }
+            }
+        }
+        if (containsMissingValue)
+        {
+            action.accept(MISSING_VALUE);
+        }
     }
 
     /**

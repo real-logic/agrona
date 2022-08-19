@@ -16,14 +16,24 @@
 package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class IntHashSetTest
 {
@@ -835,6 +845,105 @@ public class IntHashSetTest
         assertEquals(testSet, compatibleSet, "Fail with seed:" + seed);
         assertEquals(compatibleSet, testSet, "Fail with seed:" + seed);
         assertEquals(compatibleSet.hashCode(), testSet.hashCode(), "Fail with seed:" + seed);
+    }
+
+    @Test
+    void forEachIsANoOpIfTheSetIsEmpty()
+    {
+        @SuppressWarnings("unchecked")
+        final Consumer<Integer> consumer = mock(Consumer.class);
+
+        testSet.forEach(consumer);
+
+        verifyNoInteractions(consumer);
+    }
+
+    @Test
+    void forEachShouldInvokeConsumerWithEveryValueAddedToTheSet()
+    {
+        @SuppressWarnings("unchecked")
+        final Consumer<Integer> consumer = mock(Consumer.class);
+
+        testSet.add(15);
+        testSet.add(-2);
+        testSet.add(0);
+        testSet.add(100);
+        testSet.add(-8);
+
+        testSet.forEach(consumer);
+
+        verify(consumer).accept(100);
+        verify(consumer).accept(-8);
+        verify(consumer).accept(0);
+        verify(consumer).accept(15);
+        verify(consumer).accept(-2);
+        verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void forEachShouldInvokeConsumerWithTheMissingValueAtTheIfOneWasAddedToTheSet()
+    {
+        @SuppressWarnings("unchecked")
+        final Consumer<Integer> consumer = mock(Consumer.class);
+
+        testSet.add(MISSING_VALUE);
+        testSet.add(15);
+        testSet.add(MISSING_VALUE);
+
+        testSet.forEach(consumer);
+
+        final InOrder inOrder = inOrder(consumer);
+        inOrder.verify(consumer).accept(15);
+        inOrder.verify(consumer).accept(MISSING_VALUE);
+        verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void forEachIntIsANoOpIfTheSetIsEmpty()
+    {
+        final IntConsumer consumer = mock(IntConsumer.class);
+
+        testSet.forEachInt(consumer);
+
+        verifyNoInteractions(consumer);
+    }
+
+    @Test
+    void forEachIntShouldInvokeConsumerWithEveryValueAddedToTheSet()
+    {
+        final IntConsumer consumer = mock(IntConsumer.class);
+
+        testSet.add(15);
+        testSet.add(-2);
+        testSet.add(0);
+        testSet.add(100);
+        testSet.add(-8);
+
+        testSet.forEachInt(consumer);
+
+        verify(consumer).accept(100);
+        verify(consumer).accept(-8);
+        verify(consumer).accept(0);
+        verify(consumer).accept(15);
+        verify(consumer).accept(-2);
+        verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void forEachIntShouldInvokeConsumerWithTheMissingValueAtTheIfOneWasAddedToTheSet()
+    {
+        final IntConsumer consumer = mock(IntConsumer.class);
+
+        testSet.add(MISSING_VALUE);
+        testSet.add(15);
+        testSet.add(MISSING_VALUE);
+
+        testSet.forEachInt(consumer);
+
+        final InOrder inOrder = inOrder(consumer);
+        inOrder.verify(consumer).accept(15);
+        inOrder.verify(consumer).accept(MISSING_VALUE);
+        verifyNoMoreInteractions(consumer);
     }
 
     private static void addTwoElements(final IntHashSet obj)
