@@ -18,9 +18,11 @@ package org.agrona.collections;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
@@ -850,8 +852,7 @@ public class IntHashSetTest
     @Test
     void forEachIsANoOpIfTheSetIsEmpty()
     {
-        @SuppressWarnings("unchecked")
-        final Consumer<Integer> consumer = mock(Consumer.class);
+        @SuppressWarnings("unchecked") final Consumer<Integer> consumer = mock(Consumer.class);
 
         testSet.forEach(consumer);
 
@@ -861,8 +862,7 @@ public class IntHashSetTest
     @Test
     void forEachShouldInvokeConsumerWithEveryValueAddedToTheSet()
     {
-        @SuppressWarnings("unchecked")
-        final Consumer<Integer> consumer = mock(Consumer.class);
+        @SuppressWarnings("unchecked") final Consumer<Integer> consumer = mock(Consumer.class);
 
         testSet.add(15);
         testSet.add(-2);
@@ -883,8 +883,7 @@ public class IntHashSetTest
     @Test
     void forEachShouldInvokeConsumerWithTheMissingValueAtTheIfOneWasAddedToTheSet()
     {
-        @SuppressWarnings("unchecked")
-        final Consumer<Integer> consumer = mock(Consumer.class);
+        @SuppressWarnings("unchecked") final Consumer<Integer> consumer = mock(Consumer.class);
 
         testSet.add(MISSING_VALUE);
         testSet.add(15);
@@ -944,6 +943,105 @@ public class IntHashSetTest
         inOrder.verify(consumer).accept(15);
         inOrder.verify(consumer).accept(MISSING_VALUE);
         verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void retainAllCollectionIsANoOpIfCollectionHasAllOfTheElementsFromTheSet()
+    {
+        final List<Integer> coll = Arrays.asList(0, 5, -3, 42, 21, MISSING_VALUE);
+        testSet.add(MISSING_VALUE);
+        testSet.add(42);
+        testSet.add(-3);
+
+        assertFalse(testSet.retainAll(coll));
+
+        assertEquals(3, testSet.size());
+        assertTrue(testSet.contains(MISSING_VALUE));
+        assertTrue(testSet.contains(42));
+        assertTrue(testSet.contains(-3));
+    }
+
+    @Test
+    void retainAllCollectionRemovesNonMissingValuesNotFoundInAGivenCollection()
+    {
+        final List<Integer> coll = Arrays.asList(100, 5, 21, 8);
+        testSet.add(0);
+        testSet.add(8);
+        testSet.add(100);
+        testSet.add(-999);
+
+        assertTrue(testSet.retainAll(coll));
+
+        assertEquals(2, testSet.size());
+        assertTrue(testSet.contains(8));
+        assertTrue(testSet.contains(100));
+        assertFalse(testSet.contains(-999));
+        assertFalse(testSet.contains(0));
+    }
+
+    @Test
+    void retainAllCollectionRemovesMissingValueWhichWasAddedToTheSet()
+    {
+        final List<Integer> coll = Arrays.asList(42, 42, 42, 0, 500);
+        testSet.add(MISSING_VALUE);
+        testSet.add(42);
+
+        assertTrue(testSet.retainAll(coll));
+
+        assertEquals(1, testSet.size());
+        assertTrue(testSet.contains(42));
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    void retainAllIsANoOpIfCollectionHasAllOfTheElementsFromTheSet()
+    {
+        final IntHashSet coll = new IntHashSet();
+        coll.addAll(Arrays.asList(0, 5, -3, 42, 21, MISSING_VALUE));
+        testSet.add(MISSING_VALUE);
+        testSet.add(42);
+        testSet.add(-3);
+
+        assertFalse(testSet.retainAll(coll));
+
+        assertEquals(3, testSet.size());
+        assertTrue(testSet.contains(MISSING_VALUE));
+        assertTrue(testSet.contains(42));
+        assertTrue(testSet.contains(-3));
+    }
+
+    @Test
+    void retainAllRemovesNonMissingValuesNotFoundInAGivenCollection()
+    {
+        final IntHashSet coll = new IntHashSet();
+        coll.addAll(Arrays.asList(100, 5, 21, 8));
+        testSet.add(0);
+        testSet.add(8);
+        testSet.add(100);
+        testSet.add(-999);
+
+        assertTrue(testSet.retainAll(coll));
+
+        assertEquals(2, testSet.size());
+        assertTrue(testSet.contains(8));
+        assertTrue(testSet.contains(100));
+        assertFalse(testSet.contains(-999));
+        assertFalse(testSet.contains(0));
+    }
+
+    @Test
+    void retainAllRemovesMissingValueWhichWasAddedToTheSet()
+    {
+        final IntHashSet coll = new IntHashSet();
+        coll.addAll(Arrays.asList(42, 42, 42, 0, 500));
+        testSet.add(MISSING_VALUE);
+        testSet.add(42);
+
+        assertTrue(testSet.retainAll(coll));
+
+        assertEquals(1, testSet.size());
+        assertTrue(testSet.contains(42));
+        assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     private static void addTwoElements(final IntHashSet obj)

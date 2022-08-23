@@ -507,7 +507,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
     /**
      * Alias for {@link #removeAll(Collection)} for the specialized case when removing another IntHashSet,
-     * avoids boxing and allocations
+     * avoids boxing and allocations.
      *
      * @param coll containing the values to be removed.
      * @return {@code true} if this set changed as a result of the call.
@@ -529,6 +529,56 @@ public class IntHashSet extends AbstractSet<Integer>
             acc |= remove(MISSING_VALUE);
         }
 
+        return acc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean retainAll(final Collection<?> coll)
+    {
+        boolean acc = false;
+        for (final int value : values)
+        {
+            if (MISSING_VALUE != value && !coll.contains(value))
+            {
+                remove(value);
+                acc = true;
+            }
+        }
+
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
+        {
+            remove(MISSING_VALUE);
+            acc = true;
+        }
+        return acc;
+    }
+
+    /**
+     * Alias for {@link #retainAll(Collection)} for the specialized case when retaining on another IntHashSet,
+     * avoids boxing and allocations.
+     *
+     * @param coll containing elements to be retained in this set.
+     * @return {@code true} if this set changed as a result of the call.
+     */
+    public boolean retainAll(final IntHashSet coll)
+    {
+        boolean acc = false;
+        for (final int value : values)
+        {
+            if (MISSING_VALUE != value && !coll.contains(value))
+            {
+                remove(value);
+                acc = true;
+            }
+        }
+
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
+        {
+            remove(MISSING_VALUE);
+            acc = true;
+        }
         return acc;
     }
 
