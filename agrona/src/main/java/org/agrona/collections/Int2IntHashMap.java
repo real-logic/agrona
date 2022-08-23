@@ -19,6 +19,7 @@ import org.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
@@ -227,6 +228,25 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         increaseCapacity();
 
         return oldValue;
+    }
+
+    /**
+     * Primitive specialised version of {@link #putIfAbsent(Integer, Integer)} method.
+     *
+     * @param key   key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with the specified key, or
+     * {@link #missingValue()} if there was no mapping for the key.
+     * @throws IllegalArgumentException if value is {@link #missingValue()}
+     */
+    public int putIfAbsent(final int key, final int value)
+    {
+        final int existingValue = get(key);
+        if (missingValue != existingValue)
+        {
+            return existingValue;
+        }
+        return put(key, value);
     }
 
     private void increaseCapacity()
@@ -550,6 +570,38 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     /**
      * {@inheritDoc}
      */
+    public Integer putIfAbsent(final Integer key, final Integer value)
+    {
+        return valOrNull(putIfAbsent((int)key, (int)value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Integer replace(final Integer key, final Integer value)
+    {
+        return valOrNull(replace((int)key, (int)value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(final Integer key, final Integer oldValue, final Integer newValue)
+    {
+        return replace((int)key, (int)oldValue, (int)newValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void replaceAll(final BiFunction<? super Integer, ? super Integer, ? extends Integer> function)
+    {
+        replaceAllInt(function::apply);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public KeySet keySet()
     {
         if (null == keySet)
@@ -595,6 +647,14 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean remove(final Object key, final Object value)
+    {
+        return remove((int)key, (int)value);
+    }
+
+    /**
      * Remove value from the map using given key avoiding boxing.
      *
      * @param key whose mapping is to be removed from the map.
@@ -624,6 +684,48 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
 
         return oldValue;
+    }
+
+    /**
+     * Primitive specialised version of {@link #remove(Object, Object)}.
+     *
+     * @param key   with which the specified value is associated.
+     * @param value expected to be associated with the specified key.
+     * @return {@code true} if the value was removed.
+     */
+    public boolean remove(final int key, final int value)
+    {
+        if (missingValue != value && value == get(key))
+        {
+            remove(key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Primitive specialised version of {@link #merge(Object, Object, BiFunction)}.
+     *
+     * @param key               with which the resulting value is to be associated.
+     * @param value             to be merged with the existing value associated with the key or, if no existing value or a null
+     *                          value is associated with the key, to be associated with the key.
+     * @param remappingFunction the function to recompute a value if present.
+     * @return the new value associated with the specified key, or {@link #missingValue()} if no value is associated
+     * with the key as the result of this operation.
+     */
+    public int merge(final int key, final int value, final IntIntFunction remappingFunction)
+    {
+        final int oldValue = get(key);
+        final int newValue = missingValue == oldValue ? value : remappingFunction.apply(oldValue, value);
+        if (missingValue == newValue)
+        {
+            remove(key);
+        }
+        else
+        {
+            put(key, newValue);
+        }
+        return newValue;
     }
 
     @SuppressWarnings("FinalParameters")
@@ -733,7 +835,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object)}.
+     * Primitive specialised version of {@link #replace(Integer, Integer)}.
      *
      * @param key   key with which the specified value is associated.
      * @param value value to be associated with the specified key.
@@ -752,7 +854,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object, Object)}.
+     * Primitive specialised version of {@link #replace(Integer, Integer, Integer)}.
      *
      * @param key      key with which the specified value is associated.
      * @param oldValue value expected to be associated with the specified key.
@@ -770,6 +872,37 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         put(key, newValue);
 
         return true;
+    }
+
+    /**
+     * Primitive specialised version of {@link #replaceAll(BiFunction)}.
+     * <p>
+     * NB: Renamed from replaceAll to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param function to apply to each entry.
+     */
+    public void replaceAllInt(final IntIntFunction function)
+    {
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int length = entries.length;
+        @DoNotSub int remaining = size;
+
+        for (@DoNotSub int valueIndex = 1; remaining > 0 && valueIndex < length; valueIndex += 2)
+        {
+            final int existingValue = entries[valueIndex];
+            if (missingValue != existingValue)
+            {
+                final int newValue = function.apply(entries[valueIndex - 1], existingValue);
+                if (missingValue == newValue)
+                {
+                    throw new IllegalArgumentException("cannot replace with a missingValue");
+                }
+                entries[valueIndex] = newValue;
+                --remaining;
+            }
+        }
     }
 
     /**
@@ -1063,7 +1196,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
             if (missingValue == value)
             {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("cannot accept missingValue");
             }
 
             @DoNotSub final int keyPosition = keyPosition();
@@ -1308,7 +1441,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
          * Checks if the value is contained in the map.
          *
          * @param value to be checked.
-         * @return  {@code true} if value is contained in this map.
+         * @return {@code true} if value is contained in this map.
          */
         public boolean contains(final int value)
         {
