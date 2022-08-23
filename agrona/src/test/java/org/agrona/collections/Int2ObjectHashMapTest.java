@@ -486,7 +486,7 @@ class Int2ObjectHashMapTest
         }
 
         final Collection<Integer> copyToSet = new HashSet<>();
-        intToObjectMap.intForEach(
+        intToObjectMap.forEachInt(
             (key, value) ->
             {
                 assertEquals(value, String.valueOf(key));

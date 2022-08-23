@@ -18,6 +18,7 @@ package org.agrona.collections;
 import org.agrona.generation.DoNotSub;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -156,6 +157,26 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void forEach(final BiConsumer<? super Integer, ? super V> action)
+    {
+        forEachInt(action::accept);
+    }
+
+    /**
+     * Use {@link #forEachInt(IntObjConsumer)} instead.
+     *
+     * @param consumer a callback called for each key/value pair in the map.
+     * @deprecated Use {@link #forEachInt(IntObjConsumer)} instead.
+     */
+    @Deprecated
+    public void intForEach(final IntObjConsumer<V> consumer)
+    {
+        forEachInt(consumer);
+    }
+
+    /**
      * Primitive specialised forEach implementation.
      * <p>
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
@@ -163,7 +184,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      *
      * @param consumer a callback called for each key/value pair in the map.
      */
-    public void intForEach(final IntObjConsumer<V> consumer)
+    public void forEachInt(final IntObjConsumer<V> consumer)
     {
         @DoNotSub final int length = values.length;
         @DoNotSub int remaining = size;

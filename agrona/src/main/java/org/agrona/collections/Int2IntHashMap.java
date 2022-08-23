@@ -270,6 +270,18 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Use {@link #forEachInt(IntIntConsumer)} instead.
+     *
+     * @param consumer a callback called for each key/value pair in the map.
+     * @deprecated Use {@link #forEachInt(IntIntConsumer)} instead.
+     */
+    @Deprecated
+    public void intForEach(final IntIntConsumer consumer)
+    {
+        forEachInt(consumer);
+    }
+
+    /**
      * Primitive specialised forEach implementation.
      * <p>
      * NB: Renamed from forEach to avoid overloading on parameter types of lambda
@@ -277,7 +289,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      *
      * @param consumer a callback called for each key/value pair in the map.
      */
-    public void intForEach(final IntIntConsumer consumer)
+    public void forEachInt(final IntIntConsumer consumer)
     {
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
@@ -505,7 +517,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public void forEach(final BiConsumer<? super Integer, ? super Integer> action)
     {
-        intForEach(action::accept);
+        forEachInt(action::accept);
     }
 
     /**

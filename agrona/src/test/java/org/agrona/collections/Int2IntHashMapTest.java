@@ -125,7 +125,7 @@ public class Int2IntHashMapTest
         map.put(100, 100);
 
         final IntIntConsumer mockConsumer = mock(IntIntConsumer.class);
-        map.intForEach(mockConsumer);
+        map.forEachInt(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
         inOrder.verify(mockConsumer).accept(100, 100);
@@ -515,7 +515,7 @@ public class Int2IntHashMapTest
         assertEquals(1, map.size());
 
         final int[] tuple = new int[2];
-        map.intForEach((k, v) ->
+        map.forEachInt((k, v) ->
         {
             tuple[0] = k;
             tuple[1] = v;
