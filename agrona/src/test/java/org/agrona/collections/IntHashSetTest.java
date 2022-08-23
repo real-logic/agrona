@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
-import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
@@ -40,8 +39,9 @@ import static org.mockito.Mockito.*;
 public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
+    private static final int MISSING_VALUE = -1;
 
-    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY);
+    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, MISSING_VALUE);
 
     @Test
     public void initiallyContainsNoElements()
@@ -804,15 +804,16 @@ public class IntHashSetTest
     @Test
     public void shouldGenerateStringRepresentation()
     {
-        final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
+        final IntHashSet set = new IntHashSet(16, -9990999);
+        final int[] testEntries = {-9990999, 3, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
 
         for (final int testEntry : testEntries)
         {
-            testSet.add(testEntry);
+            set.add(testEntry);
         }
 
-        final String mapAsAString = "{11, 19, 7, 1, 12, 3, -1}";
-        assertThat(testSet.toString(), equalTo(mapAsAString));
+        final String mapAsAString = "{-1, 12, 3, 7, 11, 1, 19, -9990999}";
+        assertThat(set.toString(), equalTo(mapAsAString));
     }
 
     @Test
@@ -910,38 +911,41 @@ public class IntHashSetTest
     @Test
     void forEachIntShouldInvokeConsumerWithEveryValueAddedToTheSet()
     {
+        final IntHashSet set = new IntHashSet(1, -1000);
         final IntConsumer consumer = mock(IntConsumer.class);
 
-        testSet.add(15);
-        testSet.add(-2);
-        testSet.add(0);
-        testSet.add(100);
-        testSet.add(-8);
+        set.add(-999);
+        set.add(-2);
+        set.add(0);
+        set.add(1000);
+        set.add(-8);
 
-        testSet.forEachInt(consumer);
+        set.forEachInt(consumer);
 
-        verify(consumer).accept(100);
+        verify(consumer).accept(-999);
         verify(consumer).accept(-8);
         verify(consumer).accept(0);
-        verify(consumer).accept(15);
         verify(consumer).accept(-2);
+        verify(consumer).accept(1000);
         verifyNoMoreInteractions(consumer);
     }
 
     @Test
     void forEachIntShouldInvokeConsumerWithTheMissingValueAtTheIfOneWasAddedToTheSet()
     {
+        final int missingValue = 42;
+        final IntHashSet set = new IntHashSet(5, missingValue);
         final IntConsumer consumer = mock(IntConsumer.class);
 
-        testSet.add(MISSING_VALUE);
-        testSet.add(15);
-        testSet.add(MISSING_VALUE);
+        set.add(missingValue);
+        set.add(-1);
+        set.add(missingValue);
 
-        testSet.forEachInt(consumer);
+        set.forEachInt(consumer);
 
         final InOrder inOrder = inOrder(consumer);
-        inOrder.verify(consumer).accept(15);
-        inOrder.verify(consumer).accept(MISSING_VALUE);
+        inOrder.verify(consumer).accept(-1);
+        inOrder.verify(consumer).accept(missingValue);
         verifyNoMoreInteractions(consumer);
     }
 
@@ -996,7 +1000,7 @@ public class IntHashSetTest
     @Test
     void retainAllIsANoOpIfCollectionHasAllOfTheElementsFromTheSet()
     {
-        final IntHashSet coll = new IntHashSet();
+        final IntHashSet coll = new IntHashSet(2, 42);
         coll.addAll(Arrays.asList(0, 5, -3, 42, 21, MISSING_VALUE));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
