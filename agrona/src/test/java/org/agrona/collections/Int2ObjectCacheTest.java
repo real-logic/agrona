@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class Int2ObjectCacheTest
 {
@@ -103,6 +105,9 @@ class Int2ObjectCacheTest
         cache.clear();
 
         assertThat(cache.size(), is(0));
+        assertNull(cache.get(0));
+        assertFalse(cache.containsKey(CAPACITY - 1));
+        assertFalse(cache.containsValue("1"));
     }
 
     @Test
@@ -276,5 +281,51 @@ class Int2ObjectCacheTest
         assertEquals(value, cache.getOrDefault(key, defaultValue));
         assertEquals(1, cache.cacheHits());
         assertEquals(0, cache.cacheMisses());
+    }
+
+    @Test
+    void forEachIntShouldIterateOverAllStoredValues()
+    {
+        @SuppressWarnings("unchecked")
+        final IntObjConsumer<String> consumer = mock(IntObjConsumer.class);
+        cache.put(1, "one");
+        cache.put(-3, "three");
+        cache.put(10, "ten");
+        cache.put(13, "thirteen");
+        cache.put(-11, "eleven");
+        cache.put(12, "twelve");
+        cache.put(42, "forty two");
+
+        cache.forEachInt(consumer);
+
+        verify(consumer).accept(1, "one");
+        verify(consumer).accept(-3, "three");
+        verify(consumer).accept(10, "ten");
+        verify(consumer).accept(13, "thirteen");
+        verify(consumer).accept(-11, "eleven");
+        verify(consumer).accept(12, "twelve");
+        verify(consumer).accept(42, "forty two");
+        verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void forEachShouldIterateOverAllStoredValues()
+    {
+        @SuppressWarnings("unchecked")
+        final BiConsumer<Integer, String> consumer = mock(BiConsumer.class);
+        cache.put(1, "one");
+        cache.put(-3, "three");
+        cache.put(10, "ten");
+        cache.put(12, "twelve");
+        cache.put(42, "forty two");
+
+        cache.forEach(consumer);
+
+        verify(consumer).accept(1, "one");
+        verify(consumer).accept(-3, "three");
+        verify(consumer).accept(10, "ten");
+        verify(consumer).accept(12, "twelve");
+        verify(consumer).accept(42, "forty two");
+        verifyNoMoreInteractions(consumer);
     }
 }

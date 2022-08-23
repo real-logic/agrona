@@ -18,6 +18,7 @@ package org.agrona.collections;
 import org.agrona.generation.DoNotSub;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -272,6 +273,35 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     {
         final V value = get(key);
         return null != value ? value : defaultValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void forEach(final BiConsumer<? super Integer, ? super V> action)
+    {
+        forEachInt(action::accept);
+    }
+
+    /**
+     * Implementation of the {@link #forEach(BiConsumer)} that avoids boxing of keys.
+     *
+     * @param consumer to be called for each key/value pair.
+     */
+    @SuppressWarnings("unchecked")
+    public void forEachInt(final IntObjConsumer<? super V> consumer)
+    {
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+
+        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
+        {
+            final Object value = values[i];
+            if (null != value)
+            {
+                consumer.accept(keys[i], (V)value);
+            }
+        }
     }
 
     /**
