@@ -16,6 +16,8 @@
 package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -667,4 +669,152 @@ class Int2ObjectHashMapTest
 
         assertEquals(value, intToObjectMap.getOrDefault(key, defaultValue));
     }
+
+    @Test
+    void removeIsANoOpIfValueIsNull()
+    {
+        final int key = 42;
+        final String value = "nine";
+        intToObjectMap.put(key, value);
+
+        assertFalse(intToObjectMap.remove(key, null));
+
+        assertEquals(value, intToObjectMap.get(key));
+    }
+
+    @Test
+    void removeIsANoOpIfValueDoesNotMatch()
+    {
+        final int key = 42;
+        final String value = "nine";
+        intToObjectMap.put(key, value);
+
+        assertFalse(intToObjectMap.remove(key, "ten"));
+
+        assertEquals(value, intToObjectMap.get(key));
+    }
+
+    @Test
+    void removeShouldDeleteKeyMappingIfValueMatches()
+    {
+        final int key = -100;
+        final Int2ObjectHashMap<CharSequence> map = new Int2ObjectHashMap<>();
+        map.put(key, new CharSequenceKey("abc"));
+        map.put(2, "two");
+
+        assertTrue(map.remove(key, "abc"));
+
+        assertEquals(1, map.size());
+        assertEquals("two", map.get(2));
+    }
+
+    @Test
+    void replaceReturnsNullForAnUnknownKey()
+    {
+        intToObjectMap.put(1, "one");
+
+        assertNull(intToObjectMap.replace(2, "three"));
+
+        assertEquals("one", intToObjectMap.get(1));
+    }
+
+    @Test
+    void replaceReturnsPreviousValueAfterSettingTheNewOne()
+    {
+        final int key = 1;
+        final String oldValue = "one";
+        final String newValue = "three";
+        intToObjectMap.put(key, oldValue);
+
+        assertEquals(oldValue, intToObjectMap.replace(key, newValue));
+
+        assertEquals(newValue, intToObjectMap.get(key));
+    }
+
+    @Test
+    void replaceReturnsFalseForAnUnknownKey()
+    {
+        intToObjectMap.put(1, "one");
+
+        assertFalse(intToObjectMap.replace(2, "a", "b"));
+
+        assertEquals("one", intToObjectMap.get(1));
+    }
+
+    @Test
+    void replaceReturnsFalseIfTheOldValueDoesNotMatch()
+    {
+        final int key = 1;
+        final String value = "one";
+        intToObjectMap.put(key, value);
+
+        assertFalse(intToObjectMap.replace(key, "wrong!", "new one"));
+
+        assertEquals(value, intToObjectMap.get(key));
+    }
+
+    @Test
+    void replaceReturnsTrueAfterUpdatingTheNewValue()
+    {
+        final Int2ObjectHashMap<CharSequence> map = new Int2ObjectHashMap<>();
+        final int key = 1;
+        final String newValue = "two";
+        map.put(key, new CharSequenceKey("one"));
+
+        assertTrue(map.replace(key, "one", newValue));
+
+        assertEquals(newValue, map.get(key));
+    }
+
+    @Test
+    void replaceAllIntThrowsNullPointerExceptionIfTheNewValueIsNull()
+    {
+        final IntObjectToObjectFunction<String, String> nullFunction = (key, value) -> null;
+        intToObjectMap.put(1, "one");
+
+        final NullPointerException exception =
+            assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.replaceAllInt(nullFunction));
+        assertEquals("value cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void replaceAllIntUpdatesEveryExistingValue()
+    {
+        final IntObjectToObjectFunction<String, String> updateFunction = (key, value) -> key + "_" + value;
+        intToObjectMap.put(1, "one");
+        intToObjectMap.put(2, "two");
+        intToObjectMap.put(-100, "null");
+
+        intToObjectMap.replaceAllInt(updateFunction);
+
+        assertEquals(3, intToObjectMap.size());
+        assertEquals("1_one", intToObjectMap.get(1));
+        assertEquals("2_two", intToObjectMap.get(2));
+        assertEquals("-100_null", intToObjectMap.get(-100));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "val 1", "你好"})
+    void putIfAbsentShouldReturnAnExistingValueForAnExistingKey(final String value)
+    {
+        final int key = 42;
+        final String newValue = " this is something new";
+        intToObjectMap.put(key, value);
+
+        assertEquals(value, intToObjectMap.putIfAbsent(key, newValue));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "val 1", "你好"})
+    void putIfAbsentShouldReturnNullAfterPuttingANewValue(final String newValue)
+    {
+        final int key = 42;
+        intToObjectMap.put(3, "three");
+
+        assertNull(intToObjectMap.putIfAbsent(key, newValue));
+
+        assertEquals(newValue, intToObjectMap.get(key));
+        assertEquals("three", intToObjectMap.get(3));
+    }
+
 }

@@ -19,7 +19,9 @@ import org.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
@@ -186,15 +188,18 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public void forEachInt(final IntObjConsumer<V> consumer)
     {
+        requireNonNull(consumer);
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
         @DoNotSub final int length = values.length;
         @DoNotSub int remaining = size;
 
         for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
         {
-            if (null != values[index])
+            final Object value = values[index];
+            if (null != value)
             {
-                final V val = unmapNullValue(values[index]);
-                consumer.accept(keys[index], val);
+                consumer.accept(keys[index], unmapNullValue(value));
                 --remaining;
             }
         }
@@ -205,7 +210,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public boolean containsKey(final Object key)
     {
-        return containsKey(((Integer)key).intValue());
+        return containsKey((int)key);
     }
 
     /**
@@ -273,7 +278,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V get(final Object key)
     {
-        return get(((Integer)key).intValue());
+        return get((int)key);
     }
 
     /**
@@ -298,8 +303,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V getOrDefault(final int key, final V defaultValue)
     {
-        final V value = get(key);
-        return null != value ? value : defaultValue;
+        final V value = getMapped(key);
+        return null != value ? unmapNullValue(value) : defaultValue;
     }
 
     /**
@@ -331,6 +336,14 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public V computeIfAbsent(final Integer key, final Function<? super Integer, ? extends V> mappingFunction)
+    {
+        return computeIfAbsent((int)key, mappingFunction::apply);
+    }
+
+    /**
      * Get a value for a given key, or if it does not exist then default the value
      * via a {@link java.util.function.IntFunction} and put it in the map.
      * <p>
@@ -342,38 +355,27 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
-        final int[] keys = this.keys;
-        final Object[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = Hashing.hash(key, mask);
-
-        Object mappedValue;
-        while (null != (mappedValue = values[index]))
+        requireNonNull(mappingFunction);
+        final V oldValue = get(key);
+        if (null == oldValue)
         {
-            if (key == keys[index])
+            final V newValue = mappingFunction.apply(key);
+            if (null != newValue)
             {
-                break;
-            }
-
-            index = ++index & mask;
-        }
-
-        V value = unmapNullValue(mappedValue);
-
-        if (value == null && (value = mappingFunction.apply(key)) != null)
-        {
-            values[index] = value;
-            if (mappedValue == null)
-            {
-                keys[index] = key;
-                if (++size > resizeThreshold)
-                {
-                    increaseCapacity();
-                }
+                put(key, newValue);
+                return newValue;
             }
         }
+        return oldValue;
+    }
 
-        return value;
+    /**
+     * {@inheritDoc}
+     */
+    public V computeIfPresent(
+        final Integer key, final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction)
+    {
+        return computeIfPresent((int)key, remappingFunction::apply);
     }
 
     /**
@@ -391,36 +393,31 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V computeIfPresent(
         final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
-        final int[] keys = this.keys;
-        final Object[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = Hashing.hash(key, mask);
-
-        Object mappedValue;
-        while (null != (mappedValue = values[index]))
+        requireNonNull(remappingFunction);
+        final V value = get(key);
+        if (null != value)
         {
-            if (key == keys[index])
+            final V newValue = remappingFunction.apply(key, value);
+            if (null != newValue)
             {
-                break;
+                put(key, newValue);
+                return newValue;
             }
-
-            index = ++index & mask;
-        }
-
-        V value = unmapNullValue(mappedValue);
-
-        if (value != null)
-        {
-            value = remappingFunction.apply(key, value);
-            values[index] = value;
-            if (value == null)
+            else
             {
-                --size;
-                compactChain(index);
+                remove(key);
+                return null;
             }
         }
+        return null;
+    }
 
-        return value;
+    /**
+     * {@inheritDoc}
+     */
+    public V compute(final Integer key, final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction)
+    {
+        return compute((int)key, remappingFunction::apply);
     }
 
     /**
@@ -438,44 +435,58 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V compute(final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
-        final int[] keys = this.keys;
-        final Object[] values = this.values;
-        @DoNotSub final int mask = values.length - 1;
-        @DoNotSub int index = Hashing.hash(key, mask);
-
-        Object mappedvalue;
-        while (null != (mappedvalue = values[index]))
+        requireNonNull(remappingFunction);
+        final V oldVal = getMapped(key);
+        final V newValue = remappingFunction.apply(key, unmapNullValue(oldVal));
+        if (null == newValue)
         {
-            if (key == keys[index])
+            if (null != oldVal)
             {
-                break;
+                remove(key);
             }
-
-            index = ++index & mask;
+            return null;
         }
-
-        final V oldValue = unmapNullValue(mappedvalue);
-        final V newValue = remappingFunction.apply(key, oldValue);
-
-        if (newValue != null)
+        else
         {
-            values[index] = newValue;
-            if (mappedvalue == null)
-            {
-                keys[index] = key;
-                if (++size > resizeThreshold)
-                {
-                    increaseCapacity();
-                }
-            }
+            put(key, newValue);
+            return newValue;
         }
-        else if (mappedvalue != null || containsKey(key))
-        {
-            values[index] = null;
-            size--;
-            compactChain(index);
-        }
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public V merge(
+        final Integer key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+    {
+        return merge((int)key, value, remappingFunction);
+    }
+
+    /**
+     * Primitive specialised version of {@link Map#merge(Object, Object, BiFunction)}.
+     *
+     * @param key with which the resulting value is to be associated.
+     * @param value the non-null value to be merged with the existing value
+     *        associated with the key or, if no existing value or a null value
+     *        is associated with the key, to be associated with the key.
+     * @param remappingFunction the function to recompute a value if present.
+     * @return the new value associated with the specified key, or null if no
+     *         value is associated with the key.
+     */
+    public V merge(final int key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+    {
+        requireNonNull(value);
+        requireNonNull(remappingFunction);
+        final V oldValue = get(key);
+        final V newValue = null == oldValue ? value : remappingFunction.apply(oldValue, value);
+        if (null == newValue)
+        {
+            remove(key);
+        }
+        else
+        {
+            put(key, newValue);
+        }
         return newValue;
     }
 
@@ -484,7 +495,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V put(final Integer key, final V value)
     {
-        return put(key.intValue(), value);
+        return put((int)key, value);
     }
 
     /**
@@ -537,7 +548,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V remove(final Object key)
     {
-        return remove(((Integer)key).intValue());
+        return remove((int)key);
     }
 
     /**
@@ -574,6 +585,37 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
+    public boolean remove(final Object key, final Object value)
+    {
+        return remove((int)key, (V)value);
+    }
+
+    /**
+     * Primitive specialised version of {@link #remove(Object, Object)}.
+     *
+     * @param key   with which the specified value is associated.
+     * @param value expected to be associated with the specified key.
+     * @return {@code true} if the value was removed.
+     */
+    public boolean remove(final int key, final V value)
+    {
+        final Object val = mapNullValue(value);
+        if (null != val)
+        {
+            final V existingVal = getMapped(key);
+            if (Objects.equals(existingVal, val))
+            {
+                remove(key);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clear()
     {
         if (size > 0)
@@ -602,6 +644,24 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         {
             put(entry.getKey(), entry.getValue());
         }
+    }
+
+    /**
+     * Primitive specialised version of {@link #putIfAbsent(Object, Object)}.
+     *
+     * @param key   with which the specified value is to be associated.
+     * @param value to be associated with the specified key.
+     * @return the previous value associated with the specified key, or
+     * {@code null} if there was no mapping for the key.
+     */
+    public V putIfAbsent(final int key, final V value)
+    {
+        final V oldValue = get(key);
+        if (null == oldValue)
+        {
+            return put(key, value);
+        }
+        return oldValue;
     }
 
     /**
@@ -763,13 +823,12 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public V replace(final int key, final V value)
     {
-        V currentValue = get(key);
-        if (null != currentValue)
+        if (null != getMapped(key))
         {
-            currentValue = put(key, value);
+            return put(key, value);
         }
 
-        return currentValue;
+        return null;
     }
 
     /**
@@ -782,15 +841,51 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public boolean replace(final int key, final V oldValue, final V newValue)
     {
-        final Object value = get(key);
-        if (null == value || !Objects.equals(unmapNullValue(value), oldValue))
+        final Object value = getMapped(key);
+        if (null != value && Objects.equals(value, mapNullValue(oldValue)))
         {
-            return false;
+            put(key, newValue);
+            return true;
         }
+        return false;
+    }
 
-        put(key, newValue);
+    /**
+     * {@inheritDoc}
+     */
+    public void replaceAll(final BiFunction<? super Integer, ? super V, ? extends V> function)
+    {
+        replaceAllInt(function::apply);
+    }
 
-        return true;
+    /**
+     * Primitive specialised version of {@link #replaceAll(BiFunction)}.
+     * <p>
+     * NB: Renamed from forEach to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param function the function to apply to each entry.
+     */
+    @SuppressWarnings("unchecked")
+    public void replaceAllInt(final IntObjectToObjectFunction<? super V, ? extends V> function)
+    {
+        requireNonNull(function);
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int length = values.length;
+        @DoNotSub int remaining = size;
+
+        for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
+        {
+            if (null != values[index])
+            {
+                final V oldVal = unmapNullValue(values[index]);
+                final V newVal = (V)mapNullValue(function.apply(keys[index], oldVal));
+                requireNonNull(newVal, "value cannot be null");
+                values[index] = newVal;
+                --remaining;
+            }
+        }
     }
 
     private void increaseCapacity()
