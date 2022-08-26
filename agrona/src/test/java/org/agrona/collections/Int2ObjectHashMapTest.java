@@ -794,7 +794,7 @@ class Int2ObjectHashMapTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "val 1", "你好"})
+    @ValueSource(strings = { "", "val 1", "你好" })
     void putIfAbsentShouldReturnAnExistingValueForAnExistingKey(final String value)
     {
         final int key = 42;
@@ -805,7 +805,7 @@ class Int2ObjectHashMapTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "val 1", "你好"})
+    @ValueSource(strings = { "", "val 1", "你好" })
     void putIfAbsentShouldReturnNullAfterPuttingANewValue(final String newValue)
     {
         final int key = 42;
@@ -817,4 +817,36 @@ class Int2ObjectHashMapTest
         assertEquals("three", intToObjectMap.get(3));
     }
 
+    @Test
+    void putAllCopiesAllOfTheValuesFromTheSourceMap()
+    {
+        intToObjectMap.put(42, "forty two");
+        intToObjectMap.put(0, "zero");
+        final Int2ObjectHashMap<String> otherMap = new Int2ObjectHashMap<>();
+        otherMap.put(1, "1");
+        otherMap.put(2, "2");
+        otherMap.put(3, "3");
+        otherMap.put(42, "42");
+
+        intToObjectMap.putAll(otherMap);
+
+        assertEquals(5, intToObjectMap.size());
+        assertEquals("zero", intToObjectMap.get(0));
+        assertEquals("1", intToObjectMap.get(1));
+        assertEquals("2", intToObjectMap.get(2));
+        assertEquals("3", intToObjectMap.get(3));
+        assertEquals("42", intToObjectMap.get(42));
+    }
+
+    @Test
+    void putAllThrowsNullPointerExceptionIfOtherMapContainsNull()
+    {
+        intToObjectMap.put(0, "zero");
+        final Int2NullableObjectHashMap<String> otherMap = new Int2NullableObjectHashMap<>();
+        otherMap.put(1, null);
+
+        final NullPointerException exception =
+            assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.putAll(otherMap));
+        assertEquals("value cannot be null", exception.getMessage());
+    }
 }

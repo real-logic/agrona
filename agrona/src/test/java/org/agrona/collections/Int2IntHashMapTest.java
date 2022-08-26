@@ -1073,6 +1073,40 @@ public class Int2IntHashMapTest
         assertEquals(MISSING_VALUE, map.get(key));
     }
 
+    @Test
+    void putAllCopiesAllValuesFromTheSourceMap()
+    {
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+        final Int2IntHashMap otherMap = new Int2IntHashMap(Integer.MIN_VALUE);
+        otherMap.put(-100, -100);
+        otherMap.put(1, 10);
+        otherMap.put(3, 30);
+        otherMap.put(5, 50);
+
+        map.putAll(otherMap);
+
+        assertEquals(5, map.size());
+        assertEquals(10, map.get(1));
+        assertEquals(2, map.get(2));
+        assertEquals(30, map.get(3));
+        assertEquals(50, map.get(5));
+        assertEquals(-100, map.get(-100));
+    }
+
+    @Test
+    void putAllThrowsIllegalArgumentExceptionIfOtherMapContainsMissingValue()
+    {
+        map.put(1, 1);
+        final Int2IntHashMap otherMap = new Int2IntHashMap(Integer.MIN_VALUE);
+        otherMap.put(MISSING_VALUE, MISSING_VALUE);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.putAll(otherMap));
+        assertEquals("cannot accept missingValue", exception.getMessage());
+    }
+
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)
     {
         assertEquals(expectedKey, entry.getKey().intValue());

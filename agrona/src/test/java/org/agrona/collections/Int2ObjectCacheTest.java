@@ -669,4 +669,25 @@ class Int2ObjectCacheTest
         assertEquals("minus one-1", cache.get(-1));
         assertEquals("four4", cache.get(4));
     }
+
+    @Test
+    void putAllCopiesAllOfTheValuesFromTheSourceMap()
+    {
+        cache.put(42, "forty two");
+        cache.put(0, "zero");
+        final Int2ObjectCache<String> otherMap = new Int2ObjectCache<>(8, 32, EVICTION_CONSUMER);
+        otherMap.put(1, "1");
+        otherMap.put(2, "2");
+        otherMap.put(3, "3");
+        otherMap.put(42, "42");
+
+        cache.putAll(otherMap);
+
+        assertEquals(5, cache.size());
+        assertEquals("zero", cache.get(0));
+        assertEquals("1", cache.get(1));
+        assertEquals("2", cache.get(2));
+        assertEquals("3", cache.get(3));
+        assertEquals("42", cache.get(42));
+    }
 }

@@ -707,6 +707,21 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     }
 
     /**
+     * Put all values from the given map into this one without allocation.
+     *
+     * @param map whose value are to be added.
+     */
+    public void putAll(final Int2ObjectHashMap<? extends V> map)
+    {
+        final Int2ObjectHashMap<? extends V>.EntryIterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.findNext();
+            put(iterator.getIntKey(), iterator.getValue());
+        }
+    }
+
+    /**
      * Primitive specialised version of {@link #putIfAbsent(Object, Object)}.
      *
      * @param key   with which the specified value is to be associated.

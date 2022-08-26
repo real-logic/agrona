@@ -794,6 +794,21 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     }
 
     /**
+     * Put all values from the given map into this one without allocation.
+     *
+     * @param map whose value are to be added.
+     */
+    public void putAll(final Int2ObjectCache<? extends V> map)
+    {
+        final Int2ObjectCache<? extends V>.EntryIterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.findNext();
+            put(iterator.getIntKey(), iterator.getValue());
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public KeySet keySet()

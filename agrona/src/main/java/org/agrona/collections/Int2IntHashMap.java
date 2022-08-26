@@ -574,6 +574,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Put all values from the given map into this map without allocation.
+     *
+     * @param map whose value are to be added.
+     */
+    public void putAll(final Int2IntHashMap map)
+    {
+        final EntryIterator it = map.entrySet().iterator();
+        while (it.hasNext())
+        {
+            it.findNext();
+            put(it.getIntKey(), it.getIntValue());
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public Integer putIfAbsent(final Integer key, final Integer value)
