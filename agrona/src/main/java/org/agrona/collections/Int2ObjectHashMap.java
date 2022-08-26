@@ -171,6 +171,7 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      *
      * @param consumer a callback called for each key/value pair in the map.
      * @deprecated Use {@link #forEachInt(IntObjConsumer)} instead.
+     * @see #forEachInt(IntObjConsumer)
      */
     @Deprecated
     public void intForEach(final IntObjConsumer<V> consumer)
@@ -356,17 +357,38 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
         requireNonNull(mappingFunction);
-        final V oldValue = get(key);
-        if (null == oldValue)
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = values[index]))
         {
-            final V newValue = mappingFunction.apply(key);
-            if (null != newValue)
+            if (key == keys[index])
             {
-                put(key, newValue);
-                return newValue;
+                break;
+            }
+
+            index = ++index & mask;
+        }
+
+        V value = unmapNullValue(mappedValue);
+
+        if (value == null && (value = mappingFunction.apply(key)) != null)
+        {
+            values[index] = value;
+            if (mappedValue == null)
+            {
+                keys[index] = key;
+                if (++size > resizeThreshold)
+                {
+                    increaseCapacity();
+                }
             }
         }
-        return oldValue;
+
+        return value;
     }
 
     /**
@@ -394,22 +416,36 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
         requireNonNull(remappingFunction);
-        final V value = get(key);
-        if (null != value)
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedValue;
+        while (null != (mappedValue = values[index]))
         {
-            final V newValue = remappingFunction.apply(key, value);
-            if (null != newValue)
+            if (key == keys[index])
             {
-                put(key, newValue);
-                return newValue;
+                break;
             }
-            else
+
+            index = ++index & mask;
+        }
+
+        V value = unmapNullValue(mappedValue);
+
+        if (value != null)
+        {
+            value = remappingFunction.apply(key, value);
+            values[index] = value;
+            if (value == null)
             {
-                remove(key);
-                return null;
+                --size;
+                compactChain(index);
             }
         }
-        return null;
+
+        return value;
     }
 
     /**
@@ -436,21 +472,45 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public V compute(final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
     {
         requireNonNull(remappingFunction);
-        final V oldVal = getMapped(key);
-        final V newValue = remappingFunction.apply(key, unmapNullValue(oldVal));
-        if (null == newValue)
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        Object mappedvalue;
+        while (null != (mappedvalue = values[index]))
         {
-            if (null != oldVal)
+            if (key == keys[index])
             {
-                remove(key);
+                break;
             }
-            return null;
+
+            index = ++index & mask;
         }
-        else
+
+        final V oldValue = unmapNullValue(mappedvalue);
+        final V newValue = remappingFunction.apply(key, oldValue);
+
+        if (newValue != null)
         {
-            put(key, newValue);
-            return newValue;
+            values[index] = newValue;
+            if (mappedvalue == null)
+            {
+                keys[index] = key;
+                if (++size > resizeThreshold)
+                {
+                    increaseCapacity();
+                }
+            }
         }
+        else if (mappedvalue != null || containsKey(key))
+        {
+            values[index] = null;
+            size--;
+            compactChain(index);
+        }
+
+        return newValue;
     }
 
     /**
@@ -877,10 +937,10 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
 
         for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
         {
-            if (null != values[index])
+            final Object oldValue = values[index];
+            if (null != oldValue)
             {
-                final V oldVal = unmapNullValue(values[index]);
-                final V newVal = (V)mapNullValue(function.apply(keys[index], oldVal));
+                final V newVal = (V)mapNullValue(function.apply(keys[index], unmapNullValue(oldValue)));
                 requireNonNull(newVal, "value cannot be null");
                 values[index] = newVal;
                 --remaining;
