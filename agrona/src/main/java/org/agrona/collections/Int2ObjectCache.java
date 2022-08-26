@@ -19,7 +19,9 @@ import org.agrona.generation.DoNotSub;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
@@ -163,7 +165,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      */
     public boolean containsKey(final Object key)
     {
-        return containsKey(((Integer)key).intValue());
+        return containsKey((int)key);
     }
 
     /**
@@ -224,7 +226,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      */
     public V get(final Object key)
     {
-        return get(((Integer)key).intValue());
+        return get((int)key);
     }
 
     /**
@@ -291,17 +293,29 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     @SuppressWarnings("unchecked")
     public void forEachInt(final IntObjConsumer<? super V> consumer)
     {
+        requireNonNull(consumer);
         final int[] keys = this.keys;
         final Object[] values = this.values;
+        @DoNotSub final int length = values.length;
+        @DoNotSub int remaining = size;
 
-        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
+        for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
         {
-            final Object value = values[i];
+            final Object value = values[index];
             if (null != value)
             {
-                consumer.accept(keys[i], (V)value);
+                consumer.accept(keys[index], (V)value);
+                --remaining;
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V computeIfAbsent(final Integer key, final Function<? super Integer, ? extends V> mappingFunction)
+    {
+        return computeIfAbsent((int)key, mappingFunction::apply);
     }
 
     /**
@@ -316,6 +330,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      */
     public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction)
     {
+        requireNonNull(mappingFunction);
         V value = get(key);
         if (null == value)
         {
@@ -332,9 +347,160 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     /**
      * {@inheritDoc}
      */
+    public V computeIfPresent(
+        final Integer key, final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction)
+    {
+        return computeIfPresent((int)key, remappingFunction::apply);
+    }
+
+    /**
+     * If the value for the specified key is present attempts to compute a new mapping given the key and its current
+     * mapped value.
+     * <p>
+     * Primitive specialized version of {@link Map#computeIfPresent(Object, BiFunction)}.
+     *
+     * @param key               with which the specified value is to be associated.
+     * @param remappingFunction the function to compute a value.
+     * @return the new value associated with the specified key, or null if none.
+     */
+    public V computeIfPresent(
+        final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
+    {
+        requireNonNull(remappingFunction);
+        final V oldValue = get(key);
+        if (null != oldValue)
+        {
+            final V newValue = remappingFunction.apply(key, oldValue);
+            if (null != newValue)
+            {
+                put(key, newValue);
+                return newValue;
+            }
+            else
+            {
+                remove(key);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V compute(final Integer key, final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction)
+    {
+        return compute((int)key, remappingFunction::apply);
+    }
+
+    /**
+     * Attempts to compute a mapping for the specified key and its current mapped value (or {@code null} if there is no
+     * current mapping).
+     * <p>
+     * Primitive specialized version of {@link Map#compute(Object, BiFunction)}.
+     *
+     * @param key               with which the specified value is to be associated.
+     * @param remappingFunction the function to compute a value.
+     * @return the new value associated with the specified key, or null if none.
+     */
+    public V compute(final int key, final IntObjectToObjectFunction<? super V, ? extends V> remappingFunction)
+    {
+        final V oldValue = get(key);
+        final V newValue = remappingFunction.apply(key, oldValue);
+        if (null != newValue)
+        {
+            put(key, newValue);
+            return newValue;
+        }
+        else
+        {
+            if (null != oldValue)
+            {
+                remove(key);
+            }
+            return null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V merge(
+        final Integer key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+    {
+        return merge((int)key, value, remappingFunction);
+    }
+
+    /**
+     * If the specified key is not already associated with a value or is associated with null, associates it with the
+     * given non-null value. Otherwise, replaces the associated value with the results of the given remapping function,
+     * or removes if the result is {@code null}.
+     * <p>
+     * Primitive specialized version of {@link Map#merge(Object, Object, BiFunction)}.
+     *
+     * @param key               with which the resulting value is to be associated.
+     * @param value             the non-null value to be merged with the existing value associated with the key or,
+     *                          if no existing value or a null value is associated with the key, to be associated with
+     *                          the key.
+     * @param remappingFunction the function to recompute a value if present.
+     * @return the new value associated with the specified key, or null if no
+     * value is associated with the key.
+     */
+    public V merge(final int key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+    {
+        requireNonNull(value);
+        requireNonNull(remappingFunction);
+        final V oldValue = get(key);
+        final V newValue = null == oldValue ? value : remappingFunction.apply(oldValue, value);
+        if (null != newValue)
+        {
+            put(key, newValue);
+            return newValue;
+        }
+        else
+        {
+            remove(key);
+            return null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V putIfAbsent(final Integer key, final V value)
+    {
+        return putIfAbsent((int)key, value);
+    }
+
+    /**
+     * If the specified key is not already associated with a value (or is mapped
+     * to {@code null}) associates it with the given value and returns
+     * {@code null}, else returns the current value.
+     * <p>
+     * Primitive specialized version of {@link Map#putIfAbsent(Object, Object)}.
+     *
+     * @param key with which the specified value is to be associated.
+     * @param value to be associated with the specified key.
+     * @return the previous value associated with the specified key, or
+     *         {@code null} if there was no mapping for the key.
+     */
+    public V putIfAbsent(final int key, final V value)
+    {
+        final V existingValue = get(key);
+        if (null == existingValue)
+        {
+            put(key, value);
+            return null;
+        }
+        return existingValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public V put(final Integer key, final V value)
     {
-        return put(key.intValue(), value);
+        return put((int)key, value);
     }
 
     /**
@@ -399,9 +565,38 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
+    public boolean remove(final Object key, final Object value)
+    {
+        return remove((int)key, (V)value);
+    }
+
+    /**
+     * Removes the entry for the specified key only if it is currently mapped to the specified value.
+     * <p>
+     * Primitive specialized version of {@link Map#remove(Object, Object)}.
+     *
+     * @param key key with which the specified value is associated.
+     * @param value expected to be associated with the specified key.
+     * @return {@code true} if the value was removed.
+     */
+    public boolean remove(final int key, final V value)
+    {
+        final V existingValue = get(key);
+        if (null != existingValue && Objects.equals(existingValue, value))
+        {
+            remove(key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public V remove(final Object key)
     {
-        return remove(((Integer)key).intValue());
+        return remove((int)key);
     }
 
     /**
@@ -438,6 +633,103 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         }
 
         return (V)value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(final Integer key, final V oldValue, final V newValue)
+    {
+        return replace((int)key, oldValue, newValue);
+    }
+
+    /**
+     * Replaces the entry for the specified key only if currently mapped to the specified value.
+     * <p>
+     * Primitive specialized version of {@link Map#replace(Object, Object, Object)}.
+     *
+     * @param key with which the specified value is associated.
+     * @param oldValue expected to be associated with the specified key.
+     * @param newValue to be associated with the specified key.
+     * @return {@code true} if the value was replaced.
+     */
+    public boolean replace(final int key, final V oldValue, final V newValue)
+    {
+        final V existingValue = get(key);
+        if (null != existingValue && Objects.equals(existingValue, oldValue))
+        {
+            put(key, newValue);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public V replace(final Integer key, final V value)
+    {
+        return replace((int)key, value);
+    }
+
+    /**
+     * Replaces the entry for the specified key only if it is currently mapped to some value.
+     * <p>
+     * Primitive specialized version of {@link Map#replace(Object, Object)}.
+     *
+     * @param key with which the specified value is associated.
+     * @param value to be associated with the specified key.
+     * @return the previous value associated with the specified key.
+     */
+    public V replace(final int key, final V value)
+    {
+        final V oldValue = get(key);
+        if (null != oldValue)
+        {
+            put(key, value);
+        }
+        return oldValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void replaceAll(final BiFunction<? super Integer, ? super V, ? extends V> function)
+    {
+        replaceAllInt(function::apply);
+    }
+
+    /**
+     * Replaces each entry's value with the result of invoking the given function on that entry until all entries have
+     * been processed or the function throws an exception.
+     * <p>
+     * Primitive specialized version of {@link Map#replaceAll(BiFunction)}.
+     * <p>
+     * NB: Renamed from forEach to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param function the function to apply to each entry.
+     */
+    @SuppressWarnings("unchecked")
+    public void replaceAllInt(final IntObjectToObjectFunction<? super V, ? extends V> function)
+    {
+        requireNonNull(function);
+        final int[] keys = this.keys;
+        final Object[] values = this.values;
+        @DoNotSub final int length = values.length;
+        @DoNotSub int remaining = size;
+
+        for (@DoNotSub int index = 0; remaining > 0 && index < length; index++)
+        {
+            final Object oldValue = values[index];
+            if (null != oldValue)
+            {
+                final V newValue = function.apply(keys[index], (V)oldValue);
+                requireNonNull(newValue, "null values are not supported");
+                values[index] = newValue;
+                --remaining;
+            }
+        }
     }
 
     @DoNotSub private void shuffleUp(final int fromIndex, final int toIndex)
