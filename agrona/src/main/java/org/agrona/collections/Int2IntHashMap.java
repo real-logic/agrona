@@ -24,6 +24,7 @@ import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 
+import static java.util.Objects.*;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
@@ -231,7 +232,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #putIfAbsent(Integer, Integer)} method.
+     * Primitive specialised version of {@link Map#putIfAbsent(Object, Object)} method.
      *
      * @param key   key with which the specified value is to be associated
      * @param value value to be associated with the specified key
@@ -294,6 +295,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      *
      * @param consumer a callback called for each key/value pair in the map.
      * @deprecated Use {@link #forEachInt(IntIntConsumer)} instead.
+     * @see #forEachInt(IntIntConsumer)
      */
     @Deprecated
     public void intForEach(final IntIntConsumer consumer)
@@ -311,6 +313,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public void forEachInt(final IntIntConsumer consumer)
     {
+        requireNonNull(consumer);
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
@@ -394,7 +397,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #computeIfAbsent(Object, Function)}.
+     * Primitive specialised version of {@link Map#computeIfAbsent(Object, Function)}.
      *
      * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns null.
@@ -402,6 +405,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int computeIfAbsent(final int key, final IntUnaryOperator mappingFunction)
     {
+        requireNonNull(mappingFunction);
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
@@ -418,7 +422,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             index = next(index, mask);
         }
 
-        if (value == missingValue && (value = mappingFunction.applyAsInt(key)) != missingValue)
+        if (missingValue == value && missingValue != (value = mappingFunction.applyAsInt(key)))
         {
             entries[index] = key;
             entries[index + 1] = value;
@@ -430,7 +434,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link java.util.Map#computeIfPresent}.
+     * Primitive specialised version of {@link Map#computeIfPresent}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value if a mapping is found.
@@ -438,6 +442,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int computeIfPresent(final int key, final IntBinaryOperator remappingFunction)
     {
+        requireNonNull(remappingFunction);
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
@@ -454,7 +459,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             index = next(index, mask);
         }
 
-        if (value != missingValue)
+        if (missingValue != value)
         {
             value = remappingFunction.applyAsInt(key, value);
             entries[index + 1] = value;
@@ -469,7 +474,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link java.util.Map#compute}.
+     * Primitive specialised version of {@link Map#compute}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value.
@@ -477,6 +482,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int compute(final int key, final IntBinaryOperator remappingFunction)
     {
+        requireNonNull(remappingFunction);
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int mask = entries.length - 1;
@@ -494,7 +500,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
 
         final int newValue = remappingFunction.applyAsInt(key, oldValue);
-        if (newValue != missingValue)
+        if (missingValue != newValue)
         {
             entries[index + 1] = newValue;
             if (oldValue == missingValue)
@@ -504,7 +510,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
                 increaseCapacity();
             }
         }
-        else if (oldValue != missingValue)
+        else if (missingValue != oldValue)
         {
             entries[index + 1] = missingValue;
             size--;
@@ -687,7 +693,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #remove(Object, Object)}.
+     * Primitive specialised version of {@link Map#remove(Object, Object)}.
      *
      * @param key   with which the specified value is associated.
      * @param value expected to be associated with the specified key.
@@ -704,7 +710,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #merge(Object, Object, BiFunction)}.
+     * Primitive specialised version of {@link Map#merge(Object, Object, BiFunction)}.
      *
      * @param key               with which the resulting value is to be associated.
      * @param value             to be merged with the existing value associated with the key or, if no existing value or a null
@@ -715,6 +721,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int merge(final int key, final int value, final IntIntFunction remappingFunction)
     {
+        requireNonNull(remappingFunction);
         final int oldValue = get(key);
         final int newValue = missingValue == oldValue ? value : remappingFunction.apply(oldValue, value);
         if (missingValue == newValue)
@@ -835,7 +842,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Integer, Integer)}.
+     * Primitive specialised version of {@link Map#replace(Object, Object)}.
      *
      * @param key   key with which the specified value is associated.
      * @param value value to be associated with the specified key.
@@ -854,7 +861,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Integer, Integer, Integer)}.
+     * Primitive specialised version of {@link Map#replace(Object, Object, Object)}.
      *
      * @param key      key with which the specified value is associated.
      * @param oldValue value expected to be associated with the specified key.
@@ -875,7 +882,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replaceAll(BiFunction)}.
+     * Primitive specialised version of {@link Map#replaceAll(BiFunction)}.
      * <p>
      * NB: Renamed from replaceAll to avoid overloading on parameter types of lambda
      * expression, which doesn't play well with type inference in lambda expressions.
@@ -884,6 +891,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public void replaceAllInt(final IntIntFunction function)
     {
+        requireNonNull(function);
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
@@ -953,7 +961,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
 
     private Integer valOrNull(final int value)
     {
-        return value == missingValue ? null : value;
+        return missingValue == value ? null : value;
     }
 
     // ---------------- Utility Classes ----------------
