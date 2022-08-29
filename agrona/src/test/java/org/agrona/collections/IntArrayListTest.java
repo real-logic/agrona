@@ -695,11 +695,12 @@ class IntArrayListTest
     @Test
     void removeAllShouldDeleteAllElementsThatAreContainedInTheTargetList()
     {
-        final IntArrayList other = new IntArrayList();
+        final IntArrayList other = new IntArrayList(2, -1);
         other.addInt(1);
         other.addInt(3);
         other.addInt(5);
         other.addInt(7);
+        other.addInt(DEFAULT_NULL_VALUE);
         list.addInt(7);
         list.addInt(1);
         list.addInt(2);
@@ -711,6 +712,7 @@ class IntArrayListTest
         list.addInt(5);
         list.addInt(8);
         list.addInt(7);
+        list.addInt(DEFAULT_NULL_VALUE);
 
         assertTrue(list.removeAll(other));
 
@@ -719,5 +721,48 @@ class IntArrayListTest
         assertEquals(4, list.getInt(1));
         assertEquals(6, list.getInt(2));
         assertEquals(8, list.getInt(3));
+    }
+
+    @Test
+    void removeIfIntThrowsNullPointerExceptionIsFilterIsNull()
+    {
+        assertThrowsExactly(NullPointerException.class, () -> list.removeIfInt(null));
+    }
+
+    @Test
+    void removeIfIntDeletesAllElementsThatMatchFilter()
+    {
+        final IntPredicate filter = (v) -> v < 0 || v > 10;
+        list.add(null);
+        list.addInt(2);
+        list.addInt(DEFAULT_NULL_VALUE);
+        list.addInt(3);
+        list.addInt(0);
+        list.addInt(42);
+
+        assertTrue(list.removeIfInt(filter));
+
+        assertEquals(3, list.size());
+        assertEquals(2, list.getInt(0));
+        assertEquals(3, list.getInt(1));
+        assertEquals(0, list.getInt(2));
+    }
+
+    @Test
+    void removeIfIsANoOpIfNoElementsMatchTheFilter()
+    {
+        final IntPredicate filter = (v) -> v < 0;
+        list.addInt(2);
+        list.addInt(3);
+        list.addInt(0);
+        list.addInt(42);
+
+        assertFalse(list.removeIfInt(filter));
+
+        assertEquals(4, list.size());
+        assertEquals(2, list.getInt(0));
+        assertEquals(3, list.getInt(1));
+        assertEquals(0, list.getInt(2));
+        assertEquals(42, list.getInt(3));
     }
 }

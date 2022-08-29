@@ -20,7 +20,10 @@ import org.agrona.generation.DoNotSub;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
+
+import static java.util.Objects.*;
 
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
@@ -486,6 +489,48 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     *
+     * @param filter a predicate which returns true for elements to be removed.
+     * @return {@code true} if any elements were removed.
+     */
+    public boolean removeIfInt(final IntPredicate filter)
+    {
+        requireNonNull(filter);
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0)
+        {
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (filter.test(value))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean remove(final Object o)
@@ -792,6 +837,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEach(final Consumer<? super Integer> action)
     {
+        requireNonNull(action);
         final int nullValue = this.nullValue;
         final int[] elements = this.elements;
         for (@DoNotSub int i = 0, size = this.size; i < size; i++)
@@ -808,6 +854,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEachInt(final IntConsumer action)
     {
+        requireNonNull(action);
         final int[] elements = this.elements;
         for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {
