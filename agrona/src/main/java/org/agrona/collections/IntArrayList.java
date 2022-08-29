@@ -386,10 +386,13 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean containsAll(final IntArrayList list)
     {
-        final int[] elements = list.elements;
+        final int[] listElements = list.elements;
+        final int listNullValue = list.nullValue;
+        final boolean hasNulls = contains(null);
         for (@DoNotSub int i = 0, size = list.size; i < size; i++)
         {
-            if (!containsInt(elements[i]))
+            final int value = listElements[i];
+            if (!(containsInt(value) || hasNulls && listNullValue == value))
             {
                 return false;
             }
@@ -417,12 +420,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
                 return true;
             }
 
+            final int nullValue = this.nullValue;
+            final boolean listHasNulls = list.contains(null);
             int[] filteredElements = null;
             @DoNotSub int j = -1;
             for (@DoNotSub int i = 0; i < size; i++)
             {
                 final int value = elements[i];
-                if (!list.containsInt(value))
+                if (!(list.containsInt(value) || (listHasNulls && nullValue == value)))
                 {
                     if (null == filteredElements)
                     {
@@ -459,12 +464,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int size = this.size;
         if (size > 0 && !list.isEmpty())
         {
+            final int nullValue = this.nullValue;
+            final boolean listHasNulls = list.contains(null);
             int[] filteredElements = null;
             @DoNotSub int j = -1;
             for (@DoNotSub int i = 0; i < size; i++)
             {
                 final int value = elements[i];
-                if (list.containsInt(value))
+                if (list.containsInt(value) || (listHasNulls && nullValue == value))
                 {
                     if (null == filteredElements)
                     {

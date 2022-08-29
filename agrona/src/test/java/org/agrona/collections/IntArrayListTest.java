@@ -601,6 +601,19 @@ class IntArrayListTest
     }
 
     @Test
+    void containsAllReturnsTrueIfTheNullValueContainedInBothLists()
+    {
+        final IntArrayList other = new IntArrayList(1, 888);
+        other.add(null);
+        other.add(5);
+        list.addInt(5);
+        list.addInt(42);
+        list.add(null);
+
+        assertTrue(list.containsAll(other));
+    }
+
+    @Test
     void containsAllHandlesNullValueInTheSourceList()
     {
         final List<Integer> other = Arrays.asList(1, 2, null, 100);
@@ -672,7 +685,43 @@ class IntArrayListTest
     @Test
     void retainAllShouldDeleteAllItemsNotFoundInOtherList()
     {
-        final IntArrayList other = new IntArrayList();
+        final IntArrayList other = new IntArrayList(2, -100);
+        other.addInt(1);
+        other.addInt(10);
+        other.addInt(100);
+        other.addInt(1000);
+        other.add(null);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(-999);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(10);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(1);
+        list.addInt(10);
+        list.addInt(5);
+        list.addInt(-1);
+        list.add(null);
+        list.addInt(100);
+
+        assertTrue(list.retainAll(other));
+
+        assertEquals(6, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(10, list.getInt(1));
+        assertEquals(1, list.getInt(2));
+        assertEquals(10, list.getInt(3));
+        assertEquals(DEFAULT_NULL_VALUE, list.getInt(4));
+        assertEquals(100, list.getInt(5));
+    }
+
+    @Test
+    void retainAllShouldDeleteNullsIfTheTargetListDoesNotContainAny()
+    {
+        final IntArrayList other = new IntArrayList(2, -100);
         other.addInt(1);
         other.addInt(10);
         other.addInt(100);
@@ -690,6 +739,7 @@ class IntArrayListTest
         list.addInt(10);
         list.addInt(5);
         list.addInt(-1);
+        list.add(null);
         list.addInt(100);
 
         assertTrue(list.retainAll(other));
@@ -739,12 +789,14 @@ class IntArrayListTest
     @Test
     void removeAllShouldDeleteAllElementsThatAreContainedInTheTargetList()
     {
-        final IntArrayList other = new IntArrayList(2, -1);
+        final int nullValue = -1;
+        assertNotEquals(DEFAULT_NULL_VALUE, nullValue);
+        final IntArrayList other = new IntArrayList(2, nullValue);
         other.addInt(1);
         other.addInt(3);
         other.addInt(5);
         other.addInt(7);
-        other.addInt(DEFAULT_NULL_VALUE);
+        other.add(null);
         list.addInt(7);
         list.addInt(1);
         list.addInt(2);
@@ -752,6 +804,7 @@ class IntArrayListTest
         list.addInt(6);
         list.addInt(1);
         list.addInt(1);
+        list.add(null);
         list.addInt(1);
         list.addInt(5);
         list.addInt(8);
@@ -765,6 +818,29 @@ class IntArrayListTest
         assertEquals(4, list.getInt(1));
         assertEquals(6, list.getInt(2));
         assertEquals(8, list.getInt(3));
+    }
+
+    @Test
+    void removeAllShouldNotDeleteNullValuesIfTheSourceListDoesNotContainAny()
+    {
+        final IntArrayList other = new IntArrayList(5, 333);
+        other.addInt(1);
+        other.addInt(3);
+        list.addInt(1);
+        list.add(null);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+        list.addInt(6);
+        list.addInt(DEFAULT_NULL_VALUE);
+
+        assertTrue(list.removeAll(other));
+
+        assertEquals(4, list.size());
+        assertEquals(DEFAULT_NULL_VALUE, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+        assertEquals(6, list.getInt(2));
+        assertEquals(DEFAULT_NULL_VALUE, list.getInt(3));
     }
 
     @Test
