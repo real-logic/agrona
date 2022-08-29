@@ -547,7 +547,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public Integer remove(
         @DoNotSub final int index)
     {
-        return removeAt(index);
+        final int value = removeAt(index);
+        return nullValue == value ? null : value;
     }
 
     /**

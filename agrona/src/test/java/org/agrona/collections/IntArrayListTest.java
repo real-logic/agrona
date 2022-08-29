@@ -22,8 +22,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
+import static org.agrona.collections.IntArrayList.DEFAULT_NULL_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -139,6 +141,20 @@ class IntArrayListTest
 
         assertThat(list.size(), is(count - 1));
         assertThat(list.getInt(10), is(11));
+    }
+
+    @Test
+    void shouldRemoveNullValueAtIndexBoxing()
+    {
+        list.addInt(34);
+        list.add(null);
+        list.addInt(15);
+
+        assertNull(list.remove(1));
+
+        assertEquals(2, list.size());
+        assertEquals(34, list.getInt(0));
+        assertEquals(15, list.getInt(1));
     }
 
     @Test
