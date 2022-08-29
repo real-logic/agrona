@@ -20,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
@@ -392,12 +393,6 @@ class IntArrayListTest
     }
 
     @Test
-    void removeThrowsNullPointerExceptionIfValueIsNull()
-    {
-        assertThrowsExactly(NullPointerException.class, () -> list.remove(null));
-    }
-
-    @Test
     void removeThrowsNClassCastExceptionIfValueIsNotInteger()
     {
         assertThrowsExactly(ClassCastException.class, () -> list.remove(Double.valueOf(24.5)));
@@ -575,7 +570,7 @@ class IntArrayListTest
     @Test
     void containsAllReturnsTrueIfTheListContainsAllOfTheElementsOfSourceList()
     {
-        final IntArrayList other = new IntArrayList();
+        final IntArrayList other = new IntArrayList(2, 42);
         other.addInt(1);
         other.addInt(1);
         other.addInt(1);
@@ -585,6 +580,7 @@ class IntArrayListTest
         other.addInt(0);
         other.addInt(2);
         other.addInt(1);
+        other.add(null);
         list.addInt(-8);
         list.addInt(0);
         list.addInt(1);
@@ -602,6 +598,38 @@ class IntArrayListTest
         list.addInt(42);
 
         assertTrue(list.containsAll(other));
+    }
+
+    @Test
+    void containsAllHandlesNullValueInTheSourceList()
+    {
+        final List<Integer> other = Arrays.asList(1, 2, null, 100);
+        list.addInt(1);
+        list.addInt(100);
+        list.addInt(2);
+        list.addInt(DEFAULT_NULL_VALUE);
+        list.addInt(3);
+        list.addInt(-1);
+
+        assertTrue(list.containsAll(other));
+    }
+
+    @Test
+    void containsReturnsTrueIfListContainsValue()
+    {
+        final int element = 13;
+        list.addInt(element);
+
+        assertTrue(list.contains(element));
+    }
+
+    @Test
+    void containsReturnsTrueIfListContainsNull()
+    {
+        list.addInt(42);
+        list.add(null);
+
+        assertTrue(list.contains(null));
     }
 
     @Test
@@ -780,5 +808,39 @@ class IntArrayListTest
         assertEquals(3, list.getInt(1));
         assertEquals(0, list.getInt(2));
         assertEquals(42, list.getInt(3));
+    }
+
+    @Test
+    void removeByObjectReturnsTrueAfterRemovingTheFirstOccurrenceOfTheValue()
+    {
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(1);
+        list.addInt(5);
+
+        assertTrue(list.remove(Integer.valueOf(1)));
+
+        assertEquals(3, list.size());
+        assertEquals(2, list.getInt(0));
+        assertEquals(1, list.getInt(1));
+        assertEquals(5, list.getInt(2));
+    }
+
+    @Test
+    void removeByObjectReturnsTrueAfterRemovingFirstNull()
+    {
+        list.addInt(1);
+        list.addInt(1);
+        list.addInt(DEFAULT_NULL_VALUE);
+        list.addInt(5);
+        list.add(null);
+
+        assertTrue(list.remove(null));
+
+        assertEquals(4, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(1, list.getInt(1));
+        assertEquals(5, list.getInt(2));
+        assertEquals(DEFAULT_NULL_VALUE, list.getInt(3));
     }
 }

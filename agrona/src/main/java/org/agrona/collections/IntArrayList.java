@@ -270,7 +270,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean contains(final Object o)
     {
-        return containsInt((int)o);
+        return containsInt(null == o ? nullValue : (int)o);
     }
 
     /**
@@ -535,7 +535,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean remove(final Object o)
     {
-        return removeInt((int)o);
+        return removeInt(null == o ? nullValue : (int)o);
     }
 
     /**
