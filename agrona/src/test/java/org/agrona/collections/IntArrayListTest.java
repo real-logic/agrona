@@ -16,6 +16,8 @@
 package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +29,19 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntArrayListTest
+class IntArrayListTest
 {
     private final IntArrayList list = new IntArrayList();
 
     @Test
-    public void shouldReportEmpty()
+    void shouldReportEmpty()
     {
         assertThat(list.size(), is(0));
         assertThat(list.isEmpty(), is(true));
     }
 
     @Test
-    public void shouldAddValue()
+    void shouldAddValue()
     {
         list.add(7);
 
@@ -48,7 +50,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldAddNull()
+    void shouldAddNull()
     {
         list.add(null);
 
@@ -57,7 +59,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldAddIntValue()
+    void shouldAddIntValue()
     {
         list.addInt(7);
 
@@ -66,7 +68,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldAddValueAtIndex()
+    void shouldAddValueAtIndex()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
@@ -79,7 +81,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldAddValueAtIndexWithNearlyFullCapacity()
+    void shouldAddValueAtIndexWithNearlyFullCapacity()
     {
         final int count = IntArrayList.INITIAL_CAPACITY - 1;
         final int value = count + 1;
@@ -93,7 +95,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldSetIntValue()
+    void shouldSetIntValue()
     {
         list.addInt(7);
         list.setInt(0, 8);
@@ -103,7 +105,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldSetValue()
+    void shouldSetValue()
     {
         list.add(7);
         list.set(0, 8);
@@ -113,7 +115,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldContainCorrectValues()
+    void shouldContainCorrectValues()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
@@ -128,7 +130,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldRemoveAtIndexBoxing()
+    void shouldRemoveAtIndexBoxing()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
@@ -140,7 +142,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldRemoveAtIndex()
+    void shouldRemoveAtIndex()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
@@ -152,7 +154,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldRemoveAtIndexForListLengthOne()
+    void shouldRemoveAtIndexForListLengthOne()
     {
         list.addInt(1);
 
@@ -162,7 +164,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldFastRemoveUnorderedAtIndex()
+    void shouldFastRemoveUnorderedAtIndex()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
@@ -174,7 +176,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldFastRemoveUnorderedByValue()
+    void shouldFastRemoveUnorderedByValue()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered((value) -> list.addInt(value * 10));
@@ -221,7 +223,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldForEachOrderedInt()
+    void shouldForEachOrderedInt()
     {
         final List<Integer> expected = new ArrayList<>();
         IntStream.range(0, 20).forEachOrdered(expected::add);
@@ -234,7 +236,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldCreateObjectRefArray()
+    void shouldCreateObjectRefArray()
     {
         final int count = 20;
         final List<Integer> expected = new ArrayList<>();
@@ -245,7 +247,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldCreateIntArray()
+    void shouldCreateIntArray()
     {
         final int count = 20;
         final int[] expected = new int[count];
@@ -265,7 +267,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldCreateIntegerArray()
+    void shouldCreateIntegerArray()
     {
         final int count = 20;
         final Integer[] expected = new Integer[count];
@@ -281,7 +283,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldPushAndThenPopInOrder()
+    void shouldPushAndThenPopInOrder()
     {
         final int count = 7;
         for (int i = 0; i < count; i++)
@@ -296,13 +298,13 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenPoppingEmptyList()
+    void shouldThrowExceptionWhenPoppingEmptyList()
     {
         assertThrows(NoSuchElementException.class, list::popInt);
     }
 
     @Test
-    public void shouldEqualGenericList()
+    void shouldEqualGenericList()
     {
         final int count = 7;
         final List<Integer> genericList = new ArrayList<>();
@@ -320,7 +322,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldEqualsAndHashcode()
+    void shouldEqualsAndHashcode()
     {
         final ArrayList<Integer> genericList = new ArrayList<>();
         final int count = 20;
@@ -337,7 +339,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldGenerateStringRepresentation()
+    void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, -1, 19, 7, 11, 12, 7 };
 
@@ -351,7 +353,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldWrapLessThanInitialCapacityThenGrow()
+    void shouldWrapLessThanInitialCapacityThenGrow()
     {
         final int[] array = new int[]{ 1, 2, 3 };
         final IntArrayList list = new IntArrayList();
@@ -363,7 +365,7 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldWrapLessZeroLengthArrayThenGrow()
+    void shouldWrapLessZeroLengthArrayThenGrow()
     {
         final IntArrayList list = new IntArrayList();
 
@@ -371,5 +373,186 @@ public class IntArrayListTest
 
         list.addInt(7);
         assertThat(list.capacity(), is(IntArrayList.INITIAL_CAPACITY));
+    }
+
+    @Test
+    void removeThrowsNullPointerExceptionIfValueIsNull()
+    {
+        assertThrowsExactly(NullPointerException.class, () -> list.remove(null));
+    }
+
+    @Test
+    void removeThrowsNClassCastExceptionIfValueIsNotInteger()
+    {
+        assertThrowsExactly(ClassCastException.class, () -> list.remove(Double.valueOf(24.5)));
+    }
+
+    @Test
+    void removeReturnsFalseForAnUnknownValue()
+    {
+        list.addInt(42);
+
+        assertFalse(list.remove(Integer.valueOf(5)));
+
+        assertEquals(42, list.get(0));
+    }
+
+    @Test
+    void removeReturnsTrueAfterRemovingTheFirstOccurrenceOfTheValue()
+    {
+        list.addInt(42);
+        list.addInt(5);
+        list.addInt(42);
+
+        assertTrue(list.remove(Integer.valueOf(42)));
+
+        assertEquals(2, list.size());
+        assertEquals(5, list.get(0));
+        assertEquals(42, list.get(1));
+    }
+
+    @Test
+    void addAllAppendsAllItemsToTheEndOfTheList()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(3);
+        other.addInt(4);
+        other.addInt(5);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+
+        assertTrue(list.addAll(other));
+
+        assertEquals(6, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+        assertEquals(3, list.getInt(2));
+        assertEquals(3, list.getInt(3));
+        assertEquals(4, list.getInt(4));
+        assertEquals(5, list.getInt(5));
+    }
+
+    @Test
+    void addAllAppendsToItself()
+    {
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+
+        assertTrue(list.addAll(list));
+
+        assertEquals(6, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+        assertEquals(3, list.getInt(2));
+        assertEquals(1, list.getInt(3));
+        assertEquals(2, list.getInt(4));
+        assertEquals(3, list.getInt(5));
+    }
+
+    @Test
+    void addAllIsANoOpIfTheSourceListIsEmpty()
+    {
+        list.addInt(3);
+
+        assertFalse(list.addAll(new IntArrayList()));
+
+        assertEquals(1, list.size());
+        assertEquals(3, list.getInt(0));
+    }
+
+    @Test
+    void addAllWithIndexAddsElementsStartingAtAGivenIndex()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(17);
+        other.addInt(9);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+        list.addInt(4);
+        list.addInt(5);
+
+        assertTrue(list.addAll(1, other));
+
+        assertEquals(7, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(17, list.getInt(1));
+        assertEquals(9, list.getInt(2));
+        assertEquals(2, list.getInt(3));
+        assertEquals(3, list.getInt(4));
+        assertEquals(4, list.getInt(5));
+        assertEquals(5, list.getInt(6));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { -1, 4 })
+    void addAllWithIndexThrowsIndexOutOfBoundsExceptionIfIndexIsInvalid(final int index)
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(19);
+
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> list.addAll(index, other));
+        assertEquals("index=" + index + " size=0", exception.getMessage());
+    }
+
+    @Test
+    void addAllWithIndexCanAddFromTheBeginning()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(4);
+        other.addInt(5);
+        other.addInt(6);
+        list.addInt(1);
+        list.addInt(2);
+
+        assertTrue(list.addAll(0, other));
+
+        assertEquals(5, list.size());
+        assertEquals(4, list.getInt(0));
+        assertEquals(5, list.getInt(1));
+        assertEquals(6, list.getInt(2));
+        assertEquals(1, list.getInt(3));
+        assertEquals(2, list.getInt(4));
+    }
+
+    @Test
+    void addAllWithIndexCanAddAtTheEnd()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(4);
+        other.addInt(5);
+        other.addInt(6);
+        list.addInt(1);
+        list.addInt(2);
+
+        assertTrue(list.addAll(2, other));
+
+        assertEquals(5, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+        assertEquals(4, list.getInt(2));
+        assertEquals(5, list.getInt(3));
+        assertEquals(6, list.getInt(4));
+    }
+
+    @Test
+    void addAllWithIndexCanAddToItself()
+    {
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+
+        assertTrue(list.addAll(2, list));
+
+        assertEquals(6, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+        assertEquals(1, list.getInt(2));
+        assertEquals(2, list.getInt(3));
+        assertEquals(3, list.getInt(4));
+        assertEquals(3, list.getInt(5));
     }
 }

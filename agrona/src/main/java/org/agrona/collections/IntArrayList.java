@@ -85,7 +85,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
      * @throws IllegalArgumentException if the initialSize is less than 0 or greater than the length of the
-     * initial array.
+     *                                  initial array.
      */
     public void wrap(
         final int[] initialElements,
@@ -263,6 +263,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean contains(final Object o)
+    {
+        return containsInt((int)o);
+    }
+
+    /**
      * Does the list contain this element value.
      *
      * @param value of the element.
@@ -313,6 +321,101 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         }
 
         return -1;
+    }
+
+    /**
+     * Appends all the elements in the specified list to the end of this list, in the order that they are stored in the
+     * specified list.
+     *
+     * @param list containing elements to be added to this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean addAll(final IntArrayList list)
+    {
+        @DoNotSub final int numElements = list.size;
+        if (numElements > 0)
+        {
+            ensureCapacityPrivate(size + numElements);
+            System.arraycopy(list.elements, 0, elements, size, numElements);
+            size += numElements;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Inserts all the elements from the specified list to this list at the specified position. Shifts the element
+     * currently at that position (if any) and any subsequent elements to the right (increases their indices). The new
+     * elements will appear in this list in the order that they are stored in the specified list.
+     *
+     * @param index at which to insert the first element from the specified collection.
+     * @param list  containing elements to be added to this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean addAll(
+        @DoNotSub final int index,
+        final IntArrayList list)
+    {
+        checkIndexForAdd(index);
+
+        @DoNotSub final int numElements = list.size;
+        if (numElements > 0)
+        {
+            @DoNotSub final int size = this.size;
+            ensureCapacityPrivate(size + numElements);
+            final int[] elements = this.elements;
+            for (@DoNotSub int i = size - 1; i >= index; i--)
+            {
+                elements[i + numElements] = elements[i];
+            }
+            System.arraycopy(list.elements, 0, elements, index, numElements);
+            this.size += numElements;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains all the elements of the specified list.
+     *
+     * @param list to be checked for containment in this list.
+     * @return {@code true} if this list contains all the elements of the specified list.
+     */
+    public boolean containsAll(final IntArrayList list)
+    {
+        return super.containsAll(list);
+    }
+
+    /**
+     * Retains only the elements in this list that are contained in the specified list. In other words, removes from
+     * this list all of its elements that are not contained in the specified list.
+     *
+     * @param list containing elements to be removed from this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean retainAll(final IntArrayList list)
+    {
+        return super.retainAll(list);
+    }
+
+    /**
+     * Removes all of this collection's elements that are also contained in the specified list. After this call
+     * returns, this list will contain no elements in common with the specified list.
+     *
+     * @param list whose elements are to be removed from this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean removeAll(final IntArrayList list)
+    {
+        return super.removeAll(list);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(final Object o)
+    {
+        return removeInt((int)o);
     }
 
     /**
@@ -373,6 +476,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
     /**
      * Remove the first instance of a value if found in the list.
+     * <p>
+     * Primitive specialization of the {@link List#remove(Object)} method.
      *
      * @param value to be removed.
      * @return true if successful otherwise false.
