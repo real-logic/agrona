@@ -383,7 +383,16 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean containsAll(final IntArrayList list)
     {
-        return super.containsAll(list);
+        final int[] elements = list.elements;
+        for (@DoNotSub int i = 0, size = list.size; i < size; i++)
+        {
+            if (!containsInt(elements[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -395,7 +404,43 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean retainAll(final IntArrayList list)
     {
-        return super.retainAll(list);
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0)
+        {
+            if (list.isEmpty())
+            {
+                this.size = 0;
+                return true;
+            }
+
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (!list.containsInt(value))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -407,7 +452,37 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean removeAll(final IntArrayList list)
     {
-        return super.removeAll(list);
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0 && !list.isEmpty())
+        {
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (list.containsInt(value))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

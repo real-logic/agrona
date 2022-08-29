@@ -555,4 +555,169 @@ class IntArrayListTest
         assertEquals(3, list.getInt(4));
         assertEquals(3, list.getInt(5));
     }
+
+    @Test
+    void containsAllReturnsTrueIfTheListContainsAllOfTheElementsOfSourceList()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(1);
+        other.addInt(1);
+        other.addInt(1);
+        other.addInt(2);
+        other.addInt(0);
+        other.addInt(0);
+        other.addInt(0);
+        other.addInt(2);
+        other.addInt(1);
+        list.addInt(-8);
+        list.addInt(0);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(42);
+
+        assertTrue(list.containsAll(other));
+    }
+
+    @Test
+    void containsAllReturnsTrueIfTheSourceListIsEmpty()
+    {
+        final IntArrayList other = new IntArrayList();
+        list.addInt(-8);
+        list.addInt(42);
+
+        assertTrue(list.containsAll(other));
+    }
+
+    @Test
+    void containsAllReturnsFalseIfAtLeastOneElementOfTheSourceListIsNotFound()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(1);
+        other.addInt(1);
+        other.addInt(2);
+        other.addInt(10);
+        other.addInt(20);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(3);
+        list.addInt(20);
+
+        assertFalse(list.containsAll(other));
+    }
+
+    @Test
+    void retainAllIsANoOpIfTheTargetListContainsAllOfTheItemsInTheSourceList()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(1);
+        other.addInt(10);
+        other.addInt(100);
+        other.addInt(1000);
+        list.addInt(100);
+        list.addInt(100);
+        list.addInt(1);
+
+        assertFalse(list.retainAll(other));
+
+        assertEquals(3, list.size());
+        assertEquals(100, list.getInt(0));
+        assertEquals(100, list.getInt(1));
+        assertEquals(1, list.getInt(2));
+    }
+
+    @Test
+    void retainAllShouldDeleteAllItemsNotFoundInOtherList()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(1);
+        other.addInt(10);
+        other.addInt(100);
+        other.addInt(1000);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(-999);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(10);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(1);
+        list.addInt(10);
+        list.addInt(5);
+        list.addInt(-1);
+        list.addInt(100);
+
+        assertTrue(list.retainAll(other));
+
+        assertEquals(5, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(10, list.getInt(1));
+        assertEquals(1, list.getInt(2));
+        assertEquals(10, list.getInt(3));
+        assertEquals(100, list.getInt(4));
+    }
+
+    @Test
+    void retainAllShouldEraseTheEntireListIfTheTargetListIsEmpty()
+    {
+        final IntArrayList other = new IntArrayList();
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(10);
+        list.addInt(2);
+        list.addInt(2);
+        list.addInt(1);
+        list.addInt(10);
+        list.addInt(5);
+        list.addInt(-1);
+        list.addInt(100);
+
+        assertTrue(list.retainAll(other));
+
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void removeAllIsANoOpIfTheTargetListIsEmpty()
+    {
+        final IntArrayList other = new IntArrayList();
+        list.addInt(5);
+        list.addInt(8);
+
+        assertFalse(list.removeAll(other));
+
+        assertEquals(2, list.size());
+        assertEquals(5, list.getInt(0));
+        assertEquals(8, list.getInt(1));
+    }
+
+    @Test
+    void removeAllShouldDeleteAllElementsThatAreContainedInTheTargetList()
+    {
+        final IntArrayList other = new IntArrayList();
+        other.addInt(1);
+        other.addInt(3);
+        other.addInt(5);
+        other.addInt(7);
+        list.addInt(7);
+        list.addInt(1);
+        list.addInt(2);
+        list.addInt(4);
+        list.addInt(6);
+        list.addInt(1);
+        list.addInt(1);
+        list.addInt(1);
+        list.addInt(5);
+        list.addInt(8);
+        list.addInt(7);
+
+        assertTrue(list.removeAll(other));
+
+        assertEquals(4, list.size());
+        assertEquals(2, list.getInt(0));
+        assertEquals(4, list.getInt(1));
+        assertEquals(6, list.getInt(2));
+        assertEquals(8, list.getInt(3));
+    }
 }
