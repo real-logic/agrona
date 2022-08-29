@@ -324,6 +324,18 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public Integer remove(
         @DoNotSub final int index)
     {
+        return removeAt(index);
+    }
+
+    /**
+     * Remove at a given index.
+     *
+     * @param index of the element to be removed.
+     * @return the existing value at this index.
+     */
+    public int removeAt(
+        @DoNotSub final int index)
+    {
         checkIndex(index);
 
         final int value = elements[index];
@@ -370,7 +382,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int index = indexOf(value);
         if (-1 != index)
         {
-            remove(index);
+            removeAt(index);
 
             return true;
         }

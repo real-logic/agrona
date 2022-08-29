@@ -128,12 +128,24 @@ public class IntArrayListTest
     }
 
     @Test
-    public void shouldRemoveAtIndex()
+    public void shouldRemoveAtIndexBoxing()
     {
         final int count = 20;
         IntStream.range(0, count).forEachOrdered(list::addInt);
 
         assertThat(list.remove(10), is(10));
+
+        assertThat(list.size(), is(count - 1));
+        assertThat(list.getInt(10), is(11));
+    }
+
+    @Test
+    public void shouldRemoveAtIndex()
+    {
+        final int count = 20;
+        IntStream.range(0, count).forEachOrdered(list::addInt);
+
+        assertThat(list.removeAt(10), is(10));
 
         assertThat(list.size(), is(count - 1));
         assertThat(list.getInt(10), is(11));
@@ -171,6 +183,41 @@ public class IntArrayListTest
 
         assertThat(list.size(), is(count - 1));
         assertThat(list.getInt(1), is(190));
+    }
+
+    @Test
+    void removeIntReturnsFalseIfValueDoesNotExist()
+    {
+        list.addInt(5);
+        list.addInt(0);
+        list.addInt(42);
+
+        assertFalse(list.removeInt(8));
+
+        assertEquals(3, list.size());
+        assertEquals(5, list.getInt(0));
+        assertEquals(0, list.getInt(1));
+        assertEquals(42, list.getInt(2));
+    }
+
+    @Test
+    void removeIntReturnsTrueAfterRemovingFirstMatchingValueFromTheList()
+    {
+        list.addInt(5);
+        list.addInt(-1);
+        list.addInt(42);
+        list.addInt(8);
+        list.addInt(-1);
+        list.addInt(0);
+
+        assertTrue(list.removeInt(-1));
+
+        assertEquals(5, list.size());
+        assertEquals(5, list.getInt(0));
+        assertEquals(42, list.getInt(1));
+        assertEquals(8, list.getInt(2));
+        assertEquals(-1, list.getInt(3));
+        assertEquals(0, list.getInt(4));
     }
 
     @Test
