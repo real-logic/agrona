@@ -1153,6 +1153,75 @@ public class IntHashSetTest
         assertFalse(testSet.contains(MISSING_VALUE));
     }
 
+    @Test
+    void addAllShouldAddOnlyNonMissingValuesIfTheSourceListDoesNotContainExplicitMissingValue()
+    {
+        final IntHashSet other = new IntHashSet(5, 888);
+        other.add(1);
+        other.add(2);
+        other.add(3);
+        other.add(4);
+        other.add(5);
+        testSet.add(1);
+        testSet.add(5);
+        testSet.add(MISSING_VALUE);
+
+        assertTrue(testSet.addAll(other));
+
+        assertEquals(6, testSet.size());
+        for (int i = 1; i <= 5; i++)
+        {
+            assertTrue(testSet.contains(i));
+        }
+        assertTrue(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    void addAllShouldAddMissingVaueFromAnotherSet()
+    {
+        final IntHashSet other = new IntHashSet(5, 3);
+        other.add(1);
+        other.add(2);
+        other.add(3);
+        testSet.add(0);
+
+        assertTrue(testSet.addAll(other));
+
+        assertEquals(4, testSet.size());
+        for (int i = 0; i <= 3; i++)
+        {
+            assertTrue(testSet.contains(i));
+        }
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    void containsAllReturnsTrueIfTheSetContainsAllNonMissingValues()
+    {
+        final IntHashSet other = new IntHashSet(2, 9);
+        other.add(0);
+        other.add(2);
+        other.add(4);
+        other.add(6);
+        testSet.add(MISSING_VALUE);
+        for (int i = 0; i < 9; i++)
+        {
+            testSet.add(i);
+        }
+
+        assertTrue(testSet.containsAll(other));
+    }
+
+    @Test
+    void containsAllReturnsTrueIfTheSetContainsTheMissingValueOfAnotherSet()
+    {
+        final IntHashSet other = new IntHashSet(2, 9);
+        other.add(9);
+        testSet.add(9);
+
+        assertTrue(testSet.containsAll(other));
+    }
+
     private static void addTwoElements(final IntHashSet obj)
     {
         obj.add(1);

@@ -475,8 +475,7 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         boolean acc = false;
 
-        // FIXME: Missing value check is wrong....
-        final int missingValue = this.missingValue;
+        final int missingValue = coll.missingValue;
         for (final int value : coll.values)
         {
             if (missingValue != value)
@@ -496,13 +495,13 @@ public class IntHashSet extends AbstractSet<Integer>
     /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
-     * @param other int hash set to compare against.
+     * @param coll int hash set to compare against.
      * @return true if every element in other is in this.
      */
-    public boolean containsAll(final IntHashSet other)
+    public boolean containsAll(final IntHashSet coll)
     {
-        final int missingValue = this.missingValue;
-        for (final int value : other.values)
+        final int missingValue = coll.missingValue;
+        for (final int value : coll.values)
         {
             if (missingValue != value && !contains(value))
             {
@@ -510,7 +509,12 @@ public class IntHashSet extends AbstractSet<Integer>
             }
         }
 
-        return !other.containsMissingValue || this.containsMissingValue;
+        if (coll.containsMissingValue)
+        {
+            return contains(missingValue);
+        }
+
+        return true;
     }
 
     /**
@@ -533,13 +537,14 @@ public class IntHashSet extends AbstractSet<Integer>
             {
                 if (difference == null)
                 {
-                    difference = new IntHashSet();
+                    difference = new IntHashSet(DEFAULT_INITIAL_CAPACITY, missingValue);
                 }
 
                 difference.add(value);
             }
         }
 
+        // FIXME
         if (other.containsMissingValue && !this.containsMissingValue)
         {
             if (difference == null)
