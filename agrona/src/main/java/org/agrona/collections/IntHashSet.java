@@ -293,7 +293,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean remove(final Object value)
     {
-        return value instanceof Integer && remove(((Integer)value).intValue());
+        return value instanceof Integer && remove((int)value);
     }
 
     /**
@@ -383,7 +383,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final Object value)
     {
-        return value instanceof Integer && contains(((Integer)value).intValue());
+        return value instanceof Integer && contains((int)value);
     }
 
     /**
@@ -574,23 +574,23 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean removeAll(final IntHashSet coll)
     {
-        boolean acc = false;
+        boolean removed = false;
 
-        final int missingValue = this.missingValue;
+        final int missingValue = coll.missingValue;
         for (final int value : coll.values)
         {
             if (missingValue != value)
             {
-                acc |= remove(value);
+                removed |= remove(value);
             }
         }
 
         if (coll.containsMissingValue)
         {
-            acc |= remove(missingValue);
+            removed |= remove(missingValue);
         }
 
-        return acc;
+        return removed;
     }
 
     /**
@@ -598,23 +598,23 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean retainAll(final Collection<?> coll)
     {
-        boolean acc = false;
+        boolean removed = false;
         final int missingValue = this.missingValue;
         for (final int value : values)
         {
             if (missingValue != value && !coll.contains(value))
             {
                 remove(value);
-                acc = true;
+                removed = true;
             }
         }
 
         if (containsMissingValue && !coll.contains(missingValue))
         {
             remove(missingValue);
-            acc = true;
+            removed = true;
         }
-        return acc;
+        return removed;
     }
 
     /**
@@ -626,23 +626,23 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean retainAll(final IntHashSet coll)
     {
-        boolean acc = false;
+        boolean removed = false;
         final int missingValue = this.missingValue;
         for (final int value : values)
         {
             if (missingValue != value && !coll.contains(value))
             {
                 remove(value);
-                acc = true;
+                removed = true;
             }
         }
 
         if (containsMissingValue && !coll.contains(missingValue))
         {
             remove(missingValue);
-            acc = true;
+            removed = true;
         }
-        return acc;
+        return removed;
     }
 
     /**

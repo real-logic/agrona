@@ -805,7 +805,7 @@ public class IntHashSetTest
     public void shouldGenerateStringRepresentation()
     {
         final IntHashSet set = new IntHashSet(16, -9990999);
-        final int[] testEntries = {-9990999, 3, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
+        final int[] testEntries = { -9990999, 3, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
 
         for (final int testEntry : testEntries)
         {
@@ -1036,7 +1036,7 @@ public class IntHashSetTest
     @Test
     void retainAllRemovesMissingValueWhichWasAddedToTheSet()
     {
-        final IntHashSet coll = new IntHashSet();
+        final IntHashSet coll = new IntHashSet(5, 0);
         coll.addAll(Arrays.asList(42, 42, 42, 0, 500));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
@@ -1046,6 +1046,43 @@ public class IntHashSetTest
         assertEquals(1, testSet.size());
         assertTrue(testSet.contains(42));
         assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    void removeAllIsANoOpIfTwoCollectionsHaveNoValuesInCommon()
+    {
+        final IntHashSet other = new IntHashSet(10, 100);
+        other.add(4);
+        other.add(5);
+        other.add(100);
+        testSet.add(1);
+        testSet.add(2);
+        testSet.add(MISSING_VALUE);
+
+        assertFalse(testSet.removeAll(other));
+
+        assertEquals(3, testSet.size());
+        assertTrue(testSet.contains(MISSING_VALUE));
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(2));
+    }
+
+    @Test
+    void removeAllRemovesMissingValueOfTheOtherSet()
+    {
+        final IntHashSet other = new IntHashSet(10, 100);
+        other.add(4);
+        other.add(5);
+        other.add(100);
+        testSet.add(1);
+        testSet.add(2);
+        testSet.add(100);
+
+        assertTrue(testSet.removeAll(other));
+
+        assertEquals(2, testSet.size());
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(2));
     }
 
     private static void addTwoElements(final IntHashSet obj)
