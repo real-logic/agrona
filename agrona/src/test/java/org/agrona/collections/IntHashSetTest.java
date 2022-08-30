@@ -46,7 +46,7 @@ public class IntHashSetTest
     private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, MISSING_VALUE);
 
     @Test
-    public void initiallyContainsNoElements()
+    void initiallyContainsNoElements()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -55,7 +55,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void initiallyContainsNoBoxedElements()
+    void initiallyContainsNoBoxedElements()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -64,7 +64,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsAddedElement()
+    void containsAddedElement()
     {
         assertTrue(testSet.add(1));
 
@@ -72,7 +72,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void addingAnElementTwiceDoesNothing()
+    void addingAnElementTwiceDoesNothing()
     {
         assertTrue(testSet.add(1));
 
@@ -80,7 +80,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsAddedBoxedElements()
+    void containsAddedBoxedElements()
     {
         assertTrue(testSet.add(1));
         assertTrue(testSet.add(Integer.valueOf(2)));
@@ -90,13 +90,13 @@ public class IntHashSetTest
     }
 
     @Test
-    public void removingAnElementFromAnEmptyListDoesNothing()
+    void removingAnElementFromAnEmptyListDoesNothing()
     {
         assertFalse(testSet.remove(0));
     }
 
     @Test
-    public void removingAPresentElementRemovesIt()
+    void removingAPresentElementRemovesIt()
     {
         assertTrue(testSet.add(1));
 
@@ -106,13 +106,13 @@ public class IntHashSetTest
     }
 
     @Test
-    public void sizeIsInitiallyZero()
+    void sizeIsInitiallyZero()
     {
         assertEquals(0, testSet.size());
     }
 
     @Test
-    public void sizeIncrementsWithNumberOfAddedElements()
+    void sizeIncrementsWithNumberOfAddedElements()
     {
         addTwoElements(testSet);
 
@@ -121,7 +121,7 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("OverwrittenKey")
-    public void sizeContainsNumberOfNewElements()
+    void sizeContainsNumberOfNewElements()
     {
         testSet.add(1);
         testSet.add(1);
@@ -130,7 +130,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsListElements()
+    void iteratorsListElements()
     {
         addTwoElements(testSet);
 
@@ -138,7 +138,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsStartFromTheBeginningEveryTime()
+    void iteratorsStartFromTheBeginningEveryTime()
     {
         iteratorsListElements();
 
@@ -146,7 +146,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsListElementsWithoutHasNext()
+    void iteratorsListElementsWithoutHasNext()
     {
         addTwoElements(testSet);
 
@@ -154,7 +154,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsStartFromTheBeginningEveryTimeWithoutHasNext()
+    void iteratorsStartFromTheBeginningEveryTimeWithoutHasNext()
     {
         iteratorsListElementsWithoutHasNext();
 
@@ -162,7 +162,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsThrowNoSuchElementException()
+    void iteratorsThrowNoSuchElementException()
     {
         addTwoElements(testSet);
 
@@ -170,7 +170,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime()
+    void iteratorsThrowNoSuchElementExceptionFromTheBeginningEveryTime()
     {
         addTwoElements(testSet);
 
@@ -186,19 +186,19 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorHasNoElements()
+    void iteratorHasNoElements()
     {
         assertFalse(testSet.iterator().hasNext());
     }
 
     @Test
-    public void iteratorThrowExceptionForEmptySet()
+    void iteratorThrowExceptionForEmptySet()
     {
         assertThrows(NoSuchElementException.class, () -> testSet.iterator().next());
     }
 
     @Test
-    public void clearRemovesAllElementsOfTheSet()
+    void clearRemovesAllElementsOfTheSet()
     {
         addTwoElements(testSet);
 
@@ -210,7 +210,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void differenceReturnsNullIfBothSetsEqual()
+    void differenceReturnsNullIfBothSetsEqual()
     {
         addTwoElements(testSet);
 
@@ -221,19 +221,73 @@ public class IntHashSetTest
     }
 
     @Test
-    public void differenceReturnsSetDifference()
+    void differenceReturnsElementsOfTheOriginalSetThatNotContainedInTheOtherSet()
     {
-        addTwoElements(testSet);
-
-        final IntHashSet other = new IntHashSet(100);
+        final IntHashSet other = new IntHashSet(10, 10);
+        other.add(10);
         other.add(1);
+        other.add(5);
+        other.add(42);
+        other.add(MISSING_VALUE);
+        final IntHashSet otherCopy = new IntHashSet(10, 10);
+        otherCopy.copy(other);
+        testSet.add(1);
+        testSet.add(3);
+        testSet.add(5);
+        testSet.add(21);
+        testSet.add(MISSING_VALUE);
 
         final IntHashSet diff = testSet.difference(other);
-        assertThat(diff, containsInAnyOrder(1001));
+
+        assertNotNull(diff);
+        assertEquals(2, diff.size());
+        assertEquals(MISSING_VALUE, diff.missingValue());
+        assertTrue(diff.contains(3));
+        assertTrue(diff.contains(21));
+
+        assertEquals(otherCopy, other);
     }
 
     @Test
-    public void copiesOtherIntHashSet()
+    void differenceReturnsASetWithOnlyAMissingValueIfItIsNotContainedInAnotherSet()
+    {
+        final IntHashSet one = new IntHashSet(1, 1);
+        one.add(1);
+        one.add(5);
+        final IntHashSet two = new IntHashSet(1, 2);
+        two.add(2);
+
+        final IntHashSet diff = two.difference(one);
+
+        assertNotNull(diff);
+        assertEquals(1, diff.size());
+        assertEquals(2, diff.missingValue());
+        assertTrue(diff.contains(2));
+        assertFalse(diff.contains(1));
+        assertFalse(diff.contains(5));
+    }
+
+    @Test
+    void differenceReturnsASetWithAMissingValueIfItIsNotContainedInAnotherSet()
+    {
+        final IntHashSet one = new IntHashSet(1, 1);
+        one.add(1);
+        one.add(5);
+        final IntHashSet two = new IntHashSet(1, 2);
+        two.add(2);
+
+        final IntHashSet diff = one.difference(two);
+
+        assertNotNull(diff);
+        assertEquals(2, diff.size());
+        assertEquals(1, diff.missingValue());
+        assertTrue(diff.contains(1));
+        assertTrue(diff.contains(5));
+        assertFalse(diff.contains(2));
+    }
+
+    @Test
+    void copiesOtherIntHashSet()
     {
         addTwoElements(testSet);
 
@@ -244,14 +298,14 @@ public class IntHashSetTest
     }
 
     @Test
-    public void twoEmptySetsAreEqual()
+    void twoEmptySetsAreEqual()
     {
         final IntHashSet other = new IntHashSet(100);
         assertEquals(testSet, other);
     }
 
     @Test
-    public void setsWithTheSameValuesAreEqual()
+    void setsWithTheSameValuesAreEqual()
     {
         final IntHashSet other = new IntHashSet(100);
 
@@ -262,7 +316,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void setsWithTheDifferentSizesAreNotEqual()
+    void setsWithTheDifferentSizesAreNotEqual()
     {
         final IntHashSet other = new IntHashSet(100);
 
@@ -274,7 +328,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void setsWithTheDifferentValuesAreNotEqual()
+    void setsWithTheDifferentValuesAreNotEqual()
     {
         final IntHashSet other = new IntHashSet(100);
 
@@ -287,13 +341,13 @@ public class IntHashSetTest
     }
 
     @Test
-    public void twoEmptySetsHaveTheSameHashcode()
+    void twoEmptySetsHaveTheSameHashcode()
     {
         assertEquals(testSet.hashCode(), new IntHashSet(100).hashCode());
     }
 
     @Test
-    public void setsWithTheSameValuesHaveTheSameHashcode()
+    void setsWithTheSameValuesHaveTheSameHashcode()
     {
         final IntHashSet other = new IntHashSet(100);
 
@@ -305,7 +359,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void reducesSizeWhenElementRemoved()
+    void reducesSizeWhenElementRemoved()
     {
         addTwoElements(testSet);
 
@@ -316,14 +370,14 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("SuspiciousToArrayCall")
-    public void toArrayThrowsArrayStoreExceptionForWrongType()
+    void toArrayThrowsArrayStoreExceptionForWrongType()
     {
         assertThrows(ArrayStoreException.class, () -> testSet.toArray(new String[1]));
     }
 
     @Test
     @SuppressWarnings("ConstantConditions")
-    public void toArrayThrowsNullPointerExceptionForNullArgument()
+    void toArrayThrowsNullPointerExceptionForNullArgument()
     {
         final Integer[] into = null;
         assertThrows(NullPointerException.class, () -> testSet.toArray(into));
@@ -331,7 +385,7 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArrayCopiesElementsIntoSufficientlySizedArray()
+    void toArrayCopiesElementsIntoSufficientlySizedArray()
     {
         addTwoElements(testSet);
 
@@ -342,7 +396,7 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArrayCopiesElementsIntoNewArray()
+    void toArrayCopiesElementsIntoNewArray()
     {
         addTwoElements(testSet);
 
@@ -353,7 +407,7 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArraySupportsEmptyCollection()
+    void toArraySupportsEmptyCollection()
     {
         final Integer[] result = testSet.toArray(new Integer[testSet.size()]);
 
@@ -362,7 +416,7 @@ public class IntHashSetTest
 
     // Test case from usage bug.
     @Test
-    public void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
+    void chainCompactionShouldNotCauseElementsToBeMovedBeforeTheirHash()
     {
         final IntHashSet requiredFields = new IntHashSet(14);
 
@@ -379,7 +433,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldResizeWhenItHitsCapacity()
+    void shouldResizeWhenItHitsCapacity()
     {
         for (int i = 0; i < 2 * INITIAL_CAPACITY; i++)
         {
@@ -393,7 +447,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsEmptySet()
+    void containsEmptySet()
     {
         final IntHashSet other = new IntHashSet(100);
 
@@ -402,7 +456,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsSubset()
+    void containsSubset()
     {
         addTwoElements(testSet);
 
@@ -415,7 +469,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void doesNotContainDisjointSet()
+    void doesNotContainDisjointSet()
     {
         addTwoElements(testSet);
 
@@ -429,7 +483,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void doesNotContainSuperset()
+    void doesNotContainSuperset()
     {
         addTwoElements(testSet);
 
@@ -443,7 +497,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void addingEmptySetDoesNothing()
+    void addingEmptySetDoesNothing()
     {
         addTwoElements(testSet);
 
@@ -453,7 +507,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void addingSubsetDoesNothing()
+    void addingSubsetDoesNothing()
     {
         addTwoElements(testSet);
 
@@ -469,7 +523,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void addingEqualSetDoesNothing()
+    void addingEqualSetDoesNothing()
     {
         addTwoElements(testSet);
 
@@ -485,7 +539,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsValuesAddedFromDisjointSetPrimitive()
+    void containsValuesAddedFromDisjointSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -501,7 +555,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsValuesAddedFromDisjointSet()
+    void containsValuesAddedFromDisjointSet()
     {
         addTwoElements(testSet);
 
@@ -517,7 +571,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsValuesAddedFromIntersectingSetPrimitive()
+    void containsValuesAddedFromIntersectingSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -533,7 +587,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void containsValuesAddedFromIntersectingSet()
+    void containsValuesAddedFromIntersectingSet()
     {
         addTwoElements(testSet);
 
@@ -549,7 +603,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void removingEmptySetDoesNothing()
+    void removingEmptySetDoesNothing()
     {
         addTwoElements(testSet);
 
@@ -559,7 +613,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void removingDisjointSetDoesNothing()
+    void removingDisjointSetDoesNothing()
     {
         addTwoElements(testSet);
 
@@ -574,7 +628,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void doesNotContainRemovedIntersectingSetPrimitive()
+    void doesNotContainRemovedIntersectingSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -589,7 +643,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void doesNotContainRemovedIntersectingSet()
+    void doesNotContainRemovedIntersectingSet()
     {
         addTwoElements(testSet);
 
@@ -604,7 +658,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void isEmptyAfterRemovingEqualSetPrimitive()
+    void isEmptyAfterRemovingEqualSetPrimitive()
     {
         addTwoElements(testSet);
 
@@ -617,7 +671,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void isEmptyAfterRemovingEqualSet()
+    void isEmptyAfterRemovingEqualSet()
     {
         addTwoElements(testSet);
 
@@ -630,7 +684,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void removeElementsFromIterator()
+    void removeElementsFromIterator()
     {
         addTwoElements(testSet);
 
@@ -648,13 +702,13 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldNotContainMissingValueInitially()
+    void shouldNotContainMissingValueInitially()
     {
         assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     @Test
-    public void shouldAllowMissingValue()
+    void shouldAllowMissingValue()
     {
         assertTrue(testSet.add(MISSING_VALUE));
 
@@ -664,7 +718,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldAllowRemovalOfMissingValue()
+    void shouldAllowRemovalOfMissingValue()
     {
         assertTrue(testSet.add(MISSING_VALUE));
 
@@ -676,7 +730,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void sizeAccountsForMissingValue()
+    void sizeAccountsForMissingValue()
     {
         testSet.add(1);
         testSet.add(MISSING_VALUE);
@@ -686,7 +740,7 @@ public class IntHashSetTest
 
     @Test
     @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-    public void toArrayCopiesElementsIntoNewArrayIncludingMissingValue()
+    void toArrayCopiesElementsIntoNewArrayIncludingMissingValue()
     {
         addTwoElements(testSet);
 
@@ -698,7 +752,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void toObjectArrayCopiesElementsIntoNewArrayIncludingMissingValue()
+    void toObjectArrayCopiesElementsIntoNewArrayIncludingMissingValue()
     {
         addTwoElements(testSet);
 
@@ -710,7 +764,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void equalsAccountsForMissingValue()
+    void equalsAccountsForMissingValue()
     {
         addTwoElements(testSet);
         testSet.add(MISSING_VALUE);
@@ -729,7 +783,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void consecutiveValuesShouldBeCorrectlyStored()
+    void consecutiveValuesShouldBeCorrectlyStored()
     {
         for (int i = 0; i < 10_000; i++)
         {
@@ -748,7 +802,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void hashCodeAccountsForMissingValue()
+    void hashCodeAccountsForMissingValue()
     {
         addTwoElements(testSet);
         testSet.add(MISSING_VALUE);
@@ -767,7 +821,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorAccountsForMissingValue()
+    void iteratorAccountsForMissingValue()
     {
         addTwoElements(testSet);
         testSet.add(MISSING_VALUE);
@@ -786,7 +840,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void iteratorCanRemoveMissingValue()
+    void iteratorCanRemoveMissingValue()
     {
         addTwoElements(testSet);
         testSet.add(MISSING_VALUE);
@@ -804,7 +858,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldGenerateStringRepresentation()
+    void shouldGenerateStringRepresentation()
     {
         final IntHashSet set = new IntHashSet(16, -9990999);
         final int[] testEntries = { -9990999, 3, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
@@ -819,7 +873,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldRemoveMissingValueWhenCleared()
+    void shouldRemoveMissingValueWhenCleared()
     {
         assertTrue(testSet.add(MISSING_VALUE));
 
@@ -829,7 +883,7 @@ public class IntHashSetTest
     }
 
     @Test
-    public void shouldHaveCompatibleEqualsAndHashcode()
+    void shouldHaveCompatibleEqualsAndHashcode()
     {
         final HashSet<Integer> compatibleSet = new HashSet<>();
         final long seed = System.nanoTime();

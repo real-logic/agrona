@@ -170,6 +170,16 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
+     * The missing value used by this set.
+     *
+     * @return missing value used by this set.
+     */
+    public int missingValue()
+    {
+        return missingValue;
+    }
+
+    /**
      * Get the load factor beyond which the set will increase size.
      *
      * @return load factor for when the set should increase size.
@@ -529,13 +539,13 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         IntHashSet difference = null;
 
-        final int[] values = this.values;
         final int missingValue = this.missingValue;
+        final int[] values = this.values;
         for (final int value : values)
         {
             if (missingValue != value && !other.contains(value))
             {
-                if (difference == null)
+                if (null == difference)
                 {
                     difference = new IntHashSet(DEFAULT_INITIAL_CAPACITY, missingValue);
                 }
@@ -544,12 +554,11 @@ public class IntHashSet extends AbstractSet<Integer>
             }
         }
 
-        // FIXME
-        if (other.containsMissingValue && !this.containsMissingValue)
+        if (containsMissingValue && !other.contains(missingValue))
         {
-            if (difference == null)
+            if (null == difference)
             {
-                difference = new IntHashSet();
+                difference = new IntHashSet(DEFAULT_INITIAL_CAPACITY, missingValue);
             }
 
             difference.add(missingValue);
@@ -579,6 +588,7 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         boolean removed = false;
         final int missingValue = this.missingValue;
+        final int[] values = this.values;
         for (final int value : values)
         {
             if (missingValue != value && filter.test(value))
@@ -736,18 +746,23 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Copye values from another {@link IntHashSet} into this one.
+     * Copy values from another {@link IntHashSet} into this one.
      *
      * @param that set to copy values from.
      */
     public void copy(final IntHashSet that)
     {
-        if (this.values.length != that.values.length)
+        if (values.length != that.values.length)
         {
             throw new IllegalArgumentException("cannot copy object: masks not equal");
         }
 
-        System.arraycopy(that.values, 0, this.values, 0, this.values.length);
+        if (missingValue != that.missingValue)
+        {
+            throw new IllegalArgumentException("cannot copy object: missing value not equal");
+        }
+
+        System.arraycopy(that.values, 0, values, 0, values.length);
         this.sizeOfArrayValues = that.sizeOfArrayValues;
         this.containsMissingValue = that.containsMissingValue;
     }
