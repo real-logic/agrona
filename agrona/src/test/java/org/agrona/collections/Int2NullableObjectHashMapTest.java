@@ -461,4 +461,25 @@ class Int2NullableObjectHashMapTest
         verify(remappingFunction).apply(value, newValue);
         verifyNoMoreInteractions(remappingFunction);
     }
+
+    @Test
+    void removeIfIntOnEntrySet()
+    {
+        final Int2NullableObjectHashMap<String> map = new Int2NullableObjectHashMap<>();
+        final IntObjPredicate<String> filter = (key, value) -> (key & 1) == 0 || null == value;
+        map.put(1, "one");
+        map.put(2, "two");
+        map.put(3, "three");
+        map.put(4, "four");
+        map.put(5, null);
+
+        assertTrue(map.entrySet().removeIfInt(filter));
+
+        assertEquals(2, map.size());
+        assertEquals("one", map.get(1));
+        assertEquals("three", map.get(3));
+
+        assertFalse(map.entrySet().removeIfInt(filter));
+        assertEquals(2, map.size());
+    }
 }

@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -689,5 +690,35 @@ class Int2ObjectCacheTest
         assertEquals("2", cache.get(2));
         assertEquals("3", cache.get(3));
         assertEquals("42", cache.get(42));
+    }
+
+    @Test
+    void removeIfOnKeySet()
+    {
+        final Predicate<Integer> filter = (key) -> true;
+
+        final UnsupportedOperationException exception =
+            assertThrowsExactly(UnsupportedOperationException.class, () -> cache.keySet().removeIf(filter));
+        assertEquals("Cannot remove from KeySet", exception.getMessage());
+    }
+
+    @Test
+    void removeIfOnValuesCollection()
+    {
+        final Predicate<String> filter = (value) -> value.contains("e");
+
+        final UnsupportedOperationException exception =
+            assertThrowsExactly(UnsupportedOperationException.class, () -> cache.values().removeIf(filter));
+        assertEquals("Cannot remove from ValueCollection", exception.getMessage());
+    }
+
+    @Test
+    void removeIfOnEntrySetThrowsUnsupportedOperationException()
+    {
+        final Predicate<Map.Entry<Integer, String>> filter = (entry) -> true;
+
+        final UnsupportedOperationException exception =
+            assertThrowsExactly(UnsupportedOperationException.class, () -> cache.entrySet().removeIf(filter));
+        assertEquals("Cannot remove from EntrySet", exception.getMessage());
     }
 }

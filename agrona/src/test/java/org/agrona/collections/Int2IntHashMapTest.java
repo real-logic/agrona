@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -1105,6 +1106,62 @@ public class Int2IntHashMapTest
         final IllegalArgumentException exception =
             assertThrowsExactly(IllegalArgumentException.class, () -> map.putAll(otherMap));
         assertEquals("cannot accept missingValue", exception.getMessage());
+    }
+
+    @Test
+    void removeIfIntOnKeySet()
+    {
+        final IntPredicate filter = (v) -> v < 3;
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+        map.put(4, 4);
+
+        assertTrue(map.keySet().removeIfInt(filter));
+
+        assertEquals(2, map.size());
+        assertEquals(3, map.get(3));
+        assertEquals(4, map.get(4));
+
+        assertFalse(map.keySet().removeIfInt(filter));
+        assertEquals(2, map.size());
+    }
+
+    @Test
+    void removeIfIntOnValuesCollection()
+    {
+        final IntPredicate filter = (v) -> v >= 20;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(3, 30);
+        map.put(4, 40);
+
+        assertTrue(map.values().removeIfInt(filter));
+
+        assertEquals(1, map.size());
+        assertEquals(10, map.get(1));
+
+        assertFalse(map.values().removeIfInt(filter));
+        assertEquals(1, map.size());
+    }
+
+    @Test
+    void removeIfIntOnEntrySet()
+    {
+        final IntIntPredicate filter = (k, v) -> k >= 2 && v <= 30;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(3, 30);
+        map.put(4, 40);
+
+        assertTrue(map.entrySet().removeIfInt(filter));
+
+        assertEquals(2, map.size());
+        assertEquals(10, map.get(1));
+        assertEquals(40, map.get(4));
+
+        assertFalse(map.entrySet().removeIfInt(filter));
+        assertEquals(2, map.size());
     }
 
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)

@@ -22,6 +22,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
 import static java.util.Objects.*;
@@ -1419,6 +1420,30 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             return containsKey(key);
         }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         * <p>
+         * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+         * expression, which doesn't play well with type inference in lambda expressions.
+         *
+         * @param filter a predicate to apply.
+         * @return {@code true} if at least one key was removed.
+         */
+        public boolean removeIfInt(final IntPredicate filter)
+        {
+            boolean removed = false;
+            final KeyIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                if (filter.test(iterator.nextValue()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
+        }
     }
 
     /**
@@ -1469,6 +1494,30 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         public boolean contains(final int value)
         {
             return containsValue(value);
+        }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         * <p>
+         * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+         * expression, which doesn't play well with type inference in lambda expressions.
+         *
+         * @param filter a predicate to apply.
+         * @return {@code true} if at least one value was removed.
+         */
+        public boolean removeIfInt(final IntPredicate filter)
+        {
+            boolean removed = false;
+            final ValueIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                if (filter.test(iterator.nextValue()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
         }
     }
 
@@ -1532,6 +1581,31 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             final Integer value = get(entry.getKey());
 
             return value != null && value.equals(entry.getValue());
+        }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         * <p>
+         * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+         * expression, which doesn't play well with type inference in lambda expressions.
+         *
+         * @param filter a predicate to apply.
+         * @return {@code true} if at least one entry was removed.
+         */
+        public boolean removeIfInt(final IntIntPredicate filter)
+        {
+            boolean removed = false;
+            final EntryIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                iterator.findNext();
+                if (filter.test(iterator.getIntKey(), iterator.getIntValue()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
         }
 
         /**

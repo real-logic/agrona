@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -848,5 +850,60 @@ class Int2ObjectHashMapTest
         final NullPointerException exception =
             assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.putAll(otherMap));
         assertEquals("value cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void removeIfIntOnKeySet()
+    {
+        final IntPredicate filter = (key) -> (key & 1) == 0;
+        intToObjectMap.put(1, "one");
+        intToObjectMap.put(2, "two");
+        intToObjectMap.put(3, "three");
+
+        assertTrue(intToObjectMap.keySet().removeIfInt(filter));
+
+        assertEquals(2, intToObjectMap.size());
+        assertEquals("one", intToObjectMap.get(1));
+        assertEquals("three", intToObjectMap.get(3));
+
+        assertFalse(intToObjectMap.keySet().removeIfInt(filter));
+        assertEquals(2, intToObjectMap.size());
+    }
+
+    @Test
+    void removeIfOnValuesCollection()
+    {
+        final Predicate<String> filter = (value) -> value.contains("e");
+        intToObjectMap.put(1, "one");
+        intToObjectMap.put(2, "two");
+        intToObjectMap.put(3, "three");
+
+        assertTrue(intToObjectMap.values().removeIf(filter));
+
+        assertEquals(1, intToObjectMap.size());
+        assertEquals("two", intToObjectMap.get(2));
+
+        assertFalse(intToObjectMap.values().removeIf(filter));
+        assertEquals(1, intToObjectMap.size());
+    }
+
+    @Test
+    void removeIfIntOnEntrySet()
+    {
+        final IntObjPredicate<String> filter = (key, value) -> (key & 1) == 0 && value.startsWith("t");
+        intToObjectMap.put(1, "one");
+        intToObjectMap.put(2, "two");
+        intToObjectMap.put(3, "three");
+        intToObjectMap.put(4, "four");
+
+        assertTrue(intToObjectMap.entrySet().removeIfInt(filter));
+
+        assertEquals(3, intToObjectMap.size());
+        assertEquals("one", intToObjectMap.get(1));
+        assertEquals("three", intToObjectMap.get(3));
+        assertEquals("four", intToObjectMap.get(4));
+
+        assertFalse(intToObjectMap.entrySet().removeIfInt(filter));
+        assertEquals(3, intToObjectMap.size());
     }
 }

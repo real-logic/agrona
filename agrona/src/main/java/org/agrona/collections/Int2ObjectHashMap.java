@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 
 import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -1115,6 +1116,30 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         {
             Int2ObjectHashMap.this.clear();
         }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         * <p>
+         * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+         * expression, which doesn't play well with type inference in lambda expressions.
+         *
+         * @param filter a predicate to apply.
+         * @return {@code true} if at least one key was removed.
+         */
+        public boolean removeIfInt(final IntPredicate filter)
+        {
+            boolean removed = false;
+            final KeyIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                if (filter.test(iterator.nextInt()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
+        }
     }
 
     /**
@@ -1236,6 +1261,31 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             final int key = (Integer)entry.getKey();
             final V value = getMapped(key);
             return null != value && value.equals(mapNullValue(entry.getValue()));
+        }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         * <p>
+         * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+         * expression, which doesn't play well with type inference in lambda expressions.
+         *
+         * @param filter a predicate to apply.
+         * @return {@code true} if at least one key was removed.
+         */
+        public boolean removeIfInt(final IntObjPredicate<V> filter)
+        {
+            boolean removed = false;
+            final EntryIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                iterator.findNext();
+                if (filter.test(iterator.getIntKey(), iterator.getValue()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
         }
 
         /**

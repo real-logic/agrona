@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
@@ -990,7 +991,15 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
          */
         public boolean remove(final Object o)
         {
-            throw new UnsupportedOperationException("Cannot remove on iterator");
+            throw new UnsupportedOperationException("Cannot remove from KeySet");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean removeIf(final Predicate<? super Integer> filter)
+        {
+            throw new UnsupportedOperationException("Cannot remove from KeySet");
         }
 
         /**
@@ -1042,6 +1051,22 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         {
             Int2ObjectCache.this.clear();
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean remove(final Object o)
+        {
+            throw new UnsupportedOperationException("Cannot remove from ValueCollection");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean removeIf(final Predicate<? super V> filter)
+        {
+            throw new UnsupportedOperationException("Cannot remove from ValueCollection");
+        }
     }
 
     /**
@@ -1075,6 +1100,22 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         public void clear()
         {
             Int2ObjectCache.this.clear();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean remove(final Object o)
+        {
+            throw new UnsupportedOperationException("Cannot remove from EntrySet");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean removeIf(final Predicate<? super Entry<Integer, V>> filter)
+        {
+            throw new UnsupportedOperationException("Cannot remove from EntrySet");
         }
     }
 
