@@ -28,6 +28,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -1083,6 +1085,72 @@ public class IntHashSetTest
         assertEquals(2, testSet.size());
         assertTrue(testSet.contains(1));
         assertTrue(testSet.contains(2));
+    }
+
+    @Test
+    void removeIfIntIsANoOpIfNoValuesMatchFilter()
+    {
+        final IntPredicate filter = (v) -> v < 0;
+        testSet.add(1);
+        testSet.add(2);
+        testSet.add(0);
+
+        assertFalse(testSet.removeIfInt(filter));
+
+        assertEquals(3, testSet.size());
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(2));
+        assertTrue(testSet.contains(0));
+    }
+
+    @Test
+    void removeIfIntDeletesAllMatchingValues()
+    {
+        final IntPredicate filter = (v) -> v < 0;
+        testSet.add(1);
+        testSet.add(-2);
+        testSet.add(0);
+        testSet.add(MISSING_VALUE);
+
+        assertTrue(testSet.removeIfInt(filter));
+
+        assertEquals(2, testSet.size());
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(0));
+        assertFalse(testSet.contains(MISSING_VALUE));
+    }
+
+    @Test
+    void removeIfIsANoOpIfNoValuesMatchFilter()
+    {
+        final Predicate<Integer> filter = (v) -> v < 0;
+        testSet.add(1);
+        testSet.add(2);
+        testSet.add(0);
+
+        assertFalse(testSet.removeIf(filter));
+
+        assertEquals(3, testSet.size());
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(2));
+        assertTrue(testSet.contains(0));
+    }
+
+    @Test
+    void removeIfDeletesAllMatchingValues()
+    {
+        final Predicate<Integer> filter = (v) -> v < 0;
+        testSet.add(1);
+        testSet.add(-2);
+        testSet.add(0);
+        testSet.add(MISSING_VALUE);
+
+        assertTrue(testSet.removeIf(filter));
+
+        assertEquals(2, testSet.size());
+        assertTrue(testSet.contains(1));
+        assertTrue(testSet.contains(0));
+        assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     private static void addTwoElements(final IntHashSet obj)

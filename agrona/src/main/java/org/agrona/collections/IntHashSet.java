@@ -20,6 +20,8 @@ import org.agrona.generation.DoNotSub;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -144,8 +146,8 @@ public class IntHashSet extends AbstractSet<Integer>
      * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
      *
      * @param proposedCapacity      for the initial capacity of the set.
-     * @param missingValue     used as a sentinel value to distinguish unset values from the set ones. Can still be
-     *                         added to the set though.
+     * @param missingValue          used as a sentinel value to distinguish unset values from the set ones. Can still be
+     *                              added to the set though.
      * @param loadFactor            to be used for resizing.
      * @param shouldAvoidAllocation should the iterator be cached to avoid further allocation.
      */
@@ -473,6 +475,7 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         boolean acc = false;
 
+        // FIXME: Missing value check is wrong....
         final int missingValue = this.missingValue;
         for (final int value : coll.values)
         {
@@ -548,6 +551,45 @@ public class IntHashSet extends AbstractSet<Integer>
         }
 
         return difference;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeIf(final Predicate<? super Integer> filter)
+    {
+        return super.removeIf(filter);
+    }
+
+    /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     * <p>
+     * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param filter which returns {@code true} for elements to be removed.
+     * @return {@code true} if any elements were removed.
+     */
+    public boolean removeIfInt(final IntPredicate filter)
+    {
+        boolean removed = false;
+        final int missingValue = this.missingValue;
+        for (final int value : values)
+        {
+            if (missingValue != value && filter.test(value))
+            {
+                remove(value);
+                removed = true;
+            }
+        }
+
+        if (containsMissingValue && filter.test(missingValue))
+        {
+            remove(missingValue);
+            removed = true;
+        }
+
+        return removed;
     }
 
     /**
