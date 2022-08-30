@@ -117,7 +117,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     /**
      * {@inheritDoc}
      */
-    public @DoNotSub int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -159,7 +159,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     {
         final int value = getInt(index);
 
-        return value == nullValue ? null : value;
+        return nullValue == value ? null : value;
     }
 
     /**

@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static org.agrona.collections.IntArrayList.DEFAULT_NULL_VALUE;
@@ -918,5 +920,50 @@ class IntArrayListTest
         assertEquals(1, list.getInt(1));
         assertEquals(5, list.getInt(2));
         assertEquals(DEFAULT_NULL_VALUE, list.getInt(3));
+    }
+
+    @Test
+    void removeIfIsANoOpIfNoValueMatchesTheFilter()
+    {
+        final Predicate<Integer> filter = Objects::isNull;
+        list.addInt(1);
+        list.addInt(2);
+
+        assertFalse(list.removeIf(filter));
+
+        assertEquals(2, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(2, list.getInt(1));
+    }
+
+    @Test
+    void removeIfRemovesNullValues()
+    {
+        final Predicate<Integer> filter = Objects::isNull;
+        list.addInt(1);
+        list.add(null);
+        list.addInt(5);
+        list.addInt(DEFAULT_NULL_VALUE);
+
+        assertTrue(list.removeIf(filter));
+
+        assertEquals(2, list.size());
+        assertEquals(1, list.getInt(0));
+        assertEquals(5, list.getInt(1));
+    }
+
+    @Test
+    void removeIfRemovesMatchingValues()
+    {
+        final Predicate<Integer> filter = (v) -> v > 2;
+        list.addInt(10);
+        list.addInt(5);
+        list.addInt(3);
+        list.addInt(2);
+
+        assertTrue(list.removeIf(filter));
+
+        assertEquals(1, list.size());
+        assertEquals(2, list.getInt(0));
     }
 }
