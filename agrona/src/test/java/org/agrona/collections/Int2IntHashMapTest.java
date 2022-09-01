@@ -843,6 +843,19 @@ public class Int2IntHashMapTest
     }
 
     @Test
+    void mergeThrowsIllegalArgumentExceptionIfValueIsMissingValue()
+    {
+        final int missingValue = 42;
+        final Int2IntHashMap map = new Int2IntHashMap(missingValue);
+        final int key = -9;
+        final IntIntFunction remappingFunction = mock(IntIntFunction.class);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.merge(key, missingValue, remappingFunction));
+        assertEquals("cannot accept missingValue", exception.getMessage());
+    }
+
+    @Test
     void mergeShouldPutANewKeyIntoTheMap()
     {
         final int key = -9;

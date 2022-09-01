@@ -17,7 +17,13 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -25,7 +31,7 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
@@ -243,12 +249,34 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int putIfAbsent(final int key, final int value)
     {
-        final int existingValue = get(key);
-        if (missingValue != existingValue)
+        final int missingValue = this.missingValue;
+        if (missingValue == value)
         {
-            return existingValue;
+            throw new IllegalArgumentException("cannot accept missingValue");
         }
-        return put(key, value);
+
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = entries[index + 1]))
+        {
+            if (key == entries[index])
+            {
+                return oldValue;
+            }
+
+            index = next(index, mask);
+        }
+
+        ++size;
+        entries[index] = key;
+        entries[index + 1] = value;
+
+        increaseCapacity();
+
+        return oldValue;
     }
 
     private void increaseCapacity()
@@ -295,8 +323,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      * Use {@link #forEachInt(IntIntConsumer)} instead.
      *
      * @param consumer a callback called for each key/value pair in the map.
-     * @deprecated Use {@link #forEachInt(IntIntConsumer)} instead.
      * @see #forEachInt(IntIntConsumer)
+     * @deprecated Use {@link #forEachInt(IntIntConsumer)} instead.
      */
     @Deprecated
     public void intForEach(final IntIntConsumer consumer)
@@ -318,9 +346,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
-        @DoNotSub int remaining = size;
 
-        for (@DoNotSub int valueIndex = 1; remaining > 0 && valueIndex < length; valueIndex += 2)
+        for (@DoNotSub int valueIndex = 1, remaining = size; remaining > 0 && valueIndex < length; valueIndex += 2)
         {
             if (missingValue != entries[valueIndex])
             {
@@ -435,7 +462,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link Map#computeIfPresent}.
+     * Primitive specialised version of {@link Map#computeIfPresent(Object, BiFunction)}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value if a mapping is found.
@@ -475,7 +502,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link Map#compute}.
+     * Primitive specialised version of {@link Map#compute(Object, BiFunction)}.
      *
      * @param key               to search on.
      * @param remappingFunction to compute a value.
@@ -717,11 +744,30 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public boolean remove(final int key, final int value)
     {
-        if (missingValue != value && value == get(key))
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = entries[keyIndex + 1]))
         {
-            remove(key);
-            return true;
+            if (key == entries[keyIndex])
+            {
+                if (value == oldValue)
+                {
+                    entries[keyIndex + 1] = missingValue;
+                    size--;
+
+                    compactChain(keyIndex);
+                    return true;
+                }
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
         }
+
         return false;
     }
 
@@ -738,16 +784,44 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public int merge(final int key, final int value, final IntIntFunction remappingFunction)
     {
         requireNonNull(remappingFunction);
-        final int oldValue = get(key);
-        final int newValue = missingValue == oldValue ? value : remappingFunction.apply(oldValue, value);
-        if (missingValue == newValue)
+        final int missingValue = this.missingValue;
+        if (missingValue == value)
         {
-            remove(key);
+            throw new IllegalArgumentException("cannot accept missingValue");
+        }
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int index = Hashing.evenHash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = entries[index + 1]))
+        {
+            if (key == entries[index])
+            {
+                break;
+            }
+
+            index = next(index, mask);
+        }
+
+        final int newValue = missingValue == oldValue ? value : remappingFunction.apply(oldValue, value);
+        if (missingValue != newValue)
+        {
+            entries[index + 1] = newValue;
+            if (oldValue == missingValue)
+            {
+                entries[index] = key;
+                size++;
+                increaseCapacity();
+            }
         }
         else
         {
-            put(key, newValue);
+            entries[index + 1] = missingValue;
+            size--;
+            compactChain(index);
         }
+
         return newValue;
     }
 
@@ -867,13 +941,24 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public int replace(final int key, final int value)
     {
-        int currentValue = get(key);
-        if (missingValue != currentValue)
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = entries[keyIndex + 1]))
         {
-            currentValue = put(key, value);
+            if (key == entries[keyIndex])
+            {
+                entries[keyIndex + 1] = value;
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
         }
 
-        return currentValue;
+        return oldValue;
     }
 
     /**
@@ -886,15 +971,28 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public boolean replace(final int key, final int oldValue, final int newValue)
     {
-        final int curValue = get(key);
-        if (curValue != oldValue || missingValue == curValue)
+        final int missingValue = this.missingValue;
+        final int[] entries = this.entries;
+        @DoNotSub final int mask = entries.length - 1;
+        @DoNotSub int keyIndex = Hashing.evenHash(key, mask);
+
+        int value;
+        while (missingValue != (value = entries[keyIndex + 1]))
         {
-            return false;
+            if (key == entries[keyIndex])
+            {
+                if (oldValue == value)
+                {
+                    entries[keyIndex + 1] = newValue;
+                    return true;
+                }
+                break;
+            }
+
+            keyIndex = next(keyIndex, mask);
         }
 
-        put(key, newValue);
-
-        return true;
+        return false;
     }
 
     /**
@@ -911,9 +1009,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final int missingValue = this.missingValue;
         final int[] entries = this.entries;
         @DoNotSub final int length = entries.length;
-        @DoNotSub int remaining = size;
 
-        for (@DoNotSub int valueIndex = 1; remaining > 0 && valueIndex < length; valueIndex += 2)
+        for (@DoNotSub int valueIndex = 1, remaining = size; remaining > 0 && valueIndex < length; valueIndex += 2)
         {
             final int existingValue = entries[valueIndex];
             if (missingValue != existingValue)
