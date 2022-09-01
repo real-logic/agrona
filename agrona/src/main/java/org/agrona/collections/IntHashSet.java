@@ -18,7 +18,12 @@ package org.agrona.collections;
 import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -48,8 +53,9 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
+    static final int MISSING_VALUE = -1;
+
     private final boolean shouldAvoidAllocation;
-    private final int missingValue;
     private boolean containsMissingValue;
     private final float loadFactor;
     @DoNotSub private int resizeThreshold;
@@ -81,21 +87,6 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed capacity, {@link Hashing#DEFAULT_LOAD_FACTOR}, iterator caching support and
-     * a given {@code missingValue}.
-     *
-     * @param proposedCapacity for the initial capacity of the set.
-     * @param missingValue     used as a sentinel value to distinguish unset values from the set ones. Can still be
-     *                         added to the set though.
-     */
-    public IntHashSet(
-        @DoNotSub final int proposedCapacity,
-        final int missingValue)
-    {
-        this(proposedCapacity, missingValue, Hashing.DEFAULT_LOAD_FACTOR, true);
-    }
-
-    /**
      * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code -1} as a
      * missing value.
      *
@@ -110,23 +101,6 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and a given
-     * {@code missingValue}.
-     *
-     * @param proposedCapacity for the initial capacity of the set.
-     * @param missingValue     used as a sentinel value to distinguish unset values from the set ones. Can still be
-     *                         added to the set though.
-     * @param loadFactor       to be used for resizing.
-     */
-    public IntHashSet(
-        @DoNotSub final int proposedCapacity,
-        final int missingValue,
-        final float loadFactor)
-    {
-        this(proposedCapacity, missingValue, loadFactor, true);
-    }
-
-    /**
      * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code -1} as a
      * missing value.
      *
@@ -139,24 +113,6 @@ public class IntHashSet extends AbstractSet<Integer>
         final float loadFactor,
         final boolean shouldAvoidAllocation)
     {
-        this(proposedCapacity, -1, loadFactor, shouldAvoidAllocation);
-    }
-
-    /**
-     * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
-     *
-     * @param proposedCapacity      for the initial capacity of the set.
-     * @param missingValue          used as a sentinel value to distinguish unset values from the set ones. Can still be
-     *                              added to the set though.
-     * @param loadFactor            to be used for resizing.
-     * @param shouldAvoidAllocation should the iterator be cached to avoid further allocation.
-     */
-    public IntHashSet(
-        @DoNotSub final int proposedCapacity,
-        final int missingValue,
-        final float loadFactor,
-        final boolean shouldAvoidAllocation)
-    {
         validateLoadFactor(loadFactor);
 
         this.shouldAvoidAllocation = shouldAvoidAllocation;
@@ -165,18 +121,7 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
-        this.missingValue = missingValue;
-        Arrays.fill(values, missingValue);
-    }
-
-    /**
-     * The missing value used by this set.
-     *
-     * @return missing value used by this set.
-     */
-    public int missingValue()
-    {
-        return missingValue;
+        Arrays.fill(values, MISSING_VALUE);
     }
 
     /**
@@ -223,12 +168,10 @@ public class IntHashSet extends AbstractSet<Integer>
      *
      * @param value the value to add.
      * @return true if the collection has changed, false otherwise.
-     * @throws IllegalArgumentException if value is missingValue.
      */
     public boolean add(final int value)
     {
-        final int missingValue = this.missingValue;
-        if (missingValue == value)
+        if (MISSING_VALUE == value)
         {
             final boolean previousContainsMissingValue = this.containsMissingValue;
             containsMissingValue = true;
@@ -240,7 +183,7 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub int index = Hashing.hash(value, mask);
 
         int oldValue;
-        while (missingValue != (oldValue = values[index]))
+        while (MISSING_VALUE != (oldValue = values[index]))
         {
             if (oldValue == value)
             {
@@ -276,19 +219,18 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         @DoNotSub final int capacity = newCapacity;
         @DoNotSub final int mask = newCapacity - 1;
-        resizeThreshold = (int)(newCapacity * loadFactor); // @DoNotSub
+        /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
         final int[] tempValues = new int[capacity];
-        final int missingValue = this.missingValue;
-        Arrays.fill(tempValues, missingValue);
+        Arrays.fill(tempValues, MISSING_VALUE);
 
         final int[] values = this.values;
         for (final int value : values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 @DoNotSub int newHash = Hashing.hash(value, mask);
-                while (missingValue != tempValues[newHash])
+                while (MISSING_VALUE != tempValues[newHash])
                 {
                     newHash = ++newHash & mask;
                 }
@@ -316,8 +258,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean remove(final int value)
     {
-        final int missingValue = this.missingValue;
-        if (missingValue == value)
+        if (MISSING_VALUE == value)
         {
             final boolean previousContainsMissingValue = this.containsMissingValue;
             containsMissingValue = false;
@@ -329,11 +270,11 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub int index = Hashing.hash(value, mask);
 
         int oldValue;
-        while (missingValue != (oldValue = values[index]))
+        while (MISSING_VALUE != (oldValue = values[index]))
         {
             if (oldValue == value)
             {
-                values[index] = missingValue;
+                values[index] = MISSING_VALUE;
                 compactChain(index);
                 sizeOfArrayValues--;
                 return true;
@@ -354,7 +295,6 @@ public class IntHashSet extends AbstractSet<Integer>
     @DoNotSub void compactChain(int deleteIndex)
     {
         final int[] values = this.values;
-        final int missingValue = this.missingValue;
         @DoNotSub final int mask = values.length - 1;
 
         @DoNotSub int index = deleteIndex;
@@ -362,7 +302,7 @@ public class IntHashSet extends AbstractSet<Integer>
         {
             index = next(index, mask);
             final int value = values[index];
-            if (missingValue == value)
+            if (MISSING_VALUE == value)
             {
                 return;
             }
@@ -374,7 +314,7 @@ public class IntHashSet extends AbstractSet<Integer>
             {
                 values[deleteIndex] = value;
 
-                values[index] = missingValue;
+                values[index] = MISSING_VALUE;
                 deleteIndex = index;
             }
         }
@@ -407,8 +347,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final int value)
     {
-        final int missingValue = this.missingValue;
-        if (missingValue == value)
+        if (MISSING_VALUE == value)
         {
             return containsMissingValue;
         }
@@ -417,7 +356,7 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub int index = Hashing.hash(value, mask);
 
         int existingValue;
-        while (missingValue != (existingValue = values[index]))
+        while (MISSING_VALUE != (existingValue = values[index]))
         {
             if (existingValue == value)
             {
@@ -453,7 +392,7 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         if (size() > 0)
         {
-            Arrays.fill(values, missingValue);
+            Arrays.fill(values, MISSING_VALUE);
             sizeOfArrayValues = 0;
             containsMissingValue = false;
         }
@@ -485,10 +424,9 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         boolean acc = false;
 
-        final int missingValue = coll.missingValue;
         for (final int value : coll.values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 acc |= add(value);
             }
@@ -496,7 +434,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
         if (coll.containsMissingValue)
         {
-            acc |= add(missingValue);
+            acc |= add(MISSING_VALUE);
         }
 
         return acc;
@@ -510,21 +448,15 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean containsAll(final IntHashSet coll)
     {
-        final int missingValue = coll.missingValue;
         for (final int value : coll.values)
         {
-            if (missingValue != value && !contains(value))
+            if (MISSING_VALUE != value && !contains(value))
             {
                 return false;
             }
         }
 
-        if (coll.containsMissingValue)
-        {
-            return contains(missingValue);
-        }
-
-        return true;
+        return containsMissingValue || !coll.containsMissingValue;
     }
 
     /**
@@ -539,29 +471,28 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         IntHashSet difference = null;
 
-        final int missingValue = this.missingValue;
         final int[] values = this.values;
         for (final int value : values)
         {
-            if (missingValue != value && !other.contains(value))
+            if (MISSING_VALUE != value && !other.contains(value))
             {
                 if (null == difference)
                 {
-                    difference = new IntHashSet(DEFAULT_INITIAL_CAPACITY, missingValue);
+                    difference = new IntHashSet();
                 }
 
                 difference.add(value);
             }
         }
 
-        if (containsMissingValue && !other.contains(missingValue))
+        if (containsMissingValue && !other.containsMissingValue)
         {
             if (null == difference)
             {
-                difference = new IntHashSet(DEFAULT_INITIAL_CAPACITY, missingValue);
+                difference = new IntHashSet();
             }
 
-            difference.add(missingValue);
+            difference.add(MISSING_VALUE);
         }
 
         return difference;
@@ -587,20 +518,19 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean removeIfInt(final IntPredicate filter)
     {
         boolean removed = false;
-        final int missingValue = this.missingValue;
         final int[] values = this.values;
         for (final int value : values)
         {
-            if (missingValue != value && filter.test(value))
+            if (MISSING_VALUE != value && filter.test(value))
             {
                 remove(value);
                 removed = true;
             }
         }
 
-        if (containsMissingValue && filter.test(missingValue))
+        if (containsMissingValue && filter.test(MISSING_VALUE))
         {
-            remove(missingValue);
+            remove(MISSING_VALUE);
             removed = true;
         }
 
@@ -633,10 +563,9 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         boolean removed = false;
 
-        final int missingValue = coll.missingValue;
         for (final int value : coll.values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 removed |= remove(value);
             }
@@ -644,7 +573,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
         if (coll.containsMissingValue)
         {
-            removed |= remove(missingValue);
+            removed |= remove(MISSING_VALUE);
         }
 
         return removed;
@@ -656,19 +585,18 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean retainAll(final Collection<?> coll)
     {
         boolean removed = false;
-        final int missingValue = this.missingValue;
         for (final int value : values)
         {
-            if (missingValue != value && !coll.contains(value))
+            if (MISSING_VALUE != value && !coll.contains(value))
             {
                 remove(value);
                 removed = true;
             }
         }
 
-        if (containsMissingValue && !coll.contains(missingValue))
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
         {
-            remove(missingValue);
+            remove(MISSING_VALUE);
             removed = true;
         }
         return removed;
@@ -684,19 +612,18 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean retainAll(final IntHashSet coll)
     {
         boolean removed = false;
-        final int missingValue = this.missingValue;
         for (final int value : values)
         {
-            if (missingValue != value && !coll.contains(value))
+            if (MISSING_VALUE != value && !coll.contains(value))
             {
                 remove(value);
                 removed = true;
             }
         }
 
-        if (containsMissingValue && !coll.contains(missingValue))
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
         {
-            remove(missingValue);
+            remove(MISSING_VALUE);
             removed = true;
         }
         return removed;
@@ -727,13 +654,12 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public void forEachInt(final IntConsumer action)
     {
-        final int missingValue = this.missingValue;
         if (sizeOfArrayValues > 0)
         {
             final int[] values = this.values;
             for (final int v : values)
             {
-                if (missingValue != v)
+                if (MISSING_VALUE != v)
                 {
                     action.accept(v);
                 }
@@ -741,7 +667,7 @@ public class IntHashSet extends AbstractSet<Integer>
         }
         if (containsMissingValue)
         {
-            action.accept(missingValue);
+            action.accept(MISSING_VALUE);
         }
     }
 
@@ -755,11 +681,6 @@ public class IntHashSet extends AbstractSet<Integer>
         if (values.length != that.values.length)
         {
             throw new IllegalArgumentException("cannot copy object: masks not equal");
-        }
-
-        if (missingValue != that.missingValue)
-        {
-            throw new IllegalArgumentException("cannot copy object: missing value not equal");
         }
 
         System.arraycopy(that.values, 0, values, 0, values.length);
@@ -776,10 +697,9 @@ public class IntHashSet extends AbstractSet<Integer>
         sb.append('{');
 
         final int[] values = this.values;
-        final int missingValue = this.missingValue;
         for (final int value : values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 sb.append(value).append(", ");
             }
@@ -787,7 +707,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
         if (containsMissingValue)
         {
-            sb.append(missingValue).append(", ");
+            sb.append(MISSING_VALUE).append(", ");
         }
 
         if (sb.length() > 1)
@@ -834,10 +754,9 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         @DoNotSub int i = 0;
         final int[] values = this.values;
-        final int missingValue = this.missingValue;
         for (final int value : values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 arrayCopy[i++] = value;
             }
@@ -845,7 +764,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
         if (containsMissingValue)
         {
-            arrayCopy[sizeOfArrayValues] = missingValue;
+            arrayCopy[sizeOfArrayValues] = MISSING_VALUE;
         }
     }
 
@@ -895,10 +814,9 @@ public class IntHashSet extends AbstractSet<Integer>
     @DoNotSub public int hashCode()
     {
         @DoNotSub int hashCode = 0;
-        final int missingValue = this.missingValue;
         for (final int value : values)
         {
-            if (missingValue != value)
+            if (MISSING_VALUE != value)
             {
                 hashCode += Integer.hashCode(value);
             }
@@ -906,7 +824,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
         if (containsMissingValue)
         {
-            hashCode += Integer.hashCode(missingValue);
+            hashCode += Integer.hashCode(MISSING_VALUE);
         }
 
         return hashCode;
@@ -930,12 +848,11 @@ public class IntHashSet extends AbstractSet<Integer>
             @DoNotSub final int length = values.length;
             @DoNotSub int i = length;
 
-            final int missingValue = IntHashSet.this.missingValue;
-            if (missingValue != values[length - 1])
+            if (MISSING_VALUE != values[length - 1])
             {
                 for (i = 0; i < length; i++)
                 {
-                    if (missingValue == values[i])
+                    if (MISSING_VALUE == values[i])
                     {
                         break;
                     }
@@ -987,7 +904,7 @@ public class IntHashSet extends AbstractSet<Integer>
                 remaining = 0;
                 isPositionValid = true;
 
-                return missingValue;
+                return MISSING_VALUE;
             }
 
             findNext();
@@ -1012,7 +929,7 @@ public class IntHashSet extends AbstractSet<Integer>
                 {
                     final int[] values = IntHashSet.this.values;
                     @DoNotSub final int position = position(values);
-                    values[position] = missingValue;
+                    values[position] = MISSING_VALUE;
                     --sizeOfArrayValues;
 
                     compactChain(position);
@@ -1032,11 +949,10 @@ public class IntHashSet extends AbstractSet<Integer>
             @DoNotSub final int mask = values.length - 1;
             isPositionValid = true;
 
-            final int missingValue = IntHashSet.this.missingValue;
             for (@DoNotSub int i = positionCounter - 1, stop = stopCounter; i >= stop; i--)
             {
                 @DoNotSub final int index = i & mask;
-                if (missingValue != values[index])
+                if (MISSING_VALUE != values[index])
                 {
                     positionCounter = i;
                     --remaining;

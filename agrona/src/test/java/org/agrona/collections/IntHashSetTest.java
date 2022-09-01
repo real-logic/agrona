@@ -31,6 +31,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
@@ -41,9 +42,8 @@ import static org.mockito.Mockito.*;
 public class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
-    private static final int MISSING_VALUE = -1;
 
-    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY, MISSING_VALUE);
+    private final IntHashSet testSet = new IntHashSet(INITIAL_CAPACITY);
 
     @Test
     void initiallyContainsNoElements()
@@ -223,25 +223,22 @@ public class IntHashSetTest
     @Test
     void differenceReturnsElementsOfTheOriginalSetThatNotContainedInTheOtherSet()
     {
-        final IntHashSet other = new IntHashSet(10, 10);
+        final IntHashSet other = new IntHashSet();
         other.add(10);
         other.add(1);
         other.add(5);
         other.add(42);
-        other.add(MISSING_VALUE);
-        final IntHashSet otherCopy = new IntHashSet(10, 10);
+        final IntHashSet otherCopy = new IntHashSet();
         otherCopy.copy(other);
         testSet.add(1);
         testSet.add(3);
         testSet.add(5);
         testSet.add(21);
-        testSet.add(MISSING_VALUE);
 
         final IntHashSet diff = testSet.difference(other);
 
         assertNotNull(diff);
         assertEquals(2, diff.size());
-        assertEquals(MISSING_VALUE, diff.missingValue());
         assertTrue(diff.contains(3));
         assertTrue(diff.contains(21));
 
@@ -251,18 +248,17 @@ public class IntHashSetTest
     @Test
     void differenceReturnsASetWithOnlyAMissingValueIfItIsNotContainedInAnotherSet()
     {
-        final IntHashSet one = new IntHashSet(1, 1);
+        final IntHashSet one = new IntHashSet();
         one.add(1);
         one.add(5);
-        final IntHashSet two = new IntHashSet(1, 2);
-        two.add(2);
+        final IntHashSet two = new IntHashSet();
+        two.add(MISSING_VALUE);
 
         final IntHashSet diff = two.difference(one);
 
         assertNotNull(diff);
         assertEquals(1, diff.size());
-        assertEquals(2, diff.missingValue());
-        assertTrue(diff.contains(2));
+        assertTrue(diff.contains(MISSING_VALUE));
         assertFalse(diff.contains(1));
         assertFalse(diff.contains(5));
     }
@@ -270,18 +266,17 @@ public class IntHashSetTest
     @Test
     void differenceReturnsASetWithAMissingValueIfItIsNotContainedInAnotherSet()
     {
-        final IntHashSet one = new IntHashSet(1, 1);
-        one.add(1);
+        final IntHashSet one = new IntHashSet();
+        one.add(MISSING_VALUE);
         one.add(5);
-        final IntHashSet two = new IntHashSet(1, 2);
+        final IntHashSet two = new IntHashSet();
         two.add(2);
 
         final IntHashSet diff = one.difference(two);
 
         assertNotNull(diff);
         assertEquals(2, diff.size());
-        assertEquals(1, diff.missingValue());
-        assertTrue(diff.contains(1));
+        assertTrue(diff.contains(MISSING_VALUE));
         assertTrue(diff.contains(5));
         assertFalse(diff.contains(2));
     }
@@ -860,15 +855,15 @@ public class IntHashSetTest
     @Test
     void shouldGenerateStringRepresentation()
     {
-        final IntHashSet set = new IntHashSet(16, -9990999);
-        final int[] testEntries = { -9990999, 3, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
+        final IntHashSet set = new IntHashSet(16);
+        final int[] testEntries = { MISSING_VALUE, 3, 0, 1, -1, 19, 7, 11, 12, 7, -1, 3, 3, -1 };
 
         for (final int testEntry : testEntries)
         {
             set.add(testEntry);
         }
 
-        final String mapAsAString = "{-1, 12, 3, 7, 11, 1, 19, -9990999}";
+        final String mapAsAString = "{0, 12, 3, 7, 11, 1, 19, -1}";
         assertThat(set.toString(), equalTo(mapAsAString));
     }
 
@@ -967,7 +962,7 @@ public class IntHashSetTest
     @Test
     void forEachIntShouldInvokeConsumerWithEveryValueAddedToTheSet()
     {
-        final IntHashSet set = new IntHashSet(1, -1000);
+        final IntHashSet set = new IntHashSet(1);
         final IntConsumer consumer = mock(IntConsumer.class);
 
         set.add(-999);
@@ -989,19 +984,17 @@ public class IntHashSetTest
     @Test
     void forEachIntShouldInvokeConsumerWithTheMissingValueAtTheIfOneWasAddedToTheSet()
     {
-        final int missingValue = 42;
-        final IntHashSet set = new IntHashSet(5, missingValue);
+        final IntHashSet set = new IntHashSet(5);
         final IntConsumer consumer = mock(IntConsumer.class);
 
-        set.add(missingValue);
-        set.add(-1);
-        set.add(missingValue);
+        set.add(MISSING_VALUE);
+        set.add(44);
 
         set.forEachInt(consumer);
 
         final InOrder inOrder = inOrder(consumer);
-        inOrder.verify(consumer).accept(-1);
-        inOrder.verify(consumer).accept(missingValue);
+        inOrder.verify(consumer).accept(44);
+        inOrder.verify(consumer).accept(MISSING_VALUE);
         verifyNoMoreInteractions(consumer);
     }
 
@@ -1056,7 +1049,7 @@ public class IntHashSetTest
     @Test
     void retainAllIsANoOpIfCollectionHasAllOfTheElementsFromTheSet()
     {
-        final IntHashSet coll = new IntHashSet(2, 42);
+        final IntHashSet coll = new IntHashSet(2);
         coll.addAll(Arrays.asList(0, 5, -3, 42, 21, MISSING_VALUE));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
@@ -1092,7 +1085,7 @@ public class IntHashSetTest
     @Test
     void retainAllRemovesMissingValueWhichWasAddedToTheSet()
     {
-        final IntHashSet coll = new IntHashSet(5, 0);
+        final IntHashSet coll = new IntHashSet(5);
         coll.addAll(Arrays.asList(42, 42, 42, 0, 500));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
@@ -1107,7 +1100,7 @@ public class IntHashSetTest
     @Test
     void removeAllIsANoOpIfTwoCollectionsHaveNoValuesInCommon()
     {
-        final IntHashSet other = new IntHashSet(10, 100);
+        final IntHashSet other = new IntHashSet(10);
         other.add(4);
         other.add(5);
         other.add(100);
@@ -1126,13 +1119,13 @@ public class IntHashSetTest
     @Test
     void removeAllRemovesMissingValueOfTheOtherSet()
     {
-        final IntHashSet other = new IntHashSet(10, 100);
+        final IntHashSet other = new IntHashSet(10);
         other.add(4);
         other.add(5);
-        other.add(100);
+        other.add(MISSING_VALUE);
         testSet.add(1);
         testSet.add(2);
-        testSet.add(100);
+        testSet.add(MISSING_VALUE);
 
         assertTrue(testSet.removeAll(other));
 
@@ -1210,7 +1203,7 @@ public class IntHashSetTest
     @Test
     void addAllShouldAddOnlyNonMissingValuesIfTheSourceListDoesNotContainExplicitMissingValue()
     {
-        final IntHashSet other = new IntHashSet(5, 888);
+        final IntHashSet other = new IntHashSet(5);
         other.add(1);
         other.add(2);
         other.add(3);
@@ -1233,7 +1226,7 @@ public class IntHashSetTest
     @Test
     void addAllShouldAddMissingVaueFromAnotherSet()
     {
-        final IntHashSet other = new IntHashSet(5, 3);
+        final IntHashSet other = new IntHashSet(5);
         other.add(1);
         other.add(2);
         other.add(3);
@@ -1252,7 +1245,7 @@ public class IntHashSetTest
     @Test
     void containsAllReturnsTrueIfTheSetContainsAllNonMissingValues()
     {
-        final IntHashSet other = new IntHashSet(2, 9);
+        final IntHashSet other = new IntHashSet(2);
         other.add(0);
         other.add(2);
         other.add(4);
@@ -1269,7 +1262,7 @@ public class IntHashSetTest
     @Test
     void containsAllReturnsTrueIfTheSetContainsTheMissingValueOfAnotherSet()
     {
-        final IntHashSet other = new IntHashSet(2, 9);
+        final IntHashSet other = new IntHashSet(2);
         other.add(9);
         testSet.add(9);
 
