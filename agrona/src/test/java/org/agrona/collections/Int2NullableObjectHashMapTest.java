@@ -81,10 +81,6 @@ class Int2NullableObjectHashMapTest
 
         assertTrue(map.replace(key, value, newValue));
         assertEquals(newValue, map.get(key));
-
-        assertTrue(map.replace(key, newValue, null));
-        assertEquals(1, map.size());
-        assertNull(map.get(key));
     }
 
     @Test
@@ -363,7 +359,12 @@ class Int2NullableObjectHashMapTest
         map.put(key, oldValue);
         map.put(5, "five");
         final String newValue = key + oldValue;
-        final IntObjectToObjectFunction<String, String> remappingFunction = (k, v) -> k + v;
+        final IntObjectToObjectFunction<String, String> remappingFunction = (k, v) ->
+        {
+            assertEquals(key, k);
+            assertEquals(oldValue, v);
+            return k + v;
+        };
 
         assertEquals(newValue, map.compute(key, remappingFunction));
 
@@ -481,5 +482,33 @@ class Int2NullableObjectHashMapTest
 
         assertFalse(map.entrySet().removeIfInt(filter));
         assertEquals(2, map.size());
+    }
+
+    @Test
+    void forEachIntShouldUnmapNullValuesBeforeInvokingTheAction()
+    {
+        final Int2NullableObjectHashMap<String> map = new Int2NullableObjectHashMap<>();
+        map.put(1, "one");
+        map.put(2, null);
+        map.put(3, "three");
+        map.put(4, null);
+        final MutableInteger count = new MutableInteger();
+        final IntObjConsumer<String> action = (k, v) ->
+        {
+            count.increment();
+            if ((k & 1) == 0)
+            {
+                assertNull(v);
+            }
+            else
+            {
+                assertNotNull(v);
+            }
+        };
+
+        map.forEachInt(action);
+
+        assertEquals(4, count.get());
+        assertEquals(4, map.size());
     }
 }

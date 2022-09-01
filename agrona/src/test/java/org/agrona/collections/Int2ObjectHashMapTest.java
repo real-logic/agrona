@@ -155,7 +155,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldCompute()
+    void shouldCompute()
     {
         final int testKey = 7;
         final String testValue = "Seven";
@@ -170,7 +170,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldComputeBoxed()
+    void shouldComputeBoxed()
     {
         final Map<Integer, String> intToObjectMap = this.intToObjectMap;
 
@@ -186,7 +186,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsent()
+    void shouldComputeIfAbsent()
     {
         final int testKey = 7;
         final String testValue = "Seven";
@@ -202,7 +202,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsentBoxed()
+    void shouldComputeIfAbsentBoxed()
     {
         final Map<Integer, String> intToObjectMap = this.intToObjectMap;
 
@@ -218,7 +218,7 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldComputeIfPresent()
+    void shouldComputeIfPresent()
     {
         final int testKey = 7;
         final String testValue = "Seven";
@@ -233,7 +233,29 @@ class Int2ObjectHashMapTest
     }
 
     @Test
-    public void shouldComputeIfPresentBoxed()
+    void computeIfPresentShouldDeleteExistingEntryIfFunctionReturnsNull()
+    {
+        intToObjectMap.put(1, "one");
+        final int key = 3;
+        final String value = "three";
+        intToObjectMap.put(key, value);
+        final IntObjectToObjectFunction<String, String> function = (k, v) ->
+        {
+            assertEquals(key, k);
+            assertEquals(value, v);
+            return null;
+        };
+
+        assertNull(intToObjectMap.computeIfPresent(key, function));
+
+        assertEquals(1, intToObjectMap.size());
+        assertEquals("one", intToObjectMap.get(1));
+        assertFalse(intToObjectMap.containsKey(key));
+        assertFalse(intToObjectMap.containsValue(value));
+    }
+
+    @Test
+    void shouldComputeIfPresentBoxed()
     {
         final Map<Integer, String> intToObjectMap = this.intToObjectMap;
 
@@ -711,6 +733,14 @@ class Int2ObjectHashMapTest
     }
 
     @Test
+    void replaceThrowsNullPointerExceptionIfValueIsNull()
+    {
+        final NullPointerException exception =
+            assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.replace(42, null));
+        assertEquals("value cannot be null", exception.getMessage());
+    }
+
+    @Test
     void replaceReturnsNullForAnUnknownKey()
     {
         intToObjectMap.put(1, "one");
@@ -731,6 +761,14 @@ class Int2ObjectHashMapTest
         assertEquals(oldValue, intToObjectMap.replace(key, newValue));
 
         assertEquals(newValue, intToObjectMap.get(key));
+    }
+
+    @Test
+    void replaceThrowsNullPointerExceptionIfNewValueIsNull()
+    {
+        final NullPointerException exception =
+            assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.replace(42, "abc", null));
+        assertEquals("value cannot be null", exception.getMessage());
     }
 
     @Test
@@ -817,6 +855,14 @@ class Int2ObjectHashMapTest
 
         assertEquals(newValue, intToObjectMap.get(key));
         assertEquals("three", intToObjectMap.get(3));
+    }
+
+    @Test
+    void putIfAbsentThrowsNullPointerExceptionIfValueIsNull()
+    {
+        final NullPointerException exception =
+            assertThrowsExactly(NullPointerException.class, () -> intToObjectMap.putIfAbsent(42, null));
+        assertEquals("value cannot be null", exception.getMessage());
     }
 
     @Test
