@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntArrayQueueTest
+class IntArrayQueueTest
 {
     @Test
-    public void shouldDefaultInitialise()
+    void shouldDefaultInitialise()
     {
         final IntArrayQueue queue = new IntArrayQueue();
 
@@ -32,7 +32,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldOfferThenPoll()
+    void shouldOfferThenPoll()
     {
         final IntArrayQueue queue = new IntArrayQueue();
         final Integer element = 7;
@@ -45,7 +45,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldForEachWithoutBoxing()
+    void shouldForEachWithoutBoxing()
     {
         final IntArrayQueue queue = new IntArrayQueue();
         final IntArrayList expected = new IntArrayList();
@@ -63,7 +63,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldClear()
+    void shouldClear()
     {
         final IntArrayQueue queue = new IntArrayQueue();
 
@@ -78,7 +78,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldOfferThenPollWithoutBoxing()
+    void shouldOfferThenPollWithoutBoxing()
     {
         final IntArrayQueue queue = new IntArrayQueue();
         final int count = 20;
@@ -101,7 +101,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldPeek()
+    void shouldPeek()
     {
         final int nullValue = -1;
         final IntArrayQueue queue = new IntArrayQueue(nullValue);
@@ -114,7 +114,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldPeekWithoutBoxing()
+    void shouldPeekWithoutBoxing()
     {
         final int nullValue = -1;
         final IntArrayQueue queue = new IntArrayQueue(nullValue);
@@ -126,7 +126,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldIterate()
+    void shouldIterate()
     {
         final IntArrayQueue queue = new IntArrayQueue();
         final int count = 20;
@@ -147,7 +147,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldIterateWithoutBoxing()
+    void shouldIterateWithoutBoxing()
     {
         final IntArrayQueue queue = new IntArrayQueue();
         final int count = 20;
@@ -168,7 +168,7 @@ public class IntArrayQueueTest
     }
 
     @Test
-    public void shouldIterateEmptyQueue()
+    void shouldIterateEmptyQueue()
     {
         final IntArrayQueue queue = new IntArrayQueue();
 

@@ -21,7 +21,7 @@ import java.util.Queue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ArrayQueuePeekTest
+class ArrayQueuePeekTest
 {
     private static final int REPETITIONS = 10_000_000;
     private static final int QUEUE_CAPACITY = 128;
@@ -32,7 +32,7 @@ public class ArrayQueuePeekTest
     private Thread producerThread;
 
     @AfterEach
-    public void after()
+    void after()
     {
         if (null != producerThread)
         {
@@ -42,7 +42,7 @@ public class ArrayQueuePeekTest
 
     @Test
     @Timeout(10)
-    public void shouldPeekThenPollSameElement()
+    void shouldPeekThenPollSameElement()
     {
         producerThread = new Thread(producer);
         producerThread.start();

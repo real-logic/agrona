@@ -30,16 +30,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.JRE.JAVA_9;
 import static org.mockito.Mockito.*;
 
-public class BufferUtilTest
+class BufferUtilTest
 {
     @Test
-    public void shouldDetectNonPowerOfTwoAlignment()
+    void shouldDetectNonPowerOfTwoAlignment()
     {
         assertThrows(IllegalArgumentException.class, () -> BufferUtil.allocateDirectAligned(1, 3));
     }
 
     @Test
-    public void shouldAlignToWordBoundary()
+    void shouldAlignToWordBoundary()
     {
         final int capacity = 128;
         final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, SIZE_OF_LONG);
@@ -50,7 +50,7 @@ public class BufferUtilTest
     }
 
     @Test
-    public void shouldAlignToCacheLineBoundary()
+    void shouldAlignToCacheLineBoundary()
     {
         final int capacity = 128;
         final ByteBuffer byteBuffer = BufferUtil.allocateDirectAligned(capacity, CACHE_LINE_LENGTH);
@@ -61,19 +61,19 @@ public class BufferUtilTest
     }
 
     @Test
-    public void freeIsAnOpIfDirectBufferIsNull()
+    void freeIsAnOpIfDirectBufferIsNull()
     {
         BufferUtil.free((DirectBuffer)null);
     }
 
     @Test
-    public void freeIsAnOpIfByteBufferIsNull()
+    void freeIsAnOpIfByteBufferIsNull()
     {
         BufferUtil.free((ByteBuffer)null);
     }
 
     @Test
-    public void freeIsAnOpIfByteBufferIsNotDirect()
+    void freeIsAnOpIfByteBufferIsNotDirect()
     {
         final ByteBuffer buffer = mock(ByteBuffer.class);
 
@@ -84,7 +84,7 @@ public class BufferUtilTest
     }
 
     @Test
-    public void freeIsAnOpIfDirectBufferContainsNonDirectByteBuffer()
+    void freeIsAnOpIfDirectBufferContainsNonDirectByteBuffer()
     {
         final DirectBuffer buffer = mock(DirectBuffer.class);
         final ByteBuffer byteBuffer = mock(ByteBuffer.class);
@@ -99,7 +99,7 @@ public class BufferUtilTest
     }
 
     @Test
-    public void freeShouldReleaseByteBufferResources()
+    void freeShouldReleaseByteBufferResources()
     {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
         buffer.put((byte)1);
@@ -111,7 +111,7 @@ public class BufferUtilTest
     }
 
     @Test
-    public void freeShouldReleaseDirectBufferResources()
+    void freeShouldReleaseDirectBufferResources()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(4));
         buffer.setMemory(0, 4, (byte)111);
@@ -121,7 +121,7 @@ public class BufferUtilTest
 
     @Test
     @EnabledForJreRange(min = JAVA_9)
-    public void freeThrowsIllegalArgumentExceptionIfByteBufferIsASlice()
+    void freeThrowsIllegalArgumentExceptionIfByteBufferIsASlice()
     {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(4).slice();
 
@@ -130,7 +130,7 @@ public class BufferUtilTest
 
     @Test
     @EnabledForJreRange(min = JAVA_9)
-    public void freeThrowsIllegalArgumentExceptionIfByteBufferIsADuplicate()
+    void freeThrowsIllegalArgumentExceptionIfByteBufferIsADuplicate()
     {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(4).duplicate();
 

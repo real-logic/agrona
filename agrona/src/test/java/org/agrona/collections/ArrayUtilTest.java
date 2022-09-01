@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class ArrayUtilTest
+class ArrayUtilTest
 {
     // Reference Equality
     private static final Integer ONE = 1;
@@ -29,7 +29,7 @@ public class ArrayUtilTest
     private final Integer[] values = { ONE, TWO };
 
     @Test
-    public void shouldNotRemoveMissingElement()
+    void shouldNotRemoveMissingElement()
     {
         final Integer[] result = ArrayUtil.remove(values, THREE);
 
@@ -37,7 +37,7 @@ public class ArrayUtilTest
     }
 
     @Test
-    public void shouldRemovePresentElementAtEnd()
+    void shouldRemovePresentElementAtEnd()
     {
         final Integer[] result = ArrayUtil.remove(values, TWO);
 
@@ -45,7 +45,7 @@ public class ArrayUtilTest
     }
 
     @Test
-    public void shouldRemovePresentElementAtStart()
+    void shouldRemovePresentElementAtStart()
     {
         final Integer[] result = ArrayUtil.remove(values, ONE);
 
@@ -53,7 +53,7 @@ public class ArrayUtilTest
     }
 
     @Test
-    public void shouldRemoveByIndex()
+    void shouldRemoveByIndex()
     {
         final Integer[] result = ArrayUtil.remove(values, 0);
 

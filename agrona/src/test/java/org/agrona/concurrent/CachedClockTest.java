@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CachedClockTest
+class CachedClockTest
 {
     @Test
-    public void shouldUpdateNanoClock()
+    void shouldUpdateNanoClock()
     {
         final long timestamp = 777L;
 
@@ -35,7 +35,7 @@ public class CachedClockTest
     }
 
     @Test
-    public void shouldUpdateEpochClock()
+    void shouldUpdateEpochClock()
     {
         final long timestamp = 333L;
 

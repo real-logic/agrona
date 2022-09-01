@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SemanticVersionTest
+class SemanticVersionTest
 {
     @Test
-    public void shouldComposeValidVersion()
+    void shouldComposeValidVersion()
     {
         final int major = 17;
         final int minor = 9;
@@ -38,49 +38,49 @@ public class SemanticVersionTest
     }
 
     @Test
-    public void shouldDetectNegativeMajor()
+    void shouldDetectNegativeMajor()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(-1, 1, 1));
     }
 
     @Test
-    public void shouldDetectNegativeMinor()
+    void shouldDetectNegativeMinor()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(1, -1, 1));
     }
 
     @Test
-    public void shouldDetectNegativePatch()
+    void shouldDetectNegativePatch()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(1, 1, -1));
     }
 
     @Test
-    public void shouldDetectZeroVersion()
+    void shouldDetectZeroVersion()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(0, 0, 0));
     }
 
     @Test
-    public void shouldDetectExcessiveMajor()
+    void shouldDetectExcessiveMajor()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(256, 1, 1));
     }
 
     @Test
-    public void shouldDetectExcessiveMinor()
+    void shouldDetectExcessiveMinor()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(1, 256, 1));
     }
 
     @Test
-    public void shouldDetectExcessivePatch()
+    void shouldDetectExcessivePatch()
     {
         assertThrows(IllegalArgumentException.class, () -> SemanticVersion.compose(1, 1, 256));
     }
 
     @Test
-    public void shouldConvertToString()
+    void shouldConvertToString()
     {
         final int major = 17;
         final int minor = 9;

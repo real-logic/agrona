@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ExpandableRingBufferTest
+class ExpandableRingBufferTest
 {
     private static final int MSG_LENGTH_ONE = 250;
     private static final int MSG_LENGTH_TWO = 504;
@@ -36,21 +36,21 @@ public class ExpandableRingBufferTest
     private static final UnsafeBuffer TEST_MSG = new UnsafeBuffer(new byte[MSG_LENGTH_THREE]);
 
     @Test
-    public void shouldExceptionForNegativeInitialCapacity()
+    void shouldExceptionForNegativeInitialCapacity()
     {
         assertThrows(IllegalArgumentException.class,
             () -> new ExpandableRingBuffer(-1, 0, true));
     }
 
     @Test
-    public void shouldExceptionForOverMaxInitialCapacity()
+    void shouldExceptionForOverMaxInitialCapacity()
     {
         assertThrows(IllegalArgumentException.class, () -> new ExpandableRingBuffer(
             ExpandableRingBuffer.MAX_CAPACITY + 1, ExpandableRingBuffer.MAX_CAPACITY, true));
     }
 
     @Test
-    public void shouldDefaultDirectMessage()
+    void shouldDefaultDirectMessage()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         assertTrue(ringBuffer.isDirect());
@@ -61,7 +61,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendMessage()
+    void shouldAppendMessage()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         assertTrue(ringBuffer.isEmpty());
@@ -72,7 +72,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendMessagesWithinCapacityWithoutExpanding()
+    void shouldAppendMessagesWithinCapacityWithoutExpanding()
     {
         final int initialCapacity = 1024;
         final int maxCapacity = 2048;
@@ -91,7 +91,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldResetCapacity()
+    void shouldResetCapacity()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
 
@@ -101,7 +101,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldResetCapacityToSame()
+    void shouldResetCapacityToSame()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
 
@@ -114,7 +114,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldResetCapacityUpwards()
+    void shouldResetCapacityUpwards()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
 
@@ -127,7 +127,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldResetCapacityDownwards()
+    void shouldResetCapacityDownwards()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
 
@@ -140,7 +140,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendThenConsumeMessage()
+    void shouldAppendThenConsumeMessage()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         final ExpandableRingBuffer.MessageConsumer mockConsumer = mock(ExpandableRingBuffer.MessageConsumer.class);
@@ -156,7 +156,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendThenConsumeMessagesInOrder()
+    void shouldAppendThenConsumeMessagesInOrder()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         final ExpandableRingBuffer.MessageConsumer mockConsumer = mock(ExpandableRingBuffer.MessageConsumer.class);
@@ -179,7 +179,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendThenIterateMessagesInOrder()
+    void shouldAppendThenIterateMessagesInOrder()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         final ExpandableRingBuffer.MessageConsumer mockConsumer = mock(ExpandableRingBuffer.MessageConsumer.class);
@@ -199,7 +199,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldAppendMessagesWithPaddingWithoutExpanding()
+    void shouldAppendMessagesWithPaddingWithoutExpanding()
     {
         final ExpandableRingBuffer ringBuffer = new ExpandableRingBuffer();
         final ExpandableRingBuffer.MessageConsumer mockConsumer = mock(ExpandableRingBuffer.MessageConsumer.class);
@@ -234,7 +234,7 @@ public class ExpandableRingBufferTest
     }
 
     @Test
-    public void shouldIterateFromOffsetHeadWithExpansionDueToAppend()
+    void shouldIterateFromOffsetHeadWithExpansionDueToAppend()
     {
         final int alignedLengthOne = BitUtil.align(MSG_LENGTH_ONE + HEADER_LENGTH, HEADER_ALIGNMENT);
         final int alignedLengthTwo = BitUtil.align(MSG_LENGTH_TWO + HEADER_LENGTH, HEADER_ALIGNMENT);

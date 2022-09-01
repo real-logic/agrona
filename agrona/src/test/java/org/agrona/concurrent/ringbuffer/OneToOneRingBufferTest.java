@@ -44,7 +44,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class OneToOneRingBufferTest
+class OneToOneRingBufferTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 4096;
@@ -57,7 +57,7 @@ public class OneToOneRingBufferTest
     private OneToOneRingBuffer ringBuffer;
 
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
@@ -89,7 +89,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldWriteToEmptyBuffer()
+    void shouldWriteToEmptyBuffer()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
@@ -115,7 +115,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldRejectWriteWhenInsufficientSpace()
+    void shouldRejectWriteWhenInsufficientSpace()
     {
         final int length = 200;
         final long head = 0L;
@@ -136,7 +136,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldRejectWriteWhenBufferFull()
+    void shouldRejectWriteWhenBufferFull()
     {
         final int length = 8;
         final long head = 0L;
@@ -154,7 +154,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldInsertPaddingRecordPlusMessageOnBufferWrap()
+    void shouldInsertPaddingRecordPlusMessageOnBufferWrap()
     {
         final int length = 200;
         final int recordLength = length + HEADER_LENGTH;
@@ -187,7 +187,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldInsertPaddingRecordPlusMessageOnBufferWrapWithHeadEqualToTail()
+    void shouldInsertPaddingRecordPlusMessageOnBufferWrapWithHeadEqualToTail()
     {
         final int length = 200;
         final int recordLength = length + HEADER_LENGTH;
@@ -220,7 +220,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldReadNothingFromEmptyBuffer()
+    void shouldReadNothingFromEmptyBuffer()
     {
         final long head = 0L;
 
@@ -233,7 +233,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldNotReadSingleMessagePartWayThroughWriting()
+    void shouldNotReadSingleMessagePartWayThroughWriting()
     {
         final long head = 0L;
         final int headIndex = (int)head;
@@ -255,7 +255,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldReadTwoMessages()
+    void shouldReadTwoMessages()
     {
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
@@ -283,7 +283,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldLimitReadOfMessages()
+    void shouldLimitReadOfMessages()
     {
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
@@ -309,7 +309,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldCopeWithExceptionFromHandler()
+    void shouldCopeWithExceptionFromHandler()
     {
         final int msgLength = 16;
         final int recordLength = HEADER_LENGTH + msgLength;
@@ -353,19 +353,19 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldNotUnblockBecauseNotOtherProducersToRaceWith()
+    void shouldNotUnblockBecauseNotOtherProducersToRaceWith()
     {
         assertFalse(ringBuffer.unblock());
     }
 
     @Test
-    public void shouldCalculateCapacityForBuffer()
+    void shouldCalculateCapacityForBuffer()
     {
         assertThat(ringBuffer.capacity(), is(CAPACITY));
     }
 
     @Test
-    public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
+    void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + TRAILER_LENGTH;
@@ -374,7 +374,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenMaxMessageSizeExceeded()
+    void shouldThrowExceptionWhenMaxMessageSizeExceeded()
     {
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
@@ -383,7 +383,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldInsertPaddingAndWriteToBuffer()
+    void shouldInsertPaddingAndWriteToBuffer()
     {
         final int padding = 200;
         final int messageLength = 400;
@@ -404,25 +404,25 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void tryClaimThrowsIllegalArgumentExceptionIfMessageTypeIdIsInvalid()
+    void tryClaimThrowsIllegalArgumentExceptionIfMessageTypeIdIsInvalid()
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(0, 10));
     }
 
     @Test
-    public void tryClaimThrowsIllegalArgumentExceptionIfLengthIsBiggerThanMaxMessageLength()
+    void tryClaimThrowsIllegalArgumentExceptionIfLengthIsBiggerThanMaxMessageLength()
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(MSG_TYPE_ID, 2000));
     }
 
     @Test
-    public void tryClaimThrowsIllegalArgumentExceptionIfLengthIsNegative()
+    void tryClaimThrowsIllegalArgumentExceptionIfLengthIsNegative()
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.tryClaim(MSG_TYPE_ID, -5));
     }
 
     @Test
-    public void tryClaimReturnsOffsetAtWhichMessageBodyCanBeWritten()
+    void tryClaimReturnsOffsetAtWhichMessageBodyCanBeWritten()
     {
         final int msgTypeId = MSG_TYPE_ID;
         final int length = 333;
@@ -441,7 +441,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBuffer()
+    void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBuffer()
     {
         final int length = 10;
         when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(10L);
@@ -459,7 +459,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBufferAfterWrap()
+    void tryClaimReturnsInsufficientCapacityIfThereIsNotEnoughSpaceInTheBufferAfterWrap()
     {
         final int length = 100;
         when(buffer.getLong(HEAD_COUNTER_CACHE_INDEX)).thenReturn(22L);
@@ -488,25 +488,25 @@ public class OneToOneRingBufferTest
 
     @ParameterizedTest
     @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
-    public void commitThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
+    void commitThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.commit(index));
     }
 
     @Test
-    public void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
+    void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
     {
         testAlreadyCommitted(ringBuffer::commit);
     }
 
     @Test
-    public void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
+    void commitThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
     {
         testAlreadyAborted(ringBuffer::commit);
     }
 
     @Test
-    public void commitPublishesMessageByInvertingTheLengthValue()
+    void commitPublishesMessageByInvertingTheLengthValue()
     {
         final int index = 32;
         final int recordIndex = index - HEADER_LENGTH;
@@ -522,25 +522,25 @@ public class OneToOneRingBufferTest
 
     @ParameterizedTest
     @ValueSource(ints = { -1, 0, 7, CAPACITY + 1 })
-    public void abortThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
+    void abortThrowsIllegalArgumentExceptionIfIndexIsInvalid(final int index)
     {
         assertThrows(IllegalArgumentException.class, () -> ringBuffer.abort(index));
     }
 
     @Test
-    public void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
+    void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyCommitted()
     {
         testAlreadyCommitted(ringBuffer::abort);
     }
 
     @Test
-    public void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
+    void abortThrowsIllegalStateExceptionIfSpaceWasAlreadyAborted()
     {
         testAlreadyAborted(ringBuffer::abort);
     }
 
     @Test
-    public void abortMarksUnusedSpaceAsPadding()
+    void abortMarksUnusedSpaceAsPadding()
     {
         final int index = 108;
         final int recordIndex = index - HEADER_LENGTH;
@@ -556,7 +556,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldContinueOnControlledRead()
+    void shouldContinueOnControlledRead()
     {
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
@@ -582,7 +582,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldAbortOnControlledRead()
+    void shouldAbortOnControlledRead()
     {
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
@@ -608,7 +608,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldAbortOnControlledReadOfSecondMessage()
+    void shouldAbortOnControlledReadOfSecondMessage()
     {
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
@@ -633,7 +633,7 @@ public class OneToOneRingBufferTest
     }
 
     @Test
-    public void shouldCommitOnEachMessage()
+    void shouldCommitOnEachMessage()
     {
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();

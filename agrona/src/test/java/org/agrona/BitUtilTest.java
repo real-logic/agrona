@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BitUtilTest
+class BitUtilTest
 {
     @Test
-    public void shouldReturnNextPositivePowerOfTwo()
+    void shouldReturnNextPositivePowerOfTwo()
     {
         assertThat(findNextPositivePowerOfTwo(MIN_VALUE), is(MIN_VALUE));
         assertThat(findNextPositivePowerOfTwo(MIN_VALUE + 1), is(1));
@@ -45,7 +45,7 @@ public class BitUtilTest
     }
 
     @Test
-    public void shouldAlignValueToNextMultipleOfAlignment()
+    void shouldAlignValueToNextMultipleOfAlignment()
     {
         final int alignment = CACHE_LINE_LENGTH;
 
@@ -62,7 +62,7 @@ public class BitUtilTest
     }
 
     @Test
-    public void shouldConvertToHexCorrectly()
+    void shouldConvertToHexCorrectly()
     {
         final byte[] buffer = { 0x01, 0x23, 0x45, 0x69, 0x78, (byte)0xBC, (byte)0xDA, (byte)0xEF, 0x5F };
         final byte[] converted = toHexByteArray(buffer);
@@ -76,7 +76,7 @@ public class BitUtilTest
     }
 
     @Test
-    public void shouldDetectEvenAndOddNumbers()
+    void shouldDetectEvenAndOddNumbers()
     {
         assertTrue(BitUtil.isEven(0));
         assertTrue(BitUtil.isEven(2));

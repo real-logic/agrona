@@ -31,14 +31,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class ErrorLogReaderTest
+class ErrorLogReaderTest
 {
     private final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64 * 1024));
     private final EpochClock clock = mock(EpochClock.class);
     private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);
 
     @Test
-    public void shouldReadNoExceptionsFromEmptyLog()
+    void shouldReadNoExceptionsFromEmptyLog()
     {
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
@@ -48,7 +48,7 @@ public class ErrorLogReaderTest
     }
 
     @Test
-    public void shouldReadFirstObservation()
+    void shouldReadFirstObservation()
     {
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
@@ -65,7 +65,7 @@ public class ErrorLogReaderTest
     }
 
     @Test
-    public void shouldReadSummarisedObservation()
+    void shouldReadSummarisedObservation()
     {
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
@@ -88,7 +88,7 @@ public class ErrorLogReaderTest
     }
 
     @Test
-    public void shouldReadTwoDistinctObservations()
+    void shouldReadTwoDistinctObservations()
     {
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 
@@ -110,7 +110,7 @@ public class ErrorLogReaderTest
     }
 
     @Test
-    public void shouldReadOneObservationSinceTimestamp()
+    void shouldReadOneObservationSinceTimestamp()
     {
         final ErrorConsumer consumer = mock(ErrorConsumer.class);
 

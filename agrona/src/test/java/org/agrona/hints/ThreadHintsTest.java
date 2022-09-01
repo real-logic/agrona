@@ -18,10 +18,10 @@ package org.agrona.hints;
 
 import org.junit.jupiter.api.Test;
 
-public class ThreadHintsTest
+class ThreadHintsTest
 {
     @Test
-    public void shouldDoNothingOnSpinWait()
+    void shouldDoNothingOnSpinWait()
     {
         for (int i = 0; i < 100; i++)
         {

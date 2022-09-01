@@ -25,19 +25,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ManyToOneConcurrentLinkedQueueTest
+class ManyToOneConcurrentLinkedQueueTest
 {
     private final Queue<Integer> queue = new ManyToOneConcurrentLinkedQueue<>();
 
     @Test
-    public void shouldBeEmpty()
+    void shouldBeEmpty()
     {
         assertTrue(queue.isEmpty());
         assertThat(queue.size(), is(0));
     }
 
     @Test
-    public void shouldNotBeEmpty()
+    void shouldNotBeEmpty()
     {
         queue.offer(1);
 
@@ -46,20 +46,20 @@ public class ManyToOneConcurrentLinkedQueueTest
     }
 
     @Test
-    public void shouldFailToPoll()
+    void shouldFailToPoll()
     {
         assertNull(queue.poll());
     }
 
     @Test
-    public void shouldOfferItem()
+    void shouldOfferItem()
     {
         assertTrue(queue.offer(7));
         assertThat(queue.size(), is(1));
     }
 
     @Test
-    public void shouldExchangeItem()
+    void shouldExchangeItem()
     {
         final int testItem = 1;
         queue.offer(testItem);
@@ -68,7 +68,7 @@ public class ManyToOneConcurrentLinkedQueueTest
     }
 
     @Test
-    public void shouldExchangeInFifoOrder()
+    void shouldExchangeInFifoOrder()
     {
         final int numItems = 7;
 
@@ -89,7 +89,7 @@ public class ManyToOneConcurrentLinkedQueueTest
     }
 
     @Test
-    public void shouldExchangeInFifoOrderInterleaved()
+    void shouldExchangeInFifoOrderInterleaved()
     {
         final int numItems = 7;
 
@@ -104,7 +104,7 @@ public class ManyToOneConcurrentLinkedQueueTest
     }
 
     @Test
-    public void shouldToString()
+    void shouldToString()
     {
         assertThat(queue.toString(), is("{}"));
 
@@ -118,7 +118,7 @@ public class ManyToOneConcurrentLinkedQueueTest
 
     @Test
     @Timeout(10)
-    public void shouldTransferConcurrently()
+    void shouldTransferConcurrently()
     {
         final int count = 1_000_000;
         final int numThreads = 2;

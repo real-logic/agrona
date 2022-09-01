@@ -40,7 +40,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class Int2IntHashMapTest
+class Int2IntHashMapTest
 {
     static final int MISSING_VALUE = -1;
 
@@ -53,26 +53,26 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldInitiallyBeEmpty()
+    void shouldInitiallyBeEmpty()
     {
         assertEquals(0, map.size());
         assertTrue(map.isEmpty());
     }
 
     @Test
-    public void getShouldReturnMissingValueWhenEmpty()
+    void getShouldReturnMissingValueWhenEmpty()
     {
         assertEquals(MISSING_VALUE, map.get(1));
     }
 
     @Test
-    public void boxedGetShouldReturnNull()
+    void boxedGetShouldReturnNull()
     {
         assertNull(map.get((Integer)1));
     }
 
     @Test
-    public void getShouldReturnMissingValueWhenThereIsNoElement()
+    void getShouldReturnMissingValueWhenThereIsNoElement()
     {
         map.put(1, 1);
 
@@ -80,7 +80,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void getShouldReturnPutValues()
+    void getShouldReturnPutValues()
     {
         map.put(1, 1);
 
@@ -88,7 +88,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void putShouldReturnOldValue()
+    void putShouldReturnOldValue()
     {
         map.put(1, 1);
 
@@ -96,7 +96,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void clearShouldResetSize()
+    void clearShouldResetSize()
     {
         map.put(1, 1);
         map.put(100, 100);
@@ -108,7 +108,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void clearShouldRemoveValues()
+    void clearShouldRemoveValues()
     {
         map.put(1, 1);
         map.put(100, 100);
@@ -120,7 +120,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void forEachShouldLoopOverEveryElement()
+    void forEachShouldLoopOverEveryElement()
     {
         map.put(1, 1);
         map.put(100, 100);
@@ -135,13 +135,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotContainKeyOfAMissingKey()
+    void shouldNotContainKeyOfAMissingKey()
     {
         assertFalse(map.containsKey(1));
     }
 
     @Test
-    public void shouldContainKeyOfAPresentKey()
+    void shouldContainKeyOfAPresentKey()
     {
         map.put(1, 1);
 
@@ -149,13 +149,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotContainValueForAMissingEntry()
+    void shouldNotContainValueForAMissingEntry()
     {
         assertFalse(map.containsValue(1));
     }
 
     @Test
-    public void shouldContainValueForAPresentEntry()
+    void shouldContainValueForAPresentEntry()
     {
         map.put(1, 1);
 
@@ -163,7 +163,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldExposeValidKeySet()
+    void shouldExposeValidKeySet()
     {
         map.put(1, 1);
         map.put(2, 2);
@@ -172,7 +172,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldExposeValidValueSet()
+    void shouldExposeValidValueSet()
     {
         map.put(1, 1);
         map.put(2, 2);
@@ -181,7 +181,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldPutAllMembersOfAnotherHashMap()
+    void shouldPutAllMembersOfAnotherHashMap()
     {
         addTwoElements();
 
@@ -199,7 +199,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateKeys()
+    void shouldIterateKeys()
     {
         addTwoElements();
 
@@ -207,7 +207,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateKeysFromBeginningEveryTime()
+    void shouldIterateKeysFromBeginningEveryTime()
     {
         shouldIterateKeys();
 
@@ -215,7 +215,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateKeysWithoutHasNext()
+    void shouldIterateKeysWithoutHasNext()
     {
         addTwoElements();
 
@@ -223,7 +223,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateKeysWithoutHasNextFromBeginningEveryTime()
+    void shouldIterateKeysWithoutHasNextFromBeginningEveryTime()
     {
         shouldIterateKeysWithoutHasNext();
 
@@ -231,13 +231,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldExceptionForEmptyIteration()
+    void shouldExceptionForEmptyIteration()
     {
         assertThrows(NoSuchElementException.class, () -> keyIterator().next());
     }
 
     @Test
-    public void shouldExceptionWhenRunningOutOfElements()
+    void shouldExceptionWhenRunningOutOfElements()
     {
         addTwoElements();
 
@@ -249,7 +249,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateValues()
+    void shouldIterateValues()
     {
         addTwoElements();
 
@@ -257,7 +257,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateValuesFromBeginningEveryTime()
+    void shouldIterateValuesFromBeginningEveryTime()
     {
         shouldIterateValues();
 
@@ -265,7 +265,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void entrySetShouldContainEntries()
+    void entrySetShouldContainEntries()
     {
         addTwoElements();
 
@@ -273,7 +273,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void entrySetIteratorShouldContainEntriesEveryIteration()
+    void entrySetIteratorShouldContainEntriesEveryIteration()
     {
         addTwoElements();
 
@@ -283,13 +283,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void removeShouldReturnMissing()
+    void removeShouldReturnMissing()
     {
         assertEquals(MISSING_VALUE, map.remove(1));
     }
 
     @Test
-    public void removeShouldReturnValueRemoved()
+    void removeShouldReturnValueRemoved()
     {
         map.put(1, 2);
 
@@ -298,7 +298,7 @@ public class Int2IntHashMapTest
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void removeShouldRemoveEntry()
+    void removeShouldRemoveEntry()
     {
         map.put(1, 2);
 
@@ -310,7 +310,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldOnlyRemoveTheSpecifiedEntry()
+    void shouldOnlyRemoveTheSpecifiedEntry()
     {
         IntStream.range(0, 8).forEach((i) -> map.put(i, i * 2));
 
@@ -327,7 +327,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldResizeWhenMoreElementsAreAdded()
+    void shouldResizeWhenMoreElementsAreAdded()
     {
         IntStream
             .range(0, 100)
@@ -340,13 +340,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldHaveNoMinValueForEmptyCollection()
+    void shouldHaveNoMinValueForEmptyCollection()
     {
         assertEquals(MISSING_VALUE, map.minValue());
     }
 
     @Test
-    public void shouldFindMinValue()
+    void shouldFindMinValue()
     {
         addValues(map);
 
@@ -354,13 +354,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldHaveNoMaxValueForEmptyCollection()
+    void shouldHaveNoMaxValueForEmptyCollection()
     {
         assertEquals(MISSING_VALUE, map.maxValue());
     }
 
     @Test
-    public void shouldFindMaxValue()
+    void shouldFindMaxValue()
     {
         addValues(map);
 
@@ -368,7 +368,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void sizeShouldReturnNumberOfEntries()
+    void sizeShouldReturnNumberOfEntries()
     {
         final int count = 100;
         for (int key = 0; key < count; key++)
@@ -380,19 +380,19 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotSupportLoadFactorOfGreaterThanOne()
+    void shouldNotSupportLoadFactorOfGreaterThanOne()
     {
         assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 2, 0));
     }
 
     @Test
-    public void shouldNotSupportLoadFactorOfOne()
+    void shouldNotSupportLoadFactorOfOne()
     {
         assertThrows(IllegalArgumentException.class, () -> new Int2IntHashMap(4, 1, 0));
     }
 
     @Test
-    public void correctSizeAfterRehash()
+    void correctSizeAfterRehash()
     {
         final Int2IntHashMap map = new Int2IntHashMap(16, 0.6f, -1);
 
@@ -406,7 +406,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsent()
+    void shouldComputeIfAbsent()
     {
         final int testKey = 7;
         final int testValue = 7;
@@ -422,7 +422,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsentBoxed()
+    void shouldComputeIfAbsentBoxed()
     {
         final Map<Integer, Integer> map = this.map;
 
@@ -438,7 +438,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfPresent()
+    void shouldComputeIfPresent()
     {
         final int testKey = 7;
         final int testValue = 7;
@@ -453,7 +453,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfPresentBoxed()
+    void shouldComputeIfPresentBoxed()
     {
         final Map<Integer, Integer> map = this.map;
 
@@ -470,7 +470,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldCompute()
+    void shouldCompute()
     {
         final int testKey = 7;
         final int testValue = 7;
@@ -485,7 +485,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeBoxed()
+    void shouldComputeBoxed()
     {
         final Map<Integer, Integer> map = this.map;
 
@@ -501,13 +501,13 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotAllowMissingValueAsValue()
+    void shouldNotAllowMissingValueAsValue()
     {
         assertThrows(IllegalArgumentException.class, () -> map.put(1, MISSING_VALUE));
     }
 
     @Test
-    public void shouldAllowMissingValueAsKey()
+    void shouldAllowMissingValueAsKey()
     {
         map.put(MISSING_VALUE, 1);
 
@@ -531,7 +531,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotContainMissingValue()
+    void shouldNotContainMissingValue()
     {
         assertFalse(map.containsValue(MISSING_VALUE));
         map.put(MISSING_VALUE, 1);
@@ -539,14 +539,14 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void emptyMapsShouldBeEqual()
+    void emptyMapsShouldBeEqual()
     {
         assertEquals(map, new Int2IntHashMap(MISSING_VALUE));
         assertEquals(map, new HashMap<Integer, Integer>());
     }
 
     @Test
-    public void shouldEqualPrimitiveMapWithSameContents()
+    void shouldEqualPrimitiveMapWithSameContents()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
 
@@ -557,7 +557,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldEqualPrimitiveMapWithSameContentsAndDifferentMissingValue()
+    void shouldEqualPrimitiveMapWithSameContentsAndDifferentMissingValue()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(-2);
 
@@ -568,7 +568,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldEqualHashMapWithSameContents()
+    void shouldEqualHashMapWithSameContents()
     {
         final Map<Integer, Integer> otherMap = new HashMap<>();
 
@@ -579,7 +579,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotEqualPrimitiveMapWithDifferentContents()
+    void shouldNotEqualPrimitiveMapWithDifferentContents()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
 
@@ -590,7 +590,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotEqualHashMapWithDifferentContents()
+    void shouldNotEqualHashMapWithDifferentContents()
     {
         final Map<Integer, Integer> otherMap = new HashMap<>();
 
@@ -601,14 +601,14 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void emptyMapsShouldHaveEqualHashCodes()
+    void emptyMapsShouldHaveEqualHashCodes()
     {
         assertHashcodeEquals(map, new Int2IntHashMap(MISSING_VALUE));
         assertHashcodeEquals(map, new HashMap<Integer, Integer>());
     }
 
     @Test
-    public void shouldHaveEqualHashcodePrimitiveMapWithSameContents()
+    void shouldHaveEqualHashcodePrimitiveMapWithSameContents()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
 
@@ -619,7 +619,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldHaveEqualHashcodePrimitiveMapWithSameContentsAndDifferentMissingValue()
+    void shouldHaveEqualHashcodePrimitiveMapWithSameContentsAndDifferentMissingValue()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(-2);
 
@@ -630,7 +630,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldHaveEqualHashcodeHashMapWithSameContents()
+    void shouldHaveEqualHashcodeHashMapWithSameContents()
     {
         final Map<Integer, Integer> otherMap = new HashMap<>();
 
@@ -641,7 +641,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotHaveEqualHashcodePrimitiveMapWithDifferentContents()
+    void shouldNotHaveEqualHashcodePrimitiveMapWithDifferentContents()
     {
         final Int2IntHashMap otherMap = new Int2IntHashMap(MISSING_VALUE);
 
@@ -652,7 +652,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldNotHaveEqualHashcodeHashMapWithDifferentContents()
+    void shouldNotHaveEqualHashcodeHashMapWithDifferentContents()
     {
         final Map<Integer, Integer> otherMap = new HashMap<>();
 
@@ -663,7 +663,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsentUsingImplementation()
+    void shouldComputeIfAbsentUsingImplementation()
     {
         final Int2IntHashMap int2IntHashMap = new Int2IntHashMap(-1);
         final int key = 0;
@@ -672,7 +672,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldComputeIfAbsentUsingInterface()
+    void shouldComputeIfAbsentUsingInterface()
     {
         final Map<Integer, Integer> map = new Int2IntHashMap(-1);
         final int key = 0;
@@ -681,7 +681,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldGenerateStringRepresentation()
+    void shouldGenerateStringRepresentation()
     {
         final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
 
@@ -695,7 +695,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateEntriesBySpecialisedType()
+    void shouldIterateEntriesBySpecialisedType()
     {
         final Map<Integer, Integer> expected = new HashMap<>();
         final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
@@ -718,7 +718,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldIterateEntriesBySpecialisedTypeAndSetValue()
+    void shouldIterateEntriesBySpecialisedTypeAndSetValue()
     {
         final Map<Integer, Integer> expected = new HashMap<>();
         final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
@@ -740,7 +740,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldToArray()
+    void shouldToArray()
     {
         final Int2IntHashMap map = new Int2IntHashMap(-127);
         map.put(1, 11);
@@ -758,7 +758,7 @@ public class Int2IntHashMapTest
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void shouldToArrayTyped()
+    void shouldToArrayTyped()
     {
         final Int2IntHashMap map = new Int2IntHashMap(-127);
         map.put(1, 11);
@@ -776,7 +776,7 @@ public class Int2IntHashMapTest
     }
 
     @Test
-    public void shouldToArrayWithArrayListConstructor()
+    void shouldToArrayWithArrayListConstructor()
     {
         final Int2IntHashMap map = new Int2IntHashMap(-127);
         map.put(1, 11);

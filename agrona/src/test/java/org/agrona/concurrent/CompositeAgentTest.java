@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class CompositeAgentTest
+class CompositeAgentTest
 {
     static class AgentException extends RuntimeException
     {
@@ -37,19 +37,19 @@ public class CompositeAgentTest
     private final Agent[] agents = new Agent[]{ mock(Agent.class), mock(Agent.class), mock(Agent.class) };
 
     @Test
-    public void shouldNotAcceptEmptyList()
+    void shouldNotAcceptEmptyList()
     {
         assertThrows(IllegalArgumentException.class, CompositeAgent::new);
     }
 
     @Test
-    public void shouldNotAcceptNullAgents()
+    void shouldNotAcceptNullAgents()
     {
         assertThrows(NullPointerException.class, () -> new CompositeAgent(agents[0], null, agents[1]));
     }
 
     @Test
-    public void shouldApplyLifecycleToAll() throws Exception
+    void shouldApplyLifecycleToAll() throws Exception
     {
         final CompositeAgent compositeAgent = new CompositeAgent(agents[0], agents[1], agents[2]);
 
@@ -73,7 +73,7 @@ public class CompositeAgentTest
     }
 
     @Test
-    public void shouldApplyLifecycleToAllDespiteExceptions() throws Exception
+    void shouldApplyLifecycleToAllDespiteExceptions() throws Exception
     {
         final CompositeAgent compositeAgent = new CompositeAgent(agents[0], agents[1], agents[2]);
 

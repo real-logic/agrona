@@ -28,36 +28,28 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CollectionUtilTest
+class CollectionUtilTest
 {
     @Test
-    public void removeIfRemovesMiddle()
+    void removeIfRemovesMiddle()
     {
         assertRemoveIfRemoves(1, 2, 3);
     }
 
     @Test
-    public void removeIfRemovesStart()
+    void removeIfRemovesStart()
     {
         assertRemoveIfRemoves(2, 1, 3);
     }
 
     @Test
-    public void removeIfRemovesEnd()
+    void removeIfRemovesEnd()
     {
         assertRemoveIfRemoves(3, 1, 2);
     }
 
-    private void assertRemoveIfRemoves(final int requiredValue, final Integer... expectedValues)
-    {
-        final List<Integer> values = new ArrayList<>(asList(1, 2, 3));
-        assertEquals(1, removeIf(values, value -> value == requiredValue));
-
-        assertEquals(values, asList(expectedValues));
-    }
-
     @Test
-    public void getOrDefaultUsesSupplier()
+    void getOrDefaultUsesSupplier()
     {
         final Map<Integer, Integer> values = new HashMap<>();
         final Integer result = CollectionUtil.getOrDefault(values, 0, (x) -> x + 1);
@@ -66,7 +58,7 @@ public class CollectionUtilTest
     }
 
     @Test
-    public void getOrDefaultDoesNotCreateNewValueWhenOneExists()
+    void getOrDefaultDoesNotCreateNewValueWhenOneExists()
     {
         final Map<Integer, Integer> values = new HashMap<>();
         values.put(0, 0);
@@ -83,7 +75,7 @@ public class CollectionUtilTest
     }
 
     @Test
-    public void validatePositivePowerOfTwo()
+    void validatePositivePowerOfTwo()
     {
         CollectionUtil.validatePositivePowerOfTwo(1);
         CollectionUtil.validatePositivePowerOfTwo(2);
@@ -91,20 +83,28 @@ public class CollectionUtilTest
     }
 
     @Test
-    public void validatePositivePowerOfTwoFailWith3()
+    void validatePositivePowerOfTwoFailWith3()
     {
         assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(3));
     }
 
     @Test
-    public void validatePositivePowerOfTwoFailWith15()
+    void validatePositivePowerOfTwoFailWith15()
     {
         assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(15));
     }
 
     @Test
-    public void validatePositivePowerOfTwFailWith33()
+    void validatePositivePowerOfTwFailWith33()
     {
         assertThrows(IllegalArgumentException.class, () -> CollectionUtil.validatePositivePowerOfTwo(33));
+    }
+
+    private void assertRemoveIfRemoves(final int requiredValue, final Integer... expectedValues)
+    {
+        final List<Integer> values = new ArrayList<>(asList(1, 2, 3));
+        assertEquals(1, removeIf(values, value -> value == requiredValue));
+
+        assertEquals(values, asList(expectedValues));
     }
 }

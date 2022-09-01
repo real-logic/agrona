@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
 
-public class IntLruCacheTest
+class IntLruCacheTest
 {
     private static final int CAPACITY = 2;
 
@@ -39,7 +39,7 @@ public class IntLruCacheTest
     private AutoCloseable lastValue;
 
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         when(mockFactory.apply(anyInt())).thenAnswer(
             (inv) ->
@@ -50,7 +50,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldUseFactoryToConstructValues()
+    void shouldUseFactoryToConstructValues()
     {
         final AutoCloseable actual = cache.lookup(1);
 
@@ -60,7 +60,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldCacheValues()
+    void shouldCacheValues()
     {
         final AutoCloseable first = cache.lookup(1);
         final AutoCloseable second = cache.lookup(1);
@@ -72,7 +72,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldEvictLeastRecentlyUsedItem()
+    void shouldEvictLeastRecentlyUsedItem()
     {
         final AutoCloseable first = cache.lookup(1);
         cache.lookup(2);
@@ -82,7 +82,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldReconstructItemsAfterEviction()
+    void shouldReconstructItemsAfterEviction()
     {
         cache.lookup(1);
         final AutoCloseable second = cache.lookup(2);
@@ -94,7 +94,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldSupportKeyOfZero()
+    void shouldSupportKeyOfZero()
     {
         final AutoCloseable actual = cache.lookup(0);
 
@@ -103,7 +103,7 @@ public class IntLruCacheTest
     }
 
     @Test
-    public void shouldCloseAllOpenResources()
+    void shouldCloseAllOpenResources()
     {
         final AutoCloseable first = cache.lookup(1);
         final AutoCloseable second = cache.lookup(2);

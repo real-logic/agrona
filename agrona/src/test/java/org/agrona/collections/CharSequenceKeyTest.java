@@ -110,5 +110,4 @@ class CharSequenceKeyTest
         assertInstanceOf(String.class, subSequence);
         assertEquals("World", subSequence);
     }
-
 }

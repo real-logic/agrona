@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BufferExpansionTest
+class BufferExpansionTest
 {
     private static Stream<MutableDirectBuffer> buffers()
     {
@@ -37,7 +37,7 @@ public class BufferExpansionTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldExpand(final MutableDirectBuffer buffer)
+    void shouldExpand(final MutableDirectBuffer buffer)
     {
         final int capacity = buffer.capacity();
 
@@ -50,7 +50,7 @@ public class BufferExpansionTest
     }
 
     @Test
-    public void shouldExpandArrayBufferFromZeroCapacity()
+    void shouldExpandArrayBufferFromZeroCapacity()
     {
         final MutableDirectBuffer buffer = new ExpandableArrayBuffer(0);
         buffer.putByte(0, (byte)4);
@@ -59,7 +59,7 @@ public class BufferExpansionTest
     }
 
     @Test
-    public void shouldExpandArrayBufferFromOneCapacity()
+    void shouldExpandArrayBufferFromOneCapacity()
     {
         final MutableDirectBuffer buffer = new ExpandableArrayBuffer(1);
         buffer.putByte(0, (byte)4);
@@ -67,7 +67,7 @@ public class BufferExpansionTest
     }
 
     @Test
-    public void shouldExpandDirectBufferFromZeroCapacity()
+    void shouldExpandDirectBufferFromZeroCapacity()
     {
         final MutableDirectBuffer buffer = new ExpandableDirectByteBuffer(0);
         buffer.putByte(0, (byte)4);
@@ -76,7 +76,7 @@ public class BufferExpansionTest
     }
 
     @Test
-    public void shouldExpandDirectBufferFromOneCapacity()
+    void shouldExpandDirectBufferFromOneCapacity()
     {
         final MutableDirectBuffer buffer = new ExpandableDirectByteBuffer(1);
         buffer.putByte(0, (byte)4);

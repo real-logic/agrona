@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import java.util.function.LongPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Long2LongHashMapTest
 {

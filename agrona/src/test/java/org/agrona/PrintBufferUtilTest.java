@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-public class PrintBufferUtilTest
+class PrintBufferUtilTest
 {
     @Test
-    public void shouldPrettyPrintHex()
+    void shouldPrettyPrintHex()
     {
         final String contents = "Hello World!\nThis is a test String\nto print out.";
         final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer();

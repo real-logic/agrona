@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Int2ObjectHashMapNotAvoidingAllocationTest extends Int2ObjectHashMapTest
+class Int2ObjectHashMapNotAvoidingAllocationTest extends Int2ObjectHashMapTest
 {
     Int2ObjectHashMap<String> newMap(final float loadFactor, final int initialCapacity)
     {
@@ -30,25 +30,25 @@ public class Int2ObjectHashMapNotAvoidingAllocationTest extends Int2ObjectHashMa
     }
 
     @Test
-    public void valuesIteratorIsNotCached()
+    void valuesIteratorIsNotCached()
     {
         assertNotSame(intToObjectMap.values().iterator(), intToObjectMap.values().iterator());
     }
 
     @Test
-    public void keysIteratorIsNotCached()
+    void keysIteratorIsNotCached()
     {
         assertNotSame(intToObjectMap.keySet().iterator(), intToObjectMap.keySet().iterator());
     }
 
     @Test
-    public void entryIteratorIsNotCached()
+    void entryIteratorIsNotCached()
     {
         assertNotSame(intToObjectMap.entrySet().iterator(), intToObjectMap.entrySet().iterator());
     }
 
     @Test
-    public void entriesAreAllocatedByEntriesIterator()
+    void entriesAreAllocatedByEntriesIterator()
     {
         intToObjectMap.put(1, "1");
         intToObjectMap.put(2, "2");

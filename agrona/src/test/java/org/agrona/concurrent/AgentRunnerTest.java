@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.answersWithDelay;
 import static org.mockito.Mockito.*;
 
-public class AgentRunnerTest
+class AgentRunnerTest
 {
     private final AtomicCounter mockAtomicCounter = mock(AtomicCounter.class);
 
@@ -44,13 +44,13 @@ public class AgentRunnerTest
     private final AgentRunner runner = new AgentRunner(idleStrategy, mockErrorHandler, mockAtomicCounter, mockAgent);
 
     @Test
-    public void shouldReturnAgent()
+    void shouldReturnAgent()
     {
         assertThat(runner.agent(), is(mockAgent));
     }
 
     @Test
-    public void shouldNotDoWorkOnClosedRunner() throws Exception
+    void shouldNotDoWorkOnClosedRunner() throws Exception
     {
         runner.close();
         runner.run();
@@ -64,7 +64,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
+    void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
     {
         final RuntimeException expectedException = new AgentTerminationException();
         when(mockAgent.doWork()).thenThrow(expectedException);
@@ -79,7 +79,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldReportExceptionThrownByAgent() throws Exception
+    void shouldReportExceptionThrownByAgent() throws Exception
     {
         final CountDownLatch latch = new CountDownLatch(1);
         final RuntimeException expectedException = new RuntimeException();
@@ -109,7 +109,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldNotReportClosedByInterruptException() throws Exception
+    void shouldNotReportClosedByInterruptException() throws Exception
     {
         when(mockAgent.doWork()).thenThrow(new ClosedByInterruptException());
 
@@ -117,7 +117,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldNotReportRethrownClosedByInterruptException() throws Exception
+    void shouldNotReportRethrownClosedByInterruptException() throws Exception
     {
         when(mockAgent.doWork()).thenAnswer(
             (inv) ->
@@ -138,7 +138,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldRaiseInterruptFlagByClose() throws Exception
+    void shouldRaiseInterruptFlagByClose() throws Exception
     {
         when(mockAgent.doWork()).then(answersWithDelay(500, RETURNS_DEFAULTS));
 
@@ -160,7 +160,7 @@ public class AgentRunnerTest
     }
 
     @Test
-    public void shouldInvokeActionOnRetryCloseTimeout() throws Exception
+    void shouldInvokeActionOnRetryCloseTimeout() throws Exception
     {
         when(mockAgent.doWork()).then(answersWithDelay(500, RETURNS_DEFAULTS));
 

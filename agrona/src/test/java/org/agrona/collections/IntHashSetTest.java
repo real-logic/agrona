@@ -39,7 +39,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class IntHashSetTest
+class IntHashSetTest
 {
     private static final int INITIAL_CAPACITY = 100;
 

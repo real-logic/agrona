@@ -21,7 +21,7 @@ import java.util.Queue;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ArrayQueueSizeTest
+class ArrayQueueSizeTest
 {
     private static final int REPETITIONS = 10_000_000;
     private static final int QUEUE_CAPACITY = 128;
@@ -34,7 +34,7 @@ public class ArrayQueueSizeTest
     private Thread consumerThread;
 
     @AfterEach
-    public void after()
+    void after()
     {
         if (null != producerThread)
         {
@@ -49,7 +49,7 @@ public class ArrayQueueSizeTest
 
     @Test
     @Timeout(10)
-    public void shouldNeverReportSizeOutOfRange()
+    void shouldNeverReportSizeOutOfRange()
     {
         producerThread = new Thread(producer);
         consumerThread = new Thread(consumer);

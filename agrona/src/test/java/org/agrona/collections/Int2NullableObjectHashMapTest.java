@@ -30,7 +30,6 @@ import static org.mockito.Mockito.*;
 
 class Int2NullableObjectHashMapTest
 {
-
     @Test
     void getOrDefaultShouldReturnDefaultValueIfNoMappingExistsForAGivenKey()
     {

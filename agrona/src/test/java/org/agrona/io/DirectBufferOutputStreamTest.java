@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DirectBufferOutputStreamTest
+class DirectBufferOutputStreamTest
 {
     @Test
-    public void shouldWriteByteArray()
+    void shouldWriteByteArray()
     {
         final byte[] data = new byte[2];
         final DirectBufferOutputStream outputStream = new DirectBufferOutputStream(new UnsafeBuffer(data));

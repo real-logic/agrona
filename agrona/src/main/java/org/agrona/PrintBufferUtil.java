@@ -65,7 +65,7 @@ public final class PrintBufferUtil
 
     /**
      * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-     * of the specified buffer's sub-region.
+     * of the specified buffer's subregion.
      *
      * @param buffer    dumped buffer.
      * @param fromIndex where should we start to print.

@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class BroadcastReceiverTest
+class BroadcastReceiverTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 1024;
@@ -42,7 +42,7 @@ public class BroadcastReceiverTest
     private BroadcastReceiver broadcastReceiver;
 
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
@@ -50,13 +50,13 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldCalculateCapacityForBuffer()
+    void shouldCalculateCapacityForBuffer()
     {
         assertThat(broadcastReceiver.capacity(), is(CAPACITY));
     }
 
     @Test
-    public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
+    void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
@@ -67,19 +67,19 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldNotBeLappedBeforeReception()
+    void shouldNotBeLappedBeforeReception()
     {
         assertThat(broadcastReceiver.lappedCount(), is(0L));
     }
 
     @Test
-    public void shouldNotReceiveFromEmptyBuffer()
+    void shouldNotReceiveFromEmptyBuffer()
     {
         assertFalse(broadcastReceiver.receiveNext());
     }
 
     @Test
-    public void shouldReceiveFirstMessageFromBuffer()
+    void shouldReceiveFirstMessageFromBuffer()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
@@ -107,7 +107,7 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldReceiveTwoMessagesFromBuffer()
+    void shouldReceiveTwoMessagesFromBuffer()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
@@ -152,7 +152,7 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldLateJoinTransmission()
+    void shouldLateJoinTransmission()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
@@ -179,7 +179,7 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldCopeWithPaddingRecordAndWrapOfBufferForNextRecord()
+    void shouldCopeWithPaddingRecordAndWrapOfBufferForNextRecord()
     {
         final int length = 120;
         final int recordLength = length + HEADER_LENGTH;
@@ -218,7 +218,7 @@ public class BroadcastReceiverTest
     }
 
     @Test
-    public void shouldDealWithRecordBecomingInvalidDueToOverwrite()
+    void shouldDealWithRecordBecomingInvalidDueToOverwrite()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;

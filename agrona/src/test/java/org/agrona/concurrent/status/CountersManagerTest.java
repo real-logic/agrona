@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class CountersManagerTest
+class CountersManagerTest
 {
     private static final int NUMBER_OF_COUNTERS = 4;
     private static final long FREE_TO_REUSE_TIMEOUT = 1000;
@@ -53,7 +53,7 @@ public class CountersManagerTest
     private final CountersReader.MetaData metaData = mock(CountersReader.MetaData.class);
 
     @Test
-    public void shouldSupportEmptyManager()
+    void shouldSupportEmptyManager()
     {
         final UnsafeBuffer metadataBuffer = new UnsafeBuffer(new byte[0]);
         final UnsafeBuffer valuesBuffer = new UnsafeBuffer(new byte[0]);
@@ -65,7 +65,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldTruncateLongLabel()
+    void shouldTruncateLongLabel()
     {
         final int labelLength = MAX_LABEL_LENGTH + 10;
         final StringBuilder sb = new StringBuilder(labelLength);
@@ -83,7 +83,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldCopeWithExceptionKeyFunc()
+    void shouldCopeWithExceptionKeyFunc()
     {
         final RuntimeException ex = new RuntimeException();
 
@@ -111,7 +111,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldStoreLabels()
+    void shouldStoreLabels()
     {
         final int counterId = manager.allocate("abc");
         reader.forEach(consumer);
@@ -119,7 +119,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldSetRegistrationId()
+    void shouldSetRegistrationId()
     {
         final int counterId = manager.allocate("abc");
         assertEquals(DEFAULT_REGISTRATION_ID, reader.getCounterRegistrationId(counterId));
@@ -130,7 +130,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldResetValueAndRegistrationIdIfReused()
+    void shouldResetValueAndRegistrationIdIfReused()
     {
         final int counterIdOne = manager.allocate("abc");
         assertEquals(DEFAULT_REGISTRATION_ID, reader.getCounterRegistrationId(counterIdOne));
@@ -149,7 +149,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldSetOwnerId()
+    void shouldSetOwnerId()
     {
         final int counterId = manager.allocate("abc");
         assertEquals(DEFAULT_OWNER_ID, reader.getCounterOwnerId(counterId));
@@ -160,7 +160,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldResetValueAndOwnerIdIfReused()
+    void shouldResetValueAndOwnerIdIfReused()
     {
         final int counterIdOne = manager.allocate("abc");
         assertEquals(DEFAULT_OWNER_ID, reader.getCounterOwnerId(counterIdOne));
@@ -179,7 +179,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldFindByRegistrationId()
+    void shouldFindByRegistrationId()
     {
         final long registrationId = 777L;
         manager.allocate("null");
@@ -191,7 +191,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldFindByTypeIdAndRegistrationId()
+    void shouldFindByTypeIdAndRegistrationId()
     {
         final long registrationId = 777L;
         final int typeId = 666;
@@ -206,7 +206,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldStoreMultipleLabels()
+    void shouldStoreMultipleLabels()
     {
         final int abc = manager.allocate("abc");
         final int def = manager.allocate("def");
@@ -222,7 +222,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldFreeAndReuseCounters()
+    void shouldFreeAndReuseCounters()
     {
         assertEquals(NUMBER_OF_COUNTERS - 1, manager.maxCounterId());
         assertEquals(NUMBER_OF_COUNTERS, manager.capacity());
@@ -249,7 +249,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldFreeAndNotReuseCountersThatHaveCooldown()
+    void shouldFreeAndNotReuseCountersThatHaveCooldown()
     {
         managerWithCooldown.allocate("abc");
         final int def = managerWithCooldown.allocate("def");
@@ -262,7 +262,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldFreeAndReuseCountersAfterCooldown()
+    void shouldFreeAndReuseCountersAfterCooldown()
     {
         managerWithCooldown.allocate("abc");
         final int def = managerWithCooldown.allocate("def");
@@ -275,7 +275,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldNotOverAllocateCounters()
+    void shouldNotOverAllocateCounters()
     {
         manager.allocate("abc");
         manager.allocate("def");
@@ -286,7 +286,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldMapAllocatedCounters()
+    void shouldMapAllocatedCounters()
     {
         manager.allocate("def");
 
@@ -301,7 +301,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldStoreMetaData()
+    void shouldStoreMetaData()
     {
         final int typeIdOne = 333;
         final long keyOne = 777L;
@@ -333,7 +333,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldStoreRawData()
+    void shouldStoreRawData()
     {
         final int typeIdOne = 333;
         final long keyOne = 777L;
@@ -371,7 +371,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldStoreAndLoadValue()
+    void shouldStoreAndLoadValue()
     {
         final int counterId = manager.allocate("Test Counter");
 
@@ -382,7 +382,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldGetAndUpdateCounterLabel()
+    void shouldGetAndUpdateCounterLabel()
     {
         final AtomicCounter counter = manager.newCounter("original label");
 
@@ -392,7 +392,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldGetAndUpdateCounterKeyUsingCallback()
+    void shouldGetAndUpdateCounterKeyUsingCallback()
     {
         final String originalKey = "original key";
         final String updatedKey = "updated key";
@@ -412,7 +412,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldGetAndUpdateCounterKey()
+    void shouldGetAndUpdateCounterKey()
     {
         final String originalKey = "original key";
         final String updatedKey = "updated key";
@@ -436,7 +436,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldRejectOversizeKeys()
+    void shouldRejectOversizeKeys()
     {
         final String originalKey = "original key";
 
@@ -476,7 +476,7 @@ public class CountersManagerTest
     }
 
     @Test
-    public void shouldAppendLabel()
+    void shouldAppendLabel()
     {
         final AtomicCounter counter = manager.newCounter("original label");
 

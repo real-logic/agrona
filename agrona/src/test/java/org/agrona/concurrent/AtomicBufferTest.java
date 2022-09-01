@@ -32,7 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AtomicBufferTest
+class AtomicBufferTest
 {
     private static final ByteOrder BYTE_ORDER = ByteOrder.nativeOrder();
     private static final int BUFFER_CAPACITY = 4096;
@@ -68,14 +68,14 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetCapacity(final AtomicBuffer buffer)
+    void shouldGetCapacity(final AtomicBuffer buffer)
     {
         assertThat(buffer.capacity(), is(BUFFER_CAPACITY));
     }
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldThrowExceptionForAboveCapacity(final AtomicBuffer buffer)
+    void shouldThrowExceptionForAboveCapacity(final AtomicBuffer buffer)
     {
         final int index = BUFFER_CAPACITY + 1;
         assertThrows(IndexOutOfBoundsException.class, () -> buffer.checkLimit(index));
@@ -83,14 +83,14 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldThrowExceptionWhenOutOfBounds(final AtomicBuffer buffer)
+    void shouldThrowExceptionWhenOutOfBounds(final AtomicBuffer buffer)
     {
         final int index = BUFFER_CAPACITY;
         assertThrows(IndexOutOfBoundsException.class, () -> buffer.getByte(index));
     }
 
     @Test
-    public void sharedBuffer()
+    void sharedBuffer()
     {
         final ByteBuffer bb = ByteBuffer.allocateDirect(1024);
         final UnsafeBuffer ub1 = new UnsafeBuffer(bb, 0, 512);
@@ -102,7 +102,7 @@ public class AtomicBufferTest
     }
 
     @Test
-    public void shouldVerifyBufferAlignment()
+    void shouldVerifyBufferAlignment()
     {
         final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(1024));
         try
@@ -116,7 +116,7 @@ public class AtomicBufferTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenBufferNotAligned()
+    void shouldThrowExceptionWhenBufferNotAligned()
     {
         final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
         byteBuffer.position(1);
@@ -127,7 +127,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldCopyMemory(final AtomicBuffer buffer)
+    void shouldCopyMemory(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "xxxxxxxxxxx".getBytes();
 
@@ -142,7 +142,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetLongFromBuffer(final AtomicBuffer buffer)
+    void shouldGetLongFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -153,7 +153,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutLongToBuffer(final AtomicBuffer buffer)
+    void shouldPutLongToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -164,7 +164,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetLongFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetLongFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -176,7 +176,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutLongToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutLongToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -188,7 +188,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetLongVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetLongVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -200,7 +200,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutLongVolatileToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutLongVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -212,7 +212,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutLongOrderedToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutLongOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -224,7 +224,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAddLongOrderedToNativeBuffer(final AtomicBuffer buffer)
+    void shouldAddLongOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -239,7 +239,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldCompareAndSetLongToNativeBuffer(final AtomicBuffer buffer)
+    void shouldCompareAndSetLongToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -253,7 +253,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAndSetLongToNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetAndSetLongToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -269,7 +269,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAndAddLongToNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetAndAddLongToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -285,7 +285,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetIntFromBuffer(final AtomicBuffer buffer)
+    void shouldGetIntFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -296,7 +296,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutIntToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutIntToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -308,7 +308,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetIntFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetIntFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -320,7 +320,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutIntToBuffer(final AtomicBuffer buffer)
+    void shouldPutIntToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -331,7 +331,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetIntVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetIntVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -343,7 +343,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutIntVolatileToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutIntVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -355,7 +355,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutIntOrderedToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutIntOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -367,7 +367,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAddIntOrderedToNativeBuffer(final AtomicBuffer buffer)
+    void shouldAddIntOrderedToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -382,7 +382,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldCompareAndSetIntToNativeBuffer(final AtomicBuffer buffer)
+    void shouldCompareAndSetIntToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -396,7 +396,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAndSetIntToNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetAndSetIntToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -412,7 +412,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAndAddIntToNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetAndAddIntToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -428,7 +428,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetShortFromBuffer(final AtomicBuffer buffer)
+    void shouldGetShortFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -439,7 +439,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutShortToBuffer(final AtomicBuffer buffer)
+    void shouldPutShortToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -450,7 +450,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetShortFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetShortFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -462,7 +462,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutShortToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutShortToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -474,7 +474,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetShortVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetShortVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -486,7 +486,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutShortVolatileToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutShortVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -498,7 +498,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetCharFromBuffer(final AtomicBuffer buffer)
+    void shouldGetCharFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -509,7 +509,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutCharToBuffer(final AtomicBuffer buffer)
+    void shouldPutCharToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -520,7 +520,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetCharFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetCharFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -532,7 +532,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutCharToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutCharToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -544,7 +544,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetCharVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetCharVolatileFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -556,7 +556,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutCharVolatileToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutCharVolatileToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -568,7 +568,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetDoubleFromBuffer(final AtomicBuffer buffer)
+    void shouldGetDoubleFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -579,7 +579,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutDoubleToBuffer(final AtomicBuffer buffer)
+    void shouldPutDoubleToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -590,7 +590,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetDoubleFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetDoubleFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -602,7 +602,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutDoubleToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutDoubleToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -614,7 +614,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetFloatFromBuffer(final AtomicBuffer buffer)
+    void shouldGetFloatFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -625,7 +625,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutFloatToBuffer(final AtomicBuffer buffer)
+    void shouldPutFloatToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -636,7 +636,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetFloatFromNativeBuffer(final AtomicBuffer buffer)
+    void shouldGetFloatFromNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -648,7 +648,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutFloatToNativeBuffer(final AtomicBuffer buffer)
+    void shouldPutFloatToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
         duplicateBuffer.order(ByteOrder.nativeOrder());
@@ -660,7 +660,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetByteFromBuffer(final AtomicBuffer buffer)
+    void shouldGetByteFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -671,7 +671,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutByteToBuffer(final AtomicBuffer buffer)
+    void shouldPutByteToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -682,7 +682,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetByteVolatileFromBuffer(final AtomicBuffer buffer)
+    void shouldGetByteVolatileFromBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -693,7 +693,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutByteVolatileToBuffer(final AtomicBuffer buffer)
+    void shouldPutByteVolatileToBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = byteBuffer(buffer);
 
@@ -704,7 +704,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetByteArrayFromBuffer(final AtomicBuffer buffer)
+    void shouldGetByteArrayFromBuffer(final AtomicBuffer buffer)
     {
         final byte[] testArray = { 'H', 'e', 'l', 'l', 'o' };
 
@@ -723,7 +723,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetBytesFromBuffer(final AtomicBuffer buffer)
+    void shouldGetBytesFromBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
@@ -739,7 +739,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetBytesFromBufferToBuffer(final AtomicBuffer buffer)
+    void shouldGetBytesFromBufferToBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
@@ -755,7 +755,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetBytesFromBufferToAtomicBuffer(final AtomicBuffer buffer)
+    void shouldGetBytesFromBufferToAtomicBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
@@ -775,7 +775,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetBytesFromBufferToSlice(final AtomicBuffer buffer)
+    void shouldGetBytesFromBufferToSlice(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
@@ -797,7 +797,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutBytesToBuffer(final AtomicBuffer buffer)
+    void shouldPutBytesToBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         buffer.putBytes(INDEX, testBytes);
@@ -813,7 +813,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutBytesToBufferFromBuffer(final AtomicBuffer buffer)
+    void shouldPutBytesToBufferFromBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer = ByteBuffer.wrap(testBytes);
@@ -831,7 +831,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutBytesToBufferFromAtomicBuffer(final AtomicBuffer buffer)
+    void shouldPutBytesToBufferFromAtomicBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);
@@ -850,7 +850,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutBytesToBufferFromSlice(final AtomicBuffer buffer)
+    void shouldPutBytesToBufferFromSlice(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer =
@@ -870,7 +870,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldPutBytesToAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
+    void shouldPutBytesToAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);
@@ -891,7 +891,7 @@ public class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetBytesIntoAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
+    void shouldGetBytesIntoAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
         final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);

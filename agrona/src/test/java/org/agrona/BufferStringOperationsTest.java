@@ -27,7 +27,7 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BufferStringOperationsTest
+class BufferStringOperationsTest
 {
     private static final int BUFFER_CAPACITY = 256;
     private static final int INDEX = 8;
@@ -43,7 +43,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
+    void shouldInsertNonAsciiAsQuestionMark(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World £";
 
@@ -53,7 +53,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAppendAsciiStringInParts(final MutableDirectBuffer buffer)
+    void shouldAppendAsciiStringInParts(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World Test";
 
@@ -78,7 +78,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringNativeLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringNativeLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -89,7 +89,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringBigEndianLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringBigEndianLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -100,7 +100,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripAsciiStringWithoutLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripAsciiStringWithoutLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -111,7 +111,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripUtf8StringNativeLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripUtf8StringNativeLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello£ World £";
 
@@ -122,7 +122,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripUtf8StringBigEndianLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripUtf8StringBigEndianLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello£ World £";
 
@@ -133,7 +133,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldRoundTripUtf8StringWithoutLength(final MutableDirectBuffer buffer)
+    void shouldRoundTripUtf8StringWithoutLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello£ World £";
 
@@ -144,7 +144,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAsciiToAppendable(final MutableDirectBuffer buffer)
+    void shouldGetAsciiToAppendable(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -159,7 +159,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAsciiWithByteOrderToAppendable(final MutableDirectBuffer buffer)
+    void shouldGetAsciiWithByteOrderToAppendable(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -174,7 +174,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldGetAsciiToAppendableForLength(final MutableDirectBuffer buffer)
+    void shouldGetAsciiToAppendableForLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -190,7 +190,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAppendWithInvalidChar(final MutableDirectBuffer buffer)
+    void shouldAppendWithInvalidChar(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 
@@ -206,7 +206,7 @@ public class BufferStringOperationsTest
 
     @ParameterizedTest
     @MethodSource("buffers")
-    public void shouldAppendWithInvalidCharWithoutLength(final MutableDirectBuffer buffer)
+    void shouldAppendWithInvalidCharWithoutLength(final MutableDirectBuffer buffer)
     {
         final String value = "Hello World";
 

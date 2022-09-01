@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class BroadcastTransmitterTest
+class BroadcastTransmitterTest
 {
     private static final int MSG_TYPE_ID = 7;
     private static final int CAPACITY = 1024;
@@ -41,7 +41,7 @@ public class BroadcastTransmitterTest
     private BroadcastTransmitter broadcastTransmitter;
 
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         when(buffer.capacity()).thenReturn(TOTAL_BUFFER_LENGTH);
 
@@ -49,13 +49,13 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldCalculateCapacityForBuffer()
+    void shouldCalculateCapacityForBuffer()
     {
         assertThat(broadcastTransmitter.capacity(), is(CAPACITY));
     }
 
     @Test
-    public void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
+    void shouldThrowExceptionForCapacityThatIsNotPowerOfTwo()
     {
         final int capacity = 777;
         final int totalBufferLength = capacity + BroadcastBufferDescriptor.TRAILER_LENGTH;
@@ -66,7 +66,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenMaxMessageLengthExceeded()
+    void shouldThrowExceptionWhenMaxMessageLengthExceeded()
     {
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
 
@@ -75,7 +75,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenMessageTypeIdInvalid()
+    void shouldThrowExceptionWhenMessageTypeIdInvalid()
     {
         final int invalidMsgId = -1;
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
@@ -85,7 +85,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldTransmitIntoEmptyBuffer()
+    void shouldTransmitIntoEmptyBuffer()
     {
         final long tail = 0L;
         final int recordOffset = (int)tail;
@@ -111,7 +111,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldTransmitIntoUsedBuffer()
+    void shouldTransmitIntoUsedBuffer()
     {
         final long tail = RECORD_ALIGNMENT * 3;
         final int recordOffset = (int)tail;
@@ -139,7 +139,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldTransmitIntoEndOfBuffer()
+    void shouldTransmitIntoEndOfBuffer()
     {
         final int length = 8;
         final int recordLength = length + HEADER_LENGTH;
@@ -168,7 +168,7 @@ public class BroadcastTransmitterTest
     }
 
     @Test
-    public void shouldApplyPaddingWhenInsufficientSpaceAtEndOfBuffer()
+    void shouldApplyPaddingWhenInsufficientSpaceAtEndOfBuffer()
     {
         long tail = CAPACITY - RECORD_ALIGNMENT;
         int recordOffset = (int)tail;

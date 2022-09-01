@@ -25,12 +25,12 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class BiInt2ObjectMapTest
+class BiInt2ObjectMapTest
 {
     private final BiInt2ObjectMap<String> map = new BiInt2ObjectMap<>();
 
     @Test
-    public void shouldInitialiseUnderlyingImplementation()
+    void shouldInitialiseUnderlyingImplementation()
     {
         final int initialCapacity = 10;
         final float loadFactor = 0.6f;
@@ -41,13 +41,13 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldReportEmpty()
+    void shouldReportEmpty()
     {
         assertThat(map.isEmpty(), is(true));
     }
 
     @Test
-    public void shouldPutItem()
+    void shouldPutItem()
     {
         final String testValue = "Test";
         final int keyPartA = 3;
@@ -58,7 +58,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldPutAndGetItem()
+    void shouldPutAndGetItem()
     {
         final String testValue = "Test";
         final int keyPartA = 3;
@@ -69,7 +69,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldReturnNullWhenNotFoundItem()
+    void shouldReturnNullWhenNotFoundItem()
     {
         final int keyPartA = 3;
         final int keyPartB = 7;
@@ -78,7 +78,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldRemoveItem()
+    void shouldRemoveItem()
     {
         final String testValue = "Test";
         final int keyPartA = 3;
@@ -90,7 +90,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldIterateValues()
+    void shouldIterateValues()
     {
         final Set<String> expectedSet = new HashSet<>();
         final int count = 7;
@@ -110,7 +110,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldIterateEntries()
+    void shouldIterateEntries()
     {
         final Set<EntryCapture<String>> expectedSet = new HashSet<>();
         final int count = 7;
@@ -130,7 +130,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldToString()
+    void shouldToString()
     {
         final int count = 7;
 
@@ -144,7 +144,7 @@ public class BiInt2ObjectMapTest
     }
 
     @Test
-    public void shouldPutAndGetKeysOfNegativeValue()
+    void shouldPutAndGetKeysOfNegativeValue()
     {
         map.put(721632679, 333118496, "a");
         assertThat(map.get(721632679, 333118496), is("a"));
@@ -180,13 +180,13 @@ public class BiInt2ObjectMapTest
         assertThat(map.get(721633319, -532637417), is("k"));
     }
 
-    public static class EntryCapture<V>
+    static final class EntryCapture<V>
     {
         public final int keyPartA;
         public final int keyPartB;
         public final V value;
 
-        public EntryCapture(final int keyPartA, final int keyPartB, final V value)
+        EntryCapture(final int keyPartA, final int keyPartB, final V value)
         {
             this.keyPartA = keyPartA;
             this.keyPartB = keyPartB;
@@ -208,7 +208,6 @@ public class BiInt2ObjectMapTest
             final EntryCapture<?> that = (EntryCapture<?>)o;
 
             return keyPartA == that.keyPartA && keyPartB == that.keyPartB && value.equals(that.value);
-
         }
 
         public int hashCode()

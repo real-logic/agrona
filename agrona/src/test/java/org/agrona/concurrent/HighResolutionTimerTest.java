@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HighResolutionTimerTest
+class HighResolutionTimerTest
 {
     @Test
-    public void shouldEnableHighResolutionTimers()
+    void shouldEnableHighResolutionTimers()
     {
         assertFalse(HighResolutionTimer.isEnabled());
 

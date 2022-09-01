@@ -25,7 +25,7 @@ import static org.agrona.collections.Int2IntHashMap.MIN_CAPACITY;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class Int2IntHashMapNotAvoidingAllocationTest extends Int2IntHashMapTest
+class Int2IntHashMapNotAvoidingAllocationTest extends Int2IntHashMapTest
 {
     @BeforeEach
     void before()
@@ -34,25 +34,25 @@ public class Int2IntHashMapNotAvoidingAllocationTest extends Int2IntHashMapTest
     }
 
     @Test
-    public void valuesIteratorIsNotCached()
+    void valuesIteratorIsNotCached()
     {
         assertNotSame(map.values().iterator(), map.values().iterator());
     }
 
     @Test
-    public void keysIteratorIsNotCached()
+    void keysIteratorIsNotCached()
     {
         assertNotSame(map.keySet().iterator(), map.keySet().iterator());
     }
 
     @Test
-    public void entryIteratorIsNotCached()
+    void entryIteratorIsNotCached()
     {
         assertNotSame(map.entrySet().iterator(), map.entrySet().iterator());
     }
 
     @Test
-    public void entriesAreAllocatedByEntriesIterator()
+    void entriesAreAllocatedByEntriesIterator()
     {
         map.put(1, 1);
         map.put(2, 2);

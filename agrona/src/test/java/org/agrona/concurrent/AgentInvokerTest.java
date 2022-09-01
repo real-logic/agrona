@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class AgentInvokerTest
+class AgentInvokerTest
 {
     private final ErrorHandler mockErrorHandler = mock(ErrorHandler.class);
     private final AtomicCounter mockAtomicCounter = mock(AtomicCounter.class);
@@ -37,7 +37,7 @@ public class AgentInvokerTest
     private final AgentInvoker invoker = new AgentInvoker(mockErrorHandler, mockAtomicCounter, mockAgent);
 
     @Test
-    public void shouldFollowLifecycle() throws Exception
+    void shouldFollowLifecycle() throws Exception
     {
         invoker.start();
         invoker.start();
@@ -56,13 +56,13 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldReturnAgent()
+    void shouldReturnAgent()
     {
         assertThat(invoker.agent(), is(mockAgent));
     }
 
     @Test
-    public void shouldNotDoWorkOnClosedRunnerButCallOnClose() throws Exception
+    void shouldNotDoWorkOnClosedRunnerButCallOnClose() throws Exception
     {
         invoker.close();
         invoker.invoke();
@@ -75,7 +75,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldReportExceptionThrownByAgent() throws Exception
+    void shouldReportExceptionThrownByAgent() throws Exception
     {
         final RuntimeException expectedException = new RuntimeException();
         when(mockAgent.doWork()).thenThrow(expectedException);
@@ -101,7 +101,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldReportExceptionThrownOnStart() throws Exception
+    void shouldReportExceptionThrownOnStart() throws Exception
     {
         final RuntimeException expectedException = new RuntimeException();
         Mockito.doThrow(expectedException).when(mockAgent).onStart();
@@ -119,7 +119,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
+    void shouldHandleAgentTerminationExceptionThrownByAgent() throws Exception
     {
         final RuntimeException expectedException = new AgentTerminationException();
         when(mockAgent.doWork()).thenThrow(expectedException);
@@ -141,7 +141,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldStopRunningOnRuntimeException() throws Exception
+    void shouldStopRunningOnRuntimeException() throws Exception
     {
         try
         {
@@ -178,7 +178,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldNotReportClosedByInterruptException() throws Exception
+    void shouldNotReportClosedByInterruptException() throws Exception
     {
         when(mockAgent.doWork()).thenThrow(new ClosedByInterruptException());
 
@@ -187,7 +187,7 @@ public class AgentInvokerTest
     }
 
     @Test
-    public void shouldNotReportRethrownClosedByInterruptException() throws Exception
+    void shouldNotReportRethrownClosedByInterruptException() throws Exception
     {
         when(mockAgent.doWork()).thenAnswer(
             (inv) ->

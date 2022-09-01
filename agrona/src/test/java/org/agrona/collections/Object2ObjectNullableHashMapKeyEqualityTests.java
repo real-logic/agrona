@@ -25,7 +25,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class Object2ObjectNullableHashMapKeyEqualityTests extends Object2ObjectHashMapKeyEqualityTests
+class Object2ObjectNullableHashMapKeyEqualityTests extends Object2ObjectHashMapKeyEqualityTests
 {
     Map<Object, Integer> newMap()
     {

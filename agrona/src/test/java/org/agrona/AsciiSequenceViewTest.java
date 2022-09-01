@@ -23,14 +23,14 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AsciiSequenceViewTest
+class AsciiSequenceViewTest
 {
     private static final int INDEX = 2;
     private final MutableDirectBuffer buffer = new UnsafeBuffer(new byte[128]);
     private final AsciiSequenceView asciiSequenceView = new AsciiSequenceView();
 
     @Test
-    public void shouldBeAbleToGetChars()
+    void shouldBeAbleToGetChars()
     {
         final String data = "stringy";
         buffer.putStringWithoutLengthAscii(INDEX, data);
@@ -47,7 +47,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldToString()
+    void shouldToString()
     {
         final String data = "a little bit of ascii";
         buffer.putStringWithoutLengthAscii(INDEX, data);
@@ -58,7 +58,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldReturnCorrectLength()
+    void shouldReturnCorrectLength()
     {
         final String data = "a little bit of ascii";
         buffer.putStringWithoutLengthAscii(INDEX, data);
@@ -69,7 +69,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldCopyDataUnderTheView()
+    void shouldCopyDataUnderTheView()
     {
         final String data = "a little bit of ascii";
         final int targetBufferOffset = 56;
@@ -83,7 +83,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldSubSequence()
+    void shouldSubSequence()
     {
         final String data = "a little bit of ascii";
         buffer.putStringWithoutLengthAscii(INDEX, data);
@@ -95,7 +95,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldReturnEmptyStringWhenBufferIsNull()
+    void shouldReturnEmptyStringWhenBufferIsNull()
     {
         assertEquals(0, asciiSequenceView.length());
         assertEquals("", asciiSequenceView.toString());
@@ -103,7 +103,7 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldThrowIndexOutOfBoundsExceptionWhenCharNotPresentAtGivenPosition()
+    void shouldThrowIndexOutOfBoundsExceptionWhenCharNotPresentAtGivenPosition()
     {
         final String data = "foo";
         buffer.putStringWithoutLengthAscii(INDEX, data);
@@ -113,13 +113,13 @@ public class AsciiSequenceViewTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenCharAtCalledWithNoBuffer()
+    void shouldThrowExceptionWhenCharAtCalledWithNoBuffer()
     {
         assertThrows(StringIndexOutOfBoundsException.class, () -> asciiSequenceView.charAt(0));
     }
 
     @Test
-    public void shouldThrowExceptionWhenCharAtCalledWithNegativeIndex()
+    void shouldThrowExceptionWhenCharAtCalledWithNegativeIndex()
     {
         final String data = "foo";
         buffer.putStringWithoutLengthAscii(INDEX, data);

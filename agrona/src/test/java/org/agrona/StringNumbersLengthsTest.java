@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StringNumbersLengthsTest
+class StringNumbersLengthsTest
 {
     private static int[][] valuesAndLengths()
     {
@@ -45,7 +45,7 @@ public class StringNumbersLengthsTest
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    public void shouldPutNaturalInt(final int[] valueAndLength)
+    void shouldPutNaturalInt(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
 
@@ -57,7 +57,7 @@ public class StringNumbersLengthsTest
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    public void shouldPutNaturalLong(final int[] valueAndLength)
+    void shouldPutNaturalLong(final int[] valueAndLength)
     {
         final long value = valueAndLength[0];
 
@@ -69,7 +69,7 @@ public class StringNumbersLengthsTest
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    public void shouldPutInt(final int[] valueAndLength)
+    void shouldPutInt(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
 
@@ -81,7 +81,7 @@ public class StringNumbersLengthsTest
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
-    public void shouldPutLong(final int[] valueAndLength)
+    void shouldPutLong(final int[] valueAndLength)
     {
         final int value = valueAndLength[0];
 

@@ -28,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QueuedPipeTest
+class QueuedPipeTest
 {
     private static final int QUEUE_CAPACITY = 8;
 
@@ -43,28 +43,28 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldGetSizeWhenEmpty(final QueuedPipe<Integer> queue)
+    void shouldGetSizeWhenEmpty(final QueuedPipe<Integer> queue)
     {
         assertThat(queue.size(), is(0));
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldThrowExceptionWhenNullOffered(final QueuedPipe<Integer> queue)
+    void shouldThrowExceptionWhenNullOffered(final QueuedPipe<Integer> queue)
     {
         assertThrows(NullPointerException.class, () -> queue.offer(null));
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldThrowExceptionWhenNullAdded(final QueuedPipe<Integer> queue)
+    void shouldThrowExceptionWhenNullAdded(final QueuedPipe<Integer> queue)
     {
         assertThrows(NullPointerException.class, () -> queue.add(null));
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldOfferAndPollToEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldOfferAndPollToEmptyQueue(final QueuedPipe<Integer> queue)
     {
         final Integer testValue = 7;
 
@@ -80,7 +80,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldAddAndRemoveFromEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldAddAndRemoveFromEmptyQueue(final QueuedPipe<Integer> queue)
     {
         final Integer testValue = 7;
 
@@ -95,7 +95,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldFailToOfferToFullQueue(final QueuedPipe<Integer> queue)
+    void shouldFailToOfferToFullQueue(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -106,7 +106,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldPollSingleElementFromFullQueue(final QueuedPipe<Integer> queue)
+    void shouldPollSingleElementFromFullQueue(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -117,7 +117,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldPollNullFromEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldPollNullFromEmptyQueue(final QueuedPipe<Integer> queue)
     {
         final Integer polledValue = queue.poll();
         assertNull(polledValue);
@@ -125,7 +125,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldPeakQueueHead(final QueuedPipe<Integer> queue)
+    void shouldPeakQueueHead(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -136,7 +136,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldReturnNullForPeekOnEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldReturnNullForPeekOnEmptyQueue(final QueuedPipe<Integer> queue)
     {
         final Integer value = queue.peek();
         assertNull(value);
@@ -144,7 +144,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldReturnElementQueueHead(final QueuedPipe<Integer> queue)
+    void shouldReturnElementQueueHead(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -155,14 +155,14 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldThrowExceptionForElementOnEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldThrowExceptionForElementOnEmptyQueue(final QueuedPipe<Integer> queue)
     {
         assertThrows(NoSuchElementException.class, queue::element);
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldRemoveSingleElementFromFullQueue(final QueuedPipe<Integer> queue)
+    void shouldRemoveSingleElementFromFullQueue(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -174,14 +174,14 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldThrowExceptionForRemoveOnEmptyQueue(final QueuedPipe<Integer> queue)
+    void shouldThrowExceptionForRemoveOnEmptyQueue(final QueuedPipe<Integer> queue)
     {
         assertThrows(NoSuchElementException.class, queue::remove);
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldClearFullQueue(final QueuedPipe<Integer> queue)
+    void shouldClearFullQueue(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -191,7 +191,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldDrainFullQueue(final QueuedPipe<Integer> queue)
+    void shouldDrainFullQueue(final QueuedPipe<Integer> queue)
     {
         fillQueue(queue);
 
@@ -207,7 +207,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldHandleExceptionWhenDraining(final QueuedPipe<Integer> queue)
+    void shouldHandleExceptionWhenDraining(final QueuedPipe<Integer> queue)
     {
         final String testMessage = "Test Exception";
 
@@ -242,7 +242,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldDrainFullQueueToCollection(final QueuedPipe<Integer> queue)
+    void shouldDrainFullQueueToCollection(final QueuedPipe<Integer> queue)
     {
         final Collection<Integer> target = new ArrayList<>();
 
@@ -257,7 +257,7 @@ public class QueuedPipeTest
 
     @ParameterizedTest
     @MethodSource("data")
-    public void shouldDrainQueueWithCountToCollection(final QueuedPipe<Integer> queue)
+    void shouldDrainQueueWithCountToCollection(final QueuedPipe<Integer> queue)
     {
         final Collection<Integer> target = new ArrayList<>();
         final int count = 3;

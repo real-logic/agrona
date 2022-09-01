@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Object2ObjectHashMapTest
+class Object2ObjectHashMapTest
 {
     @Test
-    public void testToArray()
+    void testToArray()
     {
         final Object2ObjectHashMap<String, String> cut = new Object2ObjectHashMap<>();
         cut.put("a", "valA");
@@ -43,7 +43,7 @@ public class Object2ObjectHashMapTest
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void testToArrayTyped()
+    void testToArrayTyped()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
         map.put("a", "valA");
@@ -61,7 +61,7 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
-    public void testToArrayWithArrayListConstructor()
+    void testToArrayWithArrayListConstructor()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
         map.put("a", "valA");
@@ -78,7 +78,7 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
-    public void shouldForEachEntries()
+    void shouldForEachEntries()
     {
         class Entry
         {
@@ -145,7 +145,7 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
-    public void shouldForEachValues()
+    void shouldForEachValues()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
         for (int i = 0; i < 11; i++)
@@ -168,7 +168,7 @@ public class Object2ObjectHashMapTest
     }
 
     @Test
-    public void shouldForEachKeys()
+    void shouldForEachKeys()
     {
         final Object2ObjectHashMap<String, String> map = new Object2ObjectHashMap<>();
         for (int i = 0; i < 11; i++)

@@ -22,12 +22,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class DynamicCompositeAgentTest
+class DynamicCompositeAgentTest
 {
     private static final String ROLE_NAME = "roleName";
 
     @Test
-    public void shouldNotAllowAddAfterClose()
+    void shouldNotAllowAddAfterClose()
     {
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
@@ -38,7 +38,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldNotAllowRemoveAfterClose()
+    void shouldNotAllowRemoveAfterClose()
     {
         final DynamicCompositeAgent compositeAgent = new DynamicCompositeAgent(ROLE_NAME);
         final AgentInvoker invoker = new AgentInvoker(Throwable::printStackTrace, null, compositeAgent);
@@ -49,7 +49,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldAddAgent() throws Exception
+    void shouldAddAgent() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
 
@@ -77,7 +77,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldRemoveAgent() throws Exception
+    void shouldRemoveAgent() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);
@@ -105,7 +105,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldCloseAgents() throws Exception
+    void shouldCloseAgents() throws Exception
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);
@@ -124,7 +124,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldDetectConcurrentAdd()
+    void shouldDetectConcurrentAdd()
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);
@@ -141,7 +141,7 @@ public class DynamicCompositeAgentTest
     }
 
     @Test
-    public void shouldDetectConcurrentRemove()
+    void shouldDetectConcurrentRemove()
     {
         final Agent mockAgentOne = mock(Agent.class);
         final Agent mockAgentTwo = mock(Agent.class);

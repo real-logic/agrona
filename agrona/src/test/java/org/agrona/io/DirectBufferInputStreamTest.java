@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DirectBufferInputStreamTest
+class DirectBufferInputStreamTest
 {
     private static final int END_OF_STREAM_MARKER = -1;
 
     @Test
-    public void shouldCorrectlyConvertBytesToPositiveIntegers()
+    void shouldCorrectlyConvertBytesToPositiveIntegers()
     {
         final byte[] data = { (byte)-1, 0 };
         final DirectBuffer buffer = new UnsafeBuffer(data);
@@ -36,7 +36,7 @@ public class DirectBufferInputStreamTest
     }
 
     @Test
-    public void shouldReturnMinusOneOnEndOfStream()
+    void shouldReturnMinusOneOnEndOfStream()
     {
         final byte[] data = { 1, 2 };
 

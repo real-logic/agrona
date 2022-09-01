@@ -23,10 +23,10 @@ import java.nio.ByteBuffer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class BufferCompareTest
+class BufferCompareTest
 {
     @Test
-    public void shouldEqualOnSameTypeAndValue()
+    void shouldEqualOnSameTypeAndValue()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
         final MutableDirectBuffer rhsBuffer = new ExpandableArrayBuffer();
@@ -38,7 +38,7 @@ public class BufferCompareTest
     }
 
     @Test
-    public void shouldEqualOnDifferentTypeAndValue()
+    void shouldEqualOnDifferentTypeAndValue()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
         final MutableDirectBuffer rhsBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(lhsBuffer.capacity()));
@@ -50,7 +50,7 @@ public class BufferCompareTest
     }
 
     @Test
-    public void shouldEqualOnDifferentExpandableTypeAndValue()
+    void shouldEqualOnDifferentExpandableTypeAndValue()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
         final MutableDirectBuffer rhsBuffer = new ExpandableDirectByteBuffer();
@@ -62,7 +62,7 @@ public class BufferCompareTest
     }
 
     @Test
-    public void shouldBeGreater()
+    void shouldBeGreater()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
         final MutableDirectBuffer rhsBuffer = new ExpandableArrayBuffer();
@@ -74,7 +74,7 @@ public class BufferCompareTest
     }
 
     @Test
-    public void shouldBeLess()
+    void shouldBeLess()
     {
         final MutableDirectBuffer lhsBuffer = new ExpandableArrayBuffer();
         final MutableDirectBuffer rhsBuffer = new ExpandableArrayBuffer();

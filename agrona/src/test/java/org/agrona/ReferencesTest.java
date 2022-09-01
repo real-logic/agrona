@@ -24,10 +24,10 @@ import java.math.BigInteger;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ReferencesTest
+class ReferencesTest
 {
     @Test
-    public void validateIsCleared()
+    void validateIsCleared()
     {
         BigInteger bigInteger = new BigInteger("42");
         final WeakReference<BigInteger> ref = new WeakReference<>(bigInteger);
@@ -38,7 +38,7 @@ public class ReferencesTest
     }
 
     @Test
-    public void validateIsReferringTo()
+    void validateIsReferringTo()
     {
         final Long objOne = 42L;
         final Long objTwo = 43L; // Need different value to make sure it is a different instance...

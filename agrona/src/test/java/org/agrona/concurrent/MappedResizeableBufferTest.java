@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MappedResizeableBufferTest
+class MappedResizeableBufferTest
 {
     private static final long SIZE = 2 * (long)Integer.MAX_VALUE;
     private static final int VALUE = 4;
@@ -53,7 +53,7 @@ public class MappedResizeableBufferTest
     }
 
     @AfterEach
-    public void close()
+    void close()
     {
         CloseHelper.close(buffer);
     }
@@ -66,7 +66,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldWriteDataToBuffer()
+    void shouldWriteDataToBuffer()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -74,7 +74,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldResizeBufferToOver2GB()
+    void shouldResizeBufferToOver2GB()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -84,7 +84,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldReadPreviousWrites()
+    void shouldReadPreviousWrites()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
 
@@ -96,7 +96,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldReadBytesFromOtherBuffer()
+    void shouldReadBytesFromOtherBuffer()
     {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
 
@@ -110,7 +110,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldNotCloseChannelUponBufferClose()
+    void shouldNotCloseChannelUponBufferClose()
     {
         buffer = new MappedResizeableBuffer(channel, 0, SIZE);
         buffer.close();
@@ -120,7 +120,7 @@ public class MappedResizeableBufferTest
     }
 
     @Test
-    public void shouldPutBytesFromDirectBuffer()
+    void shouldPutBytesFromDirectBuffer()
     {
         buffer = new MappedResizeableBuffer(channel, 0, 100);
         final long value = 0x5555555555555555L;

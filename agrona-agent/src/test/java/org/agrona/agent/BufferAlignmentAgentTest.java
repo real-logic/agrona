@@ -35,7 +35,7 @@ import static java.nio.ByteOrder.BIG_ENDIAN;
 import static org.agrona.BitUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BufferAlignmentAgentTest
+class BufferAlignmentAgentTest
 {
     private static final String TEST_STRING = "BufferAlignmentTest";
     private static final CharSequence TEST_CHAR_SEQUENCE = new StringBuilder("BufferAlignmentTest");
@@ -45,25 +45,25 @@ public class BufferAlignmentAgentTest
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
 
     @BeforeAll
-    public static void installAgent()
+    static void installAgent()
     {
         BufferAlignmentAgent.agentmain("", ByteBuddyAgent.install());
     }
 
     @AfterAll
-    public static void removeAgent()
+    static void removeAgent()
     {
         BufferAlignmentAgent.removeTransformer();
     }
 
     @Test
-    public void testUnsafeBufferFromByteArray()
+    void testUnsafeBufferFromByteArray()
     {
         testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
-    public void testUnsafeBufferFromByteArrayWithOffset()
+    void testUnsafeBufferFromByteArrayWithOffset()
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[256], 1, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
@@ -71,13 +71,13 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
-    public void testUnsafeBufferFromHeapByteBuffer()
+    void testUnsafeBufferFromHeapByteBuffer()
     {
         testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
-    public void testUnsafeBufferFromSlicedHeapByteBuffer()
+    void testUnsafeBufferFromSlicedHeapByteBuffer()
     {
         final ByteBuffer nioBuffer = ByteBuffer.allocateDirect(256);
         nioBuffer.position(1);
@@ -87,7 +87,7 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
-    public void testUnsafeBufferFromSlicedHeapByteBufferWithOffset()
+    void testUnsafeBufferFromSlicedHeapByteBufferWithOffset()
     {
         final ByteBuffer nioBuffer = ByteBuffer.allocate(256);
         nioBuffer.position(1);
@@ -97,13 +97,13 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
-    public void testUnsafeBufferFromDirectByteBuffer()
+    void testUnsafeBufferFromDirectByteBuffer()
     {
         testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0);
     }
 
     @Test
-    public void testUnsafeBufferFromSlicedDirectByteBuffer()
+    void testUnsafeBufferFromSlicedDirectByteBuffer()
     {
         final ByteBuffer nioBuffer = ByteBuffer.allocateDirect(256);
         nioBuffer.position(1);
@@ -113,7 +113,7 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
-    public void testUnsafeBufferFromSlicedDirectByteBufferWithOffset()
+    void testUnsafeBufferFromSlicedDirectByteBufferWithOffset()
     {
         final ByteBuffer nioBuffer = ByteBuffer.allocateDirect(256);
         nioBuffer.position(1);
@@ -123,7 +123,7 @@ public class BufferAlignmentAgentTest
     }
 
     @Test
-    public void testExpandableBuffer()
+    void testExpandableBuffer()
     {
         final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(256);
         testAlignedReadMethods(buffer, HEAP_BUFFER_ALIGNMENT_OFFSET);
