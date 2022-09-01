@@ -24,8 +24,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.IntPredicate;
 import java.util.function.ToIntFunction;
 
+import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
@@ -198,7 +202,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public boolean containsValue(final Object value)
     {
-        return containsValue(((Integer)value).intValue());
+        return containsValue((int)value);
     }
 
     /**
@@ -229,6 +233,22 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     }
 
     /**
+     * Returns the value to which the specified key is mapped, or {@code defaultValue} if this map contains no mapping
+     * for the key.
+     *
+     * @param key          whose associated value is to be returned.
+     * @param defaultValue the default mapping of the key
+     * @return the value to which the specified key is mapped, or {@code defaultValue} if this map contains no mapping
+     * for the key.
+     */
+    @SuppressWarnings("unchecked")
+    public int getOrDefault(final Object key, final int defaultValue)
+    {
+        final int value = getValue((K)key);
+        return missingValue != value ? value : defaultValue;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
@@ -246,6 +266,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int getValue(final K key)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
@@ -274,11 +295,12 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      *
      * @param key             to search on.
      * @param mappingFunction to provide a value if the get returns missingValue.
-     * @return the value if found otherwise the default.
+     * @return old value if found otherwise the newly computed value.
      */
     @SuppressWarnings("overloads")
     public int computeIfAbsent(final K key, final ToIntFunction<? super K> mappingFunction)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
@@ -290,23 +312,24 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         {
             if (Objects.equals(keys[index], key))
             {
-                break;
+                return value;
             }
 
             index = ++index & mask;
         }
 
-        if (missingValue == value && (value = mappingFunction.applyAsInt(key)) != missingValue)
+        final int newValue = mappingFunction.applyAsInt(key);
+        if (missingValue != newValue)
         {
             keys[index] = key;
-            values[index] = value;
+            values[index] = newValue;
             if (++size > resizeThreshold)
             {
                 increaseCapacity();
             }
         }
 
-        return value;
+        return newValue;
     }
 
     /**
@@ -315,7 +338,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * <p>
      * If the function returns missingValue, the mapping is removed
      * <p>
-     * Primitive specialized version of {@link java.util.Map#computeIfPresent}.
+     * Primitive specialized version of {@link java.util.Map#computeIfPresent(Object, BiFunction)}.
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
@@ -324,6 +347,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     @SuppressWarnings("overloads")
     public int computeIfPresent(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
@@ -335,25 +359,21 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         {
             if (Objects.equals(keys[index], key))
             {
-                break;
+                final int newValue = remappingFunction.apply(key, value);
+                values[index] = newValue;
+                if (missingValue == newValue)
+                {
+                    keys[index] = null;
+                    size--;
+                    compactChain(index);
+                }
+                return newValue;
             }
 
             index = ++index & mask;
         }
 
-        if (value != missingValue)
-        {
-            value = remappingFunction.apply(key, value);
-            values[index] = value;
-            if (value == missingValue)
-            {
-                keys[index] = null;
-                size--;
-                compactChain(index);
-            }
-        }
-
-        return value;
+        return missingValue;
     }
 
     /**
@@ -363,7 +383,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * If the function returns missingValue, the mapping is removed (or remains
      * absent if initially absent).
      * <p>
-     * Primitive specialized version of {@link java.util.Map#compute}.
+     * Primitive specialized version of {@link java.util.Map#compute(Object, BiFunction)}.
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
@@ -372,6 +392,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     @SuppressWarnings("overloads")
     public int compute(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
@@ -390,10 +411,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         }
 
         final int newValue = remappingFunction.apply(key, oldValue);
-        if (newValue != missingValue)
+        if (missingValue != newValue)
         {
             values[index] = newValue;
-            if (oldValue == missingValue)
+            if (missingValue == oldValue)
             {
                 keys[index] = key;
                 if (++size > resizeThreshold)
@@ -402,15 +423,75 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
                 }
             }
         }
-        else if (oldValue != missingValue)
+        else if (missingValue != oldValue)
         {
             keys[index] = null;
             values[index] = missingValue;
             --size;
             compactChain(index);
-
         }
 
+        return newValue;
+    }
+
+    /**
+     * If the specified key is not already associated with a value associates it with the given value. Otherwise,
+     * replaces the associated value with the results of the given remapping function, or removes if the result is
+     * {@link #missingValue()}. This method may be of use when combining multiple mapped values for a key. If the
+     * function returns {@link #missingValue()} the mapping is removed.
+     * <p>
+     * Primitive specialized version of {@link java.util.Map#merge(Object, Object, BiFunction)}.
+     *
+     * @param key               with which the resulting value is to be associated.
+     * @param value             to be merged with the existing value associated with the key or, if no existing value
+     *                          is associated with the key, to be associated with the key.
+     * @param remappingFunction the function to recompute a value if present.
+     * @return the new value associated with the specified key, or {@link #missingValue()} if no value is associated
+     * with the key.
+     */
+    public int merge(final K key, final int value, final IntIntFunction remappingFunction)
+    {
+        requireNonNull(key);
+        requireNonNull(remappingFunction);
+        final int missingValue = this.missingValue;
+        if (missingValue == value)
+        {
+            throw new IllegalArgumentException("cannot accept missingValue");
+        }
+
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                break;
+            }
+
+            index = ++index & mask;
+        }
+
+        final int newValue = missingValue == oldValue ? value : remappingFunction.apply(oldValue, value);
+        if (missingValue != newValue)
+        {
+            keys[index] = key;
+            values[index] = newValue;
+            if (++size > resizeThreshold)
+            {
+                increaseCapacity();
+            }
+        }
+        else
+        {
+            keys[index] = null;
+            values[index] = missingValue;
+            --size;
+            compactChain(index);
+        }
         return newValue;
     }
 
@@ -419,7 +500,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public Integer put(final K key, final Integer value)
     {
-        return valueOrNull(put(key, value.intValue()));
+        return valueOrNull(put(key, (int)value));
     }
 
     /**
@@ -431,6 +512,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int put(final K key, final int value)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         if (missingValue == value)
         {
@@ -472,6 +554,106 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     /**
      * {@inheritDoc}
      */
+    public Integer putIfAbsent(final K key, final Integer value)
+    {
+        return valueOrNull(putIfAbsent(key, (int)value));
+    }
+
+    /**
+     * If the specified key is not already associated with a value associates it with the given value and returns
+     * {@link #missingValue()}, else returns the current value.
+     *
+     * @param key   with which the specified value is to be associated.
+     * @param value to be associated with the specified key.
+     * @return the existing value associated with the specified key, or {@link #missingValue()} if there was no mapping
+     * for the key.
+     * @throws IllegalArgumentException if {@code value == missingValue()}
+     */
+    public int putIfAbsent(final K key, final int value)
+    {
+        requireNonNull(key);
+        final int missingValue = this.missingValue;
+        if (missingValue == value)
+        {
+            throw new IllegalArgumentException("cannot accept missingValue");
+        }
+
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int oldValue;
+        while (missingValue != (oldValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                return oldValue;
+            }
+
+            index = ++index & mask;
+        }
+
+        keys[index] = key;
+        values[index] = value;
+
+        if (++size > resizeThreshold)
+        {
+            increaseCapacity();
+        }
+
+        return missingValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(final Object key, final Object value)
+    {
+        return remove(key, (int)value);
+    }
+
+    /**
+     * Primitive overload  of the {@link Map#remove(Object, Object)} that avoids boxing on the value.
+     *
+     * @param key   with which the specified value is associated.
+     * @param value expected to be associated with the specified key.
+     * @return {@code true} if the value was removed.
+     */
+    public boolean remove(final Object key, final int value)
+    {
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int existingValue;
+        while (missingValue != (existingValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                if (value == existingValue)
+                {
+                    keys[index] = null;
+                    values[index] = missingValue;
+                    --size;
+
+                    compactChain(index);
+                    return true;
+                }
+                break;
+            }
+
+            index = ++index & mask;
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public Integer remove(final Object key)
     {
@@ -487,6 +669,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      */
     public int removeKey(final K key)
     {
+        requireNonNull(key);
         final int missingValue = this.missingValue;
         final K[] keys = this.keys;
         final int[] values = this.values;
@@ -543,6 +726,29 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         for (final Entry<? extends K, ? extends Integer> entry : map.entrySet())
         {
             put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Puts all values from the given map to this map.
+     *
+     * @param map whose values to be added to this map.
+     */
+    public void putAll(final Object2IntHashMap<? extends K> map)
+    {
+        final int missingValue = map.missingValue;
+        final K[] keys = map.keys;
+        final int[] values = map.values;
+        @DoNotSub final int length = values.length;
+
+        for (@DoNotSub int index = 0, remaining = map.size; remaining > 0 && index < length; index++)
+        {
+            final int value = values[index];
+            if (missingValue != value)
+            {
+                put(keys[index], value);
+                remaining--;
+            }
         }
     }
 
@@ -682,43 +888,146 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object)}
+     * Primitive specialised version of {@link Map#replace(Object, Object)}
      *
-     * @param key   key with which the specified value is associated
-     * @param value value to be associated with the specified key
-     * @return the previous value associated with the specified key, or
-     * {@code null} if there was no mapping for the key.
+     * @param key   with which the specified value is associated.
+     * @param value to be associated with the specified key.
+     * @return the previous value associated with the specified key, or {@link #missingValue()} if there was no mapping
+     * for the key.
      */
     public int replace(final K key, final int value)
     {
-        int curValue = getValue(key);
-        if (missingValue != curValue)
+        requireNonNull(key);
+        final int missingValue = this.missingValue;
+        if (missingValue == value)
         {
-            curValue = put(key, value);
+            throw new IllegalArgumentException("cannot accept missingValue");
         }
 
-        return curValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
+
+        int existingValue;
+        while (missingValue != (existingValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                values[index] = value;
+                return existingValue;
+            }
+
+            index = ++index & mask;
+        }
+
+        return missingValue;
     }
 
     /**
-     * Primitive specialised version of {@link #replace(Object, Object, Object)}
+     * Primitive specialised version of {@link Map#replace(Object, Object, Object)}
      *
-     * @param key      key with which the specified value is associated
-     * @param oldValue value expected to be associated with the specified key
-     * @param newValue value to be associated with the specified key
-     * @return {@code true} if the value was replaced
+     * @param key      key with which the specified value is associated.
+     * @param oldValue value expected to be associated with the specified key.
+     * @param newValue value to be associated with the specified key.
+     * @return {@code true} if the value was replaced.
      */
     public boolean replace(final K key, final int oldValue, final int newValue)
     {
-        final int curValue = getValue(key);
-        if (missingValue == curValue || curValue != oldValue)
+        requireNonNull(key);
+        final int missingValue = this.missingValue;
+        if (missingValue == newValue)
         {
-            return false;
+            throw new IllegalArgumentException("cannot accept missingValue");
         }
 
-        put(key, newValue);
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int mask = values.length - 1;
+        @DoNotSub int index = Hashing.hash(key, mask);
 
-        return true;
+        int existingValue;
+        while (missingValue != (existingValue = values[index]))
+        {
+            if (Objects.equals(keys[index], key))
+            {
+                if (oldValue == existingValue)
+                {
+                    values[index] = newValue;
+                    return true;
+                }
+                break;
+            }
+
+            index = ++index & mask;
+        }
+
+        return false;
+    }
+
+    /**
+     * Primitive specialised version of {@link Map#replaceAll(BiFunction)}.
+     * <p>
+     * NB: Renamed from replaceAll to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param function the function to apply to each entry.
+     */
+    public void replaceAllInt(final ObjectIntToIntFunction<? super K> function)
+    {
+        requireNonNull(function);
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int length = values.length;
+
+        for (@DoNotSub int index = 0, remaining = size; remaining > 0 && index < length; index++)
+        {
+            final int oldValue = values[index];
+            if (missingValue != oldValue)
+            {
+                final int newVal = function.apply(keys[index], oldValue);
+                if (missingValue == newVal)
+                {
+                    throw new IllegalArgumentException("cannot accept missingValue");
+                }
+                values[index] = newVal;
+                --remaining;
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void forEach(final BiConsumer<? super K, ? super Integer> action)
+    {
+        forEachInt(action::accept);
+    }
+
+    /**
+     * Performs the given action for each entry in this map until all entries have been processed or the action throws
+     * an exception.
+     *
+     * @param action to be performed for each entry.
+     */
+    public void forEachInt(final ObjIntConsumer<? super K> action)
+    {
+        requireNonNull(action);
+        final int missingValue = this.missingValue;
+        final K[] keys = this.keys;
+        final int[] values = this.values;
+        @DoNotSub final int length = values.length;
+
+        for (@DoNotSub int index = 0, remaining = size; remaining > 0 && index < length; index++)
+        {
+            final int oldValue = values[index];
+            if (missingValue != oldValue)
+            {
+                action.accept(keys[index], oldValue);
+                --remaining;
+            }
+        }
     }
 
     private void increaseCapacity()
@@ -898,7 +1207,18 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
          */
         public boolean contains(final Object o)
         {
-            return Object2IntHashMap.this.containsValue(o);
+            return containsValue(o);
+        }
+
+        /**
+         * Checks if the value is contained in the map.
+         *
+         * @param value to be checked.
+         * @return {@code true} if value is contained in this map.
+         */
+        public boolean contains(final int value)
+        {
+            return containsValue(value);
         }
 
         /**
@@ -907,6 +1227,27 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         public void clear()
         {
             Object2IntHashMap.this.clear();
+        }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         *
+         * @param filter a predicate which returns {@code true} for elements to be removed.
+         * @return {@code true} if any elements were removed.
+         */
+        public boolean removeIfInt(final IntPredicate filter)
+        {
+            boolean removed = false;
+            final ValueIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                if (filter.test(iterator.nextInt()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
         }
     }
 
@@ -963,6 +1304,28 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             final Integer value = get(entry.getKey());
 
             return value != null && value.equals(entry.getValue());
+        }
+
+        /**
+         * Removes all the elements of this collection that satisfy the given predicate.
+         *
+         * @param filter a predicate which returns {@code true} for elements to be removed.
+         * @return {@code true} if any elements were removed.
+         */
+        public boolean removeIfInt(final ObjIntPredicate<? super K> filter)
+        {
+            boolean removed = false;
+            final EntryIterator iterator = iterator();
+            while (iterator.hasNext())
+            {
+                iterator.findNext();
+                if (filter.test(iterator.getKey(), iterator.getIntValue()))
+                {
+                    iterator.remove();
+                    removed = true;
+                }
+            }
+            return removed;
         }
 
         /**
@@ -1047,6 +1410,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
                 throw new NoSuchElementException();
             }
 
+            final int missingValue = Object2IntHashMap.this.missingValue;
             final int[] values = Object2IntHashMap.this.values;
             @DoNotSub final int mask = values.length - 1;
 
@@ -1215,7 +1579,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
          */
         public Integer setValue(final Integer value)
         {
-            return setValue(value.intValue());
+            return setValue((int)value);
         }
 
         /**
