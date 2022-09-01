@@ -17,7 +17,12 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -480,10 +485,10 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      * <p>
      * Primitive specialized version of {@link Map#putIfAbsent(Object, Object)}.
      *
-     * @param key with which the specified value is to be associated.
+     * @param key   with which the specified value is to be associated.
      * @param value to be associated with the specified key.
      * @return the previous value associated with the specified key, or
-     *         {@code null} if there was no mapping for the key.
+     * {@code null} if there was no mapping for the key.
      */
     public V putIfAbsent(final int key, final V value)
     {
@@ -577,7 +582,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      * <p>
      * Primitive specialized version of {@link Map#remove(Object, Object)}.
      *
-     * @param key key with which the specified value is associated.
+     * @param key   key with which the specified value is associated.
      * @param value expected to be associated with the specified key.
      * @return {@code true} if the value was removed.
      */
@@ -649,7 +654,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      * <p>
      * Primitive specialized version of {@link Map#replace(Object, Object, Object)}.
      *
-     * @param key with which the specified value is associated.
+     * @param key      with which the specified value is associated.
      * @param oldValue expected to be associated with the specified key.
      * @param newValue to be associated with the specified key.
      * @return {@code true} if the value was replaced.
@@ -678,7 +683,7 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      * <p>
      * Primitive specialized version of {@link Map#replace(Object, Object)}.
      *
-     * @param key with which the specified value is associated.
+     * @param key   with which the specified value is associated.
      * @param value to be associated with the specified key.
      * @return the previous value associated with the specified key.
      */
