@@ -92,8 +92,12 @@ public class Int2NullableObjectHashMapConformanceTest
         }.withFeatures(
             MapFeature.GENERAL_PURPOSE,
             MapFeature.ALLOWS_NULL_VALUES,
+            MapFeature.ALLOWS_NULL_VALUE_QUERIES,
+            MapFeature.ALLOWS_NULL_ENTRY_QUERIES,
+            MapFeature.RESTRICTS_KEYS,
+            MapFeature.RESTRICTS_VALUES,
             CollectionSize.ANY,
-            CollectionFeature.SUPPORTS_ITERATOR_REMOVE)
+            CollectionFeature.REMOVE_OPERATIONS)
             .named(name)
             .createTestSuite();
     }

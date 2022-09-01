@@ -17,10 +17,18 @@ package org.agrona.collections;
 
 import org.agrona.generation.DoNotSub;
 
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link List} implementation that stores int values with the ability to not have them boxed.
@@ -85,7 +93,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param initialElements to be wrapped.
      * @param initialSize     of the array to wrap.
      * @throws IllegalArgumentException if the initialSize is less than 0 or greater than the length of the
-     * initial array.
+     *                                  initial array.
      */
     public void wrap(
         final int[] initialElements,
@@ -114,7 +122,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     /**
      * {@inheritDoc}
      */
-    public @DoNotSub int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -156,7 +164,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     {
         final int value = getInt(index);
 
-        return value == nullValue ? null : value;
+        return nullValue == value ? null : value;
     }
 
     /**
@@ -263,6 +271,14 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean contains(final Object o)
+    {
+        return containsInt(null == o ? nullValue : (int)o);
+    }
+
+    /**
      * Does the list contain this element value.
      *
      * @param value of the element.
@@ -316,12 +332,244 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     }
 
     /**
+     * Appends all the elements in the specified list to the end of this list, in the order that they are stored in the
+     * specified list.
+     *
+     * @param list containing elements to be added to this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean addAll(final IntArrayList list)
+    {
+        @DoNotSub final int numElements = list.size;
+        if (numElements > 0)
+        {
+            ensureCapacityPrivate(size + numElements);
+            System.arraycopy(list.elements, 0, elements, size, numElements);
+            size += numElements;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Inserts all the elements from the specified list to this list at the specified position. Shifts the element
+     * currently at that position (if any) and any subsequent elements to the right (increases their indices). The new
+     * elements will appear in this list in the order that they are stored in the specified list.
+     *
+     * @param index at which to insert the first element from the specified collection.
+     * @param list  containing elements to be added to this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean addAll(
+        @DoNotSub final int index,
+        final IntArrayList list)
+    {
+        checkIndexForAdd(index);
+
+        @DoNotSub final int numElements = list.size;
+        if (numElements > 0)
+        {
+            @DoNotSub final int size = this.size;
+            ensureCapacityPrivate(size + numElements);
+            final int[] elements = this.elements;
+            for (@DoNotSub int i = size - 1; i >= index; i--)
+            {
+                elements[i + numElements] = elements[i];
+            }
+            System.arraycopy(list.elements, 0, elements, index, numElements);
+            this.size += numElements;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains all the elements of the specified list.
+     *
+     * @param list to be checked for containment in this list.
+     * @return {@code true} if this list contains all the elements of the specified list.
+     */
+    public boolean containsAll(final IntArrayList list)
+    {
+        final int[] listElements = list.elements;
+        final int listNullValue = list.nullValue;
+        final boolean hasNulls = contains(null);
+        for (@DoNotSub int i = 0, size = list.size; i < size; i++)
+        {
+            final int value = listElements[i];
+            if (!(containsInt(value) || hasNulls && listNullValue == value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Retains only the elements in this list that are contained in the specified list. In other words, removes from
+     * this list all of its elements that are not contained in the specified list.
+     *
+     * @param list containing elements to be removed from this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean retainAll(final IntArrayList list)
+    {
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0)
+        {
+            if (list.isEmpty())
+            {
+                this.size = 0;
+                return true;
+            }
+
+            final int nullValue = this.nullValue;
+            final boolean listHasNulls = list.contains(null);
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (!(list.containsInt(value) || (listHasNulls && nullValue == value)))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes all of this collection's elements that are also contained in the specified list. After this call
+     * returns, this list will contain no elements in common with the specified list.
+     *
+     * @param list whose elements are to be removed from this list.
+     * @return {@code true} if this list changed as a result of the call.
+     */
+    public boolean removeAll(final IntArrayList list)
+    {
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0 && !list.isEmpty())
+        {
+            final int nullValue = this.nullValue;
+            final boolean listHasNulls = list.contains(null);
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (list.containsInt(value) || (listHasNulls && nullValue == value))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     *
+     * @param filter a predicate which returns true for elements to be removed.
+     * @return {@code true} if any elements were removed.
+     */
+    public boolean removeIfInt(final IntPredicate filter)
+    {
+        requireNonNull(filter);
+        final int[] elements = this.elements;
+        @DoNotSub final int size = this.size;
+        if (size > 0)
+        {
+            int[] filteredElements = null;
+            @DoNotSub int j = -1;
+            for (@DoNotSub int i = 0; i < size; i++)
+            {
+                final int value = elements[i];
+                if (filter.test(value))
+                {
+                    if (null == filteredElements)
+                    {
+                        filteredElements = Arrays.copyOf(elements, size);
+                        j = i - 1;
+                    }
+                }
+                else if (null != filteredElements)
+                {
+                    filteredElements[++j] = value;
+                }
+            }
+
+            if (null != filteredElements)
+            {
+                this.elements = filteredElements;
+                this.size = j + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(final Object o)
+    {
+        return removeInt(null == o ? nullValue : (int)o);
+    }
+
+    /**
      * Remove at a given index.
      *
      * @param index of the element to be removed.
      * @return the existing value at this index.
      */
     public Integer remove(
+        @DoNotSub final int index)
+    {
+        final int value = removeAt(index);
+        return nullValue == value ? null : value;
+    }
+
+    /**
+     * Remove at a given index.
+     *
+     * @param index of the element to be removed.
+     * @return the existing value at this index.
+     */
+    public int removeAt(
         @DoNotSub final int index)
     {
         checkIndex(index);
@@ -361,6 +609,8 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
     /**
      * Remove the first instance of a value if found in the list.
+     * <p>
+     * Primitive specialization of the {@link List#remove(Object)} method.
      *
      * @param value to be removed.
      * @return true if successful otherwise false.
@@ -370,7 +620,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int index = indexOf(value);
         if (-1 != index)
         {
-            remove(index);
+            removeAt(index);
 
             return true;
         }
@@ -600,6 +850,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEach(final Consumer<? super Integer> action)
     {
+        requireNonNull(action);
         final int nullValue = this.nullValue;
         final int[] elements = this.elements;
         for (@DoNotSub int i = 0, size = this.size; i < size; i++)
@@ -616,6 +867,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void forEachInt(final IntConsumer action)
     {
+        requireNonNull(action);
         final int[] elements = this.elements;
         for (@DoNotSub int i = 0, size = this.size; i < size; i++)
         {

@@ -244,7 +244,7 @@ public class Object2IntCounterMap<K>
      * @param key    new or existing.
      * @param amount to be added.
      * @return the new value associated with the specified key, or
-     *         {@link #initialValue()} + amount if there was no mapping for the key.
+     * {@link #initialValue()} + amount if there was no mapping for the key.
      */
     public int addAndGet(final K key, final int amount)
     {
@@ -281,7 +281,7 @@ public class Object2IntCounterMap<K>
      * @param key    new or existing.
      * @param amount to be added.
      * @return the previous value associated with the specified key, or
-     *         {@link #initialValue()} if there was no mapping for the key.
+     * {@link #initialValue()} if there was no mapping for the key.
      */
     public int getAndAdd(final K key, final int amount)
     {

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,8 +38,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class Int2IntHashMapTest
 {
@@ -125,7 +126,7 @@ public class Int2IntHashMapTest
         map.put(100, 100);
 
         final IntIntConsumer mockConsumer = mock(IntIntConsumer.class);
-        map.intForEach(mockConsumer);
+        map.forEachInt(mockConsumer);
 
         final InOrder inOrder = inOrder(mockConsumer);
         inOrder.verify(mockConsumer).accept(100, 100);
@@ -515,7 +516,7 @@ public class Int2IntHashMapTest
         assertEquals(1, map.size());
 
         final int[] tuple = new int[2];
-        map.intForEach((k, v) ->
+        map.forEachInt((k, v) ->
         {
             tuple[0] = k;
             tuple[1] = v;
@@ -839,6 +840,341 @@ public class Int2IntHashMapTest
         map.put(key, value);
 
         assertEquals(value, map.getOrDefault(key, defaultValue));
+    }
+
+    @Test
+    void mergeThrowsIllegalArgumentExceptionIfValueIsMissingValue()
+    {
+        final int missingValue = 42;
+        final Int2IntHashMap map = new Int2IntHashMap(missingValue);
+        final int key = -9;
+        final IntIntFunction remappingFunction = mock(IntIntFunction.class);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.merge(key, missingValue, remappingFunction));
+        assertEquals("cannot accept missingValue", exception.getMessage());
+    }
+
+    @Test
+    void mergeShouldPutANewKeyIntoTheMap()
+    {
+        final int key = -9;
+        final int value = 113;
+        final IntIntFunction remappingFunction = mock(IntIntFunction.class);
+
+        assertEquals(value, map.merge(key, value, remappingFunction));
+
+        assertEquals(1, map.size());
+        assertEquals(value, map.get(key));
+        verifyNoInteractions(remappingFunction);
+    }
+
+    @Test
+    void mergeShouldReplaceAnExistingValueInTheMap()
+    {
+        final int key = 42;
+        final int oldValue = 0;
+        final int value = 5;
+        final int expectedNewValue = 8;
+        final IntIntFunction remappingFunction = (val1, val2) -> val1 + val2 + 3;
+        map.put(key, oldValue);
+
+        assertEquals(expectedNewValue, map.merge(key, value, remappingFunction));
+
+        assertEquals(1, map.size());
+        assertEquals(expectedNewValue, map.get(key));
+    }
+
+    @Test
+    void mergeShouldRemoveTheExistingMappingIfRemappingToAMissingValue()
+    {
+        final int key = 8;
+        final int oldValue = -17;
+        final int value = 5;
+        final IntIntFunction remappingFunction = (val1, val2) -> MISSING_VALUE;
+        map.put(key, oldValue);
+
+        assertEquals(MISSING_VALUE, map.merge(key, value, remappingFunction));
+
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    void putIfAbsentReturnsAnExistingValue()
+    {
+        final int key = 52;
+        final int value = -19;
+        final int newValue = Integer.MIN_VALUE;
+        map.put(key, value);
+
+        assertEquals(value, map.putIfAbsent(key, newValue));
+
+        assertEquals(value, map.get(key));
+    }
+
+    @Test
+    void putIfAbsentPutANewMappingForANewKey()
+    {
+        final int key = 52;
+        final int newValue = Integer.MIN_VALUE;
+
+        assertEquals(MISSING_VALUE, map.putIfAbsent(key, newValue));
+
+        assertEquals(newValue, map.get(key));
+    }
+
+    @Test
+    void replaceShouldReturnMissingValueForAnUnknownKey()
+    {
+        final int key = 42;
+        final int value = 8;
+        map.put(1, 2);
+
+        assertEquals(MISSING_VALUE, map.replace(key, value));
+
+        assertEquals(1, map.size());
+        assertEquals(2, map.get(1));
+    }
+
+    @Test
+    void replaceShouldOverwriteAnExistingValue()
+    {
+        final int key = 42;
+        final int value = 8;
+        final int newValue = Integer.MAX_VALUE;
+        map.put(key, value);
+
+        assertEquals(value, map.replace(key, newValue));
+
+        assertEquals(1, map.size());
+        assertEquals(newValue, map.get(key));
+    }
+
+    @Test
+    void replaceReturnsFalseForAnUnknownKey()
+    {
+        final int key = 42;
+        final int value = 8;
+        final int newValue = 0;
+        map.put(1, 2);
+        map.put(2, 3);
+
+        assertFalse(map.replace(key, value, newValue));
+
+        assertEquals(2, map.size());
+        assertEquals(2, map.get(1));
+        assertEquals(3, map.get(2));
+    }
+
+    @Test
+    void replaceReturnsFalseForIfOldValueIsNotCorrect()
+    {
+        final int key = 42;
+        final int value = 8;
+        final int oldValue = -value;
+        final int newValue = 0;
+        map.put(key, value);
+
+        assertFalse(map.replace(key, oldValue, newValue));
+
+        assertEquals(1, map.size());
+        assertEquals(value, map.get(key));
+    }
+
+    @Test
+    void replaceReturnsTrueAfterUpdatingTheValueOfAnExistingKeyIfTheOldValueMatches()
+    {
+        final int key = 42;
+        final int value = 8;
+        final int newValue = 100;
+        map.put(key, value);
+
+        assertTrue(map.replace(key, value, newValue));
+
+        assertEquals(newValue, map.get(key));
+    }
+
+    @Test
+    void replaceAllIntShouldThrowIllegalArgumentExceptionIfANewValueIsAMissingValue()
+    {
+        final IntIntFunction function = (key, value) -> MISSING_VALUE;
+        map.put(1, 2);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.replaceAllInt(function));
+        assertEquals("cannot replace with a missingValue", exception.getMessage());
+    }
+
+    @Test
+    void replaceAllIntShouldUpdateAllExistingValues()
+    {
+        final IntIntFunction function = (key, value) -> value / 10;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(-4, 40);
+
+        map.replaceAllInt(function);
+
+        assertEquals(3, map.size());
+        assertEquals(1, map.get(1));
+        assertEquals(2, map.get(2));
+        assertEquals(4, map.get(-4));
+    }
+
+    @Test
+    void replaceAllShouldThrowIllegalArgumentExceptionIfANewValueIsAMissingValue()
+    {
+        final BiFunction<Integer, Integer, Integer> function = (key, value) -> MISSING_VALUE;
+        map.put(1, 2);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.replaceAll(function));
+        assertEquals("cannot replace with a missingValue", exception.getMessage());
+    }
+
+    @Test
+    void replaceAllShouldUpdateAllExistingValues()
+    {
+        final BiFunction<Integer, Integer, Integer> function = (key, value) -> value / 10;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(-4, 40);
+
+        map.replaceAll(function);
+
+        assertEquals(3, map.size());
+        assertEquals(1, map.get(1));
+        assertEquals(2, map.get(2));
+        assertEquals(4, map.get(-4));
+    }
+
+    @Test
+    void removeIsANoOpIfTheValueIsAMissingValue()
+    {
+        final int key = 5;
+        final int value = 18;
+        map.put(key, value);
+
+        assertFalse(map.remove(key, MISSING_VALUE));
+
+        assertEquals(1, map.size());
+        assertEquals(value, map.get(key));
+    }
+
+    @Test
+    void removeIsANoOpIfTheValueIsWrong()
+    {
+        final int key = 5;
+        final int value = 18;
+        map.put(key, value);
+
+        assertFalse(map.remove(key, 34));
+
+        assertEquals(1, map.size());
+        assertEquals(value, map.get(key));
+    }
+
+    @Test
+    void removeDeleteAMappingWhenAKeyAndValueMatch()
+    {
+        final int key = 5;
+        final int value = 18;
+        map.put(key, value);
+
+        assertTrue(map.remove(key, value));
+
+        assertEquals(0, map.size());
+        assertEquals(MISSING_VALUE, map.get(key));
+    }
+
+    @Test
+    void putAllCopiesAllValuesFromTheSourceMap()
+    {
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+        final Int2IntHashMap otherMap = new Int2IntHashMap(Integer.MIN_VALUE);
+        otherMap.put(-100, -100);
+        otherMap.put(1, 10);
+        otherMap.put(3, 30);
+        otherMap.put(5, 50);
+
+        map.putAll(otherMap);
+
+        assertEquals(5, map.size());
+        assertEquals(10, map.get(1));
+        assertEquals(2, map.get(2));
+        assertEquals(30, map.get(3));
+        assertEquals(50, map.get(5));
+        assertEquals(-100, map.get(-100));
+    }
+
+    @Test
+    void putAllThrowsIllegalArgumentExceptionIfOtherMapContainsMissingValue()
+    {
+        map.put(1, 1);
+        final Int2IntHashMap otherMap = new Int2IntHashMap(Integer.MIN_VALUE);
+        otherMap.put(MISSING_VALUE, MISSING_VALUE);
+
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> map.putAll(otherMap));
+        assertEquals("cannot accept missingValue", exception.getMessage());
+    }
+
+    @Test
+    void removeIfIntOnKeySet()
+    {
+        final IntPredicate filter = (v) -> v < 3;
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+        map.put(4, 4);
+
+        assertTrue(map.keySet().removeIfInt(filter));
+
+        assertEquals(2, map.size());
+        assertEquals(3, map.get(3));
+        assertEquals(4, map.get(4));
+
+        assertFalse(map.keySet().removeIfInt(filter));
+        assertEquals(2, map.size());
+    }
+
+    @Test
+    void removeIfIntOnValuesCollection()
+    {
+        final IntPredicate filter = (v) -> v >= 20;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(3, 30);
+        map.put(4, 40);
+
+        assertTrue(map.values().removeIfInt(filter));
+
+        assertEquals(1, map.size());
+        assertEquals(10, map.get(1));
+
+        assertFalse(map.values().removeIfInt(filter));
+        assertEquals(1, map.size());
+    }
+
+    @Test
+    void removeIfIntOnEntrySet()
+    {
+        final IntIntPredicate filter = (k, v) -> k >= 2 && v <= 30;
+        map.put(1, 10);
+        map.put(2, 20);
+        map.put(3, 30);
+        map.put(4, 40);
+
+        assertTrue(map.entrySet().removeIfInt(filter));
+
+        assertEquals(2, map.size());
+        assertEquals(10, map.get(1));
+        assertEquals(40, map.get(4));
+
+        assertFalse(map.entrySet().removeIfInt(filter));
+        assertEquals(2, map.size());
     }
 
     private void assertEntryIs(final Entry<Integer, Integer> entry, final int expectedKey, final int expectedValue)

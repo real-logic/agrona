@@ -18,7 +18,15 @@ package org.agrona.collections;
 import org.agrona.generation.DoNotSub;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -58,8 +66,8 @@ public class IntHashSet extends AbstractSet<Integer>
     private IntIterator iterator;
 
     /**
-     * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR},
-     * and iterator caching support.
+     * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR}, iterator
+     * caching support and {@code -1} as a missing value.
      */
     public IntHashSet()
     {
@@ -67,8 +75,8 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed capacity, {@link Hashing#DEFAULT_LOAD_FACTOR},
-     * and iterator caching support.
+     * Construct a hash set with a proposed capacity, {@link Hashing#DEFAULT_LOAD_FACTOR}, iterator
+     * caching support and {@code -1} as a missing value.
      *
      * @param proposedCapacity for the initial capacity of the set.
      */
@@ -79,7 +87,8 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed initial capacity, load factor, and iterator caching support.
+     * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code -1} as a
+     * missing value.
      *
      * @param proposedCapacity for the initial capacity of the set.
      * @param loadFactor       to be used for resizing.
@@ -92,7 +101,8 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed initial capacity, load factor, and indicated iterator caching support.
+     * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code -1} as a
+     * missing value.
      *
      * @param proposedCapacity      for the initial capacity of the set.
      * @param loadFactor            to be used for resizing.
@@ -158,7 +168,6 @@ public class IntHashSet extends AbstractSet<Integer>
      *
      * @param value the value to add.
      * @return true if the collection has changed, false otherwise.
-     * @throws IllegalArgumentException if value is missingValue.
      */
     public boolean add(final int value)
     {
@@ -210,7 +219,7 @@ public class IntHashSet extends AbstractSet<Integer>
     {
         @DoNotSub final int capacity = newCapacity;
         @DoNotSub final int mask = newCapacity - 1;
-        resizeThreshold = (int)(newCapacity * loadFactor); // @DoNotSub
+        /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
         final int[] tempValues = new int[capacity];
         Arrays.fill(tempValues, MISSING_VALUE);
@@ -238,7 +247,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean remove(final Object value)
     {
-        return value instanceof Integer && remove(((Integer)value).intValue());
+        return value instanceof Integer && remove((int)value);
     }
 
     /**
@@ -326,7 +335,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final Object value)
     {
-        return value instanceof Integer && contains(((Integer)value).intValue());
+        return value instanceof Integer && contains((int)value);
     }
 
     /**
@@ -434,12 +443,12 @@ public class IntHashSet extends AbstractSet<Integer>
     /**
      * IntHashSet specialised variant of {this#containsAll(Collection)}.
      *
-     * @param other int hash set to compare against.
+     * @param coll int hash set to compare against.
      * @return true if every element in other is in this.
      */
-    public boolean containsAll(final IntHashSet other)
+    public boolean containsAll(final IntHashSet coll)
     {
-        for (final int value : other.values)
+        for (final int value : coll.values)
         {
             if (MISSING_VALUE != value && !contains(value))
             {
@@ -447,7 +456,7 @@ public class IntHashSet extends AbstractSet<Integer>
             }
         }
 
-        return !other.containsMissingValue || this.containsMissingValue;
+        return containsMissingValue || !coll.containsMissingValue;
     }
 
     /**
@@ -467,7 +476,7 @@ public class IntHashSet extends AbstractSet<Integer>
         {
             if (MISSING_VALUE != value && !other.contains(value))
             {
-                if (difference == null)
+                if (null == difference)
                 {
                     difference = new IntHashSet();
                 }
@@ -476,9 +485,9 @@ public class IntHashSet extends AbstractSet<Integer>
             }
         }
 
-        if (other.containsMissingValue && !this.containsMissingValue)
+        if (containsMissingValue && !other.containsMissingValue)
         {
-            if (difference == null)
+            if (null == difference)
             {
                 difference = new IntHashSet();
             }
@@ -487,6 +496,45 @@ public class IntHashSet extends AbstractSet<Integer>
         }
 
         return difference;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeIf(final Predicate<? super Integer> filter)
+    {
+        return super.removeIf(filter);
+    }
+
+    /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     * <p>
+     * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param filter which returns {@code true} for elements to be removed.
+     * @return {@code true} if any elements were removed.
+     */
+    public boolean removeIfInt(final IntPredicate filter)
+    {
+        boolean removed = false;
+        final int[] values = this.values;
+        for (final int value : values)
+        {
+            if (MISSING_VALUE != value && filter.test(value))
+            {
+                remove(value);
+                removed = true;
+            }
+        }
+
+        if (containsMissingValue && filter.test(MISSING_VALUE))
+        {
+            remove(MISSING_VALUE);
+            removed = true;
+        }
+
+        return removed;
     }
 
     /**
@@ -506,29 +554,79 @@ public class IntHashSet extends AbstractSet<Integer>
 
     /**
      * Alias for {@link #removeAll(Collection)} for the specialized case when removing another IntHashSet,
-     * avoids boxing and allocations
+     * avoids boxing and allocations.
      *
      * @param coll containing the values to be removed.
      * @return {@code true} if this set changed as a result of the call.
      */
     public boolean removeAll(final IntHashSet coll)
     {
-        boolean acc = false;
+        boolean removed = false;
 
         for (final int value : coll.values)
         {
             if (MISSING_VALUE != value)
             {
-                acc |= remove(value);
+                removed |= remove(value);
             }
         }
 
         if (coll.containsMissingValue)
         {
-            acc |= remove(MISSING_VALUE);
+            removed |= remove(MISSING_VALUE);
         }
 
-        return acc;
+        return removed;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean retainAll(final Collection<?> coll)
+    {
+        boolean removed = false;
+        for (final int value : values)
+        {
+            if (MISSING_VALUE != value && !coll.contains(value))
+            {
+                remove(value);
+                removed = true;
+            }
+        }
+
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
+        {
+            remove(MISSING_VALUE);
+            removed = true;
+        }
+        return removed;
+    }
+
+    /**
+     * Alias for {@link #retainAll(Collection)} for the specialized case when retaining on another IntHashSet,
+     * avoids boxing and allocations.
+     *
+     * @param coll containing elements to be retained in this set.
+     * @return {@code true} if this set changed as a result of the call.
+     */
+    public boolean retainAll(final IntHashSet coll)
+    {
+        boolean removed = false;
+        for (final int value : values)
+        {
+            if (MISSING_VALUE != value && !coll.contains(value))
+            {
+                remove(value);
+                removed = true;
+            }
+        }
+
+        if (containsMissingValue && !coll.contains(MISSING_VALUE))
+        {
+            remove(MISSING_VALUE);
+            removed = true;
+        }
+        return removed;
     }
 
     /**
@@ -550,18 +648,42 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Copye values from another {@link IntHashSet} into this one.
+     * Iterate over the collection without boxing.
+     *
+     * @param action to be taken for each element.
+     */
+    public void forEachInt(final IntConsumer action)
+    {
+        if (sizeOfArrayValues > 0)
+        {
+            final int[] values = this.values;
+            for (final int v : values)
+            {
+                if (MISSING_VALUE != v)
+                {
+                    action.accept(v);
+                }
+            }
+        }
+        if (containsMissingValue)
+        {
+            action.accept(MISSING_VALUE);
+        }
+    }
+
+    /**
+     * Copy values from another {@link IntHashSet} into this one.
      *
      * @param that set to copy values from.
      */
     public void copy(final IntHashSet that)
     {
-        if (this.values.length != that.values.length)
+        if (values.length != that.values.length)
         {
             throw new IllegalArgumentException("cannot copy object: masks not equal");
         }
 
-        System.arraycopy(that.values, 0, this.values, 0, this.values.length);
+        System.arraycopy(that.values, 0, values, 0, values.length);
         this.sizeOfArrayValues = that.sizeOfArrayValues;
         this.containsMissingValue = that.containsMissingValue;
     }
