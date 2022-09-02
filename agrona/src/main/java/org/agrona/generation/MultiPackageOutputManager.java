@@ -18,7 +18,8 @@ package org.agrona.generation;
 /**
  * Extended version of the OutputManager allowing to set the java package.
  */
-public interface MultiPackageOutputManager extends OutputManager {
+public interface MultiPackageOutputManager extends OutputManager
+{
     /**
      * Sets the current package name.
      * @param packageName  the packageName
