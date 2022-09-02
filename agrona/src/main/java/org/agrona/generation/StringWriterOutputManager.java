@@ -23,7 +23,8 @@ import java.util.Map;
 /**
  * An {@link OutputManager} which can store source files as {@link StringWriter} buy source file name.
  */
-public class StringWriterOutputManager implements MultiPackageOutputManager {
+public class StringWriterOutputManager implements MultiPackageOutputManager
+{
     private String packageName;
     private final HashMap<String, StringWriter> sourceFileByName = new HashMap<>();
 
