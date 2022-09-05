@@ -247,7 +247,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean remove(final Object value)
     {
-        return value instanceof Integer && remove((int)value);
+        return remove((int)value);
     }
 
     /**
@@ -335,7 +335,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     public boolean contains(final Object value)
     {
-        return value instanceof Integer && contains((int)value);
+        return contains((int)value);
     }
 
     /**
