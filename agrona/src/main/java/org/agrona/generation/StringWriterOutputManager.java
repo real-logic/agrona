@@ -48,7 +48,7 @@ public class StringWriterOutputManager implements PackageGovernedOutputManager
                 packageName = basePackageName;
             }
         };
-  }
+    }
 
     /**
      * Set the package name to be used for source files.
