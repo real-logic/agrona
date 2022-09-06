@@ -15,6 +15,8 @@
  */
 package org.agrona.generation;
 
+import java.io.FilterWriter;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
@@ -23,9 +25,10 @@ import java.util.Map;
 /**
  * An {@link OutputManager} which can store source files as {@link StringWriter} buy source file name.
  */
-public class StringWriterOutputManager implements MultiPackageOutputManager
+public class StringWriterOutputManager implements PackageGovernedOutputManager
 {
     private String packageName;
+    private String basePackageName;
     private final HashMap<String, StringWriter> sourceFileByName = new HashMap<>();
 
     /**
@@ -36,8 +39,16 @@ public class StringWriterOutputManager implements MultiPackageOutputManager
         final StringWriter stringWriter = new StringWriter();
         sourceFileByName.put(packageName + "." + name, stringWriter);
 
-        return stringWriter;
-    }
+        return new FilterWriter(stringWriter)
+        {
+            @Override
+            public void close() throws IOException
+            {
+                super.close();
+                packageName = basePackageName;
+            }
+        };
+  }
 
     /**
      * Set the package name to be used for source files.
@@ -47,6 +58,10 @@ public class StringWriterOutputManager implements MultiPackageOutputManager
     public void setPackageName(final String packageName)
     {
         this.packageName = packageName;
+        if (basePackageName == null)
+        {
+            basePackageName = packageName;
+        }
     }
 
     /**
