@@ -41,7 +41,6 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
 
         return new FilterWriter(stringWriter)
         {
-            @Override
             public void close() throws IOException
             {
                 super.close();
