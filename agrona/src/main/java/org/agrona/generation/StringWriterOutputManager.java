@@ -28,7 +28,7 @@ import java.util.Map;
 public class StringWriterOutputManager implements DynamicPackageOutputManger
 {
     private String packageName;
-    private String basePackageName;
+    private String initialPackageName;
     private final HashMap<String, StringWriter> sourceFileByName = new HashMap<>();
 
     /**
@@ -45,9 +45,9 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
             {
                 super.close();
 
-                if (null != basePackageName)
+                if (null != initialPackageName)
                 {
-                    packageName = basePackageName;
+                    packageName = initialPackageName;
                 }
             }
         };
@@ -61,9 +61,9 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
     public void setPackageName(final String packageName)
     {
         this.packageName = packageName;
-        if (null == basePackageName)
+        if (null == initialPackageName)
         {
-            basePackageName = packageName;
+            initialPackageName = packageName;
         }
     }
 
@@ -101,11 +101,11 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
     }
 
     /**
-     * Clear all source files in this {@link OutputManager}.
+     * Clear all source files in this {@link OutputManager} and reset the initial package name.
      */
     public void clear()
     {
-        basePackageName = null;
+        initialPackageName = null;
         packageName = "";
         sourceFileByName.clear();
     }
