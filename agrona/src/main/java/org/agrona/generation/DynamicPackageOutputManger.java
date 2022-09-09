@@ -16,17 +16,16 @@
 package org.agrona.generation;
 
 /**
- * Extended version of the OutputManager allowing to specify packages for selected outputs.
+ * Extended version of the {@link OutputManager} allowing to specification of packages for selected outputs.
  */
 public interface DynamicPackageOutputManger extends OutputManager
 {
     /**
      * Sets the package name to be used by the Writer obtained through the very next call to {@link
-     * #createOutput(java.lang.String) }. A subsequent call to
-     * {@link #createOutput(java.lang.String) } should use the default package name,
-     * whatever that is.
+     * #createOutput(java.lang.String) }. A subsequent call to {@link #createOutput(java.lang.String) } should
+     * use the default package name, whatever that is.
      *
-     * @param packageName the packageName
+     * @param packageName the packageName to be applied to output.
      */
     void setPackageName(String packageName);
 }

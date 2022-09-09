@@ -44,7 +44,11 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
             public void close() throws IOException
             {
                 super.close();
-                packageName = basePackageName;
+
+                if (null != basePackageName)
+                {
+                    packageName = basePackageName;
+                }
             }
         };
     }
@@ -57,7 +61,7 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
     public void setPackageName(final String packageName)
     {
         this.packageName = packageName;
-        if (basePackageName == null)
+        if (null == basePackageName)
         {
             basePackageName = packageName;
         }
@@ -101,6 +105,7 @@ public class StringWriterOutputManager implements DynamicPackageOutputManger
      */
     public void clear()
     {
+        basePackageName = null;
         packageName = "";
         sourceFileByName.clear();
     }
