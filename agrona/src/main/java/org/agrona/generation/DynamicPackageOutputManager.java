@@ -18,7 +18,7 @@ package org.agrona.generation;
 /**
  * Extended version of the {@link OutputManager} allowing the specification of packages for selected outputs.
  */
-public interface DynamicPackageOutputManger extends OutputManager
+public interface DynamicPackageOutputManager extends OutputManager
 {
     /**
      * Sets the package name to be used by the Writer obtained through the very next call to {@link

@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * An {@link OutputManager} which can store source files as {@link StringWriter} buy source file name.
  */
-public class StringWriterOutputManager implements DynamicPackageOutputManger
+public class StringWriterOutputManager implements DynamicPackageOutputManager
 {
     private String packageName;
     private String initialPackageName;
