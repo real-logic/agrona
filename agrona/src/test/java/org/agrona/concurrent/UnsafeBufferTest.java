@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.BufferUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
@@ -228,6 +229,34 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         final int length = buffer.putLongAscii(index, value);
 
         assertEquals(value, buffer.parseLongAscii(index, length));
+    }
+
+    @Test
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromByteArray()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[16]);
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+    }
+
+    @Test
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromHeapByteBuffer()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocate(32));
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+    }
+
+    @Test
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromAnUnalignedDirectByteBuffer()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(99, 2));
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+    }
+
+    @Test
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromAnUnalignedAddress()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(1133, 8);
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
     }
 
     private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)

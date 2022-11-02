@@ -383,11 +383,16 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public void verifyAlignment()
     {
-        if (0 != (addressOffset & (ALIGNMENT - 1)))
+        if (null != byteArray)
         {
             throw new IllegalStateException(
-                "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset +
-                " is not divisible by " + ALIGNMENT);
+                "AtomicBuffer was created from a byte and is not correctly aligned by " + ALIGNMENT);
+        }
+        else if (0 != (addressOffset & (ALIGNMENT - 1)))
+        {
+            throw new IllegalStateException(
+                "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset + " is not divisible by " +
+                ALIGNMENT);
         }
     }
 
