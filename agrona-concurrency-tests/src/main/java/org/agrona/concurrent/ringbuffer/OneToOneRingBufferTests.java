@@ -25,6 +25,7 @@ import org.openjdk.jcstress.infra.results.JJJ_Result;
 
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.agrona.concurrent.ringbuffer.OneToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
@@ -44,7 +45,7 @@ public class OneToOneRingBufferTests
     {
         private static final int MSG_TYPE = 888;
         private final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(new byte[TRAILER_LENGTH + 128]));
+            new OneToOneRingBuffer(new UnsafeBuffer(new long[(TRAILER_LENGTH + 128) / SIZE_OF_LONG]));
 
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
@@ -95,7 +96,7 @@ public class OneToOneRingBufferTests
     {
         private static final int MSG_TYPE = 7;
         private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(
-            new UnsafeBuffer(new byte[TRAILER_LENGTH + 32]));
+            new UnsafeBuffer(new long[(TRAILER_LENGTH + 32) / SIZE_OF_LONG]));
 
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
@@ -153,7 +154,8 @@ public class OneToOneRingBufferTests
     {
         private static final int MSG_TYPE = 42;
 
-        private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final OneToOneRingBuffer ringBuffer =
+            new OneToOneRingBuffer(new UnsafeBuffer(allocateDirectAligned(1024, SIZE_OF_LONG)));
 
         /**
          * Producer thread.
@@ -192,7 +194,7 @@ public class OneToOneRingBufferTests
     {
         private static final int MSG_TYPE = 19;
 
-        private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new long[128]));
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
         /**
@@ -231,7 +233,7 @@ public class OneToOneRingBufferTests
     public static class CorrelationId
     {
         private final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+            new OneToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY + TRAILER_LENGTH) / SIZE_OF_LONG]));
 
         /**
          * First thread.

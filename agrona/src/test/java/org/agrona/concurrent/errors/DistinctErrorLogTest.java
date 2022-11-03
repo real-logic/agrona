@@ -15,21 +15,22 @@
  */
 package org.agrona.concurrent.errors;
 
-import org.agrona.concurrent.*;
+import org.agrona.BitUtil;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.CachedEpochClock;
+import org.agrona.concurrent.EpochClock;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.agrona.BitUtil;
 
-import java.nio.ByteBuffer;
-
+import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
 class DistinctErrorLogTest
 {
-    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(64 * 1024));
+    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(new long[8 * 1024]);
     private final AtomicBuffer buffer = spy(unsafeBuffer);
     private final EpochClock clock = mock(EpochClock.class);
     private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);

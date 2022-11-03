@@ -24,6 +24,7 @@ import org.openjdk.jcstress.infra.results.JJJ_Result;
 
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.MIN_CAPACITY;
 import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
@@ -54,7 +55,7 @@ public class ManyToOneRingBufferTests
     public static class Write
     {
         private static final int MSG_TYPE_ID = 7;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
         /**
@@ -116,7 +117,8 @@ public class ManyToOneRingBufferTests
     public static class TryClaimCommit
     {
         private static final int MSG_TYPE_ID = 11;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer =
+            new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirectAligned(1024, SIZE_OF_LONG)));
 
         /**
          * First writer thread.
@@ -172,7 +174,7 @@ public class ManyToOneRingBufferTests
     public static class TryClaimAbort
     {
         private static final int MSG_TYPE_ID = 19;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
 
         /**
          * First writer thread.
@@ -237,7 +239,7 @@ public class ManyToOneRingBufferTests
     public static class CorrelationId
     {
         private final ManyToOneRingBuffer ringBuffer =
-            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+            new ManyToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY + TRAILER_LENGTH) / SIZE_OF_LONG]));
 
         /**
          * First thread.

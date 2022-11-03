@@ -26,8 +26,8 @@ import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 
-import static java.nio.ByteBuffer.allocate;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.concurrent.status.CountersReader.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,8 +41,10 @@ class CountersManagerTest
 
     private long currentTimestamp = 0;
 
-    private final UnsafeBuffer metadataBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * METADATA_LENGTH));
-    private final UnsafeBuffer valuesBuffer = new UnsafeBuffer(allocate(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
+    private final UnsafeBuffer metadataBuffer =
+        new UnsafeBuffer(new long[NUMBER_OF_COUNTERS * METADATA_LENGTH / SIZE_OF_LONG]);
+    private final UnsafeBuffer valuesBuffer =
+        new UnsafeBuffer(new long[NUMBER_OF_COUNTERS * COUNTER_LENGTH / SIZE_OF_LONG]);
     private final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
     private final CountersReader reader = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
     private final CountersManager managerWithCooldown = new CountersManager(
@@ -55,8 +57,8 @@ class CountersManagerTest
     @Test
     void shouldSupportEmptyManager()
     {
-        final UnsafeBuffer metadataBuffer = new UnsafeBuffer(new byte[0]);
-        final UnsafeBuffer valuesBuffer = new UnsafeBuffer(new byte[0]);
+        final UnsafeBuffer metadataBuffer = new UnsafeBuffer(new long[0]);
+        final UnsafeBuffer valuesBuffer = new UnsafeBuffer(new long[0]);
         final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
 
         assertEquals(-1, manager.maxCounterId());

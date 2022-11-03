@@ -100,7 +100,7 @@ class OneToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
         final int srcIndex = 0;
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -124,7 +124,7 @@ class OneToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
 
         final int srcIndex = 0;
         assertFalse(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -145,7 +145,7 @@ class OneToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
 
         final int srcIndex = 0;
         assertFalse(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -165,7 +165,7 @@ class OneToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
 
         final int srcIndex = 0;
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -198,7 +198,7 @@ class OneToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLong(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
 
         final int srcIndex = 0;
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -376,7 +376,7 @@ class OneToOneRingBufferTest
     @Test
     void shouldThrowExceptionWhenMaxMessageSizeExceeded()
     {
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[1024]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
 
         assertThrows(IllegalArgumentException.class,
             () -> ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, ringBuffer.maxMsgLength() + 1));
@@ -561,7 +561,7 @@ class OneToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new long[128]));
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
 
@@ -587,7 +587,7 @@ class OneToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new long[128]));
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
 
@@ -613,7 +613,7 @@ class OneToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new long[128]));
         final MutableInteger counter = new MutableInteger();
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
@@ -638,7 +638,7 @@ class OneToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        final RingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(new long[128]));
         final MutableInteger counter = new MutableInteger();
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
@@ -672,7 +672,7 @@ class OneToOneRingBufferTest
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
         srcBuffer.putLong(0, Long.MAX_VALUE);
         final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+            new OneToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY + TRAILER_LENGTH) / SIZE_OF_LONG]));
 
         assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
 
@@ -693,7 +693,7 @@ class OneToOneRingBufferTest
         final int msgType = 42;
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
         final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY * 2 + TRAILER_LENGTH]));
+            new OneToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY * 2 + TRAILER_LENGTH) / SIZE_OF_LONG]));
 
         srcBuffer.putLong(0, Long.MAX_VALUE);
         assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
