@@ -6,7 +6,8 @@ out
 .DS_Store
 
 # intellij
-.idea
+.idea/
+.run/
 *.iml
 *.ipr
 *.iws
