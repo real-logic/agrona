@@ -15,27 +15,28 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.BitUtil;
-import org.agrona.DirectBuffer;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static org.agrona.BufferUtil.array;
-import static org.agrona.BufferUtil.arrayOffset;
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.ByteBuffer.allocateDirect;
+import static java.nio.ByteOrder.*;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AtomicBufferTest
 {
-    private static final ByteOrder BYTE_ORDER = ByteOrder.nativeOrder();
-    private static final int BUFFER_CAPACITY = 4096;
+    private static final int BUFFER_CAPACITY = 64;
     private static final int INDEX = 8;
 
     private static final byte BYTE_VALUE = 1;
@@ -46,19 +47,18 @@ class AtomicBufferTest
     private static final long LONG_VALUE = Integer.MAX_VALUE + 5L;
     private static final double DOUBLE_VALUE = Integer.MAX_VALUE + 7.0d;
 
-    private static Stream<AtomicBuffer> buffers()
+    private static List<ByteBuffer> nativeBuffers()
     {
-        return Stream.of(
-            new UnsafeBuffer(new byte[BUFFER_CAPACITY], 0, BUFFER_CAPACITY),
-            new UnsafeBuffer(
-                ByteBuffer.allocate(BUFFER_CAPACITY), 0, BUFFER_CAPACITY),
-            new UnsafeBuffer(
-                ByteBuffer.allocateDirect(BUFFER_CAPACITY), 0, BUFFER_CAPACITY),
-            new UnsafeBuffer(
-                sliceBuffer(ByteBuffer.allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY))),
-            new UnsafeBuffer(
-                ByteBuffer.allocate(BUFFER_CAPACITY).asReadOnlyBuffer(), 0, BUFFER_CAPACITY)
-        );
+        return Arrays.asList(
+            allocate(BUFFER_CAPACITY).order(LITTLE_ENDIAN),
+            allocateDirect(BUFFER_CAPACITY).order(BIG_ENDIAN),
+            sliceBuffer(allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY)));
+    }
+
+    private static List<ByteBuffer> atomicBuffers()
+    {
+        return Collections.singletonList(
+            allocateDirectAligned(BUFFER_CAPACITY, SIZE_OF_LONG).order(nativeOrder()));
     }
 
     private static ByteBuffer sliceBuffer(final Buffer buffer)
@@ -67,883 +67,503 @@ class AtomicBufferTest
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetCapacity(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldCopyMemory(final ByteBuffer buffer)
     {
-        assertThat(buffer.capacity(), is(BUFFER_CAPACITY));
+        final byte[] expected = "xxxxxxxxxxx".getBytes(US_ASCII);
+
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
+        unsafeBuffer.setMemory(0, expected.length, (byte)'x');
+
+        final byte[] buff = new byte[expected.length];
+        buffer.get(buff);
+        assertThat(buff, is(expected));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldThrowExceptionForAboveCapacity(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetLongFromBuffer(final ByteBuffer buffer)
     {
-        final int index = BUFFER_CAPACITY + 1;
-        assertThrows(IndexOutOfBoundsException.class, () -> buffer.checkLimit(index));
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
+
+        buffer.putLong(INDEX, LONG_VALUE);
+
+        assertThat(unsafeBuffer.getLong(INDEX, buffer.order()), is(LONG_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldThrowExceptionWhenOutOfBounds(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutLongToBuffer(final ByteBuffer buffer)
     {
-        final int index = BUFFER_CAPACITY;
-        assertThrows(IndexOutOfBoundsException.class, () -> buffer.getByte(index));
-    }
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-    @Test
-    void sharedBuffer()
-    {
-        final ByteBuffer bb = ByteBuffer.allocateDirect(1024);
-        final UnsafeBuffer ub1 = new UnsafeBuffer(bb, 0, 512);
-        final UnsafeBuffer ub2 = new UnsafeBuffer(bb, 512, 512);
-        ub1.putLong(INDEX, LONG_VALUE);
-        ub2.putLong(INDEX, 9876543210L);
-
-        assertThat(ub1.getLong(INDEX), is(LONG_VALUE));
-    }
-
-    @Test
-    void shouldVerifyBufferAlignment()
-    {
-        final AtomicBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(1024));
-        try
-        {
-            buffer.verifyAlignment();
-        }
-        catch (final IllegalStateException ex)
-        {
-            fail("All buffers should be aligned " + ex);
-        }
-    }
-
-    @Test
-    void shouldThrowExceptionWhenBufferNotAligned()
-    {
-        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
-        byteBuffer.position(1);
-        final UnsafeBuffer buffer = new UnsafeBuffer(byteBuffer.slice());
-
-        assertThrows(IllegalStateException.class, buffer::verifyAlignment);
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldCopyMemory(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "xxxxxxxxxxx".getBytes();
-
-        buffer.setMemory(0, testBytes.length, (byte)'x');
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetLongFromBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
-
-        assertThat(buffer.getLong(INDEX, BYTE_ORDER), is(LONG_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutLongToBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-
-        buffer.putLong(INDEX, LONG_VALUE, BYTE_ORDER);
-
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetLongFromNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+        unsafeBuffer.putLong(INDEX, LONG_VALUE, buffer.order());
 
         assertThat(buffer.getLong(INDEX), is(LONG_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutLongToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutLongVolatileToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putLong(INDEX, LONG_VALUE);
+        unsafeBuffer.putLongVolatile(INDEX, LONG_VALUE);
 
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
+        assertThat(buffer.getLong(INDEX), is(LONG_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetLongVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutLongOrderedToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+        unsafeBuffer.putLongOrdered(INDEX, LONG_VALUE);
 
-        assertThat(buffer.getLongVolatile(INDEX), is(LONG_VALUE));
+        assertThat(buffer.getLong(INDEX), is(LONG_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutLongVolatileToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldAddLongOrderedToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        buffer.putLongVolatile(INDEX, LONG_VALUE);
-
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutLongOrderedToNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        buffer.putLongOrdered(INDEX, LONG_VALUE);
-
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldAddLongOrderedToNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         final long initialValue = Integer.MAX_VALUE + 7L;
         final long increment = 9L;
-        buffer.putLongOrdered(INDEX, initialValue);
-        buffer.addLongOrdered(INDEX, increment);
+        unsafeBuffer.putLongOrdered(INDEX, initialValue);
+        unsafeBuffer.addLongOrdered(INDEX, increment);
 
-        assertThat(duplicateBuffer.getLong(INDEX), is(initialValue + increment));
+        assertThat(buffer.getLong(INDEX), is(initialValue + increment));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldCompareAndSetLongToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldCompareAndSetLongToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+        buffer.putLong(INDEX, LONG_VALUE);
 
-        assertTrue(buffer.compareAndSetLong(INDEX, LONG_VALUE, LONG_VALUE + 1));
+        assertTrue(unsafeBuffer.compareAndSetLong(INDEX, LONG_VALUE, LONG_VALUE + 1));
 
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE + 1));
+        assertThat(buffer.getLong(INDEX), is(LONG_VALUE + 1));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetAndSetLongToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetAndSetLongToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+        buffer.putLong(INDEX, LONG_VALUE);
 
         final long afterValue = 1;
-        final long beforeValue = buffer.getAndSetLong(INDEX, afterValue);
+        final long beforeValue = unsafeBuffer.getAndSetLong(INDEX, afterValue);
 
         assertThat(beforeValue, is(LONG_VALUE));
-        assertThat(duplicateBuffer.getLong(INDEX), is(afterValue));
+        assertThat(buffer.getLong(INDEX), is(afterValue));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetAndAddLongToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetAndAddLongToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+        buffer.putLong(INDEX, LONG_VALUE);
 
         final long delta = 1;
-        final long beforeValue = buffer.getAndAddLong(INDEX, delta);
+        final long beforeValue = unsafeBuffer.getAndAddLong(INDEX, delta);
 
         assertThat(beforeValue, is(LONG_VALUE));
-        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE + delta));
+        assertThat(buffer.getLong(INDEX), is(LONG_VALUE + delta));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetIntFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetIntFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
-
-        assertThat(buffer.getInt(INDEX, BYTE_ORDER), is(INT_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutIntToNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         buffer.putInt(INDEX, INT_VALUE);
 
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE));
+        assertThat(unsafeBuffer.getInt(INDEX, buffer.order()), is(INT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetIntFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutIntToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
+        unsafeBuffer.putInt(INDEX, INT_VALUE, buffer.order());
 
         assertThat(buffer.getInt(INDEX), is(INT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutIntToBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetIntVolatileFromNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putInt(INDEX, INT_VALUE, BYTE_ORDER);
+        buffer.putInt(INDEX, INT_VALUE);
 
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE));
+        assertThat(unsafeBuffer.getIntVolatile(INDEX), is(INT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetIntVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutIntVolatileToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
+        unsafeBuffer.putIntVolatile(INDEX, INT_VALUE);
 
-        assertThat(buffer.getIntVolatile(INDEX), is(INT_VALUE));
+        assertThat(buffer.getInt(INDEX), is(INT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutIntVolatileToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutIntOrderedToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putIntVolatile(INDEX, INT_VALUE);
+        unsafeBuffer.putIntOrdered(INDEX, INT_VALUE);
 
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE));
+        assertThat(buffer.getInt(INDEX), is(INT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutIntOrderedToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldAddIntOrderedToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        buffer.putIntOrdered(INDEX, INT_VALUE);
-
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldAddIntOrderedToNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         final int initialValue = 7;
         final int increment = 9;
-        buffer.putIntOrdered(INDEX, initialValue);
-        buffer.addIntOrdered(INDEX, increment);
+        unsafeBuffer.putIntOrdered(INDEX, initialValue);
+        unsafeBuffer.addIntOrdered(INDEX, increment);
 
-        assertThat(duplicateBuffer.getInt(INDEX), is(initialValue + increment));
+        assertThat(buffer.getInt(INDEX), is(initialValue + increment));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldCompareAndSetIntToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldCompareAndSetIntToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
+        buffer.putInt(INDEX, INT_VALUE);
 
-        assertTrue(buffer.compareAndSetInt(INDEX, INT_VALUE, INT_VALUE + 1));
+        assertTrue(unsafeBuffer.compareAndSetInt(INDEX, INT_VALUE, INT_VALUE + 1));
 
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE + 1));
+        assertThat(buffer.getInt(INDEX), is(INT_VALUE + 1));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetAndSetIntToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetAndSetIntToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
+        buffer.putInt(INDEX, INT_VALUE);
 
         final int afterValue = 1;
-        final int beforeValue = buffer.getAndSetInt(INDEX, afterValue);
+        final int beforeValue = unsafeBuffer.getAndSetInt(INDEX, afterValue);
 
         assertThat(beforeValue, is(INT_VALUE));
-        assertThat(duplicateBuffer.getInt(INDEX), is(afterValue));
+        assertThat(buffer.getInt(INDEX), is(afterValue));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetAndAddIntToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetAndAddIntToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putInt(INDEX, INT_VALUE);
+        buffer.putInt(INDEX, INT_VALUE);
 
         final int delta = 1;
-        final int beforeValue = buffer.getAndAddInt(INDEX, delta);
+        final int beforeValue = unsafeBuffer.getAndAddInt(INDEX, delta);
 
         assertThat(beforeValue, is(INT_VALUE));
-        assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE + delta));
+        assertThat(buffer.getInt(INDEX), is(INT_VALUE + delta));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetShortFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetShortFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putShort(INDEX, SHORT_VALUE);
+        buffer.putShort(INDEX, SHORT_VALUE);
 
-        assertThat(buffer.getShort(INDEX, BYTE_ORDER), is(SHORT_VALUE));
+        assertThat(unsafeBuffer.getShort(INDEX, buffer.order()), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutShortToBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutShortToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putShort(INDEX, SHORT_VALUE, BYTE_ORDER);
-
-        assertThat(duplicateBuffer.getShort(INDEX), is(SHORT_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetShortFromNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        duplicateBuffer.putShort(INDEX, SHORT_VALUE);
+        unsafeBuffer.putShort(INDEX, SHORT_VALUE, buffer.order());
 
         assertThat(buffer.getShort(INDEX), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutShortToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetShortFromNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         buffer.putShort(INDEX, SHORT_VALUE);
 
-        assertThat(duplicateBuffer.getShort(INDEX), is(SHORT_VALUE));
+        assertThat(unsafeBuffer.getShort(INDEX, buffer.order()), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetShortVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutShortToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putShort(INDEX, SHORT_VALUE);
+        unsafeBuffer.putShort(INDEX, SHORT_VALUE, buffer.order());
 
-        assertThat(buffer.getShortVolatile(INDEX), is(SHORT_VALUE));
+        assertThat(buffer.getShort(INDEX), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutShortVolatileToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetShortVolatileFromNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putShortVolatile(INDEX, SHORT_VALUE);
+        buffer.putShort(INDEX, SHORT_VALUE);
 
-        assertThat(duplicateBuffer.getShort(INDEX), is(SHORT_VALUE));
+        assertThat(unsafeBuffer.getShortVolatile(INDEX), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetCharFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutShortVolatileToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+        unsafeBuffer.putShortVolatile(INDEX, SHORT_VALUE);
 
-        assertThat(buffer.getChar(INDEX, BYTE_ORDER), is(CHAR_VALUE));
+        assertThat(buffer.getShort(INDEX), is(SHORT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutCharToBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetCharFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putChar(INDEX, CHAR_VALUE, BYTE_ORDER);
+        buffer.putChar(INDEX, CHAR_VALUE);
 
-        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+        assertThat(unsafeBuffer.getChar(INDEX, buffer.order()), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetCharFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutCharToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+        unsafeBuffer.putChar(INDEX, CHAR_VALUE, buffer.order());
 
         assertThat(buffer.getChar(INDEX), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutCharToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetCharFromNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         buffer.putChar(INDEX, CHAR_VALUE);
 
-        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+        assertThat(unsafeBuffer.getChar(INDEX, buffer.order()), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetCharVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutCharToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putChar(INDEX, CHAR_VALUE);
+        unsafeBuffer.putChar(INDEX, CHAR_VALUE, buffer.order());
 
-        assertThat(buffer.getCharVolatile(INDEX), is(CHAR_VALUE));
+        assertThat(buffer.getChar(INDEX), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutCharVolatileToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldGetCharVolatileFromNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putCharVolatile(INDEX, CHAR_VALUE);
+        buffer.putChar(INDEX, CHAR_VALUE);
 
-        assertThat(duplicateBuffer.getChar(INDEX), is(CHAR_VALUE));
+        assertThat(unsafeBuffer.getCharVolatile(INDEX), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetDoubleFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("atomicBuffers")
+    void shouldPutCharVolatileToNativeBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putDouble(INDEX, DOUBLE_VALUE);
+        unsafeBuffer.putCharVolatile(INDEX, CHAR_VALUE);
 
-        assertThat(buffer.getDouble(INDEX, BYTE_ORDER), is(DOUBLE_VALUE));
+        assertThat(buffer.getChar(INDEX), is(CHAR_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutDoubleToBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetDoubleFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putDouble(INDEX, DOUBLE_VALUE, BYTE_ORDER);
+        buffer.putDouble(INDEX, DOUBLE_VALUE);
 
-        assertThat(duplicateBuffer.getDouble(INDEX), is(DOUBLE_VALUE));
+        assertThat(unsafeBuffer.getDouble(INDEX, buffer.order()), is(DOUBLE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetDoubleFromNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutDoubleToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putDouble(INDEX, DOUBLE_VALUE);
+        unsafeBuffer.putDouble(INDEX, DOUBLE_VALUE, buffer.order());
 
         assertThat(buffer.getDouble(INDEX), is(DOUBLE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutDoubleToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetFloatFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putDouble(INDEX, DOUBLE_VALUE);
+        buffer.putFloat(INDEX, FLOAT_VALUE);
 
-        assertThat(duplicateBuffer.getDouble(INDEX), is(DOUBLE_VALUE));
+        assertThat(unsafeBuffer.getFloat(INDEX, buffer.order()), is(FLOAT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetFloatFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutFloatToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.putFloat(INDEX, FLOAT_VALUE);
-
-        assertThat(buffer.getFloat(INDEX, BYTE_ORDER), is(FLOAT_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutFloatToBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-
-        buffer.putFloat(INDEX, FLOAT_VALUE, BYTE_ORDER);
-
-        assertThat(duplicateBuffer.getFloat(INDEX), is(FLOAT_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetFloatFromNativeBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
-
-        duplicateBuffer.putFloat(INDEX, FLOAT_VALUE);
+        unsafeBuffer.putFloat(INDEX, FLOAT_VALUE, buffer.order());
 
         assertThat(buffer.getFloat(INDEX), is(FLOAT_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutFloatToNativeBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetByteFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.order(ByteOrder.nativeOrder());
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putFloat(INDEX, FLOAT_VALUE);
+        buffer.put(INDEX, BYTE_VALUE);
 
-        assertThat(duplicateBuffer.getFloat(INDEX), is(FLOAT_VALUE));
+        assertThat(unsafeBuffer.getByte(INDEX), is(BYTE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetByteFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutByteToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.put(INDEX, BYTE_VALUE);
+        unsafeBuffer.putByte(INDEX, BYTE_VALUE);
 
-        assertThat(buffer.getByte(INDEX), is(BYTE_VALUE));
+        assertThat(buffer.get(INDEX), is(BYTE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutByteToBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetByteVolatileFromBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        buffer.putByte(INDEX, BYTE_VALUE);
+        buffer.put(INDEX, BYTE_VALUE);
 
-        assertThat(duplicateBuffer.get(INDEX), is(BYTE_VALUE));
+        assertThat(unsafeBuffer.getByteVolatile(INDEX), is(BYTE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetByteVolatileFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldPutByteVolatileToBuffer(final ByteBuffer buffer)
     {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        duplicateBuffer.put(INDEX, BYTE_VALUE);
+        unsafeBuffer.putByteVolatile(INDEX, BYTE_VALUE);
 
-        assertThat(buffer.getByteVolatile(INDEX), is(BYTE_VALUE));
+        assertThat(buffer.get(INDEX), is(BYTE_VALUE));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutByteVolatileToBuffer(final AtomicBuffer buffer)
-    {
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-
-        buffer.putByteVolatile(INDEX, BYTE_VALUE);
-
-        assertThat(duplicateBuffer.get(INDEX), is(BYTE_VALUE));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetByteArrayFromBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testArray = { 'H', 'e', 'l', 'l', 'o' };
-
-        int i = INDEX;
-        for (final byte v : testArray)
-        {
-            buffer.putByte(i, v);
-            i += BitUtil.SIZE_OF_BYTE;
-        }
-
-        final byte[] result = new byte[testArray.length];
-        buffer.getBytes(INDEX, result);
-
-        assertThat(result, is(testArray));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetBytesFromBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetBytesFromBuffer(final ByteBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-        duplicateBuffer.put(testBytes);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
+        buffer.position(INDEX);
+        buffer.put(testBytes);
 
         final byte[] buff = new byte[testBytes.length];
-        buffer.getBytes(INDEX, buff);
+        unsafeBuffer.getBytes(INDEX, buff);
 
         assertThat(buff, is(testBytes));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetBytesFromBufferToBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetBytesFromBufferToBuffer(final ByteBuffer buffer)
     {
         final byte[] testBytes = "Hello World".getBytes();
 
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-        duplicateBuffer.put(testBytes);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
+        buffer.position(INDEX);
+        buffer.put(testBytes);
 
-        final ByteBuffer dstBuffer = ByteBuffer.allocate(testBytes.length);
-        buffer.getBytes(INDEX, dstBuffer, testBytes.length);
+        final ByteBuffer dstBuffer = allocate(testBytes.length);
+        unsafeBuffer.getBytes(INDEX, dstBuffer, testBytes.length);
 
         assertThat(dstBuffer.array(), is(testBytes));
     }
 
     @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetBytesFromBufferToAtomicBuffer(final AtomicBuffer buffer)
+    @MethodSource("nativeBuffers")
+    void shouldGetBytesFromBufferToSlice(final ByteBuffer buffer)
     {
-        final byte[] testBytes = "Hello World".getBytes();
+        final byte[] testBytes = "shouldGetBytesFromBufferToSlice".getBytes(US_ASCII);
 
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-        duplicateBuffer.put(testBytes);
-
-        final ByteBuffer dstBuffer = ByteBuffer.allocateDirect(testBytes.length);
-        buffer.getBytes(INDEX, dstBuffer, testBytes.length);
-
-        dstBuffer.flip();
-        final byte[] result = new byte[testBytes.length];
-        dstBuffer.get(result);
-
-        assertThat(result, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetBytesFromBufferToSlice(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-        duplicateBuffer.put(testBytes);
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
+        buffer.position(INDEX);
+        buffer.put(testBytes);
 
         final ByteBuffer dstBuffer =
-            sliceBuffer(ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length));
+            sliceBuffer(allocate(testBytes.length * 2).position(testBytes.length));
 
-        buffer.getBytes(INDEX, dstBuffer, testBytes.length);
+        unsafeBuffer.getBytes(INDEX, dstBuffer, testBytes.length);
 
         dstBuffer.flip();
         final byte[] result = new byte[testBytes.length];
         dstBuffer.get(result);
 
         assertThat(result, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutBytesToBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        buffer.putBytes(INDEX, testBytes);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutBytesToBufferFromBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer = ByteBuffer.wrap(testBytes);
-
-        buffer.putBytes(INDEX, srcBuffer, testBytes.length);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutBytesToBufferFromAtomicBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);
-        srcBuffer.put(testBytes).flip();
-
-        buffer.putBytes(INDEX, srcBuffer, testBytes.length);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutBytesToBufferFromSlice(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer =
-            sliceBuffer(ByteBuffer.allocate(testBytes.length * 2).position(testBytes.length));
-        srcBuffer.put(testBytes).flip();
-
-        buffer.putBytes(INDEX, srcBuffer, testBytes.length);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldPutBytesToAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);
-        srcBuffer.put(testBytes).flip();
-
-        final UnsafeBuffer srcUnsafeBuffer = new UnsafeBuffer(srcBuffer);
-
-        buffer.putBytes(INDEX, srcUnsafeBuffer, 0, testBytes.length);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void shouldGetBytesIntoAtomicBufferFromAtomicBuffer(final AtomicBuffer buffer)
-    {
-        final byte[] testBytes = "Hello World".getBytes();
-        final ByteBuffer srcBuffer = ByteBuffer.allocateDirect(testBytes.length);
-        srcBuffer.put(testBytes).flip();
-
-        final UnsafeBuffer srcUnsafeBuffer = new UnsafeBuffer(srcBuffer);
-
-        srcUnsafeBuffer.getBytes(0, buffer, INDEX, testBytes.length);
-
-        final ByteBuffer duplicateBuffer = byteBuffer(buffer);
-        duplicateBuffer.position(INDEX);
-
-        final byte[] buff = new byte[testBytes.length];
-        duplicateBuffer.get(buff);
-
-        assertThat(buff, is(testBytes));
-    }
-
-    private static ByteBuffer byteBuffer(final DirectBuffer buffer)
-    {
-        ByteBuffer byteBuffer;
-
-        final ByteBuffer bb = buffer.byteBuffer();
-        if (null != bb)
-        {
-            if (bb.isDirect())
-            {
-                byteBuffer = bb.duplicate();
-            }
-            else
-            {
-                final byte[] array = array(bb);
-                final int offset = arrayOffset(bb);
-                final int capacity = buffer.capacity();
-
-                byteBuffer = ByteBuffer.wrap(array);
-                if (offset > 0)
-                {
-                    byteBuffer.limit(offset + capacity);
-                    byteBuffer.position(offset);
-                    byteBuffer = byteBuffer.slice();
-                }
-            }
-        }
-        else
-        {
-            byteBuffer = ByteBuffer.wrap(buffer.byteArray());
-        }
-
-        byteBuffer.order(BYTE_ORDER);
-        byteBuffer.clear();
-
-        return byteBuffer;
     }
 }

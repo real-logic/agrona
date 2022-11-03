@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -45,6 +45,44 @@ public abstract class MutableDirectBufferTests
      * @return new buffer.
      */
     protected abstract MutableDirectBuffer newBuffer(int capacity);
+
+    @Test
+    void shouldThrowExceptionWhenOutOfBounds()
+    {
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int index = buffer.capacity();
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.getByte(index));
+    }
+
+    @Test
+    void shouldPutBytes()
+    {
+        final int index = 5;
+        final String value = "Hello World";
+        final MutableDirectBuffer buffer = newBuffer(20);
+
+        buffer.putBytes(index, value.getBytes(US_ASCII));
+
+        assertEquals(value, buffer.getStringWithoutLengthAscii(index, value.length()));
+    }
+
+    @Test
+    void shouldPutBytesFromByteBuffer()
+    {
+        final int destIndex = 2;
+        final int srcIndex = 5;
+        final String value = "Error converting parameter at index 0";
+        final int payloadLength = value.length() - srcIndex;
+        final ByteBuffer srcBuffer = ByteBuffer.allocate(value.length());
+        srcBuffer.put(value.getBytes(US_ASCII), 0, value.length());
+        srcBuffer.flip();
+        final MutableDirectBuffer buffer = newBuffer(100);
+
+        buffer.putBytes(destIndex, srcBuffer, srcIndex, payloadLength);
+
+        assertEquals(
+            value.substring(srcIndex), buffer.getStringWithoutLengthAscii(destIndex, payloadLength));
+    }
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")

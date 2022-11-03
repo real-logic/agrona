@@ -55,6 +55,13 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     }
 
     @Test
+    void shouldThrowExceptionForAboveCapacity()
+    {
+        final MutableDirectBuffer buffer = newBuffer(3);
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.checkLimit(4));
+    }
+
+    @Test
     void shouldEqualOnInstance()
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(wibbleBytes);
