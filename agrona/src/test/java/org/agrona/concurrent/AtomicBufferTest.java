@@ -15,6 +15,7 @@
  */
 package org.agrona.concurrent;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -23,16 +24,18 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntConsumer;
 
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.ByteBuffer.allocateDirect;
 import static java.nio.ByteOrder.*;
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.allocateDirectAligned;
+import static org.agrona.concurrent.UnsafeBuffer.SHOULD_PERFORM_ALIGNMENT_CHECKS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AtomicBufferTest
 {
@@ -46,25 +49,6 @@ class AtomicBufferTest
     private static final float FLOAT_VALUE = Short.MAX_VALUE + 4.0f;
     private static final long LONG_VALUE = Integer.MAX_VALUE + 5L;
     private static final double DOUBLE_VALUE = Integer.MAX_VALUE + 7.0d;
-
-    private static List<ByteBuffer> nativeBuffers()
-    {
-        return Arrays.asList(
-            allocate(BUFFER_CAPACITY).order(LITTLE_ENDIAN),
-            allocateDirect(BUFFER_CAPACITY).order(BIG_ENDIAN),
-            sliceBuffer(allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY)));
-    }
-
-    private static List<ByteBuffer> atomicBuffers()
-    {
-        return Collections.singletonList(
-            allocateDirectAligned(BUFFER_CAPACITY, SIZE_OF_LONG).order(nativeOrder()));
-    }
-
-    private static ByteBuffer sliceBuffer(final Buffer buffer)
-    {
-        return ((ByteBuffer)buffer).slice();
-    }
 
     @ParameterizedTest
     @MethodSource("nativeBuffers")
@@ -565,5 +549,147 @@ class AtomicBufferTest
         dstBuffer.get(result);
 
         assertThat(result, is(testBytes));
+    }
+
+    @Test
+    void shouldCheckAlignmentForCharOperationsUnalignedIndex()
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        final UnsafeBuffer buffer = new UnsafeBuffer(new long[1]);
+
+        assertAlignmentCheck(buffer, 1, SIZE_OF_CHAR, i -> buffer.putCharVolatile(i, '?'));
+        assertAlignmentCheck(buffer, 3, SIZE_OF_CHAR, buffer::getCharVolatile);
+    }
+
+    @ParameterizedTest
+    @MethodSource("unalignedBuffers")
+    void shouldCheckAlignmentForCharOperationsUnalignedBuffer(final UnsafeBuffer buffer)
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        assertAlignmentCheck(buffer, 0, SIZE_OF_CHAR, i -> buffer.putCharVolatile(i, '?'));
+        assertAlignmentCheck(buffer, 2, SIZE_OF_CHAR, buffer::getCharVolatile);
+    }
+
+    @Test
+    void shouldCheckAlignmentForShortOperationsUnalignedIndex()
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        final UnsafeBuffer buffer = new UnsafeBuffer(new long[1]);
+
+        assertAlignmentCheck(buffer, 5, SIZE_OF_SHORT, i -> buffer.putShortVolatile(i, Short.MAX_VALUE));
+        assertAlignmentCheck(buffer, 1, SIZE_OF_SHORT, buffer::getShortVolatile);
+    }
+
+    @ParameterizedTest
+    @MethodSource("unalignedBuffers")
+    void shouldCheckAlignmentForShortOperationsUnalignedBuffer(final UnsafeBuffer buffer)
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        assertAlignmentCheck(buffer, 2, SIZE_OF_SHORT, i -> buffer.putShortVolatile(i, Short.MAX_VALUE));
+        assertAlignmentCheck(buffer, 6, SIZE_OF_SHORT, buffer::getShortVolatile);
+    }
+
+    @Test
+    void shouldCheckAlignmentForIntOperationsUnalignedIndex()
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        final UnsafeBuffer buffer = new UnsafeBuffer(new long[2]);
+
+        assertAlignmentCheck(buffer, 1, SIZE_OF_INT, i -> buffer.putIntVolatile(i, Integer.MIN_VALUE));
+        assertAlignmentCheck(buffer, 2, SIZE_OF_INT, buffer::getIntVolatile);
+        assertAlignmentCheck(buffer, 3, SIZE_OF_INT, i -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
+        assertAlignmentCheck(buffer, 5, SIZE_OF_INT, i -> buffer.addIntOrdered(i, 111));
+        assertAlignmentCheck(buffer, 6, SIZE_OF_INT, i -> buffer.compareAndSetInt(i, 0, 2));
+        assertAlignmentCheck(buffer, 7, SIZE_OF_INT, i -> buffer.getAndSetInt(i, 42));
+        assertAlignmentCheck(buffer, 9, SIZE_OF_INT, i -> buffer.getAndAddInt(i, 9));
+    }
+
+    @ParameterizedTest
+    @MethodSource("unalignedBuffers")
+    void shouldCheckAlignmentForIntOperationsUnalignedBuffer(final UnsafeBuffer buffer)
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        assertAlignmentCheck(buffer, 0, SIZE_OF_INT, i -> buffer.putIntVolatile(i, Integer.MIN_VALUE));
+        assertAlignmentCheck(buffer, 4, SIZE_OF_INT, buffer::getIntVolatile);
+        assertAlignmentCheck(buffer, 8, SIZE_OF_INT, i -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
+        assertAlignmentCheck(buffer, 12, SIZE_OF_INT, i -> buffer.addIntOrdered(i, 111));
+        assertAlignmentCheck(buffer, 0, SIZE_OF_INT, i -> buffer.compareAndSetInt(i, 0, 2));
+        assertAlignmentCheck(buffer, 4, SIZE_OF_INT, i -> buffer.getAndSetInt(i, 42));
+        assertAlignmentCheck(buffer, 8, SIZE_OF_INT, i -> buffer.getAndAddInt(i, 9));
+    }
+
+    @Test
+    void shouldCheckAlignmentForLongOperationsUnalignedIndex()
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        final UnsafeBuffer buffer = new UnsafeBuffer(new long[2]);
+
+        assertAlignmentCheck(buffer, 1, SIZE_OF_LONG, i -> buffer.putLongVolatile(i, Long.MIN_VALUE));
+        assertAlignmentCheck(buffer, 2, SIZE_OF_LONG, buffer::getLongVolatile);
+        assertAlignmentCheck(buffer, 3, SIZE_OF_LONG, i -> buffer.putLongOrdered(i, Long.MAX_VALUE));
+        assertAlignmentCheck(buffer, 4, SIZE_OF_LONG, i -> buffer.addLongOrdered(i, 111));
+        assertAlignmentCheck(buffer, 5, SIZE_OF_LONG, i -> buffer.compareAndSetLong(i, 2734683567834L, 2));
+        assertAlignmentCheck(buffer, 6, SIZE_OF_LONG, i -> buffer.getAndSetLong(i, -422374823L));
+        assertAlignmentCheck(buffer, 7, SIZE_OF_LONG, i -> buffer.getAndAddLong(i, 9248937239L));
+    }
+
+    @ParameterizedTest
+    @MethodSource("unalignedBuffers")
+    void shouldCheckAlignmentForLongOperationsUnalignedBuffer(final UnsafeBuffer buffer)
+    {
+        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+
+        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.putLongVolatile(i, Long.MIN_VALUE));
+        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, buffer::getLongVolatile);
+        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.putLongOrdered(i, Long.MAX_VALUE));
+        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, i -> buffer.addLongOrdered(i, 111));
+        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.compareAndSetLong(i, 2734683567834L, 2));
+        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, i -> buffer.getAndSetLong(i, -422374823L));
+        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.getAndAddLong(i, 9248937239L));
+    }
+
+    private static ByteBuffer sliceBuffer(final Buffer buffer)
+    {
+        return ((ByteBuffer)buffer).slice();
+    }
+
+    private static List<ByteBuffer> nativeBuffers()
+    {
+        return Arrays.asList(
+            allocate(BUFFER_CAPACITY).order(LITTLE_ENDIAN),
+            allocateDirect(BUFFER_CAPACITY).order(BIG_ENDIAN),
+            sliceBuffer(allocate(BUFFER_CAPACITY * 2).position(BUFFER_CAPACITY)));
+    }
+
+    private static List<ByteBuffer> atomicBuffers()
+    {
+        return Collections.singletonList(
+            allocateDirectAligned(BUFFER_CAPACITY, SIZE_OF_LONG).order(nativeOrder()));
+    }
+
+    private static List<UnsafeBuffer> unalignedBuffers()
+    {
+        return Arrays.asList(
+            new UnsafeBuffer(new byte[16]),
+            new UnsafeBuffer(allocate(16)),
+            new UnsafeBuffer(sliceBuffer(allocateDirectAligned(24, SIZE_OF_LONG).position(1))));
+    }
+
+    private static void assertAlignmentCheck(
+        final UnsafeBuffer buffer, final int index, final int alignment, final IntConsumer operation)
+    {
+        final IllegalArgumentException exception =
+            assertThrowsExactly(IllegalArgumentException.class, () -> operation.accept(index));
+        assertEquals(
+            "unaligned atomic operation: (addressOffset + index)=" + (buffer.addressOffset() + index) +
+            " is not divisible by " + alignment,
+            exception.getMessage());
     }
 }

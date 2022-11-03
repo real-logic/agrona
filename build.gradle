@@ -362,7 +362,7 @@ project(':agrona-agent') {
         // Avoid Javac warning about missing dependency from ByteBuddy
         compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
         testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
     }
@@ -479,7 +479,7 @@ project(':agrona-concurrency-tests') {
     task concurrencyTests(type: JavaExec, group: 'verification', dependsOn: shadowJar) {
         classpath = files(tasks.shadowJar)
         workingDir = project.buildDir
-        args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
+        args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -Dagrona.perform.alignment.checks=false -XX:+UseParallelGC', '-r', 'reports/jcstress']
         standardOutput = new NullOutputStream()
         errorOutput = new NullOutputStream()
     }

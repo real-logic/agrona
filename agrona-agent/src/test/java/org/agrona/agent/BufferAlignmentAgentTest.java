@@ -25,6 +25,8 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
@@ -33,6 +35,7 @@ import java.util.regex.Pattern;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static org.agrona.BitUtil.*;
+import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BufferAlignmentAgentTest
@@ -59,7 +62,7 @@ class BufferAlignmentAgentTest
     @Test
     void testUnsafeBufferFromByteArray()
     {
-        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET);
+        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET, false);
     }
 
     @Test
@@ -67,13 +70,13 @@ class BufferAlignmentAgentTest
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[256], 1, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
     }
 
     @Test
     void testUnsafeBufferFromHeapByteBuffer()
     {
-        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET);
+        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET, false);
     }
 
     @Test
@@ -83,7 +86,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
     }
 
     @Test
@@ -93,13 +96,27 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET);
+        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
     }
 
     @Test
     void testUnsafeBufferFromDirectByteBuffer()
     {
-        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0);
+        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0, false);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 8, 24 })
+    void testUnsafeBufferFromLongArray(final int offset)
+    {
+        testUnsafeBuffer(new UnsafeBuffer(new long[8]), offset, true);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 8, 24 })
+    void testUnsafeBufferFromAlignedDirectByteBuffer(final int offset)
+    {
+        testUnsafeBuffer(new UnsafeBuffer(allocateDirectAligned(64, SIZE_OF_LONG)), offset, true);
     }
 
     @Test
@@ -109,7 +126,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7);
+        testUnsafeBuffer(buffer, 7, false);
     }
 
     @Test
@@ -119,7 +136,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5);
+        testUnsafeBuffer(buffer, 5, false);
     }
 
     @Test
@@ -132,13 +149,16 @@ class BufferAlignmentAgentTest
         testUnAlignedWriteMethods(buffer, HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
-    private void testUnsafeBuffer(final UnsafeBuffer buffer, final int offset)
+    private void testUnsafeBuffer(final UnsafeBuffer buffer, final int offset, final boolean supportsAtomics)
     {
         testAlignedReadMethods(buffer, offset);
         testUnAlignedReadMethods(buffer, offset);
         testAlignedWriteMethods(buffer, offset);
         testUnAlignedWriteMethods(buffer, offset);
-        testAlignedAtomicMethods(buffer, offset);
+        if (supportsAtomics)
+        {
+            testAlignedAtomicMethods(buffer, offset);
+        }
         testUnAlignedAtomicMethods(buffer, offset);
     }
 
@@ -295,9 +315,6 @@ class BufferAlignmentAgentTest
 
     private void testUnAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
-        buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
-        // aligned
-
         assertUnaligned(offset + SIZE_OF_INT, buffer::getLongVolatile);
         assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongVolatile(i, Long.MAX_VALUE));
         assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
