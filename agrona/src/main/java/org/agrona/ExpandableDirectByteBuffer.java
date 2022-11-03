@@ -143,6 +143,14 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
     /**
      * {@inheritDoc}
      */
+    public Object array()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public byte[] byteArray()
     {
         return null;
@@ -547,7 +555,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         }
         else
         {
-            dstByteArray = array(dstBuffer);
+            dstByteArray = BufferUtil.array(dstBuffer);
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
@@ -601,7 +609,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         }
         else
         {
-            srcByteArray = array(srcBuffer);
+            srcByteArray = BufferUtil.array(srcBuffer);
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
@@ -617,7 +625,7 @@ public class ExpandableDirectByteBuffer implements MutableDirectBuffer
         srcBuffer.boundsCheck(srcIndex, length);
 
         UNSAFE.copyMemory(
-            srcBuffer.byteArray(),
+            srcBuffer.array(),
             srcBuffer.addressOffset() + srcIndex,
             null,
             address + index,

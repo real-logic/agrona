@@ -30,10 +30,10 @@ public class UnsafeBufferPosition extends Position
     private boolean isClosed = false;
     private final int counterId;
     private final long addressOffset;
-    private final byte[] byteArray;
+    private final Object array;
     private final CountersManager countersManager;
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @SuppressWarnings({ "FieldCanBeLocal", "unused" })
     private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**
@@ -58,7 +58,7 @@ public class UnsafeBufferPosition extends Position
     {
         this.counterId = counterId;
         this.countersManager = countersManager;
-        this.byteArray = buffer.byteArray();
+        this.array = buffer.array();
         this.byteBuffer = buffer.byteBuffer();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
@@ -87,7 +87,7 @@ public class UnsafeBufferPosition extends Position
      */
     public long get()
     {
-        return UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset);
+        return UnsafeAccess.UNSAFE.getLong(array, addressOffset);
     }
 
     /**
@@ -95,7 +95,7 @@ public class UnsafeBufferPosition extends Position
      */
     public long getVolatile()
     {
-        return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(array, addressOffset);
     }
 
     /**
@@ -103,7 +103,7 @@ public class UnsafeBufferPosition extends Position
      */
     public void set(final long value)
     {
-        UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, value);
+        UnsafeAccess.UNSAFE.putLong(array, addressOffset, value);
     }
 
     /**
@@ -111,7 +111,7 @@ public class UnsafeBufferPosition extends Position
      */
     public void setOrdered(final long value)
     {
-        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(array, addressOffset, value);
     }
 
     /**
@@ -119,7 +119,7 @@ public class UnsafeBufferPosition extends Position
      */
     public void setVolatile(final long value)
     {
-        UnsafeAccess.UNSAFE.putLongVolatile(byteArray, addressOffset, value);
+        UnsafeAccess.UNSAFE.putLongVolatile(array, addressOffset, value);
     }
 
     /**
@@ -129,9 +129,9 @@ public class UnsafeBufferPosition extends Position
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(array, addressOffset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putLong(array, addressOffset, proposedValue);
             updated = true;
         }
 
@@ -145,9 +145,9 @@ public class UnsafeBufferPosition extends Position
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
+        if (UnsafeAccess.UNSAFE.getLong(array, addressOffset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putOrderedLong(array, addressOffset, proposedValue);
             updated = true;
         }
 

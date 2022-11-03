@@ -15,18 +15,21 @@
  */
 package org.agrona;
 
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -308,6 +311,46 @@ public abstract class MutableDirectBufferTests
         assertEquals("long overflow parsing: " + value, exception.getMessage());
     }
 
+    @ParameterizedTest
+    @MethodSource("mutableBuffers")
+    void getBytesShouldCopyIntoDestinationBuffer(final MutableDirectBuffer dest)
+    {
+        final int srcIndex = 20;
+        final int dstIndex = 13;
+        final int length = 49;
+        final byte[] data = new byte[64];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer = newBuffer(100);
+        buffer.putBytes(srcIndex, data);
+
+        buffer.getBytes(srcIndex, dest, dstIndex, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(data[i], dest.getByte(dstIndex + i));
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("mutableBuffers")
+    void putBytesShouldCopyBytesFromTheSourceBuffer(final MutableDirectBuffer src)
+    {
+        final int srcIndex = 13;
+        final int dstIndex = 6;
+        final int length = 28;
+        final byte[] data = new byte[32];
+        ThreadLocalRandom.current().nextBytes(data);
+        src.putBytes(srcIndex, data);
+
+        final MutableDirectBuffer buffer = newBuffer(100);
+        buffer.putBytes(dstIndex, src, srcIndex, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(data[i], buffer.getByte(dstIndex + i));
+        }
+    }
+
     private static List<Arguments> valuesAndLengths()
     {
         return Arrays.asList(
@@ -349,5 +392,16 @@ public abstract class MutableDirectBufferTests
             Arguments.arguments("+", 0),
             Arguments.arguments("123456789^123456789", 9)
         );
+    }
+
+    private static List<MutableDirectBuffer> mutableBuffers()
+    {
+        return Arrays.asList(
+            new ExpandableArrayBuffer(64),
+            new ExpandableDirectByteBuffer(64),
+            new UnsafeBuffer(new byte[64]),
+            new UnsafeBuffer(new long[8]),
+            new UnsafeBuffer(ByteBuffer.allocate(64)),
+            new UnsafeBuffer(ByteBuffer.allocateDirect(64)));
     }
 }

@@ -40,20 +40,46 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
 
     /**
-     * Attach a view to a byte[] for providing direct access.
+     * Attach a view to a {@code byte[]} for providing direct access.
      *
      * @param buffer to which the view is attached.
      */
     void wrap(byte[] buffer);
 
     /**
-     * Attach a view to a byte[] for providing direct access.
+     * Attach a view to a {@code byte[]} for providing direct access.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view.
      */
     void wrap(byte[] buffer, int offset, int length);
+
+    /**
+     * Attach a view to a {@code long[]} for providing direct access.
+     * <p>
+     * NB: Using {@code long[]} instead of a {@code byte[]} allows for 8 times higher capacity.
+     *
+     * @param buffer to which the view is attached.
+     */
+    default void wrap(long[] buffer)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Attach a view to a long[] for providing direct access.
+     * <p>
+     * NB: Using {@code long[]} instead of a {@code byte[]} allows for 8 times higher capacity.
+     *
+     * @param buffer to which the view is attached.
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view.
+     */
+    default void wrap(long[] buffer, int offset, int length)
+    {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
@@ -77,8 +103,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * The {@link ByteBuffer#order()} is not relevant for accessing the wrapped buffer.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view.
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view..
      */
     void wrap(ByteBuffer buffer, int offset, int length);
 
@@ -93,8 +119,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Attach a view to a {@link DirectBuffer} for providing direct access.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view.
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view..
      */
     void wrap(DirectBuffer buffer, int offset, int length);
 
@@ -114,14 +140,51 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     long addressOffset();
 
     /**
-     * Get the underlying byte[] if one exists.
+     * Get the underlying {@code byte[]} if one exists.
      * <p>
      * NB: there may not be a one-to-one mapping between indices on this buffer
-     * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
+     * and the underlying {@code byte[]}, see {@link DirectBuffer#wrapAdjustment()}.
      *
-     * @return the underlying byte[] if one exists.
+     * @return the underlying {@code byte[]} if one exists.
+     * @see #wrap(byte[])
+     * @see #wrap(byte[], int, int)
+     * @see #wrap(ByteBuffer)
+     * @see #wrap(ByteBuffer, int, int)
      */
     byte[] byteArray();
+
+    /**
+     * Get the underlying {@code long[]} if one exists.
+     * <p>
+     * NB: there may not be a one-to-one mapping between indices on this buffer
+     * and the underlying {@code long[]}, see {@link DirectBuffer#wrapAdjustment()}.
+     *
+     * @return the underlying {@code long[]} if one exists.
+     * @see #wrap(long[])
+     * @see #wrap(long[], int, int)
+     */
+    default long[] longArray()
+    {
+        return null;
+    }
+
+    /**
+     * Get the underlying array if one exists, i.e. if this buffer wraps a {@code byte[]}, {@code long[]} or a
+     * {@code java.nio.HeapByteBuffer}.
+     *
+     * @return the underlying array (i.e. {@code byte[]} or {@code long[])} or {@code null}.
+     * @see #wrap(byte[])
+     * @see #wrap(byte[], int, int)
+     * @see #wrap(long[])
+     * @see #wrap(long[], int, int)
+     * @see #wrap(ByteBuffer)
+     * @see #wrap(ByteBuffer, int, int)
+     */
+    default Object array()
+    {
+        final byte[] bytes = byteArray();
+        return null != bytes ? bytes : longArray();
+    }
 
     /**
      * Get the underlying {@link ByteBuffer} if one exists.
