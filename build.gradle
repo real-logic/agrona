@@ -224,6 +224,10 @@ subprojects {
             }
         }
 
+        systemProperties(
+                'agrona.disable.bounds.checks': 'false',
+                'agrona.perform.alignment.checks': 'true')
+
         javaLauncher.set(toolchainLauncher)
     }
 

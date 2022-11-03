@@ -63,6 +63,16 @@ public class UnsafeBuffer implements AtomicBuffer
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
 
     /**
+     * Name of the system property that specify if the alignment checks for atomic operations are enabled. The alignment
+     * checks verify that the atomic operation is performed at an index aligned to the operand size. For example doing
+     * the {@link AtomicBuffer#putLongVolatile(int, long)} is only allowed if the index is 8-bytes aligned whereas
+     * calling {@link AtomicBuffer#getIntVolatile(int)} requires a 4-bytes aligned index.
+     * <p>
+     * The checks are disabled by default. To enable checks set this property to {@code true}.
+     */
+    public static final String PERFORM_ALIGNMENT_CHECKS_PROP_NAME = "agrona.perform.alignment.checks";
+
+    /**
      * Should bounds-checks operations be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME}
      * system property.
      *
@@ -70,6 +80,15 @@ public class UnsafeBuffer implements AtomicBuffer
      */
     public static final boolean SHOULD_BOUNDS_CHECK =
         !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
+
+    /**
+     * Should alignment checks for atomic operations be done or not. Controlled by the
+     * {@link #PERFORM_ALIGNMENT_CHECKS_PROP_NAME} system property.
+     *
+     * @see #PERFORM_ALIGNMENT_CHECKS_PROP_NAME
+     */
+    public static final boolean SHOULD_PERFORM_ALIGNMENT_CHECKS =
+        "true".equals(SystemUtil.getProperty(PERFORM_ALIGNMENT_CHECKS_PROP_NAME, "false"));
 
     private long addressOffset;
     private int capacity;
