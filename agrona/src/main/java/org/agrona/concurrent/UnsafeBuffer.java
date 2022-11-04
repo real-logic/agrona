@@ -416,6 +416,7 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        final Object array = this.array;
         final long offset = addressOffset + index;
         if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
         {
@@ -1163,6 +1164,7 @@ public class UnsafeBuffer implements AtomicBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, dst.length);
+            BufferUtil.boundsCheck(dst, 0, dst.length);
         }
 
         UNSAFE.copyMemory(array, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
@@ -1504,9 +1506,11 @@ public class UnsafeBuffer implements AtomicBuffer
 
         try
         {
+            final Object array = this.array;
+            final long offset = addressOffset;
             for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++)
             {
-                final char c = (char)UNSAFE.getByte(array, addressOffset + i);
+                final char c = (char)UNSAFE.getByte(array, offset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         }
@@ -1530,7 +1534,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length + STR_HEADER_LEN);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, length);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, length);
 
         for (int i = 0; i < length; i++)
         {
@@ -1540,7 +1546,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
         }
 
         return STR_HEADER_LEN + length;
@@ -1558,7 +1564,9 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length + STR_HEADER_LEN);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, length);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, length);
 
         for (int i = 0; i < length; i++)
         {
@@ -1568,7 +1576,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
         }
 
         return STR_HEADER_LEN + length;
@@ -1592,7 +1600,9 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, bits);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, bits);
 
         for (int i = 0; i < length; i++)
         {
@@ -1602,7 +1612,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
         }
 
         return STR_HEADER_LEN + length;
@@ -1626,7 +1636,9 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, bits);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, bits);
 
         for (int i = 0; i < length; i++)
         {
@@ -1636,7 +1648,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + STR_HEADER_LEN + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
         }
 
         return STR_HEADER_LEN + length;
@@ -1670,9 +1682,11 @@ public class UnsafeBuffer implements AtomicBuffer
 
         try
         {
+            final Object array = this.array;
+            final long offset = addressOffset;
             for (int i = index, limit = index + length; i < limit; i++)
             {
-                final char c = (char)UNSAFE.getByte(array, addressOffset + i);
+                final char c = (char)UNSAFE.getByte(array, offset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         }
@@ -1696,6 +1710,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        final Object array = this.array;
+        final long offset = addressOffset + index;
         for (int i = 0; i < length; i++)
         {
             char c = value.charAt(i);
@@ -1703,8 +1719,7 @@ public class UnsafeBuffer implements AtomicBuffer
             {
                 c = '?';
             }
-
-            UNSAFE.putByte(array, addressOffset + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + i, (byte)c);
         }
 
         return length;
@@ -1722,6 +1737,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, length);
         }
 
+        final Object array = this.array;
+        final long offset = addressOffset + index;
         for (int i = 0; i < length; i++)
         {
             char c = value.charAt(i);
@@ -1730,7 +1747,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + i, (byte)c);
         }
 
         return length;
@@ -1748,6 +1765,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, len);
         }
 
+        final Object array = this.array;
+        final long offset = addressOffset + index;
         for (int i = 0; i < len; i++)
         {
             char c = value.charAt(valueOffset + i);
@@ -1756,7 +1775,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + i, (byte)c);
         }
 
         return len;
@@ -1775,6 +1794,8 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, len);
         }
 
+        final Object array = this.array;
+        final long offset = addressOffset + index;
         for (int i = 0; i < len; i++)
         {
             char c = value.charAt(valueOffset + i);
@@ -1783,7 +1804,7 @@ public class UnsafeBuffer implements AtomicBuffer
                 c = '?';
             }
 
-            UNSAFE.putByte(array, addressOffset + index + i, (byte)c);
+            UNSAFE.putByte(array, offset + i, (byte)c);
         }
 
         return len;
@@ -1873,8 +1894,10 @@ public class UnsafeBuffer implements AtomicBuffer
             boundsCheck0(index, STR_HEADER_LEN + bytes.length);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, bytes.length);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, addressOffset + index + STR_HEADER_LEN, bytes.length);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1901,8 +1924,10 @@ public class UnsafeBuffer implements AtomicBuffer
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(array, addressOffset + index, bits);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, addressOffset + index + STR_HEADER_LEN, bytes.length);
+        final Object array = this.array;
+        final long offset = addressOffset + index;
+        UNSAFE.putInt(array, offset, bits);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
