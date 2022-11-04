@@ -299,7 +299,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         final UnsafeBuffer buffer = new UnsafeBuffer(array);
 
         assertSame(array, buffer.array());
-        assertSame(array, buffer.longArray());
         assertNull(buffer.byteArray());
         assertNull(buffer.byteBuffer());
         assertEquals(SIZE_OF_LONG * size, buffer.capacity());
@@ -316,7 +315,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         final UnsafeBuffer buffer = new UnsafeBuffer(array, offset, length);
 
         assertSame(array, buffer.array());
-        assertSame(array, buffer.longArray());
         assertNull(buffer.byteArray());
         assertNull(buffer.byteBuffer());
         assertEquals(length, buffer.capacity());
@@ -376,7 +374,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
 
         assertSame(src.array(), buffer.array());
         assertSame(src.byteArray(), buffer.byteArray());
-        assertSame(src.longArray(), buffer.longArray());
         assertSame(src.byteBuffer(), buffer.byteBuffer());
         assertEquals(src.capacity(), buffer.capacity());
         assertEquals(src.addressOffset(), buffer.addressOffset());
@@ -393,7 +390,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
 
         assertSame(src.array(), buffer.array());
         assertSame(src.byteArray(), buffer.byteArray());
-        assertSame(src.longArray(), buffer.longArray());
         assertSame(src.byteBuffer(), buffer.byteBuffer());
         assertEquals(length, buffer.capacity());
         assertEquals(src.addressOffset() + offset, buffer.addressOffset());

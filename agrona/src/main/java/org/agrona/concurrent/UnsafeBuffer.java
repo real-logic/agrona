@@ -392,15 +392,6 @@ public class UnsafeBuffer implements AtomicBuffer
     /**
      * {@inheritDoc}
      */
-    public long[] longArray()
-    {
-        final Object arr = array;
-        return (arr instanceof long[]) ? (long[])arr : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public ByteBuffer byteBuffer()
     {
         return byteBuffer;

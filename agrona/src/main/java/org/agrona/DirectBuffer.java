@@ -169,21 +169,6 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     byte[] byteArray();
 
     /**
-     * Get the underlying {@code long[]} if one exists.
-     * <p>
-     * NB: there may not be a one-to-one mapping between indices on this buffer
-     * and the underlying {@code long[]}, see {@link DirectBuffer#wrapAdjustment()}.
-     *
-     * @return the underlying {@code long[]} if one exists.
-     * @see #wrap(long[])
-     * @see #wrap(long[], int, int)
-     */
-    default long[] longArray()
-    {
-        return null;
-    }
-
-    /**
      * Get the underlying array if one exists, i.e. if this buffer wraps a {@code byte[]}, {@code long[]} or a
      * {@code java.nio.HeapByteBuffer}.
      *
@@ -197,8 +182,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      */
     default Object array()
     {
-        final byte[] bytes = byteArray();
-        return null != bytes ? bytes : longArray();
+        return byteArray();
     }
 
     /**
