@@ -15,10 +15,13 @@
  */
 package org.agrona;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 {
@@ -73,5 +76,50 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 
         final int length = buffer.putNaturalLongAscii(index, value);
         assertEquals(value, buffer.parseNaturalLongAscii(index, length));
+    }
+
+    @Test
+    void ensureCapacityThrowsIndexOutOfBoundsExceptionIfIndexIsNegative()
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1);
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.ensureCapacity(-3, 4));
+        assertEquals("negative value: index=-3 length=4", exception.getMessage());
+    }
+
+    @Test
+    void ensureCapacityThrowsIndexOutOfBoundsExceptionIfLengthIsNegative()
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1);
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.ensureCapacity(8, -100));
+        assertEquals("negative value: index=8 length=-100", exception.getMessage());
+    }
+
+    @Test
+    void ensureCapacityIsANoOpIfExistingCapacityIsEnough()
+    {
+        final int index = 1;
+        final int capacity = 5;
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(capacity);
+
+        buffer.ensureCapacity(index, capacity - index);
+
+        assertEquals(capacity, buffer.capacity());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0, 6, 128",
+        "99, 38, 192",
+    })
+    void ensureCapacityExtendsTheUnderlyingArray(final int index, final int length, final int expectedCapacity)
+    {
+        final int initialCapacity = 5;
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(initialCapacity);
+
+        buffer.ensureCapacity(index, length);
+
+        assertEquals(expectedCapacity, buffer.capacity());
     }
 }
