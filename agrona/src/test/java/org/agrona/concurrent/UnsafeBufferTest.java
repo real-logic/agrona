@@ -393,7 +393,7 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertSame(src.byteBuffer(), buffer.byteBuffer());
         assertEquals(length, buffer.capacity());
         assertEquals(src.addressOffset() + offset, buffer.addressOffset());
-        assertEquals(offset, buffer.wrapAdjustment());
+        assertEquals(src.wrapAdjustment() + offset, buffer.wrapAdjustment());
     }
 
     private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
