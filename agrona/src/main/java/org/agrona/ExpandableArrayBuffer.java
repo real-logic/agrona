@@ -196,7 +196,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public long getLong(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_LONG);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
 
         long bits = UNSAFE.getLong(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -228,7 +231,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public long getLong(final int index)
     {
-        boundsCheck0(index, SIZE_OF_LONG);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
 
         return UNSAFE.getLong(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -248,7 +254,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int getInt(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_INT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
 
         int bits = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -280,7 +289,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int getInt(final int index)
     {
-        boundsCheck0(index, SIZE_OF_INT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
 
         return UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -300,7 +312,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public double getDouble(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_DOUBLE);
+        }
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
@@ -336,7 +351,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public double getDouble(final int index)
     {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_DOUBLE);
+        }
 
         return UNSAFE.getDouble(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -356,7 +374,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public float getFloat(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_FLOAT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_FLOAT);
+        }
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
@@ -392,7 +413,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public float getFloat(final int index)
     {
-        boundsCheck0(index, SIZE_OF_FLOAT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_FLOAT);
+        }
 
         return UNSAFE.getFloat(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -412,7 +436,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public short getShort(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_SHORT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_SHORT);
+        }
 
         short bits = UNSAFE.getShort(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -444,7 +471,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public short getShort(final int index)
     {
-        boundsCheck0(index, SIZE_OF_SHORT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_SHORT);
+        }
 
         return UNSAFE.getShort(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -464,7 +494,12 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public byte getByte(final int index)
     {
-        return byteArray[index];
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_BYTE);
+        }
+
+        return UNSAFE.getByte(byteArray, ARRAY_BASE_OFFSET + index);
     }
 
     /**
@@ -521,8 +556,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length)
     {
-        boundsCheck0(index, length);
-        BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+            BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
+        }
 
         final byte[] dstByteArray;
         final long dstBaseOffset;
@@ -574,7 +612,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length)
     {
         ensureCapacity(index, length);
-        BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
+        }
 
         final byte[] srcByteArray;
         final long srcBaseOffset;
@@ -613,7 +654,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public char getChar(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, SIZE_OF_SHORT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_CHAR);
+        }
 
         char bits = UNSAFE.getChar(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -645,7 +689,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public char getChar(final int index)
     {
-        boundsCheck0(index, SIZE_OF_CHAR);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_CHAR);
+        }
 
         return UNSAFE.getChar(byteArray, ARRAY_BASE_OFFSET + index);
     }
@@ -665,7 +712,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringAscii(final int index)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         final int length = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
 
@@ -677,7 +727,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int getStringAscii(final int index, final Appendable appendable)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         final int length = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
 
@@ -689,7 +742,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringAscii(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         int bits = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -707,7 +763,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         int bits = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -725,6 +784,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringAscii(final int index, final int length)
     {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index + STR_HEADER_LEN, length);
+        }
+
         final byte[] stringInBytes = new byte[length];
         System.arraycopy(byteArray, index + STR_HEADER_LEN, stringInBytes, 0, length);
 
@@ -736,6 +800,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int getStringAscii(final int index, final int length, final Appendable appendable)
     {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index + STR_HEADER_LEN, length);
+        }
+
         try
         {
             for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++)
@@ -994,7 +1063,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringUtf8(final int index)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         final int length = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
 
@@ -1006,7 +1078,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringUtf8(final int index, final ByteOrder byteOrder)
     {
-        boundsCheck0(index, STR_HEADER_LEN);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, STR_HEADER_LEN);
+        }
 
         int bits = UNSAFE.getInt(byteArray, ARRAY_BASE_OFFSET + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
@@ -1024,6 +1099,11 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public String getStringUtf8(final int index, final int length)
     {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index + STR_HEADER_LEN, length);
+        }
+
         final byte[] stringInBytes = new byte[length];
         System.arraycopy(byteArray, index + STR_HEADER_LEN, stringInBytes, 0, length);
 
@@ -1118,7 +1198,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int parseNaturalIntAscii(final int index, final int length)
     {
-        boundsCheck0(index, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
 
         if (length <= 0)
         {
@@ -1145,7 +1228,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public long parseNaturalLongAscii(final int index, final int length)
     {
-        boundsCheck0(index, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
 
         if (length <= 0)
         {
@@ -1167,7 +1253,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public int parseIntAscii(final int index, final int length)
     {
-        boundsCheck0(index, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
 
         if (length <= 0)
         {
@@ -1207,7 +1296,10 @@ public class ExpandableArrayBuffer implements MutableDirectBuffer
      */
     public long parseLongAscii(final int index, final int length)
     {
-        boundsCheck0(index, length);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, length);
+        }
 
         if (length <= 0)
         {
