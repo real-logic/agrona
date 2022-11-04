@@ -40,6 +40,21 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
 
     /**
+     * Name of the system property that specify if the bounds checks should be disabled.
+     * To disable bounds checks set this property to {@code true}.
+     */
+    String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
+
+    /**
+     * Should bounds-checks operations be done or not. Controlled by the
+     * {@link DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
+     * @see DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME
+     */
+    boolean SHOULD_BOUNDS_CHECK =
+        !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
+
+    /**
      * Attach a view to a {@code byte[]} for providing direct access.
      *
      * @param buffer to which the view is attached.

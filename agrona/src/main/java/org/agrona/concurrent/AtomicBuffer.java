@@ -16,12 +16,39 @@
 package org.agrona.concurrent;
 
 import org.agrona.MutableDirectBuffer;
+import org.agrona.SystemUtil;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Abstraction over a range of buffer types that allows type to be accessed with memory ordering semantics.
  */
 public interface AtomicBuffer extends MutableDirectBuffer
 {
+    /**
+     * Buffer alignment in bytes to ensure atomic word accesses.
+     */
+    int ALIGNMENT = SIZE_OF_LONG;
+
+    /**
+     * Name of the system property that specify if the alignment checks for atomic operations are enabled. The alignment
+     * checks verify that the atomic operation is performed at an index aligned to the operand size. For example doing
+     * the {@link AtomicBuffer#putLongVolatile(int, long)} is only allowed if the index is 8-bytes aligned whereas
+     * calling {@link AtomicBuffer#getIntVolatile(int)} requires a 4-bytes aligned index.
+     * <p>
+     * The checks are disabled by default. To enable checks set this property to {@code true}.
+     */
+    String PERFORM_ALIGNMENT_CHECKS_PROP_NAME = "agrona.perform.alignment.checks";
+
+    /**
+     * Should alignment checks for atomic operations be done or not. Controlled by the
+     * {@link #PERFORM_ALIGNMENT_CHECKS_PROP_NAME} system property.
+     *
+     * @see AtomicBuffer#PERFORM_ALIGNMENT_CHECKS_PROP_NAME
+     */
+    boolean SHOULD_PERFORM_ALIGNMENT_CHECKS =
+        "true".equals(SystemUtil.getProperty(PERFORM_ALIGNMENT_CHECKS_PROP_NAME, "false"));
+
     /**
      * Verify that the underlying buffer is correctly aligned to prevent word tearing and other ordering issues.
      *

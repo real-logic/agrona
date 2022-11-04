@@ -20,7 +20,6 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.SystemUtil;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -52,43 +51,19 @@ import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 public class UnsafeBuffer implements AtomicBuffer
 {
     /**
-     * Buffer alignment to ensure atomic word accesses.
+     * @see AtomicBuffer#ALIGNMENT
      */
-    public static final int ALIGNMENT = SIZE_OF_LONG;
+    public static final int ALIGNMENT = AtomicBuffer.ALIGNMENT;
 
     /**
-     * Name of the system property that specify if the bounds checks should be disabled.
-     * To disable bounds checks set this property to {@code true}.
+     * @see DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
-    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
+    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = DirectBuffer.DISABLE_BOUNDS_CHECKS_PROP_NAME;
 
     /**
-     * Name of the system property that specify if the alignment checks for atomic operations are enabled. The alignment
-     * checks verify that the atomic operation is performed at an index aligned to the operand size. For example doing
-     * the {@link AtomicBuffer#putLongVolatile(int, long)} is only allowed if the index is 8-bytes aligned whereas
-     * calling {@link AtomicBuffer#getIntVolatile(int)} requires a 4-bytes aligned index.
-     * <p>
-     * The checks are disabled by default. To enable checks set this property to {@code true}.
+     * @see DirectBuffer#SHOULD_BOUNDS_CHECK
      */
-    public static final String PERFORM_ALIGNMENT_CHECKS_PROP_NAME = "agrona.perform.alignment.checks";
-
-    /**
-     * Should bounds-checks operations be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME}
-     * system property.
-     *
-     * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
-     */
-    public static final boolean SHOULD_BOUNDS_CHECK =
-        !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
-
-    /**
-     * Should alignment checks for atomic operations be done or not. Controlled by the
-     * {@link #PERFORM_ALIGNMENT_CHECKS_PROP_NAME} system property.
-     *
-     * @see #PERFORM_ALIGNMENT_CHECKS_PROP_NAME
-     */
-    public static final boolean SHOULD_PERFORM_ALIGNMENT_CHECKS =
-        "true".equals(SystemUtil.getProperty(PERFORM_ALIGNMENT_CHECKS_PROP_NAME, "false"));
+    public static final boolean SHOULD_BOUNDS_CHECK = DirectBuffer.SHOULD_BOUNDS_CHECK;
 
     private long addressOffset;
     private int capacity;
