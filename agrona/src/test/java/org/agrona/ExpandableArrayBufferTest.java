@@ -20,8 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExpandableArrayBufferTest extends MutableDirectBufferTests
 {
@@ -117,9 +116,18 @@ class ExpandableArrayBufferTest extends MutableDirectBufferTests
     {
         final int initialCapacity = 5;
         final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(initialCapacity);
+        final byte[] originalArray = buffer.byteArray();
 
         buffer.ensureCapacity(index, length);
 
         assertEquals(expectedCapacity, buffer.capacity());
+        assertNotSame(originalArray, buffer.byteArray());
+    }
+
+    @Test
+    void wrapAdjustmentIsAlwaysZero()
+    {
+        final MutableDirectBuffer buffer = newBuffer(5);
+        assertEquals(0, buffer.wrapAdjustment());
     }
 }
