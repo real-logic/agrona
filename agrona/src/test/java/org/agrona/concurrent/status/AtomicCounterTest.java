@@ -20,11 +20,10 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-import static org.agrona.BufferUtil.allocateDirectAligned;
+import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,8 +44,7 @@ class AtomicCounterTest
 
     private static List<AtomicBuffer> buffers()
     {
-        return Arrays.asList(
-            new UnsafeBuffer(new long[10 * COUNTER_LENGTH / SIZE_OF_LONG]),
-            new UnsafeBuffer(allocateDirectAligned(10 * COUNTER_LENGTH, SIZE_OF_LONG)));
+        return Collections.singletonList(
+            new UnsafeBuffer(allocateDirect(10 * COUNTER_LENGTH)));
     }
 }

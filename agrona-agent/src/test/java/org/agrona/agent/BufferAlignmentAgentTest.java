@@ -107,13 +107,6 @@ class BufferAlignmentAgentTest
 
     @ParameterizedTest
     @ValueSource(ints = { 0, 8, 24 })
-    void testUnsafeBufferFromLongArray(final int offset)
-    {
-        testUnsafeBuffer(new UnsafeBuffer(new long[8]), offset, true);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = { 0, 8, 24 })
     void testUnsafeBufferFromAlignedDirectByteBuffer(final int offset)
     {
         testUnsafeBuffer(new UnsafeBuffer(allocateDirectAligned(64, SIZE_OF_LONG)), offset, true);

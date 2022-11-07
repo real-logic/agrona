@@ -169,7 +169,6 @@ class MappedResizeableBufferTest
     {
         return Arrays.asList(
             new ExpandableArrayBuffer(16),
-            new ExpandableDirectByteBuffer(16),
-            new UnsafeBuffer(new long[8]));
+            new ExpandableDirectByteBuffer(16));
     }
 }

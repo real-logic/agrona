@@ -71,32 +71,6 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     void wrap(byte[] buffer, int offset, int length);
 
     /**
-     * Attach a view to a {@code long[]} for providing direct access.
-     * <p>
-     * NB: Using {@code long[]} instead of a {@code byte[]} allows for 8 times higher capacity.
-     *
-     * @param buffer to which the view is attached.
-     */
-    default void wrap(long[] buffer)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Attach a view to a long[] for providing direct access.
-     * <p>
-     * NB: Using {@code long[]} instead of a {@code byte[]} allows for 8 times higher capacity.
-     *
-     * @param buffer to which the view is attached.
-     * @param offset in bytes at which the view begins.
-     * @param length in bytes of the buffer included in the view.
-     */
-    default void wrap(long[] buffer, int offset, int length)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Attach a view to a {@link ByteBuffer} for providing direct access, the {@link ByteBuffer} can be
      * heap based or direct. The {@link ByteBuffer#order()} is not relevant for accessing the wrapped buffer.
      * <p>
@@ -167,23 +141,6 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * @see #wrap(ByteBuffer, int, int)
      */
     byte[] byteArray();
-
-    /**
-     * Get the underlying array if one exists, i.e. if this buffer wraps a {@code byte[]}, {@code long[]} or a
-     * {@code java.nio.HeapByteBuffer}.
-     *
-     * @return the underlying array (i.e. {@code byte[]} or {@code long[])} or {@code null}.
-     * @see #wrap(byte[])
-     * @see #wrap(byte[], int, int)
-     * @see #wrap(long[])
-     * @see #wrap(long[], int, int)
-     * @see #wrap(ByteBuffer)
-     * @see #wrap(ByteBuffer, int, int)
-     */
-    default Object array()
-    {
-        return byteArray();
-    }
 
     /**
      * Get the underlying {@link ByteBuffer} if one exists.
@@ -532,7 +489,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get the adjustment in indices between an index in this buffer and the wrapped object.
-     * The wrapped object might be a {@link ByteBuffer} or a byte[].
+     * The wrapped object might be a {@link ByteBuffer} or a {@code byte[]}.
      * <p>
      * You only need to use this adjustment if you plan to perform operations on the underlying
      * byte array or byte buffer that rely on their indices.

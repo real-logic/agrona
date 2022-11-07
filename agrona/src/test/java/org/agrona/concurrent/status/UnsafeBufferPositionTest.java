@@ -19,11 +19,10 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -44,8 +43,7 @@ class UnsafeBufferPositionTest
 
     private static List<UnsafeBuffer> buffers()
     {
-        return Arrays.asList(
-            new UnsafeBuffer(new long[5 * COUNTER_LENGTH / SIZE_OF_LONG]),
-            new UnsafeBuffer(allocateDirectAligned(5 * COUNTER_LENGTH, SIZE_OF_LONG)));
+        return Collections.singletonList(
+            new UnsafeBuffer(ByteBuffer.allocateDirect(5 * COUNTER_LENGTH)));
     }
 }

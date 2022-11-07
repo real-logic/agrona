@@ -22,7 +22,6 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,8 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
-import static org.agrona.BufferUtil.LONG_ARRAY_BASE_OFFSET;
 import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -270,88 +267,11 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 0, 1, 3, 16 })
-    void wrapAnEntireLongArray(final int size)
-    {
-        final long[] array = new long[size];
-
-        final UnsafeBuffer buffer = new UnsafeBuffer(array);
-
-        assertSame(array, buffer.array());
-        assertNull(buffer.byteArray());
-        assertNull(buffer.byteBuffer());
-        assertEquals(SIZE_OF_LONG * size, buffer.capacity());
-        assertEquals(LONG_ARRAY_BASE_OFFSET, buffer.addressOffset());
-    }
-
-    @Test
-    void wrapLongArrayWithOffsetAndLength()
-    {
-        final long[] array = new long[3];
-        final int offset = 6;
-        final int length = 17;
-
-        final UnsafeBuffer buffer = new UnsafeBuffer(array, offset, length);
-
-        assertSame(array, buffer.array());
-        assertNull(buffer.byteArray());
-        assertNull(buffer.byteBuffer());
-        assertEquals(length, buffer.capacity());
-        assertEquals(LONG_ARRAY_BASE_OFFSET + offset, buffer.addressOffset());
-    }
-
-    @Test
-    void wrapLongArrayThrowsIllegalArgumentExceptionIfOffsetIsNegative()
-    {
-        assumeTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
-
-        final IllegalArgumentException exception =
-            assertThrowsExactly(IllegalArgumentException.class, () -> new UnsafeBuffer(new long[1], -5, 4));
-        assertEquals("invalid offset: -5", exception.getMessage());
-    }
-
-    @Test
-    void wrapLongArrayThrowsIllegalArgumentExceptionIfLengthIsNegative()
-    {
-        assumeTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
-
-        final IllegalArgumentException exception =
-            assertThrowsExactly(IllegalArgumentException.class, () -> new UnsafeBuffer(new long[1], 0, -3));
-        assertEquals("invalid length: -3", exception.getMessage());
-    }
-
-    @ParameterizedTest
-    @CsvSource(
-        {
-            "41,0",
-            "39,2",
-            "0,64"
-        })
-    void wrapLongArrayThrowsIllegalArgumentExceptionIfOffsetOrLengthAreWrong(final int offset, final int length)
-    {
-        assumeTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
-
-        final IllegalArgumentException exception =
-            assertThrowsExactly(IllegalArgumentException.class, () -> new UnsafeBuffer(new long[5], offset, length));
-        assertEquals("offset=" + offset + " length=" + length + " not valid for capacity=40", exception.getMessage());
-    }
-
-    @Test
-    void wrapAdjustmentForLongArray()
-    {
-        final int offset = 5;
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[4], offset, 25);
-
-        assertEquals(offset, buffer.wrapAdjustment());
-    }
-
-    @ParameterizedTest
     @MethodSource("directBuffers")
     void wrapDirectBuffer(final DirectBuffer src)
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(src);
 
-        assertSame(src.array(), buffer.array());
         assertSame(src.byteArray(), buffer.byteArray());
         assertSame(src.byteBuffer(), buffer.byteBuffer());
         assertEquals(src.capacity(), buffer.capacity());
@@ -367,7 +287,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         final int length = 17;
         final UnsafeBuffer buffer = new UnsafeBuffer(src, offset, length);
 
-        assertSame(src.array(), buffer.array());
         assertSame(src.byteArray(), buffer.byteArray());
         assertSame(src.byteBuffer(), buffer.byteBuffer());
         assertEquals(length, buffer.capacity());
@@ -395,6 +314,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         return Arrays.asList(
             new ExpandableArrayBuffer(64),
             new ExpandableDirectByteBuffer(64),
-            new UnsafeBuffer(new long[8]));
+            new UnsafeBuffer(ByteBuffer.allocate(64)));
     }
 }

@@ -438,7 +438,6 @@ public abstract class MutableDirectBufferTests
             new ExpandableArrayBuffer(64),
             new ExpandableDirectByteBuffer(64),
             new UnsafeBuffer(new byte[64]),
-            new UnsafeBuffer(new long[8]),
             new UnsafeBuffer(ByteBuffer.allocate(64)),
             new UnsafeBuffer(ByteBuffer.allocateDirect(64)));
     }

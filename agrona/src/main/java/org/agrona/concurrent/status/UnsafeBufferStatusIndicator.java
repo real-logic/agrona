@@ -31,7 +31,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;
     private final long addressOffset;
-    private final Object array;
+    private final byte[] byteArray;
 
     @SuppressWarnings({ "FieldCanBeLocal", "unused" })
     private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
@@ -45,7 +45,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
     public UnsafeBufferStatusIndicator(final AtomicBuffer buffer, final int counterId)
     {
         this.counterId = counterId;
-        this.array = buffer.array();
+        this.byteArray = buffer.byteArray();
         this.byteBuffer = buffer.byteBuffer();
 
         final int counterOffset = CountersManager.counterOffset(counterId);
@@ -66,7 +66,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
      */
     public void setOrdered(final long value)
     {
-        UnsafeAccess.UNSAFE.putOrderedLong(array, addressOffset, value);
+        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
     }
 
     /**
@@ -74,7 +74,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
      */
     public long getVolatile()
     {
-        return UnsafeAccess.UNSAFE.getLongVolatile(array, addressOffset);
+        return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
     }
 
     /**

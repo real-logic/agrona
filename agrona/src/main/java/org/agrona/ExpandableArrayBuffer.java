@@ -57,7 +57,7 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
      */
     public ExpandableArrayBuffer(final int initialCapacity)
     {
-        array = new byte[initialCapacity];
+        byteArray = new byte[initialCapacity];
         capacity = initialCapacity;
         addressOffset = ARRAY_BASE_OFFSET;
     }
@@ -121,14 +121,6 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
     /**
      * {@inheritDoc}
      */
-    public byte[] byteArray()
-    {
-        return (byte[])array;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public ByteBuffer byteBuffer()
     {
         return null;
@@ -155,10 +147,9 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
      */
     public String toString()
     {
-        final byte[] byteArray = (byte[])array;
         return "ExpandableArrayBuffer{" +
-            "byteArray=" + byteArray + // lgtm [java/print-array]
-            " byteArray.length" + (null == byteArray ? 0 : byteArray.length) +
+            ", capacity=" + capacity +
+            ", byteArray=" + byteArray + // lgtm [java/print-array]
             '}';
     }
 
@@ -179,7 +170,7 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
             }
 
             final int newCapacity = calculateExpansion(capacity, resultingPosition);
-            array = Arrays.copyOf((byte[])array, newCapacity);
+            byteArray = Arrays.copyOf(byteArray, newCapacity);
             capacity = newCapacity;
         }
     }
