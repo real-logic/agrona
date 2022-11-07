@@ -1555,7 +1555,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final long thatOffset = that.addressOffset;
 
         int i = 0;
-        for (int end = length & 7; i < end; i += 8)
+        for (int end = length & ~7; i < end; i += 8)
         {
             if (UNSAFE.getLong(thisArray, thisOffset + i) != UNSAFE.getLong(thatArray, thatOffset + i))
             {
@@ -1583,7 +1583,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final long addressOffset = this.addressOffset;
         final int length = capacity;
         int i = 0, hashCode = 19;
-        for (int end = length & 7; i < end; i += 8)
+        for (int end = length & ~7; i < end; i += 8)
         {
             hashCode = 31 * hashCode + Long.hashCode(UNSAFE.getLong(array, addressOffset + i));
         }
