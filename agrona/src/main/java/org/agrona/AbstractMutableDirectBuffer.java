@@ -1579,11 +1579,16 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
      */
     public int hashCode()
     {
-        int hashCode = 1;
-
         final byte[] array = byteArray;
         final long addressOffset = this.addressOffset;
-        for (int i = 0, length = capacity; i < length; i++)
+        final int length = capacity;
+        int i = 0, hashCode = 19;
+        for (int end = length & 7; i < end; i += 8)
+        {
+            hashCode = 31 * hashCode + Long.hashCode(UNSAFE.getLong(array, addressOffset + i));
+        }
+
+        for (; i < length; i++)
         {
             hashCode = 31 * hashCode + UNSAFE.getByte(array, addressOffset + i);
         }

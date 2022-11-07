@@ -19,6 +19,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -437,6 +438,30 @@ public abstract class MutableDirectBufferTests
         other.putBytes(0, data);
 
         assertEquals(buffer, other);
+    }
+
+    @Test
+    void hashCodeConsidersAnEntireCapacity()
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(10);
+        final MutableDirectBuffer buffer2 = newBuffer(15);
+        final MutableDirectBuffer buffer3 = newBuffer(10);
+        final int length = 7;
+        buffer1.setMemory(0, length, (byte)'f');
+        buffer2.setMemory(0, length, (byte)'f');
+        buffer3.setMemory(0, length, (byte)'f');
+
+        assertNotEquals(buffer1.hashCode(), buffer2.hashCode());
+        assertEquals(buffer1.hashCode(), buffer3.hashCode());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "3,8027335", "11,17668045", "128,-1198940141" })
+    void hashCodeDifferentDataSizes(final int capacity, final int expectedHashCode)
+    {
+        final MutableDirectBuffer buffer = newBuffer(capacity);
+        buffer.setMemory(0, capacity, (byte)'z');
+        assertEquals(expectedHashCode, buffer.hashCode());
     }
 
     private static List<Arguments> valuesAndLengths()
