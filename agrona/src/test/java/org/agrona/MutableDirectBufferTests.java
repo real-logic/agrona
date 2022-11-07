@@ -456,12 +456,54 @@ public abstract class MutableDirectBufferTests
     }
 
     @ParameterizedTest
-    @CsvSource({ "3,8027335", "11,17668045", "128,-1198940141" })
+    @CsvSource({ "3,687175", "11,17668045", "128,-56919533" })
     void hashCodeDifferentDataSizes(final int capacity, final int expectedHashCode)
     {
         final MutableDirectBuffer buffer = newBuffer(capacity);
         buffer.setMemory(0, capacity, (byte)'z');
         assertEquals(expectedHashCode, buffer.hashCode());
+    }
+
+    @Test
+    void compareToComparesCapacityIfContentIsEqual()
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(3);
+        final MutableDirectBuffer buffer2 = newBuffer(5);
+        final MutableDirectBuffer buffer3 = newBuffer(3);
+
+        assertEquals(-1, buffer1.compareTo(buffer2));
+        assertEquals(1, buffer2.compareTo(buffer1));
+        assertEquals(0, buffer3.compareTo(buffer1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 6, 19, 256 })
+    void compareToReturnsZeroForEqualContents(final int capacity)
+    {
+        final byte[] data = new byte[capacity];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer1 = newBuffer(capacity);
+        buffer1.putBytes(0, data);
+        final MutableDirectBuffer buffer2 = new UnsafeBuffer(data);
+
+        assertEquals(0, buffer1.compareTo(buffer2));
+        assertEquals(0, buffer2.compareTo(buffer1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {5, 33})
+    void compareToStopsComparisonUponTheFirstNonEqualByte(final int capacity)
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(capacity);
+        final MutableDirectBuffer buffer2 = newBuffer(capacity);
+        final int index1 = ThreadLocalRandom.current().nextInt(capacity - 2, capacity);
+        final int index2 = ThreadLocalRandom.current().nextInt(0, index1);
+        buffer1.setMemory(0, index1, (byte)'a');
+        buffer2.setMemory(0, index2, (byte)'a');
+        buffer2.setMemory(index2, capacity - index2, (byte)'x');
+
+        assertTrue(buffer1.compareTo(buffer2) < 0);
+        assertTrue(buffer2.compareTo(buffer1) > 0);
     }
 
     private static List<Arguments> valuesAndLengths()

@@ -1607,8 +1607,21 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final byte[] thatArray = that.byteArray();
         final long thisOffset = this.addressOffset;
         final long thatOffset = that.addressOffset();
+        final int length = Math.min(thisCapacity, thatCapacity);
+        int i = 0;
+        for (int end = length & ~7; i < end; i += 8)
+        {
+            final int cmp = Long.compare(
+                UNSAFE.getLong(thisArray, thisOffset + i),
+                UNSAFE.getLong(thatArray, thatOffset + i));
 
-        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++)
+            if (0 != cmp)
+            {
+                return cmp;
+            }
+        }
+
+        for (; i < length; i++)
         {
             final int cmp = Byte.compare(
                 UNSAFE.getByte(thisArray, thisOffset + i),
