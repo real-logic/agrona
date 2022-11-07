@@ -80,15 +80,41 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         final byte[] array = byteArray;
         final long offset = addressOffset + index;
-        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
+
+        if (length < 100)
         {
-            // This horrible filth is to encourage the JVM to call memset() when address is even.
-            UNSAFE.putByte(array, offset, value);
-            UNSAFE.setMemory(array, offset + 1, length - 1, value);
+            int i = 0;
+            final int end = (length & ~7);
+            final long mask = ((((long)value) << 56) |
+                (((long)value & 0xff) << 48) |
+                (((long)value & 0xff) << 40) |
+                (((long)value & 0xff) << 32) |
+                (((long)value & 0xff) << 24) |
+                (((long)value & 0xff) << 16) |
+                (((long)value & 0xff) << 8) |
+                (((long)value & 0xff)));
+            for (; i < end; i += 8)
+            {
+                UNSAFE.putLong(array, offset + i, mask);
+            }
+
+            for (; i < length; i++)
+            {
+                UNSAFE.putByte(array, offset + i, value);
+            }
         }
         else
         {
-            UNSAFE.setMemory(array, offset, length, value);
+            if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
+            {
+                // This horrible filth is to encourage the JVM to call memset() when address is even.
+                UNSAFE.putByte(array, offset, value);
+                UNSAFE.setMemory(array, offset + 1, length - 1, value);
+            }
+            else
+            {
+                UNSAFE.setMemory(array, offset, length, value);
+            }
         }
     }
 

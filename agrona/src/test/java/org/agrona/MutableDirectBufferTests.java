@@ -491,7 +491,7 @@ public abstract class MutableDirectBufferTests
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {5, 33})
+    @ValueSource(ints = { 5, 33 })
     void compareToStopsComparisonUponTheFirstNonEqualByte(final int capacity)
     {
         final MutableDirectBuffer buffer1 = newBuffer(capacity);
@@ -504,6 +504,23 @@ public abstract class MutableDirectBufferTests
 
         assertTrue(buffer1.compareTo(buffer2) < 0);
         assertTrue(buffer2.compareTo(buffer1) > 0);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 5, 9, 16, 33, 100, 256 })
+    void setMemoryCopiesTheSameByteAcross(final int length)
+    {
+        final int index = ThreadLocalRandom.current().nextInt(0, 10);
+        final MutableDirectBuffer buffer = newBuffer(index + length);
+        final byte value = (byte)ThreadLocalRandom.current().nextInt();
+        final byte[] expected = new byte[length];
+        Arrays.fill(expected, value);
+
+        buffer.setMemory(index, length, value);
+
+        final byte[] actual = new byte[length];
+        buffer.getBytes(index, actual);
+        assertArrayEquals(expected, actual);
     }
 
     private static List<Arguments> valuesAndLengths()

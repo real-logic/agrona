@@ -16,11 +16,15 @@
 package org.agrona.concurrent;
 
 import org.agrona.BitUtil;
-import org.agrona.BufferUtil;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
+
+import static org.agrona.BufferUtil.allocateDirectAligned;
 
 /**
  * Benchmark for the {@link org.agrona.MutableDirectBuffer#setMemory(int, int, byte)} method.
@@ -34,13 +38,13 @@ import java.util.concurrent.TimeUnit;
 public class SetMemoryBenchmark
 {
     @Param
-    private Type type;
-    @Param({ "0", "1" })
+    private Type buffer;
+    @Param({ "0", "3" })
     private int index;
-    @Param({ "128", "1024" })
+    @Param({ "1", "2", "4", "16", "50", "99", "128", "1024" })
     private int length;
 
-    private UnsafeBuffer buffer;
+    private UnsafeBuffer unsafeBuffer;
 
     /**
      * Type of the {@link ByteBuffer} to create.
@@ -48,9 +52,7 @@ public class SetMemoryBenchmark
     public enum Type
     {
         ARRAY,
-        HEAP_BB,
-        DIRECT_BB,
-        DIRECT_ALIGNED_BB
+        DIRECT
     }
 
     /**
@@ -59,20 +61,15 @@ public class SetMemoryBenchmark
     @Setup
     public void setup()
     {
-        final int capacity = BitUtil.findNextPositivePowerOfTwo(1 + index + length);
-        switch (type)
+        index = 0;
+        final int capacity = BitUtil.findNextPositivePowerOfTwo(index + length);
+        switch (buffer)
         {
             case ARRAY:
-                buffer = new UnsafeBuffer(new byte[capacity]);
+                unsafeBuffer = new UnsafeBuffer(new byte[capacity]);
                 break;
-            case HEAP_BB:
-                buffer = new UnsafeBuffer(ByteBuffer.allocate(capacity));
-                break;
-            case DIRECT_BB:
-                buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(capacity));
-                break;
-            case DIRECT_ALIGNED_BB:
-                buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(capacity, 32));
+            case DIRECT:
+                unsafeBuffer = new UnsafeBuffer(allocateDirectAligned(capacity, 32));
                 break;
         }
     }
@@ -83,6 +80,19 @@ public class SetMemoryBenchmark
     @Benchmark
     public void benchmark()
     {
-        buffer.setMemory(index, length, (byte)0xFF);
+        unsafeBuffer.setMemory(index, length, (byte)0xFF);
+    }
+
+    /**
+     * Runner method that allows starting benchmark directly.
+     *
+     * @param args for the main method.
+     * @throws RunnerException in case if JMH throws while starting the benchmark.
+     */
+    public static void main(final String[] args) throws RunnerException
+    {
+        new Runner(new OptionsBuilder()
+            .include(SetMemoryBenchmark.class.getName()).shouldFailOnError(true).build())
+            .run();
     }
 }
