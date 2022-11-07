@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -387,6 +389,54 @@ public abstract class MutableDirectBufferTests
         {
             assertEquals(data[i], buffer.getByte(dstIndex + i));
         }
+    }
+
+    @Test
+    void equalsReturnsTrueForThis()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        assertTrue(buffer.equals(buffer));
+    }
+
+    @Test
+    void equalsReturnsFalseForNull()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        assertFalse(buffer.equals(null));
+    }
+
+    @Test
+    void equalsReturnsFalseForWrongClass()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        final AbstractMutableDirectBuffer other = mock(AbstractMutableDirectBuffer.class);
+
+        assertFalse(buffer.equals(other));
+
+        verifyNoInteractions(other);
+    }
+
+    @Test
+    void equalsReturnsFalseWhenCapacityDoesNotMatch()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        final MutableDirectBuffer other = newBuffer(3);
+
+        assertFalse(buffer.equals(other));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 7, 21, 64 })
+    void equalsReturnsTrueWhenOtherBufferHasTheSameData(final int capacity)
+    {
+        final byte[] data = new byte[capacity];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer = newBuffer(capacity);
+        final MutableDirectBuffer other = newBuffer(capacity);
+        buffer.putBytes(0, data);
+        other.putBytes(0, data);
+
+        assertEquals(buffer, other);
     }
 
     private static List<Arguments> valuesAndLengths()

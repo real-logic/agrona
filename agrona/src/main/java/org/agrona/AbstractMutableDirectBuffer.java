@@ -1543,7 +1543,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         final AbstractMutableDirectBuffer that = (AbstractMutableDirectBuffer)obj;
 
-        if (capacity != that.capacity)
+        final int length = capacity;
+        if (length != that.capacity)
         {
             return false;
         }
@@ -1553,9 +1554,16 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final long thisOffset = this.addressOffset;
         final long thatOffset = that.addressOffset;
 
-        // TODO: Compare by 8...
+        int i = 0;
+        for (int end = length & 7; i < end; i += 8)
+        {
+            if (UNSAFE.getLong(thisArray, thisOffset + i) != UNSAFE.getLong(thatArray, thatOffset + i))
+            {
+                return false;
+            }
+        }
 
-        for (int i = 0, length = capacity; i < length; i++)
+        for (; i < length; i++)
         {
             if (UNSAFE.getByte(thisArray, thisOffset + i) != UNSAFE.getByte(thatArray, thatOffset + i))
             {
@@ -1607,12 +1615,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             }
         }
 
-        if (thisCapacity != thatCapacity)
-        {
-            return thisCapacity - thatCapacity;
-        }
-
-        return 0;
+        return Integer.compare(thisCapacity, thatCapacity);
     }
 
     protected final void boundsCheck0(final int index, final int length)
