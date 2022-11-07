@@ -16,6 +16,10 @@
 package org.agrona;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.agrona.SystemUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -199,5 +203,50 @@ class SystemUtilTest
         final String defaultValue = "default";
 
         assertEquals(defaultValue, SystemUtil.getProperty(key, defaultValue));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "i386", "x86", "x86_64", "amd64" })
+    void isX86ArchShouldDetectProperOsArch(final String arch)
+    {
+        assertTrue(SystemUtil.isX86Arch(arch));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "aarch64", "ppc64", "ppc64le", "unknown", "", "test" })
+    void isX86ArchShouldReturnFalse(final String arch)
+    {
+        assertFalse(SystemUtil.isX86Arch(arch));
+    }
+
+    @Test
+    @EnabledOnOs(architectures = { "i386", "x86", "x86_64", "amd64" })
+    void isX86ArchSystemTest()
+    {
+        assertTrue(SystemUtil.isX86Arch());
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void isLinuxReturnsTrueForLinuxBasedSystems()
+    {
+        assertTrue(SystemUtil.isLinux());
+        assertFalse(SystemUtil.isWindows());
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void isWindowsReturnsTrueForWindows()
+    {
+        assertFalse(SystemUtil.isLinux());
+        assertTrue(SystemUtil.isWindows());
+    }
+
+    @Test
+    @EnabledOnOs(OS.MAC)
+    void onMacOsChecksReturnFalse()
+    {
+        assertFalse(SystemUtil.isLinux());
+        assertFalse(SystemUtil.isWindows());
     }
 }
