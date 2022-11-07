@@ -19,23 +19,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.PrintStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.IntConsumer;
 
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.ByteBuffer.allocateDirect;
 import static java.nio.ByteOrder.*;
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.agrona.BitUtil.*;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.BufferUtil.allocateDirectAligned;
-import static org.agrona.concurrent.UnsafeBuffer.SHOULD_PERFORM_ALIGNMENT_CHECKS;
+import static org.agrona.concurrent.AtomicBuffer.ALIGNMENT;
+import static org.agrona.concurrent.AtomicBuffer.STRICT_ALIGNMENT_CHECKS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.Mockito.*;
 
 class AtomicBufferTest
 {
@@ -552,107 +556,55 @@ class AtomicBufferTest
     }
 
     @Test
-    void shouldCheckAlignmentForCharOperationsUnalignedIndex()
+    void verifyAlignmentShouldThrowForAByteArrayIfStrictAlignmentChecksAreEnabled()
     {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+        assumeTrue(STRICT_ALIGNMENT_CHECKS);
 
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[1]);
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
 
-        assertAlignmentCheck(buffer, 1, SIZE_OF_CHAR, i -> buffer.putCharVolatile(i, '?'));
-        assertAlignmentCheck(buffer, 3, SIZE_OF_CHAR, buffer::getCharVolatile);
-    }
-
-    @ParameterizedTest
-    @MethodSource("unalignedBuffers")
-    void shouldCheckAlignmentForCharOperationsUnalignedBuffer(final UnsafeBuffer buffer)
-    {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
-
-        assertAlignmentCheck(buffer, 0, SIZE_OF_CHAR, i -> buffer.putCharVolatile(i, '?'));
-        assertAlignmentCheck(buffer, 2, SIZE_OF_CHAR, buffer::getCharVolatile);
+        final IllegalStateException exception =
+            assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+        assertEquals("AtomicBuffer was created from a byte[] and is not correctly aligned by " + ALIGNMENT,
+            exception.getMessage());
     }
 
     @Test
-    void shouldCheckAlignmentForShortOperationsUnalignedIndex()
+    void verifyAlignmentShouldThrowForAHeapByterBufferArrayIfStrictAlignmentChecksAreEnabled()
     {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+        assumeTrue(STRICT_ALIGNMENT_CHECKS);
 
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[1]);
+        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocate(8));
 
-        assertAlignmentCheck(buffer, 5, SIZE_OF_SHORT, i -> buffer.putShortVolatile(i, Short.MAX_VALUE));
-        assertAlignmentCheck(buffer, 1, SIZE_OF_SHORT, buffer::getShortVolatile);
-    }
-
-    @ParameterizedTest
-    @MethodSource("unalignedBuffers")
-    void shouldCheckAlignmentForShortOperationsUnalignedBuffer(final UnsafeBuffer buffer)
-    {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
-
-        assertAlignmentCheck(buffer, 2, SIZE_OF_SHORT, i -> buffer.putShortVolatile(i, Short.MAX_VALUE));
-        assertAlignmentCheck(buffer, 6, SIZE_OF_SHORT, buffer::getShortVolatile);
+        final IllegalStateException exception =
+            assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+        assertEquals("AtomicBuffer was created from a byte[] and is not correctly aligned by " + ALIGNMENT,
+            exception.getMessage());
     }
 
     @Test
-    void shouldCheckAlignmentForIntOperationsUnalignedIndex()
+    void verifyAlignmentShouldWarnForAByteArrayWhenStrictChecksAreDisabled()
     {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+        assumeFalse(STRICT_ALIGNMENT_CHECKS);
 
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[2]);
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
 
-        assertAlignmentCheck(buffer, 1, SIZE_OF_INT, i -> buffer.putIntVolatile(i, Integer.MIN_VALUE));
-        assertAlignmentCheck(buffer, 2, SIZE_OF_INT, buffer::getIntVolatile);
-        assertAlignmentCheck(buffer, 3, SIZE_OF_INT, i -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
-        assertAlignmentCheck(buffer, 5, SIZE_OF_INT, i -> buffer.addIntOrdered(i, 111));
-        assertAlignmentCheck(buffer, 6, SIZE_OF_INT, i -> buffer.compareAndSetInt(i, 0, 2));
-        assertAlignmentCheck(buffer, 7, SIZE_OF_INT, i -> buffer.getAndSetInt(i, 42));
-        assertAlignmentCheck(buffer, 9, SIZE_OF_INT, i -> buffer.getAndAddInt(i, 9));
-    }
+        final PrintStream old = System.err;
+        try
+        {
+            final PrintStream mockedStream = mock(PrintStream.class);
+            System.setErr(mockedStream);
 
-    @ParameterizedTest
-    @MethodSource("unalignedBuffers")
-    void shouldCheckAlignmentForIntOperationsUnalignedBuffer(final UnsafeBuffer buffer)
-    {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
+            buffer.verifyAlignment();
 
-        assertAlignmentCheck(buffer, 0, SIZE_OF_INT, i -> buffer.putIntVolatile(i, Integer.MIN_VALUE));
-        assertAlignmentCheck(buffer, 4, SIZE_OF_INT, buffer::getIntVolatile);
-        assertAlignmentCheck(buffer, 8, SIZE_OF_INT, i -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
-        assertAlignmentCheck(buffer, 12, SIZE_OF_INT, i -> buffer.addIntOrdered(i, 111));
-        assertAlignmentCheck(buffer, 0, SIZE_OF_INT, i -> buffer.compareAndSetInt(i, 0, 2));
-        assertAlignmentCheck(buffer, 4, SIZE_OF_INT, i -> buffer.getAndSetInt(i, 42));
-        assertAlignmentCheck(buffer, 8, SIZE_OF_INT, i -> buffer.getAndAddInt(i, 9));
-    }
-
-    @Test
-    void shouldCheckAlignmentForLongOperationsUnalignedIndex()
-    {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
-
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[2]);
-
-        assertAlignmentCheck(buffer, 1, SIZE_OF_LONG, i -> buffer.putLongVolatile(i, Long.MIN_VALUE));
-        assertAlignmentCheck(buffer, 2, SIZE_OF_LONG, buffer::getLongVolatile);
-        assertAlignmentCheck(buffer, 3, SIZE_OF_LONG, i -> buffer.putLongOrdered(i, Long.MAX_VALUE));
-        assertAlignmentCheck(buffer, 4, SIZE_OF_LONG, i -> buffer.addLongOrdered(i, 111));
-        assertAlignmentCheck(buffer, 5, SIZE_OF_LONG, i -> buffer.compareAndSetLong(i, 2734683567834L, 2));
-        assertAlignmentCheck(buffer, 6, SIZE_OF_LONG, i -> buffer.getAndSetLong(i, -422374823L));
-        assertAlignmentCheck(buffer, 7, SIZE_OF_LONG, i -> buffer.getAndAddLong(i, 9248937239L));
-    }
-
-    @ParameterizedTest
-    @MethodSource("unalignedBuffers")
-    void shouldCheckAlignmentForLongOperationsUnalignedBuffer(final UnsafeBuffer buffer)
-    {
-        assertTrue(SHOULD_PERFORM_ALIGNMENT_CHECKS);
-
-        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.putLongVolatile(i, Long.MIN_VALUE));
-        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, buffer::getLongVolatile);
-        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.putLongOrdered(i, Long.MAX_VALUE));
-        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, i -> buffer.addLongOrdered(i, 111));
-        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.compareAndSetLong(i, 2734683567834L, 2));
-        assertAlignmentCheck(buffer, 8, SIZE_OF_LONG, i -> buffer.getAndSetLong(i, -422374823L));
-        assertAlignmentCheck(buffer, 0, SIZE_OF_LONG, i -> buffer.getAndAddLong(i, 9248937239L));
+            verify(mockedStream).println(
+                "AtomicBuffer was created from a byte[] and is not correctly aligned by " + ALIGNMENT);
+            verifyNoMoreInteractions(mockedStream);
+        }
+        finally
+        {
+            System.setErr(old);
+        }
+        buffer.verifyAlignment();
     }
 
     private static ByteBuffer sliceBuffer(final Buffer buffer)
@@ -680,16 +632,5 @@ class AtomicBufferTest
             new UnsafeBuffer(new byte[16]),
             new UnsafeBuffer(allocate(16)),
             new UnsafeBuffer(sliceBuffer(allocateDirectAligned(24, SIZE_OF_LONG).position(1))));
-    }
-
-    private static void assertAlignmentCheck(
-        final UnsafeBuffer buffer, final int index, final int alignment, final IntConsumer operation)
-    {
-        final IllegalArgumentException exception =
-            assertThrowsExactly(IllegalArgumentException.class, () -> operation.accept(index));
-        assertEquals(
-            "unaligned atomic operation: (addressOffset + index)=" + (buffer.addressOffset() + index) +
-            " is not divisible by " + alignment,
-            exception.getMessage());
     }
 }

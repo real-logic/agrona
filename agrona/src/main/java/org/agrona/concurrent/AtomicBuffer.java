@@ -31,28 +31,32 @@ public interface AtomicBuffer extends MutableDirectBuffer
     int ALIGNMENT = SIZE_OF_LONG;
 
     /**
-     * Name of the system property that specify if the alignment checks for atomic operations are enabled. The alignment
-     * checks verify that the atomic operation is performed at an index aligned to the operand size. For example doing
-     * the {@link AtomicBuffer#putLongVolatile(int, long)} is only allowed if the index is 8-bytes aligned whereas
-     * calling {@link AtomicBuffer#getIntVolatile(int)} requires a 4-bytes aligned index.
+     * Name of the system property that specify if the alignment checks for atomic operations are strict. If the checks
+     * are strict then the {@link #verifyAlignment()} method will throw an exception if the underlying buffer is a
+     * {@code byte[]}.
      * <p>
-     * The checks are disabled by default. To enable checks set this property to {@code true}.
+     * The strictness of the check is platform-specific. For example on {@code x86} platform the check is disabled
+     * whereas on {@code aarch64} it is enabled.
      */
-    String PERFORM_ALIGNMENT_CHECKS_PROP_NAME = "agrona.perform.alignment.checks";
+    String STRICT_ALIGNMENT_CHECKS_PROP_NAME = "agrona.strict.alignment.checks";
 
     /**
      * Should alignment checks for atomic operations be done or not. Controlled by the
-     * {@link #PERFORM_ALIGNMENT_CHECKS_PROP_NAME} system property.
+     * {@link #STRICT_ALIGNMENT_CHECKS_PROP_NAME} system property.
      *
-     * @see AtomicBuffer#PERFORM_ALIGNMENT_CHECKS_PROP_NAME
+     * @see AtomicBuffer#STRICT_ALIGNMENT_CHECKS_PROP_NAME
      */
-    boolean SHOULD_PERFORM_ALIGNMENT_CHECKS =
-        "true".equals(SystemUtil.getProperty(PERFORM_ALIGNMENT_CHECKS_PROP_NAME, "false"));
+    boolean STRICT_ALIGNMENT_CHECKS = "true".equals(
+        SystemUtil.getProperty(STRICT_ALIGNMENT_CHECKS_PROP_NAME, SystemUtil.isX86Arch() ? "false" : "true"));
 
     /**
      * Verify that the underlying buffer is correctly aligned to prevent word tearing and other ordering issues.
+     * <p>
+     * Users are encouraged to call this method after constructing the {@link AtomicBuffer} instance in order to ensure
+     * that the underlying buffer supports atomic access to {@code long} values.
      *
      * @throws IllegalStateException if the alignment is not correct.
+     * @see #ALIGNMENT
      */
     void verifyAlignment();
 

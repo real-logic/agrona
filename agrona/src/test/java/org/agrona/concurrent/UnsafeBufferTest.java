@@ -245,20 +245,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertEquals(value, buffer.parseLongAscii(index, length));
     }
 
-    @Test
-    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromByteArray()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[16]);
-        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
-    }
-
-    @Test
-    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromHeapByteBuffer()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(ByteBuffer.allocate(32));
-        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
-    }
-
     @ParameterizedTest
     @ValueSource(ints = { 1, 2, 4 })
     void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromImproperlyAlignedDirectByteBuffer(
@@ -280,13 +266,6 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     void verifyAlignmentWorksIfDirectBufferAlignedOnEightByteBoundaries(final int alignment)
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(allocateDirectAligned(99, alignment));
-        buffer.verifyAlignment();
-    }
-
-    @Test
-    void verifyAlignmentWorksIfBufferWrapsALongArray()
-    {
-        final UnsafeBuffer buffer = new UnsafeBuffer(new long[3]);
         buffer.verifyAlignment();
     }
 

@@ -407,10 +407,14 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     {
         if (null != array)
         {
-            if (array instanceof byte[])
+            final String msg = "AtomicBuffer was created from a byte[] and is not correctly aligned by " + ALIGNMENT;
+            if (STRICT_ALIGNMENT_CHECKS)
             {
-                throw new IllegalStateException(
-                    "AtomicBuffer was created from a byte[] and is not correctly aligned by " + ALIGNMENT);
+                throw new IllegalStateException(msg);
+            }
+            else
+            {
+                System.err.println(msg);
             }
         }
         else if (0 != (addressOffset & (ALIGNMENT - 1)))
@@ -431,11 +435,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
-        }
-
         return UNSAFE.getLongVolatile(array, addressOffset + index);
     }
 
@@ -447,11 +446,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_LONG);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
         }
 
         UNSAFE.putLongVolatile(array, addressOffset + index, value);
@@ -467,11 +461,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
-        }
-
         UNSAFE.putOrderedLong(array, addressOffset + index, value);
     }
 
@@ -483,11 +472,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_LONG);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
         }
 
         final long offset = addressOffset + index;
@@ -508,11 +492,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
-        }
-
         return UNSAFE.compareAndSwapLong(array, addressOffset + index, expectedValue, updateValue);
     }
 
@@ -524,11 +503,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_LONG);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
         }
 
         return UNSAFE.getAndSetLong(array, addressOffset + index, value);
@@ -544,11 +518,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_LONG);
-        }
-
         return UNSAFE.getAndAddLong(array, addressOffset + index, delta);
     }
 
@@ -560,11 +529,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_INT);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
         }
 
         return UNSAFE.getIntVolatile(array, addressOffset + index);
@@ -580,11 +544,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
-        }
-
         UNSAFE.putIntVolatile(array, addressOffset + index, value);
     }
 
@@ -598,11 +557,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
-        }
-
         UNSAFE.putOrderedInt(array, addressOffset + index, value);
     }
 
@@ -614,11 +568,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_INT);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
         }
 
         final long offset = addressOffset + index;
@@ -639,11 +588,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
-        }
-
         return UNSAFE.compareAndSwapInt(array, addressOffset + index, expectedValue, updateValue);
     }
 
@@ -655,11 +599,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_INT);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
         }
 
         return UNSAFE.getAndSetInt(array, addressOffset + index, value);
@@ -675,11 +614,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_INT);
-        }
-
         return UNSAFE.getAndAddInt(array, addressOffset + index, delta);
     }
 
@@ -693,11 +627,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_SHORT);
-        }
-
         return UNSAFE.getShortVolatile(array, addressOffset + index);
     }
 
@@ -709,11 +638,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_SHORT);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_SHORT);
         }
 
         UNSAFE.putShortVolatile(array, addressOffset + index, value);
@@ -755,11 +679,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_CHAR);
-        }
-
         return UNSAFE.getCharVolatile(array, addressOffset + index);
     }
 
@@ -771,11 +690,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, SIZE_OF_CHAR);
-        }
-
-        if (SHOULD_PERFORM_ALIGNMENT_CHECKS)
-        {
-            checkAlignment(index, SIZE_OF_CHAR);
         }
 
         UNSAFE.putCharVolatile(array, addressOffset + index, value);
@@ -819,16 +733,6 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         {
             throw new IllegalArgumentException(
                 "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
-        }
-    }
-
-    private void checkAlignment(final int index, final int alignment)
-    {
-        final long offset = addressOffset + index;
-        if (0 != (offset & (alignment - 1)) || array instanceof byte[])
-        {
-            throw new IllegalArgumentException(
-                "unaligned atomic operation: (addressOffset + index)=" + offset + " is not divisible by " + alignment);
         }
     }
 }

@@ -24,10 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-import java.nio.ByteBuffer;
-
+import static java.nio.ByteBuffer.allocateDirect;
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.concurrent.status.CountersReader.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -42,9 +40,9 @@ class CountersManagerTest
     private long currentTimestamp = 0;
 
     private final UnsafeBuffer metadataBuffer =
-        new UnsafeBuffer(new long[NUMBER_OF_COUNTERS * METADATA_LENGTH / SIZE_OF_LONG]);
+        new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * METADATA_LENGTH));
     private final UnsafeBuffer valuesBuffer =
-        new UnsafeBuffer(new long[NUMBER_OF_COUNTERS * COUNTER_LENGTH / SIZE_OF_LONG]);
+        new UnsafeBuffer(allocateDirect(NUMBER_OF_COUNTERS * COUNTER_LENGTH));
     private final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
     private final CountersReader reader = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
     private final CountersManager managerWithCooldown = new CountersManager(
@@ -57,8 +55,8 @@ class CountersManagerTest
     @Test
     void shouldSupportEmptyManager()
     {
-        final UnsafeBuffer metadataBuffer = new UnsafeBuffer(new long[0]);
-        final UnsafeBuffer valuesBuffer = new UnsafeBuffer(new long[0]);
+        final UnsafeBuffer metadataBuffer = new UnsafeBuffer(allocateDirect(0));
+        final UnsafeBuffer valuesBuffer = new UnsafeBuffer(allocateDirect(0));
         final CountersManager manager = new CountersManager(metadataBuffer, valuesBuffer, US_ASCII);
 
         assertEquals(-1, manager.maxCounterId());
@@ -339,13 +337,13 @@ class CountersManagerTest
     {
         final int typeIdOne = 333;
         final long keyOne = 777L;
-        final MutableDirectBuffer keyOneBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(8));
+        final MutableDirectBuffer keyOneBuffer = new UnsafeBuffer(allocateDirect(8));
         keyOneBuffer.putLong(0, keyOne);
         final DirectBuffer labelOneBuffer = new UnsafeBuffer("Test Label One".getBytes(US_ASCII));
 
         final int typeIdTwo = 222;
         final long keyTwo = 444;
-        final MutableDirectBuffer keyTwoBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(8));
+        final MutableDirectBuffer keyTwoBuffer = new UnsafeBuffer(allocateDirect(8));
         keyTwoBuffer.putLong(0, keyTwo);
         final DirectBuffer labelTwoBuffer = new UnsafeBuffer("Test Label Two".getBytes(US_ASCII));
 

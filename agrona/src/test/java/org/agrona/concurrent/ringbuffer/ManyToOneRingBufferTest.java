@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.function.IntConsumer;
 
 import static java.lang.Boolean.TRUE;
+import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.BitUtil.align;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.MIN_CAPACITY;
@@ -104,7 +105,7 @@ class ManyToOneRingBufferTest
         when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength))
             .thenReturn(TRUE);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
         final int srcIndex = 0;
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -126,7 +127,7 @@ class ManyToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
 
         final int srcIndex = 0;
         assertFalse(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -147,7 +148,7 @@ class ManyToOneRingBufferTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
 
         final int srcIndex = 0;
         assertFalse(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -171,7 +172,7 @@ class ManyToOneRingBufferTest
         when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT))
             .thenReturn(TRUE);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
 
         final int srcIndex = 0;
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -201,7 +202,7 @@ class ManyToOneRingBufferTest
         when(buffer.compareAndSetLong(TAIL_COUNTER_INDEX, tail, tail + alignedRecordLength + ALIGNMENT))
             .thenReturn(TRUE);
 
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
 
         final int srcIndex = 0;
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, srcIndex, length));
@@ -463,7 +464,7 @@ class ManyToOneRingBufferTest
     @Test
     void shouldThrowExceptionWhenMaxMessageSizeExceeded()
     {
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new long[128]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(allocateDirect(1024));
 
         assertThrows(IllegalArgumentException.class,
             () -> ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, ringBuffer.maxMsgLength() + 1));
@@ -704,7 +705,7 @@ class ManyToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
+        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
 
@@ -730,7 +731,7 @@ class ManyToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
+        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
 
@@ -756,7 +757,7 @@ class ManyToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
+        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
         final MutableInteger counter = new MutableInteger();
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
@@ -781,7 +782,7 @@ class ManyToOneRingBufferTest
         final String msg = "Hello World";
         final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
         final int srcLength = srcBuffer.putStringAscii(0, msg);
-        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new long[128]));
+        final RingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
         final MutableInteger counter = new MutableInteger();
 
         assertTrue(ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, srcLength));
@@ -815,7 +816,7 @@ class ManyToOneRingBufferTest
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
         srcBuffer.putLong(0, Long.MAX_VALUE);
         final ManyToOneRingBuffer ringBuffer =
-            new ManyToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY + TRAILER_LENGTH) / SIZE_OF_LONG]));
+            new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY + TRAILER_LENGTH)));
 
         assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
 
@@ -836,7 +837,7 @@ class ManyToOneRingBufferTest
         final int msgType = 42;
         final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
         final ManyToOneRingBuffer ringBuffer =
-            new ManyToOneRingBuffer(new UnsafeBuffer(new long[(MIN_CAPACITY * 2 + TRAILER_LENGTH) / SIZE_OF_LONG]));
+            new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY * 2 + TRAILER_LENGTH)));
 
         assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
 
