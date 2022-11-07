@@ -45,7 +45,10 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
      */
     public static final int INITIAL_CAPACITY = 128;
 
+    static final int ALIGNMENT = 32;
+
     private ByteBuffer byteBuffer;
+    private int alignmentOffset;
 
     /**
      * Create an {@link ExpandableDirectByteBuffer} with an initial length of {@link #INITIAL_CAPACITY}.
@@ -62,8 +65,10 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
      */
     public ExpandableDirectByteBuffer(final int initialCapacity)
     {
-        byteBuffer = ByteBuffer.allocateDirect(initialCapacity);
-        addressOffset = address(byteBuffer);
+        byteBuffer = ByteBuffer.allocateDirect(initialCapacity + ALIGNMENT);
+        final long address = address(byteBuffer);
+        alignmentOffset = calculateAlignmentOffset(address, ALIGNMENT);
+        addressOffset = address + alignmentOffset;
         capacity = initialCapacity;
     }
 
@@ -152,7 +157,7 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
      */
     public int wrapAdjustment()
     {
-        return 0;
+        return alignmentOffset;
     }
 
     /**
@@ -185,12 +190,15 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
             }
 
             final int newCapacity = calculateExpansion(currentCapacity, resultingPosition);
-            final ByteBuffer newBuffer = ByteBuffer.allocateDirect(newCapacity);
+            final ByteBuffer newBuffer = ByteBuffer.allocateDirect(newCapacity + ALIGNMENT);
+            final long newAddress = address(newBuffer);
+            final int newOffset = calculateAlignmentOffset(newAddress, ALIGNMENT);
 
-            getBytes(0, newBuffer, 0, capacity);
+            getBytes(0, newBuffer, newOffset, currentCapacity);
 
             byteBuffer = newBuffer;
-            addressOffset = address(newBuffer);
+            addressOffset = newAddress + newOffset;
+            alignmentOffset = newOffset;
             capacity = newCapacity;
         }
     }
@@ -211,4 +219,11 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
 
         return (int)value;
     }
+
+    private int calculateAlignmentOffset(final long address, final int alignment)
+    {
+        final int remainder = (int)(address & (alignment - 1));
+        return alignment - remainder;
+    }
+
 }

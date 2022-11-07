@@ -20,8 +20,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import java.nio.ByteBuffer;
+
+import static org.agrona.BitUtil.SIZE_OF_LONG;
+import static org.agrona.ExpandableDirectByteBuffer.ALIGNMENT;
+import static org.agrona.ExpandableDirectByteBuffer.INITIAL_CAPACITY;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 {
@@ -117,9 +121,44 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
     {
         final int initialCapacity = 5;
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(initialCapacity);
+        assertEquals(initialCapacity, buffer.capacity());
+        final ByteBuffer byteBuffer = buffer.byteBuffer();
 
         buffer.ensureCapacity(index, length);
 
         assertEquals(expectedCapacity, buffer.capacity());
+        assertNotSame(byteBuffer, buffer.byteBuffer());
+    }
+
+    @Test
+    void wrapAdjustmentDependsOnTheAddressAlignment()
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1);
+        final long originalAddress = BufferUtil.address(buffer.byteBuffer());
+        assertNotEquals(originalAddress, buffer.addressOffset());
+        assertEquals(buffer.addressOffset() - originalAddress, buffer.wrapAdjustment());
+        assertEquals(1, buffer.capacity());
+        assertEquals(1 + ALIGNMENT, buffer.byteBuffer().capacity());
+
+        buffer.ensureCapacity(5, 12);
+        final long newOriginalAddress = BufferUtil.address(buffer.byteBuffer());
+        assertNotEquals(originalAddress, newOriginalAddress);
+        assertEquals(buffer.addressOffset() - newOriginalAddress, buffer.wrapAdjustment());
+        assertEquals(INITIAL_CAPACITY, buffer.capacity());
+        assertEquals(INITIAL_CAPACITY + ALIGNMENT, buffer.byteBuffer().capacity());
+    }
+
+    @Test
+    void dataIsCopiedAfterTheCapacityAdjustment()
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(16);
+        buffer.putLong(0, Long.MAX_VALUE);
+        buffer.putLong(SIZE_OF_LONG, Long.MIN_VALUE);
+        assertEquals(2 * SIZE_OF_LONG, buffer.capacity());
+
+        buffer.setMemory(2 * SIZE_OF_LONG, 100, (byte)'x');
+        assertEquals(INITIAL_CAPACITY, buffer.capacity());
+        assertEquals(Long.MAX_VALUE, buffer.getLong(0));
+        assertEquals(Long.MIN_VALUE, buffer.getLong(SIZE_OF_LONG));
     }
 }
