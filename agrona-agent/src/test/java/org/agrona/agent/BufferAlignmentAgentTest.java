@@ -19,6 +19,7 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.SystemUtil;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -46,6 +47,7 @@ class BufferAlignmentAgentTest
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
+    private static final boolean HEAP_BUFFER_SUPPORTS_ATOMICS = SystemUtil.isX86Arch();
 
     @BeforeAll
     static void installAgent()
@@ -62,7 +64,7 @@ class BufferAlignmentAgentTest
     @Test
     void testUnsafeBufferFromByteArray()
     {
-        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET, false);
+        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
@@ -70,13 +72,14 @@ class BufferAlignmentAgentTest
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[256], 1, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
     void testUnsafeBufferFromHeapByteBuffer()
     {
-        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET, false);
+        testUnsafeBuffer(
+            new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
@@ -86,7 +89,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
@@ -96,13 +99,13 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET, false);
+        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
     void testUnsafeBufferFromDirectByteBuffer()
     {
-        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0, false);
+        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @ParameterizedTest
@@ -119,7 +122,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7, false);
+        testUnsafeBuffer(buffer, 7, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
@@ -129,7 +132,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5, false);
+        testUnsafeBuffer(buffer, 5, HEAP_BUFFER_SUPPORTS_ATOMICS);
     }
 
     @Test
