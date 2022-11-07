@@ -1601,6 +1601,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
      */
     public int compareTo(final DirectBuffer that)
     {
+        if (this == that)
+        {
+            return 0;
+        }
+
         final int thisCapacity = this.capacity;
         final int thatCapacity = that.capacity();
         final byte[] thisArray = byteArray;
