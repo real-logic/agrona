@@ -43,14 +43,9 @@ public final class BufferUtil
     public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
 
     /**
-     * {@code byte[]} base offset.
+     * Byte array base offset.
      */
-    public static final long ARRAY_BASE_OFFSET = sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
-
-    /**
-     * {@code long[]} base offset.
-     */
-    public static final long LONG_ARRAY_BASE_OFFSET = sun.misc.Unsafe.ARRAY_LONG_BASE_OFFSET;
+    public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
 
     /**
      * Offset of the {@code java.nio.ByteBuffer#hb} field.
