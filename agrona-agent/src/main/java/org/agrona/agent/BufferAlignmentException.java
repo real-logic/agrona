@@ -20,12 +20,43 @@ package org.agrona.agent;
  * <p>
  * Package-protected to discourage catching since this as agent should be used only for testing and debugging.
  */
-class BufferAlignmentException extends RuntimeException
+public class BufferAlignmentException extends RuntimeException
 {
     private static final long serialVersionUID = 4196043654912374628L;
+    private final int index;
+    private final long addressOffset;
 
-    BufferAlignmentException(final String message)
+    /**
+     * Create exception with details about the unaligned access.
+     *
+     * @param prefix        for the error message.
+     * @param index         at which the unaligned access occurred.
+     * @param addressOffset pointing to the beginning of the underlying buffer.
+     */
+    public BufferAlignmentException(final String prefix, final int index, final long addressOffset)
     {
-        super(message);
+        super(prefix + " (index=" + index + ", addressOffset=" + addressOffset + ")");
+        this.index = index;
+        this.addressOffset = addressOffset;
+    }
+
+    /**
+     * Returns an index at which unaligned access occurred.
+     *
+     * @return index.
+     */
+    public int index()
+    {
+        return index;
+    }
+
+    /**
+     * Returns an address offset into the start of the underlying buffer.
+     *
+     * @return address of the beginning of the underlying buffer.
+     */
+    public long addressOffset()
+    {
+        return addressOffset;
     }
 }

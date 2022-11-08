@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static org.agrona.BitUtil.*;
@@ -42,7 +40,6 @@ class BufferAlignmentAgentTest
 
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
-    private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
 
     @BeforeAll
     static void installAgent()
@@ -179,25 +176,26 @@ class BufferAlignmentAgentTest
     {
         buffer.getLong(offset); // assert that buffer[offset] is 8-bytes aligned
 
-        assertUnaligned(offset + SIZE_OF_INT, buffer::getLong);
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getLong(i, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_FLOAT, buffer::getDouble);
-        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.getDouble(i, BIG_ENDIAN));
+        final long addressOffset = buffer.addressOffset();
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, buffer::getLong);
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.getLong(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_FLOAT, buffer::getDouble);
+        assertUnaligned(addressOffset, offset + SIZE_OF_FLOAT, (i) -> buffer.getDouble(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getInt);
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getInt(i, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getFloat);
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getFloat(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getInt);
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getInt(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getFloat);
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getFloat(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getShort);
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.getShort(i, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getChar);
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.getChar(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, buffer::getShort);
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.getShort(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, buffer::getChar);
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.getChar(i, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getStringUtf8);
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getStringUtf8(i, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getStringAscii);
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getStringAscii(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getStringUtf8);
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getStringUtf8(i, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getStringAscii);
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getStringAscii(i, BIG_ENDIAN));
     }
 
     private void testAlignedWriteMethods(final MutableDirectBuffer buffer, final int offset)
@@ -241,29 +239,35 @@ class BufferAlignmentAgentTest
         buffer.putLong(offset, Long.MAX_VALUE); // assert that buffer[offset] is
         // 8-bytes aligned
 
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE, BIG_ENDIAN));
+        final long addressOffset = buffer.addressOffset();
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLong(i, Long.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_FLOAT, (i) -> buffer.putDouble(i, Double.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putInt(i, Integer.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putFloat(i, Float.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putShort(i, Short.MAX_VALUE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putChar(i, Character.MAX_VALUE, BIG_ENDIAN));
 
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT,
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_STRING, BIG_ENDIAN));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringAscii(i, TEST_CHAR_SEQUENCE, BIG_ENDIAN));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putStringUtf8(i, TEST_STRING, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT,
             (i) -> buffer.putStringUtf8(i, TEST_STRING, BIG_ENDIAN, Integer.MAX_VALUE));
     }
 
@@ -287,8 +291,10 @@ class BufferAlignmentAgentTest
 
         buffer.getShortVolatile(offset + SIZE_OF_SHORT);
         buffer.putShortVolatile(offset + SIZE_OF_SHORT, Short.MAX_VALUE);
+
         buffer.getCharVolatile(offset + SIZE_OF_CHAR);
         buffer.putCharVolatile(offset + SIZE_OF_CHAR, Character.MAX_VALUE);
+
         buffer.getByteVolatile(offset + SIZE_OF_BYTE);
         buffer.putByteVolatile(offset + SIZE_OF_BYTE, Byte.MAX_VALUE);
     }
@@ -298,30 +304,33 @@ class BufferAlignmentAgentTest
         buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
         // aligned
 
-        assertUnaligned(offset + SIZE_OF_INT, buffer::getLongVolatile);
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongVolatile(i, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getAndAddLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.getAndSetLong(i, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongOrdered(i, Long.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.addLongOrdered(i, Long.MAX_VALUE));
+        final long addressOffset = buffer.addressOffset();
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, buffer::getLongVolatile);
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLongVolatile(i, Long.MAX_VALUE));
+        assertUnaligned(
+            addressOffset, offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.getAndAddLong(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.getAndSetLong(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLongOrdered(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.addLongOrdered(i, Long.MAX_VALUE));
 
-        assertUnaligned(offset + SIZE_OF_SHORT, buffer::getIntVolatile);
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putIntVolatile(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT,
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getIntVolatile);
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putIntVolatile(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT,
             (i) -> buffer.compareAndSetInt(i, Integer.MAX_VALUE, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getAndAddInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.getAndSetInt(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_SHORT, (i) -> buffer.addIntOrdered(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getAndAddInt(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getAndSetInt(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.addIntOrdered(i, Integer.MAX_VALUE));
 
-        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getShortVolatile);
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putShortVolatile(i, Short.MAX_VALUE));
-        assertUnaligned(offset + SIZE_OF_BYTE, buffer::getCharVolatile);
-        assertUnaligned(offset + SIZE_OF_BYTE, (i) -> buffer.putCharVolatile(i, Character.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, buffer::getShortVolatile);
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putShortVolatile(i, Short.MAX_VALUE));
+
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, buffer::getCharVolatile);
+        assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putCharVolatile(i, Character.MAX_VALUE));
     }
 
-    private void assertUnaligned(final int index, final IntConsumer methodUnderTest)
+    private void assertUnaligned(final long addressOffset, final int index, final IntConsumer methodUnderTest)
     {
         try
         {
@@ -331,15 +340,8 @@ class BufferAlignmentAgentTest
         }
         catch (final BufferAlignmentException ex)
         {
-            final Matcher matcher = EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage());
-            assertTrue(matcher.find());
-            assertTrue(matcher.find());
-            final int indexFound = Integer.parseInt(matcher.group());
-            assertTrue(matcher.find());
-            final int offsetFound = Integer.parseInt(matcher.group());
-
-            assertEquals(index, indexFound, "BufferAlignmentException reported wrong index");
-            assertNotEquals(0, offsetFound, "BufferAlignmentException reported wrong offset");
+            assertEquals(index, ex.index(), "wrong index");
+            assertEquals(addressOffset, ex.addressOffset(), "wrong addressOffset");
         }
     }
 }
