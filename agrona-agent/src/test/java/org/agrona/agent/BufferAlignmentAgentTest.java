@@ -19,6 +19,7 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.SystemUtil;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -273,6 +274,11 @@ class BufferAlignmentAgentTest
 
     private void testAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
+        if (!supportsAtomicOperations(buffer))
+        {
+            return; // can't do atomics even if the index is aligned, i.e. the underlying buffer is not aligned
+        }
+
         buffer.getLongVolatile(offset + SIZE_OF_LONG);
         buffer.putLongVolatile(offset + SIZE_OF_LONG, Long.MAX_VALUE);
         buffer.compareAndSetLong(offset + SIZE_OF_LONG, Long.MAX_VALUE, Long.MAX_VALUE);
@@ -301,8 +307,10 @@ class BufferAlignmentAgentTest
 
     private void testUnAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
-        buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
-        // aligned
+        if (supportsAtomicOperations(buffer))
+        {
+            buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes aligned
+        }
 
         final long addressOffset = buffer.addressOffset();
         assertUnaligned(addressOffset, offset + SIZE_OF_INT, buffer::getLongVolatile);
@@ -336,12 +344,17 @@ class BufferAlignmentAgentTest
         {
             methodUnderTest.accept(index);
 
-            fail("Should have thrown BufferAlignmentException");
+            fail("BufferAlignmentException was not thrown");
         }
         catch (final BufferAlignmentException ex)
         {
             assertEquals(index, ex.index(), "wrong index");
             assertEquals(addressOffset, ex.addressOffset(), "wrong addressOffset");
         }
+    }
+
+    private static boolean supportsAtomicOperations(final AtomicBuffer buffer)
+    {
+        return null == buffer.byteArray() || SystemUtil.isX86Arch();
     }
 }
