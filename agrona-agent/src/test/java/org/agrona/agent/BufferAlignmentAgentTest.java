@@ -19,15 +19,12 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.SystemUtil;
 import org.agrona.UnsafeAccess;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
@@ -36,7 +33,6 @@ import java.util.regex.Pattern;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static org.agrona.BitUtil.*;
-import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BufferAlignmentAgentTest
@@ -47,7 +43,6 @@ class BufferAlignmentAgentTest
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
     private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
     private static final Pattern EXCEPTION_MESSAGE_PATTERN = Pattern.compile("-?\\d+");
-    private static final boolean HEAP_BUFFER_SUPPORTS_ATOMICS = SystemUtil.isX86Arch();
 
     @BeforeAll
     static void installAgent()
@@ -64,7 +59,7 @@ class BufferAlignmentAgentTest
     @Test
     void testUnsafeBufferFromByteArray()
     {
-        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(new UnsafeBuffer(new byte[256]), HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
@@ -72,14 +67,13 @@ class BufferAlignmentAgentTest
     {
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[256], 1, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
     void testUnsafeBufferFromHeapByteBuffer()
     {
-        testUnsafeBuffer(
-            new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocate(256)), HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
@@ -89,7 +83,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(buffer, 7 + HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
@@ -99,20 +93,13 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(buffer, 5 + HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
     @Test
     void testUnsafeBufferFromDirectByteBuffer()
     {
-        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0, HEAP_BUFFER_SUPPORTS_ATOMICS);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = { 0, 8, 24 })
-    void testUnsafeBufferFromAlignedDirectByteBuffer(final int offset)
-    {
-        testUnsafeBuffer(new UnsafeBuffer(allocateDirectAligned(64, SIZE_OF_LONG)), offset, true);
+        testUnsafeBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(256)), 0);
     }
 
     @Test
@@ -122,7 +109,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice());
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 7, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(buffer, 7);
     }
 
     @Test
@@ -132,7 +119,7 @@ class BufferAlignmentAgentTest
         nioBuffer.position(1);
         final UnsafeBuffer buffer = new UnsafeBuffer(nioBuffer.slice(), 2, 128);
         assertTrue(buffer.addressOffset() % 4 != 0);
-        testUnsafeBuffer(buffer, 5, HEAP_BUFFER_SUPPORTS_ATOMICS);
+        testUnsafeBuffer(buffer, 5);
     }
 
     @Test
@@ -145,16 +132,13 @@ class BufferAlignmentAgentTest
         testUnAlignedWriteMethods(buffer, HEAP_BUFFER_ALIGNMENT_OFFSET);
     }
 
-    private void testUnsafeBuffer(final UnsafeBuffer buffer, final int offset, final boolean supportsAtomics)
+    private void testUnsafeBuffer(final UnsafeBuffer buffer, final int offset)
     {
         testAlignedReadMethods(buffer, offset);
         testUnAlignedReadMethods(buffer, offset);
         testAlignedWriteMethods(buffer, offset);
         testUnAlignedWriteMethods(buffer, offset);
-        if (supportsAtomics)
-        {
-            testAlignedAtomicMethods(buffer, offset);
-        }
+        testAlignedAtomicMethods(buffer, offset);
         testUnAlignedAtomicMethods(buffer, offset);
     }
 
@@ -311,6 +295,9 @@ class BufferAlignmentAgentTest
 
     private void testUnAlignedAtomicMethods(final AtomicBuffer buffer, final int offset)
     {
+        buffer.getLongVolatile(offset); // assert that buffer[offset] is 8-bytes
+        // aligned
+
         assertUnaligned(offset + SIZE_OF_INT, buffer::getLongVolatile);
         assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.putLongVolatile(i, Long.MAX_VALUE));
         assertUnaligned(offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
@@ -339,6 +326,8 @@ class BufferAlignmentAgentTest
         try
         {
             methodUnderTest.accept(index);
+
+            fail("Should have thrown BufferAlignmentException");
         }
         catch (final BufferAlignmentException ex)
         {
@@ -351,10 +340,6 @@ class BufferAlignmentAgentTest
 
             assertEquals(index, indexFound, "BufferAlignmentException reported wrong index");
             assertNotEquals(0, offsetFound, "BufferAlignmentException reported wrong offset");
-
-            return;
         }
-
-        fail("Should have thrown BufferAlignmentException");
     }
 }
