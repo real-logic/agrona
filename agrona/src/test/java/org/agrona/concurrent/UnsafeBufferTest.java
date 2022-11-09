@@ -36,6 +36,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class UnsafeBufferTest extends MutableDirectBufferTests
 {
@@ -311,9 +313,17 @@ class UnsafeBufferTest extends MutableDirectBufferTests
 
     private static List<DirectBuffer> directBuffers()
     {
+        final DirectBuffer mockBuffer = mock(DirectBuffer.class);
+        when(mockBuffer.wrapAdjustment()).thenReturn(11);
+        when(mockBuffer.capacity()).thenReturn(99);
+        final byte[] mockByteArray = new byte[5];
+        when(mockBuffer.byteArray()).thenReturn(mockByteArray);
+        final ByteBuffer mockByteBuffer = mock(ByteBuffer.class);
+        when(mockBuffer.byteBuffer()).thenReturn(mockByteBuffer);
         return Arrays.asList(
             new ExpandableArrayBuffer(64),
             new ExpandableDirectByteBuffer(64),
-            new UnsafeBuffer(ByteBuffer.allocate(64)));
+            new UnsafeBuffer(ByteBuffer.allocate(64)),
+            mockBuffer);
     }
 }
