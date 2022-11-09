@@ -34,20 +34,20 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Name of the system property that specify if the alignment checks for atomic operations are strict. If the checks
      * are strict then the {@link #verifyAlignment()} method will throw an exception if the underlying buffer is a
      * {@code byte[]}.
-     * <p>
-     * The strictness of the check is platform-specific. For example on {@code x86} platform the check is disabled
-     * whereas on {@code aarch64} it is enabled.
      */
     String STRICT_ALIGNMENT_CHECKS_PROP_NAME = "agrona.strict.alignment.checks";
 
     /**
-     * Should alignment checks for atomic operations be done or not. Controlled by the
-     * {@link #STRICT_ALIGNMENT_CHECKS_PROP_NAME} system property.
+     * Should alignment checks for atomic operations be done or not. The value is platform-dependent:
+     * <ul>
+     *     <li>On x86 it is controlled by the {@link #STRICT_ALIGNMENT_CHECKS_PROP_NAME} system property.</li>
+     *     <li>On other platforms it is always {@code true}.</li>
+     * </ul>
      *
      * @see AtomicBuffer#STRICT_ALIGNMENT_CHECKS_PROP_NAME
      */
-    boolean STRICT_ALIGNMENT_CHECKS = "true".equals(
-        SystemUtil.getProperty(STRICT_ALIGNMENT_CHECKS_PROP_NAME, SystemUtil.isX86Arch() ? "false" : "true"));
+    boolean STRICT_ALIGNMENT_CHECKS = !SystemUtil.isX86Arch() ||
+        "true".equals(SystemUtil.getProperty(STRICT_ALIGNMENT_CHECKS_PROP_NAME, "false"));
 
     /**
      * Verify that the underlying buffer is correctly aligned to prevent word tearing, other ordering issues and
