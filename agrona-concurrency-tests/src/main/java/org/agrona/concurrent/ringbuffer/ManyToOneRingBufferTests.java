@@ -123,8 +123,7 @@ public class ManyToOneRingBufferTests
     public static class TryClaimCommit
     {
         private static final int MSG_TYPE_ID = 11;
-        private final ManyToOneRingBuffer ringBuffer =
-            new ManyToOneRingBuffer(new UnsafeBuffer(new UnsafeBuffer(allocateDirect(1024))));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
         /**
          * First writer thread.
