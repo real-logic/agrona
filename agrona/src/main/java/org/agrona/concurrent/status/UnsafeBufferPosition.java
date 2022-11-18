@@ -33,7 +33,7 @@ public class UnsafeBufferPosition extends Position
     private final byte[] byteArray;
     private final CountersManager countersManager;
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @SuppressWarnings({ "FieldCanBeLocal", "unused" })
     private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**
@@ -129,9 +129,11 @@ public class UnsafeBufferPosition extends Position
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        if (UnsafeAccess.UNSAFE.getLong(array, offset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putLong(byteArray, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putLong(array, offset, proposedValue);
             updated = true;
         }
 
@@ -145,9 +147,11 @@ public class UnsafeBufferPosition extends Position
     {
         boolean updated = false;
 
-        if (UnsafeAccess.UNSAFE.getLong(byteArray, addressOffset) < proposedValue)
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        if (UnsafeAccess.UNSAFE.getLong(array, offset) < proposedValue)
         {
-            UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, proposedValue);
+            UnsafeAccess.UNSAFE.putOrderedLong(array, offset, proposedValue);
             updated = true;
         }
 

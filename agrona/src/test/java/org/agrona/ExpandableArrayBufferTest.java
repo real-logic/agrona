@@ -15,10 +15,12 @@
  */
 package org.agrona;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExpandableArrayBufferTest extends MutableDirectBufferTests
 {
@@ -73,5 +75,59 @@ class ExpandableArrayBufferTest extends MutableDirectBufferTests
 
         final int length = buffer.putNaturalLongAscii(index, value);
         assertEquals(value, buffer.parseNaturalLongAscii(index, length));
+    }
+
+    @Test
+    void ensureCapacityThrowsIndexOutOfBoundsExceptionIfIndexIsNegative()
+    {
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1);
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.ensureCapacity(-3, 4));
+        assertEquals("negative value: index=-3 length=4", exception.getMessage());
+    }
+
+    @Test
+    void ensureCapacityThrowsIndexOutOfBoundsExceptionIfLengthIsNegative()
+    {
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1);
+        final IndexOutOfBoundsException exception =
+            assertThrowsExactly(IndexOutOfBoundsException.class, () -> buffer.ensureCapacity(8, -100));
+        assertEquals("negative value: index=8 length=-100", exception.getMessage());
+    }
+
+    @Test
+    void ensureCapacityIsANoOpIfExistingCapacityIsEnough()
+    {
+        final int index = 1;
+        final int capacity = 5;
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(capacity);
+
+        buffer.ensureCapacity(index, capacity - index);
+
+        assertEquals(capacity, buffer.capacity());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "3, 10, 128",
+        "100, 40, 192",
+    })
+    void ensureCapacityExtendsTheUnderlyingArray(final int index, final int length, final int expectedCapacity)
+    {
+        final int initialCapacity = 5;
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(initialCapacity);
+        final byte[] originalArray = buffer.byteArray();
+
+        buffer.ensureCapacity(index, length);
+
+        assertEquals(expectedCapacity, buffer.capacity());
+        assertNotSame(originalArray, buffer.byteArray());
+    }
+
+    @Test
+    void wrapAdjustmentIsAlwaysZero()
+    {
+        final MutableDirectBuffer buffer = newBuffer(5);
+        assertEquals(0, buffer.wrapAdjustment());
     }
 }

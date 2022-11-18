@@ -15,24 +15,33 @@
  */
 package org.agrona.concurrent.errors;
 
-import org.agrona.concurrent.*;
+import org.agrona.BitUtil;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.CachedEpochClock;
+import org.agrona.concurrent.EpochClock;
+import org.agrona.concurrent.UnsafeBuffer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.agrona.BitUtil;
 
-import java.nio.ByteBuffer;
-
+import static java.nio.ByteBuffer.allocateDirect;
+import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 
 class DistinctErrorLogTest
 {
-    private final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(64 * 1024));
-    private final AtomicBuffer buffer = spy(unsafeBuffer);
+    private static final UnsafeBuffer DIRECT_BUFFER = new UnsafeBuffer(allocateDirect(32 * 1024));
+    private final AtomicBuffer buffer = spy(DIRECT_BUFFER);
     private final EpochClock clock = mock(EpochClock.class);
     private final DistinctErrorLog log = new DistinctErrorLog(buffer, clock);
+
+    @BeforeEach
+    void beforeEach()
+    {
+        DIRECT_BUFFER.setMemory(0, DIRECT_BUFFER.capacity(), (byte)0);
+    }
 
     @Test
     void shouldRecordFirstObservation()
@@ -214,7 +223,7 @@ class DistinctErrorLogTest
     void shouldTestRecordingWithoutStackTrace()
     {
         final CachedEpochClock clock = new CachedEpochClock();
-        final DistinctErrorLog log = new DistinctErrorLog(unsafeBuffer, clock);
+        final DistinctErrorLog log = new DistinctErrorLog(DIRECT_BUFFER, clock);
 
         clock.advance(10);
         log.record(new TestEvent("event one"));
@@ -225,11 +234,11 @@ class DistinctErrorLogTest
         clock.advance(10);
         log.record(new TestEvent("event two"));
 
-        assertTrue(ErrorLogReader.hasErrors(unsafeBuffer));
+        assertTrue(ErrorLogReader.hasErrors(DIRECT_BUFFER));
 
         final StringBuilder sb = new StringBuilder();
         final int errorCount = ErrorLogReader.read(
-            unsafeBuffer,
+            DIRECT_BUFFER,
             (observationCount, firstObservationTimestamp, lastObservationTimestamp, encodedException) ->
             {
                 sb

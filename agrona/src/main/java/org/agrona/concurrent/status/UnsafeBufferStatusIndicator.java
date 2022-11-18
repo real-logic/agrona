@@ -24,6 +24,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * {@link StatusIndicator} which wraps an {@link AtomicBuffer} with a given counter id.
+ *
  * @see CountersManager
  */
 public class UnsafeBufferStatusIndicator extends StatusIndicator
@@ -32,7 +33,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
     private final long addressOffset;
     private final byte[] byteArray;
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @SuppressWarnings({ "FieldCanBeLocal", "unused" })
     private final ByteBuffer byteBuffer; // retained to keep the buffer from being GC'ed
 
     /**

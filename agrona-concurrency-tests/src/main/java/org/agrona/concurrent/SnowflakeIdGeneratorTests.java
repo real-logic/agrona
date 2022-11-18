@@ -42,22 +42,18 @@ public class SnowflakeIdGeneratorTests
 
         /**
          * First thread calling increment.
-         *
-         * @param result object.
          */
         @Actor
-        public void actor1(final Z_Result result)
+        public void actor1()
         {
             v1 = idGenerator.nextId();
         }
 
         /**
          * Second thread calling increment.
-         *
-         * @param result object.
          */
         @Actor
-        public void actor2(final Z_Result result)
+        public void actor2()
         {
             v2 = idGenerator.nextId();
         }

@@ -40,18 +40,33 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     String DISABLE_ARRAY_CONTENT_PRINTOUT_PROP_NAME = "agrona.disable.array.printout";
 
     /**
-     * Attach a view to a byte[] for providing direct access.
+     * Name of the system property that specify if the bounds checks should be disabled.
+     * To disable bounds checks set this property to {@code true}.
+     */
+    String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
+
+    /**
+     * Should bounds-checks operations be done or not. Controlled by the
+     * {@link DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
+     * @see DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME
+     */
+    boolean SHOULD_BOUNDS_CHECK =
+        !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
+
+    /**
+     * Attach a view to a {@code byte[]} for providing direct access.
      *
      * @param buffer to which the view is attached.
      */
     void wrap(byte[] buffer);
 
     /**
-     * Attach a view to a byte[] for providing direct access.
+     * Attach a view to a {@code byte[]} for providing direct access.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view.
      */
     void wrap(byte[] buffer, int offset, int length);
 
@@ -77,8 +92,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * The {@link ByteBuffer#order()} is not relevant for accessing the wrapped buffer.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view.
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view..
      */
     void wrap(ByteBuffer buffer, int offset, int length);
 
@@ -93,8 +108,8 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      * Attach a view to a {@link DirectBuffer} for providing direct access.
      *
      * @param buffer to which the view is attached.
-     * @param offset at which the view begins.
-     * @param length of the buffer included in the view.
+     * @param offset in bytes at which the view begins.
+     * @param length in bytes of the buffer included in the view..
      */
     void wrap(DirectBuffer buffer, int offset, int length);
 
@@ -114,12 +129,16 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     long addressOffset();
 
     /**
-     * Get the underlying byte[] if one exists.
+     * Get the underlying {@code byte[]} if one exists.
      * <p>
      * NB: there may not be a one-to-one mapping between indices on this buffer
-     * and the underlying byte[], see {@link DirectBuffer#wrapAdjustment()}.
+     * and the underlying {@code byte[]}, see {@link DirectBuffer#wrapAdjustment()}.
      *
-     * @return the underlying byte[] if one exists.
+     * @return the underlying {@code byte[]} if one exists.
+     * @see #wrap(byte[])
+     * @see #wrap(byte[], int, int)
+     * @see #wrap(ByteBuffer)
+     * @see #wrap(ByteBuffer, int, int)
      */
     byte[] byteArray();
 
@@ -470,7 +489,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
 
     /**
      * Get the adjustment in indices between an index in this buffer and the wrapped object.
-     * The wrapped object might be a {@link ByteBuffer} or a byte[].
+     * The wrapped object might be a {@link ByteBuffer} or a {@code byte[]}.
      * <p>
      * You only need to use this adjustment if you plan to perform operations on the underlying
      * byte array or byte buffer that rely on their indices.

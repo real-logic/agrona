@@ -15,6 +15,9 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.DirectBuffer;
+import org.agrona.ExpandableArrayBuffer;
+import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.MutableDirectBufferTests;
 import org.junit.jupiter.api.Test;
@@ -28,9 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.agrona.BufferUtil.allocateDirectAligned;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class UnsafeBufferTest extends MutableDirectBufferTests
 {
@@ -44,6 +51,13 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     protected MutableDirectBuffer newBuffer(final int capacity)
     {
         return new UnsafeBuffer(new byte[capacity]);
+    }
+
+    @Test
+    void shouldThrowExceptionForAboveCapacity()
+    {
+        final MutableDirectBuffer buffer = newBuffer(3);
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.checkLimit(4));
     }
 
     @Test
@@ -176,7 +190,7 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     @ValueSource(ints = { 123, -25 })
     void putIntAsciiShouldBoundsCheckBeforeWritingAnyData(final int value)
     {
-        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
+        assumeTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
 
         final int index = 6;
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[8]);
@@ -193,7 +207,7 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     @ValueSource(longs = { -251463777, 1234567890 })
     void putLongAsciiShouldBoundsCheckBeforeWritingAnyData(final long value)
     {
-        assertTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
+        assumeTrue(UnsafeBuffer.SHOULD_BOUNDS_CHECK, "bounds check disabled!");
 
         final int index = 1;
         final UnsafeBuffer buffer = new UnsafeBuffer(new byte[10]);
@@ -230,6 +244,58 @@ class UnsafeBufferTest extends MutableDirectBufferTests
         assertEquals(value, buffer.parseLongAscii(index, length));
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 2, 4 })
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromImproperlyAlignedDirectByteBuffer(
+        final int alignment)
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(allocateDirectAligned(99, alignment));
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+    }
+
+    @Test
+    void verifyAlignmentThrowsIllegalStateExceptionIfBufferCreatedFromAnUnalignedAddress()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(1133, 8);
+        assertThrowsExactly(IllegalStateException.class, buffer::verifyAlignment);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 8, 16, 64, 512 })
+    void verifyAlignmentWorksIfDirectBufferAlignedOnEightByteBoundaries(final int alignment)
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(allocateDirectAligned(99, alignment));
+        buffer.verifyAlignment();
+    }
+
+    @ParameterizedTest
+    @MethodSource("directBuffers")
+    void wrapDirectBuffer(final DirectBuffer src)
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(src);
+
+        assertSame(src.byteArray(), buffer.byteArray());
+        assertSame(src.byteBuffer(), buffer.byteBuffer());
+        assertEquals(src.capacity(), buffer.capacity());
+        assertEquals(src.addressOffset(), buffer.addressOffset());
+        assertEquals(src.wrapAdjustment(), buffer.wrapAdjustment());
+    }
+
+    @ParameterizedTest
+    @MethodSource("directBuffers")
+    void wrapDirectBufferWithOffsetAndLength(final DirectBuffer src)
+    {
+        final int offset = 3;
+        final int length = 17;
+        final UnsafeBuffer buffer = new UnsafeBuffer(src, offset, length);
+
+        assertSame(src.byteArray(), buffer.byteArray());
+        assertSame(src.byteBuffer(), buffer.byteBuffer());
+        assertEquals(length, buffer.capacity());
+        assertEquals(src.addressOffset() + offset, buffer.addressOffset());
+        assertEquals(src.wrapAdjustment() + offset, buffer.wrapAdjustment());
+    }
+
     private static void shouldExposePositionAtWhichByteBufferGetsWrapped(final ByteBuffer byteBuffer)
     {
         final UnsafeBuffer wibbleBuffer = new UnsafeBuffer(
@@ -243,5 +309,21 @@ class UnsafeBufferTest extends MutableDirectBufferTests
     private static List<ByteOrder> byteOrders()
     {
         return Arrays.asList(ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN);
+    }
+
+    private static List<DirectBuffer> directBuffers()
+    {
+        final DirectBuffer mockBuffer = mock(DirectBuffer.class);
+        when(mockBuffer.wrapAdjustment()).thenReturn(11);
+        when(mockBuffer.capacity()).thenReturn(99);
+        final byte[] mockByteArray = new byte[5];
+        when(mockBuffer.byteArray()).thenReturn(mockByteArray);
+        final ByteBuffer mockByteBuffer = mock(ByteBuffer.class);
+        when(mockBuffer.byteBuffer()).thenReturn(mockByteBuffer);
+        return Arrays.asList(
+            new ExpandableArrayBuffer(64),
+            new ExpandableDirectByteBuffer(64),
+            new UnsafeBuffer(ByteBuffer.allocate(64)),
+            mockBuffer);
     }
 }

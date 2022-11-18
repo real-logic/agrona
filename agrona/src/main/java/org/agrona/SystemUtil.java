@@ -15,7 +15,9 @@
  */
 package org.agrona;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
@@ -51,11 +53,13 @@ public final class SystemUtil
     private static final long MAX_K_VALUE = 9007199254739968L;
 
     private static final String OS_NAME;
+    private static final String OS_ARCH;
     private static final long PID;
 
     static
     {
         OS_NAME = System.getProperty("os.name").toLowerCase();
+        OS_ARCH = System.getProperty("os.arch", "unknown");
 
         long pid = PID_NOT_FOUND;
         try
@@ -106,6 +110,18 @@ public final class SystemUtil
     }
 
     /**
+     * Returns the name of the operating system architecture.
+     * <p>
+     * This is the same a calling the {@code System.getProperty("os.arch", "unknown")}.
+     *
+     * @return name of the operating system architecture or {@code unknown}.
+     */
+    public static String osArch()
+    {
+        return OS_ARCH;
+    }
+
+    /**
      * Return the current process id from the OS.
      *
      * @return current process id or {@link #PID_NOT_FOUND} if PID was not able to be found.
@@ -119,7 +135,7 @@ public final class SystemUtil
     /**
      * Is the operating system likely to be Windows based on {@link #osName()}.
      *
-     * @return true if the operating system is likely to be Windows based on {@link #osName()}.
+     * @return {@code true} if the operating system is likely to be Windows based on {@link #osName()}.
      */
     public static boolean isWindows()
     {
@@ -129,7 +145,7 @@ public final class SystemUtil
     /**
      * Is the operating system likely to be Linux based on {@link #osName()}.
      *
-     * @return true if the operating system is likely to be Linux based on {@link #osName()}.
+     * @return {@code true} if the operating system is likely to be Linux based on {@link #osName()}.
      */
     public static boolean isLinux()
     {
@@ -137,9 +153,19 @@ public final class SystemUtil
     }
 
     /**
+     * Is the operating system architecture ({@link #osArch()}) represents an x86-based system.
+     *
+     * @return {@code true} if the operating system architecture represents an x86-based system.
+     */
+    public static boolean isX86Arch()
+    {
+        return isX86Arch(OS_ARCH);
+    }
+
+    /**
      * Is a debugger attached to the JVM?
      *
-     * @return true if attached otherwise false.
+     * @return {@code true} if attached otherwise false.
      */
     public static boolean isDebuggerAttached()
     {
@@ -229,8 +255,8 @@ public final class SystemUtil
      * File is first searched for in resources using the system {@link ClassLoader},
      * then file system, then URL. All are loaded if multiples found.
      *
-     * @param propertyAction  to take with each loaded property.
-     * @param filenameOrUrl that holds properties.
+     * @param propertyAction to take with each loaded property.
+     * @param filenameOrUrl  that holds properties.
      */
     public static void loadPropertiesFile(final PropertyAction propertyAction, final String filenameOrUrl)
     {
@@ -515,6 +541,11 @@ public final class SystemUtil
                 throw new NumberFormatException(
                     propertyName + ": " + propertyValue + " should end with: s, ms, us, or ns.");
         }
+    }
+
+    static boolean isX86Arch(final String arch)
+    {
+        return arch.equals("amd64") || arch.equals("x86_64") || arch.equals("x86") || arch.equals("i386");
     }
 
     private static void loadProperties(final PropertyAction propertyAction, final InputStream in) throws IOException

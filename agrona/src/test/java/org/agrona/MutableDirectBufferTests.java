@@ -15,18 +15,24 @@
  */
 package org.agrona;
 
+import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Base class containing a common set of tests for {@link MutableDirectBuffer} implementations.
@@ -42,6 +48,44 @@ public abstract class MutableDirectBufferTests
      * @return new buffer.
      */
     protected abstract MutableDirectBuffer newBuffer(int capacity);
+
+    @Test
+    void shouldThrowExceptionWhenOutOfBounds()
+    {
+        final MutableDirectBuffer buffer = newBuffer(10);
+        final int index = buffer.capacity();
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.getByte(index));
+    }
+
+    @Test
+    void shouldPutBytes()
+    {
+        final int index = 5;
+        final String value = "Hello World";
+        final MutableDirectBuffer buffer = newBuffer(20);
+
+        buffer.putBytes(index, value.getBytes(US_ASCII));
+
+        assertEquals(value, buffer.getStringWithoutLengthAscii(index, value.length()));
+    }
+
+    @Test
+    void shouldPutBytesFromByteBuffer()
+    {
+        final int destIndex = 2;
+        final int srcIndex = 5;
+        final String value = "Error converting parameter at index 0";
+        final int payloadLength = value.length() - srcIndex;
+        final ByteBuffer srcBuffer = ByteBuffer.allocate(value.length());
+        srcBuffer.put(value.getBytes(US_ASCII), 0, value.length());
+        srcBuffer.flip();
+        final MutableDirectBuffer buffer = newBuffer(100);
+
+        buffer.putBytes(destIndex, srcBuffer, srcIndex, payloadLength);
+
+        assertEquals(
+            value.substring(srcIndex), buffer.getStringWithoutLengthAscii(destIndex, payloadLength));
+    }
 
     @ParameterizedTest
     @MethodSource("valuesAndLengths")
@@ -308,6 +352,177 @@ public abstract class MutableDirectBufferTests
         assertEquals("long overflow parsing: " + value, exception.getMessage());
     }
 
+    @ParameterizedTest
+    @MethodSource("mutableBuffers")
+    void getBytesShouldCopyIntoDestinationBuffer(final MutableDirectBuffer dest)
+    {
+        final int srcIndex = 20;
+        final int dstIndex = 13;
+        final int length = 49;
+        final byte[] data = new byte[64];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer = newBuffer(100);
+        buffer.putBytes(srcIndex, data);
+
+        buffer.getBytes(srcIndex, dest, dstIndex, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(data[i], dest.getByte(dstIndex + i));
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("mutableBuffers")
+    void putBytesShouldCopyBytesFromTheSourceBuffer(final MutableDirectBuffer src)
+    {
+        final int srcIndex = 13;
+        final int dstIndex = 6;
+        final int length = 28;
+        final byte[] data = new byte[32];
+        ThreadLocalRandom.current().nextBytes(data);
+        src.putBytes(srcIndex, data);
+
+        final MutableDirectBuffer buffer = newBuffer(100);
+        buffer.putBytes(dstIndex, src, srcIndex, length);
+
+        for (int i = 0; i < length; i++)
+        {
+            assertEquals(data[i], buffer.getByte(dstIndex + i));
+        }
+    }
+
+    @Test
+    void equalsReturnsTrueForThis()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        assertTrue(buffer.equals(buffer));
+    }
+
+    @Test
+    void equalsReturnsFalseForNull()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        assertFalse(buffer.equals(null));
+    }
+
+    @Test
+    void equalsReturnsFalseForWrongClass()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        final AbstractMutableDirectBuffer other = mock(AbstractMutableDirectBuffer.class);
+
+        assertFalse(buffer.equals(other));
+
+        verifyNoInteractions(other);
+    }
+
+    @Test
+    void equalsReturnsFalseWhenCapacityDoesNotMatch()
+    {
+        final MutableDirectBuffer buffer = newBuffer(1);
+        final MutableDirectBuffer other = newBuffer(3);
+
+        assertFalse(buffer.equals(other));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 7, 21, 64 })
+    void equalsReturnsTrueWhenOtherBufferHasTheSameData(final int capacity)
+    {
+        final byte[] data = new byte[capacity];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer = newBuffer(capacity);
+        final MutableDirectBuffer other = newBuffer(capacity);
+        buffer.putBytes(0, data);
+        other.putBytes(0, data);
+
+        assertEquals(buffer, other);
+    }
+
+    @Test
+    void hashCodeConsidersAnEntireCapacity()
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(10);
+        final MutableDirectBuffer buffer2 = newBuffer(15);
+        final MutableDirectBuffer buffer3 = newBuffer(10);
+        final int length = 7;
+        buffer1.setMemory(0, length, (byte)'f');
+        buffer2.setMemory(0, length, (byte)'f');
+        buffer3.setMemory(0, length, (byte)'f');
+
+        assertNotEquals(buffer1.hashCode(), buffer2.hashCode());
+        assertEquals(buffer1.hashCode(), buffer3.hashCode());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "3,687175", "11,17668045", "128,-56919533" })
+    void hashCodeDifferentDataSizes(final int capacity, final int expectedHashCode)
+    {
+        final MutableDirectBuffer buffer = newBuffer(capacity);
+        buffer.setMemory(0, capacity, (byte)'z');
+        assertEquals(expectedHashCode, buffer.hashCode());
+    }
+
+    @Test
+    void compareToComparesCapacityIfContentIsEqual()
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(3);
+        final MutableDirectBuffer buffer2 = newBuffer(5);
+        final MutableDirectBuffer buffer3 = newBuffer(3);
+
+        assertEquals(-1, buffer1.compareTo(buffer2));
+        assertEquals(1, buffer2.compareTo(buffer1));
+        assertEquals(0, buffer3.compareTo(buffer1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 6, 19, 256 })
+    void compareToReturnsZeroForEqualContents(final int capacity)
+    {
+        final byte[] data = new byte[capacity];
+        ThreadLocalRandom.current().nextBytes(data);
+        final MutableDirectBuffer buffer1 = newBuffer(capacity);
+        buffer1.putBytes(0, data);
+        final MutableDirectBuffer buffer2 = new UnsafeBuffer(data);
+
+        assertEquals(0, buffer1.compareTo(buffer2));
+        assertEquals(0, buffer2.compareTo(buffer1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 5, 33 })
+    void compareToStopsComparisonUponTheFirstNonEqualByte(final int capacity)
+    {
+        final MutableDirectBuffer buffer1 = newBuffer(capacity);
+        final MutableDirectBuffer buffer2 = newBuffer(capacity);
+        final int index1 = ThreadLocalRandom.current().nextInt(capacity - 2, capacity);
+        final int index2 = ThreadLocalRandom.current().nextInt(0, index1);
+        buffer1.setMemory(0, index1, (byte)'a');
+        buffer2.setMemory(0, index2, (byte)'a');
+        buffer2.setMemory(index2, capacity - index2, (byte)'x');
+
+        assertTrue(buffer1.compareTo(buffer2) < 0);
+        assertTrue(buffer2.compareTo(buffer1) > 0);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 5, 9, 16, 33, 100, 256 })
+    void setMemoryCopiesTheSameByteAcross(final int length)
+    {
+        final int index = ThreadLocalRandom.current().nextInt(0, 10);
+        final MutableDirectBuffer buffer = newBuffer(index + length);
+        final byte value = (byte)ThreadLocalRandom.current().nextInt();
+        final byte[] expected = new byte[length];
+        Arrays.fill(expected, value);
+
+        buffer.setMemory(index, length, value);
+
+        final byte[] actual = new byte[length];
+        buffer.getBytes(index, actual);
+        assertArrayEquals(expected, actual);
+    }
+
     private static List<Arguments> valuesAndLengths()
     {
         return Arrays.asList(
@@ -349,5 +564,15 @@ public abstract class MutableDirectBufferTests
             Arguments.arguments("+", 0),
             Arguments.arguments("123456789^123456789", 9)
         );
+    }
+
+    private static List<MutableDirectBuffer> mutableBuffers()
+    {
+        return Arrays.asList(
+            new ExpandableArrayBuffer(64),
+            new ExpandableDirectByteBuffer(64),
+            new UnsafeBuffer(new byte[64]),
+            new UnsafeBuffer(ByteBuffer.allocate(64)),
+            new UnsafeBuffer(ByteBuffer.allocateDirect(64)));
     }
 }

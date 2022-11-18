@@ -18,10 +18,17 @@ package org.agrona.concurrent.ringbuffer;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.openjdk.jcstress.annotations.*;
+import org.openjdk.jcstress.annotations.Actor;
+import org.openjdk.jcstress.annotations.Arbiter;
+import org.openjdk.jcstress.annotations.Expect;
+import org.openjdk.jcstress.annotations.JCStressMeta;
+import org.openjdk.jcstress.annotations.JCStressTest;
+import org.openjdk.jcstress.annotations.Outcome;
+import org.openjdk.jcstress.annotations.State;
 import org.openjdk.jcstress.infra.results.II_Result;
 import org.openjdk.jcstress.infra.results.JJJ_Result;
 
+import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer.MIN_CAPACITY;
@@ -54,7 +61,7 @@ public class ManyToOneRingBufferTests
     public static class Write
     {
         private static final int MSG_TYPE_ID = 7;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
         /**
@@ -116,7 +123,7 @@ public class ManyToOneRingBufferTests
     public static class TryClaimCommit
     {
         private static final int MSG_TYPE_ID = 11;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
         /**
          * First writer thread.
@@ -172,7 +179,7 @@ public class ManyToOneRingBufferTests
     public static class TryClaimAbort
     {
         private static final int MSG_TYPE_ID = 19;
-        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(new byte[1024]));
+        private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
         /**
          * First writer thread.
@@ -237,7 +244,7 @@ public class ManyToOneRingBufferTests
     public static class CorrelationId
     {
         private final ManyToOneRingBuffer ringBuffer =
-            new ManyToOneRingBuffer(new UnsafeBuffer(new byte[MIN_CAPACITY + TRAILER_LENGTH]));
+            new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY + TRAILER_LENGTH)));
 
         /**
          * First thread.

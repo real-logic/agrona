@@ -16,8 +16,9 @@
 package org.agrona.agent;
 
 import net.bytebuddy.asm.Advice;
-import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
+
+import static org.agrona.BitUtil.*;
 
 /**
  * Interceptor to be applied when verifying buffer alignment accesses.
@@ -25,30 +26,10 @@ import org.agrona.DirectBuffer;
 @SuppressWarnings("unused")
 public class BufferAlignmentInterceptor
 {
-    abstract static class Verifier
-    {
-        /**
-         * Interceptor for type alignment verifier.
-         *
-         * @param index     into the buffer.
-         * @param buffer    the buffer.
-         * @param alignment to be verified.
-         */
-        public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer, final int alignment)
-        {
-            final int alignmentOffset = (int)(buffer.addressOffset() + index) % alignment;
-            if (0 != alignmentOffset)
-            {
-                throw new BufferAlignmentException(
-                    "Unaligned " + alignment + "-byte access (index=" + index + ", offset=" + alignmentOffset + ")");
-            }
-        }
-    }
-
     /**
      * Verifier for {@code long} types.
      */
-    public static final class LongVerifier extends Verifier
+    public static final class LongVerifier
     {
         /**
          * Verify alignment of the {@code long} types.
@@ -59,14 +40,17 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_LONG);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_LONG - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned long access", index, buffer.addressOffset());
+            }
         }
     }
 
     /**
      * Verifier for {@code double} types.
      */
-    public static final class DoubleVerifier extends Verifier
+    public static final class DoubleVerifier
     {
         /**
          * Verify alignment of the {@code double} types.
@@ -77,14 +61,17 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_DOUBLE);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_DOUBLE - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned double access", index, buffer.addressOffset());
+            }
         }
     }
 
     /**
      * Verifier for {@code int} types.
      */
-    public static final class IntVerifier extends Verifier
+    public static final class IntVerifier
     {
         /**
          * Verify alignment of the {@code int} types.
@@ -95,14 +82,17 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_INT);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_INT - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned int access", index, buffer.addressOffset());
+            }
         }
     }
 
     /**
      * Verifier for {@code float} types.
      */
-    public static final class FloatVerifier extends Verifier
+    public static final class FloatVerifier
     {
         /**
          * Verify alignment of the {@code float} types.
@@ -113,14 +103,17 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_FLOAT);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_FLOAT - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned float access", index, buffer.addressOffset());
+            }
         }
     }
 
     /**
      * Verifier for {@code short} types.
      */
-    public static final class ShortVerifier extends Verifier
+    public static final class ShortVerifier
     {
         /**
          * Verify alignment of the {@code short} types.
@@ -131,14 +124,17 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_SHORT);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_SHORT - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned short access", index, buffer.addressOffset());
+            }
         }
     }
 
     /**
      * Verifier for {@code char} types.
      */
-    public static final class CharVerifier extends Verifier
+    public static final class CharVerifier
     {
         /**
          * Verify alignment of the {@code char} types.
@@ -149,7 +145,10 @@ public class BufferAlignmentInterceptor
         @Advice.OnMethodEnter
         public static void verifyAlignment(final int index, final @Advice.This DirectBuffer buffer)
         {
-            verifyAlignment(index, buffer, BitUtil.SIZE_OF_CHAR);
+            if (0 != ((buffer.addressOffset() + index) & (SIZE_OF_CHAR - 1)))
+            {
+                throw new BufferAlignmentException("Unaligned char access", index, buffer.addressOffset());
+            }
         }
     }
 }

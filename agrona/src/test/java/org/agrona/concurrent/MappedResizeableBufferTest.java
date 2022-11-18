@@ -16,21 +16,26 @@
 package org.agrona.concurrent;
 
 import org.agrona.CloseHelper;
+import org.agrona.ExpandableArrayBuffer;
+import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.IoUtil;
+import org.agrona.MutableDirectBuffer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -119,22 +124,20 @@ class MappedResizeableBufferTest
         buffer = null;
     }
 
-    @Test
-    void shouldPutBytesFromDirectBuffer()
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void shouldPutBytesFromDirectBuffer(final MutableDirectBuffer src)
     {
-        buffer = new MappedResizeableBuffer(channel, 0, 100);
         final long value = 0x5555555555555555L;
+        final int srcIndex = 8;
+        final int destIndex = 24;
+        src.putLong(srcIndex, value);
 
-        final UnsafeBuffer onHeapDirectBuffer = new UnsafeBuffer(new byte[24]);
-        onHeapDirectBuffer.putLong(16, value);
-        buffer.putBytes(24, onHeapDirectBuffer, 16, 8);
-        assertThat(buffer.getLong(24), is(value));
+        buffer = new MappedResizeableBuffer(channel, 0, 100);
+        buffer.putBytes(destIndex, src, srcIndex, SIZE_OF_LONG);
 
-        final UnsafeBuffer offHeapDirectBuffer = new UnsafeBuffer(buffer.addressOffset(), (int)buffer.capacity());
-        buffer.putBytes(96, offHeapDirectBuffer, 24, 4);
-        assertThat(buffer.getInt(96), is((int)value));
+        assertEquals(value, buffer.getLong(destIndex));
     }
-
 
     @ParameterizedTest
     @ValueSource(ints = { 11, 64, 1011 })
@@ -160,5 +163,12 @@ class MappedResizeableBufferTest
     {
         buffer.putInt(index, VALUE);
         assertEquals(VALUE, buffer.getInt(index));
+    }
+
+    private static List<MutableDirectBuffer> buffers()
+    {
+        return Arrays.asList(
+            new ExpandableArrayBuffer(16),
+            new ExpandableDirectByteBuffer(16));
     }
 }
