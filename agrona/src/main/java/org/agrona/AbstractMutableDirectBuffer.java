@@ -93,6 +93,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
                 (((long)value & 0xff) << 16) |
                 (((long)value & 0xff) << 8) |
                 (((long)value & 0xff)));
+
             for (; i < end; i += 8)
             {
                 UNSAFE.putLong(array, offset + i, mask);
@@ -1640,6 +1641,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final long thatOffset = that.addressOffset();
         final int length = Math.min(thisCapacity, thatCapacity);
         int i = 0;
+
         for (int end = length & ~7; i < end; i += 8)
         {
             final int cmp = Long.compare(
@@ -1678,8 +1680,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
     protected abstract void ensureCapacity(int index, int length);
 
-    private int parsePositiveIntAscii(
-        final int index, final int length, final int startIndex, final int end)
+    private int parsePositiveIntAscii(final int index, final int length, final int startIndex, final int end)
     {
         final long offset = addressOffset;
         final byte[] array = byteArray;
