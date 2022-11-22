@@ -206,24 +206,24 @@ class SystemUtilTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "i386", "x86", "x86_64", "amd64" })
-    void isX86ArchShouldDetectProperOsArch(final String arch)
+    @ValueSource(strings = { "x64", "x86_64", "amd64" })
+    void isX64ArchShouldDetectProperOsArch(final String arch)
     {
-        assertTrue(SystemUtil.isX86Arch(arch));
+        assertTrue(SystemUtil.isX64Arch(arch));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "aarch64", "ppc64", "ppc64le", "unknown", "", "test" })
-    void isX86ArchShouldReturnFalse(final String arch)
+    @ValueSource(strings = { "aarch64", "ppc64", "ppc64le", "unknown", "", "x86", "i386" })
+    void isX64ArchShouldReturnFalse(final String arch)
     {
-        assertFalse(SystemUtil.isX86Arch(arch));
+        assertFalse(SystemUtil.isX64Arch(arch));
     }
 
     @Test
-    @EnabledOnOs(architectures = { "i386", "x86", "x86_64", "amd64" })
-    void isX86ArchSystemTest()
+    @EnabledOnOs(architectures = { "x64", "x86_64", "amd64" })
+    void isX64ArchSystemTest()
     {
-        assertTrue(SystemUtil.isX86Arch());
+        assertTrue(SystemUtil.isX64Arch());
     }
 
     @Test

@@ -355,6 +355,6 @@ class BufferAlignmentAgentTest
 
     private static boolean supportsAtomicOperations(final AtomicBuffer buffer)
     {
-        return null == buffer.byteArray() || SystemUtil.isX86Arch();
+        return null == buffer.byteArray() || SystemUtil.isX64Arch();
     }
 }

@@ -157,9 +157,9 @@ public final class SystemUtil
      *
      * @return {@code true} if the operating system architecture represents an x86-based system.
      */
-    public static boolean isX86Arch()
+    public static boolean isX64Arch()
     {
-        return isX86Arch(OS_ARCH);
+        return isX64Arch(OS_ARCH);
     }
 
     /**
@@ -543,9 +543,9 @@ public final class SystemUtil
         }
     }
 
-    static boolean isX86Arch(final String arch)
+    static boolean isX64Arch(final String arch)
     {
-        return arch.equals("amd64") || arch.equals("x86_64") || arch.equals("x86") || arch.equals("i386");
+        return arch.equals("amd64") || arch.equals("x86_64") || arch.equals("x64");
     }
 
     private static void loadProperties(final PropertyAction propertyAction, final InputStream in) throws IOException

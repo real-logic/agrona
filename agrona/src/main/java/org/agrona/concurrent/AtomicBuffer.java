@@ -40,13 +40,13 @@ public interface AtomicBuffer extends MutableDirectBuffer
     /**
      * Should alignment checks for atomic operations be done or not. The value is platform-dependent:
      * <ul>
-     *     <li>On x86 it is controlled by the {@link #STRICT_ALIGNMENT_CHECKS_PROP_NAME} system property.</li>
+     *     <li>On x64 it is controlled by the {@link #STRICT_ALIGNMENT_CHECKS_PROP_NAME} system property.</li>
      *     <li>On other platforms it is always {@code true}.</li>
      * </ul>
      *
      * @see AtomicBuffer#STRICT_ALIGNMENT_CHECKS_PROP_NAME
      */
-    boolean STRICT_ALIGNMENT_CHECKS = !SystemUtil.isX86Arch() ||
+    boolean STRICT_ALIGNMENT_CHECKS = !SystemUtil.isX64Arch() ||
         "true".equals(SystemUtil.getProperty(STRICT_ALIGNMENT_CHECKS_PROP_NAME, "false"));
 
     /**
