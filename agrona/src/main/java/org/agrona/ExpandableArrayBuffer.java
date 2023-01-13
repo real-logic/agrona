@@ -175,9 +175,9 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
         }
     }
 
-    private int calculateExpansion(final int currentLength, final long requiredLength)
+    private static int calculateExpansion(final int currentLength, final long requiredLength)
     {
-        long value = Math.max(currentLength, INITIAL_CAPACITY);
+        long value = Math.max(currentLength, 2);
 
         while (value < requiredLength)
         {

@@ -109,8 +109,8 @@ class ExpandableArrayBufferTest extends MutableDirectBufferTests
 
     @ParameterizedTest
     @CsvSource({
-        "3, 10, 128",
-        "100, 40, 192",
+        "3, 10, 15",
+        "100, 40, 163",
     })
     void ensureCapacityExtendsTheUnderlyingArray(final int index, final int length, final int expectedCapacity)
     {
