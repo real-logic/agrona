@@ -214,7 +214,7 @@ public class CountersReader
     public static final int COUNTER_LENGTH = BitUtil.CACHE_LINE_LENGTH * 2;
 
     /**
-     * Max counter Id.
+     * Max counter ID.
      */
     protected final int maxCounterId;
 

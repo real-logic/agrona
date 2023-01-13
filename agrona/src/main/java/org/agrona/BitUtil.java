@@ -380,7 +380,7 @@ public final class BitUtil
     /**
      * Generate a randomised integer over [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}].
      *
-     * @return randomised integer suitable as an Id.
+     * @return randomised integer suitable as an ID.
      */
     public static int generateRandomisedId()
     {

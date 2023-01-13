@@ -93,7 +93,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param buffer to which the view is attached.
      * @param offset in bytes at which the view begins.
-     * @param length in bytes of the buffer included in the view..
+     * @param length in bytes of the buffer included in the view.
      */
     void wrap(ByteBuffer buffer, int offset, int length);
 
@@ -109,7 +109,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
      *
      * @param buffer to which the view is attached.
      * @param offset in bytes at which the view begins.
-     * @param length in bytes of the buffer included in the view..
+     * @param length in bytes of the buffer included in the view.
      */
     void wrap(DirectBuffer buffer, int offset, int length);
 

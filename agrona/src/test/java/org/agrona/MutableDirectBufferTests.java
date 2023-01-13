@@ -396,14 +396,14 @@ public abstract class MutableDirectBufferTests
     void equalsReturnsTrueForThis()
     {
         final MutableDirectBuffer buffer = newBuffer(1);
-        assertTrue(buffer.equals(buffer));
+        assertEquals(buffer, buffer);
     }
 
     @Test
     void equalsReturnsFalseForNull()
     {
         final MutableDirectBuffer buffer = newBuffer(1);
-        assertFalse(buffer.equals(null));
+        assertNotEquals(null, buffer);
     }
 
     @Test
@@ -412,7 +412,7 @@ public abstract class MutableDirectBufferTests
         final MutableDirectBuffer buffer = newBuffer(1);
         final AbstractMutableDirectBuffer other = mock(AbstractMutableDirectBuffer.class);
 
-        assertFalse(buffer.equals(other));
+        assertNotEquals(buffer, other);
 
         verifyNoInteractions(other);
     }
@@ -423,7 +423,7 @@ public abstract class MutableDirectBufferTests
         final MutableDirectBuffer buffer = newBuffer(1);
         final MutableDirectBuffer other = newBuffer(3);
 
-        assertFalse(buffer.equals(other));
+        assertNotEquals(buffer, other);
     }
 
     @ParameterizedTest
