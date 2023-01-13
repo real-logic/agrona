@@ -145,6 +145,14 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
     /**
      * {@inheritDoc}
      */
+    public void checkLimit(final int limit)
+    {
+        ensureCapacity(limit, 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "ExpandableArrayBuffer{" +

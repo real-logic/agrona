@@ -130,4 +130,18 @@ class ExpandableArrayBufferTest extends MutableDirectBufferTests
         final MutableDirectBuffer buffer = newBuffer(5);
         assertEquals(0, buffer.wrapAdjustment());
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 3, 777 })
+    void checkLimitIncreaseBufferCapacity(final int limit)
+    {
+        final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1);
+        final byte[] originalArray = buffer.byteArray();
+        assertTrue(limit > buffer.capacity());
+
+        buffer.checkLimit(limit);
+
+        assertTrue(limit <= buffer.capacity());
+        assertNotSame(originalArray, buffer.byteArray());
+    }
 }
