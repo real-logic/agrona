@@ -67,7 +67,7 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
     {
         byteBuffer = ByteBuffer.allocateDirect(initialCapacity + ALIGNMENT);
         final long address = address(byteBuffer);
-        alignmentOffset = calculateAlignmentOffset(address, ALIGNMENT);
+        alignmentOffset = calculateAlignmentOffset(address);
         addressOffset = address + alignmentOffset;
         capacity = initialCapacity;
     }
@@ -163,6 +163,14 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
     /**
      * {@inheritDoc}
      */
+    public void checkLimit(final int limit)
+    {
+        ensureCapacity(limit, 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return "ExpandableDirectByteBuffer{" +
@@ -192,7 +200,7 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
             final int newCapacity = calculateExpansion(currentCapacity, resultingPosition);
             final ByteBuffer newBuffer = ByteBuffer.allocateDirect(newCapacity + ALIGNMENT);
             final long newAddress = address(newBuffer);
-            final int newOffset = calculateAlignmentOffset(newAddress, ALIGNMENT);
+            final int newOffset = calculateAlignmentOffset(newAddress);
 
             getBytes(0, newBuffer, newOffset, currentCapacity);
 
@@ -203,9 +211,9 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
         }
     }
 
-    private int calculateExpansion(final int currentLength, final long requiredLength)
+    private static int calculateExpansion(final int currentLength, final long requiredLength)
     {
-        long value = Math.max(currentLength, INITIAL_CAPACITY);
+        long value = Math.max(currentLength, 2);
 
         while (value < requiredLength)
         {
@@ -220,10 +228,10 @@ public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
         return (int)value;
     }
 
-    private int calculateAlignmentOffset(final long address, final int alignment)
+    private static int calculateAlignmentOffset(final long address)
     {
-        final int remainder = (int)(address & (alignment - 1));
-        return alignment - remainder;
+        final int remainder = (int)(address & (ALIGNMENT - 1));
+        return ALIGNMENT - remainder;
     }
 
 }
