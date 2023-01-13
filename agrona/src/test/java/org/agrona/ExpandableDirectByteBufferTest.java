@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.ExpandableDirectByteBuffer.ALIGNMENT;
-import static org.agrona.ExpandableDirectByteBuffer.INITIAL_CAPACITY;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
@@ -114,10 +113,11 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 
     @ParameterizedTest
     @CsvSource({
-        "0, 6, 128",
-        "99, 38, 192",
+        "0, 6, 7",
+        "99, 38, 163",
     })
-    void ensureCapacityExtendsTheUnderlyingArray(final int index, final int length, final int expectedCapacity)
+    void ensureCapacityCreatesANewDirectByteBufferWithBiggerCapacity(
+        final int index, final int length, final int expectedCapacity)
     {
         final int initialCapacity = 5;
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(initialCapacity);
@@ -141,11 +141,12 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
         assertEquals(1 + ALIGNMENT, buffer.byteBuffer().capacity());
 
         buffer.ensureCapacity(5, 12);
+
         final long newOriginalAddress = BufferUtil.address(buffer.byteBuffer());
         assertNotEquals(originalAddress, newOriginalAddress);
         assertEquals(buffer.addressOffset() - newOriginalAddress, buffer.wrapAdjustment());
-        assertEquals(INITIAL_CAPACITY, buffer.capacity());
-        assertEquals(INITIAL_CAPACITY + ALIGNMENT, buffer.byteBuffer().capacity());
+        assertEquals(19, buffer.capacity());
+        assertEquals(19 + ALIGNMENT, buffer.byteBuffer().capacity());
     }
 
     @Test
@@ -157,8 +158,30 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
         assertEquals(2 * SIZE_OF_LONG, buffer.capacity());
 
         buffer.setMemory(2 * SIZE_OF_LONG, 100, (byte)'x');
-        assertEquals(INITIAL_CAPACITY, buffer.capacity());
+        assertEquals(121, buffer.capacity());
         assertEquals(Long.MAX_VALUE, buffer.getLong(0));
         assertEquals(Long.MIN_VALUE, buffer.getLong(SIZE_OF_LONG));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { Integer.MIN_VALUE, -1234556, -1 })
+    void checkLimitRejectsNegativeValue(final int limit)
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(16);
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.checkLimit(limit));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 200 })
+    void checkLimitIncreasesCapacityWhenLimitExceedsCurrentCapacity(final int limit)
+    {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1);
+        assertTrue(limit > buffer.capacity());
+        final ByteBuffer originalBuffer = buffer.byteBuffer();
+
+        buffer.checkLimit(limit);
+
+        assertTrue(limit < buffer.capacity());
+        assertNotSame(originalBuffer, buffer.byteBuffer());
     }
 }
