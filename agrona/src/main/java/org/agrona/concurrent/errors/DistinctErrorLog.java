@@ -160,9 +160,9 @@ public class DistinctErrorLog
         final long timestampMs;
         DistinctObservation distinctObservation;
 
+        timestampMs = clock.time();
         synchronized (this)
         {
-            timestampMs = clock.time();
             distinctObservation = find(distinctObservations, observation);
 
             if (null == distinctObservation)
