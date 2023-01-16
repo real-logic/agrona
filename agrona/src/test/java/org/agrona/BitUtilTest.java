@@ -16,14 +16,15 @@
 package org.agrona;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import static org.agrona.BitUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BitUtilTest
 {
@@ -59,6 +60,20 @@ class BitUtilTest
 
         assertThat(align(maxMultiple, alignment), is(maxMultiple));
         assertThat(align(MAX_VALUE, alignment), is(MIN_VALUE));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0,64,0",
+        "1,1024,1024",
+        "1073741824,4096,1073741824",
+        "1073741824,1073741824,1073741824",
+        "1073741825,1073741824,2147483648",
+        "100,8589934592,8589934592",
+        "9999999999,8589934592,17179869184" })
+    void alignWithLongValues(final long value, final long alignment, final long expected)
+    {
+        assertEquals(expected, align(value, alignment));
     }
 
     @Test
