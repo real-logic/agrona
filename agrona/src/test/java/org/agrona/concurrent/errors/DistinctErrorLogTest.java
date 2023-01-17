@@ -233,7 +233,7 @@ class DistinctErrorLogTest
         final RuntimeException error = spy(new RuntimeException("Test Error"));
 
         when(clock.time()).thenReturn(timestamp);
-        when(buffer.capacity()).thenReturn(111);
+        when(buffer.capacity()).thenReturn(42);
 
         assertFalse(log.record(error));
 
