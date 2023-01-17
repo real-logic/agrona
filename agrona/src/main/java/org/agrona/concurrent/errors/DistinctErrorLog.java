@@ -256,12 +256,17 @@ public class DistinctErrorLog
 
     private DistinctObservation newObservation(final long timestampMs, final Throwable observation)
     {
+        final int offset = nextOffset;
+        if ((offset + ENCODED_ERROR_OFFSET) >= buffer.capacity())
+        {
+            return INSUFFICIENT_SPACE;
+        }
+
         final StringWriter stringWriter = new StringWriter();
         observation.printStackTrace(new PrintWriter(stringWriter));
         final byte[] encodedError = stringWriter.toString().getBytes(charset);
 
         final int length = ENCODED_ERROR_OFFSET + encodedError.length;
-        final int offset = nextOffset;
 
         if ((offset + length) > buffer.capacity())
         {

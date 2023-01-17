@@ -22,8 +22,12 @@ import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+
+import java.io.PrintWriter;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.concurrent.errors.DistinctErrorLog.*;
@@ -207,16 +211,33 @@ class DistinctErrorLogTest
         inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 24 })
+    void shouldExitEarlyWhenInsufficientSpaceToRecordAnyInformation(final int capacity)
+    {
+        final long timestamp = 7;
+        final RuntimeException error = spy(new RuntimeException("Test Error"));
+
+        when(clock.time()).thenReturn(timestamp);
+        when(buffer.capacity()).thenReturn(capacity);
+
+        assertFalse(log.record(error));
+
+        verifyNoMoreInteractions(error);
+    }
+
     @Test
     void shouldFailToRecordWhenInsufficientSpace()
     {
         final long timestamp = 7;
-        final RuntimeException error = new RuntimeException("Test Error");
+        final RuntimeException error = spy(new RuntimeException("Test Error"));
 
         when(clock.time()).thenReturn(timestamp);
-        when(buffer.capacity()).thenReturn(32);
+        when(buffer.capacity()).thenReturn(111);
 
         assertFalse(log.record(error));
+
+        verify(error).printStackTrace(any(PrintWriter.class));
     }
 
     @Test
