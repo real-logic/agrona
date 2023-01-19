@@ -37,11 +37,12 @@ public class ShutdownSignalBarrier
     {
         for (final String signalName : SIGNAL_NAMES)
         {
-            final SignalHandler previous = Signal.handle(new Signal(signalName), (signal) -> {});
-            Signal.handle(new Signal(signalName), (signal) ->
+            final Signal namedSignal = new Signal(signalName);
+            final SignalHandler previous = Signal.handle(namedSignal, (signal) -> {});
+            Signal.handle(namedSignal, (signal) ->
             {
                 LATCHES.forEach(CountDownLatch::countDown);
-                if (previous != null)
+                if (null != previous)
                 {
                     previous.handle(signal);
                 }
