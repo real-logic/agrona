@@ -15,9 +15,15 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.LangUtil;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HighResolutionTimerTest
 {
@@ -31,5 +37,66 @@ class HighResolutionTimerTest
 
         HighResolutionTimer.disable();
         assertFalse(HighResolutionTimer.isEnabled());
+    }
+
+    @Test
+    void isThreadSafe() throws InterruptedException
+    {
+        final int numThreads = 2;
+        final ArrayList<Thread> threads = new ArrayList<>();
+        final CountDownLatch start = new CountDownLatch(numThreads);
+        final CountDownLatch end = new CountDownLatch(numThreads);
+        final AtomicReference<Throwable> error = new AtomicReference<>();
+        for (int i = 0; i < numThreads; i++)
+        {
+            final Thread t = new Thread(() ->
+            {
+                start.countDown();
+                try
+                {
+                    start.await();
+
+                    for (int j = 0; j < 1000; j++)
+                    {
+                        if (HighResolutionTimer.isEnabled())
+                        {
+                            HighResolutionTimer.disable();
+                        }
+                        else
+                        {
+                            HighResolutionTimer.enable();
+                        }
+                    }
+                }
+                catch (final Throwable e)
+                {
+                    error.getAndUpdate(existing ->
+                    {
+                        if (null != existing)
+                        {
+                            existing.addSuppressed(e);
+                            return existing;
+                        }
+                        else
+                        {
+                            return e;
+                        }
+                    });
+                }
+                finally
+                {
+                    end.countDown();
+                }
+            });
+            threads.add(t);
+            t.start();
+        }
+
+        end.await();
+
+        if (null != error.get())
+        {
+            LangUtil.rethrowUnchecked(error.get());
+        }
     }
 }

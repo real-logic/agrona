@@ -15,12 +15,14 @@
  */
 package org.agrona.concurrent;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Control the use of high resolution timers on Windows by a bit of hackery.
  */
 public class HighResolutionTimer
 {
-    private static volatile Thread thread;
+    private static final AtomicReference<Thread> THREAD = new AtomicReference<>();
 
     /**
      * Has the high resolution timer been enabled?
@@ -29,32 +31,35 @@ public class HighResolutionTimer
      */
     public static boolean isEnabled()
     {
-        return null != thread;
+        return null != THREAD.get();
     }
 
     /**
      * Attempt to enable high resolution timers.
      */
-    public static synchronized void enable()
+    public static void enable()
     {
-        if (null == thread)
+        if (null == THREAD.get())
         {
-            thread = new Thread(HighResolutionTimer::run);
-            thread.setDaemon(true);
-            thread.setName("high-resolution-timer-hack");
-            thread.start();
+            final Thread t = new Thread(HighResolutionTimer::run);
+            if (THREAD.compareAndSet(null, t))
+            {
+                t.setDaemon(true);
+                t.setName("high-resolution-timer-hack");
+                t.start();
+            }
         }
     }
 
     /**
      * Attempt to disable the high resolution timers.
      */
-    public static synchronized void disable()
+    public static void disable()
     {
+        final Thread thread = THREAD.getAndSet(null);
         if (null != thread)
         {
             thread.interrupt();
-            thread = null;
         }
     }
 
@@ -68,6 +73,6 @@ public class HighResolutionTimer
         {
         }
 
-        thread = null;
+        THREAD.set(null);
     }
 }
