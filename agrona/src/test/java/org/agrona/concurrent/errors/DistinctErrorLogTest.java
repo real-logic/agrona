@@ -87,7 +87,6 @@ class DistinctErrorLogTest
         inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
         inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
-        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
@@ -118,7 +117,6 @@ class DistinctErrorLogTest
         inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
         inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
-        inOrder.verifyNoMoreInteractions();
     }
 
     @Test

@@ -265,6 +265,7 @@ project(':agrona') {
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
         testImplementation "com.google.guava:guava-testlib:${guavaTestLib}"
         testImplementation "junit:junit:${junit4Version}" // Compatibility with JUnit 4
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
