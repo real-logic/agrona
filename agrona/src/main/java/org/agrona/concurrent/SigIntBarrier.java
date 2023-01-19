@@ -15,8 +15,6 @@
  */
 package org.agrona.concurrent;
 
-import sun.misc.Signal;
-
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -32,7 +30,7 @@ public class SigIntBarrier
      */
     public SigIntBarrier()
     {
-        Signal.handle(new Signal("INT"), (signal) -> signal());
+        SigInt.register(this::signal);
     }
 
     /**
