@@ -40,6 +40,7 @@ class SigIntTest
         final Thread.UncaughtExceptionHandler exceptionHandler = mock(Thread.UncaughtExceptionHandler.class);
         final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler =
             Thread.getDefaultUncaughtExceptionHandler();
+
         try
         {
             Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);

@@ -39,40 +39,44 @@ public class SigInt
     static void register(final String signalName, final Runnable task)
     {
         Objects.requireNonNull(task);
+
         final Signal namedSignal = new Signal(signalName);
         final SignalHandler previousHandler = Signal.handle(namedSignal, (signal) -> {});
-        Signal.handle(namedSignal, (signal) ->
-        {
-            Throwable error = null;
-            try
-            {
-                task.run();
-            }
-            catch (final Throwable t)
-            {
-                error = t;
-            }
 
-            if (null != previousHandler)
+        Signal.handle(
+            namedSignal,
+            (signal) ->
             {
+                Throwable error = null;
                 try
                 {
-                    previousHandler.handle(signal);
+                    task.run();
                 }
                 catch (final Throwable t)
                 {
-                    if (null != error)
+                    error = t;
+                }
+
+                if (null != previousHandler)
+                {
+                    try
                     {
-                        error.addSuppressed(t);
+                        previousHandler.handle(signal);
                     }
-                    else
+                    catch (final Throwable t)
                     {
-                        error = t;
+                        if (null != error)
+                        {
+                            error.addSuppressed(t);
+                        }
+                        else
+                        {
+                            error = t;
+                        }
                     }
                 }
-            }
 
-            LangUtil.rethrowUnchecked(error);
-        });
+                LangUtil.rethrowUnchecked(error);
+            });
     }
 }
