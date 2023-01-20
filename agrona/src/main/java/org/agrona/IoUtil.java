@@ -480,7 +480,8 @@ public final class IoUtil
         if (fillWithZeros)
         {
             int pos = 0;
-            while (pos < length)
+            final int capacity = mappedByteBuffer.capacity();
+            while (pos < capacity)
             {
                 mappedByteBuffer.put(pos, (byte)0);
                 pos += BLOCK_SIZE;
