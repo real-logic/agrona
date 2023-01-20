@@ -755,7 +755,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
 
         boolean isEqual = false;
 
-        final int size = this.size;
+        @DoNotSub final int size = this.size;
         if (size == that.size)
         {
             isEqual = true;
