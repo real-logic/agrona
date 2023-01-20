@@ -5,6 +5,7 @@ Agrona
 [![GitHub](https://img.shields.io/github/license/real-logic/Agrona.svg)](https://github.com/real-logic/agrona/blob/master/LICENSE)
 
 [![Actions Status](https://github.com/real-logic/agrona/workflows/Continuous%20Integration/badge.svg)](https://github.com/real-logic/agrona/actions)
+[![CodeQL Status](https://github.com/real-logic/agrona/workflows/CodeQL/badge.svg)](https://github.com/real-logic/agrona/actions)
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
 applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
