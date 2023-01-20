@@ -16,6 +16,8 @@
 package org.agrona.concurrent;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 import sun.misc.Signal;
@@ -34,51 +36,54 @@ class SigIntTest
         assertThrowsExactly(NullPointerException.class, () -> SigInt.register(null));
     }
 
-    @Test
-    void shouldInstallHandlerThatWillDelegateToTheExistingHandler() throws InterruptedException
+    @ParameterizedTest
+    @ValueSource(strings = { "INT", "TERM" })
+    void shouldInstallHandlerThatWillDelegateToTheExistingHandler(final String name) throws InterruptedException
     {
-        final Thread.UncaughtExceptionHandler exceptionHandler = mock(Thread.UncaughtExceptionHandler.class);
         final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler =
             Thread.getDefaultUncaughtExceptionHandler();
+        final Signal signal = new Signal(name);
+        final SignalHandler originalHandler = Signal.handle(signal, sig -> {});
 
         try
         {
+            final CountDownLatch executed = new CountDownLatch(1);
+            final Thread.UncaughtExceptionHandler exceptionHandler = mock(Thread.UncaughtExceptionHandler.class);
+            doAnswer((Answer<Void>)invocation ->
+            {
+                executed.countDown();
+                return null;
+            }).when(exceptionHandler).uncaughtException(any(), any());
             Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
-
-            final Signal signal = new Signal("INT");
             final SignalHandler oldHandler = mock(SignalHandler.class);
-            final NumberFormatException oldHandlerException = new NumberFormatException("NaN");
-            doThrow(oldHandlerException).when(oldHandler).handle(signal);
+            final NumberFormatException secondException = new NumberFormatException("NaN");
+            doThrow(secondException).when(oldHandler).handle(signal);
             Signal.handle(signal, oldHandler);
 
             final Runnable newHandler = mock(Runnable.class);
-            final CountDownLatch handlerExecuted = new CountDownLatch(1);
-            final IllegalStateException newHandlerException = new IllegalStateException("something went wrong");
-            doAnswer((Answer<Void>)invocation ->
-            {
-                handlerExecuted.countDown();
-                throw newHandlerException;
-            }).when(newHandler).run();
+            final IllegalStateException firstException = new IllegalStateException("something went wrong");
+            doThrow(firstException).when(newHandler).run();
 
-            SigInt.register(newHandler);
+            SigInt.register(name, newHandler);
 
             Signal.raise(signal);
 
-            handlerExecuted.await();
+            executed.await();
 
             final InOrder inOrder = inOrder(newHandler, oldHandler, exceptionHandler);
             inOrder.verify(newHandler).run();
             inOrder.verify(oldHandler).handle(signal);
-            inOrder.verify(exceptionHandler).uncaughtException(any(), eq(newHandlerException));
+            inOrder.verify(exceptionHandler).uncaughtException(any(), eq(firstException));
             inOrder.verifyNoMoreInteractions();
 
-            final Throwable[] suppressed = newHandlerException.getSuppressed();
+            final Throwable[] suppressed = firstException.getSuppressed();
             assertEquals(1, suppressed.length);
-            assertSame(oldHandlerException, suppressed[0]);
+            assertSame(secondException, suppressed[0]);
         }
         finally
         {
             Thread.setDefaultUncaughtExceptionHandler(defaultUncaughtExceptionHandler);
+            Signal.handle(signal, originalHandler);
         }
     }
 }
