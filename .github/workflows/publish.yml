@@ -1,4 +1,5 @@
 name: Publish a release to the Maven Central Repository
+
 on:
   repository_dispatch:
     types: [publish_artifacts]
