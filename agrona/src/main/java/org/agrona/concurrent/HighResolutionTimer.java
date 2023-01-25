@@ -18,7 +18,7 @@ package org.agrona.concurrent;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Control the use of high resolution timers on Windows by a bit of hackery.
+ * Control the use of high-resolution timers on Windows by a bit of hackery.
  */
 public class HighResolutionTimer
 {

@@ -17,8 +17,8 @@ package org.agrona.concurrent;
 
 import org.agrona.LangUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -40,63 +40,69 @@ class HighResolutionTimerTest
     }
 
     @Test
-    void isThreadSafe() throws InterruptedException
+    @Timeout(30)
+    void shouldBeThreadSafe() throws InterruptedException
     {
-        final int numThreads = 2;
-        final ArrayList<Thread> threads = new ArrayList<>();
-        final CountDownLatch start = new CountDownLatch(numThreads);
-        final CountDownLatch end = new CountDownLatch(numThreads);
-        final AtomicReference<Throwable> error = new AtomicReference<>();
-        for (int i = 0; i < numThreads; i++)
-        {
-            final Thread t = new Thread(() ->
-            {
-                start.countDown();
-                try
-                {
-                    start.await();
+        final int threadCount = 2;
+        final CountDownLatch startLatch = new CountDownLatch(threadCount);
+        final Thread[] threads = new Thread[threadCount];
+        final AtomicReference<Throwable> errorRef = new AtomicReference<>();
 
-                    for (int j = 0; j < 1000; j++)
+        for (int i = 0; i < threadCount; i++)
+        {
+            final Thread t = new Thread(
+                () ->
+                {
+                    startLatch.countDown();
+
+                    try
                     {
-                        if (HighResolutionTimer.isEnabled())
+                        startLatch.await();
+
+                        for (int j = 0; j < 1000; j++)
                         {
-                            HighResolutionTimer.disable();
-                        }
-                        else
-                        {
-                            HighResolutionTimer.enable();
+                            if (HighResolutionTimer.isEnabled())
+                            {
+                                HighResolutionTimer.disable();
+                            }
+                            else
+                            {
+                                HighResolutionTimer.enable();
+                            }
                         }
                     }
-                }
-                catch (final Throwable e)
-                {
-                    error.getAndUpdate(existing ->
+                    catch (final Throwable e)
                     {
-                        if (null != existing)
-                        {
-                            existing.addSuppressed(e);
-                            return existing;
-                        }
-                        else
-                        {
-                            return e;
-                        }
-                    });
-                }
-                finally
-                {
-                    end.countDown();
-                }
-            });
-            threads.add(t);
+                        errorRef.getAndUpdate(
+                            (existing) ->
+                            {
+                                if (null != existing)
+                                {
+                                    existing.addSuppressed(e);
+                                    return existing;
+                                }
+                                else
+                                {
+                                    return e;
+                                }
+                            });
+                    }
+                });
+
+            threads[i] = t;
+            t.setName("high-res-timer-runner");
+            t.setDaemon(true);
             t.start();
         }
 
-        end.await();
-
-        if (null != error.get())
+        for (final Thread t : threads)
         {
-            LangUtil.rethrowUnchecked(error.get());
+            t.join();
+        }
+
+        if (null != errorRef.get())
+        {
+            LangUtil.rethrowUnchecked(errorRef.get());
         }
     }
 }
