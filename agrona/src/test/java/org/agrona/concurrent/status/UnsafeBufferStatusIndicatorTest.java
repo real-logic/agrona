@@ -16,11 +16,7 @@
 package org.agrona.concurrent.status;
 
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.Collections;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.concurrent.status.CountersReader.COUNTER_LENGTH;
@@ -28,22 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UnsafeBufferStatusIndicatorTest
 {
-    @ParameterizedTest
-    @MethodSource("buffers")
-    void canWrapDifferentKindsOfBuffers(final UnsafeBuffer buffer)
+    @Test
+    void canWrapDifferentKindsOfBuffers()
     {
         final long value = Long.MIN_VALUE;
         final int counterId = 2;
+        final UnsafeBuffer buffer = new UnsafeBuffer(allocateDirect(5 * COUNTER_LENGTH));
         final UnsafeBufferStatusIndicator unsafeBufferStatusIndicator =
             new UnsafeBufferStatusIndicator(buffer, counterId);
 
         unsafeBufferStatusIndicator.setOrdered(value);
         assertEquals(value, unsafeBufferStatusIndicator.getVolatile());
-    }
-
-    private static List<UnsafeBuffer> buffers()
-    {
-        return Collections.singletonList(
-            new UnsafeBuffer(allocateDirect(5 * COUNTER_LENGTH)));
     }
 }

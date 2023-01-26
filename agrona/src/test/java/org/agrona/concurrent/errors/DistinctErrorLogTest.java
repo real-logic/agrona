@@ -287,7 +287,7 @@ class DistinctErrorLogTest
             super(message);
         }
 
-        public Throwable fillInStackTrace()
+        public synchronized Throwable fillInStackTrace()
         {
             return this;
         }

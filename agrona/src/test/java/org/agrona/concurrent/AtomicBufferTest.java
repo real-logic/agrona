@@ -569,7 +569,7 @@ class AtomicBufferTest
     }
 
     @Test
-    void verifyAlignmentShouldThrowForAHeapByterBufferArrayIfStrictAlignmentChecksAreEnabled()
+    void verifyAlignmentShouldThrowForAHeapByteBufferArrayIfStrictAlignmentChecksAreEnabled()
     {
         assumeTrue(STRICT_ALIGNMENT_CHECKS);
 
@@ -624,13 +624,5 @@ class AtomicBufferTest
     {
         return Collections.singletonList(
             allocateDirectAligned(BUFFER_CAPACITY, SIZE_OF_LONG).order(nativeOrder()));
-    }
-
-    private static List<UnsafeBuffer> unalignedBuffers()
-    {
-        return Arrays.asList(
-            new UnsafeBuffer(new byte[16]),
-            new UnsafeBuffer(allocate(16)),
-            new UnsafeBuffer(sliceBuffer(allocateDirectAligned(24, SIZE_OF_LONG).position(1))));
     }
 }
