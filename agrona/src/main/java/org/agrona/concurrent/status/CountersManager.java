@@ -482,6 +482,19 @@ public class CountersManager extends CountersReader
         appendLabel(metaDataOffset(counterId), label);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "CountersManager{" +
+            "freeToReuseTimeoutMs=" + freeToReuseTimeoutMs +
+            ", highWaterMarkId=" + highWaterMarkId +
+            ", freeList=" + freeList +
+            ", epochClock=" + epochClock +
+            '}';
+    }
+
     private int nextCounterId()
     {
         if (!freeList.isEmpty())

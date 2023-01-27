@@ -10,3 +10,5 @@ query-filters:
       id: java/missing-override-annotation
   - exclude:
       id: java/confusing-method-signature
+  - exclude:
+      id: java/unused-parameter
