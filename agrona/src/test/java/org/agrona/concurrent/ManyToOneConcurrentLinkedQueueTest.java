@@ -32,15 +32,14 @@ class ManyToOneConcurrentLinkedQueueTest
     @Test
     void shouldBeEmpty()
     {
-        assertTrue(queue.isEmpty());
         assertThat(queue.size(), is(0));
+        assertTrue(queue.isEmpty());
     }
 
     @Test
     void shouldNotBeEmpty()
     {
-        queue.offer(1);
-
+        assertTrue(queue.offer(1));
         assertFalse(queue.isEmpty());
         assertThat(queue.size(), is(1));
     }
@@ -62,8 +61,8 @@ class ManyToOneConcurrentLinkedQueueTest
     void shouldExchangeItem()
     {
         final int testItem = 1;
-        queue.offer(testItem);
 
+        assertTrue(queue.offer(testItem));
         assertThat(queue.poll(), is(testItem));
     }
 
@@ -74,7 +73,7 @@ class ManyToOneConcurrentLinkedQueueTest
 
         for (int i = 0; i < numItems; i++)
         {
-            queue.offer(i);
+            assertTrue(queue.offer(i));
         }
 
         assertThat(queue.size(), is(numItems));
@@ -95,7 +94,7 @@ class ManyToOneConcurrentLinkedQueueTest
 
         for (int i = 0; i < numItems; i++)
         {
-            queue.offer(i);
+            assertTrue(queue.offer(i));
             assertThat(queue.poll(), is(i));
         }
 
@@ -110,7 +109,7 @@ class ManyToOneConcurrentLinkedQueueTest
 
         for (int i = 0; i < 5; i++)
         {
-            queue.offer(i);
+            assertTrue(queue.offer(i));
         }
 
         assertThat(queue.toString(), is("{0, 1, 2, 3, 4}"));
@@ -128,7 +127,7 @@ class ManyToOneConcurrentLinkedQueueTest
             {
                 for (int i = 0, items = count / numThreads; i < items; i++)
                 {
-                    queue.offer(i);
+                    assertTrue(queue.offer(i));
                 }
             };
 

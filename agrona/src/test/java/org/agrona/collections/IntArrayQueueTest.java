@@ -26,8 +26,8 @@ class IntArrayQueueTest
     {
         final IntArrayQueue queue = new IntArrayQueue();
 
-        assertTrue(queue.isEmpty());
         assertEquals(0, queue.size());
+        assertTrue(queue.isEmpty());
         assertEquals(IntArrayQueue.MIN_CAPACITY, queue.capacity());
     }
 
@@ -37,7 +37,7 @@ class IntArrayQueueTest
         final IntArrayQueue queue = new IntArrayQueue();
         final Integer element = 7;
 
-        queue.offer(7);
+        assertTrue(queue.offer(element));
         assertEquals(1, queue.size());
 
         assertEquals(element, queue.poll());
@@ -52,7 +52,7 @@ class IntArrayQueueTest
 
         for (int i = 0; i < 20; i++)
         {
-            queue.offerInt(i);
+            assertTrue(queue.offerInt(i));
             expected.addInt(i);
         }
 
@@ -85,7 +85,7 @@ class IntArrayQueueTest
 
         for (int i = 0; i < count; i++)
         {
-            queue.offerInt(i);
+            assertTrue(queue.offerInt(i));
         }
 
         assertFalse(queue.isEmpty());
@@ -96,8 +96,8 @@ class IntArrayQueueTest
             assertEquals(i, queue.pollInt());
         }
 
-        assertTrue(queue.isEmpty());
         assertEquals(0, queue.size());
+        assertTrue(queue.isEmpty());
     }
 
     @Test
@@ -110,6 +110,7 @@ class IntArrayQueueTest
 
         final Integer element = 7;
         queue.offer(element);
+        assertTrue(queue.offer(element));
         assertEquals(element, queue.peek());
     }
 
@@ -121,7 +122,7 @@ class IntArrayQueueTest
         assertEquals(nullValue, queue.peekInt());
 
         final int element = 7;
-        queue.offerInt(element);
+        assertTrue(queue.offerInt(element));
         assertEquals(element, queue.peekInt());
     }
 
@@ -133,7 +134,7 @@ class IntArrayQueueTest
 
         for (int i = 0; i < count; i++)
         {
-            queue.offerInt(i);
+            assertTrue(queue.offerInt(i));
         }
 
         final IntArrayQueue.IntIterator iterator = queue.iterator();
@@ -154,7 +155,7 @@ class IntArrayQueueTest
 
         for (int i = 0; i < count; i++)
         {
-            queue.offerInt(i);
+            assertTrue(queue.offerInt(i));
         }
 
         final IntArrayQueue.IntIterator iterator = queue.iterator();
@@ -180,8 +181,8 @@ class IntArrayQueueTest
         final int count = 20;
         for (int i = 0; i < count; i++)
         {
-            queue.offerInt(i);
-            queue.removeInt();
+            assertTrue(queue.offerInt(i));
+            assertEquals(i, queue.removeInt());
         }
 
         for (final int ignore : queue)
