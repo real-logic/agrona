@@ -1,0 +1,10 @@
+name: "Agrona CodeQL Scanning"
+
+queries:
+  - uses: security-and-quality
+
+query-filters:
+  - exclude:
+      id: java/unused-reference-type
+  - exclude:
+      id: java/missing-override-annotation
