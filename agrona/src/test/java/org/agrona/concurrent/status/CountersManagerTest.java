@@ -103,8 +103,10 @@ class CountersManagerTest
         {
             assertEquals(ex, caught);
 
-            final AtomicCounter counter = manager.newCounter("new label");
-            assertEquals(0, counter.id());
+            try (AtomicCounter counter = manager.newCounter("new label"))
+            {
+                assertEquals(0, counter.id());
+            }
 
             return;
         }
@@ -386,11 +388,12 @@ class CountersManagerTest
     @Test
     void shouldGetAndUpdateCounterLabel()
     {
-        final AtomicCounter counter = manager.newCounter("original label");
-
-        assertEquals("original label", counter.label());
-        counter.updateLabel(counter.label() + " with update");
-        assertEquals("original label with update", counter.label());
+        try (AtomicCounter counter = manager.newCounter("original label"))
+        {
+            assertEquals("original label", counter.label());
+            counter.updateLabel(counter.label() + " with update");
+            assertEquals("original label with update", counter.label());
+        }
     }
 
     @Test
@@ -399,18 +402,19 @@ class CountersManagerTest
         final String originalKey = "original key";
         final String updatedKey = "updated key";
 
-        final AtomicCounter counter = manager.newCounter(
-            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+        try (AtomicCounter counter = manager.newCounter(
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey)))
+        {
+            final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
-        final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
+            manager.forEach(keyExtractor);
+            assertEquals(originalKey, keyExtractor.key);
 
-        manager.forEach(keyExtractor);
-        assertEquals(originalKey, keyExtractor.key);
+            manager.setCounterKey(counter.id(), (keyBuffer) -> keyBuffer.putStringUtf8(0, updatedKey));
 
-        manager.setCounterKey(counter.id(), (keyBuffer) -> keyBuffer.putStringUtf8(0, updatedKey));
-
-        manager.forEach(keyExtractor);
-        assertEquals(updatedKey, keyExtractor.key);
+            manager.forEach(keyExtractor);
+            assertEquals(updatedKey, keyExtractor.key);
+        }
     }
 
     @Test
@@ -419,22 +423,23 @@ class CountersManagerTest
         final String originalKey = "original key";
         final String updatedKey = "updated key";
 
-        final AtomicCounter counter = manager.newCounter(
-            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+        try (AtomicCounter counter = manager.newCounter(
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey)))
+        {
+            final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
-        final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
+            manager.forEach(keyExtractor);
 
-        manager.forEach(keyExtractor);
+            assertEquals(originalKey, keyExtractor.key);
 
-        assertEquals(originalKey, keyExtractor.key);
+            final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[128]);
+            final int length = tempBuffer.putStringUtf8(0, updatedKey);
 
-        final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[128]);
-        final int length = tempBuffer.putStringUtf8(0, updatedKey);
+            manager.setCounterKey(counter.id(), tempBuffer, 0, length);
 
-        manager.setCounterKey(counter.id(), tempBuffer, 0, length);
-
-        manager.forEach(keyExtractor);
-        assertEquals(updatedKey, keyExtractor.key);
+            manager.forEach(keyExtractor);
+            assertEquals(updatedKey, keyExtractor.key);
+        }
     }
 
     @Test
@@ -442,19 +447,20 @@ class CountersManagerTest
     {
         final String originalKey = "original key";
 
-        final AtomicCounter counter = manager.newCounter(
-            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
-
-        final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[256]);
-
-        try
+        try (AtomicCounter counter = manager.newCounter(
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey)))
         {
-            manager.setCounterKey(counter.id(), tempBuffer, 0, MAX_KEY_LENGTH + 1);
-            fail("Should have thrown exception");
-        }
-        catch (final IllegalArgumentException e)
-        {
-            assertTrue(true);
+            final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[256]);
+
+            try
+            {
+                manager.setCounterKey(counter.id(), tempBuffer, 0, MAX_KEY_LENGTH + 1);
+                fail("Should have thrown exception");
+            }
+            catch (final IllegalArgumentException e)
+            {
+                assertTrue(true);
+            }
         }
     }
 
@@ -481,10 +487,11 @@ class CountersManagerTest
     @Test
     void shouldAppendLabel()
     {
-        final AtomicCounter counter = manager.newCounter("original label");
-
-        assertEquals("original label", counter.label());
-        counter.appendToLabel(" with update");
-        assertEquals("original label with update", counter.label());
+        try (AtomicCounter counter = manager.newCounter("original label"))
+        {
+            assertEquals("original label", counter.label());
+            counter.appendToLabel(" with update");
+            assertEquals("original label with update", counter.label());
+        }
     }
 }
