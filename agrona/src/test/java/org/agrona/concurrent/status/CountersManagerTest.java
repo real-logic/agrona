@@ -36,6 +36,8 @@ class CountersManagerTest
 {
     private static final int NUMBER_OF_COUNTERS = 4;
     private static final long FREE_TO_REUSE_TIMEOUT = 1000;
+    private static final int TYPE_ID = 101;
+    private static final String LABEL = "label";
 
     private long currentTimestamp = 0;
 
@@ -90,7 +92,7 @@ class CountersManagerTest
         try
         {
             manager.allocate(
-                "label",
+                LABEL,
                 DEFAULT_TYPE_ID,
                 (buffer) ->
                 {
@@ -398,7 +400,7 @@ class CountersManagerTest
         final String updatedKey = "updated key";
 
         final AtomicCounter counter = manager.newCounter(
-            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
 
         final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
@@ -418,7 +420,7 @@ class CountersManagerTest
         final String updatedKey = "updated key";
 
         final AtomicCounter counter = manager.newCounter(
-            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
 
         final StringKeyExtractor keyExtractor = new StringKeyExtractor(counter.id());
 
@@ -441,7 +443,7 @@ class CountersManagerTest
         final String originalKey = "original key";
 
         final AtomicCounter counter = manager.newCounter(
-            "label", 101, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
+            LABEL, TYPE_ID, (keyBuffer) -> keyBuffer.putStringUtf8(0, originalKey));
 
         final UnsafeBuffer tempBuffer = new UnsafeBuffer(new byte[256]);
 
@@ -468,8 +470,9 @@ class CountersManagerTest
 
         public void accept(final int counterId, final int typeId, final DirectBuffer keyBuffer, final String label)
         {
-            if (counterId == id)
+            if (counterId == id && typeId == TYPE_ID)
             {
+                assertEquals(LABEL, label);
                 key = keyBuffer.getStringUtf8(0);
             }
         }
