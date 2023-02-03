@@ -37,8 +37,7 @@ class QueuedPipeTest
         return Stream.of(
             new OneToOneConcurrentArrayQueue<>(QUEUE_CAPACITY),
             new ManyToOneConcurrentArrayQueue<>(QUEUE_CAPACITY),
-            new ManyToManyConcurrentArrayQueue<>(QUEUE_CAPACITY)
-        );
+            new ManyToManyConcurrentArrayQueue<>(QUEUE_CAPACITY));
     }
 
     @ParameterizedTest
@@ -52,7 +51,7 @@ class QueuedPipeTest
     @MethodSource("data")
     void shouldThrowExceptionWhenNullOffered(final QueuedPipe<Integer> queue)
     {
-        assertThrows(NullPointerException.class, () -> queue.offer(null));
+        assertThrows(NullPointerException.class, () -> assertTrue(queue.offer(null)));
     }
 
     @ParameterizedTest

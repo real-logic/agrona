@@ -173,10 +173,8 @@ class IntArrayQueueTest
     {
         final IntArrayQueue queue = new IntArrayQueue();
 
-        for (final int ignore : queue)
-        {
-            fail("Should be empty");
-        }
+        final IntArrayQueue.IntIterator iteratorOne = queue.iterator();
+        assertFalse(iteratorOne.hasNext());
 
         final int count = 20;
         for (int i = 0; i < count; i++)
@@ -185,9 +183,7 @@ class IntArrayQueueTest
             assertEquals(i, queue.removeInt());
         }
 
-        for (final int ignore : queue)
-        {
-            fail("Should be empty");
-        }
+        final IntArrayQueue.IntIterator iteratorTwo = queue.iterator();
+        assertFalse(iteratorTwo.hasNext());
     }
 }

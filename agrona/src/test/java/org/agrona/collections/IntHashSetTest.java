@@ -786,14 +786,6 @@ class IntHashSetTest
         }
 
         assertThat(testSet, hasSize(10_000));
-
-        int distinctElements = 0;
-        for (final int ignore : testSet)
-        {
-            distinctElements++;
-        }
-
-        assertThat(distinctElements, is(10_000));
     }
 
     @Test

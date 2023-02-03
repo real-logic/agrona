@@ -293,10 +293,10 @@ public class BiInt2ObjectMap<V>
     @SuppressWarnings("unchecked")
     public void forEach(final Consumer<V> consumer)
     {
-        int remaining = size;
-
+        int remaining = this.size;
         final Object[] values = this.values;
-        for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
+
+        for (int i = 0, length = values.length; remaining > 0 && i < length; i++)
         {
             final Object value = values[i];
             if (null != value)
@@ -315,11 +315,11 @@ public class BiInt2ObjectMap<V>
     @SuppressWarnings("unchecked")
     public void forEach(final EntryConsumer<V> consumer)
     {
-        int remaining = size;
-
+        int remaining = this.size;
         final long[] keys = this.keys;
         final Object[] values = this.values;
-        for (int i = 0, size = values.length; remaining > 0 && i < size; i++)
+
+        for (int i = 0, length = values.length; remaining > 0 && i < length; i++)
         {
             final Object value = values[i];
             if (null != value)

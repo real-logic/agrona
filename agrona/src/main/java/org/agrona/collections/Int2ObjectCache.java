@@ -775,13 +775,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     public void clear()
     {
         final Object[] values = this.values;
-        for (@DoNotSub int i = 0, size = values.length; i < size; i++)
+        for (@DoNotSub int i = 0, length = values.length; i < length; i++)
         {
             final Object value = values[i];
             if (null != value)
             {
                 values[i] = null;
-                this.size--;
+                size--;
 
                 evictionConsumer.accept((V)value);
             }
