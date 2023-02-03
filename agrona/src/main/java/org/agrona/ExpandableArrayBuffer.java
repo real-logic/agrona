@@ -157,7 +157,7 @@ public class ExpandableArrayBuffer extends AbstractMutableDirectBuffer
     {
         return "ExpandableArrayBuffer{" +
             ", capacity=" + capacity +
-            ", byteArray=" + byteArray + // lgtm [java/print-array]
+            ", byteArray=" + (null == byteArray ? "null" : ("byte[]{length=" + byteArray.length + "}")) +
             '}';
     }
 
