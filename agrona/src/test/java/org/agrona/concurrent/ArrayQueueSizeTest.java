@@ -60,7 +60,7 @@ class ArrayQueueSizeTest
         while (producer.isRunning() || consumer.isRunning())
         {
             final int size = queue.size();
-            if (size < 0 || size > queue.capacity())
+            if (size > queue.capacity())
             {
                 fail("invalid size: " + size);
             }
