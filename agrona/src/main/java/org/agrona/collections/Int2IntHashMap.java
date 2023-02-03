@@ -300,21 +300,21 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         final int[] newEntries = entries;
         @DoNotSub final int mask = newEntries.length - 1;
 
-        for (@DoNotSub int keyIndex = 0; keyIndex < length; keyIndex += 2)
+        for (@DoNotSub int valueIndex = 1; valueIndex < length; valueIndex += 2)
         {
-            final int value = oldEntries[keyIndex + 1]; // lgtm[java/index-out-of-bounds]
+            final int value = oldEntries[valueIndex];
             if (missingValue != value)
             {
-                final int key = oldEntries[keyIndex];
-                @DoNotSub int index = Hashing.evenHash(key, mask);
+                final int key = oldEntries[valueIndex - 1];
+                @DoNotSub int newKeyIndex = Hashing.evenHash(key, mask);
 
-                while (missingValue != newEntries[index + 1])
+                while (missingValue != newEntries[newKeyIndex + 1])
                 {
-                    index = next(index, mask);
+                    newKeyIndex = next(newKeyIndex, mask);
                 }
 
-                newEntries[index] = key;
-                newEntries[index + 1] = value;
+                newEntries[newKeyIndex] = key;
+                newEntries[newKeyIndex + 1] = value;
             }
         }
     }
