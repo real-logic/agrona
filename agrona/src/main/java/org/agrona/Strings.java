@@ -42,7 +42,7 @@ public final class Strings
      * @param defaultValue to be used if the String value is null.
      * @return the int value of the string or the default on null.
      */
-    public static int parseIntOrDefault(final String value, final int defaultValue)
+    public static int parseIntOrDefault(final String value, final int defaultValue) throws NumberFormatException
     {
         if (null == value)
         {

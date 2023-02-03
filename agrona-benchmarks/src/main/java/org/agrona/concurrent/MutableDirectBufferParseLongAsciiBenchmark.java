@@ -102,7 +102,7 @@ public class MutableDirectBufferParseLongAsciiBenchmark
      * @return parsed value.
      */
     @Benchmark
-    public long longParseLong()
+    public long longParseLong() throws NumberFormatException
     {
         return Long.parseLong(value);
     }

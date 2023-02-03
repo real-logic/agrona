@@ -94,7 +94,7 @@ public class MutableDirectBufferParseIntAsciiBenchmark
      * @return parsed value.
      */
     @Benchmark
-    public int integerParseInt()
+    public int integerParseInt() throws NumberFormatException
     {
         return Integer.parseInt(value);
     }
