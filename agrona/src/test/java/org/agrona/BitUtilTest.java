@@ -77,17 +77,31 @@ class BitUtilTest
     }
 
     @Test
-    void shouldConvertToHexCorrectly()
+    void shouldConvertToHex()
     {
         final byte[] buffer = { 0x01, 0x23, 0x45, 0x69, 0x78, (byte)0xBC, (byte)0xDA, (byte)0xEF, 0x5F };
         final byte[] converted = toHexByteArray(buffer);
-        final String hexStr = toHex(buffer);
+        final String hexString = toHex(buffer);
 
         assertThat(converted[0], is((byte)'0'));
         assertThat(converted[1], is((byte)'1'));
         assertThat(converted[2], is((byte)'2'));
         assertThat(converted[3], is((byte)'3'));
-        assertThat(hexStr, is("0123456978bcdaef5f"));
+        assertThat(hexString, is("0123456978bcdaef5f"));
+    }
+
+    @Test
+    void shouldConvertFromHex()
+    {
+        final String hexString = "0123456978bcdaef5f";
+
+        final byte[] expectedBuffer = { 0x01, 0x23, 0x45, 0x69, 0x78, (byte)0xBC, (byte)0xDA, (byte)0xEF, 0x5F };
+        final byte[] fromHexStringBuffer = fromHex(hexString);
+        assertArrayEquals(expectedBuffer, fromHexStringBuffer);
+
+        final byte[] expectedHexBuffer = toHexByteArray(expectedBuffer);
+        final byte[] fromHexBuffer = fromHexByteArray(expectedHexBuffer);
+        assertArrayEquals(expectedBuffer, fromHexBuffer);
     }
 
     @Test
