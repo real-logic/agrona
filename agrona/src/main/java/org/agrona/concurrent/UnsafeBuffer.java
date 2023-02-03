@@ -634,7 +634,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         return "UnsafeBuffer{" +
             "addressOffset=" + addressOffset +
             ", capacity=" + capacity +
-            ", byteArray=" + (null == byteArray ? "null" : ("byte[]{length=" + byteArray.length + "}")) +
+            ", byteArray=" + (null == byteArray ? "null" : ("byte[" + byteArray.length + "]")) +
             ", byteBuffer=" + byteBuffer +
             '}';
     }

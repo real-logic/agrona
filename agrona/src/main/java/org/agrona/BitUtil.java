@@ -184,11 +184,11 @@ public final class BitUtil
     {
         final byte[] outputBuffer = new byte[buffer.length >> 1];
 
-        for (int i = 0; i < buffer.length; i += 2)
+        for (int i = 1; i < buffer.length; i += 2)
         {
-            final int hi = FROM_HEX_DIGIT_TABLE[buffer[i]] << 4;
-            final int lo = FROM_HEX_DIGIT_TABLE[buffer[i + 1]]; // lgtm[java/index-out-of-bounds]
-            outputBuffer[i >> 1] = (byte)(hi | lo);
+            final int hi = FROM_HEX_DIGIT_TABLE[buffer[i - 1]] << 4;
+            final int lo = FROM_HEX_DIGIT_TABLE[buffer[i]];
+            outputBuffer[(i - 1) >> 1] = (byte)(hi | lo);
         }
 
         return outputBuffer;
