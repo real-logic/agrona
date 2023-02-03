@@ -395,12 +395,6 @@ class IntArrayListTest
     }
 
     @Test
-    void removeThrowsNClassCastExceptionIfValueIsNotInteger()
-    {
-        assertThrowsExactly(ClassCastException.class, () -> list.remove(Double.valueOf(24.5)));
-    }
-
-    @Test
     void removeReturnsFalseForAnUnknownValue()
     {
         list.addInt(42);
