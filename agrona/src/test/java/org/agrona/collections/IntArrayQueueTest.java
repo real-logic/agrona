@@ -109,7 +109,7 @@ class IntArrayQueueTest
         assertNull(queue.peek());
 
         final Integer element = 7;
-        queue.offer(element);
+        assertTrue(queue.offer(element));
         assertTrue(queue.offer(element));
         assertEquals(element, queue.peek());
     }

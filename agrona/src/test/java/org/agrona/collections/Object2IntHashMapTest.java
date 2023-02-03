@@ -181,12 +181,12 @@ class Object2IntHashMapTest
         final int initialCapacity = 32;
         final Object2IntHashMap<Integer> map = newMap(loadFactor, initialCapacity);
         final int value = 7;
-        final Integer key = 7;
+        final Integer key = Integer.valueOf(7);
         map.put(key, value);
 
-        final Integer collisionKey = key + map.capacity();
+        final int collisionKey = key + map.capacity();
         final int collisionValue = collisionKey;
-        map.put(collisionKey, collisionValue);
+        map.put(Integer.valueOf(collisionKey), collisionValue);
 
         assertThat(map.get(key), is(value));
         assertThat(map.get(collisionKey), is(collisionValue));
@@ -508,7 +508,7 @@ class Object2IntHashMapTest
         final Object2IntHashMap<Integer> objectToIntMap = new Object2IntHashMap<>(32, loadFactor, MISSING_VALUE);
 
         final int value = 12;
-        final Integer key = 12;
+        final Integer key = Integer.valueOf(12);
 
         objectToIntMap.put(key, value);
         objectToIntMap.put(Integer.valueOf(13), 13);
