@@ -189,8 +189,7 @@ public final class SystemUtil
      */
     public static String tmpDirName()
     {
-        @SuppressWarnings("LineLength")
-        String tmpDirName = System.getProperty("java.io.tmpdir"); // lgtm [java/local-temp-file-or-directory-information-disclosure]
+        String tmpDirName = System.getProperty("java.io.tmpdir");
         if (!tmpDirName.endsWith(File.separator))
         {
             tmpDirName += File.separator;
