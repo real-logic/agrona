@@ -151,7 +151,7 @@ allprojects {
         mavenCentral()
     }
 
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy {
             failOnVersionConflict()
 
