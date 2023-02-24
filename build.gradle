@@ -183,20 +183,19 @@ subprojects {
         }
     }
 
-    tasks.withType(Jar) {
+    tasks.withType(Jar).configureEach {
         enabled = true
         includeEmptyDirs = false
     }
 
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         doFirst {
             mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
         }
 
         if (buildJavaVersion >= 9) {
             javaCompiler.set(toolchainCompiler)
-        }
-        else {
+        } else {
             options.fork = true
             def javaHome = toolchainCompiler.get().metadata.installationPath.asFile.toPath().toAbsolutePath()
             options.forkOptions.javaHome = javaHome.toFile()
@@ -280,7 +279,7 @@ project(':agrona') {
         }
     }
 
-    task generatePrimitiveSpecialisations(type: JavaExec) {
+    tasks.register('generatePrimitiveSpecialisations', JavaExec) {
         mainClass.set('org.agrona.generation.SpecialisationGenerator')
         classpath = sourceSets.main.runtimeClasspath
         outputs.dir generatedDir
@@ -309,7 +308,8 @@ project(':agrona') {
         """
     }
 
-    task sourcesJar(type: Jar, dependsOn: generatePrimitiveSpecialisations) {
+    tasks.register('sourcesJar', Jar) {
+        dependsOn generatePrimitiveSpecialisations
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
@@ -387,7 +387,8 @@ project(':agrona-agent') {
 
     jar.finalizedBy shadowJar
 
-    task sourcesJar(type: Jar, dependsOn: ':agrona:generatePrimitiveSpecialisations') {
+    tasks.register('sourcesJar', Jar) {
+        dependsOn ':agrona:generatePrimitiveSpecialisations'
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from project(':agrona').sourceSets.main.allSource
@@ -401,7 +402,8 @@ project(':agrona-agent') {
     }
     javadoc.dependsOn ':agrona:generatePrimitiveSpecialisations'
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
+    tasks.register('javadocJar', Jar) {
+        dependsOn javadoc
         archiveClassifier.set('javadoc')
         from javadoc.destinationDir
     }
@@ -477,7 +479,8 @@ project(':agrona-concurrency-tests') {
 
     jar.finalizedBy shadowJar
 
-    task concurrencyTests(type: JavaExec, group: 'verification', dependsOn: shadowJar) {
+    tasks.register('concurrencyTests', JavaExec) {
+        dependsOn shadowJar
         classpath = files(tasks.shadowJar)
         workingDir = project.buildDir
         args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -Dagrona.strict.alignment.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
@@ -487,14 +490,16 @@ project(':agrona-concurrency-tests') {
 
     def jcstressResults = project.hasProperty('jcstress-results') ? project.getProperty('jcstress-results') : ''
 
-    task parseResultsFile(type: JavaExec, group: 'verification', dependsOn: shadowJar) {
+    tasks.register('parseResultsFile', JavaExec) {
+        dependsOn shadowJar
+        group 'verification'
         classpath = files(tasks.shadowJar)
         workingDir = project.buildDir
         args = ['-p', jcstressResults, '-r', 'reports/jcstress']
     }
 }
 
-task testReport(type: TestReport) {
+tasks.register('testReport', TestReport) {
     destinationDirectory = file("$buildDir/reports/allTests")
     // Include the results from the `test` task in all subprojects
     testResults.setFrom(subprojects*.test)
@@ -513,7 +518,7 @@ tasks.named("dependencyUpdates").configure {
     }
 }
 
-task copyTestLogs(type: Copy) {
+tasks.register('copyTestLogs', Copy) {
     from '.'
     include '**/*.log'
     include '**/jcstress-results-*.gz'
