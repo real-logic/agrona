@@ -177,7 +177,7 @@ subprojects {
 
     checkstyle.toolVersion = "${checkstyleVersion}"
 
-    tasks.withType(Sign) {
+    tasks.withType(Sign).configureEach {
         onlyIf {
             isReleaseVersion && gradle.taskGraph.hasTask(tasks.publish)
         }
