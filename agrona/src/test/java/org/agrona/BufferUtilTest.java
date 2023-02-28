@@ -18,17 +18,16 @@ package org.agrona;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.mockito.InOrder;
 
 import java.nio.ByteBuffer;
 
 import static org.agrona.BitUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.condition.JRE.JAVA_9;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class BufferUtilTest
 {
@@ -61,41 +60,39 @@ class BufferUtilTest
     }
 
     @Test
-    void freeIsAnOpIfDirectBufferIsNull()
+    void freeIsANoOpIfDirectBufferIsNull()
     {
         BufferUtil.free((DirectBuffer)null);
     }
 
     @Test
-    void freeIsAnOpIfByteBufferIsNull()
+    void freeIsANoOpIfByteBufferIsNull()
     {
         BufferUtil.free((ByteBuffer)null);
     }
 
     @Test
-    void freeIsAnOpIfByteBufferIsNotDirect()
+    void freeIsANoOpIfByteBufferIsNotDirect()
     {
-        final ByteBuffer buffer = mock(ByteBuffer.class);
+        final ByteBuffer buffer = ByteBuffer.allocate(4);
 
         BufferUtil.free(buffer);
 
-        verify(buffer).isDirect();
-        verifyNoMoreInteractions(buffer);
+        buffer.put(2, (byte)101);
+        assertEquals(101, buffer.get(2));
     }
 
     @Test
-    void freeIsAnOpIfDirectBufferContainsNonDirectByteBuffer()
+    void freeIsANoOpIfDirectBufferContainsNonDirectByteBuffer()
     {
         final DirectBuffer buffer = mock(DirectBuffer.class);
-        final ByteBuffer byteBuffer = mock(ByteBuffer.class);
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         when(buffer.byteBuffer()).thenReturn(byteBuffer);
 
         BufferUtil.free(buffer);
 
-        final InOrder inOrder = inOrder(buffer, byteBuffer);
-        inOrder.verify(buffer).byteBuffer();
-        inOrder.verify(byteBuffer).isDirect();
-        inOrder.verifyNoMoreInteractions();
+        byteBuffer.put(1, (byte)5);
+        assertEquals(5, byteBuffer.get(1));
     }
 
     @Test
