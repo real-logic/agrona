@@ -23,6 +23,7 @@ import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Properties;
@@ -284,7 +285,7 @@ public final class SystemUtil
             }
         }
 
-        try (InputStream in = new URL(filenameOrUrl).openStream())
+        try (InputStream in = new URI(filenameOrUrl).toURL().openStream())
         {
             loadProperties(propertyAction, in);
         }
