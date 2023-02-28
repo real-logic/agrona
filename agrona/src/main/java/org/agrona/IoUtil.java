@@ -16,10 +16,12 @@
 package org.agrona;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -35,6 +37,7 @@ import static java.nio.file.StandardOpenOption.*;
 /**
  * Collection of IO utilities for dealing with files, especially mapping and un-mapping.
  */
+@SuppressWarnings("deprecation")
 public final class IoUtil
 {
     /**
@@ -49,8 +52,12 @@ public final class IoUtil
 
     static class MappingMethods
     {
-        static final MethodHandle MAP_ADDRESS;
+        static final MethodHandle MAP_FILE_DISPATCHER;
+        static final MethodHandle UNMAP_FILE_DISPATCHER;
+        static final Object FILE_DISPATCHER;
+        static final MethodHandle GET_FILE_DESCRIPTOR;
         static final MethodHandle MAP_WITH_SYNC_ADDRESS;
+        static final MethodHandle MAP_ADDRESS;
         static final MethodHandle UNMAP_ADDRESS;
 
         static
@@ -58,28 +65,55 @@ public final class IoUtil
             try
             {
                 final Class<?> fileChannelClass = Class.forName("sun.nio.ch.FileChannelImpl");
-                final MethodHandles.Lookup lookup = MethodHandles.lookup();
+                final Class<?> fileDispatcherClass = Class.forName("sun.nio.ch.FileDispatcher");
+                MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-                MethodHandle mapAddress;
-                MethodHandle mapWithSyncAddress;
+                Object fileDispatcher = null;
+                MethodHandle mapFileDispatcher = null;
+                MethodHandle getFD = null;
+                MethodHandle mapAddress = null;
+                MethodHandle mapWithSyncAddress = null;
+                MethodHandle unmapFileDispatcher = null;
+                MethodHandle unmapAddress = null;
                 try
                 {
-                    mapAddress = lookup.unreflect(getFileChannelMethod(
-                        fileChannelClass, "map0", int.class, long.class, long.class));
-                    mapWithSyncAddress = null;
+                    final Field implLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+                    lookup = (MethodHandles.Lookup)UnsafeAccess.UNSAFE.getObject(
+                        MethodHandles.Lookup.class, UnsafeAccess.UNSAFE.staticFieldOffset(implLookupField));
+                    fileDispatcher = lookup.unreflectGetter(fileChannelClass.getDeclaredField("nd")).invoke();
+                    getFD = lookup.unreflectGetter(fileChannelClass.getDeclaredField("fd"));
+                    mapFileDispatcher = lookup.unreflect(fileDispatcherClass.getDeclaredMethod(
+                        "map",
+                        FileDescriptor.class,
+                        int.class,
+                        long.class,
+                        long.class,
+                        boolean.class));
+                    unmapFileDispatcher = lookup.unreflect(
+                        fileDispatcherClass.getDeclaredMethod("unmap", long.class, long.class));
                 }
-                catch (final Exception ex)
+                catch (final Throwable ex)
                 {
-                    mapAddress = null;
-                    mapWithSyncAddress = lookup.unreflect(getFileChannelMethod(
-                        fileChannelClass, "map0", int.class, long.class, long.class, boolean.class));
+                    unmapAddress = lookup.unreflect(getMethod(fileChannelClass, "unmap0", long.class, long.class));
+                    try
+                    {
+                        mapWithSyncAddress = lookup.unreflect(getMethod(
+                            fileChannelClass, "map0", int.class, long.class, long.class, boolean.class));
+                    }
+                    catch (final Exception ex2)
+                    {
+                        mapAddress = lookup.unreflect(getMethod(
+                            fileChannelClass, "map0", int.class, long.class, long.class));
+                    }
                 }
 
-                MAP_ADDRESS = mapAddress;
+                MAP_FILE_DISPATCHER = mapFileDispatcher;
+                UNMAP_FILE_DISPATCHER = unmapFileDispatcher;
+                FILE_DISPATCHER = fileDispatcher;
+                GET_FILE_DESCRIPTOR = getFD;
                 MAP_WITH_SYNC_ADDRESS = mapWithSyncAddress;
-
-                UNMAP_ADDRESS = lookup.unreflect(getFileChannelMethod(
-                    fileChannelClass, "unmap0", long.class, long.class));
+                MAP_ADDRESS = mapAddress;
+                UNMAP_ADDRESS = unmapAddress;
             }
             catch (final Exception ex)
             {
@@ -87,13 +121,11 @@ public final class IoUtil
             }
         }
 
-        private static Method getFileChannelMethod(
-            final Class<?> fileChannelClass, final String name, final Class<?>... parameterTypes)
-            throws NoSuchMethodException
+        private static Method getMethod(
+            final Class<?> klass, final String name, final Class<?>... parameterTypes) throws NoSuchMethodException
         {
-            final Method method = fileChannelClass.getDeclaredMethod(name, parameterTypes);
+            final Method method = klass.getDeclaredMethod(name, parameterTypes);
             method.setAccessible(true);
-
             return method;
         }
     }
@@ -531,7 +563,13 @@ public final class IoUtil
     {
         try
         {
-            if (null != MappingMethods.MAP_ADDRESS)
+            if (null != MappingMethods.MAP_FILE_DISPATCHER)
+            {
+                final FileDescriptor fd = (FileDescriptor)MappingMethods.GET_FILE_DESCRIPTOR.invoke(fileChannel);
+                return (long)MappingMethods.MAP_FILE_DISPATCHER.invoke(
+                    MappingMethods.FILE_DISPATCHER, fd, getMode(mode), offset, length, false);
+            }
+            else if (null != MappingMethods.MAP_ADDRESS)
             {
                 return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
             }
@@ -560,7 +598,14 @@ public final class IoUtil
     {
         try
         {
-            MappingMethods.UNMAP_ADDRESS.invoke(address, length);
+            if (null != MappingMethods.UNMAP_FILE_DISPATCHER)
+            {
+                MappingMethods.UNMAP_FILE_DISPATCHER.invoke(MappingMethods.FILE_DISPATCHER, address, length);
+            }
+            else
+            {
+                MappingMethods.UNMAP_ADDRESS.invoke(address, length);
+            }
         }
         catch (final Throwable ex)
         {
