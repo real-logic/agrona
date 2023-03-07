@@ -21,10 +21,19 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
-import static org.agrona.BitUtil.*;
+import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
+import static org.agrona.BitUtil.align;
+import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
+import static org.agrona.BitUtil.fromHex;
+import static org.agrona.BitUtil.fromHexByteArray;
+import static org.agrona.BitUtil.toHex;
+import static org.agrona.BitUtil.toHexByteArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BitUtilTest
 {
@@ -60,6 +69,23 @@ class BitUtilTest
 
         assertThat(align(maxMultiple, alignment), is(maxMultiple));
         assertThat(align(MAX_VALUE, alignment), is(MIN_VALUE));
+    }
+
+    @Test
+    void shouldAlignValueToNextMultipleOfAlignmentLong()
+    {
+        final long alignment = CACHE_LINE_LENGTH;
+
+        assertThat(align(0L, alignment), is(0L));
+        assertThat(align(1L, alignment), is(alignment));
+        assertThat(align(alignment, alignment), is(alignment));
+        assertThat(align(alignment + 1, alignment), is(alignment * 2));
+
+        final long remainder = Long.MAX_VALUE % alignment;
+        final long maxMultiple = Long.MAX_VALUE - remainder;
+
+        assertThat(align(maxMultiple, alignment), is(maxMultiple));
+        assertThat(align(Long.MAX_VALUE, alignment), is(Long.MIN_VALUE));
     }
 
     @ParameterizedTest
