@@ -35,17 +35,17 @@ import static org.agrona.BufferUtil.address;
  */
 public class ExpandableDirectByteBuffer extends AbstractMutableDirectBuffer
 {
+    static final int ALIGNMENT = 32;
+
     /**
-     * Maximum length to which the underlying buffer can grow.
+     * Maximum length to which the underlying buffer can grow taking into account 32 byte alignment.
      */
-    public static final int MAX_BUFFER_LENGTH = 1024 * 1024 * 1024;
+    public static final int MAX_BUFFER_LENGTH = (int)((1L << 31) - (ALIGNMENT * 2));
 
     /**
      * Initial capacity of the buffer from which it will expand.
      */
     public static final int INITIAL_CAPACITY = 128;
-
-    static final int ALIGNMENT = 32;
 
     private ByteBuffer byteBuffer;
     private int alignmentOffset;
