@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 import static org.agrona.ExpandableDirectByteBuffer.ALIGNMENT;
+import static org.agrona.ExpandableDirectByteBuffer.MAX_BUFFER_LENGTH;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
@@ -183,5 +184,13 @@ class ExpandableDirectByteBufferTest extends MutableDirectBufferTests
 
         assertTrue(limit < buffer.capacity());
         assertNotSame(originalBuffer, buffer.byteBuffer());
+    }
+
+    @Test
+    void maxBufferLengthIsTheLastAlignedValueBeforeIntMax()
+    {
+        assertEquals(2147483584, MAX_BUFFER_LENGTH);
+        assertTrue(BitUtil.isAligned(MAX_BUFFER_LENGTH, ALIGNMENT));
+        assertEquals(Integer.MAX_VALUE - ALIGNMENT + 1, MAX_BUFFER_LENGTH + ALIGNMENT);
     }
 }
