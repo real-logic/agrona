@@ -45,7 +45,7 @@ abstract class DirectBufferDataInputTest
         });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(124325, dataInput.readInt());
         assertEquals(2353242342L, dataInput.readLong());
@@ -64,7 +64,7 @@ abstract class DirectBufferDataInputTest
         });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(124325, dataInput.readInt());
         assertEquals(2353242342L, dataInput.readLong());
@@ -87,7 +87,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(31415926535L, dataInput.readLong());
@@ -109,7 +109,7 @@ abstract class DirectBufferDataInputTest
             4,
             8
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(0, dataInput.remaining());
@@ -126,7 +126,7 @@ abstract class DirectBufferDataInputTest
         });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(new UnsafeBuffer(new byte[0]));
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         dataInput.wrap(
             buffer,
@@ -136,6 +136,27 @@ abstract class DirectBufferDataInputTest
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(0, dataInput.remaining());
+    }
+
+    @Test
+    void shouldThrowExceptionOnNegativeOffset()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), -1, 10));
+    }
+
+    @Test
+    void shouldThrowExceptionOnNegativeLength()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 1, -1));
+    }
+
+    @Test
+    void shouldThrowExceptionOnInsufficientCapacity()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 2, 10));
     }
 
     @Test
@@ -153,7 +174,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final byte[] destination = new byte[16];
         ThreadLocalRandom.current().nextBytes(destination);
@@ -179,7 +200,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final byte[] destination = new byte[64];
         dataInput.readFully(destination, 20, 8);
@@ -220,7 +241,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
             () -> dataInput.readFully(new byte[0], -1, 10)
@@ -242,7 +263,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
             () -> dataInput.readFully(new byte[0], 10, -1)
@@ -264,7 +285,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
             () -> dataInput.readFully(new byte[223], 11, 213)
@@ -286,7 +307,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         dataInput.skipBytes(3);
         assertEquals(13, dataInput.remaining());
@@ -316,7 +337,7 @@ abstract class DirectBufferDataInputTest
             4,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         dataInput.skipBytes(500);
         assertEquals(0, dataInput.remaining());
@@ -338,7 +359,7 @@ abstract class DirectBufferDataInputTest
             2,
             2
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertTrue(dataInput.readBoolean());
         assertFalse(dataInput.readBoolean());
@@ -359,7 +380,7 @@ abstract class DirectBufferDataInputTest
             4,
             2
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(-44, dataInput.readByte());
         assertEquals(-33, dataInput.readByte());
@@ -380,7 +401,7 @@ abstract class DirectBufferDataInputTest
             4,
             2
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(212, dataInput.readUnsignedByte());
         assertEquals(223, dataInput.readUnsignedByte());
@@ -401,7 +422,7 @@ abstract class DirectBufferDataInputTest
             4,
             4
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(13244, dataInput.readShort());
         assertEquals(22321, dataInput.readShort());
@@ -422,7 +443,7 @@ abstract class DirectBufferDataInputTest
             4,
             4
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(52292, dataInput.readUnsignedShort());
         assertEquals(22321, dataInput.readUnsignedShort());
@@ -435,9 +456,9 @@ abstract class DirectBufferDataInputTest
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(
             buffer,
             30,
-            20
+            14
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals('ź', dataInput.readChar());
         assertEquals('ń', dataInput.readChar());
@@ -460,7 +481,7 @@ abstract class DirectBufferDataInputTest
             1,
             8
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(352345324, dataInput.readInt());
         assertEquals(314159265, dataInput.readInt());
@@ -481,7 +502,7 @@ abstract class DirectBufferDataInputTest
             1,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(3523453241L, dataInput.readLong());
         assertEquals(1231415239265L, dataInput.readLong());
@@ -502,7 +523,7 @@ abstract class DirectBufferDataInputTest
             1,
             8
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(0.13f, dataInput.readFloat());
         assertEquals(123141523926.0f, dataInput.readFloat());
@@ -523,7 +544,7 @@ abstract class DirectBufferDataInputTest
             1,
             16
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(0.13f, dataInput.readDouble());
         assertEquals(123141523926.0f, dataInput.readDouble());
@@ -544,7 +565,7 @@ abstract class DirectBufferDataInputTest
             8,
             241
         );
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("ipsum dolor sit amet. Souffle chocolate bar fruitcake cookie toffee. Candy",
             dataInput.readLine());
@@ -560,7 +581,7 @@ abstract class DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write("Test".getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("Test", dataInput.readLine());
         assertNull(dataInput.readLine());
@@ -577,7 +598,7 @@ abstract class DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final StringBuilder actual = new StringBuilder();
         final int bytesRead = dataInput.readLine(actual);
@@ -595,7 +616,7 @@ abstract class DirectBufferDataInputTest
         });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final StringBuilder actual = new StringBuilder();
         final int bytesRead = dataInput.readLine(actual);
@@ -618,7 +639,7 @@ abstract class DirectBufferDataInputTest
             buffer,
             8,
             47);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("zażółć gęślą jaźń北查爾斯頓", dataInput.readUTF());
     }
@@ -631,7 +652,7 @@ abstract class DirectBufferDataInputTest
         });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(EOFException.class, dataInput::readUTF);
     }
@@ -642,7 +663,7 @@ abstract class DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(EOFException.class, dataInput::readUTF);
     }

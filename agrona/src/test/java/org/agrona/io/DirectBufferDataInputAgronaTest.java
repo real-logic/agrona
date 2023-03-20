@@ -59,7 +59,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
             8,
             bytesWritten
         );
-        dataInput.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         assertEquals("zażółć gęślą jaźń北查爾斯頓", dataInput.readStringUTF8());
     }
@@ -70,7 +70,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class, dataInput::readStringUTF8);
     }
@@ -81,7 +81,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class, dataInput::readStringUTF8);
     }
@@ -100,7 +100,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
             8,
             bytesWritten
         );
-        dataInput.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         assertEquals("Cupcake ipsum dolor sit amet.", dataInput.readStringAscii());
     }
@@ -112,7 +112,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class, dataInput::readStringAscii);
     }
@@ -123,7 +123,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class, dataInput::readStringAscii);
     }
@@ -142,7 +142,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
             8,
             bytesWritten
         );
-        dataInput.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         final StringBuilder actual = new StringBuilder();
         dataInput.readStringAscii(actual);

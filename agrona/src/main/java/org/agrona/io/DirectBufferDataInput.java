@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
  * Note about byte ordering: by default, this class conforms to {@link DataInput} contract and uses
  * {@link ByteOrder#BIG_ENDIAN} byte order which allows it to read data produced by JDK {@link java.io.DataOutput}
  * implementations. Agrona buffers use {@link ByteOrder#LITTLE_ENDIAN} (unless overridden). Use
- * {@link #setByteOrder(ByteOrder)} method to switch between JDK and Agrona compatibility.
+ * {@link #byteOrder(ByteOrder)} method to switch between JDK and Agrona compatibility.
 s */
 public class DirectBufferDataInput implements DataInput
 {
@@ -88,6 +88,8 @@ public class DirectBufferDataInput implements DataInput
             throw new NullPointerException("buffer cannot be null");
         }
 
+        boundsCheckWrap(offset, length, buffer.capacity());
+
         this.buffer = buffer;
         this.length = length + offset;
         this.position = offset;
@@ -101,7 +103,7 @@ public class DirectBufferDataInput implements DataInput
      *
      * @param byteOrder of the underlying buffer.
      */
-    public void setByteOrder(final ByteOrder byteOrder)
+    public void byteOrder(final ByteOrder byteOrder)
     {
         this.byteOrder = byteOrder;
     }
@@ -382,7 +384,7 @@ public class DirectBufferDataInput implements DataInput
      * Reads in a string that has been encoded using UTF-8 format by
      * {@link org.agrona.MutableDirectBuffer#putStringUtf8(int, String)}.
      * <p>
-     * This is a thin wrapper over {@link DirectBuffer#getStringUtf8(int, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringUtf8(int, ByteOrder)}. Honours byte order set by {@link #byteOrder(ByteOrder)}
      *
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -398,7 +400,7 @@ public class DirectBufferDataInput implements DataInput
      * Reads in a string that has been encoded using ASCII format by
      * {@link org.agrona.MutableDirectBuffer#putStringAscii(int, CharSequence)}.
      * <p>
-     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, ByteOrder)}. Honours byte order set by {@link #byteOrder(ByteOrder)}
      *
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -412,7 +414,7 @@ public class DirectBufferDataInput implements DataInput
 
     /**
      * Get a String from bytes encoded in ASCII format that is length prefixed and append to an {@link Appendable}.
-     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, Appendable, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, Appendable, ByteOrder)}. Honours byte order set by {@link #byteOrder(ByteOrder)}
      *
      * @param appendable to append the chars to.
      * @return the number of bytes copied.
@@ -432,6 +434,25 @@ public class DirectBufferDataInput implements DataInput
         {
             throw new EOFException("position=" + position + " requestedReadBytes=" +
                     requestedReadBytes + " capacity=" + length);
+        }
+    }
+
+    private static void boundsCheckWrap(final int offset, final int length, final int capacity)
+    {
+        if (offset < 0)
+        {
+            throw new IllegalArgumentException("invalid offset: " + offset);
+        }
+
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("invalid length: " + length);
+        }
+
+        if ((offset > capacity - length) || (length > capacity - offset))
+        {
+            throw new IllegalArgumentException(
+                    "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
         }
     }
 }
