@@ -83,6 +83,21 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     }
 
     /**
+     * Copy construct a new map from an existing one.
+     *
+     * @param mapToCopy for construction.
+     */
+    public Object2ObjectHashMap(final Object2ObjectHashMap<K, V> mapToCopy)
+    {
+        this.loadFactor = mapToCopy.loadFactor;
+        this.resizeThreshold = mapToCopy.resizeThreshold;
+        this.size = mapToCopy.size;
+        this.shouldAvoidAllocation = mapToCopy.shouldAvoidAllocation;
+
+        entries = mapToCopy.entries.clone();
+    }
+
+    /**
      * Get the load factor applied for resize operations.
      *
      * @return the load factor applied for resize operations.
