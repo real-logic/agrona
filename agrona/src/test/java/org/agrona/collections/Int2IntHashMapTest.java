@@ -35,8 +35,6 @@ import java.util.stream.IntStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -461,8 +459,8 @@ class Int2IntHashMapTest
         final int testValue = 7;
         final int testValue2 = 8;
 
-        assertThat(map.computeIfPresent(testKey, (k, v) -> testValue), nullValue());
-        assertThat(map.get(testKey), nullValue());
+        assertNull(map.computeIfPresent(testKey, (k, v) -> testValue));
+        assertNull(map.get(testKey));
 
         map.put(testKey, testValue);
         assertThat(map.computeIfPresent(testKey, (k, v) -> testValue2), is(testValue2));
@@ -691,7 +689,7 @@ class Int2IntHashMapTest
         }
 
         final String mapAsAString = "{19=1019, 1=1001, 11=1011, 7=1007, 3=1003, 12=1012}";
-        assertThat(map.toString(), equalTo(mapAsAString));
+        assertEquals(mapAsAString, map.toString());
     }
 
     @Test
@@ -751,7 +749,7 @@ class Int2IntHashMapTest
         }
 
         final Int2IntHashMap mapCopy = new Int2IntHashMap(map);
-        assertThat(mapCopy, is(map));
+        assertEquals(map, mapCopy);
     }
 
     @Test

@@ -20,8 +20,6 @@ import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -205,7 +203,6 @@ class Object2ObjectHashMapTest
         }
 
         final Object2ObjectHashMap<String, Integer> mapCopy = new Object2ObjectHashMap<>(map);
-        assertThat(mapCopy, is(map));
+        assertEquals(map, mapCopy);
     }
-
 }
