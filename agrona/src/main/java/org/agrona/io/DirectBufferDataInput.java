@@ -31,7 +31,7 @@ import java.nio.ByteOrder;
  * {@link ByteOrder#BIG_ENDIAN} byte order which allows it to read data produced by JDK {@link java.io.DataOutput}
  * implementations. Agrona buffers use {@link ByteOrder#LITTLE_ENDIAN} (unless overridden). Use
  * {@link #byteOrder(ByteOrder)} method to switch between JDK and Agrona compatibility.
-s */
+ */
 public class DirectBufferDataInput implements DataInput
 {
 
