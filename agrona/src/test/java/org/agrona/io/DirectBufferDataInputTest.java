@@ -133,22 +133,22 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowExceptionOnNegativeOffset()
     {
-        assertThrows(IllegalArgumentException.class, () ->
-        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), -1, 10));
+        assertThrows(IllegalArgumentException.class,
+            () -> new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), -1, 10));
     }
 
     @Test
     void shouldThrowExceptionOnNegativeLength()
     {
-        assertThrows(IllegalArgumentException.class, () ->
-        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 1, -1));
+        assertThrows(IllegalArgumentException.class,
+            () -> new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 1, -1));
     }
 
     @Test
     void shouldThrowExceptionOnInsufficientCapacity()
     {
-        assertThrows(IllegalArgumentException.class, () ->
-        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 2, 10));
+        assertThrows(IllegalArgumentException.class,
+            () -> new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 2, 10));
     }
 
     @Test

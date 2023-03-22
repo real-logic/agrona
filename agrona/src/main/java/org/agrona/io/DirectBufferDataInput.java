@@ -426,8 +426,8 @@ public class DirectBufferDataInput implements DataInput
         final long resultingPosition = position + requestedReadBytes;
         if (resultingPosition > length)
         {
-            throw new EOFException("position=" + position + " requestedReadBytes=" +
-                    requestedReadBytes + " capacity=" + length);
+            throw new EOFException(
+                "position=" + position + " requestedReadBytes=" + requestedReadBytes + " capacity=" + length);
         }
     }
 
@@ -446,7 +446,7 @@ public class DirectBufferDataInput implements DataInput
         if ((offset > capacity - length) || (length > capacity - offset))
         {
             throw new IllegalArgumentException(
-                    "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
+                "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
         }
     }
 }
