@@ -24,17 +24,17 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 
 /**
- * A data input implementation that reads from a DirectBuffer. It adheres to the contract defined in DataInput
+ * A data input implementation that reads from a DirectBuffer. It adheres to the contract defined in {@link DataInput}
  * description including throwing checked exception on end of file. It adds few more methods to read strings without
  * allocations.
+ * <p>
  * Note about byte ordering: by default, this class conforms to {@link DataInput} contract and uses
  * {@link ByteOrder#BIG_ENDIAN} byte order which allows it to read data produced by JDK {@link java.io.DataOutput}
  * implementations. Agrona buffers use {@link ByteOrder#LITTLE_ENDIAN} (unless overridden). Use
- * {@link #setByteOrder(ByteOrder)} method to switch between JDK and Agrona compatibility.
-s */
+ * {@link #byteOrder(ByteOrder)} method to switch between JDK and Agrona compatibility.
+ */
 public class DirectBufferDataInput implements DataInput
 {
-
     private DirectBuffer buffer;
 
     private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
@@ -95,14 +95,19 @@ public class DirectBufferDataInput implements DataInput
 
     /**
      * Sets the byte order. By default, this class conforms to {@link DataInput} contract and uses
-     * {@link ByteOrder#BIG_ENDIAN} which allows it to read data produced by JDK {@link java.io.DataOutput} implementations.
-     * Agrona buffers use {@link ByteOrder#LITTLE_ENDIAN} (unless overridden).
+     * {@link ByteOrder#BIG_ENDIAN} which allows it to read data produced by JDK {@link java.io.DataOutput}
+     * implementations. Agrona buffers use {@link ByteOrder#LITTLE_ENDIAN} (unless overridden).
      * Use this method to switch compatibility between these two worlds.
      *
      * @param byteOrder of the underlying buffer.
      */
-    public void setByteOrder(final ByteOrder byteOrder)
+    public void byteOrder(final ByteOrder byteOrder)
     {
+        if (null == byteOrder)
+        {
+            throw new IllegalArgumentException("byteOrder cannot be null");
+        }
+
         this.byteOrder = byteOrder;
     }
 
@@ -119,7 +124,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public void readFully(final byte[] destination) throws EOFException
     {
         if (destination == null)
@@ -133,7 +137,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public void readFully(final byte[] destination, final int destinationOffset, final int length) throws EOFException
     {
         if (destination == null)
@@ -154,7 +157,7 @@ public class DirectBufferDataInput implements DataInput
         if (destinationOffset + length > destination.length)
         {
             throw new IndexOutOfBoundsException(
-                    "destinationOffset=" + destinationOffset + " length=" + length + " not valid for length=" + length);
+                "destinationOffset=" + destinationOffset + " length=" + length + " not valid for length=" + length);
         }
 
         boundsCheck0(length);
@@ -165,7 +168,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public int skipBytes(final int n)
     {
         final int toSkip = Math.min(n, remaining());
@@ -177,7 +179,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public boolean readBoolean() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_BYTE);
@@ -188,7 +189,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public byte readByte() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_BYTE);
@@ -199,7 +199,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public int readUnsignedByte() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_BYTE);
@@ -210,7 +209,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public short readShort() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_SHORT);
@@ -224,7 +222,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public int readUnsignedShort() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_SHORT);
@@ -238,7 +235,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public char readChar() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_CHAR);
@@ -252,7 +248,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public int readInt() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_INT);
@@ -266,7 +261,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public long readLong() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_LONG);
@@ -280,7 +274,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public float readFloat() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_FLOAT);
@@ -294,7 +287,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public double readDouble() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_DOUBLE);
@@ -308,7 +300,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public String readLine() throws IOException
     {
         if (remaining() == 0)
@@ -324,7 +315,8 @@ public class DirectBufferDataInput implements DataInput
 
     /**
      * Reads the next line of text from the input stream. It reads successive bytes, converting each byte separately
-     * into a character, until it encounters a line terminator or end of file; Adheres to the contract of {@link DataInput#readLine()}.
+     * into a character, until it encounters a line terminator or end of file; Adheres to the contract of
+     * {@link DataInput#readLine()}.
      *
      * @param appendable to append the chars to.
      * @return number of bytes the stream advanced while reading the line (including line terminators).
@@ -365,7 +357,6 @@ public class DirectBufferDataInput implements DataInput
     /**
      * {@inheritDoc}
      */
-    @Override
     public String readUTF() throws EOFException
     {
         boundsCheck0(BitUtil.SIZE_OF_SHORT);
@@ -382,7 +373,8 @@ public class DirectBufferDataInput implements DataInput
      * Reads in a string that has been encoded using UTF-8 format by
      * {@link org.agrona.MutableDirectBuffer#putStringUtf8(int, String)}.
      * <p>
-     * This is a thin wrapper over {@link DirectBuffer#getStringUtf8(int, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringUtf8(int, ByteOrder)}. Honours byte order set by
+     * {@link #byteOrder(ByteOrder)}.
      *
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -398,7 +390,8 @@ public class DirectBufferDataInput implements DataInput
      * Reads in a string that has been encoded using ASCII format by
      * {@link org.agrona.MutableDirectBuffer#putStringAscii(int, CharSequence)}.
      * <p>
-     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, ByteOrder)}. Honours byte order set by
+     * {@link #byteOrder(ByteOrder)}
      *
      * @return the String as represented by the ASCII encoded bytes.
      */
@@ -412,7 +405,8 @@ public class DirectBufferDataInput implements DataInput
 
     /**
      * Get a String from bytes encoded in ASCII format that is length prefixed and append to an {@link Appendable}.
-     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, Appendable, ByteOrder)}. Honours byte order set by {@link #setByteOrder(ByteOrder)}
+     * This is a thin wrapper over {@link DirectBuffer#getStringAscii(int, Appendable, ByteOrder)}. Honours byte order
+     * set by {@link #byteOrder(ByteOrder)}.
      *
      * @param appendable to append the chars to.
      * @return the number of bytes copied.
@@ -431,7 +425,7 @@ public class DirectBufferDataInput implements DataInput
         if (resultingPosition > length)
         {
             throw new EOFException("position=" + position + " requestedReadBytes=" +
-                    requestedReadBytes + " capacity=" + length);
+                requestedReadBytes + " capacity=" + length);
         }
     }
 }

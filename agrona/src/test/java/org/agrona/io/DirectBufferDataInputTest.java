@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 abstract class DirectBufferDataInputTest
 {
-
     abstract UnsafeBuffer toUnsafeBuffer(ThrowingConsumer<DataOutput> dataProvider) throws Throwable;
 
     abstract ByteOrder byteOrder();
@@ -37,15 +36,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(124325, dataInput.readInt());
         assertEquals(2353242342L, dataInput.readLong());
@@ -56,15 +56,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBuffer() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(124325, dataInput.readInt());
         assertEquals(2353242342L, dataInput.readLong());
@@ -75,19 +76,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(31415926535L, dataInput.readLong());
@@ -97,19 +95,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetAndLengthUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            8
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 8);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(0, dataInput.remaining());
@@ -118,21 +113,18 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetAndLength() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(new UnsafeBuffer(new byte[0]));
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
-        dataInput.wrap(
-            buffer,
-            4,
-            8
-        );
+        dataInput.wrap(buffer, 4, 8);
 
         assertEquals(2353242342L, dataInput.readLong());
         assertEquals(0, dataInput.remaining());
@@ -141,19 +133,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFully() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         final byte[] destination = new byte[16];
         ThreadLocalRandom.current().nextBytes(destination);
@@ -167,19 +156,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFullyWithDestinationAndOffset() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         final byte[] destination = new byte[64];
         dataInput.readFully(destination, 20, 8);
@@ -195,9 +181,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowNPEIfDestinationIsNull() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
 
@@ -208,85 +192,70 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowIOOBEIfOffsetIsNegative() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
-            () -> dataInput.readFully(new byte[0], -1, 10)
-        );
+            () -> dataInput.readFully(new byte[0], -1, 10));
     }
 
     @Test
     void shouldThrowIOOBEIfLengthIsNegative() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
-            () -> dataInput.readFully(new byte[0], 10, -1)
-        );
+            () -> dataInput.readFully(new byte[0], 10, -1));
     }
 
     @Test
     void shouldThrowIOOBEIfOffsetPlusLengthIsGreaterThanArraySize() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(IndexOutOfBoundsException.class,
-            () -> dataInput.readFully(new byte[223], 11, 213)
-        );
+            () -> dataInput.readFully(new byte[223], 11, 213));
     }
 
     @Test
     void shouldSkipBytes() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         dataInput.skipBytes(3);
         assertEquals(13, dataInput.remaining());
@@ -304,19 +273,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldSkipBytesButNotPastBufferSize() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(124325);
-            out.writeLong(2353242342L);
-            out.writeLong(31415926535L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(124325);
+                out.writeLong(2353242342L);
+                out.writeLong(31415926535L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 16);
+        dataInput.byteOrder(byteOrder());
 
         dataInput.skipBytes(500);
         assertEquals(0, dataInput.remaining());
@@ -325,20 +291,17 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadBoolean() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeBoolean(false);
-            out.writeBoolean(false);
-            out.writeBoolean(true);
-            out.writeBoolean(false);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeBoolean(false);
+                out.writeBoolean(false);
+                out.writeBoolean(true);
+                out.writeBoolean(false);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            2,
-            2
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 2, 2);
+        dataInput.byteOrder(byteOrder());
 
         assertTrue(dataInput.readBoolean());
         assertFalse(dataInput.readBoolean());
@@ -347,19 +310,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadByte() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(0);
-            out.writeByte((byte)-44);
-            out.writeByte((byte)223);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(0);
+                out.writeByte((byte)-44);
+                out.writeByte((byte)223);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            2
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 2);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(-44, dataInput.readByte());
         assertEquals(-33, dataInput.readByte());
@@ -368,19 +328,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUnsignedByte() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(0);
-            out.writeByte((byte)-44);
-            out.writeByte((byte)223);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(0);
+                out.writeByte((byte)-44);
+                out.writeByte((byte)223);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            2
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 2);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(212, dataInput.readUnsignedByte());
         assertEquals(223, dataInput.readUnsignedByte());
@@ -389,19 +346,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadShort() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(0);
-            out.writeShort((short)13244);
-            out.writeShort((short)22321);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(0);
+                out.writeShort((short)13244);
+                out.writeShort((short)22321);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            4
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 4);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(13244, dataInput.readShort());
         assertEquals(22321, dataInput.readShort());
@@ -410,19 +364,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUnsignedShort() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeInt(0);
-            out.writeShort((short)-13244);
-            out.writeShort((short)22321);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeInt(0);
+                out.writeShort((short)-13244);
+                out.writeShort((short)22321);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            4,
-            4
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 4, 4);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(52292, dataInput.readUnsignedShort());
         assertEquals(22321, dataInput.readUnsignedShort());
@@ -431,13 +382,9 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadChar() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            30,
-            20
-        );
-        dataInput.setByteOrder(byteOrder());
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 20);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals('ź', dataInput.readChar());
         assertEquals('ń', dataInput.readChar());
@@ -448,19 +395,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadInt() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeByte(0);
-            out.writeInt(352345324);
-            out.writeInt(314159265);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeByte(0);
+                out.writeInt(352345324);
+                out.writeInt(314159265);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            1,
-            8
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 1, 8);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(352345324, dataInput.readInt());
         assertEquals(314159265, dataInput.readInt());
@@ -469,19 +413,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadLong() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeByte(0);
-            out.writeLong(3523453241L);
-            out.writeLong(1231415239265L);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeByte(0);
+                out.writeLong(3523453241L);
+                out.writeLong(1231415239265L);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            1,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 1, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(3523453241L, dataInput.readLong());
         assertEquals(1231415239265L, dataInput.readLong());
@@ -490,19 +431,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFloat() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeByte(0);
-            out.writeFloat(0.13f);
-            out.writeFloat(123141523926.0f);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeByte(0);
+                out.writeFloat(0.13f);
+                out.writeFloat(123141523926.0f);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            1,
-            8
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 1, 8);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(0.13f, dataInput.readFloat());
         assertEquals(123141523926.0f, dataInput.readFloat());
@@ -511,19 +449,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadDouble() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeByte(0);
-            out.writeDouble(0.13f);
-            out.writeDouble(123141523926.0f);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeByte(0);
+                out.writeDouble(0.13f);
+                out.writeDouble(123141523926.0f);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            1,
-            16
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 1, 16);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals(0.13f, dataInput.readDouble());
         assertEquals(123141523926.0f, dataInput.readDouble());
@@ -537,14 +472,10 @@ abstract class DirectBufferDataInputTest
             "Bear claw apple pie danish carrot cake carrot cake halvah danish carrot cake. Brownie\r" +
             "danish toffee topping toffee. Sweet sesame snaps chocolate bar jujubes muffin shortbread.";
 
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            8,
-            241
-        );
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 8, 241);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("ipsum dolor sit amet. Souffle chocolate bar fruitcake cookie toffee. Candy",
             dataInput.readLine());
@@ -557,10 +488,10 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReturnNullIfThereIsNothingToRead() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write("Test".getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write("Test".getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("Test", dataInput.readLine());
         assertNull(dataInput.readLine());
@@ -574,10 +505,10 @@ abstract class DirectBufferDataInputTest
             "Bear claw apple pie danish carrot cake carrot cake halvah danish carrot cake. Brownie\r" +
             "danish toffee topping toffee. Sweet sesame snaps chocolate bar jujubes muffin shortbread.";
 
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final StringBuilder actual = new StringBuilder();
         final int bytesRead = dataInput.readLine(actual);
@@ -590,12 +521,10 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadLinesIntoAppendableWhenEmpty() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         final StringBuilder actual = new StringBuilder();
         final int bytesRead = dataInput.readLine(actual);
@@ -607,18 +536,16 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUtf() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-            out.writeLong(0);
-            out.writeUTF("zażółć gęślą jaźń北查爾斯頓");
-            out.writeLong(0);
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
+            {
+                out.writeLong(0);
+                out.writeUTF("zażółć gęślą jaźń北查爾斯頓");
+                out.writeLong(0);
+            });
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            8,
-            47);
-        dataInput.setByteOrder(byteOrder());
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 8, 47);
+        dataInput.byteOrder(byteOrder());
 
         assertEquals("zażółć gęślą jaźń北查爾斯頓", dataInput.readUTF());
     }
@@ -626,12 +553,10 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowWhenCannotReadSizeOfUtfString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(EOFException.class, dataInput::readUTF);
     }
@@ -639,10 +564,10 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowExceptionWhenCannotReadString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
-        dataInput.setByteOrder(byteOrder());
+        dataInput.byteOrder(byteOrder());
 
         assertThrows(EOFException.class, dataInput::readUTF);
     }
