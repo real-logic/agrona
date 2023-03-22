@@ -23,7 +23,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.nio.ByteOrder;
 
-public class DirectBufferDataInputJDKTest extends DirectBufferDataInputTest
+class DirectBufferDataInputJDKTest extends DirectBufferDataInputTest
 {
     UnsafeBuffer toUnsafeBuffer(final ThrowingConsumer<DataOutput> dataProvider) throws Throwable
     {
@@ -36,7 +36,6 @@ public class DirectBufferDataInputJDKTest extends DirectBufferDataInputTest
         return new UnsafeBuffer(baos.toByteArray());
     }
 
-    @Override
     ByteOrder byteOrder()
     {
         return ByteOrder.BIG_ENDIAN;

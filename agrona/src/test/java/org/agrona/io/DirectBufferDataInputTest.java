@@ -37,7 +37,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -56,7 +57,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBuffer() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -75,7 +77,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -97,7 +100,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetAndLengthUsingConstructor() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -118,7 +122,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldWrapBufferWithOffsetAndLength() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -162,7 +167,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFully() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -188,7 +194,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFullyWithDestinationAndOffset() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -216,9 +223,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowNPEIfDestinationIsNull() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
 
@@ -229,7 +234,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowIOOBEIfOffsetIsNegative() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -251,7 +257,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowIOOBEIfLengthIsNegative() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -273,7 +280,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowIOOBEIfOffsetPlusLengthIsGreaterThanArraySize() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -295,7 +303,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldSkipBytes() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -325,7 +334,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldSkipBytesButNotPastBufferSize() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(124325);
             out.writeLong(2353242342L);
@@ -346,7 +356,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadBoolean() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeBoolean(false);
             out.writeBoolean(false);
@@ -368,7 +379,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadByte() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(0);
             out.writeByte((byte)-44);
@@ -389,7 +401,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUnsignedByte() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(0);
             out.writeByte((byte)-44);
@@ -410,7 +423,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadShort() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(0);
             out.writeShort((short)13244);
@@ -431,7 +445,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUnsignedShort() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeInt(0);
             out.writeShort((short)-13244);
@@ -452,12 +467,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadChar() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            30,
-            14
-        );
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 14);
         dataInput.byteOrder(byteOrder());
 
         assertEquals('ź', dataInput.readChar());
@@ -469,7 +480,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadInt() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeByte(0);
             out.writeInt(352345324);
@@ -490,7 +502,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadLong() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeByte(0);
             out.writeLong(3523453241L);
@@ -511,7 +524,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadFloat() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeByte(0);
             out.writeFloat(0.13f);
@@ -532,7 +546,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadDouble() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeByte(0);
             out.writeDouble(0.13f);
@@ -558,7 +573,7 @@ abstract class DirectBufferDataInputTest
             "Bear claw apple pie danish carrot cake carrot cake halvah danish carrot cake. Brownie\r" +
             "danish toffee topping toffee. Sweet sesame snaps chocolate bar jujubes muffin shortbread.";
 
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(
             buffer,
@@ -578,7 +593,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReturnNullIfThereIsNothingToRead() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write("Test".getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write("Test".getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -595,7 +610,7 @@ abstract class DirectBufferDataInputTest
             "Bear claw apple pie danish carrot cake carrot cake halvah danish carrot cake. Brownie\r" +
             "danish toffee topping toffee. Sweet sesame snaps chocolate bar jujubes muffin shortbread.";
 
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.write(text.getBytes(StandardCharsets.US_ASCII)));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -611,9 +626,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadLinesIntoAppendableWhenEmpty() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -628,7 +641,8 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldReadUtf() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
+        final UnsafeBuffer buffer = toUnsafeBuffer(
+            (out) ->
         {
             out.writeLong(0);
             out.writeUTF("zażółć gęślą jaźń北查爾斯頓");
@@ -647,9 +661,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowWhenCannotReadSizeOfUtfString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {
-        });
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -660,7 +672,7 @@ abstract class DirectBufferDataInputTest
     @Test
     void shouldThrowExceptionWhenCannotReadString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
