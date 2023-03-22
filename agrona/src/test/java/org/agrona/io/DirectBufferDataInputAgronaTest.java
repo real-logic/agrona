@@ -27,9 +27,8 @@ import java.nio.ByteOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
+class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
 {
-
     UnsafeBuffer toUnsafeBuffer(final ThrowingConsumer<DataOutput> dataProvider) throws Throwable
     {
         final ExpandableArrayBuffer out = new ExpandableArrayBuffer();
@@ -54,11 +53,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final int bytesWritten = buffer.putStringUtf8(8, "zażółć gęślą jaźń北查爾斯頓");
         buffer.putLong(8 + bytesWritten, 0);
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            8,
-            bytesWritten
-        );
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 8, bytesWritten);
         dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         assertEquals("zażółć gęślą jaźń北查爾斯頓", dataInput.readStringUTF8());
@@ -95,11 +90,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final int bytesWritten = buffer.putStringAscii(8, "Cupcake ipsum dolor sit amet.");
         buffer.putLong(8 + bytesWritten, 0);
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            8,
-            bytesWritten
-        );
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 8, bytesWritten);
         dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         assertEquals("Cupcake ipsum dolor sit amet.", dataInput.readStringAscii());
@@ -108,8 +99,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
     @Test
     void shouldThrowWhenCannotReadSizeOfAsciiString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out ->
-        {});
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> {});
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -120,7 +110,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
     @Test
     void shouldThrowExceptionWhenCannotReadAsciiString() throws Throwable
     {
-        final UnsafeBuffer buffer = toUnsafeBuffer(out -> out.writeShort(42));
+        final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeShort(42));
 
         final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer);
         dataInput.byteOrder(byteOrder());
@@ -137,11 +127,7 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
         final int bytesWritten = buffer.putStringAscii(8, "Cupcake ipsum dolor sit amet.");
         buffer.putLong(8 + bytesWritten, 0);
 
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(
-            buffer,
-            8,
-            bytesWritten
-        );
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 8, bytesWritten);
         dataInput.byteOrder(ByteOrder.LITTLE_ENDIAN);
 
         final StringBuilder actual = new StringBuilder();
@@ -152,7 +138,6 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
 
     private static class DataOutputForTest implements DataOutput
     {
-
         private final ExpandableArrayBuffer out;
         private final MutableInteger index;
 
@@ -162,90 +147,77 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
             this.index = index;
         }
 
-        @Override
         public void write(final int b)
         {
             out.putByte(index.get(), (byte)b);
             index.increment();
         }
 
-        @Override
         public void write(final byte[] b)
         {
             out.putBytes(index.get(), b);
             index.addAndGet(b.length);
         }
 
-        @Override
         public void write(final byte[] b, final int off, final int len)
         {
             out.putBytes(index.get(), b, off, len);
             index.addAndGet(len);
         }
 
-        @Override
         public void writeBoolean(final boolean v)
         {
             out.putByte(index.get(), (byte)(v ? 1 : 0));
             index.increment();
         }
 
-        @Override
         public void writeByte(final int v)
         {
             out.putByte(index.get(), (byte)v);
             index.increment();
         }
 
-        @Override
         public void writeShort(final int v)
         {
             out.putShort(index.get(), (short)v);
             index.addAndGet(2);
         }
 
-        @Override
         public void writeChar(final int v)
         {
             out.putChar(index.get(), (char)v);
             index.addAndGet(2);
         }
 
-        @Override
         public void writeInt(final int v)
         {
             out.putInt(index.get(), v);
             index.addAndGet(4);
         }
 
-        @Override
         public void writeLong(final long v)
         {
             out.putLong(index.get(), v);
             index.addAndGet(8);
         }
 
-        @Override
         public void writeFloat(final float v)
         {
             out.putFloat(index.get(), v);
             index.addAndGet(4);
         }
 
-        @Override
         public void writeDouble(final double v)
         {
             out.putDouble(index.get(), v);
             index.addAndGet(8);
         }
 
-        @Override
         public void writeBytes(final String s)
         {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void writeChars(final String s)
         {
             for (int i = 0; i < s.length(); i++)
@@ -256,7 +228,6 @@ public class DirectBufferDataInputAgronaTest extends DirectBufferDataInputTest
             }
         }
 
-        @Override
         public void writeUTF(final String s)
         {
             final int startingPosition = index.get();

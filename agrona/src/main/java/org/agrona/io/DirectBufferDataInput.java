@@ -35,7 +35,6 @@ import java.nio.ByteOrder;
  */
 public class DirectBufferDataInput implements DataInput
 {
-
     private DirectBuffer buffer;
 
     private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
@@ -160,7 +159,7 @@ public class DirectBufferDataInput implements DataInput
         if (destinationOffset + length > destination.length)
         {
             throw new IndexOutOfBoundsException(
-                    "destinationOffset=" + destinationOffset + " length=" + length + " not valid for length=" + length);
+                "destinationOffset=" + destinationOffset + " length=" + length + " not valid for length=" + length);
         }
 
         boundsCheck0(length);
