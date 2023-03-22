@@ -404,7 +404,7 @@ abstract class DirectBufferDataInputTest
     void shouldReadChar() throws Throwable
     {
         final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 20);
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 14);
         dataInput.byteOrder(byteOrder());
 
         assertEquals('ź', dataInput.readChar());
