@@ -88,6 +88,8 @@ public class DirectBufferDataInput implements DataInput
             throw new NullPointerException("buffer cannot be null");
         }
 
+        boundsCheckWrap(offset, length, buffer.capacity());
+
         this.buffer = buffer;
         this.length = length + offset;
         this.position = offset;
@@ -425,7 +427,26 @@ public class DirectBufferDataInput implements DataInput
         if (resultingPosition > length)
         {
             throw new EOFException("position=" + position + " requestedReadBytes=" +
-                requestedReadBytes + " capacity=" + length);
+                    requestedReadBytes + " capacity=" + length);
+        }
+    }
+
+    private static void boundsCheckWrap(final int offset, final int length, final int capacity)
+    {
+        if (offset < 0)
+        {
+            throw new IllegalArgumentException("invalid offset: " + offset);
+        }
+
+        if (length < 0)
+        {
+            throw new IllegalArgumentException("invalid length: " + length);
+        }
+
+        if ((offset > capacity - length) || (length > capacity - offset))
+        {
+            throw new IllegalArgumentException(
+                    "offset=" + offset + " length=" + length + " not valid for capacity=" + capacity);
         }
     }
 }

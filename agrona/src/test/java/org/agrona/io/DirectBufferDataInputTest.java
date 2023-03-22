@@ -131,6 +131,27 @@ abstract class DirectBufferDataInputTest
     }
 
     @Test
+    void shouldThrowExceptionOnNegativeOffset()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), -1, 10));
+    }
+
+    @Test
+    void shouldThrowExceptionOnNegativeLength()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 1, -1));
+    }
+
+    @Test
+    void shouldThrowExceptionOnInsufficientCapacity()
+    {
+        assertThrows(IllegalArgumentException.class, () ->
+        new DirectBufferDataInput(new UnsafeBuffer(new byte[11]), 2, 10));
+    }
+
+    @Test
     void shouldReadFully() throws Throwable
     {
         final UnsafeBuffer buffer = toUnsafeBuffer(
@@ -383,7 +404,7 @@ abstract class DirectBufferDataInputTest
     void shouldReadChar() throws Throwable
     {
         final UnsafeBuffer buffer = toUnsafeBuffer((out) -> out.writeChars("zażółć gęślą jaźń北查爾斯頓"));
-        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 20);
+        final DirectBufferDataInput dataInput = new DirectBufferDataInput(buffer, 30, 14);
         dataInput.byteOrder(byteOrder());
 
         assertEquals('ź', dataInput.readChar());
