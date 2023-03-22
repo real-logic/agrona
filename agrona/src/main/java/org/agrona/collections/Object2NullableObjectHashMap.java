@@ -49,6 +49,16 @@ public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, 
         super(initialCapacity, loadFactor, shouldAvoidAllocation);
     }
 
+    /**
+     * Copy construct a new map from an existing one.
+     *
+     * @param mapToCopy for construction.
+     */
+    public Object2NullableObjectHashMap(final Object2ObjectHashMap<K, V> mapToCopy)
+    {
+        super(mapToCopy);
+    }
+
     protected Object mapNullValue(final Object value)
     {
         return value == null ? NullReference.INSTANCE : value;

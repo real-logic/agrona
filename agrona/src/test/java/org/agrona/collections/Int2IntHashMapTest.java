@@ -740,6 +740,21 @@ class Int2IntHashMapTest
     }
 
     @Test
+    void shouldCopyConstructAndBeEqual()
+    {
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
+
+        final Int2IntHashMap map = new Int2IntHashMap(Integer.MIN_VALUE);
+        for (final int testEntry : testEntries)
+        {
+            map.put(testEntry, testEntry + 1);
+        }
+
+        final Int2IntHashMap mapCopy = new Int2IntHashMap(map);
+        assertThat(mapCopy, is(map));
+    }
+
+    @Test
     void shouldToArray()
     {
         final Int2IntHashMap map = new Int2IntHashMap(-127);

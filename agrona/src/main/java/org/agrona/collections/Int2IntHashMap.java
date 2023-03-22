@@ -96,6 +96,22 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Copy construct a new map from an existing one.
+     *
+     * @param mapToCopy for construction.
+     */
+    public Int2IntHashMap(final Int2IntHashMap mapToCopy)
+    {
+        this.loadFactor = mapToCopy.loadFactor;
+        this.resizeThreshold = mapToCopy.resizeThreshold;
+        this.size = mapToCopy.size;
+        this.shouldAvoidAllocation = mapToCopy.shouldAvoidAllocation;
+        this.missingValue = mapToCopy.missingValue;
+
+        entries = mapToCopy.entries.clone();
+    }
+
+    /**
      * The value to be used as a null marker in the map.
      *
      * @return value to be used as a null marker in the map.

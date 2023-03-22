@@ -20,7 +20,10 @@ import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Object2ObjectHashMapTest
 {
@@ -189,4 +192,20 @@ class Object2ObjectHashMapTest
 
         assertEquals(copyTwo, copyOne);
     }
+
+    @Test
+    void shouldCopyConstructAndBeEqual()
+    {
+        final int[] testEntries = { 3, 1, 19, 7, 11, 12, 7 };
+
+        final Object2ObjectHashMap<String, Integer> map = new Object2ObjectHashMap<>();
+        for (final int testEntry : testEntries)
+        {
+            map.put(String.valueOf(testEntry), testEntry);
+        }
+
+        final Object2ObjectHashMap<String, Integer> mapCopy = new Object2ObjectHashMap<>(map);
+        assertThat(mapCopy, is(map));
+    }
+
 }
