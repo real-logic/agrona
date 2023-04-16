@@ -772,7 +772,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset, 0);
+            UNSAFE.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -807,7 +807,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset, 0);
+            UNSAFE.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -842,7 +842,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset, 0);
+            UNSAFE.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -883,7 +883,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset, 0);
+            UNSAFE.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
