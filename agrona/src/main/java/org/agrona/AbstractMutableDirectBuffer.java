@@ -659,8 +659,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (0 == length)
+        {
+            return "";
+        }
 
-        return getStringAscii(index, length);
+        return getStringWithoutLengthAscii(index + STR_HEADER_LEN, length);
     }
 
     /**
@@ -674,8 +678,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (0 == length)
+        {
+            return 0;
+        }
 
-        return getStringAscii(index, length, appendable);
+        return getStringWithoutLengthAscii(index + STR_HEADER_LEN, length, appendable);
     }
 
     /**
@@ -695,8 +703,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = bits;
+        if (0 == length)
+        {
+            return "";
+        }
 
-        return getStringAscii(index, length);
+        return getStringWithoutLengthAscii(index + STR_HEADER_LEN, length);
     }
 
     /**
@@ -716,8 +728,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = bits;
+        if (0 == length)
+        {
+            return 0;
+        }
 
-        return getStringAscii(index, length, appendable);
+        return getStringWithoutLengthAscii(index + STR_HEADER_LEN, length, appendable);
     }
 
     /**
@@ -728,6 +744,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index + STR_HEADER_LEN, length);
+        }
+
+        if (0 == length)
+        {
+            return "";
         }
 
         final byte[] dst = new byte[length];
@@ -926,6 +947,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, length);
         }
 
+        if (0 == length)
+        {
+            return "";
+        }
+
         final byte[] dst = new byte[length];
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
 
@@ -1088,8 +1114,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        if (0 == length)
+        {
+            return "";
+        }
 
-        return getStringUtf8(index, length);
+        return getStringWithoutLengthUtf8(index + STR_HEADER_LEN, length);
     }
 
     /**
@@ -1109,8 +1139,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final int length = bits;
+        if (0 == length)
+        {
+            return "";
+        }
 
-        return getStringUtf8(index, length);
+        return getStringWithoutLengthUtf8(index + STR_HEADER_LEN, length);
     }
 
     /**
@@ -1201,6 +1235,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (SHOULD_BOUNDS_CHECK)
         {
             boundsCheck0(index, length);
+        }
+
+        if (0 == length)
+        {
+            return "";
         }
 
         final byte[] stringInBytes = new byte[length];

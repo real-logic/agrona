@@ -30,6 +30,7 @@ import static org.agrona.DirectBuffer.STR_HEADER_LEN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class BufferStringOperationsTest
 {
@@ -110,26 +111,33 @@ class BufferStringOperationsTest
     @MethodSource("buffers")
     void shouldRoundTripAsciiStringNativeLength(final MutableDirectBuffer buffer)
     {
-        final String value = "Hello World";
-        buffer.getBytes(0, BUFFER_DATA);
+        for (final String value : new String[]{ "Hello World", "42" })
+        {
+            buffer.getBytes(0, BUFFER_DATA);
 
-        assertEquals(value.length() + STR_HEADER_LEN, buffer.putStringAscii(INDEX, value));
+            assertEquals(value.length() + STR_HEADER_LEN, buffer.putStringAscii(INDEX, value));
 
-        assertThat(buffer.getStringAscii(INDEX), is(value));
-        assertOtherDataWasNotModified(buffer, INDEX, value.length() + STR_HEADER_LEN);
+            assertThat(buffer.getStringAscii(INDEX), is(value));
+            assertOtherDataWasNotModified(buffer, INDEX, value.length() + STR_HEADER_LEN);
+        }
     }
 
     @ParameterizedTest
     @MethodSource("buffers")
     void shouldRoundTripAsciiStringBigEndianLength(final MutableDirectBuffer buffer)
     {
-        final String value = "Hello, World!!!";
-        buffer.getBytes(0, BUFFER_DATA);
+        for (final String value : new String[]{ "Linux", "", "MS Dos" })
+        {
+            for (final ByteOrder byteOrder : new ByteOrder[]{ ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN })
+            {
+                buffer.getBytes(0, BUFFER_DATA);
 
-        assertEquals(value.length() + STR_HEADER_LEN, buffer.putStringAscii(INDEX, value, ByteOrder.BIG_ENDIAN));
+                assertEquals(value.length() + STR_HEADER_LEN, buffer.putStringAscii(INDEX, value, byteOrder));
 
-        assertThat(buffer.getStringAscii(INDEX, ByteOrder.BIG_ENDIAN), is(value));
-        assertOtherDataWasNotModified(buffer, INDEX, value.length() + STR_HEADER_LEN);
+                assertThat(buffer.getStringAscii(INDEX, byteOrder), is(value));
+                assertOtherDataWasNotModified(buffer, INDEX, value.length() + STR_HEADER_LEN);
+            }
+        }
     }
 
     @ParameterizedTest
@@ -263,7 +271,7 @@ class BufferStringOperationsTest
         buffer.putByte(INDEX + SIZE_OF_INT + 3, (byte)163);
 
         final int length = 5;
-        final Appendable appendable = new StringBuilder();
+        final StringBuilder appendable = new StringBuilder();
         final int encodedLength = buffer.getStringWithoutLengthAscii(INDEX + SIZE_OF_INT, length, appendable);
 
         assertThat(encodedLength, is(length));
@@ -407,5 +415,84 @@ class BufferStringOperationsTest
 
         assertEquals("null", buffer.getStringWithoutLengthUtf8(index, 4));
         assertOtherDataWasNotModified(buffer, index, 4);
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringAsciiWithLengthReturnsASubString(final MutableDirectBuffer buffer)
+    {
+        final int index = 29;
+        final String value = "One Two Three";
+        buffer.getBytes(0, BUFFER_DATA);
+
+        buffer.putStringAscii(index, value);
+
+        assertEquals("One Tw", buffer.getStringAscii(index, 6));
+        assertEquals("ne Two", buffer.getStringAscii(index + 1, 6));
+        assertSame("", buffer.getStringAscii(index, 0));
+        assertSame("", buffer.getStringAscii(index + 10, 0));
+        assertOtherDataWasNotModified(buffer, index, value.length() + STR_HEADER_LEN);
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringAsciiReturnsAnEmptyStringConstantWhenValueIsEmpty(final MutableDirectBuffer buffer)
+    {
+        final int index = 13;
+
+        buffer.putStringAscii(index, null);
+
+        assertSame("", buffer.getStringAscii(index));
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringAsciiWithByteOrderReturnsAnEmptyStringConstantWhenValueIsEmpty(final MutableDirectBuffer buffer)
+    {
+        final int index = 52;
+        for (final ByteOrder byteOrder : new ByteOrder[]{ ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN })
+        {
+            buffer.putStringAscii(index, "", byteOrder);
+
+            assertSame("", buffer.getStringAscii(index, byteOrder));
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringWithoutLengthAsciiReturnsAnEmptyStringConstantWhenLengthIsZero(final MutableDirectBuffer buffer)
+    {
+        assertSame("", buffer.getStringWithoutLengthAscii(32, 0));
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringUtf8ReturnsAnEmptyStringConstantWhenValueIsEmpty(final MutableDirectBuffer buffer)
+    {
+        final int index = 99;
+
+        buffer.putStringUtf8(index, "");
+
+        assertSame("", buffer.getStringUtf8(index));
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringUtf8WithByteOrderReturnsAnEmptyStringConstantWhenValueIsEmpty(final MutableDirectBuffer buffer)
+    {
+        final int index = 25;
+        for (final ByteOrder byteOrder : new ByteOrder[]{ ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN })
+        {
+            buffer.putStringUtf8(index, "", byteOrder);
+
+            assertSame("", buffer.getStringUtf8(index, byteOrder));
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("buffers")
+    void getStringWithoutLengthUtf8ReturnsAnEmptyStringConstantWhenLengthIsZero(final MutableDirectBuffer buffer)
+    {
+        assertSame("", buffer.getStringWithoutLengthUtf8(32, 0));
     }
 }
