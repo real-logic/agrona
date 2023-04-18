@@ -172,11 +172,14 @@ public final class ManyToOneRingBuffer implements RingBuffer
 
         final AtomicBuffer buffer = this.buffer;
         final int headPositionIndex = this.headPositionIndex;
+
         final long head = buffer.getLong(headPositionIndex);
+        final int headIndex = (int)head & (capacity - 1);
+
+        final long tail = buffer.getLongVolatile(tailPositionIndex);
 
         final int capacity = this.capacity;
-        final int headIndex = (int)head & (capacity - 1);
-        final int maxBlockLength = capacity - headIndex;
+        final int maxBlockLength = (int)Math.min(capacity - headIndex, tail - head);
         int bytesRead = 0;
 
         try
@@ -206,7 +209,6 @@ public final class ManyToOneRingBuffer implements RingBuffer
         {
             if (bytesRead > 0)
             {
-                buffer.setMemory(headIndex, bytesRead, (byte)0);
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
         }
@@ -231,11 +233,14 @@ public final class ManyToOneRingBuffer implements RingBuffer
 
         final AtomicBuffer buffer = this.buffer;
         final int headPositionIndex = this.headPositionIndex;
+
         long head = buffer.getLong(headPositionIndex);
+        int headIndex = (int)head & (capacity - 1);
+
+        final long tail = buffer.getLongVolatile(tailPositionIndex);
 
         final int capacity = this.capacity;
-        int headIndex = (int)head & (capacity - 1);
-        final int maxBlockLength = capacity - headIndex;
+        final int maxBlockLength = (int)Math.min(capacity - headIndex, tail - head);
         int bytesRead = 0;
 
         try
@@ -275,7 +280,6 @@ public final class ManyToOneRingBuffer implements RingBuffer
                 }
                 if (COMMIT == action)
                 {
-                    buffer.setMemory(headIndex, bytesRead, (byte)0);
                     buffer.putLongOrdered(headPositionIndex, head + bytesRead);
                     headIndex += bytesRead;
                     head += bytesRead;
@@ -287,7 +291,6 @@ public final class ManyToOneRingBuffer implements RingBuffer
         {
             if (bytesRead > 0)
             {
-                buffer.setMemory(headIndex, bytesRead, (byte)0);
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
         }
