@@ -28,6 +28,7 @@ public class SigIntBarrier
     /**
      * Construct and register the barrier ready for use.
      */
+    @SuppressWarnings("this-escape")
     public SigIntBarrier()
     {
         SigInt.register(this::signal);

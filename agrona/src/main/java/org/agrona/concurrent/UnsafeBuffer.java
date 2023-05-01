@@ -64,6 +64,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     /**
      * Empty constructor for a reusable wrapper buffer.
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer()
     {
         wrap(EMPTY_BYTE_ARRAY);
@@ -75,6 +76,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * @param buffer to which the view is attached.
      * @see #wrap(byte[])
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final byte[] buffer)
     {
         wrap(buffer);
@@ -88,6 +90,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * @param length in bytes of the buffer included in the view.
      * @see #wrap(byte[], int, int)
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final byte[] buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
@@ -99,6 +102,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      *
      * @param buffer to which the view is attached.
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final ByteBuffer buffer)
     {
         wrap(buffer);
@@ -112,6 +116,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * @param offset in bytes within the buffer to begin.
      * @param length in bytes of the buffer included in the view.
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final ByteBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
@@ -122,6 +127,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      *
      * @param buffer to which the view is attached.
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final DirectBuffer buffer)
     {
         wrap(buffer);
@@ -134,6 +140,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * @param offset in bytes within the buffer to begin.
      * @param length in bytes of the buffer included in the view.
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final DirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
@@ -145,6 +152,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * @param address where the memory begins off-heap
      * @param length  of the buffer from the given address
      */
+    @SuppressWarnings("this-escape")
     public UnsafeBuffer(final long address, final int length)
     {
         wrap(address, length);

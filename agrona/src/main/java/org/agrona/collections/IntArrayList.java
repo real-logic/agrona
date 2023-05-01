@@ -78,6 +78,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * @param initialSize     of the array to wrap.
      * @param nullValue       to be used to represent a null element.
      */
+    @SuppressWarnings("this-escape")
     public IntArrayList(
         final int[] initialElements,
         @DoNotSub final int initialSize,

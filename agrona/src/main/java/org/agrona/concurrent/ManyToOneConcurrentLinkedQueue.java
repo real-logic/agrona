@@ -141,6 +141,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     /**
      * Constructs an empty queue.
      */
+    @SuppressWarnings("this-escape")
     public ManyToOneConcurrentLinkedQueue()
     {
         headOrdered(empty);

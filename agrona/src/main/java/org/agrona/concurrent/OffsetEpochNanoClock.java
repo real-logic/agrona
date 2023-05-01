@@ -59,6 +59,7 @@ public class OffsetEpochNanoClock implements EpochNanoClock
      *                               recalculation enables the system to minimise clock drift if the system clock is
      *                               updated.
      */
+    @SuppressWarnings("this-escape")
     public OffsetEpochNanoClock(
         final int maxMeasurementRetries, final long measurementThresholdNs, final long resampleIntervalNs)
     {

@@ -41,6 +41,7 @@ public class ExpandableDirectBufferOutputStream extends OutputStream
      *
      * @param buffer to wrap.
      */
+    @SuppressWarnings("this-escape")
     public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0);
@@ -52,6 +53,7 @@ public class ExpandableDirectBufferOutputStream extends OutputStream
      * @param buffer to wrap.
      * @param offset at which the puts will occur.
      */
+    @SuppressWarnings("this-escape")
     public ExpandableDirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset)
     {
         wrap(buffer, offset);

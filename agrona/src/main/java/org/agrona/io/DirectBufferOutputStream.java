@@ -42,6 +42,7 @@ public class DirectBufferOutputStream extends OutputStream
      *
      * @param buffer to wrap.
      */
+    @SuppressWarnings("this-escape")
     public DirectBufferOutputStream(final MutableDirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
@@ -54,6 +55,7 @@ public class DirectBufferOutputStream extends OutputStream
      * @param offset in the buffer.
      * @param length size in bytes to wrap.
      */
+    @SuppressWarnings("this-escape")
     public DirectBufferOutputStream(final MutableDirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);

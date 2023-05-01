@@ -47,6 +47,7 @@ public class DirectBufferDataInput implements DataInput
      *
      * @param buffer to wrap.
      */
+    @SuppressWarnings("this-escape")
     public DirectBufferDataInput(final DirectBuffer buffer)
     {
         wrap(buffer, 0, buffer.capacity());
@@ -59,6 +60,7 @@ public class DirectBufferDataInput implements DataInput
      * @param offset into the buffer.
      * @param length in bytes.
      */
+    @SuppressWarnings("this-escape")
     public DirectBufferDataInput(final DirectBuffer buffer, final int offset, final int length)
     {
         wrap(buffer, offset, length);
