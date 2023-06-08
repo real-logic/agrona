@@ -16,6 +16,8 @@
 package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 
 import java.util.Arrays;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
@@ -1089,11 +1092,13 @@ class IntHashSetTest
         coll.addAll(Arrays.asList(42, 42, 42, 0, 500));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
+        testSet.add(500);
 
         assertTrue(testSet.retainAll(coll));
 
-        assertEquals(1, testSet.size());
+        assertEquals(2, testSet.size());
         assertTrue(testSet.contains(42));
+        assertTrue(testSet.contains(500));
         assertFalse(testSet.contains(MISSING_VALUE));
     }
 
@@ -1132,6 +1137,7 @@ class IntHashSetTest
         assertEquals(2, testSet.size());
         assertTrue(testSet.contains(1));
         assertTrue(testSet.contains(2));
+        assertFalse(testSet.contains(MISSING_VALUE));
     }
 
     @Test
@@ -1267,6 +1273,74 @@ class IntHashSetTest
         testSet.add(9);
 
         assertTrue(testSet.containsAll(other));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 10, 100, 1000 })
+    public void retainAllWithAnotherIntHashSet(final int capacity)
+    {
+        final IntHashSet set1 = new IntHashSet(capacity);
+        set1.add(9);
+        for (int i = 0; i < capacity; i++)
+        {
+            set1.add(ThreadLocalRandom.current().nextInt(10, Integer.MAX_VALUE));
+        }
+        set1.add(MISSING_VALUE);
+
+        final IntHashSet set2 = new IntHashSet();
+        set2.add(8);
+        set2.add(9);
+
+        assertTrue(set1.retainAll(set2));
+
+        assertEquals(1, set1.size());
+        assertTrue(set1.contains(9));
+        assertFalse(set1.contains(MISSING_VALUE));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 10, 100, 1000 })
+    public void retainAllWithCollection(final int capacity)
+    {
+        final IntHashSet set = new IntHashSet(capacity);
+        set.add(9);
+        for (int i = 0; i < capacity; i++)
+        {
+            set.add(ThreadLocalRandom.current().nextInt(10, Integer.MAX_VALUE));
+        }
+        set.add(MISSING_VALUE);
+
+        final List<Integer> list = Arrays.asList(8, 9);
+
+        assertTrue(set.retainAll(list));
+
+        assertEquals(1, set.size());
+        assertTrue(set.contains(9));
+        assertFalse(set.contains(MISSING_VALUE));
+    }
+
+    @Test
+    public void removeIfIntUsingDefaults()
+    {
+        final IntHashSet set = new IntHashSet();
+        set.add(4);
+        set.add(5);
+
+        assertTrue(set.removeIfInt(i -> true));
+
+        assertEquals(0, set.size());
+    }
+
+    @Test
+    public void removeIfUsingDefaults()
+    {
+        final IntHashSet set = new IntHashSet();
+        set.add(4);
+        set.add(5);
+
+        assertTrue(set.removeIf(i -> true));
+
+        assertEquals(0, set.size());
     }
 
     private static void addTwoElements(final IntHashSet obj)

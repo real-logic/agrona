@@ -518,20 +518,14 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean removeIfInt(final IntPredicate filter)
     {
         boolean removed = false;
-        final int[] values = this.values;
-        for (final int value : values)
+        final IntIterator iterator = iterator();
+        while (iterator.hasNext())
         {
-            if (MISSING_VALUE != value && filter.test(value))
+            if (filter.test(iterator.nextValue()))
             {
-                remove(value);
+                iterator.remove();
                 removed = true;
             }
-        }
-
-        if (containsMissingValue && filter.test(MISSING_VALUE))
-        {
-            remove(MISSING_VALUE);
-            removed = true;
         }
 
         return removed;
@@ -585,18 +579,30 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean retainAll(final Collection<?> coll)
     {
         boolean removed = false;
-        for (final int value : values)
+        final int[] values = this.values;
+        @DoNotSub final int length = values.length;
+        @DoNotSub int i = 0;
+        for (; i < length; i++)
         {
+            final int value = values[i];
             if (MISSING_VALUE != value && !coll.contains(value))
             {
-                remove(value);
+                values[i] = MISSING_VALUE;
+                sizeOfArrayValues--;
                 removed = true;
             }
         }
 
+        if (removed && sizeOfArrayValues > 0)
+        {
+            @DoNotSub final int newCapacity =
+                Math.max(DEFAULT_INITIAL_CAPACITY, findNextPositivePowerOfTwo(sizeOfArrayValues));
+            rehash(newCapacity);
+        }
+
         if (containsMissingValue && !coll.contains(MISSING_VALUE))
         {
-            remove(MISSING_VALUE);
+            containsMissingValue = false;
             removed = true;
         }
         return removed;
@@ -612,18 +618,29 @@ public class IntHashSet extends AbstractSet<Integer>
     public boolean retainAll(final IntHashSet coll)
     {
         boolean removed = false;
-        for (final int value : values)
+        @DoNotSub final int length = values.length;
+        @DoNotSub int i = 0;
+        for (; i < length; i++)
         {
+            final int value = values[i];
             if (MISSING_VALUE != value && !coll.contains(value))
             {
-                remove(value);
+                values[i] = MISSING_VALUE;
+                sizeOfArrayValues--;
                 removed = true;
             }
         }
 
+        if (removed && sizeOfArrayValues > 0)
+        {
+            @DoNotSub final int newCapacity =
+               Math.max(DEFAULT_INITIAL_CAPACITY, findNextPositivePowerOfTwo(sizeOfArrayValues));
+            rehash(newCapacity);
+        }
+
         if (containsMissingValue && !coll.contains(MISSING_VALUE))
         {
-            remove(MISSING_VALUE);
+            containsMissingValue = false;
             removed = true;
         }
         return removed;
