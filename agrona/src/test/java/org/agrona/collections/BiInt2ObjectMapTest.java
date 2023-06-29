@@ -21,9 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BiInt2ObjectMapTest
 {
@@ -178,6 +181,13 @@ class BiInt2ObjectMapTest
 
         map.put(721633319, -532637417, "k");
         assertThat(map.get(721633319, -532637417), is("k"));
+    }
+
+    @Test
+    void shouldRejectNullValues()
+    {
+        assertThrows(NullPointerException.class, () -> map.put(1, 2, null));
+        assertThrows(NullPointerException.class, () -> map.putIfAbsent(1, 2, null));
     }
 
     static final class EntryCapture<V>
