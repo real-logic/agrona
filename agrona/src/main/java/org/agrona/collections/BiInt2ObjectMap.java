@@ -16,9 +16,11 @@
 package org.agrona.collections;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
@@ -152,6 +154,8 @@ public class BiInt2ObjectMap<V>
 
     /**
      * Clear out the map of all entries.
+     *
+     * @see Map#clear()
      */
     public void clear()
     {
@@ -179,6 +183,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB for the key
      * @param value    to put into the map
      * @return the previous value if found otherwise null
+     * @see Map#put(Object, Object)
      */
     @SuppressWarnings("unchecked")
     public V put(final int keyPartA, final int keyPartB, final V value)
@@ -271,6 +276,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartA for the key
      * @param keyPartB for the key
      * @return value matching the key if found or null if not found.
+     * @see Map#get(Object)
      */
     public V get(final int keyPartA, final int keyPartB)
     {
@@ -284,6 +290,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB for the key
      * @param defaultValue the default mapping of the key
      * @return value matching the key if found or <code>defaultValue</code> if not found.
+     * @see java.util.Map#getOrDefault(Object, Object)
      */
     public V getOrDefault(final int keyPartA, final int keyPartB, final V defaultValue)
     {
@@ -328,6 +335,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartA for the key
      * @param keyPartB for the key
      * @return the previous value if found otherwise null
+     * @see Map#remove(Object)
      */
     @SuppressWarnings("unchecked")
     public V remove(final int keyPartA, final int keyPartB)
@@ -365,6 +373,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB        for the key
      * @param mappingFunction creates values based upon keys if the key pair is missing
      * @return the newly created or stored value.
+     * @see Map#computeIfAbsent(Object, Function)
      */
     public V computeIfAbsent(final int keyPartA, final int keyPartB, final EntryFunction<? extends V> mappingFunction)
     {
@@ -415,7 +424,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB          for the key
      * @param remappingFunction the function to compute a value
      * @return the new value associated with the specified key, or null if none
-     * @see java.util.Map#computeIfPresent(Object, BiFunction)
+     * @see Map#computeIfPresent(Object, BiFunction)
      */
     public V computeIfPresent(
         final int keyPartA,
@@ -464,7 +473,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB          for the key
      * @param remappingFunction the function to compute a value
      * @return the new value associated with the specified key, or null if none
-     * @see java.util.Map#compute(Object, BiFunction)
+     * @see Map#compute(Object, BiFunction)
      */
     public V compute(final int keyPartA, final int keyPartB, final EntryRemap<? super V, ? extends V> remappingFunction)
     {
@@ -522,7 +531,7 @@ public class BiInt2ObjectMap<V>
      *                          key
      * @param remappingFunction the function to recompute a value if present
      * @return the new value associated with the specified key, or null if no value is associated with the key
-     * @see java.util.Map#merge(Object, Object, BiFunction)
+     * @see Map#merge(Object, Object, BiFunction)
      */
     public V merge(
         final int keyPartA,
@@ -631,7 +640,7 @@ public class BiInt2ObjectMap<V>
      * @return the previous value associated with the specified key, or null if there was no mapping for the key.
      * (A null return can also indicate that the map previously associated null with the key, if the implementation
      * supports null values.)
-     * @see java.util.Map#replace(Object, Object)
+     * @see Map#replace(Object, Object)
      */
     @SuppressWarnings("unchecked")
     public V replace(final int keyPartA, final int keyPartB, final V value)
@@ -759,7 +768,7 @@ public class BiInt2ObjectMap<V>
      * @param keyPartB  for the key
      * @param value     value expected to be associated with the specified key
      * @return true if the value was removed
-     * @see java.util.Map#remove(Object, Object)
+     * @see Map#remove(Object, Object)
      */
     public boolean remove(final int keyPartA, final int keyPartB, final V value)
     {
