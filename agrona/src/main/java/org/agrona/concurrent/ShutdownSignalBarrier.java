@@ -34,7 +34,7 @@ public class ShutdownSignalBarrier
     {
         for (final String signalName : SIGNAL_NAMES)
         {
-            SigInt.register(signalName, () -> LATCHES.forEach(CountDownLatch::countDown));
+            SigInt.register(signalName, ShutdownSignalBarrier::signalAndClearAll);
         }
     }
 
@@ -68,11 +68,7 @@ public class ShutdownSignalBarrier
      */
     public void signalAll()
     {
-        synchronized (LATCHES)
-        {
-            LATCHES.forEach(CountDownLatch::countDown);
-            LATCHES.clear();
-        }
+        signalAndClearAll();
     }
 
     /**
@@ -98,6 +94,15 @@ public class ShutdownSignalBarrier
         catch (final InterruptedException ignore)
         {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private static void signalAndClearAll()
+    {
+        synchronized (LATCHES)
+        {
+            LATCHES.forEach(CountDownLatch::countDown);
+            LATCHES.clear();
         }
     }
 }
