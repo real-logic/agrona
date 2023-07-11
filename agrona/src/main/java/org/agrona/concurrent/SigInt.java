@@ -17,7 +17,6 @@ package org.agrona.concurrent;
 
 import org.agrona.LangUtil;
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
 
 import java.util.Objects;
 
@@ -40,11 +39,8 @@ public class SigInt
     {
         Objects.requireNonNull(task);
 
-        final Signal namedSignal = new Signal(signalName);
-        final SignalHandler previousHandler = Signal.handle(namedSignal, (signal) -> {});
-
         Signal.handle(
-            namedSignal,
+            new Signal(signalName),
             (signal) ->
             {
                 Throwable error = null;
@@ -55,25 +51,6 @@ public class SigInt
                 catch (final Throwable t)
                 {
                     error = t;
-                }
-
-                if (null != previousHandler)
-                {
-                    try
-                    {
-                        previousHandler.handle(signal);
-                    }
-                    catch (final Throwable t)
-                    {
-                        if (null != error)
-                        {
-                            error.addSuppressed(t);
-                        }
-                        else
-                        {
-                            error = t;
-                        }
-                    }
                 }
 
                 LangUtil.rethrowUnchecked(error);

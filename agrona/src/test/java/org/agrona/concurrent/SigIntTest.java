@@ -25,7 +25,7 @@ import sun.misc.SignalHandler;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
 class SigIntTest
@@ -38,7 +38,7 @@ class SigIntTest
 
     @ParameterizedTest
     @ValueSource(strings = { "INT", "TERM" })
-    void shouldInstallHandlerThatWillDelegateToTheExistingHandler(final String name) throws InterruptedException
+    void shouldReplaceExistingSignalHandler(final String name) throws InterruptedException
     {
         final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler =
             Thread.getDefaultUncaughtExceptionHandler();
@@ -55,9 +55,8 @@ class SigIntTest
                 return null;
             }).when(exceptionHandler).uncaughtException(any(), any());
             Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+
             final SignalHandler oldHandler = mock(SignalHandler.class);
-            final NumberFormatException secondException = new NumberFormatException("NaN");
-            doThrow(secondException).when(oldHandler).handle(signal);
             Signal.handle(signal, oldHandler);
 
             final Runnable newHandler = mock(Runnable.class);
@@ -70,15 +69,12 @@ class SigIntTest
 
             executed.await();
 
-            final InOrder inOrder = inOrder(newHandler, oldHandler, exceptionHandler);
+            final InOrder inOrder = inOrder(newHandler, exceptionHandler);
             inOrder.verify(newHandler).run();
-            inOrder.verify(oldHandler).handle(signal);
             inOrder.verify(exceptionHandler).uncaughtException(any(), eq(firstException));
             inOrder.verifyNoMoreInteractions();
 
-            final Throwable[] suppressed = firstException.getSuppressed();
-            assertEquals(1, suppressed.length);
-            assertSame(secondException, suppressed[0]);
+            verifyNoInteractions(oldHandler);
         }
         finally
         {
