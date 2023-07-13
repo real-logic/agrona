@@ -22,12 +22,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.SPARSE;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.agrona.BitUtil.SIZE_OF_INT;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
@@ -701,6 +708,72 @@ public class MarkFile implements AutoCloseable
         }
 
         return timestampAgeMs <= timeoutMs;
+    }
+
+    /**
+     * Ensure a link file exists if required for the actual mark file. A link file will contain the pathname of the
+     * actual mark file. This is useful if the mark file should be stored on a different storage medium to the directory
+     * of the service. This will create a file with name of {@code linkFilename} in the {@code serviceDir} that will
+     * contain the parent directory of {@code actualFile}. If {@code actualFile} is an immediate child of {@code
+     * serviceDir} then any file with the name of {@code linkFilename} will be deleted from the {@code serviceDir} (so
+     * that links won't be present if not required).
+     *
+     * @param serviceDir   directory where the mark file would normally be stored (e.g. archiveDir, clusterDir).
+     * @param actualFile    location of actual mark file, e.g. /dev/shm/service/node0/archive-mark.dat
+     * @param linkFilename  short name that should be used for the link file, e.g. archive-mark.lnk
+     */
+    public static void ensureMarkFileLink(final File serviceDir, final File actualFile, final String linkFilename)
+    {
+        final String archiveDirPath;
+        final String markFileParentPath;
+
+        try
+        {
+            archiveDirPath = serviceDir.getCanonicalPath();
+        }
+        catch (final IOException ex)
+        {
+            throw new IllegalArgumentException("failed to resolve canonical path for archiveDir=" + serviceDir);
+        }
+
+        try
+        {
+            markFileParentPath = actualFile.getParentFile().getCanonicalPath();
+        }
+        catch (final IOException ex)
+        {
+            throw new IllegalArgumentException(
+                "failed to resolve canonical path for markFile parent dir of " + actualFile);
+        }
+
+        final Path linkFile = new File(archiveDirPath, linkFilename).toPath();
+        if (archiveDirPath.equals(markFileParentPath))
+        {
+            try
+            {
+                Files.deleteIfExists(linkFile);
+            }
+            catch (final IOException ex)
+            {
+                throw new RuntimeException("failed to remove old link file", ex);
+            }
+        }
+        else
+        {
+            try
+            {
+                Files.write(
+                    linkFile,
+                    markFileParentPath.getBytes(US_ASCII),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            }
+            catch (final IOException ex)
+            {
+                throw new RuntimeException("failed to create link for mark file directory", ex);
+            }
+        }
     }
 
     /**
