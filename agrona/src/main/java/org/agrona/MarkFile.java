@@ -724,12 +724,12 @@ public class MarkFile implements AutoCloseable
      */
     public static void ensureMarkFileLink(final File serviceDir, final File actualFile, final String linkFilename)
     {
-        final String archiveDirPath;
+        final String serviceDirPath;
         final String markFileParentPath;
 
         try
         {
-            archiveDirPath = serviceDir.getCanonicalPath();
+            serviceDirPath = serviceDir.getCanonicalPath();
         }
         catch (final IOException ex)
         {
@@ -746,8 +746,8 @@ public class MarkFile implements AutoCloseable
                 "failed to resolve canonical path for markFile parent dir of " + actualFile);
         }
 
-        final Path linkFile = new File(archiveDirPath, linkFilename).toPath();
-        if (archiveDirPath.equals(markFileParentPath))
+        final Path linkFile = new File(serviceDirPath, linkFilename).toPath();
+        if (serviceDirPath.equals(markFileParentPath))
         {
             try
             {
