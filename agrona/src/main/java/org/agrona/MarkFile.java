@@ -712,13 +712,13 @@ public class MarkFile implements AutoCloseable
 
     /**
      * Ensure a link file exists if required for the actual mark file. A link file will contain the pathname of the
-     * actual mark file. This is useful if the mark file should be stored on a different storage medium to the directory
-     * of the service. This will create a file with name of {@code linkFilename} in the {@code serviceDir} that will
-     * contain the parent directory of {@code actualFile}. If {@code actualFile} is an immediate child of {@code
-     * serviceDir} then any file with the name of {@code linkFilename} will be deleted from the {@code serviceDir} (so
-     * that links won't be present if not required).
+     * actual mark file's parent directory. This is useful if the mark file should be stored on a different storage
+     * medium to the directory of the service. This will create a file with name of {@code linkFilename} in the {@code
+     * serviceDir}. If {@code actualFile} is an immediate child of {@code serviceDir} then any file with the name of
+     * {@code linkFilename} will be deleted from the {@code serviceDir} (so that links won't be present if not
+     * required).
      *
-     * @param serviceDir   directory where the mark file would normally be stored (e.g. archiveDir, clusterDir).
+     * @param serviceDir    directory where the mark file would normally be stored (e.g. archiveDir, clusterDir).
      * @param actualFile    location of actual mark file, e.g. /dev/shm/service/node0/archive-mark.dat
      * @param linkFilename  short name that should be used for the link file, e.g. archive-mark.lnk
      */
