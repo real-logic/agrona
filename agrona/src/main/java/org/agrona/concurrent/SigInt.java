@@ -43,17 +43,14 @@ public class SigInt
             new Signal(signalName),
             (signal) ->
             {
-                Throwable error = null;
                 try
                 {
                     task.run();
                 }
                 catch (final Throwable t)
                 {
-                    error = t;
+                    LangUtil.rethrowUnchecked(t);
                 }
-
-                LangUtil.rethrowUnchecked(error);
             });
     }
 }
