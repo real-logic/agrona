@@ -15,7 +15,6 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.LangUtil;
 import sun.misc.Signal;
 
 import java.util.Objects;
@@ -23,34 +22,18 @@ import java.util.Objects;
 /**
  * Utility to allow the registration of a SIGINT handler that hides the unsupported {@link Signal} class.
  */
-public class SigInt
-{
+public class SigInt {
     /**
      * Register a task to be run when a SIGINT is received.
      *
      * @param task to run on reception of the signal.
      */
-    public static void register(final Runnable task)
-    {
+    public static void register(final Runnable task) {
         register("INT", task);
     }
 
-    static void register(final String signalName, final Runnable task)
-    {
+    static void register(final String signalName, final Runnable task) {
         Objects.requireNonNull(task);
-
-        Signal.handle(
-            new Signal(signalName),
-            (signal) ->
-            {
-                try
-                {
-                    task.run();
-                }
-                catch (final Throwable t)
-                {
-                    LangUtil.rethrowUnchecked(t);
-                }
-            });
+        Signal.handle(new Signal(signalName), (signal) -> task.run());
     }
 }
