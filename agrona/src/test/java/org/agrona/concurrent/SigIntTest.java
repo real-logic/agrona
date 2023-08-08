@@ -28,24 +28,28 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
-class SigIntTest {
+class SigIntTest
+{
     @Test
-    void throwsNullPointerExceptionIfRunnableIsNull() {
+    void throwsNullPointerExceptionIfRunnableIsNull()
+    {
         assertThrowsExactly(NullPointerException.class, () -> SigInt.register(null));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"INT", "TERM"})
-    void shouldReplaceExistingSignalHandler(final String name) throws InterruptedException {
+    @ValueSource(strings = { "INT", "TERM" })
+    void shouldReplaceExistingSignalHandler(final String name) throws InterruptedException
+    {
         final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler =
-                Thread.getDefaultUncaughtExceptionHandler();
+            Thread.getDefaultUncaughtExceptionHandler();
         final Signal signal = new Signal(name);
         final SignalHandler originalHandler = Signal.handle(signal, sig -> {});
 
-        try {
+        try
+        {
             final CountDownLatch executed = new CountDownLatch(1);
             final Thread.UncaughtExceptionHandler exceptionHandler = mock(Thread.UncaughtExceptionHandler.class);
-            doAnswer((Answer<Void>) invocation ->
+            doAnswer((Answer<Void>)invocation ->
             {
                 executed.countDown();
                 return null;
@@ -71,19 +75,23 @@ class SigIntTest {
             inOrder.verifyNoMoreInteractions();
 
             verifyNoInteractions(oldHandler);
-        } finally {
+        }
+        finally
+        {
             Thread.setDefaultUncaughtExceptionHandler(defaultUncaughtExceptionHandler);
             Signal.handle(signal, originalHandler);
         }
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"INT"})
-    void shouldReplaceExistingSignalHandlerNoException(final String name) throws InterruptedException {
+    @ValueSource(strings = { "INT" })
+    void shouldReplaceExistingSignalHandlerNoException(final String name) throws InterruptedException
+    {
         final Signal signal = new Signal(name);
         final SignalHandler originalHandler = Signal.handle(signal, sig -> {});
 
-        try {
+        try
+        {
             final SignalHandler oldHandler = mock(SignalHandler.class);
             Signal.handle(signal, oldHandler);
 
@@ -94,7 +102,9 @@ class SigIntTest {
 
             executed.await();
             verifyNoInteractions(oldHandler);
-        } finally {
+        }
+        finally
+        {
             Signal.handle(signal, originalHandler);
         }
     }
