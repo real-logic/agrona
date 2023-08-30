@@ -182,7 +182,10 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
      */
     public int getInt(final int index, final ByteOrder byteOrder)
     {
-        ensureCapacity(index, SIZE_OF_INT);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
 
         int bits = UNSAFE.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
