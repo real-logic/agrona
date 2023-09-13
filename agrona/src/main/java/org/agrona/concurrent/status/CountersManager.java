@@ -46,7 +46,10 @@ import static org.agrona.BitUtil.SIZE_OF_INT;
  *  |                          Owner Id                             |
  *  |                                                               |
  *  +---------------------------------------------------------------+
- *  |                     104 bytes of padding                     ...
+ *  |                        Reference Id                           |
+ *  |                                                               |
+ *  +---------------------------------------------------------------+
+ *  |                     96 bytes of padding                     ...
  * ...                                                              |
  *  +---------------------------------------------------------------+
  *  |                   Repeats to end of buffer                   ...
@@ -429,6 +432,18 @@ public class CountersManager extends CountersReader
     }
 
     /**
+     * Set an {@link AtomicCounter} reference id for a counter id.
+     *
+     * @param counterId   to be set.
+     * @param referenceId to set for the counter.
+     */
+    public void setCounterReferenceId(final int counterId, final long referenceId)
+    {
+        validateCounterId(counterId);
+        valuesBuffer.putLong(counterOffset(counterId) + REFERENCE_ID_OFFSET, referenceId);
+    }
+
+    /**
      * Set an {@link AtomicCounter} label by counter id.
      *
      * @param counterId to be set.
@@ -511,6 +526,7 @@ public class CountersManager extends CountersReader
                     final int offset = counterOffset(counterId);
                     valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
                     valuesBuffer.putLong(offset + OWNER_ID_OFFSET, DEFAULT_OWNER_ID);
+                    valuesBuffer.putLong(offset + REFERENCE_ID_OFFSET, DEFAULT_REFERENCE_ID);
                     valuesBuffer.putLongOrdered(offset, 0L);
 
                     return counterId;

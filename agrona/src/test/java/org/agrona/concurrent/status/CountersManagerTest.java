@@ -183,6 +183,36 @@ class CountersManagerTest
     }
 
     @Test
+    void shouldSetReferenceId()
+    {
+        final int counterId = manager.allocate("abc");
+        assertEquals(DEFAULT_REFERENCE_ID, reader.getCounterReferenceId(counterId));
+
+        final long referenceId = 444L;
+        manager.setCounterReferenceId(counterId, referenceId);
+        assertEquals(referenceId, reader.getCounterReferenceId(counterId));
+    }
+
+    @Test
+    void shouldResetValueAndReferenceIdIfReused()
+    {
+        final int counterIdOne = manager.allocate("abc");
+        assertEquals(DEFAULT_REFERENCE_ID, reader.getCounterReferenceId(counterIdOne));
+
+        final long referenceIdOne = 444L;
+        manager.setCounterReferenceId(counterIdOne, referenceIdOne);
+
+        manager.free(counterIdOne);
+        final int counterIdTwo = manager.allocate("def");
+        assertEquals(counterIdOne, counterIdTwo);
+        assertEquals(DEFAULT_REFERENCE_ID, reader.getCounterReferenceId(counterIdTwo));
+
+        final long referenceIdTwo = 222L;
+        manager.setCounterReferenceId(counterIdTwo, referenceIdTwo);
+        assertEquals(referenceIdTwo, reader.getCounterReferenceId(counterIdTwo));
+    }
+
+    @Test
     void shouldFindByRegistrationId()
     {
         final long registrationId = 777L;
