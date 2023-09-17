@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BiLong2ObjectMapTest
 {
@@ -236,7 +237,7 @@ public class BiLong2ObjectMapTest
         while (map.size() > 0)
         {
             final int toRemove = Math.max(1, map.size() / 2);
-            final List<UUID> keysToRemove = reference.keySet().stream().limit(toRemove).toList();
+            final List<UUID> keysToRemove = reference.keySet().stream().limit(toRemove).collect(Collectors.toList());
             for (final UUID key : keysToRemove)
             {
                 final String expected = reference.remove(key);
