@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8', '17', '21' ]
+        java: [ '8', '17', '21', '22-ea' ]
         os: ['ubuntu-22.04', 'windows-latest']
     steps:
       - name: Checkout code
