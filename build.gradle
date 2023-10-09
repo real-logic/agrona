@@ -302,20 +302,22 @@ project(':agrona') {
     jar {
         from sourceSets.generated.output
 
-        bnd """
-            Automatic-Module-Name:  org.agrona.core
-            Bundle-Name:            org.agrona.core
-            Bundle-SymbolicName:    org.agrona.core
-            Implementation-Title:   Agrona
-            Implementation-Vendor:  Real Logic Limited
-            Implementation-Version: ${agronaVersion}
-
-            -exportcontents: org.agrona, org.agrona.*
-
-            # Suppress headers that reduce reproducibility.
-            -reproducible: true
-            -noextraheaders: true
-        """
+        bundle {
+            bnd """
+                Automatic-Module-Name:  org.agrona.core
+                Bundle-Name:            org.agrona.core
+                Bundle-SymbolicName:    org.agrona.core
+                Implementation-Title:   Agrona
+                Implementation-Vendor:  Real Logic Limited
+                Implementation-Version: ${agronaVersion}
+    
+                -exportcontents: org.agrona, org.agrona.*
+    
+                # Suppress headers that reduce reproducibility.
+                -reproducible: true
+                -noextraheaders: true
+            """
+        }
     }
 
     tasks.register('sourcesJar', Jar) {
