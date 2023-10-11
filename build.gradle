@@ -222,6 +222,10 @@ subprojects {
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
         }
 
+        if (buildJavaVersion > 21) {
+            jvmArgs('-XX:+EnableDynamicAgentLoading')
+        }
+
         useJUnitPlatform()
 
         testLogging {
@@ -235,7 +239,8 @@ subprojects {
 
         systemProperties(
             'agrona.disable.bounds.checks': 'false',
-            'agrona.strict.alignment.checks': 'true')
+            'agrona.strict.alignment.checks': 'true',
+            'net.bytebuddy.experimental': 'true')
 
         javaLauncher.set(toolchainLauncher)
     }
