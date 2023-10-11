@@ -15,13 +15,68 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.LangUtil;
 import org.agrona.UnsafeAccess;
+import sun.misc.Unsafe;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Memory access operations which encapsulate the use of Unsafe.
  */
 public final class MemoryAccess
 {
+    private static final MethodHandle ACQUIRE_FENCE;
+    private static final MethodHandle RELEASE_FENCE;
+    private static final MethodHandle FULL_FENCE;
+
+    static
+    {
+        MethodHandle acquireFence = null;
+        MethodHandle releaseFence = null;
+        MethodHandle fullFence = null;
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final MethodType voidMethod = MethodType.methodType(void.class);
+        try
+        {
+            final Class<?> versionClass = Class.forName("java.lang.Runtime$Version"); // since JDK 9
+            final Object version = Runtime.class.getMethod("version").invoke(Runtime.getRuntime());
+            final int majorRelease = (int)versionClass.getMethod("feature").invoke(version);
+            if (majorRelease > 21)
+            {
+                final Class<?> varhandleClass = Class.forName("java.lang.invoke.VarHandle");
+                acquireFence = lookup.findStatic(varhandleClass, "acquireFence", voidMethod);
+                releaseFence = lookup.findStatic(varhandleClass, "releaseFence", voidMethod);
+                fullFence = lookup.findStatic(varhandleClass, "fullFence", voidMethod);
+            }
+        }
+        catch (final ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                     InvocationTargetException ignored)
+        {
+        }
+
+        if (null == acquireFence)
+        {
+            try
+            {
+                final Class<? extends Unsafe> unsafeClass = UnsafeAccess.UNSAFE.getClass();
+                acquireFence = lookup.findVirtual(unsafeClass, "loadFence", voidMethod).bindTo(UnsafeAccess.UNSAFE);
+                releaseFence = lookup.findVirtual(unsafeClass, "storeFence", voidMethod).bindTo(UnsafeAccess.UNSAFE);
+                fullFence = lookup.findVirtual(unsafeClass, "fullFence", voidMethod).bindTo(UnsafeAccess.UNSAFE);
+            }
+            catch (final NoSuchMethodException | IllegalAccessException e)
+            {
+                LangUtil.rethrowUnchecked(e);
+            }
+        }
+        ACQUIRE_FENCE = acquireFence;
+        RELEASE_FENCE = releaseFence;
+        FULL_FENCE = fullFence;
+    }
+
     private MemoryAccess()
     {
     }
@@ -31,7 +86,14 @@ public final class MemoryAccess
      */
     public static void acquireFence()
     {
-        UnsafeAccess.UNSAFE.loadFence();
+        try
+        {
+            ACQUIRE_FENCE.invokeExact();
+        }
+        catch (final Throwable t)
+        {
+            LangUtil.rethrowUnchecked(t);
+        }
     }
 
     /**
@@ -39,7 +101,14 @@ public final class MemoryAccess
      */
     public static void releaseFence()
     {
-        UnsafeAccess.UNSAFE.storeFence();
+        try
+        {
+            RELEASE_FENCE.invokeExact();
+        }
+        catch (final Throwable t)
+        {
+            LangUtil.rethrowUnchecked(t);
+        }
     }
 
     /**
@@ -47,6 +116,13 @@ public final class MemoryAccess
      */
     public static void fullFence()
     {
-        UnsafeAccess.UNSAFE.fullFence();
+        try
+        {
+            FULL_FENCE.invokeExact();
+        }
+        catch (final Throwable t)
+        {
+            LangUtil.rethrowUnchecked(t);
+        }
     }
 }
