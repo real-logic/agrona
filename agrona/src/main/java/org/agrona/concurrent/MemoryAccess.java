@@ -40,6 +40,7 @@ public final class MemoryAccess
         MethodHandle fullFence = null;
         final MethodHandles.Lookup lookup = MethodHandles.lookup();
         final MethodType voidMethod = MethodType.methodType(void.class);
+
         try
         {
             final Class<?> versionClass = Class.forName("java.lang.Runtime$Version"); // since JDK 9
@@ -67,11 +68,12 @@ public final class MemoryAccess
                 releaseFence = lookup.findVirtual(unsafeClass, "storeFence", voidMethod).bindTo(UnsafeAccess.UNSAFE);
                 fullFence = lookup.findVirtual(unsafeClass, "fullFence", voidMethod).bindTo(UnsafeAccess.UNSAFE);
             }
-            catch (final NoSuchMethodException | IllegalAccessException e)
+            catch (final NoSuchMethodException | IllegalAccessException ex)
             {
-                LangUtil.rethrowUnchecked(e);
+                LangUtil.rethrowUnchecked(ex);
             }
         }
+
         ACQUIRE_FENCE = acquireFence;
         RELEASE_FENCE = releaseFence;
         FULL_FENCE = fullFence;
