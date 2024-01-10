@@ -12,3 +12,5 @@ query-filters:
       id: java/confusing-method-signature
   - exclude:
       id: java/unused-parameter
+  - exclude:
+      id: java/unused-reference-type
