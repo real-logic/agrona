@@ -74,7 +74,7 @@ jobs:
         id: copy_test_logs
         if: failure()
         run: |
-          echo "::set-output name=dir::build/test_logs"
+          echo "dir=build/test_logs" >> $GITHUB_OUTPUT
           ./gradlew copyTestLogs
       - name: Upload crash logs
         if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
