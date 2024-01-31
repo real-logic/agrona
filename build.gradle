@@ -222,7 +222,7 @@ subprojects {
             jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
         }
 
-        if (buildJavaVersion > 21) {
+        if (buildJavaVersion >= 21) {
             jvmArgs('-XX:+EnableDynamicAgentLoading')
         }
 
