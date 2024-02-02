@@ -51,8 +51,8 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
-      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux)
-        if: runner.os == 'Linux'
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           java -Xinternalversion
           echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
@@ -111,8 +111,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
-      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux)
-        if: runner.os == 'Linux'
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           java -Xinternalversion
           echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
