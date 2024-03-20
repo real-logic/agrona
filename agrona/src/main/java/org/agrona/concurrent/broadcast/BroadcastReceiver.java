@@ -146,6 +146,24 @@ public class BroadcastReceiver
      */
     public boolean receiveNext()
     {
+        return doReceiveNext(false);
+    }
+
+    /**
+     * Similar to {@link #receiveNext()}, but will skip all messages in the transmission stream
+     * and only set for the latest messaged.
+     *
+     * @return true if transmission is available with {@link #offset()}, {@link #length()} and {@link #typeId()}
+     * set for the next latest message to be consumed. If no transmission is available then false.
+     */
+    public boolean receiveLatest()
+    {
+        return doReceiveNext(true);
+    }
+
+
+    private boolean doReceiveNext(final boolean latest)
+    {
         boolean isAvailable = false;
         final AtomicBuffer buffer = this.buffer;
         final long tail = buffer.getLongVolatile(tailCounterIndex);
@@ -154,15 +172,22 @@ public class BroadcastReceiver
         if (tail > cursor)
         {
             final int capacity = this.capacity;
-            int recordOffset = (int)cursor & (capacity - 1);
 
             if (!validate(cursor, buffer, capacity))
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
-
-                cursor = buffer.getLongVolatile(latestCounterIndex);
-                recordOffset = (int)cursor & (capacity - 1);
+                if (!latest)
+                {
+                    cursor = buffer.getLongVolatile(latestCounterIndex);
+                }
             }
+
+            if (latest)
+            {
+                cursor = buffer.getLongVolatile(latestCounterIndex);
+            }
+
+            int recordOffset = (int)cursor & (capacity - 1);
 
             this.cursor = cursor;
             nextRecord = cursor + align(buffer.getInt(lengthOffset(recordOffset)), RECORD_ALIGNMENT);

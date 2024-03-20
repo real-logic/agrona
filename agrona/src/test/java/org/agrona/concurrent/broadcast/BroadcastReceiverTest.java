@@ -152,6 +152,37 @@ class BroadcastReceiverTest
     }
 
     @Test
+    void shouldReceiveLatestSecondMessagesFromBuffer()
+    {
+        final int length = 8;
+        final int recordLength = length + HEADER_LENGTH;
+        final int recordLengthAligned = align(recordLength, RECORD_ALIGNMENT);
+        final long tail = recordLengthAligned * 2L;
+        final long latestRecord = tail - recordLengthAligned;
+        final int recordOffsetTwo = (int)latestRecord;
+
+        when(buffer.getLongVolatile(TAIL_INTENT_COUNTER_OFFSET)).thenReturn(tail);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
+
+        when(buffer.getInt(lengthOffset(recordOffsetTwo))).thenReturn(recordLength);
+        when(buffer.getInt(typeOffset(recordOffsetTwo))).thenReturn(MSG_TYPE_ID);
+        when(buffer.getLongVolatile(TAIL_COUNTER_INDEX + length)).thenReturn(2L * length);
+
+        assertTrue(broadcastReceiver.receiveLatest());
+        assertThat(broadcastReceiver.typeId(), is(MSG_TYPE_ID));
+        assertThat(broadcastReceiver.buffer(), is(buffer));
+        assertThat(broadcastReceiver.offset(), is(msgOffset(recordOffsetTwo)));
+        assertThat(broadcastReceiver.length(), is(length));
+
+        assertTrue(broadcastReceiver.validate());
+
+        final InOrder inOrder = inOrder(buffer);
+        inOrder.verify(buffer).getLongVolatile(TAIL_COUNTER_INDEX);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
+        inOrder.verify(buffer).getLongVolatile(TAIL_INTENT_COUNTER_OFFSET);
+    }
+
+    @Test
     void shouldLateJoinTransmission()
     {
         final int length = 8;
