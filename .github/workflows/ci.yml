@@ -91,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '22-ea' ]
+        java: [ '23-ea' ]
         os: ['ubuntu-22.04', 'windows-latest', 'macos-14']
     steps:
       - name: Checkout code
@@ -144,5 +144,5 @@ jobs:
         if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
         uses: actions/upload-artifact@v3
         with:
-          name: crash-logs-${{ matrix.os }}-java-${{ matrix.java }}
+          name: crash-logs-ea-${{ matrix.os }}-java-${{ matrix.java }}
           path: ${{ steps.copy_test_logs.outputs.dir }}
