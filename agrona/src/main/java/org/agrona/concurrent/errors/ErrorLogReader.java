@@ -36,7 +36,7 @@ public class ErrorLogReader
      */
     public static boolean hasErrors(final AtomicBuffer buffer)
     {
-        return buffer.capacity() >= SIZE_OF_INT && 0 != buffer.getIntVolatile(LENGTH_OFFSET);
+        return buffer.capacity() >= SIZE_OF_INT && buffer.getIntVolatile(LENGTH_OFFSET) > 0;
     }
 
     /**
@@ -65,10 +65,10 @@ public class ErrorLogReader
         int offset = 0;
         final int capacity = buffer.capacity();
 
-        while (offset < capacity)
+        while (offset <= capacity - ENCODED_ERROR_OFFSET)
         {
-            final int length = buffer.getIntVolatile(offset + LENGTH_OFFSET);
-            if (0 == length)
+            final int length = Math.min(buffer.getIntVolatile(offset + LENGTH_OFFSET), capacity - offset);
+            if (length <= 0)
             {
                 break;
             }

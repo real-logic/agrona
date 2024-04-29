@@ -25,10 +25,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 
+import static org.agrona.concurrent.errors.DistinctErrorLog.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ErrorLogReaderTest
@@ -131,5 +131,48 @@ class ErrorLogReaderTest
 
         verify(consumer).accept(eq(1), eq(timestampTwo), eq(timestampTwo), any(String.class));
         verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
+    void readShouldNotReadIfRemainingSpaceIsLessThanOneErrorPrefix()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        final long lastTimestamp = 543495734L;
+        final long firstTimestamp = lastTimestamp - 1000;
+        final int count = 123;
+        final int totalLength = 45;
+        buffer.putInt(LENGTH_OFFSET, totalLength);
+        buffer.putLong(LAST_OBSERVATION_TIMESTAMP_OFFSET, lastTimestamp);
+        buffer.putLong(FIRST_OBSERVATION_TIMESTAMP_OFFSET, firstTimestamp);
+        buffer.putInt(OBSERVATION_COUNT_OFFSET, count);
+        buffer.putStringWithoutLengthAscii(ENCODED_ERROR_OFFSET, "abcdefghijklmnopqrstuvwxyz");
+        buffer.putInt(totalLength + LENGTH_OFFSET, 12);
+        final ErrorConsumer errorConsumer = mock(ErrorConsumer.class);
+
+        assertEquals(1, ErrorLogReader.read(buffer, errorConsumer, 0));
+
+        verify(errorConsumer).accept(count, firstTimestamp, lastTimestamp, "abcdefghijklmnopqrstu");
+    }
+
+    @Test
+    void shouldNotExceedEndOfBufferWhenReadinErrorMessage()
+    {
+        final UnsafeBuffer buffer = new UnsafeBuffer(new byte[64]);
+        buffer.setMemory(0, buffer.capacity(), (byte)'?');
+        final long lastTimestamp = 347923749327L;
+        final long firstTimestamp = -8530458948593L;
+        final int count = 999;
+        buffer.putInt(LENGTH_OFFSET, Integer.MAX_VALUE);
+        buffer.putLong(LAST_OBSERVATION_TIMESTAMP_OFFSET, lastTimestamp);
+        buffer.putLong(FIRST_OBSERVATION_TIMESTAMP_OFFSET, firstTimestamp);
+        buffer.putInt(OBSERVATION_COUNT_OFFSET, count);
+        buffer.putStringWithoutLengthAscii(ENCODED_ERROR_OFFSET, "test");
+        final String expectedErrorString =
+            buffer.getStringWithoutLengthAscii(ENCODED_ERROR_OFFSET, buffer.capacity() - ENCODED_ERROR_OFFSET);
+        final ErrorConsumer errorConsumer = mock(ErrorConsumer.class);
+
+        assertEquals(1, ErrorLogReader.read(buffer, errorConsumer, 0));
+
+        verify(errorConsumer).accept(count, firstTimestamp, lastTimestamp, expectedErrorString);
     }
 }
