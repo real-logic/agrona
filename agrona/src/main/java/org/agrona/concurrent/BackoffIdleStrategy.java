@@ -182,38 +182,30 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
      */
     public void idle()
     {
-        switch (state)
+        if (state == NOT_IDLE)
         {
-            case NOT_IDLE:
-                state = SPINNING;
-
-            case SPINNING:
-                if (++spins > maxSpins)
-                {
-                    state = YIELDING;
-                }
-                else
-                {
-                    ThreadHints.onSpinWait();
-                    break;
-                }
-
-            case YIELDING:
-                if (++yields > maxYields)
-                {
-                    state = PARKING;
-                }
-                else
-                {
-                    Thread.yield();
-                    break;
-                }
-
-            case PARKING:
-                LockSupport.parkNanos(parkPeriodNs);
-                parkPeriodNs = Math.min(parkPeriodNs << 1, maxParkPeriodNs);
-                break;
+            state = SPINNING;
         }
+        if (state == SPINNING)
+        {
+            if (++spins <= maxSpins)
+            {
+                ThreadHints.onSpinWait();
+                return;
+            }
+            state = YIELDING;
+        }
+        if (state == YIELDING)
+        {
+            if (++yields <= maxYields)
+            {
+                Thread.yield();
+                return;
+            }
+            state = PARKING;
+        }
+        LockSupport.parkNanos(parkPeriodNs);
+        parkPeriodNs = Math.min(parkPeriodNs << 1, maxParkPeriodNs);
     }
 
     /**
