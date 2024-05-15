@@ -225,7 +225,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
                     return newTimestampSequence | nodeBits;
                 }
             }
-            else if (timestampMs == oldTimestampMs)
+            else
             {
                 final long oldSequence = oldTimestampSequence & maxSequence;
                 if (oldSequence < maxSequence)
@@ -236,11 +236,6 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
                         return newTimestampSequence | nodeBits;
                     }
                 }
-            }
-            else
-            {
-                throw new IllegalStateException(
-                    "clock has gone backwards: timestampMs=" + timestampMs + " < oldTimestampMs=" + oldTimestampMs);
             }
 
             if (Thread.currentThread().isInterrupted())

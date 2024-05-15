@@ -205,7 +205,7 @@ class SnowflakeIdGeneratorTest
     }
 
     @Test
-    void shouldDetectClockGoingBackwards()
+    void shouldAdvanceSequenceWhenClockIsGoingBackwards()
     {
         final long nodeId = 7;
         final long timestampOffset = 0;
@@ -215,10 +215,18 @@ class SnowflakeIdGeneratorTest
             NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT, nodeId, timestampOffset, clock);
         clock.update(7);
 
-        idGenerator.nextId();
+        final long firstId = idGenerator.nextId();
+        final long firstTimestamp = clock.time();
+        assertEquals(firstTimestamp, idGenerator.extractTimestamp(firstId));
+        assertEquals(nodeId, idGenerator.extractNodeId(firstId));
+        assertEquals(0L, idGenerator.extractSequence(firstId));
 
-        clock.update(3);
-        assertThrows(IllegalStateException.class, idGenerator::nextId);
+        clock.update(4);
+
+        final long secondId = idGenerator.nextId();
+        assertEquals(firstTimestamp, idGenerator.extractTimestamp(secondId));
+        assertEquals(nodeId, idGenerator.extractNodeId(secondId));
+        assertEquals(1L, idGenerator.extractSequence(secondId));
     }
 
     @Test
