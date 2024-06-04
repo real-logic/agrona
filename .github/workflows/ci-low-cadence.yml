@@ -1,0 +1,143 @@
+name: Continuous Integration (Low Cadence)
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: run-slow-tests
+  schedule:
+    - cron: '0 0,12 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Java ${{ matrix.java }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '8', '17', '21' ]
+        os: ['ubuntu-22.04', 'windows-latest', 'macos-14']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache Gradle wrappers
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: ${{ matrix.java }}
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+          java -Xinternalversion
+          echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
+          echo "BUILD_JAVA_VERSION=${{ matrix.java }}" >> $GITHUB_ENV
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          java -Xinternalversion
+          echo "BUILD_JAVA_HOME=$env:JAVA_HOME" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "BUILD_JAVA_VERSION=${{ matrix.java }}" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Setup java 8 to run the Gradle script
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 8
+      - name: Build with Gradle
+        run: ./gradlew clean :agrona-concurrency-tests:concurrencyTests
+      - name: Copy test logs
+        id: copy_test_logs
+        if: failure()
+        run: |
+          echo "dir=build/test_logs" >> $GITHUB_OUTPUT
+          ./gradlew copyTestLogs
+      - name: Upload crash logs
+        if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
+        uses: actions/upload-artifact@v3
+        with:
+          name: crash-logs-${{ matrix.os }}-java-${{ matrix.java }}
+          path: ${{ steps.copy_test_logs.outputs.dir }}
+
+  ea-build:
+    name: Java ${{ matrix.java }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '23-ea' ]
+        os: ['ubuntu-22.04', 'windows-latest', 'macos-14']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache Gradle wrappers
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+          java -Xinternalversion
+          echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
+          echo "BUILD_JAVA_VERSION=${{ matrix.java }}" >> $GITHUB_ENV
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          java -Xinternalversion
+          echo "BUILD_JAVA_HOME=$env:JAVA_HOME" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "BUILD_JAVA_VERSION=${{ matrix.java }}" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Setup java 8 to run the Gradle script
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 8
+      - name: Build with Gradle
+        run: ./gradlew clean :agrona-concurrency-tests:concurrencyTests
+      - name: Copy test logs
+        id: copy_test_logs
+        if: failure()
+        run: |
+          echo "dir=build/test_logs" >> $GITHUB_OUTPUT
+          ./gradlew copyTestLogs
+      - name: Upload crash logs
+        if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
+        uses: actions/upload-artifact@v3
+        with:
+          name: crash-logs-ea-${{ matrix.os }}-java-${{ matrix.java }}
+          path: ${{ steps.copy_test_logs.outputs.dir }}

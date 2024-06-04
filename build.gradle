@@ -31,7 +31,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.51.0'
 }
 
-defaultTasks 'clean', 'build', ':agrona-concurrency-tests:concurrencyTests'
+defaultTasks 'clean', 'build'
 
 static def getBuildJavaVersion() {
     def buildJavaVersion = System.getenv('BUILD_JAVA_VERSION') ?: JavaVersion.current().getMajorVersion()
