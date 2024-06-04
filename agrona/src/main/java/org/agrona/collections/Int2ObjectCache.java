@@ -50,6 +50,17 @@ import static org.agrona.collections.CollectionUtil.validatePositivePowerOfTwo;
  */
 public class Int2ObjectCache<V> implements Map<Integer, V>
 {
+    /*
+     * Example for numSets=2 and setSize=4:
+     *
+     *               newest               oldest
+     * keys:        [  0  ][  1  ][  2  ][  3  ][  4  ][  5  ][  6  ][  7  ]
+     * values:      [  0  ][  1  ][  2  ][  3  ][  4  ][  5  ][  6  ][  7  ]
+     *              <-         set 0          -><-         set 1          ->
+     * shuffleUp:       <---   <---   <---  X
+     * shuffleDown:    X  --->   --->   --->
+     */
+
     private long cachePuts = 0;
     private long cacheHits = 0;
     private long cacheMisses = 0;
@@ -742,13 +753,14 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     {
         final int[] keys = this.keys;
         final Object[] values = this.values;
-        values[toIndex] = null;
 
         for (@DoNotSub int i = fromIndex; i < toIndex; i++)
         {
             values[i] = values[i + 1];
             keys[i] = keys[i + 1];
         }
+
+        values[toIndex] = null;
     }
 
     @DoNotSub private void shuffleDown(final int setBeginIndex)

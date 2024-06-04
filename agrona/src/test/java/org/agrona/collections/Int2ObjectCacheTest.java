@@ -17,16 +17,20 @@ package org.agrona.collections;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -720,5 +724,55 @@ class Int2ObjectCacheTest
         final UnsupportedOperationException exception =
             assertThrowsExactly(UnsupportedOperationException.class, () -> cache.entrySet().removeIf(filter));
         assertEquals("Cannot remove from EntrySet", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("setIndexes")
+    void testFullSet(final int removeOffset)
+    {
+        final int[] sameSetKeys = generateSameSetKeys(SET_SIZE + 1);
+        final List<String> expectedValues = new ArrayList<>();
+
+        for (final int key : sameSetKeys)
+        {
+            final String value = Integer.toString(key);
+            cache.put(key, value);
+
+            if (expectedValues.size() == SET_SIZE)
+            {
+                expectedValues.remove(expectedValues.size() - 1);
+            }
+            expectedValues.add(0, value);
+
+            assertEquals(expectedValues, new ArrayList<>(cache.values()));
+        }
+
+        final int keyToRemove = sameSetKeys[sameSetKeys.length - 1 - removeOffset];
+        final String removedValue = cache.remove(keyToRemove);
+        expectedValues.remove(removedValue);
+        assertEquals(expectedValues, new ArrayList<>(cache.values()));
+    }
+
+    private int[] generateSameSetKeys(final int count)
+    {
+        final int[] keys = new int[count];
+
+        int index = 0;
+        int candidate = 1;
+        while (index < count)
+        {
+            if (Hashing.hash(candidate, NUM_SETS - 1) == 0)
+            {
+                keys[index++] = candidate;
+            }
+            candidate++;
+        }
+
+        return keys;
+    }
+
+    static IntStream setIndexes()
+    {
+        return IntStream.range(0, SET_SIZE);
     }
 }
