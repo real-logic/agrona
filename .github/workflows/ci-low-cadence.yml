@@ -66,7 +66,7 @@ jobs:
           distribution: 'zulu'
           java-version: 8
       - name: Build with Gradle
-        run: ./gradlew clean :agrona-concurrency-tests:concurrencyTests
+        run: ./gradlew clean build :agrona-concurrency-tests:concurrencyTests
       - name: Copy test logs
         id: copy_test_logs
         if: failure()
@@ -128,7 +128,7 @@ jobs:
           distribution: 'zulu'
           java-version: 8
       - name: Build with Gradle
-        run: ./gradlew clean :agrona-concurrency-tests:concurrencyTests
+        run: ./gradlew clean build :agrona-concurrency-tests:concurrencyTests
       - name: Copy test logs
         id: copy_test_logs
         if: failure()
