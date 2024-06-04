@@ -38,6 +38,7 @@ import static org.agrona.concurrent.UnsafeBuffer.*;
  * <p>
  * Note: The resize method is not threadsafe. Concurrent access should only occur after a successful resize.
  */
+@SuppressWarnings("removal")
 public class MappedResizeableBuffer implements AutoCloseable
 {
     private long addressOffset;
@@ -242,8 +243,6 @@ public class MappedResizeableBuffer implements AutoCloseable
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Get the value at a given index.
      *
@@ -443,8 +442,6 @@ public class MappedResizeableBuffer implements AutoCloseable
 
         return UNSAFE.getAndAddLong(null, addressOffset + index, delta);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Get the value at a given index.
@@ -646,8 +643,6 @@ public class MappedResizeableBuffer implements AutoCloseable
         return UNSAFE.getAndAddInt(null, addressOffset + index, delta);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Get the value at a given index.
      *
@@ -730,8 +725,6 @@ public class MappedResizeableBuffer implements AutoCloseable
         UNSAFE.putDouble(null, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Get the value at a given index.
      *
@@ -813,8 +806,6 @@ public class MappedResizeableBuffer implements AutoCloseable
 
         UNSAFE.putFloat(null, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Get the value at a given index.
@@ -925,8 +916,6 @@ public class MappedResizeableBuffer implements AutoCloseable
 
         UNSAFE.putShortVolatile(null, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Get the value at a given index.
@@ -1170,8 +1159,6 @@ public class MappedResizeableBuffer implements AutoCloseable
             length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Get the value at a given index.
      *
@@ -1281,8 +1268,6 @@ public class MappedResizeableBuffer implements AutoCloseable
 
         UNSAFE.putCharVolatile(null, addressOffset + index, value);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Get a String from bytes encoded in UTF-8 format that is length prefixed.
@@ -1427,8 +1412,6 @@ public class MappedResizeableBuffer implements AutoCloseable
 
         return bytes.length;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Check that a given length of bytes is within the bounds from a given index.

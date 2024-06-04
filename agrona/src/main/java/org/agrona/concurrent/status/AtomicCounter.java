@@ -28,6 +28,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 /**
  * Atomic counter that is backed by an {@link AtomicBuffer} that can be read across threads and processes.
  */
+@SuppressWarnings("removal")
 public class AtomicCounter implements AutoCloseable
 {
     private boolean isClosed = false;

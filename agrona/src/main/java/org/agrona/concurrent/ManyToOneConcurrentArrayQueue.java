@@ -36,6 +36,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
+@SuppressWarnings("removal")
 public class ManyToOneConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
     /**

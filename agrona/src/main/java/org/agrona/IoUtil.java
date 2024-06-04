@@ -37,7 +37,7 @@ import static java.nio.file.StandardOpenOption.*;
 /**
  * Collection of IO utilities for dealing with files, especially mapping and un-mapping.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "removal" })
 public final class IoUtil
 {
     /**

@@ -25,7 +25,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Pad out a cache line to the left of a tail to prevent false sharing.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "removal" })
 abstract class ManyToOneConcurrentLinkedQueuePadding1
 {
     /**
@@ -129,6 +129,7 @@ abstract class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrent
  *
  * @param <E> element type in the queue.
  */
+@SuppressWarnings("removal")
 public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinkedQueueHead<E> implements Queue<E>
 {
     byte p128, p129, p130, p131, p132, p133, p134, p135, p136, p137, p138, p139, p140, p142, p143, p144;

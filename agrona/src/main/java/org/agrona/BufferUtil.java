@@ -29,7 +29,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 /**
  * Common functions for buffer implementations.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "removal" })
 public final class BufferUtil
 {
     /**

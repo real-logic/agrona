@@ -27,6 +27,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  *
  * @see CountersManager
  */
+@SuppressWarnings("removal")
 public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;

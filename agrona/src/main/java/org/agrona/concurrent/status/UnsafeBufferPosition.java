@@ -25,6 +25,7 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 /**
  * Reports a position by recording it in an {@link UnsafeBuffer}.
  */
+@SuppressWarnings("removal")
 public class UnsafeBufferPosition extends Position
 {
     private boolean isClosed = false;

@@ -30,6 +30,7 @@ import static org.agrona.UnsafeAccess.*;
 /**
  * Common super class for implementing {@link MutableDirectBuffer} interface.
  */
+@SuppressWarnings("removal")
 public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 {
     protected byte[] byteArray;

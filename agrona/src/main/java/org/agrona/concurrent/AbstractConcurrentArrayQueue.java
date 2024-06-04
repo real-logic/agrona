@@ -92,7 +92,7 @@ abstract class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentAr
 /**
  * Left over immutable queue fields.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "removal" })
 public abstract class AbstractConcurrentArrayQueue<E>
     extends AbstractConcurrentArrayQueuePadding3
     implements QueuedPipe<E>

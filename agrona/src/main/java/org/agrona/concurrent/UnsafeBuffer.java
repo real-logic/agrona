@@ -41,6 +41,7 @@ import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
  * <b>Note:</b> The wrap methods on this class are not thread safe. Concurrent access should only happen after a
  * successful wrap.
  */
+@SuppressWarnings("removal")
 public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicBuffer
 {
     /**

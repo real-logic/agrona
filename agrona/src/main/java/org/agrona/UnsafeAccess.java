@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 /**
  * Obtain access the {@link Unsafe} class for direct memory operations.
  */
+@SuppressWarnings("removal")
 public final class UnsafeAccess
 {
     /**

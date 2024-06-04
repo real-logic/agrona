@@ -41,6 +41,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
  *
  * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
+@SuppressWarnings("removal")
 public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
     private static final int SEQUENCES_ARRAY_BASE = UNSAFE.arrayBaseOffset(long[].class);

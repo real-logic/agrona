@@ -955,10 +955,6 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         return result;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Sets and Collections
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * A key set implementation which supports cached iterator to avoid allocation.
      */
@@ -1135,10 +1131,6 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
             throw new UnsupportedOperationException("Cannot remove from EntrySet");
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Iterators
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Base iterator implementation that contains basic logic of traversing the element in the backing array.

@@ -226,6 +226,10 @@ subprojects {
             jvmArgs('-XX:+EnableDynamicAgentLoading')
         }
 
+        if (buildJavaVersion >= 23) {
+            jvmArgs('--sun-misc-unsafe-memory-access=allow')
+        }
+
         useJUnitPlatform()
 
         testLogging {
