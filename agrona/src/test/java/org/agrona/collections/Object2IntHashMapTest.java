@@ -183,7 +183,8 @@ class Object2IntHashMapTest
         final int initialCapacity = 32;
         final Object2IntHashMap<Integer> map = newMap(loadFactor, initialCapacity);
         final int value = 7;
-        final Integer key = 7; //codeql[java/non-null-boxed-variable]
+        //codeql[java/non-null-boxed-variable]
+        final Integer key = 7;
 
         map.put(key, value);
 
@@ -515,7 +516,8 @@ class Object2IntHashMapTest
         final Object2IntHashMap<Integer> objectToIntMap = new Object2IntHashMap<>(32, loadFactor, MISSING_VALUE);
 
         final int value = 12;
-        final Integer key = 12; //codeql[java/non-null-boxed-variable]
+        //codeql[java/non-null-boxed-variable]
+        final Integer key = 12;
 
         objectToIntMap.put(key, value);
         objectToIntMap.put(Integer.valueOf(13), 13);
