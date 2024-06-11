@@ -184,12 +184,13 @@ public final class SystemUtil
     }
 
     /**
-     * Return the system property for java.io.tmpdir ensuring a {@link File#separator} is at the end.
+     * The system property for <code>java.io.tmpdir</code> and ensuring a {@link File#separator} is at the end.
      *
      * @return tmp directory for the runtime.
      */
     public static String tmpDirName()
     {
+        //codeql[java/local-temp-file-or-directory-information-disclosure]
         String tmpDirName = System.getProperty("java.io.tmpdir");
         if (!tmpDirName.endsWith(File.separator))
         {
