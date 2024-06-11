@@ -183,7 +183,7 @@ class Object2IntHashMapTest
         final int initialCapacity = 32;
         final Object2IntHashMap<Integer> map = newMap(loadFactor, initialCapacity);
         final int value = 7;
-        final Integer key = 7; // codeql[java/non-null-boxed-variable]
+        final Integer key = 7; //codeql[java/non-null-boxed-variable]
 
         map.put(key, value);
 
@@ -256,30 +256,33 @@ class Object2IntHashMapTest
         final int testValue = 17;
         final int testValue2 = -71;
 
-        final BiFunction<String, Integer, Integer> function1 = (k, v) ->
-        {
-            assertEquals(testKey, k);
-            assertNull(v);
-            return testValue;
-        };
+        final BiFunction<String, Integer, Integer> function1 =
+            (k, v) ->
+            {
+                assertEquals(testKey, k);
+                assertNull(v);
+                return testValue;
+            };
         assertThat(objectToIntMap.compute(testKey, function1), is(testValue));
         assertThat(objectToIntMap.get(testKey), is(testValue));
 
-        final BiFunction<String, Integer, Integer> function2 = (k, v) ->
-        {
-            assertEquals(testKey, k);
-            assertEquals(testValue, v);
-            return testValue2;
-        };
+        final BiFunction<String, Integer, Integer> function2 =
+            (k, v) ->
+            {
+                assertEquals(testKey, k);
+                assertEquals(testValue, v);
+                return testValue2;
+            };
         assertThat(objectToIntMap.compute(testKey, function2), is(testValue2));
         assertThat(objectToIntMap.get(testKey), is(testValue2));
 
-        final BiFunction<String, Integer, Integer> function3 = (k, v) ->
-        {
-            assertEquals(testKey, k);
-            assertEquals(testValue2, v);
-            return null;
-        };
+        final BiFunction<String, Integer, Integer> function3 =
+            (k, v) ->
+            {
+                assertEquals(testKey, k);
+                assertEquals(testValue2, v);
+                return null;
+            };
         assertNull(objectToIntMap.compute(testKey, function3));
         assertFalse(objectToIntMap.containsKey(testKey));
     }
@@ -512,7 +515,7 @@ class Object2IntHashMapTest
         final Object2IntHashMap<Integer> objectToIntMap = new Object2IntHashMap<>(32, loadFactor, MISSING_VALUE);
 
         final int value = 12;
-        final Integer key = 12; // codeql[java/non-null-boxed-variable]
+        final Integer key = 12; //codeql[java/non-null-boxed-variable]
 
         objectToIntMap.put(key, value);
         objectToIntMap.put(Integer.valueOf(13), 13);
