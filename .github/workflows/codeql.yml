@@ -51,6 +51,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
+          output: sarif-results
 
       - name: Dismiss alerts
         if: github.ref == 'refs/heads/master'
