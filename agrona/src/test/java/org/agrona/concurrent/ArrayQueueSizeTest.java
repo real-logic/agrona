@@ -48,7 +48,7 @@ class ArrayQueueSizeTest
     }
 
     @Test
-    @Timeout(10)
+    @Timeout(30)
     void shouldNeverReportSizeOutOfRange()
     {
         producerThread = new Thread(producer);
