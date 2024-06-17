@@ -5,12 +5,12 @@ on:
   push:
     branches:
       - master
-      - 'release/**'
+      - release/**
   pull_request:
     types: [opened, synchronize]
     branches:
       - master
-      - 'release/**'
+      - release/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,15 +42,18 @@ jobs:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
           config-file: ./.github/codeql/codeql-config.yml
+          packs: "codeql/${{ matrix.language }}-queries:AlertSuppression.ql"
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
+        if: ${{ matrix.language == 'java' }}
 
       - name: Perform CodeQL Analysis
         id: analyze
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
+          upload: false
           output: sarif-results
 
       - name: Dismiss alerts
