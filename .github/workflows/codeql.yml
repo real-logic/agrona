@@ -50,7 +50,7 @@ jobs:
         id: analyze
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/agrona"
           output: sarif-results
 
       - name: Upload SARIF
