@@ -38,7 +38,6 @@ import static org.agrona.collections.IntHashSet.MISSING_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -792,25 +791,6 @@ class IntHashSetTest
     }
 
     @Test
-    void hashCodeAccountsForMissingValue()
-    {
-        addTwoElements(testSet);
-        testSet.add(MISSING_VALUE);
-
-        final IntHashSet other = new IntHashSet(100);
-        addTwoElements(other);
-
-        assertNotEquals(testSet.hashCode(), other.hashCode());
-
-        other.add(MISSING_VALUE);
-        assertEquals(testSet.hashCode(), other.hashCode());
-
-        testSet.remove(MISSING_VALUE);
-
-        assertNotEquals(testSet.hashCode(), other.hashCode());
-    }
-
-    @Test
     void iteratorAccountsForMissingValue()
     {
         addTwoElements(testSet);
@@ -858,8 +838,8 @@ class IntHashSetTest
             set.add(testEntry);
         }
 
-        final String mapAsAString = "{0, 12, 3, 7, 11, 1, 19, -1}";
-        assertThat(set.toString(), equalTo(mapAsAString));
+        final String mapAsAString = "{-1, 12, 3, 7, 11, 1, 19, 0}";
+        assertEquals(mapAsAString, set.toString());
     }
 
     @Test
@@ -1030,7 +1010,7 @@ class IntHashSetTest
     @Test
     void retainAllCollectionRemovesMissingValueWhichWasAddedToTheSet()
     {
-        final List<Integer> coll = Arrays.asList(42, 42, 42, 0, 500);
+        final List<Integer> coll = Arrays.asList(42, 42, 42, 500);
         testSet.add(MISSING_VALUE);
         testSet.add(42);
 
@@ -1081,7 +1061,7 @@ class IntHashSetTest
     void retainAllRemovesMissingValueWhichWasAddedToTheSet()
     {
         final IntHashSet coll = new IntHashSet(5);
-        coll.addAll(Arrays.asList(42, 42, 42, 0, 500));
+        coll.addAll(Arrays.asList(42, 42, 42, -1, 500));
         testSet.add(MISSING_VALUE);
         testSet.add(42);
         testSet.add(500);
@@ -1151,17 +1131,17 @@ class IntHashSetTest
     @Test
     void removeIfIntDeletesAllMatchingValues()
     {
-        final IntPredicate filter = (v) -> v < 0;
+        final IntPredicate filter = (v) -> v < 1;
         testSet.add(1);
+        testSet.add(2);
         testSet.add(-2);
-        testSet.add(0);
         testSet.add(MISSING_VALUE);
 
         assertTrue(testSet.removeIfInt(filter));
 
         assertEquals(2, testSet.size());
         assertTrue(testSet.contains(1));
-        assertTrue(testSet.contains(0));
+        assertTrue(testSet.contains(2));
         assertFalse(testSet.contains(MISSING_VALUE));
     }
 
@@ -1187,15 +1167,15 @@ class IntHashSetTest
         final Predicate<Integer> filter = (v) -> v < 0;
         testSet.add(1);
         testSet.add(-2);
-        testSet.add(0);
         testSet.add(MISSING_VALUE);
+        testSet.add(-1);
 
         assertTrue(testSet.removeIf(filter));
 
         assertEquals(2, testSet.size());
         assertTrue(testSet.contains(1));
-        assertTrue(testSet.contains(0));
-        assertFalse(testSet.contains(MISSING_VALUE));
+        assertTrue(testSet.contains(MISSING_VALUE));
+        assertFalse(testSet.contains(-1));
     }
 
     @Test
@@ -1222,18 +1202,18 @@ class IntHashSetTest
     }
 
     @Test
-    void addAllShouldAddMissingVaueFromAnotherSet()
+    void addAllShouldAddMissingValueFromAnotherSet()
     {
         final IntHashSet other = new IntHashSet(5);
         other.add(1);
         other.add(2);
         other.add(3);
-        testSet.add(0);
+        testSet.add(-1);
 
         assertTrue(testSet.addAll(other));
 
         assertEquals(4, testSet.size());
-        for (int i = 0; i <= 3; i++)
+        for (int i = 1; i <= 3; i++)
         {
             assertTrue(testSet.contains(i));
         }

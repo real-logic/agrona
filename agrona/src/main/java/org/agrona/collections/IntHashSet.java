@@ -53,7 +53,7 @@ public class IntHashSet extends AbstractSet<Integer>
      */
     @DoNotSub public static final int DEFAULT_INITIAL_CAPACITY = 8;
 
-    static final int MISSING_VALUE = -1;
+    static final int MISSING_VALUE = 0;
 
     private final boolean shouldAvoidAllocation;
     private boolean containsMissingValue;
@@ -67,7 +67,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
     /**
      * Construct a hash set with {@link #DEFAULT_INITIAL_CAPACITY}, {@link Hashing#DEFAULT_LOAD_FACTOR}, iterator
-     * caching support and {@code -1} as a missing value.
+     * caching support and {@code 0} as a missing value.
      */
     public IntHashSet()
     {
@@ -76,7 +76,7 @@ public class IntHashSet extends AbstractSet<Integer>
 
     /**
      * Construct a hash set with a proposed capacity, {@link Hashing#DEFAULT_LOAD_FACTOR}, iterator
-     * caching support and {@code -1} as a missing value.
+     * caching support and {@code 0} as a missing value.
      *
      * @param proposedCapacity for the initial capacity of the set.
      */
@@ -87,7 +87,7 @@ public class IntHashSet extends AbstractSet<Integer>
     }
 
     /**
-     * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code -1} as a
+     * Construct a hash set with a proposed initial capacity, load factor, iterator caching support and {@code 0} as a
      * missing value.
      *
      * @param proposedCapacity for the initial capacity of the set.
@@ -121,7 +121,6 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub final int capacity = findNextPositivePowerOfTwo(Math.max(DEFAULT_INITIAL_CAPACITY, proposedCapacity));
         resizeThreshold = (int)(capacity * loadFactor); // @DoNotSub
         values = new int[capacity];
-        Arrays.fill(values, MISSING_VALUE);
     }
 
     /**
@@ -222,8 +221,6 @@ public class IntHashSet extends AbstractSet<Integer>
         /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
         final int[] tempValues = new int[capacity];
-        Arrays.fill(tempValues, MISSING_VALUE);
-
         final int[] values = this.values;
         for (final int value : values)
         {
