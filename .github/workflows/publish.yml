@@ -1,8 +1,26 @@
 name: Publish a release to the Maven Central Repository
 
 on:
-  repository_dispatch:
-    types: [publish_artifacts]
+  workflow_dispatch:
+    inputs:
+      patch:
+        description: Is patch? (Will only update tagged version.txt)
+        required: true
+        default: false
+        type: boolean
+      release:
+        description: Is release? (Will update master version.txt)
+        required: true
+        default: false
+        type: boolean
+      tag:
+        description: Release Version (For tagged version.txt)
+        required: true
+        type: string
+      snapshot-tag:
+        description: New Version (For master version.txt)
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,31 +30,59 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-  build:
+  tag-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Push Tag
+        id: commit-tag
+        if: ${{ inputs.release || inputs.patch }}
+        run: |
+          echo ${{ inputs.tag }} > version.txt
+          git status
+          git commit -am "${{ inputs.tag }} released."
+          git tag -f ${{ inputs.tag }}
+          git push origin refs/tags/${{ inputs.tag }}
+
+  build-java:
     runs-on: ubuntu-22.04
     name: Release task
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.client_payload.gitRef }}
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Cache Gradle wrappers
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          ref: ${{ github.sha }}
+      - name: update-version
+        if: ${{ inputs.release || inputs.patch }}
+        run: |
+          echo ${{ inputs.tag }} > version.txt
+#      - name: Cache Gradle dependencies
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+#          restore-keys: |
+#            ${{ runner.os }}-gradle-
+#      - name: Cache Gradle wrappers
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.gradle/wrapper
+#          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
       - name: Setup java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 8
+      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION
+        run: |
+          java -Xinternalversion
+          echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
+          echo "BUILD_JAVA_VERSION=8" >> $GITHUB_ENV
       - name: Publish a release
         run: ./gradlew publish
         env:
@@ -44,3 +90,21 @@ jobs:
           SIGNING_GPG_PASSWORD: ${{ secrets.signingPassword }}
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
+
+  update-tags:
+    permissions:
+      contents: write
+    needs: build-java
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Update master
+        if: ${{ inputs.release }}
+        run: |
+          echo ${{ inputs.snapshot-tag }} > version.txt
+          git status
+          git commit -am "post ${{ inputs.tag }} release bump"
+          git push origin master
