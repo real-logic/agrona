@@ -33,7 +33,7 @@ jobs:
   tag-release:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
           git push origin refs/tags/${{ inputs.tag }}
 
   build-java:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     name: Release task
     steps:
       - name: Checkout code
@@ -95,7 +95,7 @@ jobs:
     permissions:
       contents: write
     needs: build-java
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     steps:
       - name: checkout
         uses: actions/checkout@v4
