@@ -50,8 +50,12 @@ jobs:
           git push origin refs/tags/${{ inputs.tag }}
 
   build-java:
-    runs-on: self-hosted
     name: Release task
+    permissions:
+      contents: write
+      packages: write
+    needs: tag-release
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
