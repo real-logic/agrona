@@ -14,7 +14,7 @@ on:
         type: boolean
 
       codeql:
-        description: 'run the ci-low-cadence workflow'
+        description: 'run the codeql workflow'
         required: true
         type: boolean
 
