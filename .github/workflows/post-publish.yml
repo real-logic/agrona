@@ -14,17 +14,15 @@ permissions:
   contents: write
 
 jobs:
-  manage-version:
-    name: Update branch version
+  post-publish:
+    name: Update version
     runs-on: self-hosted
     steps:
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
       - name: Commit snapshot version to current branch
-        id: commit-version
         if: ${{ inputs.release }}
         run: |          
           git config user.name "github-actions"
