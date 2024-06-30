@@ -1,4 +1,4 @@
-name: release-ci
+name: Pre-publish ci tasks
 
 on:
   workflow_call:
