@@ -43,7 +43,7 @@ jobs:
     uses: ./.github/workflows/pre-publish.yml
     with:
       release: ${{ inputs.release }}
-      version: ${{ inputs.version }}
+      version: ${{ inputs.publish-version }}
 
   publish:
     name: Publish java artifacts
