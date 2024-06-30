@@ -1,6 +1,24 @@
 name: Post-publish tasks
 
 on:
+  workflow_dispatch:
+    inputs:
+      release:
+        required: true
+        description: a
+        type: boolean
+      major-version:
+        required: true
+        description: b
+        type: number
+      minor-version:
+        required: true
+        description: c
+        type: number
+      patch-version:
+        required: true
+        description: d
+        type: number
   workflow_call:
     inputs:
       release:
