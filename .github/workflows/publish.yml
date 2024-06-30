@@ -86,7 +86,6 @@ jobs:
     needs: publish
     with:
       release: ${{ inputs.release }}
-      pre-build: false
       major-version: ${{ fromJson(inputs.major-version) }}
       minor-version: ${{ fromJson(inputs.minor-version) }}
       patch-version: ${{ fromJson(inputs.patch-version) }}
