@@ -6,15 +6,9 @@ on:
       release:
         required: true
         type: boolean
-      major-version:
+      version:
         required: true
-        type: number
-      minor-version:
-        required: true
-        type: number
-      patch-version:
-        required: true
-        type: number
+        type: string
     outputs:
       sha:
         description: Current SHA after version update
@@ -30,30 +24,30 @@ jobs:
     outputs:
       sha: ${{ steps.return-sha.outputs.sha }}
     steps:
-      - name: Checkout
-        id: checkout
+      - id: checkout
+        name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-      - name: Commit version to current branch
-        id: commit-version
+      - id: commit-version
         if: ${{ inputs.release }}
+        name: Commit version to current branch
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@aeron.io"
-          echo ${{ inputs.major-version }}.${{ inputs.minor-version }}.${{ inputs.patch-version }} > version.txt
+          echo ${{ inputs.version }} > version.txt
           git add version.txt
           git status
-          git commit -m "${{ inputs.major-version }}.${{ inputs.minor-version }}.${{ inputs.patch-version }} version update."
+          git commit -m "${{ inputs.version }} version update."
           git push
-      - name: Tag branch
-        id: tag-branch
+      - id: tag-branch
         if: ${{ inputs.release }}
+        name: Tag branch
         run: |
-          git tag ${{ inputs.major-version }}.${{ inputs.minor-version }}.${{ inputs.patch-version }}
-          git push origin refs/tags/${{ inputs.major-version }}.${{ inputs.minor-version }}.${{ inputs.patch-version }}
-      - name: Return current SHA
-        id: return-sha
+          git tag ${{ inputs.version }}
+          git push origin refs/tags/${{ inputs.version }}
+      - id: return-sha
+        name: Return current SHA
         run: |
           git rev-parse HEAD
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"

@@ -12,18 +12,14 @@ on:
         required: true
         default: false
         type: boolean
-      major-version:
-        description: Major release version
+      publish-version:
+        description: Published version (x.y.z)
         required: true
-        type: number
-      minor-version:
-        description: Minor release version
+        type: string
+      next-version:
+        description: Next version (x.y.z)
         required: true
-        type: number
-      patch-version:
-        description: Patch release version
-        required: true
-        type: number
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,9 +43,7 @@ jobs:
     uses: ./.github/workflows/pre-publish.yml
     with:
       release: ${{ inputs.release }}
-      major-version: ${{ fromJson(inputs.major-version) }}
-      minor-version: ${{ fromJson(inputs.minor-version) }}
-      patch-version: ${{ fromJson(inputs.patch-version) }}
+      version: ${{ inputs.version }}
 
   publish:
     name: Publish java artifacts
@@ -87,6 +81,4 @@ jobs:
     uses: ./.github/workflows/post-publish.yml
     with:
       release: ${{ inputs.release }}
-      major-version: ${{ fromJson(inputs.major-version) }}
-      minor-version: ${{ fromJson(inputs.minor-version) }}
-      patch-version: ${{ fromJson(inputs.patch-version) }}
+      version: ${{ inputs.next-version }}

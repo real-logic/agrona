@@ -1,38 +1,14 @@
 name: Post-publish tasks
 
 on:
-  workflow_dispatch:
-    inputs:
-      release:
-        required: true
-        description: a
-        type: boolean
-      major-version:
-        required: true
-        description: b
-        type: number
-      minor-version:
-        required: true
-        description: c
-        type: number
-      patch-version:
-        required: true
-        description: d
-        type: number
   workflow_call:
     inputs:
       release:
         required: true
         type: boolean
-      major-version:
+      version:
         required: true
-        type: number
-      minor-version:
-        required: true
-        type: number
-      patch-version:
-        required: true
-        type: number
+        type: string
 
 permissions:
   contents: write
@@ -50,19 +26,11 @@ jobs:
       - name: Commit snapshot version to current branch
         id: commit-version
         if: ${{ inputs.release }}
-        run: |
-          major=${{ inputs.major-version }}
-          minor=${{ inputs.minor-version }}
-          patch=${{ inputs.patch-version }}
-          let "patch_incr=patch+1"
-          SNAPSHOT_VERSION="$major.$minor.$patch_incr-SNAPSHOT"
-          
-          echo $SNAPSHOT_VERSION
-          
-#          git config user.name "github-actions"
-#          git config user.email "github-actions@aeron.io"
-#          echo $snapshot_version > version.txt
-#          git add version.txt
-#          git status
-#          git commit -m "$snapshot_version version update."
-#          git push
+        run: |          
+          git config user.name "github-actions"
+          git config user.email "github-actions@aeron.io"
+          echo ${{ inputs.version }}-SNAPSHOT > version.txt
+          git add version.txt
+          git status
+          git commit -m "${{ inputs.version }}-SNAPSHOT version update."
+          git push
