@@ -35,7 +35,7 @@ env:
 jobs:
   run-publish-ci:
     name: Run ci workflows
-    uses: ./.github/workflows/publish-ci.yml
+    uses: ./.github/workflows/pre-publish-ci.yml
     with:
       run-ci: ${{ inputs.run-ci }}
       run-ci-low-cadence: ${{ inputs.run-ci }}
@@ -82,8 +82,9 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
 
   post-publish:
-    uses: ./.github/workflows/post-publish.yml
+    name: Update version
     needs: publish
+    uses: ./.github/workflows/post-publish.yml
     with:
       release: ${{ inputs.release }}
       major-version: ${{ fromJson(inputs.major-version) }}
