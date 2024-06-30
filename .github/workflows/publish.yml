@@ -43,7 +43,7 @@ jobs:
 
   pre-publish:
     name: Update version, tag repo, and return sha
-    needs: run-release-ci
+    needs: run-publish-ci
     uses: ./.github/workflows/pre-publish.yml
     with:
       release: ${{ inputs.release }}
