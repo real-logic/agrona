@@ -1,4 +1,4 @@
-name: Pre-publish tasks
+name: Pre-release tasks
 
 on:
   workflow_call:
