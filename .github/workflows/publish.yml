@@ -3,19 +3,27 @@ name: Publish a release to the Maven Central Repository
 on:
   workflow_dispatch:
     inputs:
+      run-ci:
+        description: Run ci and test workflows
+        required: true
+        type: boolean
       release:
-        description: Is release? (Will update master version.txt)
+        description: Is release? (Will update tags and version)
         required: true
         default: false
         type: boolean
-      tagged-version:
-        description: Release Version (For tagged version.txt)
+      major-version:
+        description: Major release version
         required: true
-        type: string
-      new-version:
-        description: New Version (For branch version.txt)
+        type: number
+      minor-version:
+        description: Minor release version
         required: true
-        type: string
+        type: number
+      patch-version:
+        description: Patch release version
+        required: true
+        type: number
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,40 +33,36 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-  tag-release:
-    permissions:
-      contents: write
-    runs-on: self-hosted
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: update-tag
-        if: ${{ inputs.release }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions"
-          echo ${{ inputs.tagged-version }} > version.txt
-          git add version.txt
-          git status
-          git commit -m "${{ inputs.tagged-version }} released."
-          git tag ${{ inputs.tagged-version }}
-          git push 
-          git push origin refs/tags/${{ inputs.tagged-version }}
+  run-publish-ci:
+    name: Run ci workflows
+    uses: ./.github/workflows/publish-ci.yml
+    with:
+      run-ci: ${{ inputs.run-ci }}
+      run-ci-low-cadence: ${{ inputs.run-ci }}
+      codeql: ${{ inputs.run-ci }}
 
-  build-java:
-    name: Release task
+  pre-publish:
+    name: Update version, tag repo, and return sha
+    needs: run-release-ci
+    uses: ./.github/workflows/pre-publish.yml
+    with:
+      release: ${{ inputs.release }}
+      major-version: ${{ fromJson(inputs.major-version) }}
+      minor-version: ${{ fromJson(inputs.minor-version) }}
+      patch-version: ${{ fromJson(inputs.patch-version) }}
+
+  publish:
+    name: Publish java artifacts
     permissions:
       contents: write
       packages: write
-    needs: tag-release
+    needs: pre-publish
     runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ needs.pre-publish.outputs.sha }}
       - name: Setup java
         uses: actions/setup-java@v4
         with:
@@ -77,23 +81,12 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
 
-  update-tags:
-    permissions:
-      contents: write
-    needs: build-java
-    runs-on: self-hosted
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: update-branch
-        if: ${{ inputs.release }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions"
-          echo ${{ inputs.new-version }} > version.txt
-          git add version.txt
-          git status
-          git commit -m "${{ inputs.tagged-version }} released."
-          git push
+  post-publish:
+    uses: ./.github/workflows/post-publish.yml
+    needs: publish
+    with:
+      release: ${{ inputs.release }}
+      pre-build: false
+      major-version: ${{ fromJson(inputs.major-version) }}
+      minor-version: ${{ fromJson(inputs.minor-version) }}
+      patch-version: ${{ fromJson(inputs.patch-version) }}

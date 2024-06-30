@@ -1,0 +1,52 @@
+name: Post-publish tasks
+
+on:
+  workflow_call:
+    inputs:
+      release:
+        required: true
+        type: boolean
+      major-version:
+        required: true
+        type: number
+      minor-version:
+        required: true
+        type: number
+      patch-version:
+        required: true
+        type: number
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  manage-version:
+    name: Update branch version
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Commit snapshot version to current branch
+        id: commit-version
+        if: ${{ inputs.release }}
+        run: |
+          major=${{ inputs.major-version }}
+          minor=${{ inputs.minor-version }}
+          patch=${{ inputs.patch-version }}
+          let "patch_incr=patch+1"
+          let "snapshot_version=$major.$minor.$patch_incr-SNAPSHOT"
+          
+          git config user.name "github-actions"
+          git config user.email "github-actions@aeron.io"
+          echo $snapshot_version > version.txt
+          git add version.txt
+          git status
+          git commit -m "$snapshot_version version update."
+          git push
