@@ -55,9 +55,9 @@ jobs:
           minor=${{ inputs.minor-version }}
           patch=${{ inputs.patch-version }}
           let "patch_incr=patch+1"
-          let "snapshot_version=$major.$minor.$patch_incr-SNAPSHOT"
+          SNAPSHOT_VERSION="$major.$minor.$patch_incr-SNAPSHOT"
           
-          echo $snapshot_version
+          echo $SNAPSHOT_VERSION
           
 #          git config user.name "github-actions"
 #          git config user.email "github-actions@aeron.io"
