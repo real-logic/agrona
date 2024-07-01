@@ -27,16 +27,25 @@ env:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
 
   ci-low-cadence:
     uses: ./.github/workflows/ci-low-cadence.yml
+    concurrency:
+      group: ci-low-cadence-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
 
   codeql:
     uses: ./.github/workflows/codeql.yml
+    concurrency:
+      group: codeql-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
 
   pre-release:
     name: Update version, tag repo, and return sha
-    needs: [ ci, ci-low-cadence, codeql]
+    needs: [ ci, ci-low-cadence, codeql ]
     uses: ./.github/workflows/pre-release.yml
     with:
       release: ${{ inputs.release }}
