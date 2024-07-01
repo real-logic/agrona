@@ -1,10 +1,10 @@
-name: Release to Maven Central Repository
+name: Release
 
 on:
   workflow_dispatch:
     inputs:
       release:
-        description: Is release? (Will update tags and version)
+        description: Is release? (Will create tag and update version)
         required: true
         default: false
         type: boolean
