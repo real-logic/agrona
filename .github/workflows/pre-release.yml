@@ -28,22 +28,16 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
-      - id: commit-version
+          ref: ${{ github.sha }}
+      - id: tag-version
         if: ${{ inputs.release }}
-        name: Commit version to current branch
+        name: Update version, tag repo, and return current SHA
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@aeron.io"
           echo ${{ inputs.version }} > version.txt
           git add version.txt
-          git status
           git commit -m "${{ inputs.version }} version update."
-          git push
-      - id: tag-branch
-        if: ${{ inputs.release }}
-        name: Tag branch
-        run: |
           git tag ${{ inputs.version }}
           git push origin refs/tags/${{ inputs.version }}
       - id: return-sha
