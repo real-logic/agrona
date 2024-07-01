@@ -42,8 +42,8 @@ jobs:
           echo ${{ inputs.version }} > version.txt
           git add version.txt
           git commit -m "${{ inputs.version }} version update."
-          git tag ${{ inputs.version }}
-          git push origin refs/tags/${{ inputs.version }}
+          git tag -f ${{ inputs.version }}
+          git push -f origin refs/tags/${{ inputs.version }}
       - id: return-sha
         name: Return current SHA
         run: |
