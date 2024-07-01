@@ -36,13 +36,15 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@aeron.io"
           
-          git branch gha-${{ inputs.version }}
-          git switch gha-${{ inputs.version }}
+          new_branch = gha-${{ inputs.version }}
+          
+          git branch $new_branch
+          git switch $new_branch
           
           echo ${{ inputs.version }} > version.txt
           git add version.txt
           git commit -m "${{ inputs.version }} version update."
-          git push --set-upstream origin
+          git push --set-upstream origin $new_branch
           
           git tag -f ${{ inputs.version }}
           git push -f origin refs/tags/${{ inputs.version }}
