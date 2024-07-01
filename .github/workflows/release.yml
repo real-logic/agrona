@@ -3,10 +3,6 @@ name: Release to Maven Central Repository
 on:
   workflow_dispatch:
     inputs:
-      run-ci:
-        description: Run ci and test workflows
-        required: true
-        type: boolean
       release:
         description: Is release? (Will update tags and version)
         required: true
@@ -29,17 +25,18 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-  run-release-ci:
-    name: Run ci workflows
-    uses: ./.github/workflows/pre-release-ci.yml
-    with:
-      run-ci: ${{ inputs.run-ci }}
-      run-ci-low-cadence: ${{ inputs.run-ci }}
-      codeql: ${{ inputs.run-ci }}
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  ci-low-cadence:
+    uses: ./.github/workflows/ci-low-cadence.yml
+
+  codeql:
+    uses: ./.github/workflows/codeql.yml
 
   pre-release:
     name: Update version, tag repo, and return sha
-    needs: run-release-ci
+    needs: [ ci, ci-low-cadence, codeql]
     uses: ./.github/workflows/pre-release.yml
     with:
       release: ${{ inputs.release }}
@@ -62,11 +59,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 8
-      - name: Setup BUILD_JAVA_HOME & BUILD_JAVA_VERSION
-        run: |
-          java -Xinternalversion
-          echo "BUILD_JAVA_HOME=${JAVA_HOME}" >> $GITHUB_ENV
-          echo "BUILD_JAVA_VERSION=8" >> $GITHUB_ENV
       - name: Publish a release
         run: ./gradlew publish
         env:
