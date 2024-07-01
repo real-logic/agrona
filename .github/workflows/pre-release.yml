@@ -33,7 +33,7 @@ jobs:
         name: Validate no new commits
         run: |
           current_sha=$(git rev-parse HEAD)
-          if test $current_sha != '${{ github.sha }}'
+          if test $current_sha = '${{ github.sha }}'
           then exit 1
           fi
       - id: tag-version
