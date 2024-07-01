@@ -42,7 +42,7 @@ jobs:
           echo ${{ inputs.version }} > version.txt
           git add version.txt
           git commit -m "${{ inputs.version }} version update."
-          git push origin
+          git push --set-upstream origin
           
           git tag -f ${{ inputs.version }}
           git push -f origin refs/tags/${{ inputs.version }}
