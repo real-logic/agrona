@@ -22,6 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  ACTIONS_STEP_DEBUG: true
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
