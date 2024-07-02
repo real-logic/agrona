@@ -9,7 +9,7 @@ on:
     - cron: '0 0,12 * * *'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-low-cadence-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
