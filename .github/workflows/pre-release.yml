@@ -44,6 +44,7 @@ jobs:
           git config user.email "github-actions@aeron.io"
           echo ${{ inputs.version }} > version.txt
           git add version.txt
+          git status
           git commit -m "${{ inputs.version }} version update."
           git push
           git tag ${{ inputs.version }}
