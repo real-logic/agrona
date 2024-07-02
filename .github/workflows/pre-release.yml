@@ -33,7 +33,7 @@ jobs:
         name: Validate no new commits
         run: |
           current_sha=$(git rev-parse HEAD)
-          if test $current_sha = '${{ github.sha }}'
+          if test $current_sha != '${{ github.sha }}'
           then exit 1
           fi
       - id: tag-version
@@ -45,6 +45,7 @@ jobs:
           echo ${{ inputs.version }} > version.txt
           git add version.txt
           git commit -m "${{ inputs.version }} version update."
+          git push
           git tag ${{ inputs.version }}
           git push origin refs/tags/${{ inputs.version }}
       - id: return-sha
