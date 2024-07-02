@@ -38,7 +38,7 @@ jobs:
           fi
       - id: tag-version
         if: ${{ inputs.release }}
-        name: Update version, tag repo, and return current SHA
+        name: Update version and tag repo
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@aeron.io"
