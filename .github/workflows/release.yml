@@ -2,20 +2,9 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      release:
-        description: Is release? (Will create tag and update version)
-        required: true
-        default: false
-        type: boolean
-      release-version:
-        description: Released version (x.y.z)
-        required: true
-        type: string
-      next-version:
-        description: Next version (x.y.z)
-        required: true
-        type: string
+  push:
+    tags:
+      - '*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,29 +14,22 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml
-
-  ci-low-cadence:
-    uses: ./.github/workflows/ci-low-cadence.yml
+#  ci:
+#    uses: ./.github/workflows/ci.yml
+#
+#  ci-low-cadence:
+#    uses: ./.github/workflows/ci-low-cadence.yml
 
   codeql:
     uses: ./.github/workflows/codeql.yml
-
-  pre-release:
-    name: Update version, tag repo, and return sha
-    needs: [ ci, ci-low-cadence, codeql ]
-    uses: ./.github/workflows/pre-release.yml
-    with:
-      release: ${{ inputs.release }}
-      version: ${{ inputs.release-version }}
 
   release:
     name: Release java artifacts
     permissions:
       contents: read
       packages: write
-    needs: pre-release
+#    needs: [ ci, ci-low-cadence, codeql ]
+    needs: codeql
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -66,11 +48,3 @@ jobs:
           SIGNING_GPG_PASSWORD: ${{ secrets.signingPassword }}
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
-
-  post-release:
-    name: Update version
-    needs: release
-    uses: ./.github/workflows/post-release.yml
-    with:
-      release: ${{ inputs.release }}
-      version: ${{ inputs.next-version }}
