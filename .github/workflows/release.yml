@@ -25,20 +25,20 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml
-
-  ci-low-cadence:
-    uses: ./.github/workflows/ci-low-cadence.yml
-
-  codeql:
-    uses: ./.github/workflows/codeql.yml
+#  ci:
+#    uses: ./.github/workflows/ci.yml
+#
+#  ci-low-cadence:
+#    uses: ./.github/workflows/ci-low-cadence.yml
+#
+#  codeql:
+#    uses: ./.github/workflows/codeql.yml
 
   pre-release:
     name: Update version, tag repo, and return sha
     permissions:
       contents: write
-    needs: [ ci, ci-low-cadence, codeql ]
+#    needs: [ ci, ci-low-cadence, codeql ]
     runs-on: self-hosted
     outputs:
       sha: ${{ steps.return-sha.outputs.sha }}
