@@ -2,6 +2,20 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: Is release? (Will create tag and update version)
+        required: true
+        default: false
+        type: boolean
+      release-version:
+        description: Released version (x.y.z)
+        required: true
+        type: string
+      next-version:
+        description: Next version (x.y.z)
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,27 +25,66 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-#  ci:
-#    uses: ./.github/workflows/ci.yml
-#
-#  ci-low-cadence:
-#    uses: ./.github/workflows/ci-low-cadence.yml
-#
-#  codeql:
-#    uses: ./.github/workflows/codeql.yml
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  ci-low-cadence:
+    uses: ./.github/workflows/ci-low-cadence.yml
+
+  codeql:
+    uses: ./.github/workflows/codeql.yml
+
+  pre-release:
+    name: Update version, tag repo, and return sha
+    permissions:
+      contents: write
+    needs: [ ci, ci-low-cadence, codeql ]
+    runs-on: self-hosted
+    outputs:
+      sha: ${{ steps.return-sha.outputs.sha }}
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - id: validate
+        name: Validate no new commits
+        run: |
+          current_sha=$(git rev-parse HEAD)
+          if test $current_sha != '${{ github.sha }}'
+          then exit 1
+          fi
+      - id: tag-version
+        if: ${{ inputs.release }}
+        name: Update version, tag repo, and return current SHA
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@aeron.io"
+          echo ${{ inputs.release-version }} > version.txt
+          git add version.txt
+          git commit -m "${{ inputs.release-version }} version update."
+          git push
+          git tag ${{ inputs.release-version }}
+          git push origin refs/tags/${{ inputs.release-version }}
+      - id: return-sha
+        name: Return current SHA
+        run: |
+          git rev-parse HEAD
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   release:
     name: Release java artifacts
     permissions:
       contents: read
       packages: write
-#    needs: [ ci, ci-low-cadence, codeql ]
+    needs: pre-release
     runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ needs.pre-release.outputs.sha }}
       - name: Setup java
         uses: actions/setup-java@v4
         with:
@@ -44,3 +97,25 @@ jobs:
           SIGNING_GPG_PASSWORD: ${{ secrets.signingPassword }}
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
+
+  post-release:
+    name: Update version
+    permissions:
+      contents: write
+    needs: release
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Commit snapshot version to current branch
+        if: ${{ inputs.release }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@aeron.io"
+          echo ${{ inputs.next-version }}-SNAPSHOT > version.txt
+          git add version.txt
+          git status
+          git commit -m "${{ inputs.next-version }}-SNAPSHOT version update."
+          git push
