@@ -1,21 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release:
-        description: Is release? (Will create tag and update version)
-        required: true
-        default: false
-        type: boolean
-      release-version:
-        description: Released version (x.y.z)
-        required: true
-        type: string
-      next-version:
-        description: Next version (x.y.z)
-        required: true
-        type: string
+  push:
+    tags:
+      - '*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,54 +13,21 @@ env:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.java.installations.auto-detect=false -Dorg.gradle.warning.mode=fail'
 
 jobs:
-#  ci:
-#    uses: ./.github/workflows/ci.yml
-#
-#  ci-low-cadence:
-#    uses: ./.github/workflows/ci-low-cadence.yml
-#
-#  codeql:
-#    uses: ./.github/workflows/codeql.yml
+  ci:
+    uses: ./.github/workflows/ci.yml
 
-  pre-release:
-    name: Update version and tag repo for release
-    permissions:
-      contents: write
-#    needs: [ ci, ci-low-cadence, codeql ]
-    runs-on: self-hosted
-    steps:
-      - id: checkout
-        if: ${{ inputs.release }}
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - id: validate
-        if: ${{ inputs.release }}
-        name: Validate no new commits
-        run: |
-          if test $(git rev-parse HEAD) != '${{ github.sha }}'
-          then exit 1
-          fi
-      - id: tag-version
-        if: ${{ inputs.release }}
-        name: Update version, tag repo, and return current SHA
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@aeron.io"
-          echo ${{ inputs.release-version }} > version.txt
-          git add version.txt
-          git commit -m "${{ inputs.release-version }} version update."
-          git push -f
-          git tag -f ${{ inputs.release-version }}
-          git push -f origin refs/tags/${{ inputs.release-version }}
+  ci-low-cadence:
+    uses: ./.github/workflows/ci-low-cadence.yml
+
+  codeql:
+    uses: ./.github/workflows/codeql.yml
 
   release:
     name: Release java artifacts
     permissions:
       contents: read
       packages: write
-    needs: pre-release
+    needs: [ ci, ci-low-cadence, codeql ]
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -117,25 +72,3 @@ jobs:
           tag_name: ${{ inputs.release-version }}
           release_name: Release ${{ inputs.release-version }}
           draft: true
-
-  post-release:
-    if: ${{ inputs.release }}
-    name: Update version after release
-    permissions:
-      contents: write
-    needs: release
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: Commit snapshot version to current branch
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@aeron.io"
-          echo ${{ inputs.next-version }}-SNAPSHOT > version.txt
-          git add version.txt
-          git status
-          git commit -m "${{ inputs.next-version }}-SNAPSHOT version update."
-          git push
