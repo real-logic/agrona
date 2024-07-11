@@ -40,19 +40,18 @@ jobs:
       contents: write
     needs: [ ci, ci-low-cadence, codeql ]
     runs-on: ubuntu-latest
-    outputs:
-      sha: ${{ steps.return-sha.outputs.sha }}
     steps:
       - id: checkout
+        if: ${{ inputs.release }}
         name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
       - id: validate
+        if: ${{ inputs.release }}
         name: Validate no new commits
         run: |
-          current_sha=$(git rev-parse HEAD)
-          if test $current_sha != '${{ github.sha }}'
+          if test $(git rev-parse HEAD) != '${{ github.sha }}'
           then exit 1
           fi
       - id: tag-version
@@ -67,11 +66,6 @@ jobs:
           git push
           git tag ${{ inputs.release-version }}
           git push origin refs/tags/${{ inputs.release-version }}
-      - id: return-sha
-        name: Return current SHA
-        run: |
-          git rev-parse HEAD
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   release:
     name: Release java artifacts
@@ -84,7 +78,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.pre-release.outputs.sha }}
+          ref: ${{ inputs.release && inputs.release-version || github.sha }}
       - name: Setup java
         uses: actions/setup-java@v4
         with:
@@ -103,8 +97,30 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
 
+  github-release:
+    if: ${{ inputs.release }}
+    name: Create Github Release after release
+    permissions:
+      contents: write
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release-version }}
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.release-version }}
+          release_name: Release ${{ inputs.release-version }}
+          draft: true
+
   post-release:
-    name: Update version
+    if: ${{ inputs.release }}
+    name: Update version after release
     permissions:
       contents: write
     needs: release
@@ -115,7 +131,6 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Commit snapshot version to current branch
-        if: ${{ inputs.release }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@aeron.io"
