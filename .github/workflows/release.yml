@@ -52,20 +52,8 @@ jobs:
           SIGNING_GPG_PASSWORD: ${{ secrets.signingPassword }}
           OSSRH_USERNAME: ${{ secrets.ossrhUsername }}
           OSSRH_PASSWORD: ${{ secrets.ossrhPassword }}
-
-  github-release:
-    if: ${{ github.event_name == 'push' }}
-    name: Create Github Release after release
-    permissions:
-      contents: write
-    needs: release
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: Create Release
+      - name: Create Release Notes
+        if: ${{ github.event_name == 'push' }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
