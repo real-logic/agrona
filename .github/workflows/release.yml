@@ -63,7 +63,7 @@ jobs:
           echo ${{ inputs.release-version }} > version.txt
           git add version.txt
           git commit -m "${{ inputs.release-version }} version update."
-          #git push -f
+          git push -f
           git tag -f ${{ inputs.release-version }}
           git push -f origin refs/tags/${{ inputs.release-version }}
 
