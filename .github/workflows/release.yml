@@ -34,7 +34,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'push' && github.ref || github.sha }}
+          ref: ${{ github.ref }}
       - name: Setup java
         uses: actions/setup-java@v4
         with:
