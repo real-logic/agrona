@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '*'
+      - '*.*.*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: ${{ github.ref }}
           draft: true
       - name: Setup java
         uses: actions/setup-java@v4
