@@ -57,13 +57,13 @@ def toolchainJavadocTool = javaToolchains.javadocToolFor {
     languageVersion = JavaLanguageVersion.of(buildJavaVersion)
 }
 
-def byteBuddyVersion = '1.14.17'
+def byteBuddyVersion = '1.14.18'
 def findbugsAnnotationsVersion = '3.0.1'
 def checkstyleVersion = '9.3'
 def hamcrestVersion = '2.2'
 def mockitoVersion = '4.11.0'
-def junitVersion = '5.10.2'
-def guavaTestLib = '33.2.0-jre'
+def junitVersion = '5.10.3'
+def guavaTestLib = '33.2.1-jre'
 def junit4Version = '4.13.2'
 def jmhVersion = '1.37'
 def jcstressVersion = '0.16'
