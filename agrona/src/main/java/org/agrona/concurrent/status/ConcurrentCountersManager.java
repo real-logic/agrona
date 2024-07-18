@@ -164,4 +164,148 @@ public class ConcurrentCountersManager extends CountersManager
             lock.unlock();
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterValue(final int counterId, final long value)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterValue(counterId, value);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterRegistrationId(final int counterId, final long registrationId)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterRegistrationId(counterId, registrationId);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterOwnerId(final int counterId, final long ownerId)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterOwnerId(counterId, ownerId);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterReferenceId(final int counterId, final long referenceId)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterReferenceId(counterId, referenceId);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterLabel(final int counterId, final String label)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterLabel(counterId, label);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterKey(final int counterId, final Consumer<MutableDirectBuffer> keyFunc)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterKey(counterId, keyFunc);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCounterKey(final int counterId, final DirectBuffer keyBuffer, final int offset, final int length)
+    {
+        lock.lock();
+        try
+        {
+            super.setCounterKey(counterId, keyBuffer, offset, length);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void appendToLabel(final int counterId, final String label)
+    {
+        lock.lock();
+        try
+        {
+            super.appendToLabel(counterId, label);
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        lock.lock();
+        try
+        {
+            return super.toString();
+        }
+        finally
+        {
+            lock.unlock();
+        }
+    }
 }

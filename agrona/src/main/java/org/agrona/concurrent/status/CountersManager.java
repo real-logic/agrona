@@ -502,7 +502,7 @@ public class CountersManager extends CountersReader
      */
     public String toString()
     {
-        return "CountersManager{" +
+        return getClass().getSimpleName() + "{" +
             "freeToReuseTimeoutMs=" + freeToReuseTimeoutMs +
             ", highWaterMarkId=" + highWaterMarkId +
             ", freeList=" + freeList +
