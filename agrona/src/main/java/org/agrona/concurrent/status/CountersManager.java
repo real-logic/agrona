@@ -396,7 +396,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} value based for a counter id with volatile memory ordering.
+     * Set an {@link AtomicCounter} value based for a counter id with ordered memory ordering.
      *
      * @param counterId to be set.
      * @param value     to set for the counter.
@@ -408,7 +408,7 @@ public class CountersManager extends CountersReader
     }
 
     /**
-     * Set an {@link AtomicCounter} registration id for a counter id with volatile memory ordering.
+     * Set an {@link AtomicCounter} registration id for a counter id with ordered memory ordering.
      *
      * @param counterId      to be set.
      * @param registrationId to set for the counter.
@@ -559,7 +559,7 @@ public class CountersManager extends CountersReader
 
     private void appendLabel(final int recordOffset, final String suffix)
     {
-        final int existingLength = metaDataBuffer.getInt(recordOffset + LABEL_OFFSET);
+        final int existingLength = metaDataBuffer.getIntVolatile(recordOffset + LABEL_OFFSET);
         final int maxSuffixLength = MAX_LABEL_LENGTH - existingLength;
 
         if (StandardCharsets.US_ASCII == labelCharset)

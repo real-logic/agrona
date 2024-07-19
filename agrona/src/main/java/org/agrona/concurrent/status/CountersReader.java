@@ -574,7 +574,7 @@ public class CountersReader
     }
 
     /**
-     * Get the deadline (ms) for when a given counter id may be reused as a volatile read.
+     * Get the deadline (ms) for when a given counter id may be reused.
      *
      * @param counterId to be read.
      * @return deadline (ms) for when a given counter id may be reused or {@link #NOT_FREE_TO_REUSE} if currently
@@ -583,11 +583,11 @@ public class CountersReader
     public long getFreeForReuseDeadline(final int counterId)
     {
         validateCounterId(counterId);
-        return metaDataBuffer.getLongVolatile(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
+        return metaDataBuffer.getLong(metaDataOffset(counterId) + FREE_FOR_REUSE_DEADLINE_OFFSET);
     }
 
     /**
-     * Get the label for a given counter id.
+     * Get the label for a given counter id as a volatile read.
      *
      * @param counterId to be read.
      * @return the label for the given counter id.
