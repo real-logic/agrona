@@ -88,8 +88,8 @@ def getConfigProperty(final String projectPropertyName, final String envVarName)
 ext {
     isReleaseVersion = !agronaVersion.endsWith('-SNAPSHOT')
 
-    ossrhReleasesRepoUrl = 'http://localhost:8081/artifactory/test-maven-repo/'
-    ossrhSnapshotsRepoUrl = 'http://localhost:8081/artifactory/test-maven-repo/'
+    ossrhReleasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    ossrhSnapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
     ossrhUsername = getConfigProperty('ossrhUsername', 'OSSRH_USERNAME')
     ossrhPassword = getConfigProperty('ossrhPassword', 'OSSRH_PASSWORD')
 
@@ -357,7 +357,6 @@ project(':agrona') {
             maven {
                 name = 'MavenCentral'
                 url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
-                allowInsecureProtocol = true
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -443,7 +442,6 @@ project(':agrona-agent') {
             maven {
                 name = 'MavenCentral'
                 url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
-                allowInsecureProtocol = true
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
