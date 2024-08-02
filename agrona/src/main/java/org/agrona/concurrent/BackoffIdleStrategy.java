@@ -105,7 +105,18 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
  * <p>
  * Spin for maxSpins, then
  * {@link Thread#yield()} for maxYields, then
- * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs
+ * {@link java.util.concurrent.locks.LockSupport#parkNanos(long)} on an exponential backoff to maxParkPeriodNs.
+ * <p>
+ * Under Linux, multiple timer events will be coalesced in a 50 us window to minimize the timer overhead
+ * on the CPU. E.g. if you want to wait 10 us, it could be you need to wait 50us. This situation can be
+ * improved by changing the value of the timerslack_ns property which defaults to 50000. This can be done
+ * like this:
+ * <code>
+ *     echo 10000 &gt; /proc/PID/timerslack_ns
+ * </code>
+ * This will set the timer slack to 10 microseconds for the given PID of the thread. This property
+ * can't be set at the process level, so needs to be set for each thread specifically. Also it isn't
+ * guaranteed that after setting the property, the waiting time will be respected.
  */
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
 {
