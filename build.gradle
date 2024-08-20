@@ -288,6 +288,7 @@ project(':agrona') {
         testImplementation "junit:junit:${junit4Version}" // Compatibility with JUnit 4
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
     def generatedDir = file("${buildDir}/generated-src")
@@ -386,6 +387,7 @@ project(':agrona-agent') {
         testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
     }
 
