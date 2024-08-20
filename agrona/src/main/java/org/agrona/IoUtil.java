@@ -57,7 +57,6 @@ public final class IoUtil
         static final Object FILE_DISPATCHER;
         static final MethodHandle GET_FILE_DESCRIPTOR;
         static final MethodHandle MAP_WITH_SYNC_ADDRESS;
-        static final MethodHandle MAP_ADDRESS;
         static final MethodHandle UNMAP_ADDRESS;
 
         static
@@ -71,12 +70,12 @@ public final class IoUtil
                 Object fileDispatcher = null;
                 MethodHandle mapFileDispatcher = null;
                 MethodHandle getFD = null;
-                MethodHandle mapAddress = null;
                 MethodHandle mapWithSyncAddress = null;
                 MethodHandle unmapFileDispatcher = null;
                 MethodHandle unmapAddress = null;
                 try
                 {
+                    // JDK 21+
                     final Field implLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
                     lookup = (MethodHandles.Lookup)UnsafeAccess.UNSAFE.getObject(
                         MethodHandles.Lookup.class, UnsafeAccess.UNSAFE.staticFieldOffset(implLookupField));
@@ -95,16 +94,9 @@ public final class IoUtil
                 catch (final Throwable ex)
                 {
                     unmapAddress = lookup.unreflect(getMethod(fileChannelClass, "unmap0", long.class, long.class));
-                    try
-                    {
-                        mapWithSyncAddress = lookup.unreflect(getMethod(
-                            fileChannelClass, "map0", int.class, long.class, long.class, boolean.class));
-                    }
-                    catch (final Exception ex2)
-                    {
-                        mapAddress = lookup.unreflect(getMethod(
-                            fileChannelClass, "map0", int.class, long.class, long.class));
-                    }
+                    // JDK 17
+                    mapWithSyncAddress = lookup.unreflect(getMethod(
+                        fileChannelClass, "map0", int.class, long.class, long.class, boolean.class));
                 }
 
                 MAP_FILE_DISPATCHER = mapFileDispatcher;
@@ -112,7 +104,6 @@ public final class IoUtil
                 FILE_DISPATCHER = fileDispatcher;
                 GET_FILE_DESCRIPTOR = getFD;
                 MAP_WITH_SYNC_ADDRESS = mapWithSyncAddress;
-                MAP_ADDRESS = mapAddress;
                 UNMAP_ADDRESS = unmapAddress;
             }
             catch (final Exception ex)
@@ -568,10 +559,6 @@ public final class IoUtil
                 final FileDescriptor fd = (FileDescriptor)MappingMethods.GET_FILE_DESCRIPTOR.invoke(fileChannel);
                 return (long)MappingMethods.MAP_FILE_DISPATCHER.invoke(
                     MappingMethods.FILE_DISPATCHER, fd, getMode(mode), offset, length, false);
-            }
-            else if (null != MappingMethods.MAP_ADDRESS)
-            {
-                return (long)MappingMethods.MAP_ADDRESS.invoke(fileChannel, getMode(mode), offset, length);
             }
             else
             {
