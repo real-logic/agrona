@@ -290,7 +290,7 @@ project(':agrona') {
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
-    def generatedDir = file("${buildDir}/generated-src")
+    def generatedDir = file("${layout.buildDirectory.get()}/generated-src")
     sourceSets {
         generated {
             java.srcDir generatedDir
@@ -504,7 +504,7 @@ project(':agrona-concurrency-tests') {
     tasks.register('concurrencyTests', JavaExec) {
         dependsOn shadowJar
         classpath = files(tasks.shadowJar)
-        workingDir = project.buildDir
+        workingDir = layout.buildDirectory.get()
         args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -Dagrona.strict.alignment.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
         standardOutput = new NullOutputStream()
         errorOutput = new NullOutputStream()
@@ -516,7 +516,7 @@ project(':agrona-concurrency-tests') {
         dependsOn shadowJar
         group 'verification'
         classpath = files(tasks.shadowJar)
-        workingDir = project.buildDir
+        workingDir = layout.buildDirectory.get()
         args = ['-p', jcstressResults, '-r', 'reports/jcstress']
     }
 }
