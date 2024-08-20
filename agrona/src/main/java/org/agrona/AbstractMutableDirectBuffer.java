@@ -107,16 +107,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
         else
         {
-            if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
-            {
-                // This horrible filth is to encourage the JVM to call memset() when address is even.
-                UNSAFE.putByte(array, offset, value);
-                UNSAFE.setMemory(array, offset + 1, length - 1, value);
-            }
-            else
-            {
-                UNSAFE.setMemory(array, offset, length, value);
-            }
+            UNSAFE.setMemory(array, offset, length, value);
         }
     }
 

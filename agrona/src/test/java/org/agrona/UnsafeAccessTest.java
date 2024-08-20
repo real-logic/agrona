@@ -16,26 +16,14 @@
 package org.agrona;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.EnabledOnJre;
-import org.junit.jupiter.api.condition.JRE;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class UnsafeAccessTest
 {
     @Test
-    @EnabledOnJre(JRE.JAVA_8)
-    void memsetHackIsEnabledOnJDK8()
+    void shouldProvideAccessToUnsafe()
     {
-        assertTrue(UnsafeAccess.MEMSET_HACK_REQUIRED);
-    }
-
-    @Test
-    @EnabledForJreRange(min = JRE.JAVA_9)
-    void memsetHackIsDisabledOnJDKAfter8()
-    {
-        assertFalse(UnsafeAccess.MEMSET_HACK_REQUIRED);
+        assertNotNull(UnsafeAccess.UNSAFE);
     }
 }

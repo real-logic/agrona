@@ -35,21 +35,6 @@ public final class UnsafeAccess
      */
     public static final int ARRAY_BYTE_BASE_OFFSET;
 
-    /**
-     * Indicates that a special sequence of instructions must be used instead of simply calling
-     * {@link Unsafe#setMemory(Object, long, long, byte)} in order to trick the JIT into calling the {@code memset}
-     * function.
-     */
-    public static final boolean MEMSET_HACK_REQUIRED;
-
-    /**
-     * A minimal size in bytes for the {@link Unsafe#setMemory(Object, long, long, byte)} after which JIT could decide
-     * to use the {@code memset}.
-     *
-     * @see #MEMSET_HACK_REQUIRED
-     */
-    public static final int MEMSET_HACK_THRESHOLD;
-
     static
     {
         Unsafe unsafe = null;
@@ -74,19 +59,6 @@ public final class UnsafeAccess
 
         UNSAFE = unsafe;
         ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
-
-        boolean memsetHackRequired;
-        try
-        {
-            Class.forName("java.lang.Runtime$Version"); // since JDK 9
-            memsetHackRequired = false;
-        }
-        catch (final ClassNotFoundException ex)
-        {
-            memsetHackRequired = true;
-        }
-        MEMSET_HACK_REQUIRED = memsetHackRequired;
-        MEMSET_HACK_THRESHOLD = 64;
     }
 
     private UnsafeAccess()

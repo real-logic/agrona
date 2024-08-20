@@ -192,17 +192,7 @@ public class MappedResizeableBuffer implements AutoCloseable
             boundsCheck0(index, length);
         }
 
-        final long offset = addressOffset + index;
-        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1))
-        {
-            // This horrible filth is to encourage the JVM to call memset() when address is even.
-            UNSAFE.putByte(null, offset, value);
-            UNSAFE.setMemory(null, offset + 1, length - 1, value);
-        }
-        else
-        {
-            UNSAFE.setMemory(null, offset, length, value);
-        }
+        UNSAFE.setMemory(null, addressOffset + index, length, value);
     }
 
     /**
