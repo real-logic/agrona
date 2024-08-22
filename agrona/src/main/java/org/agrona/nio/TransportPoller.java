@@ -18,7 +18,7 @@ package org.agrona.nio;
 import org.agrona.LangUtil;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.io.UncheckedIOException;
 import java.nio.channels.Selector;
 
 /**
@@ -47,52 +47,6 @@ public class TransportPoller implements AutoCloseable
         ITERATION_THRESHOLD_PROP_NAME, ITERATION_THRESHOLD_DEFAULT);
 
     /**
-     * Reference to the {@code selectedKeys} field in the {@link Selector} class.
-     */
-    protected static final Field SELECTED_KEYS_FIELD;
-
-    /**
-     * Reference to the {@code publicSelectedKeys} field in the {@link Selector} class.
-     */
-    protected static final Field PUBLIC_SELECTED_KEYS_FIELD;
-
-    private static final String SELECTOR_IMPL = "sun.nio.ch.SelectorImpl";
-
-    static
-    {
-        Field selectKeysField = null;
-        Field publicSelectKeysField = null;
-
-        try (Selector selector = Selector.open())
-        {
-            final Class<?> clazz = Class.forName(SELECTOR_IMPL, false, ClassLoader.getSystemClassLoader());
-
-            if (clazz.isAssignableFrom(selector.getClass()))
-            {
-                selectKeysField = clazz.getDeclaredField("selectedKeys");
-                selectKeysField.setAccessible(true);
-
-                publicSelectKeysField = clazz.getDeclaredField("publicSelectedKeys");
-                publicSelectKeysField.setAccessible(true);
-            }
-        }
-        catch (final Exception ex)
-        {
-            LangUtil.rethrowUnchecked(ex);
-        }
-        finally
-        {
-            SELECTED_KEYS_FIELD = selectKeysField;
-            PUBLIC_SELECTED_KEYS_FIELD = publicSelectKeysField;
-        }
-    }
-
-    /**
-     * KeySet used by the {@link Selector} which will be reused to avoid allocation.
-     */
-    protected final NioSelectedKeySet selectedKeySet = new NioSelectedKeySet();
-
-    /**
      * Reference to the {@link Selector} for the transport.
      */
     protected final Selector selector;
@@ -105,13 +59,10 @@ public class TransportPoller implements AutoCloseable
         try
         {
             selector = Selector.open(); // yes, SelectorProvider, blah, blah
-
-            SELECTED_KEYS_FIELD.set(selector, selectedKeySet);
-            PUBLIC_SELECTED_KEYS_FIELD.set(selector, selectedKeySet);
         }
-        catch (final Exception ex)
+        catch (final IOException ex)
         {
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -139,7 +90,6 @@ public class TransportPoller implements AutoCloseable
         try
         {
             selector.selectNow();
-            selectedKeySet.clear();
         }
         catch (final IOException ex)
         {
