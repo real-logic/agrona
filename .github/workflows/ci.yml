@@ -92,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '23-ea' ]
+        java: [ '23-ea', '24-ea' ]
         os: ['ubuntu-22.04', 'windows-latest', 'macos-14']
     steps:
       - name: Checkout code
