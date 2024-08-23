@@ -37,7 +37,7 @@ jobs:
       contents: write
       packages: write
     needs: [ ci, ci-low-cadence, codeql ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
