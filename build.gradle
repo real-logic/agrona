@@ -271,12 +271,13 @@ project(':agrona') {
     dependencies {
         testImplementation files('build/classes/java/generated')
         testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+        testImplementation platform("org.junit:junit-bom:${junitVersion}")
+        testImplementation "org.junit.jupiter:junit-jupiter-params"
         testImplementation "org.mockito:mockito-core:${mockitoVersion}"
         testImplementation "com.google.guava:guava-testlib:${guavaTestLib}"
         testImplementation "junit:junit:${junit4Version}" // Compatibility with JUnit 4
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
@@ -374,8 +375,9 @@ project(':agrona-agent') {
         // Avoid Javac warning about missing dependency from ByteBuddy
         compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
         testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testImplementation platform("org.junit:junit-bom:${junitVersion}")
+        testImplementation "org.junit.jupiter:junit-jupiter-params"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
     }
