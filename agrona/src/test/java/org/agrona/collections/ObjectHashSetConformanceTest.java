@@ -41,7 +41,7 @@ public class ObjectHashSetConformanceTest
             .createTestSuite();
     }
 
-    private static class Generator implements TestSetGenerator<String>
+    private static final class Generator implements TestSetGenerator<String>
     {
         public Set<String> create(final Object... elements)
         {
