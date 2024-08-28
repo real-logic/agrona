@@ -262,7 +262,9 @@ subprojects {
             options.links("https://docs.oracle.com/en/java/javase/${buildJavaVersion}/docs/api/")
         }
 
-        options.addBooleanOption('html5', true)
+        options.addStringOption('-release', java.sourceCompatibility.majorVersion)
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all', true)
 
         javadocTool.set(toolchainJavadocTool)
     }
