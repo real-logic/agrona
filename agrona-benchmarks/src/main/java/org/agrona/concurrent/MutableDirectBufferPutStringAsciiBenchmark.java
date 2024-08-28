@@ -119,6 +119,7 @@ public class MutableDirectBufferPutStringAsciiBenchmark
      * Benchmark entry point.
      *
      * @param args program arguments (ignored)
+     * @throws RunnerException in case of configuration error.
      */
     public static void main(final String[] args) throws RunnerException
     {

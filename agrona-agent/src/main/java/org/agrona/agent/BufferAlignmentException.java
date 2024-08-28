@@ -23,7 +23,13 @@ package org.agrona.agent;
 public class BufferAlignmentException extends RuntimeException
 {
     private static final long serialVersionUID = 4196043654912374628L;
+    /**
+     * Index of the unaligned access.
+     */
     private final int index;
+    /**
+     * Address offset of the unaligned access.
+     */
     private final long addressOffset;
 
     /**

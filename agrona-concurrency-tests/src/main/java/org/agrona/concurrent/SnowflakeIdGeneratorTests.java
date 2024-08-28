@@ -35,7 +35,7 @@ public class SnowflakeIdGeneratorTests
     @State
     public static class UniquenessTest
     {
-        public final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(3);
+        private final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(3);
 
         private long v1;
         private long v2;
@@ -84,7 +84,7 @@ public class SnowflakeIdGeneratorTests
     public static class AdvanceClockTest
     {
         private final AtomicLong clock = new AtomicLong();
-        public final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 0, 0, 0, clock::getAndIncrement);
+        private final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 0, 0, 0, clock::getAndIncrement);
 
         /**
          * First thread calling increment.
@@ -118,7 +118,7 @@ public class SnowflakeIdGeneratorTests
     @State
     public static class IncrementSequenceTest
     {
-        public final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 2, 0, 0, () -> 0);
+        private final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 2, 0, 0, () -> 0);
 
         /**
          * First thread calling increment.

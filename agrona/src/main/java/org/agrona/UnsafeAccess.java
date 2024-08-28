@@ -15,20 +15,18 @@
  */
 package org.agrona;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
 
 /**
- * Obtain access the {@link Unsafe} class for direct memory operations.
+ * Obtain access the {@link sun.misc.Unsafe} class for direct memory operations.
  */
 @SuppressWarnings("removal")
 public final class UnsafeAccess
 {
     /**
-     * Reference to the {@link Unsafe} instance.
+     * Reference to the {@link sun.misc.Unsafe} instance.
      */
-    public static final Unsafe UNSAFE;
+    public static final sun.misc.Unsafe UNSAFE;
 
     /**
      * Byte array base offset.
@@ -37,24 +35,17 @@ public final class UnsafeAccess
 
     static
     {
-        Unsafe unsafe = null;
+        sun.misc.Unsafe unsafe = null;
         try
         {
-            unsafe = Unsafe.getUnsafe();
+            final Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+
+            unsafe = (sun.misc.Unsafe)f.get(null);
         }
         catch (final Exception ex)
         {
-            try
-            {
-                final Field f = Unsafe.class.getDeclaredField("theUnsafe");
-                f.setAccessible(true);
-
-                unsafe = (Unsafe)f.get(null);
-            }
-            catch (final Exception ex2)
-            {
-                LangUtil.rethrowUnchecked(ex);
-            }
+            LangUtil.rethrowUnchecked(ex);
         }
 
         UNSAFE = unsafe;

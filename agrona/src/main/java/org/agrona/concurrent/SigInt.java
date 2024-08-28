@@ -15,12 +15,10 @@
  */
 package org.agrona.concurrent;
 
-import sun.misc.Signal;
-
 import java.util.Objects;
 
 /**
- * Utility to allow the registration of a SIGINT handler that hides the unsupported {@link Signal} class.
+ * Utility to allow the registration of a SIGINT handler that hides the unsupported {@link sun.misc.Signal} class.
  */
 public class SigInt
 {
@@ -37,6 +35,6 @@ public class SigInt
     static void register(final String signalName, final Runnable task)
     {
         Objects.requireNonNull(task);
-        Signal.handle(new Signal(signalName), (signal) -> task.run());
+        sun.misc.Signal.handle(new sun.misc.Signal(signalName), (signal) -> task.run());
     }
 }

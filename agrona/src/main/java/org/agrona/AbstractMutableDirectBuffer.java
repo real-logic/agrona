@@ -28,13 +28,22 @@ import static org.agrona.BufferUtil.*;
 import static org.agrona.UnsafeAccess.*;
 
 /**
- * Common super class for implementing {@link MutableDirectBuffer} interface.
+ * Common base class for implementing {@link MutableDirectBuffer} interface.
  */
 @SuppressWarnings("removal")
 public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 {
+    /**
+     * Byte array reference for on-heap buffers.
+     */
     protected byte[] byteArray;
+    /**
+     * Native address for off-heap buffer or a pointer to the beginning of the byte array.
+     */
     protected long addressOffset;
+    /**
+     * Buffer capacity in bytes.
+     */
     protected int capacity;
 
     /**
@@ -1703,6 +1712,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         return Integer.compare(thisCapacity, thatCapacity);
     }
 
+    /**
+     * Perform bound checks.
+     *
+     * @param index  to verify.
+     * @param length to verify.
+     */
     protected final void boundsCheck0(final int index, final int length)
     {
         final long resultingPosition = index + (long)length;
@@ -1712,6 +1727,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
     }
 
+    /**
+     * A hook to ensure the underlying buffer has enough capacity for writing data into the buffer.
+     *
+     * @param index  at which write occurs.
+     * @param length in bytes.
+     */
     protected abstract void ensureCapacity(int index, int length);
 
     private int parsePositiveIntAscii(final int index, final int length, final int startIndex, final int end)

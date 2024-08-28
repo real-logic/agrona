@@ -51,7 +51,13 @@ public class SetMemoryBenchmark
      */
     public enum Type
     {
+        /**
+         * On-heap (array-based) buffer.
+         */
         ARRAY,
+        /**
+         * Off-heap (direct) buffer.
+         */
         DIRECT
     }
 
