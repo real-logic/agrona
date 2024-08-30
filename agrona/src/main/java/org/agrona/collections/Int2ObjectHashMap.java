@@ -1679,6 +1679,8 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
             private final V v;
 
             /**
+             * Create a new entry.
+             *
              * @param k key.
              * @param v value.
              */

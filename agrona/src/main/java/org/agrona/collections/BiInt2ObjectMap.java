@@ -72,6 +72,7 @@ public class BiInt2ObjectMap<V>
      * Creates a new value based upon keys.
      *
      * @param <V> type of the value.
+     * @param <V1> type of the new value.
      */
     public interface EntryRemap<V, V1>
     {

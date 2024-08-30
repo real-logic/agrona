@@ -33,6 +33,9 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 
 /**
  * An open-addressing with linear probing hash map, same algorithm as {@link Int2IntHashMap}.
+ *
+ * @param <K> the type of keys maintained by this map.
+ * @param <V> the type of mapped values.
  */
 public class Object2ObjectHashMap<K, V> implements Map<K, V>
 {
@@ -68,6 +71,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     }
 
     /**
+     * Create a new instance with specified parameters.
+     *
      * @param initialCapacity       for the map to override {@link #MIN_CAPACITY}
      * @param loadFactor            for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
@@ -755,7 +760,7 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         }
 
         /**
-         * {@inheritDoc}
+         * Removes from the underlying collection the last element returned by this iterator.
          */
         public void remove()
         {
@@ -915,6 +920,8 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
             private V v;
 
             /**
+             * Create a new entry.
+             *
              * @param k key.
              * @param v value.
              */

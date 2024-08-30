@@ -17,6 +17,9 @@ package org.agrona.collections;
 
 /**
  * Variation of {@link Object2ObjectHashMap} that allows {@code null} values.
+ *
+ * @param <K> the type of keys maintained by this map.
+ * @param <V> the type of mapped values.
  */
 public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, V>
 {
@@ -39,6 +42,8 @@ public class Object2NullableObjectHashMap<K, V> extends Object2ObjectHashMap<K, 
     }
 
     /**
+     * Create a new instance with specified parameters.
+     *
      * @param initialCapacity       for the map to override {@link #MIN_CAPACITY}
      * @param loadFactor            for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.

@@ -91,6 +91,8 @@ abstract class AbstractConcurrentArrayQueuePadding3 extends AbstractConcurrentAr
 
 /**
  * Left over immutable queue fields.
+ *
+ * @param <E> type of the queue elements.
  */
 @SuppressWarnings({ "deprecation", "removal" })
 public abstract class AbstractConcurrentArrayQueue<E>

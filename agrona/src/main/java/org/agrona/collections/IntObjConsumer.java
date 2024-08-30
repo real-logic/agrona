@@ -17,12 +17,16 @@ package org.agrona.collections;
 
 /**
  * This is an (int, Object) primitive specialisation of a BiConsumer.
+ *
+ * @param <T> type of the value.
  */
 @FunctionalInterface
 public interface
     IntObjConsumer<T>
 {
     /**
+     * Performs this operation on the given arguments.
+     *
      * @param i for the tuple.
      * @param v for the tuple.
      */

@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 
 /**
  * A container for items exchanged from producers to consumers.
+ *
+ * @param <E> type of the pipe elements.
  */
 public interface Pipe<E>
 {

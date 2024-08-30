@@ -656,6 +656,8 @@ public class ObjectHashSet<T> extends AbstractSet<T>
         }
 
         /**
+         * Get the next value.
+         *
          * @return the next value.
          */
         public T nextValue()

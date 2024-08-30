@@ -1631,6 +1631,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             private int v;
 
             /**
+             * Create a new entry.
+             *
              * @param k key.
              * @param v value.
              */

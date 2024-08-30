@@ -17,6 +17,8 @@ package org.agrona.collections;
 
 /**
  * This is an (Object, int) -&gt; int primitive specialisation of a BiFunction.
+ *
+ * @param <T> the type of the input to the function.
  */
 @FunctionalInterface
 public interface

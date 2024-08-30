@@ -1196,7 +1196,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         }
 
         /**
-         * {@inheritDoc}
+         * Removes from the underlying collection the last element returned by this iterator.
          */
         public void remove()
         {

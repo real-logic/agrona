@@ -45,17 +45,25 @@ import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicBuffer
 {
     /**
+     * Buffer alignment in bytes to ensure atomic word accesses.
+     *
      * @see AtomicBuffer#ALIGNMENT
      */
     public static final int ALIGNMENT = AtomicBuffer.ALIGNMENT;
 
     /**
+     * Should bounds-checks operations be done or not. Controlled by the
+     * {@link DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
      * @see DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
     public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = DirectBuffer.DISABLE_BOUNDS_CHECKS_PROP_NAME;
 
     /**
-     * @see DirectBuffer#SHOULD_BOUNDS_CHECK
+     * Should bounds-checks operations be done or not. Controlled by the
+     * {@link DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
+     * @see DirectBuffer#DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
     public static final boolean SHOULD_BOUNDS_CHECK = DirectBuffer.SHOULD_BOUNDS_CHECK;
 
@@ -360,7 +368,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset + " is not divisible by " +
-                ALIGNMENT);
+                    ALIGNMENT);
         }
     }
 

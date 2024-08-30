@@ -33,6 +33,8 @@ public class ClassFileManager<M extends JavaFileManager> extends ForwardingJavaF
     private final Map<String, JavaClassObject> classObjectByNameMap = new HashMap<>();
 
     /**
+     * Create a new instance.
+     *
      * @param standardManager file manager.
      */
     public ClassFileManager(final M standardManager)

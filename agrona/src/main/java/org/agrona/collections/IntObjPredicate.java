@@ -17,6 +17,8 @@ package org.agrona.collections;
 
 /**
  * This is an (int, Object) primitive specialisation of a BiPredicate.
+ *
+ * @param <T> the type of the input to the predicate.
  */
 @FunctionalInterface
 public interface
