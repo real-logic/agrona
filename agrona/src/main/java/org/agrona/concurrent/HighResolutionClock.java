@@ -26,8 +26,12 @@ import java.time.Instant;
  * For example, on Java 8 many JVMs will only advance a millisecond per tick so when requesting micros or nanos
  * then the returned time may be a multiple of milliseconds. Later JVMs tend to improve on this.
  */
-public class HighResolutionClock
+public final class HighResolutionClock
 {
+    private HighResolutionClock()
+    {
+    }
+
     /**
      * The number of milliseconds since the 1 Jan 1970 UTC.
      *

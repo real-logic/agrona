@@ -21,6 +21,13 @@ package org.agrona.concurrent.status;
 public abstract class ReadablePosition implements AutoCloseable
 {
     /**
+     * Default constructor.
+     */
+    public ReadablePosition()
+    {
+    }
+
+    /**
      * Identifier for this position.
      *
      * @return the identifier for this position.

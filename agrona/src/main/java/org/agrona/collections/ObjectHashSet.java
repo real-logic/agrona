@@ -603,6 +603,13 @@ public class ObjectHashSet<T> extends AbstractSet<T>
         private int stopCounter;
         private boolean isPositionValid = false;
 
+        /**
+         * Creates a new instance.
+         */
+        public ObjectIterator()
+        {
+        }
+
         ObjectIterator reset()
         {
             this.remaining = size;

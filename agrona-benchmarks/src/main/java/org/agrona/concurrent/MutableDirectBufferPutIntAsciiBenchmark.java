@@ -43,6 +43,13 @@ public class MutableDirectBufferPutIntAsciiBenchmark
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(CAPACITY);
 
     /**
+     * Default constructor.
+     */
+    public MutableDirectBufferPutIntAsciiBenchmark()
+    {
+    }
+
+    /**
      * Benchmark the {@link UnsafeBuffer#putIntAscii(int, int)} method.
      *
      * @return length in bytes of the written value.

@@ -631,7 +631,7 @@ public class IntHashSet extends AbstractSet<Integer>
         if (removed && sizeOfArrayValues > 0)
         {
             @DoNotSub final int newCapacity =
-               Math.max(DEFAULT_INITIAL_CAPACITY, findNextPositivePowerOfTwo(sizeOfArrayValues));
+                Math.max(DEFAULT_INITIAL_CAPACITY, findNextPositivePowerOfTwo(sizeOfArrayValues));
             rehash(newCapacity);
         }
 
@@ -853,6 +853,13 @@ public class IntHashSet extends AbstractSet<Integer>
         @DoNotSub private int positionCounter;
         @DoNotSub private int stopCounter;
         private boolean isPositionValid = false;
+
+        /**
+         * Create a new instance.
+         */
+        public IntIterator()
+        {
+        }
 
         IntIterator reset()
         {

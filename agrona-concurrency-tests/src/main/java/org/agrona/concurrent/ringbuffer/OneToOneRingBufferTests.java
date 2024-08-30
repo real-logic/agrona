@@ -39,6 +39,10 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENG
  */
 public class OneToOneRingBufferTests
 {
+    OneToOneRingBufferTests()
+    {
+    }
+
     /**
      * Test for the {@link OneToOneRingBuffer#write(int, DirectBuffer, int, int)} method.
      */
@@ -162,6 +166,10 @@ public class OneToOneRingBufferTests
         private final OneToOneRingBuffer ringBuffer =
             new OneToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
+        TryClaimCommit()
+        {
+        }
+
         /**
          * Producer thread.
          */
@@ -202,6 +210,10 @@ public class OneToOneRingBufferTests
         private final OneToOneRingBuffer ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
         private final ExpandableArrayBuffer srcBuffer = new ExpandableArrayBuffer();
 
+        TryClaimAbort()
+        {
+        }
+
         /**
          * Producer thread.
          */
@@ -239,6 +251,10 @@ public class OneToOneRingBufferTests
     {
         private final OneToOneRingBuffer ringBuffer =
             new OneToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY + TRAILER_LENGTH)));
+
+        CorrelationId()
+        {
+        }
 
         /**
          * First thread.

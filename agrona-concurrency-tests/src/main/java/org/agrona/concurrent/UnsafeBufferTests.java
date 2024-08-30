@@ -29,6 +29,10 @@ import org.openjdk.jcstress.infra.results.J_Result;
  */
 public class UnsafeBufferTests
 {
+    UnsafeBufferTests()
+    {
+    }
+
     /**
      * Test that verifies the atomicity of the {@link UnsafeBuffer#putLongVolatile(int, long)},
      * {@link UnsafeBuffer#putLongOrdered(int, long)} and {@link UnsafeBuffer#getLongVolatile(int)}.
@@ -41,6 +45,10 @@ public class UnsafeBufferTests
     public static class DirectBufferLong
     {
         private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(8, 8));
+
+        DirectBufferLong()
+        {
+        }
 
         /**
          * Writer thread.
@@ -84,6 +92,10 @@ public class UnsafeBufferTests
     public static class DirectBufferInt
     {
         private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(8, 8));
+
+        DirectBufferInt()
+        {
+        }
 
         /**
          * Writer thread.

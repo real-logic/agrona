@@ -24,13 +24,21 @@ import static org.agrona.BitUtil.*;
  * Interceptor to be applied when verifying buffer alignment accesses.
  */
 @SuppressWarnings("unused")
-public class BufferAlignmentInterceptor
+public final class BufferAlignmentInterceptor
 {
+    private BufferAlignmentInterceptor()
+    {
+    }
+
     /**
      * Verifier for {@code long} types.
      */
     public static final class LongVerifier
     {
+        private LongVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code long} types.
          *
@@ -52,6 +60,10 @@ public class BufferAlignmentInterceptor
      */
     public static final class DoubleVerifier
     {
+        private DoubleVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code double} types.
          *
@@ -73,6 +85,10 @@ public class BufferAlignmentInterceptor
      */
     public static final class IntVerifier
     {
+        private IntVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code int} types.
          *
@@ -94,6 +110,10 @@ public class BufferAlignmentInterceptor
      */
     public static final class FloatVerifier
     {
+        private FloatVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code float} types.
          *
@@ -115,6 +135,10 @@ public class BufferAlignmentInterceptor
      */
     public static final class ShortVerifier
     {
+        private ShortVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code short} types.
          *
@@ -136,6 +160,10 @@ public class BufferAlignmentInterceptor
      */
     public static final class CharVerifier
     {
+        private CharVerifier()
+        {
+        }
+
         /**
          * Verify alignment of the {@code char} types.
          *

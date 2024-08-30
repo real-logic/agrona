@@ -22,6 +22,13 @@ package org.agrona.concurrent.status;
 public abstract class StatusIndicator extends StatusIndicatorReader
 {
     /**
+     * Default constructor.
+     */
+    public StatusIndicator()
+    {
+    }
+
+    /**
      * Sets the current status indication of the component with ordered atomic memory semantics.
      *
      * @param value the current status indication of the component.

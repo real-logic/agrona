@@ -1120,6 +1120,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public KeySet()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public KeyIterator iterator()
@@ -1174,6 +1181,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public final class ValueCollection extends AbstractCollection<Integer>
     {
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
+
+        /**
+         * Create a new instance.
+         */
+        public ValueCollection()
+        {
+        }
 
         /**
          * {@inheritDoc}
@@ -1253,6 +1267,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public final class EntrySet extends AbstractSet<Map.Entry<K, Integer>>
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
+
+        /**
+         * Create a new instance.
+         */
+        public EntrySet()
+        {
+        }
 
         /**
          * {@inheritDoc}
@@ -1480,6 +1501,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public final class ValueIterator extends AbstractIterator<Integer>
     {
         /**
+         * Create a new instance.
+         */
+        public ValueIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public Integer next()
@@ -1505,6 +1533,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     public final class KeyIterator extends AbstractIterator<K>
     {
         /**
+         * Create a new instance.
+         */
+        public KeyIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public K next()
@@ -1521,6 +1556,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         extends AbstractIterator<Entry<K, Integer>>
         implements Entry<K, Integer>
     {
+        /**
+         * Create a new instance.
+         */
+        public EntryIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */

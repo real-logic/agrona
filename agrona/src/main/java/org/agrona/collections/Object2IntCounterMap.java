@@ -34,16 +34,12 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
  */
 public class Object2IntCounterMap<K>
 {
-    @DoNotSub
-    private static final int MIN_CAPACITY = 8;
+    @DoNotSub private static final int MIN_CAPACITY = 8;
 
-    @DoNotSub
     private final float loadFactor;
     private final int initialValue;
-    @DoNotSub
-    private int resizeThreshold;
-    @DoNotSub
-    private int size = 0;
+    @DoNotSub private int resizeThreshold;
+    @DoNotSub private int size = 0;
 
     private K[] keys;
     private int[] values;
@@ -82,8 +78,7 @@ public class Object2IntCounterMap<K>
         values = new int[capacity];
         Arrays.fill(values, initialValue);
 
-        /* @DoNotSub */
-        resizeThreshold = (int)(capacity * loadFactor);
+        /* @DoNotSub */ resizeThreshold = (int)(capacity * loadFactor);
     }
 
     /**
@@ -112,8 +107,7 @@ public class Object2IntCounterMap<K>
      *
      * @return the threshold when the map will resize.
      */
-    @DoNotSub
-    public int resizeThreshold()
+    @DoNotSub public int resizeThreshold()
     {
         return resizeThreshold;
     }
@@ -123,8 +117,7 @@ public class Object2IntCounterMap<K>
      *
      * @return the total capacity for the map.
      */
-    @DoNotSub
-    public int capacity()
+    @DoNotSub public int capacity()
     {
         return values.length;
     }
@@ -134,8 +127,7 @@ public class Object2IntCounterMap<K>
      *
      * @return map size, counters at {@link #initialValue()} are not counted.
      */
-    @DoNotSub
-    public int size()
+    @DoNotSub public int size()
     {
         return size;
     }
@@ -594,8 +586,7 @@ public class Object2IntCounterMap<K>
     private void rehash(@DoNotSub final int newCapacity)
     {
         @DoNotSub final int mask = newCapacity - 1;
-        /* @DoNotSub */
-        resizeThreshold = (int)(newCapacity * loadFactor);
+        /* @DoNotSub */ resizeThreshold = (int)(newCapacity * loadFactor);
 
         @SuppressWarnings("unchecked") final K[] tempKeys = (K[])new Object[newCapacity];
         final int[] tempValues = new int[newCapacity];

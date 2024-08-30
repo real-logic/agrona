@@ -26,6 +26,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SnowflakeIdGeneratorTests
 {
+    SnowflakeIdGeneratorTests()
+    {
+    }
 
     /**
      * Test to ensure that the generated id is unique.
@@ -39,6 +42,10 @@ public class SnowflakeIdGeneratorTests
 
         private long v1;
         private long v2;
+
+        UniquenessTest()
+        {
+        }
 
         /**
          * First thread calling increment.
@@ -86,6 +93,10 @@ public class SnowflakeIdGeneratorTests
         private final AtomicLong clock = new AtomicLong();
         private final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 0, 0, 0, clock::getAndIncrement);
 
+        AdvanceClockTest()
+        {
+        }
+
         /**
          * First thread calling increment.
          *
@@ -119,6 +130,10 @@ public class SnowflakeIdGeneratorTests
     public static class IncrementSequenceTest
     {
         private final SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(0, 2, 0, 0, () -> 0);
+
+        IncrementSequenceTest()
+        {
+        }
 
         /**
          * First thread calling increment.

@@ -26,8 +26,12 @@ import static org.agrona.concurrent.errors.DistinctErrorLog.*;
  * <p>
  * The read methods are thread safe.
  */
-public class ErrorLogReader
+public final class ErrorLogReader
 {
+    private ErrorLogReader()
+    {
+    }
+
     /**
      * Has the error buffer any recorded errors?
      *

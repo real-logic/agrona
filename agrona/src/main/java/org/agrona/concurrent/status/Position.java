@@ -23,6 +23,13 @@ package org.agrona.concurrent.status;
 public abstract class Position extends ReadablePosition
 {
     /**
+     * Default constructor.
+     */
+    public Position()
+    {
+    }
+
+    /**
      * Has this Position been closed?
      *
      * @return true if this position has already been closed.

@@ -68,6 +68,13 @@ public class UnmodifiableCollectionView<V, E> extends AbstractCollection<V>
         private Iterator<E> delegate;
 
         /**
+         * Create a new instance.
+         */
+        public ReusableIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public boolean hasNext()

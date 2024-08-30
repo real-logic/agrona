@@ -421,6 +421,13 @@ public class IntArrayQueue extends AbstractQueue<Integer>
     {
         @DoNotSub private int index;
 
+        /**
+         * Create a new instance.
+         */
+        public IntIterator()
+        {
+        }
+
         IntIterator reset()
         {
             index = IntArrayQueue.this.head;

@@ -50,6 +50,13 @@ public class MutableDirectBufferPutStringAsciiBenchmark
     private final String string = charSequence.toString();
 
     /**
+     * Default constructor.
+     */
+    public MutableDirectBufferPutStringAsciiBenchmark()
+    {
+    }
+
+    /**
      * Benchmark the {@link UnsafeBuffer#putStringAscii(int, String)} method.
      *
      * @return length in bytes of the written value.

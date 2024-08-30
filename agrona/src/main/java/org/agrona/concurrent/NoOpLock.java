@@ -32,6 +32,13 @@ public final class NoOpLock implements Lock
     public static final NoOpLock INSTANCE = new NoOpLock();
 
     /**
+     * Create a new instance.
+     */
+    public NoOpLock()
+    {
+    }
+
+    /**
      * Proceeds as if the lock has been acquired.
      */
     public void lock()

@@ -20,8 +20,12 @@ import java.util.Objects;
 /**
  * Utility to allow the registration of a SIGINT handler that hides the unsupported {@link sun.misc.Signal} class.
  */
-public class SigInt
+public final class SigInt
 {
+    private SigInt()
+    {
+    }
+
     /**
      * Register a task to be run when a SIGINT is received.
      *

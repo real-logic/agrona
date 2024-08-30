@@ -47,6 +47,13 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     protected int capacity;
 
     /**
+     * Default constructor.
+     */
+    protected AbstractMutableDirectBuffer()
+    {
+    }
+
+    /**
      * {@inheritDoc}
      */
     public byte[] byteArray()

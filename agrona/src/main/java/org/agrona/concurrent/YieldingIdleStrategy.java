@@ -21,6 +21,13 @@ package org.agrona.concurrent;
 public final class YieldingIdleStrategy implements IdleStrategy
 {
     /**
+     * Create a new instance.
+     */
+    public YieldingIdleStrategy()
+    {
+    }
+
+    /**
      * Name to be returned from {@link #alias()}.
      */
     public static final String ALIAS = "yield";

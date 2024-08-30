@@ -32,6 +32,13 @@ public class StringWriterOutputManager implements DynamicPackageOutputManager
     private final HashMap<String, StringWriter> sourceFileByName = new HashMap<>();
 
     /**
+     * Create a new instance.
+     */
+    public StringWriterOutputManager()
+    {
+    }
+
+    /**
      * {@inheritDoc}
      */
     public Writer createOutput(final String name)

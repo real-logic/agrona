@@ -51,6 +51,13 @@ public class MutableDirectBufferPutLongAsciiBenchmark
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(CAPACITY);
 
     /**
+     * Default constructor.
+     */
+    public MutableDirectBufferPutLongAsciiBenchmark()
+    {
+    }
+
+    /**
      * Benchmark the {@link UnsafeBuffer#putLongAscii(int, long)} method.
      *
      * @return length in bytes of the written value.

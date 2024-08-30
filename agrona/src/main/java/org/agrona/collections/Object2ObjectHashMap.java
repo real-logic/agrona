@@ -789,6 +789,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     public final class KeyIterator extends AbstractIterator implements Iterator<K>
     {
         /**
+         * Create a new instance.
+         */
+        public KeyIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         @SuppressWarnings("unchecked")
@@ -804,6 +811,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
      */
     public final class ValueIterator extends AbstractIterator implements Iterator<V>
     {
+        /**
+         * Create a new instance.
+         */
+        public ValueIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -821,6 +835,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         extends AbstractIterator
         implements Iterator<Entry<K, V>>, Entry<K, V>
     {
+        /**
+         * Create a new instance.
+         */
+        public EntryIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -1001,6 +1022,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public KeySet()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public KeyIterator iterator()
@@ -1075,6 +1103,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public ValueCollection()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public ValueIterator iterator()
@@ -1131,6 +1166,13 @@ public class Object2ObjectHashMap<K, V> implements Map<K, V>
     public final class EntrySet extends AbstractSet<Map.Entry<K, V>>
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
+
+        /**
+         * Create a new instance.
+         */
+        public EntrySet()
+        {
+        }
 
         /**
          * {@inheritDoc}

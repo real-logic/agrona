@@ -32,6 +32,13 @@ public final class NoOpIdleStrategy implements IdleStrategy
     public static final NoOpIdleStrategy INSTANCE = new NoOpIdleStrategy();
 
     /**
+     * Create a new instance.
+     */
+    public NoOpIdleStrategy()
+    {
+    }
+
+    /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      * <p>
      * {@inheritDoc}

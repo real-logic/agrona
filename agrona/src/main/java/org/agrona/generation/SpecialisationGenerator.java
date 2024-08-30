@@ -39,6 +39,13 @@ public final class SpecialisationGenerator
         new Substitution("long", "Long", "Long"));
 
     /**
+     * Create a new instance.
+     */
+    public SpecialisationGenerator()
+    {
+    }
+
+    /**
      * Main method.
      *
      * @param args command line args.

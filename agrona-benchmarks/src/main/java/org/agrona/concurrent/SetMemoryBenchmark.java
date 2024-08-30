@@ -62,6 +62,13 @@ public class SetMemoryBenchmark
     }
 
     /**
+     * Default constructor.
+     */
+    public SetMemoryBenchmark()
+    {
+    }
+
+    /**
      * Setup.
      */
     @Setup

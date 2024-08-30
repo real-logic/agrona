@@ -22,6 +22,13 @@ package org.agrona.concurrent.status;
 public abstract class StatusIndicatorReader
 {
     /**
+     * Default constructor.
+     */
+    public StatusIndicatorReader()
+    {
+    }
+
+    /**
      * Identifier for this status indicator.
      *
      * @return the identifier for this status indicator.

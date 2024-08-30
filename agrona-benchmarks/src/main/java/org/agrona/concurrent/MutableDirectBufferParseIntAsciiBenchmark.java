@@ -44,6 +44,13 @@ public class MutableDirectBufferParseIntAsciiBenchmark
     private final ExpandableDirectByteBuffer expandableDirectByteBuffer = new ExpandableDirectByteBuffer(CAPACITY);
 
     /**
+     * Default constructor.
+     */
+    public MutableDirectBufferParseIntAsciiBenchmark()
+    {
+    }
+
+    /**
      * Setup test data.
      */
     @Setup

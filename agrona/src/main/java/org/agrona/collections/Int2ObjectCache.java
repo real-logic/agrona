@@ -963,6 +963,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         private final KeyIterator iterator = new KeyIterator();
 
         /**
+         * Create a new instance.
+         */
+        public KeySet()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         @DoNotSub public int size()
@@ -1032,6 +1039,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         private final ValueIterator iterator = new ValueIterator();
 
         /**
+         * Create a new instance.
+         */
+        public ValueCollection()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         @DoNotSub public int size()
@@ -1088,6 +1102,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
         private final EntryIterator iterator = new EntryIterator();
+
+        /**
+         * Create a new instance.
+         */
+        public EntrySet()
+        {
+        }
 
         /**
          * {@inheritDoc}
@@ -1211,6 +1232,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
     public final class ValueIterator extends AbstractIterator<V>
     {
         /**
+         * Create a new instance.
+         */
+        public ValueIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         @SuppressWarnings("unchecked")
@@ -1226,6 +1254,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
      */
     public final class KeyIterator extends AbstractIterator<Integer>
     {
+        /**
+         * Create a new instance.
+         */
+        public KeyIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -1253,6 +1288,13 @@ public class Int2ObjectCache<V> implements Map<Integer, V>
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>
     {
+        /**
+         * Create a new instance.
+         */
+        public EntryIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */

@@ -54,6 +54,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     private EntrySet entrySet;
 
     /**
+     * Create a map instance that does not allocate iterators with a specified {@code missingValue}.
+     *
      * @param missingValue for the map that represents null.
      */
     public Int2IntHashMap(final int missingValue)
@@ -62,6 +64,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Create a map instance that does not allocate iterators with specified parameters.
+     *
      * @param initialCapacity for the map to override {@link #MIN_CAPACITY}
      * @param loadFactor      for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
      * @param missingValue    for the map that represents null.
@@ -75,6 +79,8 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     }
 
     /**
+     * Create a map instance with specified parameters.
+     *
      * @param initialCapacity       for the map to override {@link #MIN_CAPACITY}
      * @param loadFactor            for the map to override {@link Hashing#DEFAULT_LOAD_FACTOR}.
      * @param missingValue          for the map that represents null.
@@ -1223,6 +1229,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public final class KeyIterator extends AbstractIterator implements Iterator<Integer>
     {
         /**
+         * Create a new instance.
+         */
+        public KeyIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public Integer next()
@@ -1247,6 +1260,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
      */
     public final class ValueIterator extends AbstractIterator implements Iterator<Integer>
     {
+        /**
+         * Create a new instance.
+         */
+        public ValueIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -1274,6 +1294,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         extends AbstractIterator
         implements Iterator<Entry<Integer, Integer>>, Entry<Integer, Integer>
     {
+        /**
+         * Create a new instance.
+         */
+        public EntryIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -1476,6 +1503,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public KeySet()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public KeyIterator iterator()
@@ -1567,6 +1601,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public ValueCollection()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public ValueIterator iterator()
@@ -1640,6 +1681,13 @@ public class Int2IntHashMap implements Map<Integer, Integer>
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, Integer>>
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
+
+        /**
+         * Create a new instance.
+         */
+        public EntrySet()
+        {
+        }
 
         /**
          * {@inheritDoc}

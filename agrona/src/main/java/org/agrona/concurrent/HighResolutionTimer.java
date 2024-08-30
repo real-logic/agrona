@@ -20,9 +20,13 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Control the use of high-resolution timers on Windows by a bit of hackery.
  */
-public class HighResolutionTimer
+public final class HighResolutionTimer
 {
     private static final AtomicReference<Thread> THREAD = new AtomicReference<>();
+
+    private HighResolutionTimer()
+    {
+    }
 
     /**
      * Has the high resolution timer been enabled?

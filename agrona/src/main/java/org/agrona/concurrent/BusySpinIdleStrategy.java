@@ -35,6 +35,13 @@ public final class BusySpinIdleStrategy implements IdleStrategy
     public static final BusySpinIdleStrategy INSTANCE = new BusySpinIdleStrategy();
 
     /**
+     * Create a new instance.
+     */
+    public BusySpinIdleStrategy()
+    {
+    }
+
+    /**
      * <b>Note</b>: this implementation will result in no safepoint poll once inlined.
      * <p>
      * {@inheritDoc}

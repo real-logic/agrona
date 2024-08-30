@@ -72,9 +72,11 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
+     * Construct a new composite with a given list {@link Agent}s to begin with.
+     *
      * @param roleName to be given for {@link Agent#roleName()}.
-     * @param agents   the parts of this composite, at least one agent and no null agents allowed
-     * @throws NullPointerException if the array or any element is null
+     * @param agents   the parts of this composite, at least one agent and no null agents allowed.
+     * @throws NullPointerException if the array or any element is null.
      */
     public DynamicCompositeAgent(final String roleName, final List<? extends Agent> agents)
     {
@@ -100,9 +102,11 @@ public class DynamicCompositeAgent implements Agent
     }
 
     /**
+     * Construct a new composite with a given list {@link Agent}s to begin with.
+     *
      * @param roleName to be given for {@link Agent#roleName()}.
-     * @param agents   the parts of this composite, at least one agent and no null agents allowed
-     * @throws NullPointerException if the array or any element is null
+     * @param agents   the parts of this composite, at least one agent and no null agents allowed.
+     * @throws NullPointerException if the array or any element is null.
      */
     public DynamicCompositeAgent(final String roleName, final Agent... agents)
     {
@@ -169,7 +173,7 @@ public class DynamicCompositeAgent implements Agent
      * Note that one agent throwing an exception on close will not prevent other agents from being closed.
      *
      * @throws RuntimeException if any sub-agent throws an exception onClose. The agents exceptions are collected as
-     * suppressed exceptions in the thrown exception.
+     *                          suppressed exceptions in the thrown exception.
      */
     public void onClose()
     {

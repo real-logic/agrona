@@ -39,6 +39,10 @@ import static org.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENG
  */
 public class ManyToOneRingBufferTests
 {
+    ManyToOneRingBufferTests()
+    {
+    }
+
     /**
      * Common set of annotation for write tests.
      */
@@ -50,6 +54,9 @@ public class ManyToOneRingBufferTests
     @Outcome(id = "5, 0", expect = Expect.ACCEPTABLE, desc = "writer2 -> writer1 -> reader")
     public static class WriteTest
     {
+        WriteTest()
+        {
+        }
     }
 
     /**
@@ -125,6 +132,10 @@ public class ManyToOneRingBufferTests
         private static final int MSG_TYPE_ID = 11;
         private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
 
+        TryClaimCommit()
+        {
+        }
+
         /**
          * First writer thread.
          */
@@ -180,6 +191,10 @@ public class ManyToOneRingBufferTests
     {
         private static final int MSG_TYPE_ID = 19;
         private final ManyToOneRingBuffer ringBuffer = new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(1024)));
+
+        TryClaimAbort()
+        {
+        }
 
         /**
          * First writer thread.
@@ -245,6 +260,10 @@ public class ManyToOneRingBufferTests
     {
         private final ManyToOneRingBuffer ringBuffer =
             new ManyToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY + TRAILER_LENGTH)));
+
+        CorrelationId()
+        {
+        }
 
         /**
          * First thread.

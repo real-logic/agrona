@@ -28,6 +28,8 @@ public class CompositeAgent implements Agent
     private int agentIndex = 0;
 
     /**
+     * Construct a new composite with a given list {@link Agent}s to begin with.
+     *
      * @param agents the parts of this composite, at least one agent and no null agents allowed
      * @throws IllegalArgumentException if an empty array of agents is provided
      * @throws NullPointerException     if the array or any element is null
@@ -38,6 +40,8 @@ public class CompositeAgent implements Agent
     }
 
     /**
+     * Construct a new composite with a given list {@link Agent}s to begin with.
+     *
      * @param agents the parts of this composite, at least one agent and no null agents allowed
      * @throws IllegalArgumentException if an empty array of agents is provided, or single agent provided
      * @throws NullPointerException     if the array or any element is null
@@ -79,7 +83,7 @@ public class CompositeAgent implements Agent
      * Note that one agent throwing an exception on start will not prevent other agents from being started.
      *
      * @throws RuntimeException if any sub-agent throws an exception onStart. The agents exceptions are collected as
-     * suppressed exceptions in the thrown exception.
+     *                          suppressed exceptions in the thrown exception.
      */
     public void onStart()
     {
@@ -131,7 +135,7 @@ public class CompositeAgent implements Agent
      * Note that one agent throwing an exception on close will not prevent other agents from being closed.
      *
      * @throws RuntimeException if any sub-agent throws an exception onClose. The agents exceptions are collected as
-     * suppressed exceptions in the thrown exception.
+     *                          suppressed exceptions in the thrown exception.
      */
     public void onClose()
     {

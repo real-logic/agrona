@@ -1158,6 +1158,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         private final KeyIterator keyIterator = shouldAvoidAllocation ? new KeyIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public KeySet()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public KeyIterator iterator()
@@ -1259,6 +1266,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         private final ValueIterator valueIterator = shouldAvoidAllocation ? new ValueIterator() : null;
 
         /**
+         * Create a new instance.
+         */
+        public ValueCollection()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public ValueIterator iterator()
@@ -1324,6 +1338,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public final class EntrySet extends AbstractSet<Map.Entry<Integer, V>>
     {
         private final EntryIterator entryIterator = shouldAvoidAllocation ? new EntryIterator() : null;
+
+        /**
+         * Create a new instance.
+         */
+        public EntrySet()
+        {
+        }
 
         /**
          * {@inheritDoc}
@@ -1560,6 +1581,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
     public final class ValueIterator extends AbstractIterator<V>
     {
         /**
+         * Create a new instance.
+         */
+        public ValueIterator()
+        {
+        }
+
+        /**
          * {@inheritDoc}
          */
         public V next()
@@ -1575,6 +1603,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
      */
     public final class KeyIterator extends AbstractIterator<Integer>
     {
+        /**
+         * Create a new instance.
+         */
+        public KeyIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -1603,6 +1638,13 @@ public class Int2ObjectHashMap<V> implements Map<Integer, V>
         extends AbstractIterator<Entry<Integer, V>>
         implements Entry<Integer, V>
     {
+        /**
+         * Create a new instance.
+         */
+        public EntryIterator()
+        {
+        }
+
         /**
          * {@inheritDoc}
          */
