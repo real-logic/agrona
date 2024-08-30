@@ -89,7 +89,7 @@ public class OneToOneRingBufferTests
             {
                 result.r1 = buffer.getInt(index);
                 result.r2 = buffer.getLong(index + SIZE_OF_INT);
-            });
+            }, 1);
         }
     }
 
@@ -136,7 +136,7 @@ public class OneToOneRingBufferTests
         @Actor
         public void consumer(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index), 1);
         }
 
         /**
@@ -147,7 +147,7 @@ public class OneToOneRingBufferTests
         @Arbiter
         public void arbiter(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
     }
 
@@ -189,7 +189,7 @@ public class OneToOneRingBufferTests
         @Actor
         public void consumer(final II_Result result)
         {
-            result.r1 = ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index + 28));
+            result.r1 = ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index + 28), 1);
         }
     }
 
@@ -236,7 +236,7 @@ public class OneToOneRingBufferTests
         @Actor
         public void consumer(final II_Result result)
         {
-            result.r1 = ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+            result.r1 = ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
     }
 

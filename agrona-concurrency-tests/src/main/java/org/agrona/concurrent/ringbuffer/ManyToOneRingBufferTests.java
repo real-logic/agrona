@@ -46,12 +46,10 @@ public class ManyToOneRingBufferTests
     /**
      * Common set of annotation for write tests.
      */
-    @Outcome(id = "0, 5", expect = Expect.ACCEPTABLE, desc = "reader -> writer2 -> writer1")
-    @Outcome(id = "0, 16", expect = Expect.ACCEPTABLE, desc = "reader -> writer1 -> writer2")
+    @Outcome(id = "0, 5", expect = Expect.ACCEPTABLE, desc = "reader -> writer1 -> writer2")
+    @Outcome(id = "0, 16", expect = Expect.ACCEPTABLE, desc = "reader -> writer2 -> writer1")
     @Outcome(id = "5, 16", expect = Expect.ACCEPTABLE, desc = "writer1 -> reader -> writer2")
     @Outcome(id = "16, 5", expect = Expect.ACCEPTABLE, desc = "writer2 -> reader -> writer1")
-    @Outcome(id = "16, 0", expect = Expect.ACCEPTABLE, desc = "writer1 -> writer2 -> reader")
-    @Outcome(id = "5, 0", expect = Expect.ACCEPTABLE, desc = "writer2 -> writer1 -> reader")
     public static class WriteTest
     {
         WriteTest()
@@ -86,7 +84,7 @@ public class ManyToOneRingBufferTests
         @Actor
         public void writer1()
         {
-            ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, SIZE_OF_INT);
+            ringBuffer.write(MSG_TYPE_ID, srcBuffer, 0, SIZE_OF_INT); // -> 5
         }
 
         /**
@@ -95,7 +93,7 @@ public class ManyToOneRingBufferTests
         @Actor
         public void writer2()
         {
-            ringBuffer.write(MSG_TYPE_ID, srcBuffer, SIZE_OF_LONG, SIZE_OF_INT);
+            ringBuffer.write(MSG_TYPE_ID, srcBuffer, SIZE_OF_LONG, SIZE_OF_INT); // -> 16
         }
 
         /**
@@ -106,7 +104,7 @@ public class ManyToOneRingBufferTests
         @Actor
         public void reader(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index), 1);
         }
 
         /**
@@ -117,7 +115,7 @@ public class ManyToOneRingBufferTests
         @Arbiter
         public void arbiter(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
     }
 
@@ -166,7 +164,7 @@ public class ManyToOneRingBufferTests
         @Actor
         public void reader(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index), 1);
         }
 
         /**
@@ -177,7 +175,7 @@ public class ManyToOneRingBufferTests
         @Arbiter
         public void arbiter(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
     }
 
@@ -234,7 +232,7 @@ public class ManyToOneRingBufferTests
         @Actor
         public void reader(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index), 1);
         }
 
         /**
@@ -245,7 +243,7 @@ public class ManyToOneRingBufferTests
         @Arbiter
         public void arbiter(final II_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index));
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
     }
 
