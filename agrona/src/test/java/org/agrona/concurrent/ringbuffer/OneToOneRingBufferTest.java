@@ -66,7 +66,7 @@ class OneToOneRingBufferTest
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 2, 4, 8 })
+    @ValueSource(ints = { 2, 4 })
     void shouldThrowExceptionIfCapacityIsBelowMinCapacity(final int capacity)
     {
         when(buffer.capacity()).thenReturn(TRAILER_LENGTH + capacity);
@@ -692,32 +692,28 @@ class OneToOneRingBufferTest
     void shouldWriteMessageAfterInsertedPaddingIsConsumedThusMakeEnoughContiguousSpace()
     {
         final int msgType = 42;
-        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[MIN_CAPACITY]);
+        final UnsafeBuffer srcBuffer = new UnsafeBuffer(new byte[ManyToOneRingBuffer.MIN_CAPACITY]);
         final OneToOneRingBuffer ringBuffer =
-            new OneToOneRingBuffer(new UnsafeBuffer(allocateDirect(MIN_CAPACITY * 2 + TRAILER_LENGTH)));
+                new OneToOneRingBuffer(new UnsafeBuffer(allocateDirect(ManyToOneRingBuffer.MIN_CAPACITY * 2 + TRAILER_LENGTH)));
+
+        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0));
 
         srcBuffer.putLong(0, Long.MAX_VALUE);
-        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
+        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, ManyToOneRingBuffer.MIN_CAPACITY)); // not enough space in the buffer
 
-        assertTrue(ringBuffer.write(msgType, srcBuffer, 0, 0)); // an empty message
-
-        srcBuffer.putLong(0, Long.MIN_VALUE);
-        assertFalse(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG)); // not enough space in the buffer
-
-        // consume one message and move head
-        assertEquals(1, ringBuffer.read(
-            (msgTypeId, buffer, index, length) -> assertEquals(Long.MAX_VALUE, buffer.getLong(index)), 1));
+        // consume the message and move head
+        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
 
         // not enough contiguous space --> insert padding
         assertFalse(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG));
 
-        // consume the empty message and move head
-        assertEquals(1, ringBuffer.read((msgTypeId, buffer, index, length) -> assertEquals(0, length)));
+        // consume the padding and move head
+        assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
 
         assertTrue(ringBuffer.write(msgType, srcBuffer, 0, SIZE_OF_LONG)); // message fits
 
         assertEquals(1, ringBuffer.read(
-            (msgTypeId, buffer, index, length) -> assertEquals(Long.MIN_VALUE, buffer.getLong(index))));
+                (msgTypeId, buffer, index, length) -> assertEquals(Long.MAX_VALUE, buffer.getLong(index))));
         assertEquals(0, ringBuffer.read((msgTypeId, buffer, index, length) -> fail()));
     }
 
@@ -749,7 +745,7 @@ class OneToOneRingBufferTest
         return Arrays.asList(
             Arguments.arguments(MIN_CAPACITY, 0),
             Arguments.arguments(MIN_CAPACITY * 2, HEADER_LENGTH),
-            Arguments.arguments(MIN_CAPACITY * MIN_CAPACITY, 32),
+            Arguments.arguments(MIN_CAPACITY * MIN_CAPACITY, 8),
             Arguments.arguments(1024, 128)
         );
     }

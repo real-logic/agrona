@@ -38,7 +38,7 @@ public final class OneToOneRingBuffer implements RingBuffer
     /**
      * Minimal required capacity of the ring buffer excluding {@link RingBufferDescriptor#TRAILER_LENGTH}.
      */
-    public static final int MIN_CAPACITY = HEADER_LENGTH * 2;
+    public static final int MIN_CAPACITY = HEADER_LENGTH;
 
     private final int capacity;
     private final int maxMsgLength;
@@ -177,15 +177,14 @@ public final class OneToOneRingBuffer implements RingBuffer
         final int headPositionIndex = this.headPositionIndex;
         final long head = buffer.getLong(headPositionIndex);
 
-        int bytesRead = 0;
-
         final int capacity = this.capacity;
         final int headIndex = (int)head & (capacity - 1);
-        final int contiguousBlockLength = capacity - headIndex;
+        final int maxBlockLength = capacity - headIndex;
+        int bytesRead = 0;
 
         try
         {
-            while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
+            while ((bytesRead < maxBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
                 final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
@@ -210,6 +209,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         {
             if (bytesRead > 0)
             {
+                buffer.setMemory(headIndex, bytesRead, (byte)0);
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
         }
@@ -236,15 +236,14 @@ public final class OneToOneRingBuffer implements RingBuffer
         final int headPositionIndex = this.headPositionIndex;
         long head = buffer.getLong(headPositionIndex);
 
-        int bytesRead = 0;
-
         final int capacity = this.capacity;
         int headIndex = (int)head & (capacity - 1);
-        final int contiguousBlockLength = capacity - headIndex;
+        final int maxBlockLength = capacity - headIndex;
+        int bytesRead = 0;
 
         try
         {
-            while ((bytesRead < contiguousBlockLength) && (messagesRead < messageCountLimit))
+            while ((bytesRead < maxBlockLength) && (messagesRead < messageCountLimit))
             {
                 final int recordIndex = headIndex + bytesRead;
                 final int recordLength = buffer.getIntVolatile(lengthOffset(recordIndex));
@@ -263,7 +262,7 @@ public final class OneToOneRingBuffer implements RingBuffer
                 }
 
                 final ControlledMessageHandler.Action action = handler.onMessage(
-                    messageTypeId, buffer, recordIndex + HEADER_LENGTH, recordLength - HEADER_LENGTH);
+                        messageTypeId, buffer, recordIndex + HEADER_LENGTH, recordLength - HEADER_LENGTH);
 
                 if (ABORT == action)
                 {
@@ -279,6 +278,7 @@ public final class OneToOneRingBuffer implements RingBuffer
                 }
                 if (COMMIT == action)
                 {
+                    buffer.setMemory(headIndex, bytesRead, (byte)0);
                     buffer.putLongOrdered(headPositionIndex, head + bytesRead);
                     headIndex += bytesRead;
                     head += bytesRead;
@@ -290,6 +290,7 @@ public final class OneToOneRingBuffer implements RingBuffer
         {
             if (bytesRead > 0)
             {
+                buffer.setMemory(headIndex, bytesRead, (byte)0);
                 buffer.putLongOrdered(headPositionIndex, head + bytesRead);
             }
         }
@@ -403,14 +404,13 @@ public final class OneToOneRingBuffer implements RingBuffer
         else if (length > maxMsgLength)
         {
             throw new IllegalArgumentException(
-                "encoded message exceeds maxMsgLength=" + maxMsgLength + ", length=" + length);
+                    "encoded message exceeds maxMsgLength=" + maxMsgLength + ", length=" + length);
         }
     }
 
     private int claimCapacity(final AtomicBuffer buffer, final int recordLength)
     {
-        final int alignedRecordLength = align(recordLength, ALIGNMENT);
-        final int requiredCapacity = alignedRecordLength + HEADER_LENGTH;
+        final int requiredCapacity = align(recordLength, ALIGNMENT);
         final int capacity = this.capacity;
         final int tailPositionIndex = this.tailPositionIndex;
         final int headCachePositionIndex = this.headCachePositionIndex;
@@ -436,9 +436,9 @@ public final class OneToOneRingBuffer implements RingBuffer
         final int recordIndex = (int)tail & mask;
         final int toBufferEndLength = capacity - recordIndex;
         int writeIndex = recordIndex;
-        long nextTail = tail + alignedRecordLength;
+        long nextTail = tail + requiredCapacity;
 
-        if (alignedRecordLength == toBufferEndLength) // message fits within the end of the buffer
+        if (requiredCapacity == toBufferEndLength) // message fits within the end of the buffer
         {
             buffer.putLongOrdered(tailPositionIndex, nextTail);
             buffer.putLong(0, 0L); // pre-zero next message header
@@ -480,7 +480,7 @@ public final class OneToOneRingBuffer implements RingBuffer
 
         if (INSUFFICIENT_CAPACITY != writeIndex)
         {
-            buffer.putLong(writeIndex + alignedRecordLength, 0L); // pre-zero next message header
+            buffer.putLong(writeIndex + requiredCapacity, 0L); // pre-zero next message header
         }
 
         return writeIndex;
@@ -506,6 +506,6 @@ public final class OneToOneRingBuffer implements RingBuffer
         }
 
         throw new IllegalStateException("claimed space previously " +
-            (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordIndex)) ? "aborted" : "committed"));
+                (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordIndex)) ? "aborted" : "committed"));
     }
 }
