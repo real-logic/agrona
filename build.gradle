@@ -16,13 +16,6 @@ import org.agrona.build.UnsafeApiSourceGenerator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-buildscript {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'java-library'
     alias(libs.plugins.bnd).apply(false)
