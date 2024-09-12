@@ -19,7 +19,10 @@ import java.lang.reflect.Field;
 
 /**
  * Obtain access the {@link sun.misc.Unsafe} class for direct memory operations.
+ *
+ * @deprecated Use {@link org.agrona.UnsafeApi} instead.
  */
+@Deprecated(since = "1.24.0", forRemoval = true)
 @SuppressWarnings("removal")
 public final class UnsafeAccess
 {

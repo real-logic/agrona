@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UnsafeAccessTest
 {
     @Test
