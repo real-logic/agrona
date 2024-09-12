@@ -25,12 +25,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.AsciiEncoding.*;
 import static org.agrona.BitUtil.*;
 import static org.agrona.BufferUtil.*;
-import static org.agrona.UnsafeAccess.*;
 
 /**
  * Common base class for implementing {@link MutableDirectBuffer} interface.
  */
-@SuppressWarnings("removal")
 public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 {
     /**
@@ -113,17 +111,17 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             for (; i < end; i += 8)
             {
-                UNSAFE.putLong(array, offset + i, mask);
+                UnsafeApi.putLong(array, offset + i, mask);
             }
 
             for (; i < length; i++)
             {
-                UNSAFE.putByte(array, offset + i, value);
+                UnsafeApi.putByte(array, offset + i, value);
             }
         }
         else
         {
-            UNSAFE.setMemory(array, offset, length, value);
+            UnsafeApi.setMemory(array, offset, length, value);
         }
     }
 
@@ -137,7 +135,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        long bits = UNSAFE.getLong(byteArray, addressOffset + index);
+        long bits = UnsafeApi.getLong(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Long.reverseBytes(bits);
@@ -159,7 +157,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             bits = Long.reverseBytes(bits);
         }
 
-        UNSAFE.putLong(byteArray, addressOffset + index, bits);
+        UnsafeApi.putLong(byteArray, addressOffset + index, bits);
     }
 
     /**
@@ -172,7 +170,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.getLong(byteArray, addressOffset + index);
+        return UnsafeApi.getLong(byteArray, addressOffset + index);
     }
 
     /**
@@ -182,7 +180,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_LONG);
 
-        UNSAFE.putLong(byteArray, addressOffset + index, value);
+        UnsafeApi.putLong(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -195,7 +193,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -217,7 +215,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+        UnsafeApi.putInt(byteArray, addressOffset + index, bits);
     }
 
     /**
@@ -230,7 +228,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.getInt(byteArray, addressOffset + index);
+        return UnsafeApi.getInt(byteArray, addressOffset + index);
     }
 
     /**
@@ -240,7 +238,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_INT);
 
-        UNSAFE.putInt(byteArray, addressOffset + index, value);
+        UnsafeApi.putInt(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -255,12 +253,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final long bits = UNSAFE.getLong(byteArray, addressOffset + index);
+            final long bits = UnsafeApi.getLong(byteArray, addressOffset + index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         }
         else
         {
-            return UNSAFE.getDouble(byteArray, addressOffset + index);
+            return UnsafeApi.getDouble(byteArray, addressOffset + index);
         }
     }
 
@@ -274,11 +272,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            UNSAFE.putLong(byteArray, addressOffset + index, bits);
+            UnsafeApi.putLong(byteArray, addressOffset + index, bits);
         }
         else
         {
-            UNSAFE.putDouble(byteArray, addressOffset + index, value);
+            UnsafeApi.putDouble(byteArray, addressOffset + index, value);
         }
     }
 
@@ -292,7 +290,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_DOUBLE);
         }
 
-        return UNSAFE.getDouble(byteArray, addressOffset + index);
+        return UnsafeApi.getDouble(byteArray, addressOffset + index);
     }
 
     /**
@@ -302,7 +300,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_DOUBLE);
 
-        UNSAFE.putDouble(byteArray, addressOffset + index, value);
+        UnsafeApi.putDouble(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -317,12 +315,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
-            final int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+            final int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         }
         else
         {
-            return UNSAFE.getFloat(byteArray, addressOffset + index);
+            return UnsafeApi.getFloat(byteArray, addressOffset + index);
         }
     }
 
@@ -336,11 +334,11 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UNSAFE.putInt(byteArray, addressOffset + index, bits);
+            UnsafeApi.putInt(byteArray, addressOffset + index, bits);
         }
         else
         {
-            UNSAFE.putFloat(byteArray, addressOffset + index, value);
+            UnsafeApi.putFloat(byteArray, addressOffset + index, value);
         }
     }
 
@@ -354,7 +352,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_FLOAT);
         }
 
-        return UNSAFE.getFloat(byteArray, addressOffset + index);
+        return UnsafeApi.getFloat(byteArray, addressOffset + index);
     }
 
     /**
@@ -364,7 +362,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
-        UNSAFE.putFloat(byteArray, addressOffset + index, value);
+        UnsafeApi.putFloat(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -377,7 +375,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        short bits = UNSAFE.getShort(byteArray, addressOffset + index);
+        short bits = UnsafeApi.getShort(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Short.reverseBytes(bits);
@@ -399,7 +397,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             bits = Short.reverseBytes(bits);
         }
 
-        UNSAFE.putShort(byteArray, addressOffset + index, bits);
+        UnsafeApi.putShort(byteArray, addressOffset + index, bits);
     }
 
     /**
@@ -412,7 +410,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        return UNSAFE.getShort(byteArray, addressOffset + index);
+        return UnsafeApi.getShort(byteArray, addressOffset + index);
     }
 
     /**
@@ -422,7 +420,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_SHORT);
 
-        UNSAFE.putShort(byteArray, addressOffset + index, value);
+        UnsafeApi.putShort(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -435,7 +433,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_BYTE);
         }
 
-        return UNSAFE.getByte(byteArray, addressOffset + index);
+        return UnsafeApi.getByte(byteArray, addressOffset + index);
     }
 
     /**
@@ -445,7 +443,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_BYTE);
 
-        UNSAFE.putByte(byteArray, addressOffset + index, value);
+        UnsafeApi.putByte(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -459,7 +457,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             BufferUtil.boundsCheck(dst, 0, dst.length);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
     }
 
     /**
@@ -473,7 +471,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             BufferUtil.boundsCheck(dst, offset, length);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     /**
@@ -518,7 +516,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     /**
@@ -528,7 +526,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, src.length);
 
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
+        UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
     }
 
     /**
@@ -542,7 +540,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             BufferUtil.boundsCheck(src, offset, length);
         }
 
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
+        UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
     }
 
     /**
@@ -579,7 +577,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
+        UnsafeApi.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
     }
 
     /**
@@ -593,7 +591,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        UNSAFE.copyMemory(
+        UnsafeApi.copyMemory(
             srcBuffer.byteArray(),
             srcBuffer.addressOffset() + srcIndex,
             byteArray,
@@ -611,7 +609,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        char bits = UNSAFE.getChar(byteArray, addressOffset + index);
+        char bits = UnsafeApi.getChar(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = (char)Short.reverseBytes((short)bits);
@@ -633,7 +631,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             bits = (char)Short.reverseBytes((short)bits);
         }
 
-        UNSAFE.putChar(byteArray, addressOffset + index, bits);
+        UnsafeApi.putChar(byteArray, addressOffset + index, bits);
     }
 
     /**
@@ -646,7 +644,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        return UNSAFE.getChar(byteArray, addressOffset + index);
+        return UnsafeApi.getChar(byteArray, addressOffset + index);
     }
 
     /**
@@ -656,7 +654,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
     {
         ensureCapacity(index, SIZE_OF_CHAR);
 
-        UNSAFE.putChar(byteArray, addressOffset + index, value);
+        UnsafeApi.putChar(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -669,7 +667,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (0 == length)
         {
             return "";
@@ -688,7 +686,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (0 == length)
         {
             return 0;
@@ -707,7 +705,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -732,7 +730,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -763,7 +761,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -784,7 +782,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             final long offset = addressOffset;
             for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++)
             {
-                final char c = (char)UNSAFE.getByte(array, offset + i);
+                final char c = (char)UnsafeApi.getByte(array, offset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         }
@@ -804,7 +802,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset + index, 0);
+            UnsafeApi.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -814,7 +812,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             final byte[] array = byteArray;
             final long offset = addressOffset + index;
-            UNSAFE.putInt(array, offset, length);
+            UnsafeApi.putInt(array, offset, length);
 
             for (int i = 0; i < length; i++)
             {
@@ -824,7 +822,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
                     c = '?';
                 }
 
-                UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
+                UnsafeApi.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
             }
 
             return STR_HEADER_LEN + length;
@@ -839,7 +837,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset + index, 0);
+            UnsafeApi.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -849,7 +847,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             final byte[] array = byteArray;
             final long offset = addressOffset + index;
-            UNSAFE.putInt(array, offset, length);
+            UnsafeApi.putInt(array, offset, length);
 
             for (int i = 0; i < length; i++)
             {
@@ -859,7 +857,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
                     c = '?';
                 }
 
-                UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
+                UnsafeApi.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
             }
 
             return STR_HEADER_LEN + length;
@@ -874,7 +872,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset + index, 0);
+            UnsafeApi.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -890,7 +888,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             final byte[] array = byteArray;
             final long offset = addressOffset + index;
-            UNSAFE.putInt(array, offset, lengthBits);
+            UnsafeApi.putInt(array, offset, lengthBits);
 
             for (int i = 0; i < length; i++)
             {
@@ -900,7 +898,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
                     c = '?';
                 }
 
-                UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
+                UnsafeApi.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
             }
 
             return STR_HEADER_LEN + length;
@@ -915,7 +913,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         if (null == value)
         {
             ensureCapacity(index, STR_HEADER_LEN);
-            UNSAFE.putInt(byteArray, addressOffset + index, 0);
+            UnsafeApi.putInt(byteArray, addressOffset + index, 0);
             return STR_HEADER_LEN;
         }
         else
@@ -931,7 +929,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             final byte[] array = byteArray;
             final long offset = addressOffset + index;
-            UNSAFE.putInt(array, offset, lengthBits);
+            UnsafeApi.putInt(array, offset, lengthBits);
 
             for (int i = 0; i < length; i++)
             {
@@ -941,7 +939,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
                     c = '?';
                 }
 
-                UNSAFE.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
+                UnsafeApi.putByte(array, offset + STR_HEADER_LEN + i, (byte)c);
             }
 
             return STR_HEADER_LEN + length;
@@ -964,7 +962,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -985,7 +983,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             final long offset = addressOffset;
             for (int i = index, limit = index + length; i < limit; i++)
             {
-                final char c = (char)UNSAFE.getByte(array, offset + i);
+                final char c = (char)UnsafeApi.getByte(array, offset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         }
@@ -1020,7 +1018,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             {
                 c = '?';
             }
-            UNSAFE.putByte(array, offset + i, (byte)c);
+            UnsafeApi.putByte(array, offset + i, (byte)c);
         }
 
         return length;
@@ -1049,7 +1047,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             {
                 c = '?';
             }
-            UNSAFE.putByte(array, offset + i, (byte)c);
+            UnsafeApi.putByte(array, offset + i, (byte)c);
         }
 
         return length;
@@ -1078,7 +1076,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             {
                 c = '?';
             }
-            UNSAFE.putByte(array, offset + i, (byte)c);
+            UnsafeApi.putByte(array, offset + i, (byte)c);
         }
 
         return len;
@@ -1108,7 +1106,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             {
                 c = '?';
             }
-            UNSAFE.putByte(array, offset + i, (byte)c);
+            UnsafeApi.putByte(array, offset + i, (byte)c);
         }
 
         return len;
@@ -1124,7 +1122,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (0 == length)
         {
             return "";
@@ -1143,7 +1141,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             boundsCheck0(index, STR_HEADER_LEN);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder)
         {
             bits = Integer.reverseBytes(bits);
@@ -1169,7 +1167,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(
+            byteArray, addressOffset + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1205,8 +1204,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         final byte[] array = byteArray;
         final long offset = addressOffset + index;
-        UNSAFE.putInt(array, offset, bytes.length);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.putInt(array, offset, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1232,8 +1231,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         final byte[] array = byteArray;
         final long offset = addressOffset + index;
-        UNSAFE.putInt(array, offset, bits);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.putInt(array, offset, bits);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, array, offset + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1254,7 +1253,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1267,7 +1266,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         ensureCapacity(index, bytes.length);
 
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
 
         return bytes.length;
     }
@@ -1342,7 +1341,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(byteArray, addressOffset + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(byteArray, addressOffset + index);
         int i = index;
         if (negative)
         {
@@ -1385,7 +1384,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(byteArray, addressOffset + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(byteArray, addressOffset + index);
         int i = index;
         if (negative)
         {
@@ -1443,7 +1442,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             array = byteArray;
             offset = addressOffset + index;
 
-            UNSAFE.putByte(array, offset, MINUS_SIGN);
+            UnsafeApi.putByte(array, offset, MINUS_SIGN);
             offset++;
         }
         else
@@ -1495,7 +1494,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         {
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            UNSAFE.putByte(array, addressOffset + index, (byte)(ZERO + digit));
+            UnsafeApi.putByte(array, addressOffset + index, (byte)(ZERO + digit));
         }
 
         if (remainder != 0)
@@ -1521,7 +1520,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             index--;
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            UNSAFE.putByte(array, addressOffset + index, (byte)(ZERO + digit));
+            UnsafeApi.putByte(array, addressOffset + index, (byte)(ZERO + digit));
         }
 
         return index;
@@ -1578,7 +1577,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             array = byteArray;
             offset = addressOffset + index;
 
-            UNSAFE.putByte(array, offset, MINUS_SIGN);
+            UnsafeApi.putByte(array, offset, MINUS_SIGN);
             offset++;
         }
         else
@@ -1634,7 +1633,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         int i = 0;
         for (int end = length & ~7; i < end; i += 8)
         {
-            if (UNSAFE.getLong(thisArray, thisOffset + i) != UNSAFE.getLong(thatArray, thatOffset + i))
+            if (UnsafeApi.getLong(thisArray, thisOffset + i) != UnsafeApi.getLong(thatArray, thatOffset + i))
             {
                 return false;
             }
@@ -1642,7 +1641,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         for (; i < length; i++)
         {
-            if (UNSAFE.getByte(thisArray, thisOffset + i) != UNSAFE.getByte(thatArray, thatOffset + i))
+            if (UnsafeApi.getByte(thisArray, thisOffset + i) != UnsafeApi.getByte(thatArray, thatOffset + i))
             {
                 return false;
             }
@@ -1662,12 +1661,12 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         int i = 0, hashCode = 19;
         for (int end = length & ~7; i < end; i += 8)
         {
-            hashCode = 31 * hashCode + Long.hashCode(UNSAFE.getLong(array, addressOffset + i));
+            hashCode = 31 * hashCode + Long.hashCode(UnsafeApi.getLong(array, addressOffset + i));
         }
 
         for (; i < length; i++)
         {
-            hashCode = 31 * hashCode + UNSAFE.getByte(array, addressOffset + i);
+            hashCode = 31 * hashCode + UnsafeApi.getByte(array, addressOffset + i);
         }
 
         return hashCode;
@@ -1695,8 +1694,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         for (int end = length & ~7; i < end; i += 8)
         {
             final int cmp = Long.compare(
-                UNSAFE.getLong(thisArray, thisOffset + i),
-                UNSAFE.getLong(thatArray, thatOffset + i));
+                UnsafeApi.getLong(thisArray, thisOffset + i),
+                UnsafeApi.getLong(thatArray, thatOffset + i));
 
             if (0 != cmp)
             {
@@ -1707,8 +1706,8 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         for (; i < length; i++)
         {
             final int cmp = Byte.compare(
-                UNSAFE.getByte(thisArray, thisOffset + i),
-                UNSAFE.getByte(thatArray, thatOffset + i));
+                UnsafeApi.getByte(thisArray, thisOffset + i),
+                UnsafeApi.getByte(thatArray, thatOffset + i));
 
             if (0 != cmp)
             {
@@ -1748,7 +1747,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final byte[] array = byteArray;
         int i = startIndex;
         int tally = 0, quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(array, offset + i)))
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(array, offset + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
@@ -1760,7 +1759,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(array, offset + i)))
+        while (i < end && isDigit(digit = UnsafeApi.getByte(array, offset + i)))
         {
             tally = (tally * 10) + (digit - 0x30);
             i++;
@@ -1786,7 +1785,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final byte[] array = byteArray;
         int i = startIndex;
         long tally = 0;
-        long octet = UNSAFE.getLong(array, offset + i);
+        long octet = UnsafeApi.getLong(array, offset + i);
         if (isEightDigitAsciiEncodedNumber(octet))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
@@ -1797,7 +1796,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
             i += 8;
 
             byte digit;
-            while (i < end && isDigit(digit = UNSAFE.getByte(array, offset + i)))
+            while (i < end && isDigit(digit = UnsafeApi.getByte(array, offset + i)))
             {
                 tally = (tally * 10L) + (digit - 0x30);
                 i++;
@@ -1828,7 +1827,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         final byte[] array = byteArray;
         int i = startIndex;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(array, offset + i)))
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(array, offset + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
@@ -1840,7 +1839,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         int quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(array, offset + i)))
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(array, offset + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
@@ -1852,7 +1851,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(array, offset + i)))
+        while (i < end && isDigit(digit = UnsafeApi.getByte(array, offset + i)))
         {
             tally = (tally * 10) + (digit - 0x30);
             i++;
@@ -1883,7 +1882,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
         int i = startIndex, k = 0;
         boolean checkOverflow = true;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(array, offset + i)))
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(array, offset + i)))
         {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN)
             {
@@ -1909,7 +1908,7 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
         byte digit;
         int lastDigits = 0;
-        while (i < end && isDigit(digit = UNSAFE.getByte(array, offset + i)))
+        while (i < end && isDigit(digit = UnsafeApi.getByte(array, offset + i)))
         {
             lastDigits = (lastDigits * 10) + (digit - 0x30);
             i++;
@@ -1951,29 +1950,29 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             i -= 4;
 
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[p1]);
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[p1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[p2]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[p2 + 1]);
+            UnsafeApi.putByte(dest, offset + i, ASCII_DIGITS[p1]);
+            UnsafeApi.putByte(dest, offset + i + 1, ASCII_DIGITS[p1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 2, ASCII_DIGITS[p2]);
+            UnsafeApi.putByte(dest, offset + i + 3, ASCII_DIGITS[p2 + 1]);
         }
 
         if (quotient >= 100)
         {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 2, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(dest, offset + i - 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(dest, offset + i - 2, ASCII_DIGITS[position]);
         }
 
         if (quotient >= 10)
         {
             final int position = quotient << 1;
-            UNSAFE.putByte(dest, offset + 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(dest, offset + 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(dest, offset, ASCII_DIGITS[position]);
         }
         else
         {
-            UNSAFE.putByte(dest, offset, (byte)(ZERO + quotient));
+            UnsafeApi.putByte(dest, offset, (byte)(ZERO + quotient));
         }
     }
 
@@ -1997,14 +1996,14 @@ public abstract class AbstractMutableDirectBuffer implements MutableDirectBuffer
 
             i -= 8;
 
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2 + 1]);
+            UnsafeApi.putByte(dest, offset + i, ASCII_DIGITS[u1]);
+            UnsafeApi.putByte(dest, offset + i + 1, ASCII_DIGITS[u1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 2, ASCII_DIGITS[u2]);
+            UnsafeApi.putByte(dest, offset + i + 3, ASCII_DIGITS[u2 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 4, ASCII_DIGITS[l1]);
+            UnsafeApi.putByte(dest, offset + i + 5, ASCII_DIGITS[l1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 6, ASCII_DIGITS[l2]);
+            UnsafeApi.putByte(dest, offset + i + 7, ASCII_DIGITS[l2 + 1]);
         }
 
         putPositiveIntAscii(dest, offset, (int)quotient, i);

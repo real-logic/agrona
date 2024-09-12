@@ -21,12 +21,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 import static org.agrona.BitUtil.isPowerOfTwo;
-import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * Common functions for buffer implementations.
  */
-@SuppressWarnings({ "deprecation", "removal" })
 public final class BufferUtil
 {
     /**
@@ -42,7 +40,7 @@ public final class BufferUtil
     /**
      * Byte array base offset.
      */
-    public static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+    public static final long ARRAY_BASE_OFFSET = UnsafeApi.arrayBaseOffset(byte[].class);
 
     /**
      * Offset of the {@code java.nio.ByteBuffer#hb} field.
@@ -63,13 +61,13 @@ public final class BufferUtil
     {
         try
         {
-            BYTE_BUFFER_HB_FIELD_OFFSET = UNSAFE.objectFieldOffset(
+            BYTE_BUFFER_HB_FIELD_OFFSET = UnsafeApi.objectFieldOffset(
                 ByteBuffer.class.getDeclaredField("hb"));
 
-            BYTE_BUFFER_OFFSET_FIELD_OFFSET = UNSAFE.objectFieldOffset(
+            BYTE_BUFFER_OFFSET_FIELD_OFFSET = UnsafeApi.objectFieldOffset(
                 ByteBuffer.class.getDeclaredField("offset"));
 
-            BYTE_BUFFER_ADDRESS_FIELD_OFFSET = UNSAFE.objectFieldOffset(Buffer.class.getDeclaredField("address"));
+            BYTE_BUFFER_ADDRESS_FIELD_OFFSET = UnsafeApi.objectFieldOffset(Buffer.class.getDeclaredField("address"));
         }
         catch (final Exception ex)
         {
@@ -128,7 +126,7 @@ public final class BufferUtil
             throw new IllegalArgumentException("buffer.isDirect() must be true");
         }
 
-        return UNSAFE.getLong(buffer, BYTE_BUFFER_ADDRESS_FIELD_OFFSET);
+        return UnsafeApi.getLong(buffer, BYTE_BUFFER_ADDRESS_FIELD_OFFSET);
     }
 
     /**
@@ -144,7 +142,7 @@ public final class BufferUtil
             throw new IllegalArgumentException("buffer must wrap an array");
         }
 
-        return (byte[])UNSAFE.getObject(buffer, BYTE_BUFFER_HB_FIELD_OFFSET);
+        return (byte[])UnsafeApi.getReference(buffer, BYTE_BUFFER_HB_FIELD_OFFSET);
     }
 
     /**
@@ -155,7 +153,7 @@ public final class BufferUtil
      */
     public static int arrayOffset(final ByteBuffer buffer)
     {
-        return UNSAFE.getInt(buffer, BYTE_BUFFER_OFFSET_FIELD_OFFSET);
+        return UnsafeApi.getInt(buffer, BYTE_BUFFER_OFFSET_FIELD_OFFSET);
     }
 
     /**
@@ -213,7 +211,7 @@ public final class BufferUtil
     {
         if (null != buffer && buffer.isDirect())
         {
-            UNSAFE.invokeCleaner(buffer);
+            UnsafeApi.invokeCleaner(buffer);
         }
     }
 }

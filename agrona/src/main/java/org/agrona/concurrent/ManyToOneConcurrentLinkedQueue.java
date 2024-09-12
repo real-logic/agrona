@@ -15,12 +15,12 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.UnsafeApi;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-
-import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * Pad out a cache line to the left of a tail to prevent false sharing.
@@ -53,7 +53,7 @@ abstract class ManyToOneConcurrentLinkedQueuePadding1
 
         void nextOrdered(final Node<E> next)
         {
-            UNSAFE.putOrderedObject(this, NEXT_OFFSET, next);
+            UnsafeApi.putReferenceRelease(this, NEXT_OFFSET, next);
         }
     }
 
@@ -61,9 +61,12 @@ abstract class ManyToOneConcurrentLinkedQueuePadding1
     {
         try
         {
-            HEAD_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
-            TAIL_OFFSET = UNSAFE.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
-            NEXT_OFFSET = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
+            HEAD_OFFSET =
+                UnsafeApi.objectFieldOffset(ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
+            TAIL_OFFSET =
+                UnsafeApi.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
+            NEXT_OFFSET =
+                UnsafeApi.objectFieldOffset(Node.class.getDeclaredField("next"));
         }
         catch (final Exception ex)
         {
@@ -146,7 +149,7 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
     public ManyToOneConcurrentLinkedQueue()
     {
         headOrdered(empty);
-        UNSAFE.putOrderedObject(this, TAIL_OFFSET, empty);
+        UnsafeApi.putReferenceRelease(this, TAIL_OFFSET, empty);
     }
 
     /**
@@ -396,17 +399,17 @@ public class ManyToOneConcurrentLinkedQueue<E> extends ManyToOneConcurrentLinked
 
     private void headOrdered(final Node<E> head)
     {
-        UNSAFE.putOrderedObject(this, HEAD_OFFSET, head);
+        UnsafeApi.putReferenceRelease(this, HEAD_OFFSET, head);
     }
 
     @SuppressWarnings("unchecked")
     private Node<E> swapTail(final Node<E> newTail)
     {
-        return (Node<E>)UNSAFE.getAndSetObject(this, TAIL_OFFSET, newTail);
+        return (Node<E>)UnsafeApi.getAndSetReference(this, TAIL_OFFSET, newTail);
     }
 
     private boolean casTail(final Node<E> expectedNode, final Node<E> updateNode)
     {
-        return UNSAFE.compareAndSwapObject(this, TAIL_OFFSET, expectedNode, updateNode);
+        return UnsafeApi.compareAndSetReference(this, TAIL_OFFSET, expectedNode, updateNode);
     }
 }

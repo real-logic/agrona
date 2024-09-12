@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent.status;
 
-import org.agrona.UnsafeAccess;
+import org.agrona.UnsafeApi;
 import org.agrona.concurrent.AtomicBuffer;
 
 import java.nio.ByteBuffer;
@@ -27,7 +27,6 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  *
  * @see CountersManager
  */
-@SuppressWarnings("removal")
 public class UnsafeBufferStatusIndicator extends StatusIndicator
 {
     private final int counterId;
@@ -67,7 +66,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
      */
     public void setOrdered(final long value)
     {
-        UnsafeAccess.UNSAFE.putOrderedLong(byteArray, addressOffset, value);
+        UnsafeApi.putLongRelease(byteArray, addressOffset, value);
     }
 
     /**
@@ -75,7 +74,7 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
      */
     public long getVolatile()
     {
-        return UnsafeAccess.UNSAFE.getLongVolatile(byteArray, addressOffset);
+        return UnsafeApi.getLongVolatile(byteArray, addressOffset);
     }
 
     /**

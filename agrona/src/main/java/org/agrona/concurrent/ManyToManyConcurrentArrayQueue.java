@@ -15,12 +15,11 @@
  */
 package org.agrona.concurrent;
 
+import org.agrona.UnsafeApi;
 import org.agrona.hints.ThreadHints;
 
 import java.util.Collection;
 import java.util.function.Consumer;
-
-import static org.agrona.UnsafeAccess.UNSAFE;
 
 /**
  * Many producer to many consumer concurrent queue that is array backed.
@@ -44,7 +43,7 @@ import static org.agrona.UnsafeAccess.UNSAFE;
 @SuppressWarnings("removal")
 public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQueue<E>
 {
-    private static final int SEQUENCES_ARRAY_BASE = UNSAFE.arrayBaseOffset(long[].class);
+    private static final int SEQUENCES_ARRAY_BASE = UnsafeApi.arrayBaseOffset(long[].class);
 
     private final long[] sequences;
 
@@ -73,7 +72,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             sequences[i] = i;
         }
 
-        UNSAFE.putLongVolatile(sequences, sequenceArrayOffset(0, sequences.length - 1), 0);
+        UnsafeApi.putLongVolatile(sequences, sequenceArrayOffset(0, sequences.length - 1), 0);
         this.sequences = sequences;
     }
 
@@ -95,17 +94,17 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         {
             final long currentTail = tail;
             final long sequenceOffset = sequenceArrayOffset(currentTail, mask);
-            final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
+            final long sequence = UnsafeApi.getLongVolatile(sequences, sequenceOffset);
 
             if (sequence < currentTail)
             {
                 return false;
             }
 
-            if (UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, currentTail, currentTail + 1L))
+            if (UnsafeApi.compareAndSetLong(this, TAIL_OFFSET, currentTail, currentTail + 1L))
             {
-                UNSAFE.putObject(buffer, sequenceToBufferOffset(currentTail, mask), e);
-                UNSAFE.putOrderedLong(sequences, sequenceOffset, currentTail + 1L);
+                UnsafeApi.putReference(buffer, sequenceToBufferOffset(currentTail, mask), e);
+                UnsafeApi.putLongRelease(sequences, sequenceOffset, currentTail + 1L);
 
                 return true;
             }
@@ -128,7 +127,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         {
             final long currentHead = head;
             final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
-            final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
+            final long sequence = UnsafeApi.getLongVolatile(sequences, sequenceOffset);
             final long attemptedHead = currentHead + 1L;
 
             if (sequence < attemptedHead)
@@ -136,12 +135,12 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 return null;
             }
 
-            if (UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, currentHead, attemptedHead))
+            if (UnsafeApi.compareAndSetLong(this, HEAD_OFFSET, currentHead, attemptedHead))
             {
                 final long elementOffset = sequenceToBufferOffset(currentHead, mask);
-                final Object e = UNSAFE.getObject(buffer, elementOffset);
-                UNSAFE.putObject(buffer, elementOffset, null);
-                UNSAFE.putOrderedLong(sequences, sequenceOffset, attemptedHead + mask);
+                final Object e = UnsafeApi.getReference(buffer, elementOffset);
+                UnsafeApi.putReference(buffer, elementOffset, null);
+                UnsafeApi.putLongRelease(sequences, sequenceOffset, attemptedHead + mask);
 
                 return (E)e;
             }
@@ -164,7 +163,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
         {
             final long currentHead = head;
             final long sequenceOffset = sequenceArrayOffset(currentHead, mask);
-            final long sequence = UNSAFE.getLongVolatile(sequences, sequenceOffset);
+            final long sequence = UnsafeApi.getLongVolatile(sequences, sequenceOffset);
             final long attemptedHead = currentHead + 1L;
 
             if (sequence < attemptedHead)
@@ -175,7 +174,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
             if (sequence == attemptedHead)
             {
                 final long elementOffset = sequenceToBufferOffset(currentHead, mask);
-                final Object e = UNSAFE.getObject(buffer, elementOffset);
+                final Object e = UnsafeApi.getReference(buffer, elementOffset);
 
                 if (currentHead == head)
                 {

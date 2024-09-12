@@ -20,7 +20,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.SystemUtil;
-import org.agrona.UnsafeAccess;
+import org.agrona.UnsafeApi;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.AfterAll;
@@ -40,7 +40,7 @@ class BufferAlignmentAgentTest
     private static final CharSequence TEST_CHAR_SEQUENCE = new StringBuilder("BufferAlignmentTest");
 
     //on 32-bits JVMs, array content is not 8-byte aligned => need to add 4 bytes offset
-    private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeAccess.ARRAY_BYTE_BASE_OFFSET % 8;
+    private static final int HEAP_BUFFER_ALIGNMENT_OFFSET = UnsafeApi.arrayBaseOffset(byte[].class) % 8;
 
     @BeforeAll
     static void installAgent()

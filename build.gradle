@@ -1,3 +1,6 @@
+import org.agrona.build.UnsafeApiBytecodeGenerator
+import org.agrona.build.UnsafeApiSourceGenerator
+
 /*
  * Copyright 2014-2024 Real Logic Limited.
  *
@@ -207,12 +210,10 @@ subprojects {
     }
 
     test {
+        jvmArgs('--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED')
+
         if (buildJavaVersion >= 21) {
             jvmArgs('-XX:+EnableDynamicAgentLoading')
-        }
-
-        if (buildJavaVersion >= 23) {
-            jvmArgs('--sun-misc-unsafe-memory-access=allow')
         }
 
         useJUnitPlatform()
@@ -259,6 +260,7 @@ project(':agrona') {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
     apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: 'net.bytebuddy.byte-buddy-gradle-plugin'
 
     dependencies {
         testImplementation files("${layout.buildDirectory.get()}/classes/java/generated")
@@ -287,9 +289,19 @@ project(':agrona') {
         outputs.dir generatedDir
     }
 
-    compileGeneratedJava.dependsOn generatePrimitiveSpecialisations
+    tasks.register('generateUnsafeApi', UnsafeApiSourceGenerator) {
+        outputDirectory = sourceSets.named('main').get().allJava.getSourceDirectories().singleFile
+    }
+
+    compileGeneratedJava.dependsOn('generatePrimitiveSpecialisations')
     compileTestJava.dependsOn compileGeneratedJava
-    javadoc.dependsOn generatePrimitiveSpecialisations
+    javadoc.dependsOn('generatePrimitiveSpecialisations')
+
+    byteBuddy {
+        transformation {
+            plugin = UnsafeApiBytecodeGenerator.class
+        }
+    }
 
     jar {
         from sourceSets.generated.output
@@ -313,7 +325,7 @@ project(':agrona') {
     }
 
     tasks.register('sourcesJar', Jar) {
-        dependsOn generatePrimitiveSpecialisations
+        dependsOn ('generatePrimitiveSpecialisations')
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
         from sourceSets.generated.allSource
@@ -321,6 +333,7 @@ project(':agrona') {
 
     javadoc {
         source += sourceSets.generated.allJava
+        exclude 'org/agrona/UnsafeApi.java'
     }
 
     java {
@@ -488,7 +501,7 @@ project(':agrona-concurrency-tests') {
         dependsOn shadowJar
         classpath = files(tasks.shadowJar)
         workingDir = layout.buildDirectory.get()
-        args = ['-jvmArgs', '-Dagrona.disable.bounds.checks=true -Dagrona.strict.alignment.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
+        args = ['-jvmArgs', '--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dagrona.disable.bounds.checks=true -Dagrona.strict.alignment.checks=true -XX:+UseParallelGC', '-r', 'reports/jcstress']
         standardOutput = new NullOutputStream()
         errorOutput = new NullOutputStream()
     }

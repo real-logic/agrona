@@ -15,7 +15,7 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.UnsafeAccess;
+import org.agrona.UnsafeApi;
 
 /**
  * Memory access operations which encapsulate the use of Unsafe.
@@ -29,27 +29,24 @@ public final class MemoryAccess
     /**
      * Ensures that loads before the fence will not be reordered with loads and stores after the fence.
      */
-    @SuppressWarnings("removal") // Since JDK 22
     public static void acquireFence()
     {
-        UnsafeAccess.UNSAFE.loadFence();
+        UnsafeApi.loadFence();
     }
 
     /**
      * Ensures that loads and stores before the fence will not be reordered with stores after the fence.
      */
-    @SuppressWarnings("removal") // Since JDK 22
     public static void releaseFence()
     {
-        UnsafeAccess.UNSAFE.storeFence();
+        UnsafeApi.storeFence();
     }
 
     /**
      * Ensures that loads and stores before the fence will not be reordered with loads and stores after the fence.
      */
-    @SuppressWarnings("removal") // Since JDK 22
     public static void fullFence()
     {
-        UnsafeAccess.UNSAFE.fullFence();
+        UnsafeApi.fullFence();
     }
 }
