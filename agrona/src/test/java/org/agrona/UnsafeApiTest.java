@@ -137,8 +137,7 @@ class UnsafeApiTest
         UnsafeApi.putLong(originalAddress + SIZE_OF_LONG, Long.MIN_VALUE);
 
         final long newAddress = UnsafeApi.reallocateMemory(originalAddress, 32);
-        assertThat(newAddress,
-            allOf(greaterThan(0L), not(equalTo(originalAddress))));
+        assertNotEquals(0, newAddress);
         assertEquals(Long.MAX_VALUE, UnsafeApi.getLong(newAddress));
         assertEquals(Long.MIN_VALUE, UnsafeApi.getLong(newAddress + SIZE_OF_LONG));
 
@@ -152,6 +151,18 @@ class UnsafeApiTest
         UnsafeApi.putLong(address, -1);
 
         assertThat(UnsafeApi.reallocateMemory(address, 0), is(0L));
+    }
+
+    @Test
+    void allocateWithReallocateMemory()
+    {
+        final long address = UnsafeApi.reallocateMemory(0, 16);
+        assertNotEquals(0, address);
+        UnsafeApi.putLong(address, -1);
+
+        assertEquals(-1, UnsafeApi.getLong(address));
+
+        UnsafeApi.freeMemory(address);
     }
 
     @Test
