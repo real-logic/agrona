@@ -18,17 +18,13 @@ buildscript {
         gradlePluginPortal()
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.ow2.asm:asm:9.7'
-        classpath 'org.ow2.asm:asm-commons:9.7'
-    }
 }
 
 plugins {
     id 'java-library'
-    id 'com.gradleup.shadow' version '8.3.1' apply false
-    id 'biz.aQute.bnd.builder' version '7.0.0' apply false
-    id 'com.github.ben-manes.versions' version '0.51.0'
+    alias(libs.plugins.bnd).apply(false)
+    alias(libs.plugins.shadow).apply(false)
+    alias(libs.plugins.versions)
 }
 
 defaultTasks 'clean', 'build'
@@ -56,17 +52,6 @@ def toolchainCompiler = javaToolchains.compilerFor {
 def toolchainJavadocTool = javaToolchains.javadocToolFor {
     languageVersion = JavaLanguageVersion.of(buildJavaVersion)
 }
-
-def byteBuddyVersion = '1.15.1'
-def findbugsAnnotationsVersion = '3.0.1'
-def checkstyleVersion = '10.18.0'
-def hamcrestVersion = '3.0'
-def mockitoVersion = '5.13.0'
-def junitVersion = '5.11.0'
-def guavaTestLib = '33.3.0-jre'
-def junit4Version = '4.13.2'
-def jmhVersion = '1.37'
-def jcstressVersion = '0.16'
 
 def agronaGroup = 'org.agrona'
 def agronaVersion = file('version.txt').text.trim()
@@ -165,9 +150,9 @@ allprojects {
         resolutionStrategy {
             failOnVersionConflict()
 
-            force "junit:junit:${junit4Version}",
-                  "net.bytebuddy:byte-buddy:${byteBuddyVersion}",
-                  "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}",
+            force "junit:junit:${libs.versions.junit4.get()}",
+                  "net.bytebuddy:byte-buddy:${libs.versions.byteBuddy.get()}",
+                  "net.bytebuddy:byte-buddy-agent:${libs.versions.byteBuddy.get()}",
                   // patching conflicting Checkstyle dependencies
                   "org.codehaus.plexus:plexus-utils:3.3.0",
                   "org.apache.commons:commons-lang3:3.8.1",
@@ -190,7 +175,7 @@ subprojects {
     group = agronaGroup
     version = agronaVersion
 
-    checkstyle.toolVersion = "${checkstyleVersion}"
+    checkstyle.toolVersion = libs.versions.checkstyle.get()
 
     java {
         toolchain {
@@ -276,15 +261,15 @@ project(':agrona') {
     apply plugin: 'biz.aQute.bnd.builder'
 
     dependencies {
-        testImplementation files('build/classes/java/generated')
-        testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-        testImplementation platform("org.junit:junit-bom:${junitVersion}")
+        testImplementation files("${layout.buildDirectory.get()}/classes/java/generated")
+        testImplementation platform("org.junit:junit-bom:${libs.versions.junit5.get()}")
         testImplementation "org.junit.jupiter:junit-jupiter-params"
-        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-        testImplementation "com.google.guava:guava-testlib:${guavaTestLib}"
-        testImplementation "junit:junit:${junit4Version}" // Compatibility with JUnit 4
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-        testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
+        testImplementation libs.hamcrest
+        testImplementation libs.mockito
+        testImplementation libs.guava
+        testImplementation libs.junit4 // Compatibility with JUnit 4
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
@@ -378,15 +363,14 @@ project(':agrona-agent') {
 
     dependencies {
         implementation project(':agrona')
-        implementation "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
-        // Avoid Javac warning about missing dependency from ByteBuddy
-        compileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        testCompileOnly "com.google.code.findbugs:findbugs-annotations:${findbugsAnnotationsVersion}"
-        testImplementation platform("org.junit:junit-bom:${junitVersion}")
-        testImplementation "org.junit.jupiter:junit-jupiter-params"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+        implementation libs.byteBuddy
+        compileOnly libs.findbugs.annotations
+        testCompileOnly libs.findbugs.annotations
+        testImplementation platform("org.junit:junit-bom:${libs.versions.junit5.get()}")
+        testImplementation 'org.junit.jupiter:junit-jupiter-params'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-        testImplementation "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
+        testImplementation libs.byteBuddy.agent
     }
 
     shadowJar {
@@ -463,8 +447,8 @@ project(':agrona-benchmarks') {
     apply plugin: 'com.gradleup.shadow'
 
     dependencies {
-        implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
-        annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
+        implementation libs.jmh.core
+        annotationProcessor libs.jmh.generator.annprocess
         implementation project(':agrona')
     }
 
@@ -481,8 +465,8 @@ project(':agrona-concurrency-tests') {
     apply plugin: 'com.gradleup.shadow'
 
     dependencies {
-        annotationProcessor "org.openjdk.jcstress:jcstress-core:${jcstressVersion}"
-        implementation "org.openjdk.jcstress:jcstress-core:${jcstressVersion}"
+        annotationProcessor libs.jcstress.core
+        implementation libs.jcstress.core
         implementation project(':agrona')
     }
 
@@ -521,7 +505,7 @@ project(':agrona-concurrency-tests') {
 }
 
 tasks.register('testReport', TestReport) {
-    destinationDirectory = file("$buildDir/reports/allTests")
+    destinationDirectory = file("${layout.buildDirectory.get()}/reports/allTests")
     // Include the results from the `test` task in all subprojects
     testResults.setFrom(subprojects*.test)
 }
