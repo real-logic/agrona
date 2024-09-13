@@ -1,6 +1,3 @@
-import org.agrona.build.UnsafeApiBytecodeGenerator
-import org.agrona.build.UnsafeApiSourceGenerator
-
 /*
  * Copyright 2014-2024 Real Logic Limited.
  *
@@ -139,6 +136,7 @@ def projectPom = {
 
 allprojects {
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
@@ -282,7 +280,7 @@ project(':agrona') {
         outputs.dir generatedDir
     }
 
-    tasks.register('generateUnsafeApi', UnsafeApiSourceGenerator) {
+    tasks.register('generateUnsafeApi', org.agrona.build.UnsafeApiSourceGenerator) {
         outputDirectory = sourceSets.named('main').get().allJava.getSourceDirectories().singleFile
     }
 
@@ -292,7 +290,7 @@ project(':agrona') {
 
     byteBuddy {
         transformation {
-            plugin = UnsafeApiBytecodeGenerator.class
+            plugin = org.agrona.build.UnsafeApiBytecodeGenerator.class
         }
     }
 
