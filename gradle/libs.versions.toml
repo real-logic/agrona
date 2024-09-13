@@ -1,27 +1,21 @@
 [versions]
 byteBuddy = "1.15.1"
-findbugs = "3.0.1"
 checkstyle = "10.18.1"
-hamcrest = "3.0"
-mockito = "5.13.0"
-guava = "33.3.0-jre"
-junit4 = "4.13.2"
 junit5 = "5.11.0"
 jmh = "1.37"
-jcstress = "0.16"
 
 [libraries]
-junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-guava = { group = "com.google.guava", name = "guava-testlib", version.ref = "guava" }
-mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
-hamcrest = { group = "org.hamcrest", name = "hamcrest", version.ref = "hamcrest" }
-findbugs-annotations = { group = "com.google.code.findbugs", name = "findbugs-annotations", version.ref = "findbugs" }
+junit4 = { group = "junit", name = "junit", version = "4.13.2" }
+guava = { group = "com.google.guava", name = "guava-testlib", version = "33.3.0-jre" }
+mockito = { group = "org.mockito", name = "mockito-core", version = "5.13.0" }
+hamcrest = { group = "org.hamcrest", name = "hamcrest", version = "3.0" }
+findbugs = { group = "com.google.code.findbugs", name = "findbugs-annotations", version = "3.0.1" }
 byteBuddy = { group = "net.bytebuddy", name = "byte-buddy", version.ref = "byteBuddy" }
 byteBuddy-agent = { group = "net.bytebuddy", name = "byte-buddy-agent", version.ref = "byteBuddy" }
 byteBuddy-gradle-plugin = { group = "net.bytebuddy", name = "byte-buddy-gradle-plugin", version.ref = "byteBuddy" }
 jmh-core = { group = "org.openjdk.jmh", name = "jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { group = "org.openjdk.jmh", name = "jmh-generator-annprocess", version.ref = "jmh" }
-jcstress-core = { group = "org.openjdk.jcstress", name = "jcstress-core", version.ref = "jcstress" }
+jcstress-core = { group = "org.openjdk.jcstress", name = "jcstress-core", version = "0.16" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
