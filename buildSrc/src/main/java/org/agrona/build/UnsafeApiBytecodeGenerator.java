@@ -120,7 +120,6 @@ public final class UnsafeApiBytecodeGenerator implements Plugin
 
     enum GetUnsafeImplementation implements Implementation
     {
-
         INSTANCE;
 
         @Override
@@ -167,6 +166,7 @@ public final class UnsafeApiBytecodeGenerator implements Plugin
         final TypeDescription.ForLoadedType unsafeType = new TypeDescription.ForLoadedType(UNSAFE_CLASS);
         final MethodList<MethodDescription.InDefinedShape> staticMethods = unsafeType.getDeclaredMethods()
             .filter(isPublic().and(not(isDeclaredBy(Object.class))));
+
         for (final MethodDescription.InDefinedShape method : staticMethods)
         {
             // Redefine existing method

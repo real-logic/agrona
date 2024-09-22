@@ -43,10 +43,12 @@ public class UnsafeApiSourceGenerator extends DefaultTask
             final TypeVariable<? extends Class<?>>[] typeParameters = type.getTypeParameters();
             String typeName = type.getTypeName();
             final String prefix = "java.lang.";
+
             if (typeName.startsWith(prefix) && typeName.lastIndexOf('.') == (prefix.length() - 1))
             {
                 typeName = typeName.substring(prefix.length());
             }
+
             if (0 == typeParameters.length)
             {
                 return typeName;
@@ -151,11 +153,13 @@ public class UnsafeApiSourceGenerator extends DefaultTask
                         buffer.append("     * @param ").append(parameter.getName()).append(' ')
                             .append(parameter.getName()).append(lineSeparator);
                     }
+
                     if (method.getReturnType() != void.class)
                     {
                         buffer.append("     * @return value").append(lineSeparator);
                     }
                     buffer.append("     * @see ").append(unsafeClass.getName()).append("#").append(method.getName());
+
                     if (parameterTypes.length > 0)
                     {
                         buffer.append('(');
@@ -174,16 +178,19 @@ public class UnsafeApiSourceGenerator extends DefaultTask
                     buffer.append("    public static ")
                         .append(TYPE_NAME.get(method.getReturnType())).append(' ')
                         .append(method.getName()).append("(");
+
                     for (int i = 0; i < parameters.length; i++)
                     {
                         if (i > 0)
                         {
                             buffer.append(',');
                         }
+
                         buffer.append(lineSeparator).append("        final ")
                             .append(TYPE_NAME.get(parameterTypes[i])).append(' ')
                             .append(parameters[i].getName());
                     }
+
                     buffer.append(')').append(lineSeparator).append("    {").append(lineSeparator)
                         .append("        throw new UnsupportedOperationException(\"'")
                         .append(method.getName()).append("' not implemented\");")
@@ -201,9 +208,9 @@ public class UnsafeApiSourceGenerator extends DefaultTask
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING);
         }
-        catch (final Exception e)
+        catch (final Exception ex)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(ex);
         }
     }
 }
