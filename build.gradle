@@ -539,7 +539,7 @@ tasks.register('copyTestLogs', Copy) {
 }
 
 wrapper {
-    gradleVersion = '8.10.1'
+    gradleVersion = libs.versions.gradle.get()
     distributionType = 'ALL'
 }
 
