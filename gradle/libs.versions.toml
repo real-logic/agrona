@@ -1,5 +1,5 @@
 [versions]
-byteBuddy = "1.15.2"
+byteBuddy = "1.15.3"
 checkstyle = "10.18.1"
 junit5 = "5.11.1"
 jmh = "1.37"
