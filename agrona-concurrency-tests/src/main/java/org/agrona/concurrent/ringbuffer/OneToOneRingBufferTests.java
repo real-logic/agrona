@@ -27,6 +27,7 @@ import org.openjdk.jcstress.annotations.State;
 import org.openjdk.jcstress.infra.results.II_Result;
 import org.openjdk.jcstress.infra.results.IJ_Result;
 import org.openjdk.jcstress.infra.results.JJJ_Result;
+import org.openjdk.jcstress.infra.results.ZII_Result;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.agrona.BitUtil.SIZE_OF_INT;
@@ -97,9 +98,8 @@ public class OneToOneRingBufferTests
      * Test for when a writing thread can only succeed if reader read an existing message
      */
     @JCStressTest
-    @Outcome(id = "19, 0", expect = Expect.ACCEPTABLE, desc = "Write before read")
-    @Outcome(id = "19, 42", expect = Expect.ACCEPTABLE, desc = "Read before write")
-    @Outcome(id = "42, 0", expect = Expect.ACCEPTABLE, desc = "Write in the middle of the read")
+    @Outcome(id = "false, 19, 0", expect = Expect.ACCEPTABLE, desc = "Write before read")
+    @Outcome(id = "true, 19, 42", expect = Expect.ACCEPTABLE, desc = "Read before write")
     @State
     public static class WriteFullBuffer
     {
@@ -121,11 +121,13 @@ public class OneToOneRingBufferTests
 
         /**
          * Producer thread.
+         *
+         * @param result object.
          */
         @Actor
-        public void producer()
+        public void producer(final ZII_Result result)
         {
-            ringBuffer.write(MSG_TYPE, srcBuffer, SIZE_OF_INT, SIZE_OF_INT);
+            result.r1 = ringBuffer.write(MSG_TYPE, srcBuffer, SIZE_OF_INT, SIZE_OF_INT);
         }
 
         /**
@@ -134,9 +136,9 @@ public class OneToOneRingBufferTests
          * @param result object.
          */
         @Actor
-        public void consumer(final II_Result result)
+        public void consumer(final ZII_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r1 = buffer.getInt(index), 1);
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
         }
 
         /**
@@ -145,9 +147,9 @@ public class OneToOneRingBufferTests
          * @param result object.
          */
         @Arbiter
-        public void arbiter(final II_Result result)
+        public void arbiter(final ZII_Result result)
         {
-            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r2 = buffer.getInt(index), 1);
+            ringBuffer.read((msgTypeId, buffer, index, length) -> result.r3 = buffer.getInt(index), 1);
         }
     }
 
@@ -200,7 +202,6 @@ public class OneToOneRingBufferTests
      */
     @JCStressTest
     @Outcome(id = "0, 0", expect = Expect.ACCEPTABLE, desc = "Reader before writer")
-    @Outcome(id = "1, 42", expect = Expect.FORBIDDEN, desc = "Old value observed")
     @Outcome(id = "1, 111", expect = Expect.ACCEPTABLE, desc = "New value observed")
     @State
     public static class TryClaimAbort
