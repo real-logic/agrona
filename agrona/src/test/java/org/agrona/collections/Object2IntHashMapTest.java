@@ -340,7 +340,7 @@ class Object2IntHashMapTest
     }
 
     @Test
-    void computeUpdatesInsertANewEntryIfDoesNotExist()
+    void computeInsertANewEntryIfDoesNotExist()
     {
         final int missingValue = -100;
         final Object2IntHashMap<String> map = new Object2IntHashMap<>(missingValue);
@@ -353,6 +353,22 @@ class Object2IntHashMapTest
 
         assertEquals(2, map.size());
         assertEquals(newValue, map.getValue(key));
+        assertEquals(2, map.getValue("two"));
+    }
+
+    @Test
+    void computeIsANoOpIfUnknownKeyAndMissingValue()
+    {
+        final int missingValue = -100;
+        final Object2IntHashMap<String> map = new Object2IntHashMap<>(missingValue);
+        final String key = "one";
+        final int newValue = 42;
+        final ObjectIntToIntFunction<String> function = (k, v) -> missingValue;
+        map.put("two", 2);
+
+        assertEquals(missingValue, map.compute(key, function));
+
+        assertEquals(1, map.size());
         assertEquals(2, map.getValue("two"));
     }
 
@@ -1054,6 +1070,7 @@ class Object2IntHashMapTest
 
         assertEquals(value, map.merge(key, value, remappingFunction));
 
+        assertEquals(1, map.size());
         assertEquals(value, map.getValue(key));
     }
 
@@ -1077,7 +1094,13 @@ class Object2IntHashMapTest
 
         assertEquals(newValue, map.merge(key, value, remappingFunction));
 
+        assertEquals(1, map.size());
         assertEquals(newValue, map.getValue(key));
+
+        assertEquals(500, map.merge(key, -42, Integer::sum));
+
+        assertEquals(1, map.size());
+        assertEquals(500, map.getValue(key));
     }
 
     @Test

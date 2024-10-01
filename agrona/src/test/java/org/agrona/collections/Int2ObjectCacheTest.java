@@ -439,6 +439,7 @@ class Int2ObjectCacheTest
     @Test
     void computeReturnsNullForAnUnknownKeyIfTheFunctionReturnsNull()
     {
+        cache.put(11, "11");
         final int key = 42;
         final IntObjectToObjectFunction<String, String> remappingFunction = (k, v) ->
         {
@@ -450,6 +451,8 @@ class Int2ObjectCacheTest
         assertNull(cache.compute(key, remappingFunction));
 
         assertFalse(cache.containsKey(key));
+        assertEquals("11", cache.get(11));
+        assertEquals(1, cache.size());
     }
 
     @Test

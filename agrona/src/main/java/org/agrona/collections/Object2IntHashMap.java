@@ -323,10 +323,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         {
             keys[index] = key;
             values[index] = newValue;
-            if (++size > resizeThreshold)
-            {
-                increaseCapacity();
-            }
+            ++size;
+            increaseCapacity();
         }
 
         return newValue;
@@ -417,10 +415,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             if (missingValue == oldValue)
             {
                 keys[index] = key;
-                if (++size > resizeThreshold)
-                {
-                    increaseCapacity();
-                }
+                ++size;
+                increaseCapacity();
             }
         }
         else if (missingValue != oldValue)
@@ -480,8 +476,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         {
             keys[index] = key;
             values[index] = newValue;
-            if (++size > resizeThreshold)
+            if (missingValue == oldValue)
             {
+                keys[index] = key;
+                ++size;
                 increaseCapacity();
             }
         }
@@ -543,10 +541,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
         values[index] = value;
 
-        if (size > resizeThreshold)
-        {
-            increaseCapacity();
-        }
+        increaseCapacity();
 
         return oldValue;
     }
@@ -597,10 +592,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
         keys[index] = key;
         values[index] = value;
 
-        if (++size > resizeThreshold)
-        {
-            increaseCapacity();
-        }
+        ++size;
+        increaseCapacity();
 
         return missingValue;
     }
@@ -1032,13 +1025,16 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
     private void increaseCapacity()
     {
-        @DoNotSub final int newCapacity = values.length << 1;
-        if (newCapacity < 0)
+        if (size > resizeThreshold)
         {
-            throw new IllegalStateException("max capacity reached at size=" + size);
-        }
+            @DoNotSub final int newCapacity = values.length << 1;
+            if (newCapacity < 0)
+            {
+                throw new IllegalStateException("max capacity reached at size=" + size);
+            }
 
-        rehash(newCapacity);
+            rehash(newCapacity);
+        }
     }
 
     private void rehash(@DoNotSub final int newCapacity)

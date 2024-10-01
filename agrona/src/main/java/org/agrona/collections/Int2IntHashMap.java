@@ -476,7 +476,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             entries[index] = key;
             entries[index + 1] = value;
-            size++;
+            ++size;
             increaseCapacity();
         }
 
@@ -513,7 +513,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         {
             value = remappingFunction.applyAsInt(key, value);
             entries[index + 1] = value;
-            if (value == missingValue)
+            if (missingValue == value)
             {
                 size--;
                 compactChain(index);
@@ -556,7 +556,7 @@ public class Int2IntHashMap implements Map<Integer, Integer>
             if (oldValue == missingValue)
             {
                 entries[index] = key;
-                size++;
+                ++size;
                 increaseCapacity();
             }
         }
@@ -830,10 +830,10 @@ public class Int2IntHashMap implements Map<Integer, Integer>
         if (missingValue != newValue)
         {
             entries[index + 1] = newValue;
-            if (oldValue == missingValue)
+            if (missingValue == oldValue)
             {
                 entries[index] = key;
-                size++;
+                ++size;
                 increaseCapacity();
             }
         }
