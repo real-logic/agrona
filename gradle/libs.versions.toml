@@ -1,7 +1,7 @@
 [versions]
 byteBuddy = "1.15.3"
 checkstyle = "10.18.1"
-junit5 = "5.11.1"
+junit5 = "5.11.2"
 jmh = "1.37"
 gradle = "8.10.2"
 
