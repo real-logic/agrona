@@ -8,7 +8,7 @@ gradle = "8.10.2"
 [libraries]
 junit4 = { group = "junit", name = "junit", version = "4.13.2" }
 guava = { group = "com.google.guava", name = "guava-testlib", version = "33.3.1-jre" }
-mockito = { group = "org.mockito", name = "mockito-core", version = "5.14.1" }
+mockito = { group = "org.mockito", name = "mockito-core", version = "5.14.2" }
 hamcrest = { group = "org.hamcrest", name = "hamcrest", version = "3.0" }
 findbugs = { group = "com.google.code.findbugs", name = "findbugs-annotations", version = "3.0.1" }
 byteBuddy = { group = "net.bytebuddy", name = "byte-buddy", version.ref = "byteBuddy" }
