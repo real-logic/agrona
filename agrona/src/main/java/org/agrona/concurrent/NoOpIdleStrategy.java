@@ -18,6 +18,15 @@ package org.agrona.concurrent;
 /**
  * Low-latency idle strategy to be employed in loops that do significant work on each iteration such that any
  * work in the idle strategy would be wasteful.
+ * <p>
+ * The NoOpIdleStrategy should be used with care:
+ * <ol>
+ *     <li>It could increase power consumption.</li>
+ *     <li>The increased power consumption could lead to thermal throttling causing an overall performance drop.</li>
+ *     <li>It could consume resources that otherwise would be used by the hyper-sibling.</li>
+ *     <li>It could lead to a memory order violation at the end of the loop causing a pipeline reset.</li>
+ * </ol>
+ * The {@link BusySpinIdleStrategy} might be a better alternative in some scenario's.
  */
 public final class NoOpIdleStrategy implements IdleStrategy
 {
