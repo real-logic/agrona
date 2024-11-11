@@ -17,8 +17,8 @@ package org.agrona.concurrent.broadcast;
 
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.MemoryAccess;
 
+import java.lang.invoke.VarHandle;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.agrona.BitUtil.align;
@@ -191,7 +191,7 @@ public class BroadcastReceiver
      */
     public boolean validate()
     {
-        MemoryAccess.acquireFence();
+        VarHandle.acquireFence();
 
         return validate(cursor, buffer, capacity);
     }
