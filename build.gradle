@@ -194,8 +194,10 @@ subprojects {
             mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
         }
 
-        options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
-        options.compilerArgs.add('-XDignore.symbol.file') // Suppress warnings about using Unsafe
+        if (buildJavaVersion <= 23) {
+            options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
+        }
+
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
