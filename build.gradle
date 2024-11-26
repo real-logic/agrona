@@ -204,6 +204,7 @@ subprojects {
 
     test {
         jvmArgs('--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED')
+        jvmArgs('--add-opens', 'java.base/java.util.zip=ALL-UNNAMED')
 
         if (buildJavaVersion >= 21) {
             jvmArgs('-XX:+EnableDynamicAgentLoading')
