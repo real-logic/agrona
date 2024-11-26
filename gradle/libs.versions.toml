@@ -3,7 +3,7 @@ byteBuddy = "1.15.10"
 checkstyle = "10.20.1"
 junit5 = "5.11.3"
 jmh = "1.37"
-gradle = "8.11"
+gradle = "8.11.1"
 
 [libraries]
 junit4 = { group = "junit", name = "junit", version = "4.13.2" }
