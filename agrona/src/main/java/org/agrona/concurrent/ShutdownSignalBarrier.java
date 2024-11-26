@@ -15,6 +15,9 @@
  */
 package org.agrona.concurrent;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -27,14 +30,47 @@ public class ShutdownSignalBarrier
     /**
      * Signals the barrier will be registered for.
      */
-    public static final String[] SIGNAL_NAMES = { "INT", "TERM" };
+    private static final String[] SIGNAL_NAMES = { "INT", "TERM" };
     private static final ArrayList<CountDownLatch> LATCHES = new ArrayList<>();
 
     static
     {
-        for (final String signalName : SIGNAL_NAMES)
+        try
         {
-            SigInt.register(signalName, ShutdownSignalBarrier::signalAndClearAll);
+            final Class<?> signalClass = Class.forName("jdk.internal.misc.Signal");
+            final Class<?> signalHandlerClass = Class.forName("jdk.internal.misc.Signal$Handler");
+            final Constructor<?> signalConstructor = signalClass.getConstructor(String.class);
+            final Method handle = signalClass.getMethod("handle", signalClass, signalHandlerClass);
+
+            final Object handler = Proxy.newProxyInstance(
+                signalHandlerClass.getClassLoader(),
+                new Class<?>[]{ signalHandlerClass },
+                (proxy, method, args) ->
+                {
+                    if (signalHandlerClass == method.getDeclaringClass())
+                    {
+                        ShutdownSignalBarrier.signalAndClearAll();
+                    }
+                    else if (Object.class == method.getDeclaringClass())
+                    {
+                        if (method.getName().equals("toString"))
+                        {
+                            return args[0].toString();
+                        }
+                    }
+                    return null;
+                });
+
+
+            for (final String name : SIGNAL_NAMES)
+            {
+                final Object signal = signalConstructor.newInstance(name);
+                handle.invoke(null, signal, handler);
+            }
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 
