@@ -147,34 +147,32 @@ public class BroadcastReceiver
     public boolean receiveNext()
     {
         boolean isAvailable = false;
-        final AtomicBuffer buffer = this.buffer;
         final long tail = buffer.getLongVolatile(tailCounterIndex);
-        long cursor = nextRecord;
+        long localCursor = nextRecord;
 
-        if (tail > cursor)
+        if (tail > localCursor)
         {
-            final int capacity = this.capacity;
-            int recordOffset = (int)cursor & (capacity - 1);
+            int localRecordOffset = (int)localCursor & (capacity - 1);
 
-            if (!validate(cursor, buffer, capacity))
+            if (!validate(localCursor, buffer, capacity))
             {
                 lappedCount.lazySet(lappedCount.get() + 1);
 
-                cursor = buffer.getLongVolatile(latestCounterIndex);
-                recordOffset = (int)cursor & (capacity - 1);
+                localCursor = buffer.getLongVolatile(latestCounterIndex);
+                localRecordOffset = (int)localCursor & (capacity - 1);
             }
 
-            this.cursor = cursor;
-            nextRecord = cursor + align(buffer.getInt(lengthOffset(recordOffset)), RECORD_ALIGNMENT);
+            this.cursor = localCursor;
+            nextRecord = localCursor + align(buffer.getInt(lengthOffset(localRecordOffset)), RECORD_ALIGNMENT);
 
-            if (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(recordOffset)))
+            if (PADDING_MSG_TYPE_ID == buffer.getInt(typeOffset(localRecordOffset)))
             {
-                recordOffset = 0;
+                localRecordOffset = 0;
                 this.cursor = nextRecord;
-                nextRecord += align(buffer.getInt(lengthOffset(recordOffset)), RECORD_ALIGNMENT);
+                nextRecord += align(buffer.getInt(lengthOffset(localRecordOffset)), RECORD_ALIGNMENT);
             }
 
-            this.recordOffset = recordOffset;
+            this.recordOffset = localRecordOffset;
             isAvailable = true;
         }
 
