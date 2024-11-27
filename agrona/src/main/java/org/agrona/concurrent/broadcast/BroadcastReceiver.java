@@ -200,4 +200,15 @@ public class BroadcastReceiver
     {
         return (cursor + capacity) > buffer.getLongVolatile(tailIntentCounterIndex);
     }
+
+    public long cursor()
+    {
+        return cursor;
+    }
+
+    public long tailIntentCounterIndex()
+    {
+        VarHandle.acquireFence();
+        return buffer.getLongVolatile(tailIntentCounterIndex);
+    }
 }
