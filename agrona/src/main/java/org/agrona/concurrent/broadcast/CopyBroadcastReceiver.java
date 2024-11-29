@@ -87,7 +87,6 @@ public class CopyBroadcastReceiver
     public int receive(final MessageHandler handler)
     {
         int messagesReceived = 0;
-        final BroadcastReceiver receiver = this.receiver;
         final long lastSeenLappedCount = receiver.lappedCount();
 
         if (receiver.receiveNext())
