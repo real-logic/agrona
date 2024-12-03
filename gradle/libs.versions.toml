@@ -1,6 +1,6 @@
 [versions]
 byteBuddy = "1.15.10"
-checkstyle = "10.20.1"
+checkstyle = "10.20.2"
 junit5 = "5.11.3"
 jmh = "1.37"
 gradle = "8.11.1"
@@ -20,5 +20,5 @@ jcstress-core = { group = "org.openjdk.jcstress", name = "jcstress-core", versio
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
-bnd = { id = "biz.aQute.bnd.builder", version = "7.0.0" }
+bnd = { id = "biz.aQute.bnd.builder", version = "7.1.0" }
 shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
