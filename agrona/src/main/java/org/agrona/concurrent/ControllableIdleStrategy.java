@@ -73,7 +73,7 @@ public final class ControllableIdleStrategy implements IdleStrategy
     }
 
     /**
-     * Idle based on current status indication value
+     * Idle based on current status indication value.
      *
      * @param workCount performed in last duty cycle.
      * @see IdleStrategy#idle(int)

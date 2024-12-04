@@ -61,12 +61,11 @@ abstract class ManyToOneConcurrentLinkedQueuePadding1
     {
         try
         {
-            HEAD_OFFSET =
-                UnsafeApi.objectFieldOffset(ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
-            TAIL_OFFSET =
-                UnsafeApi.objectFieldOffset(ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
-            NEXT_OFFSET =
-                UnsafeApi.objectFieldOffset(Node.class.getDeclaredField("next"));
+            HEAD_OFFSET = UnsafeApi.objectFieldOffset(
+                ManyToOneConcurrentLinkedQueueHead.class.getDeclaredField("head"));
+            TAIL_OFFSET = UnsafeApi.objectFieldOffset(
+                ManyToOneConcurrentLinkedQueueTail.class.getDeclaredField("tail"));
+            NEXT_OFFSET = UnsafeApi.objectFieldOffset(Node.class.getDeclaredField("next"));
         }
         catch (final Exception ex)
         {
@@ -82,6 +81,7 @@ abstract class ManyToOneConcurrentLinkedQueuePadding1
 
 /**
  * Value for the tail that is expected to be padded.
+ * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
 abstract class ManyToOneConcurrentLinkedQueueTail<E> extends ManyToOneConcurrentLinkedQueuePadding1
 {
@@ -93,6 +93,7 @@ abstract class ManyToOneConcurrentLinkedQueueTail<E> extends ManyToOneConcurrent
 
 /**
  * Pad out a cache line between the tail and the head to prevent false sharing.
+ * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
 abstract class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcurrentLinkedQueueTail<E>
 {
@@ -104,6 +105,7 @@ abstract class ManyToOneConcurrentLinkedQueuePadding2<E> extends ManyToOneConcur
 
 /**
  * Value for the head that is expected to be padded.
+ * @param <E> type of the elements stored in the {@link java.util.Queue}.
  */
 abstract class ManyToOneConcurrentLinkedQueueHead<E> extends ManyToOneConcurrentLinkedQueuePadding2<E>
 {

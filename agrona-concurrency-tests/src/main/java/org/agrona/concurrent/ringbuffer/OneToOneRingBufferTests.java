@@ -95,7 +95,7 @@ public class OneToOneRingBufferTests
     }
 
     /**
-     * Test for when a writing thread can only succeed if reader read an existing message
+     * Test for when a writing thread can only succeed if reader read an existing message.
      */
     @JCStressTest
     @Outcome(id = "false, 19, 0", expect = Expect.ACCEPTABLE, desc = "Write before read")

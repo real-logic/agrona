@@ -154,9 +154,9 @@ public class ObjectHashSet<T> extends AbstractSet<T>
     }
 
     /**
-     * @param value the value to add
-     * @return true if the collection has changed, false otherwise
-     * @throws NullPointerException if the value is null
+     * @param value the value to add.
+     * @return true if the collection has changed, false otherwise.
+     * @throws NullPointerException if the value is null.
      */
     public boolean add(final T value)
     {
@@ -227,8 +227,8 @@ public class ObjectHashSet<T> extends AbstractSet<T>
     }
 
     /**
-     * @param value the value to remove
-     * @return true if the value was present, false otherwise
+     * @param value the value to remove.
+     * @return true if the value was present, false otherwise.
      */
     public boolean remove(final Object value)
     {
@@ -370,10 +370,10 @@ public class ObjectHashSet<T> extends AbstractSet<T>
 
     /**
      * Alias for {@link #addAll(Collection)} for the specialized case when adding another ObjectHashSet,
-     * avoids boxing and allocations
+     * avoids boxing and allocations.
      *
      * @param coll containing the values to be added.
-     * @return {@code true} if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call.
      */
     public boolean addAll(final ObjectHashSet<T> coll)
     {
@@ -395,8 +395,8 @@ public class ObjectHashSet<T> extends AbstractSet<T>
      * <p>
      * NB: garbage free in the identical case, allocates otherwise.
      *
-     * @param other the other set to subtract
-     * @return null if identical, otherwise the set of differences
+     * @param other the other set to subtract.
+     * @return null if identical, otherwise the set of differences.
      */
     public ObjectHashSet<T> difference(final ObjectHashSet<T> other)
     {
@@ -428,10 +428,10 @@ public class ObjectHashSet<T> extends AbstractSet<T>
 
     /**
      * Alias for {@link #removeAll(Collection)} for the specialized case when removing another ObjectHashSet,
-     * avoids boxing and allocations
+     * avoids boxing and allocations.
      *
      * @param coll containing the values to be removed.
-     * @return {@code true} if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call.
      */
     public boolean removeAll(final ObjectHashSet<T> coll)
     {

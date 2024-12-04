@@ -122,9 +122,9 @@ public class DirectBufferOutputStream extends OutputStream
     }
 
     /**
-     * The length of the underlying buffer to use
+     * The length of the underlying buffer to use.
      *
-     * @return length of the underlying buffer to use
+     * @return length of the underlying buffer to use.
      */
     public int length()
     {

@@ -41,7 +41,7 @@ public class DynamicCompositeAgent implements Agent
         INIT,
 
         /**
-         * Agent is not active after a successful {@link #onStart()}
+         * Agent is not active after a successful {@link #onStart()}.
          */
         ACTIVE,
 

@@ -36,7 +36,7 @@ import static org.agrona.collections.CollectionUtil.validateLoadFactor;
 /**
  * {@link java.util.Map} implementation specialised for int values using open addressing and
  * linear probing for cache efficient access. The implementation is mirror copy of {@link Int2ObjectHashMap}
- * and it also relies on missing value concept from {@link Int2IntHashMap}
+ * and it also relies on missing value concept from {@link Int2IntHashMap}.
  *
  * @param <K> type of keys stored in the {@link java.util.Map}
  */
@@ -70,9 +70,9 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     /**
      * Construct a new map allowing a configuration for initial capacity and load factor.
      *
-     * @param initialCapacity for the backing array
-     * @param loadFactor      limit for resizing on puts
-     * @param missingValue    value to be used as a null marker in the map
+     * @param initialCapacity for the backing array.
+     * @param loadFactor      limit for resizing on puts.
+     * @param missingValue    value to be used as a null marker in the map.
      */
     public Object2IntHashMap(
         @DoNotSub final int initialCapacity,
@@ -85,9 +85,9 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     /**
      * Construct a new map allowing a configuration for initial capacity and load factor.
      *
-     * @param initialCapacity       for the backing array
-     * @param loadFactor            limit for resizing on puts
-     * @param missingValue          value to be used as a null marker in the map
+     * @param initialCapacity       for the backing array.
+     * @param loadFactor            limit for resizing on puts.
+     * @param missingValue          value to be used as a null marker in the map.
      * @param shouldAvoidAllocation should allocation be avoided by caching iterators and map entries.
      */
     @SuppressWarnings("unchecked")
@@ -188,7 +188,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * {@inheritDoc}
      * Overloaded version of {@link Map#containsKey(Object)} that takes a primitive int key.
      *
-     * @param key for indexing the {@link Map}
+     * @param key for indexing the {@link Map}.
      * @return true if the key is found otherwise false.
      */
     @SuppressWarnings("unchecked")
@@ -237,7 +237,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * for the key.
      *
      * @param key          whose associated value is to be returned.
-     * @param defaultValue the default mapping of the key
+     * @param defaultValue the default mapping of the key.
      * @return the value to which the specified key is mapped, or {@code defaultValue} if this map contains no mapping
      * for the key.
      */
@@ -259,10 +259,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
     /**
      * Overloaded version of {@link Map#get(Object)} that takes a primitive int key.
-     * Due to type erasure have to rename the method
+     * Due to type erasure have to rename the method.
      *
-     * @param key for indexing the {@link Map}
-     * @return the value if found otherwise missingValue
+     * @param key for indexing the {@link Map}.
+     * @return the value if found otherwise missingValue.
      */
     public int getValue(final K key)
     {
@@ -334,13 +334,13 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      * If the value for the specified key is present, attempts to compute a new
      * mapping given the key and its current mapped value.
      * <p>
-     * If the function returns missingValue, the mapping is removed
+     * If the function returns missingValue, the mapping is removed.
      * <p>
      * Primitive specialized version of {@link java.util.Map#computeIfPresent(Object, BiFunction)}.
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
-     * @return the new value associated with the specified key, or missingValue if none
+     * @return the new value associated with the specified key, or missingValue if none.
      */
     @SuppressWarnings("overloads")
     public int computeIfPresent(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
@@ -385,7 +385,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
      *
      * @param key               to search on.
      * @param remappingFunction to provide a value if the get returns missingValue.
-     * @return the new value associated with the specified key, or missingValue if none
+     * @return the new value associated with the specified key, or missingValue if none.
      */
     @SuppressWarnings("overloads")
     public int compute(final K key, final ObjectIntToIntFunction<? super K> remappingFunction)
@@ -504,9 +504,9 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     /**
      * Overloaded version of {@link Map#put(Object, Object)} that takes a primitive int key.
      *
-     * @param key   for indexing the {@link Map}
-     * @param value to be inserted in the {@link Map}
-     * @return the previous value if found otherwise missingValue
+     * @param key   for indexing the {@link Map}.
+     * @param value to be inserted in the {@link Map}.
+     * @return the previous value if found otherwise missingValue.
      */
     public int put(final K key, final int value)
     {
@@ -655,10 +655,10 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
 
     /**
      * Overloaded version of {@link Map#remove(Object)} that takes a key and returns a primitive int value.
-     * Due to type erasure have to rename the method
+     * Due to type erasure have to rename the method.
      *
-     * @param key for indexing the {@link Map}
-     * @return the value if found otherwise missingValue
+     * @param key for indexing the {@link Map}.
+     * @return the value if found otherwise missingValue.
      */
     public int removeKey(final K key)
     {
@@ -881,7 +881,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link Map#replace(Object, Object)}
+     * Primitive specialised version of {@link Map#replace(Object, Object)}.
      *
      * @param key   with which the specified value is associated.
      * @param value to be associated with the specified key.
@@ -918,7 +918,7 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
     }
 
     /**
-     * Primitive specialised version of {@link Map#replace(Object, Object, Object)}
+     * Primitive specialised version of {@link Map#replace(Object, Object, Object)}.
      *
      * @param key      key with which the specified value is associated.
      * @param oldValue value expected to be associated with the specified key.
@@ -1656,7 +1656,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
             }
 
             final Entry<?, ?> e = (Entry<?, ?>)o;
-            return Objects.equals(getKey(), e.getKey()) && e.getValue() instanceof Integer &&
+            return Objects.equals(getKey(), e.getKey()) &&
+                e.getValue() instanceof Integer &&
                 getIntValue() == (Integer)e.getValue();
         }
 
@@ -1729,7 +1730,8 @@ public class Object2IntHashMap<K> implements Map<K, Integer>
                 }
 
                 final Entry<?, ?> e = (Entry<?, ?>)o;
-                return Objects.equals(getKey(), e.getKey()) && e.getValue() instanceof Integer &&
+                return Objects.equals(getKey(), e.getKey()) &&
+                    e.getValue() instanceof Integer &&
                     v == (Integer)e.getValue();
             }
 

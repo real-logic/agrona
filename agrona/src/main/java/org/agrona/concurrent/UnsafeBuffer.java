@@ -132,7 +132,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     }
 
     /**
-     * Attach a view to an existing {@link DirectBuffer}
+     * Attach a view to an existing {@link DirectBuffer}.
      *
      * @param buffer to which the view is attached.
      */
@@ -143,7 +143,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     }
 
     /**
-     * Attach a view to an existing {@link DirectBuffer}
+     * Attach a view to an existing {@link DirectBuffer}.
      *
      * @param buffer to which the view is attached.
      * @param offset in bytes within the buffer to begin.
@@ -158,8 +158,8 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     /**
      * Attach a view to an off-heap memory region by address. This is useful for interacting with native libraries.
      *
-     * @param address where the memory begins off-heap
-     * @param length  of the buffer from the given address
+     * @param address where the memory begins off-heap.
+     * @param length  of the buffer from the given address.
      */
     @SuppressWarnings("this-escape")
     public UnsafeBuffer(final long address, final int length)
@@ -368,7 +368,7 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         {
             throw new IllegalStateException(
                 "AtomicBuffer is not correctly aligned: addressOffset=" + addressOffset + " is not divisible by " +
-                    ALIGNMENT);
+                ALIGNMENT);
         }
     }
 

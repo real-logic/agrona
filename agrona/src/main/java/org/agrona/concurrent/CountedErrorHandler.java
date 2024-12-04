@@ -45,7 +45,7 @@ public class CountedErrorHandler implements ErrorHandler, AutoCloseable
     }
 
     /**
-     * Close so that {@link #onError(Throwable)} will not delegate and instead print to {@link System#err}
+     * Close so that {@link #onError(Throwable)} will not delegate and instead print to {@link System#err}.
      */
     public void close()
     {

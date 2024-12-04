@@ -98,7 +98,7 @@ public interface DirectBuffer extends Comparable<DirectBuffer>
     void wrap(ByteBuffer buffer, int offset, int length);
 
     /**
-     * Attach a view to an existing {@link DirectBuffer}
+     * Attach a view to an existing {@link DirectBuffer}.
      *
      * @param buffer to which the view is attached.
      */

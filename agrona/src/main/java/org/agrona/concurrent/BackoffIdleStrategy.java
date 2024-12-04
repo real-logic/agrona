@@ -115,7 +115,7 @@ abstract class BackoffIdleStrategyData extends BackoffIdleStrategyPrePad
  *     echo 10000 &gt; /proc/PID/timerslack_ns
  * </code>
  * This will set the timer slack to 10 microseconds for the given PID of the thread. This property
- * can't be set at the process level, so needs to be set for each thread specifically. Also it isn't
+ * can't be set at the process level, so needs to be set for each thread specifically. Also, it isn't
  * guaranteed that after setting the property, the waiting time will be respected.
  */
 public final class BackoffIdleStrategy extends BackoffIdleStrategyData implements IdleStrategy
@@ -160,7 +160,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
     }
 
     /**
-     * Create a set of state tracking idle behavior
+     * Create a set of state tracking idle behavior.
      *
      * @param maxSpins        to perform before moving to {@link Thread#yield()}
      * @param maxYields       to perform before moving to {@link java.util.concurrent.locks.LockSupport#parkNanos(long)}

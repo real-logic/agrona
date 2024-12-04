@@ -19,8 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * A marker annotation to tell the primitive expander not to substitute
- * The line in question
+ * A marker annotation to tell the primitive expander not to substitute the line in question.
  */
 @Retention(RetentionPolicy.SOURCE)
 public @interface DoNotSub

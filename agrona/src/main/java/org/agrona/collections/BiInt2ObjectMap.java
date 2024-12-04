@@ -35,18 +35,18 @@ import static org.agrona.collections.Hashing.compoundKey;
 public class BiInt2ObjectMap<V>
 {
     /**
-     * Handler for a map entry
+     * Handler for a map entry.
      *
-     * @param <V> type of the value
+     * @param <V> type of the value.
      */
     public interface EntryConsumer<V>
     {
         /**
-         * A map entry
+         * A map entry.
          *
-         * @param keyPartA for the key
-         * @param keyPartB for the key
-         * @param value    for the entry
+         * @param keyPartA for the key.
+         * @param keyPartB for the key.
+         * @param value    for the entry.
          */
         void accept(int keyPartA, int keyPartB, V value);
     }
@@ -61,9 +61,9 @@ public class BiInt2ObjectMap<V>
         /**
          * A map entry.
          *
-         * @param keyPartA for the key
-         * @param keyPartB for the key
-         * @return value for the entry
+         * @param keyPartA for the key.
+         * @param keyPartB for the key.
+         * @return value for the entry.
          */
         V apply(int keyPartA, int keyPartB);
     }
@@ -79,10 +79,10 @@ public class BiInt2ObjectMap<V>
         /**
          * A map entry.
          *
-         * @param keyPartA for the key
-         * @param keyPartB for the key
-         * @param oldValue to be remapped
-         * @return value for the entry
+         * @param keyPartA for the key.
+         * @param keyPartB for the key.
+         * @param oldValue to be remapped.
+         * @return value for the entry.
          */
         V1 apply(int keyPartA, int keyPartB, V oldValue);
     }
@@ -107,8 +107,8 @@ public class BiInt2ObjectMap<V>
     /**
      * Construct a map that sets it initial capacity and load factor.
      *
-     * @param initialCapacity for the underlying hash map
-     * @param loadFactor      for the underlying hash map
+     * @param initialCapacity for the underlying hash map.
+     * @param loadFactor      for the underlying hash map.
      */
     public BiInt2ObjectMap(final int initialCapacity, final float loadFactor)
     {
@@ -180,10 +180,10 @@ public class BiInt2ObjectMap<V>
     /**
      * Put a value into the map.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
-     * @param value    to put into the map
-     * @return the previous value if found otherwise null
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
+     * @param value    to put into the map.
+     * @return the previous value if found otherwise null.
      * @see Map#put(Object, Object)
      */
     @SuppressWarnings("unchecked")
@@ -274,8 +274,8 @@ public class BiInt2ObjectMap<V>
     /**
      * Retrieve a value from the map.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
      * @return value matching the key if found or null if not found.
      * @see Map#get(Object)
      */
@@ -287,9 +287,9 @@ public class BiInt2ObjectMap<V>
     /**
      * Retrieve a value from the map or <code>defaultValue</code> if this map contains not mapping for the key.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
-     * @param defaultValue the default mapping of the key
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
+     * @param defaultValue the default mapping of the key.
      * @return value matching the key if found or <code>defaultValue</code> if not found.
      * @see java.util.Map#getOrDefault(Object, Object)
      */
@@ -302,8 +302,8 @@ public class BiInt2ObjectMap<V>
     /**
      * Returns true if this map contains a mapping for the specified key.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
      * @return <code>true</code> if this map contains a mapping for the specified key
      * @see java.util.Map#containsKey(Object)
      */
@@ -333,8 +333,8 @@ public class BiInt2ObjectMap<V>
     /**
      * Remove a value from the map and return the value.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
      * @return the previous value if found otherwise null
      * @see Map#remove(Object)
      */
@@ -370,9 +370,9 @@ public class BiInt2ObjectMap<V>
      * to {@code null}), attempts to compute its value using the given mapping
      * function and enters it into this map unless {@code null}.
      *
-     * @param keyPartA        for the key
-     * @param keyPartB        for the key
-     * @param mappingFunction creates values based upon keys if the key pair is missing
+     * @param keyPartA        for the key.
+     * @param keyPartB        for the key.
+     * @param mappingFunction creates values based upon keys if the key pair is missing.
      * @return the newly created or stored value.
      * @see Map#computeIfAbsent(Object, Function)
      */
@@ -421,10 +421,10 @@ public class BiInt2ObjectMap<V>
      * If the function returns null, the mapping is removed. If the function itself throws an (unchecked) exception,
      * the exception is rethrown, and the current mapping is left unchanged.
      *
-     * @param keyPartA          for the key
-     * @param keyPartB          for the key
-     * @param remappingFunction the function to compute a value
-     * @return the new value associated with the specified key, or null if none
+     * @param keyPartA          for the key.
+     * @param keyPartB          for the key.
+     * @param remappingFunction the function to compute a value.
+     * @return the new value associated with the specified key, or null if none.
      * @see Map#computeIfPresent(Object, BiFunction)
      */
     public V computeIfPresent(
@@ -470,10 +470,10 @@ public class BiInt2ObjectMap<V>
      * Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current
      * mapping).
      *
-     * @param keyPartA          for the key
-     * @param keyPartB          for the key
-     * @param remappingFunction the function to compute a value
-     * @return the new value associated with the specified key, or null if none
+     * @param keyPartA          for the key.
+     * @param keyPartB          for the key.
+     * @param remappingFunction the function to compute a value.
+     * @return the new value associated with the specified key, or null if none.
      * @see Map#compute(Object, BiFunction)
      */
     public V compute(final int keyPartA, final int keyPartB, final EntryRemap<? super V, ? extends V> remappingFunction)
@@ -525,13 +525,13 @@ public class BiInt2ObjectMap<V>
      * given non-null value. Otherwise, replaces the associated value with the results of the given remapping function,
      * or removes if the result is null.
      *
-     * @param keyPartA          for the key
-     * @param keyPartB          for the key
+     * @param keyPartA          for the key.
+     * @param keyPartB          for the key.
      * @param value             the non-null value to be merged with the existing value associated with the key or, if
      *                          no existing value or a null value is associated with the key, to be associated with the
-     *                          key
-     * @param remappingFunction the function to recompute a value if present
-     * @return the new value associated with the specified key, or null if no value is associated with the key
+     *                          key.
+     * @param remappingFunction the function to recompute a value if present.
+     * @return the new value associated with the specified key, or null if no value is associated with the key.
      * @see Map#merge(Object, Object, BiFunction)
      */
     public V merge(
@@ -585,9 +585,9 @@ public class BiInt2ObjectMap<V>
     }
 
     /**
-     * Iterate over the contents of the map
+     * Iterate over the contents of the map.
      *
-     * @param consumer to apply to each value in the map
+     * @param consumer to apply to each value in the map.
      */
     @SuppressWarnings("unchecked")
     public void forEach(final Consumer<V> consumer)
@@ -607,9 +607,9 @@ public class BiInt2ObjectMap<V>
     }
 
     /**
-     * Iterate over the contents of the map
+     * Iterate over the contents of the map.
      *
-     * @param consumer to apply to each value in the map
+     * @param consumer to apply to each value in the map.
      */
     public void forEach(final EntryConsumer<V> consumer)
     {
@@ -635,12 +635,12 @@ public class BiInt2ObjectMap<V>
     /**
      * Replaces the entry for the specified key only if currently mapped to the specified value.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
-     * @param value value to be associated with the specified key
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
+     * @param value value to be associated with the specified key.
      * @return the previous value associated with the specified key, or null if there was no mapping for the key.
-     * (A null return can also indicate that the map previously associated null with the key, if the implementation
-     * supports null values.)
+     * A null return can also indicate that the map previously associated null with the key, if the implementation
+     * supports null values.
      * @see Map#replace(Object, Object)
      */
     @SuppressWarnings("unchecked")
@@ -673,11 +673,11 @@ public class BiInt2ObjectMap<V>
     /**
      * Replaces the entry for the specified key only if currently mapped to the specified value.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
-     * @param oldValue value expected to be associated with the specified key
-     * @param newValue to be associated with the specified key
-     * @return true if the value was replaced
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
+     * @param oldValue value expected to be associated with the specified key.
+     * @param newValue to be associated with the specified key.
+     * @return true if the value was replaced.
      */
     @SuppressWarnings("unchecked")
     public boolean replace(final int keyPartA, final int keyPartB, final V oldValue, final V newValue)
@@ -714,10 +714,10 @@ public class BiInt2ObjectMap<V>
      * If the specified key is not already associated with a value (or is mapped to null) associates it with the given
      * value and returns null, else returns the current value.
      *
-     * @param keyPartA for the key
-     * @param keyPartB for the key
-     * @param value    to put into the map
-     * @return the previous value if found otherwise null
+     * @param keyPartA for the key.
+     * @param keyPartB for the key.
+     * @param value    to put into the map.
+     * @return the previous value if found otherwise null.
      */
     @SuppressWarnings("unchecked")
     public V putIfAbsent(final int keyPartA, final int keyPartB, final V value)
@@ -765,10 +765,10 @@ public class BiInt2ObjectMap<V>
     /**
      * Removes the entry for the specified key only if it is currently mapped to the specified value.
      *
-     * @param keyPartA  for the key
-     * @param keyPartB  for the key
-     * @param value     value expected to be associated with the specified key
-     * @return true if the value was removed
+     * @param keyPartA  for the key.
+     * @param keyPartB  for the key.
+     * @param value     value expected to be associated with the specified key.
+     * @return true if the value was removed.
      * @see Map#remove(Object, Object)
      */
     public boolean remove(final int keyPartA, final int keyPartB, final V value)
@@ -817,7 +817,7 @@ public class BiInt2ObjectMap<V>
     /**
      * Is map empty or not.
      *
-     * @return boolean indicating empty map or not
+     * @return boolean indicating empty map or not.
      */
     public boolean isEmpty()
     {
