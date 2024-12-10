@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import java.util.function.Predicate;
 
 import static org.agrona.BitUtil.findNextPositivePowerOfTwo;
 import static org.agrona.collections.CollectionUtil.validateLoadFactor;
@@ -365,7 +364,14 @@ public class ObjectHashSet<T> extends AbstractSet<T>
      */
     public boolean addAll(final Collection<? extends T> coll)
     {
-        return disjunction(coll, this::add);
+        boolean acc = false;
+        for (final T t : coll)
+        {
+            // Deliberate strict evaluation
+            acc |= add(t);
+        }
+
+        return acc;
     }
 
     /**
@@ -423,7 +429,14 @@ public class ObjectHashSet<T> extends AbstractSet<T>
      */
     public boolean removeAll(final Collection<?> coll)
     {
-        return disjunction(coll, this::remove);
+        boolean acc = false;
+        for (final Object t : coll)
+        {
+            // Deliberate strict evaluation
+            acc |= remove(t);
+        }
+
+        return acc;
     }
 
     /**
@@ -443,18 +456,6 @@ public class ObjectHashSet<T> extends AbstractSet<T>
             {
                 acc |= remove(value);
             }
-        }
-
-        return acc;
-    }
-
-    private static <T> boolean disjunction(final Collection<T> coll, final Predicate<T> predicate)
-    {
-        boolean acc = false;
-        for (final T t : coll)
-        {
-            // Deliberate strict evaluation
-            acc |= predicate.test(t);
         }
 
         return acc;
