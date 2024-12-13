@@ -115,7 +115,7 @@ public class UnsafeApiSourceGenerator extends DefaultTask
             package org.agrona;
             
             /**
-             * Entry point for accessing {@link jdk.internal.misc.Unsafe} APIs.
+             * Entry point for accessing {@code jdk.internal.misc.Unsafe} APIs.
              */
             public final class UnsafeApi
             {
@@ -147,19 +147,9 @@ public class UnsafeApiSourceGenerator extends DefaultTask
                     final Class<?>[] parameterTypes = method.getParameterTypes();
                     final Parameter[] parameters = method.getParameters();
 
-                    buffer.append(lineSeparator).append("    /**").append(lineSeparator);
-                    for (final Parameter parameter : parameters)
-                    {
-                        buffer.append("     * @param ").append(parameter.getName()).append(' ')
-                            .append(parameter.getName()).append(lineSeparator);
-                    }
-
-                    if (method.getReturnType() != void.class)
-                    {
-                        buffer.append("     * @return value").append(lineSeparator);
-                    }
-                    buffer.append("     * @see ").append(unsafeClass.getName()).append("#").append(method.getName());
-
+                    buffer.append(lineSeparator).append("    /**");
+                    buffer.append(lineSeparator).append("     * See {@code ").append(unsafeClass.getName())
+                        .append("#").append(method.getName());
                     if (parameterTypes.length > 0)
                     {
                         buffer.append('(');
@@ -173,7 +163,18 @@ public class UnsafeApiSourceGenerator extends DefaultTask
                         }
                         buffer.append(')');
                     }
-                    buffer.append(lineSeparator).append("     */").append(lineSeparator);
+                    buffer.append("}.").append(lineSeparator);
+                    for (final Parameter parameter : parameters)
+                    {
+                        buffer.append("     * @param ").append(parameter.getName()).append(' ')
+                            .append(parameter.getName()).append(lineSeparator);
+                    }
+
+                    if (method.getReturnType() != void.class)
+                    {
+                        buffer.append("     * @return value").append(lineSeparator);
+                    }
+                    buffer.append("     */").append(lineSeparator);
 
                     buffer.append("    public static ")
                         .append(TYPE_NAME.get(method.getReturnType())).append(' ')
