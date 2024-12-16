@@ -116,6 +116,8 @@ public class UnsafeApiSourceGenerator extends DefaultTask
             
             /**
              * Entry point for accessing {@code jdk.internal.misc.Unsafe} APIs.
+             *
+             * @since 2.0.0
              */
             public final class UnsafeApi
             {
