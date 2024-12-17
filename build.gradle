@@ -144,8 +144,7 @@ allprojects {
         resolutionStrategy {
             failOnVersionConflict()
 
-            force libs.junit4,
-                  libs.byteBuddy,
+            force libs.byteBuddy,
                   libs.byteBuddy.agent,
                   // patching conflicting Checkstyle dependencies
                   "org.codehaus.plexus:plexus-utils:3.3.0",
