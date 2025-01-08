@@ -21,7 +21,7 @@ import org.agrona.SystemUtil;
 import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
- * Abstraction over a range of buffer types that allows type to be accessed with memory ordering semantics.
+ * Abstraction over a range of buffer types that allows type to be accessed with various memory ordering semantics.
  */
 public interface AtomicBuffer extends MutableDirectBuffer
 {
@@ -79,7 +79,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void verifyAlignment();
 
     /**
-     * Get the value at a given index with volatile semantics.
+     * Atomically get the value at a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
@@ -87,7 +89,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     long getLongVolatile(int index);
 
     /**
-     * Put a value to a given index with volatile semantics.
+     * Atomically put a value to a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -95,7 +99,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putLongVolatile(int index, long value);
 
     /**
-     * Put a value to a given index with ordered store semantics.
+     * Atomically put a value to a given index with ordered store semantics.
+     * <p>
+     * This call has release semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -103,7 +109,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putLongOrdered(int index, long value);
 
     /**
-     * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     * Atomically adds a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     * <p>
+     * The load has no ordering semantics. The store has release semantics.
      *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
@@ -113,6 +121,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Atomic compare and set of a long given an expected value.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index         in bytes for where to put.
      * @param expectedValue at to be compared.
@@ -123,6 +133,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Atomically exchange a value at a location returning the previous contents.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -133,6 +145,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
     /**
      * Atomically add a delta to a value at a location returning the previous contents.
      * To decrement a negative delta can be provided.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param delta to be added to the value at the index.
@@ -141,7 +155,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     long getAndAddLong(int index, long delta);
 
     /**
-     * Get the value at a given index with volatile semantics.
+     * Atomically get the value at a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
@@ -149,7 +165,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     int getIntVolatile(int index);
 
     /**
-     * Put a value to a given index with volatile semantics.
+     * Atomically put a value to a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -157,7 +175,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putIntVolatile(int index, int value);
 
     /**
-     * Put a value to a given index with ordered semantics.
+     * Atomically put a value to a given index with ordered semantics.
+     * <p>
+     * This call has release semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -165,7 +185,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putIntOrdered(int index, int value);
 
     /**
-     * Add a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     * Atomically add a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     * <p>
+     * The load has no ordering semantics. The store has release semantics.
      *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
@@ -175,6 +197,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Atomic compare and set of an int given an expected value.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index         in bytes for where to put.
      * @param expectedValue at to be compared.
@@ -185,6 +209,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
 
     /**
      * Atomically exchange a value at a location returning the previous contents.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -195,6 +221,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
     /**
      * Atomically add a delta to a value at a location returning the previous contents.
      * To decrement a negative delta can be provided.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param delta to be added to the value at the index.
@@ -203,7 +231,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     int getAndAddInt(int index, int delta);
 
     /**
-     * Get the value at a given index with volatile semantics.
+     * Atomically get the value at a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
@@ -211,7 +241,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     short getShortVolatile(int index);
 
     /**
-     * Put a value to a given index with volatile semantics.
+     * Atomically put a value to a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -219,7 +251,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putShortVolatile(int index, short value);
 
     /**
-     * Get the value at a given index with volatile semantics.
+     * Atomically get the value at a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
@@ -227,7 +261,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     char getCharVolatile(int index);
 
     /**
-     * Put a value to a given index with volatile semantics.
+     * Atomically put a value to a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
@@ -235,7 +271,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putCharVolatile(int index, char value);
 
     /**
-     * Get the value at a given index with volatile semantics.
+     * Atomically get the value at a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
@@ -243,7 +281,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
     byte getByteVolatile(int index);
 
     /**
-     * Put a value to a given index with volatile semantics.
+     * Atomically put a value to a given index with volatile semantics.
+     * <p>
+     * This call has sequential-consistent semantics.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
