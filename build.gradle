@@ -22,8 +22,14 @@ plugins {
 
 defaultTasks 'clean', 'build'
 
+static def rawBuildJavaVersion()
+{
+    return System.getenv('BUILD_JAVA_VERSION') ?: JavaVersion.current().getMajorVersion()
+}
+boolean isEarlyAccessJavaVersion = rawBuildJavaVersion().endsWith("-ea")
+
 static def getBuildJavaVersion() {
-    def buildJavaVersion = System.getenv('BUILD_JAVA_VERSION') ?: JavaVersion.current().getMajorVersion()
+    def buildJavaVersion = rawBuildJavaVersion()
     if (buildJavaVersion.indexOf('.') > 0) {
         buildJavaVersion = buildJavaVersion.substring(0, buildJavaVersion.indexOf('.'))
     }
@@ -193,6 +199,8 @@ subprojects {
             mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
         }
 
+        options.compilerArgs.add('--release')
+        options.compilerArgs.add(java.sourceCompatibility.majorVersion)
         options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
         options.encoding = 'UTF-8'
         options.deprecation = true
@@ -231,7 +239,7 @@ subprojects {
         options.encoding = 'UTF-8'
         options.docEncoding = 'UTF-8'
         options.charSet = 'UTF-8'
-        if (buildJavaVersion > 23) { // early access JavaDoc location is different
+        if (isEarlyAccessJavaVersion) {
             options.links("https://download.java.net/java/early_access/jdk${buildJavaVersion}/docs/api/")
         }
         else {
