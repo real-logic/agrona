@@ -359,7 +359,7 @@ project(':agrona') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
+                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -445,7 +445,7 @@ project(':agrona-agent') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
+                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -517,7 +517,7 @@ project(':agrona-concurrency-tests') {
 
     tasks.register('parseResultsFile', JavaExec) {
         dependsOn shadowJar
-        group = 'verification'
+        group 'verification'
         classpath = files(tasks.shadowJar)
         workingDir = layout.buildDirectory.get()
         args = ['-p', jcstressResults, '-r', 'reports/jcstress']
