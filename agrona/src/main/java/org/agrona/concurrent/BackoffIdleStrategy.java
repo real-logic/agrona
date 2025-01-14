@@ -15,8 +15,6 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.hints.ThreadHints;
-
 import java.util.concurrent.locks.LockSupport;
 
 @SuppressWarnings("unused")
@@ -201,7 +199,7 @@ public final class BackoffIdleStrategy extends BackoffIdleStrategyData implement
                 break;
 
             case SPINNING:
-                ThreadHints.onSpinWait();
+                Thread.onSpinWait();
                 if (++spins > maxSpins)
                 {
                     state = YIELDING;

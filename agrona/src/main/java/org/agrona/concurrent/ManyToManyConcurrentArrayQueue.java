@@ -16,7 +16,6 @@
 package org.agrona.concurrent;
 
 import org.agrona.UnsafeApi;
-import org.agrona.hints.ThreadHints;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -109,7 +108,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 return true;
             }
 
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
     }
 
@@ -145,7 +144,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 return (E)e;
             }
 
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
     }
 
@@ -182,7 +181,7 @@ public class ManyToManyConcurrentArrayQueue<E> extends AbstractConcurrentArrayQu
                 }
             }
 
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
     }
 
