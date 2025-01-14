@@ -16,13 +16,12 @@
 package org.agrona.concurrent;
 
 import org.agrona.concurrent.status.StatusIndicatorReader;
-import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.locks.LockSupport;
 
 /**
  * {@link IdleStrategy} which can be controlled by a counter so its mode of operation can be switched between
- * doing nothing (NOOP), busy spinning by calling {@link ThreadHints#onSpinWait()}, yielding by calling
+ * doing nothing (NOOP), busy spinning by calling {@link Thread#onSpinWait()}, yielding by calling
  * {@link Thread#yield()}, or sleeping for the minimum period by calling {@link LockSupport#parkNanos(long)} when
  * work count is zero, so it idles.
  */
@@ -101,7 +100,7 @@ public final class ControllableIdleStrategy implements IdleStrategy
                 break;
 
             case BUSY_SPIN:
-                ThreadHints.onSpinWait();
+                Thread.onSpinWait();
                 break;
 
             case YIELD:

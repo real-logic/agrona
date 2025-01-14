@@ -19,12 +19,15 @@ package org.agrona.hints;
 import org.agrona.SystemUtil;
 
 /**
+ * This class is deprecated. Use {@link Thread#onSpinWait()} directly.
+ * <p>
  * This class captures possible hints that may be used by some
  * runtimes to improve code performance. It is intended to capture hinting
  * behaviours that are implemented in or anticipated to be spec'ed under the
  * {@link java.lang.Thread} class in some Java SE versions, but missing in prior
  * versions.
  */
+@Deprecated
 public final class ThreadHints
 {
     /**

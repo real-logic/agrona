@@ -15,8 +15,6 @@
  */
 package org.agrona.concurrent;
 
-import org.agrona.hints.ThreadHints;
-
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 abstract class AbstractSnowflakeIdGeneratorPaddingLhs
@@ -204,7 +202,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
 
     /**
      * Generate the next id in sequence. If {@link #maxSequence()} is reached within the same millisecond then this
-     * implementation will busy spin until the next millisecond using {@link ThreadHints#onSpinWait()} and checking
+     * implementation will busy spin until the next millisecond using {@link Thread#onSpinWait()} and checking
      * for {@link Thread#isInterrupted()}.
      *
      * @return the next unique id for this node.
@@ -243,7 +241,7 @@ public final class SnowflakeIdGenerator extends AbstractSnowflakeIdGeneratorPadd
                 throw new IllegalStateException("unexpected thread interrupt");
             }
 
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
     }
 
