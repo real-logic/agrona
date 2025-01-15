@@ -401,7 +401,28 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     /**
      * {@inheritDoc}
      */
+    public long getLongAcquire(final int index)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset + index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void putLongOrdered(final int index, final long value)
+    {
+        putLongRelease(index, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void putLongRelease(final int index, final long value)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
@@ -415,6 +436,14 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * {@inheritDoc}
      */
     public long addLongOrdered(final int index, final long increment)
+    {
+        return addLongRelease(index, increment);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long addLongRelease(final int index, final long increment)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
@@ -492,7 +521,28 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     /**
      * {@inheritDoc}
      */
+    public int getIntAcquire(final int index)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        return UnsafeApi.getIntAcquire(byteArray, addressOffset + index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void putIntOrdered(final int index, final int value)
+    {
+        putIntRelease(index, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void putIntRelease(final int index, final int value)
     {
         if (SHOULD_BOUNDS_CHECK)
         {
@@ -506,6 +556,14 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
      * {@inheritDoc}
      */
     public int addIntOrdered(final int index, final int increment)
+    {
+        return addIntRelease(index, increment);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int addIntRelease(final int index, final int increment)
     {
         if (SHOULD_BOUNDS_CHECK)
         {

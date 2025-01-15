@@ -61,9 +61,9 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestamp);
     }
 
     @Test
@@ -82,11 +82,11 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
     @Test
@@ -106,17 +106,17 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), lengthArg.capture());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
 
         final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
 
         inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
-        inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putLongRelease(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
     @Test
@@ -135,12 +135,12 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
 
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
     @Test
@@ -162,17 +162,17 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), lengthArg.capture());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
 
         final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
 
         inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
-        inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putLongRelease(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
     @Test
@@ -196,17 +196,17 @@ class DistinctErrorLogTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).putBytes(eq(offset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(offset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
-        inOrder.verify(buffer).putIntOrdered(eq(offset + LENGTH_OFFSET), lengthArg.capture());
+        inOrder.verify(buffer).putIntRelease(eq(offset + LENGTH_OFFSET), lengthArg.capture());
         inOrder.verify(buffer).getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
+        inOrder.verify(buffer).putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampOne);
 
         final int recordTwoOffset = BitUtil.align(lengthArg.getValue(), RECORD_ALIGNMENT);
 
         inOrder.verify(buffer).putBytes(eq(recordTwoOffset + ENCODED_ERROR_OFFSET), any(byte[].class));
         inOrder.verify(buffer).putLong(recordTwoOffset + FIRST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
-        inOrder.verify(buffer).putIntOrdered(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
+        inOrder.verify(buffer).putIntRelease(eq(recordTwoOffset + LENGTH_OFFSET), anyInt());
         inOrder.verify(buffer).getAndAddInt(recordTwoOffset + OBSERVATION_COUNT_OFFSET, 1);
-        inOrder.verify(buffer).putLongOrdered(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
+        inOrder.verify(buffer).putLongRelease(recordTwoOffset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampTwo);
     }
 
     @ParameterizedTest

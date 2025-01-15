@@ -177,7 +177,7 @@ public class DistinctErrorLog
 
         final int offset = distinctObservation.offset;
         buffer.getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        buffer.putLongOrdered(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampMs);
+        buffer.putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampMs);
 
         return true;
     }
@@ -279,7 +279,7 @@ public class DistinctErrorLog
 
         final DistinctObservation distinctObservation = new DistinctObservation(observation, offset);
         distinctObservations = prepend(distinctObservations, distinctObservation);
-        buffer.putIntOrdered(offset + LENGTH_OFFSET, length);
+        buffer.putIntRelease(offset + LENGTH_OFFSET, length);
 
         return distinctObservation;
     }

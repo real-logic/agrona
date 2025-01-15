@@ -97,12 +97,12 @@ public final class ManyToOneRingBuffer implements RingBuffer
             return false;
         }
 
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        buffer.putIntRelease(lengthOffset(recordIndex), -recordLength);
         VarHandle.releaseFence();
 
         buffer.putBytes(encodedMsgOffset(recordIndex), srcBuffer, offset, length);
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
-        buffer.putIntOrdered(lengthOffset(recordIndex), recordLength);
+        buffer.putIntRelease(lengthOffset(recordIndex), recordLength);
 
         return true;
     }
@@ -124,7 +124,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
             return recordIndex;
         }
 
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        buffer.putIntRelease(lengthOffset(recordIndex), -recordLength);
         VarHandle.releaseFence();
         buffer.putInt(typeOffset(recordIndex), msgTypeId);
 
@@ -140,7 +140,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
         final AtomicBuffer buffer = this.buffer;
         final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
 
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        buffer.putIntRelease(lengthOffset(recordIndex), -recordLength);
     }
 
     /**
@@ -153,7 +153,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
         final int recordLength = verifyClaimedSpaceNotReleased(buffer, recordIndex);
 
         buffer.putInt(typeOffset(recordIndex), PADDING_MSG_TYPE_ID);
-        buffer.putIntOrdered(lengthOffset(recordIndex), -recordLength);
+        buffer.putIntRelease(lengthOffset(recordIndex), -recordLength);
     }
 
     /**
@@ -208,7 +208,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
             if (bytesRead > 0)
             {
                 buffer.setMemory(headIndex, bytesRead, (byte)0);
-                buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+                buffer.putLongRelease(headPositionIndex, head + bytesRead);
             }
         }
 
@@ -277,7 +277,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
                 if (COMMIT == action)
                 {
                     buffer.setMemory(headIndex, bytesRead, (byte)0);
-                    buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+                    buffer.putLongRelease(headPositionIndex, head + bytesRead);
                     headIndex += bytesRead;
                     head += bytesRead;
                     bytesRead = 0;
@@ -289,7 +289,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
             if (bytesRead > 0)
             {
                 buffer.setMemory(headIndex, bytesRead, (byte)0);
-                buffer.putLongOrdered(headPositionIndex, head + bytesRead);
+                buffer.putLongRelease(headPositionIndex, head + bytesRead);
             }
         }
 
@@ -325,7 +325,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
      */
     public void consumerHeartbeatTime(final long time)
     {
-        buffer.putLongOrdered(consumerHeartbeatIndex, time);
+        buffer.putLongRelease(consumerHeartbeatIndex, time);
     }
 
     /**
@@ -408,7 +408,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
         if (length < 0)
         {
             buffer.putInt(typeOffset(consumerIndex), PADDING_MSG_TYPE_ID);
-            buffer.putIntOrdered(lengthOffset(consumerIndex), -length);
+            buffer.putIntRelease(lengthOffset(consumerIndex), -length);
             unblocked = true;
         }
         else if (0 == length)
@@ -426,7 +426,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
                     if (scanBackToConfirmStillZeroed(buffer, i, consumerIndex))
                     {
                         buffer.putInt(typeOffset(consumerIndex), PADDING_MSG_TYPE_ID);
-                        buffer.putIntOrdered(lengthOffset(consumerIndex), i - consumerIndex);
+                        buffer.putIntRelease(lengthOffset(consumerIndex), i - consumerIndex);
                         unblocked = true;
                     }
 
@@ -501,7 +501,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
                     return INSUFFICIENT_CAPACITY;
                 }
 
-                buffer.putLongOrdered(headCachePositionIndex, head);
+                buffer.putLongRelease(headCachePositionIndex, head);
             }
             newTail = tail + requiredCapacity;
 
@@ -525,7 +525,7 @@ public final class ManyToOneRingBuffer implements RingBuffer
                         newTail = tail; // Do not claim any actual space, only pad to the buffer end
                     }
 
-                    buffer.putLongOrdered(headCachePositionIndex, head);
+                    buffer.putLongRelease(headCachePositionIndex, head);
                 }
 
                 padding = toBufferEndLength;
@@ -536,11 +536,11 @@ public final class ManyToOneRingBuffer implements RingBuffer
 
         if (0 != padding)
         {
-            buffer.putIntOrdered(lengthOffset(tailIndex), -padding);
+            buffer.putIntRelease(lengthOffset(tailIndex), -padding);
             VarHandle.releaseFence();
 
             buffer.putInt(typeOffset(tailIndex), PADDING_MSG_TYPE_ID);
-            buffer.putIntOrdered(lengthOffset(tailIndex), padding);
+            buffer.putIntRelease(lengthOffset(tailIndex), padding);
         }
 
         return writeIndex;

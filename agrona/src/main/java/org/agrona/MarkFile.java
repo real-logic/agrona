@@ -259,7 +259,7 @@ public class MarkFile implements AutoCloseable
      */
     public void signalReady(final int version)
     {
-        buffer.putIntOrdered(versionFieldOffset, version);
+        buffer.putIntRelease(versionFieldOffset, version);
     }
 
     /**
@@ -289,7 +289,7 @@ public class MarkFile implements AutoCloseable
      */
     public void timestampOrdered(final long timestamp)
     {
-        buffer.putLongOrdered(timestampFieldOffset, timestamp);
+        buffer.putLongRelease(timestampFieldOffset, timestamp);
     }
 
     /**

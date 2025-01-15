@@ -40,12 +40,12 @@ public class UnsafeBufferTests
 
     /**
      * Test that verifies the atomicity of the {@link UnsafeBuffer#putLongVolatile(int, long)},
-     * {@link UnsafeBuffer#putLongOrdered(int, long)} and {@link UnsafeBuffer#getLongVolatile(int)}.
+     * {@link UnsafeBuffer#putLongRelease(int, long)} (int, long)} and {@link UnsafeBuffer#getLongVolatile(int)}.
      */
     @JCStressTest
     @Outcome(id = "0", expect = Expect.ACCEPTABLE, desc = "read before writes")
     @Outcome(id = "-1", expect = Expect.ACCEPTABLE, desc = "putLongVolatile before read")
-    @Outcome(id = "9223372036854775806", expect = Expect.ACCEPTABLE, desc = "putLongOrdered before read")
+    @Outcome(id = "9223372036854775806", expect = Expect.ACCEPTABLE, desc = "putLongRelease before read")
     @State
     public static class DirectBufferLong
     {
@@ -69,9 +69,9 @@ public class UnsafeBufferTests
          * Writer thread.
          */
         @Actor
-        public void putLongOrdered()
+        public void putLongRelease()
         {
-            buffer.putLongOrdered(WRITE_INDEX, Long.MAX_VALUE - 1);
+            buffer.putLongRelease(WRITE_INDEX, Long.MAX_VALUE - 1);
         }
 
         /**
@@ -88,7 +88,7 @@ public class UnsafeBufferTests
 
     /**
      * Test that verifies the atomicity of the {@link UnsafeBuffer#putIntVolatile(int, int)},
-     * {@link UnsafeBuffer#putIntOrdered(int, int)} and {@link UnsafeBuffer#getIntVolatile(int)}.
+     * {@link UnsafeBuffer#putIntRelease(int, int)} (int, int)} and {@link UnsafeBuffer#getIntVolatile(int)}.
      */
     @JCStressTest
     @Outcome(id = "0", expect = Expect.ACCEPTABLE, desc = "read before writes")
@@ -117,9 +117,9 @@ public class UnsafeBufferTests
          * Writer thread.
          */
         @Actor
-        public void putIntOrdered()
+        public void putIntRelease()
         {
-            buffer.putIntOrdered(WRITE_INDEX, 222222222);
+            buffer.putIntRelease(WRITE_INDEX, 222222222);
         }
 
         /**
