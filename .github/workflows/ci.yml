@@ -73,12 +73,6 @@ jobs:
           java-version: 17
       - name: Build with Gradle
         run: ./gradlew
-      - name: Copy test logs (Unix)
-        id: copy_test_logs
-        if: failure() && runner.os != 'Windows'
-        run: |
-          echo "file=build/distributions/test_logs.tbz2" >> $GITHUB_OUTPUT
-          ./gradlew tarTestLogs
       - name: Copy test logs
         id: copy_test_logs
         if: failure()
