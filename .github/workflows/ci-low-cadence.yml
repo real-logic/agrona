@@ -68,18 +68,30 @@ jobs:
           java-version: 17
       - name: Build with Gradle
         run: ./gradlew clean build :agrona-concurrency-tests:concurrencyTests
-      - name: Copy test logs
+      - name: Copy test logs (Unix)
         id: copy_test_logs
-        if: failure()
+        if: failure() && runner.os != 'Windows'
         run: |
-          echo "dir=build/test_logs" >> $GITHUB_OUTPUT
-          ./gradlew copyTestLogs
-      - name: Upload crash logs
-        if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
+          echo "file=build/distributions/test_logs.tbz2" >> $GITHUB_OUTPUT
+          ./gradlew tarTestLogs
+      - name: Upload crash logs (Unix)
+        if: always() && steps.copy_test_logs.outputs.file == 'build/distributions/test_logs.tbz2'
         uses: actions/upload-artifact@v4
         with:
           name: crash-logs-${{ matrix.os }}-java-${{ matrix.java }}
-          path: ${{ steps.copy_test_logs.outputs.dir }}
+          path: ${{ steps.copy_test_logs.outputs.file }}
+      - name: Copy test logs (Windows)
+        id: copy_test_logs_windows
+        if: runner.os == 'Windows' && failure()
+        run: |
+          echo "file=build/distributions/test_logs.tbz2" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          ./gradlew tarTestLogs
+      - name: Upload crash logs (Windows)
+        if: runner.os == 'Windows' && always() && steps.copy_test_logs_windows.outputs.file == 'build/distributions/test_logs.tbz2'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-logs-${{ matrix.os }}-java-${{ matrix.java }}
+          path: ${{ steps.copy_test_logs_windows.outputs.file }}
 
   ea-build:
     name: Java ${{ matrix.java }} (${{ matrix.os }})
@@ -130,15 +142,27 @@ jobs:
           java-version: 17
       - name: Build with Gradle
         run: ./gradlew clean build :agrona-concurrency-tests:concurrencyTests
-      - name: Copy test logs
+      - name: Copy test logs (Unix)
         id: copy_test_logs
-        if: failure()
+        if: failure() && runner.os != 'Windows'
         run: |
-          echo "dir=build/test_logs" >> $GITHUB_OUTPUT
-          ./gradlew copyTestLogs
-      - name: Upload crash logs
-        if: always() && steps.copy_test_logs.outputs.dir == 'build/test_logs'
+          echo "file=build/distributions/test_logs.tbz2" >> $GITHUB_OUTPUT
+          ./gradlew tarTestLogs
+      - name: Upload crash logs (Unix)
+        if: always() && steps.copy_test_logs.outputs.file == 'build/distributions/test_logs.tbz2'
         uses: actions/upload-artifact@v4
         with:
           name: crash-logs-ea-${{ matrix.os }}-java-${{ matrix.java }}
-          path: ${{ steps.copy_test_logs.outputs.dir }}
+          path: ${{ steps.copy_test_logs.outputs.file }}
+      - name: Copy test logs (Windows)
+        id: copy_test_logs_windows
+        if: runner.os == 'Windows' && failure()
+        run: |
+          echo "file=build/distributions/test_logs.tbz2" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          ./gradlew tarTestLogs
+      - name: Upload crash logs (Windows)
+        if: runner.os == 'Windows' && always() && steps.copy_test_logs_windows.outputs.file == 'build/distributions/test_logs.tbz2'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-logs-ea-${{ matrix.os }}-java-${{ matrix.java }}
+          path: ${{ steps.copy_test_logs_windows.outputs.file }}

@@ -545,13 +545,23 @@ tasks.named("dependencyUpdates").configure {
 
 tasks.register('copyTestLogs', Copy) {
     from '.'
+    include '**/*.hprof'
     include '**/*.log'
+    include '**/build/reports/tests/**'
+    include '**/build/test-results/**/*'
     include '**/jcstress-results-*.gz'
     include 'LICENSE'
     exclude 'build'
     into 'build/test_logs'
 
     includeEmptyDirs = false
+}
+
+tasks.register('tarTestLogs', Tar) {
+    dependsOn tasks.named('copyTestLogs')
+    archiveBaseName.set('test_logs')
+    from 'build/test_logs'
+    compression Compression.BZIP2
 }
 
 wrapper {
