@@ -98,6 +98,7 @@ public class DekkerTests
         {
             final long changeNr = before + 1;
             before = changeNr;
+            VarHandle.storeStoreFence();
 
             x = 8;
             y = 7;
