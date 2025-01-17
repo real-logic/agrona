@@ -220,7 +220,25 @@ public class AtomicCounter implements AutoCloseable
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue + 1);
+        return currentValue;
+    }
 
+    /**
+     * Increment the counter.
+     * <p>
+     * This method is not atomic and this can lead to lost-updates due to race conditions. This load and store
+     * have plain memory semantics.
+     * <p>
+     * The typical use-case for this method is when writer and reader are the same thread.
+     *
+     * @return the previous value of the counter
+     */
+    public long incrementPlain()
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLong(array, offset, currentValue + 1);
         return currentValue;
     }
 
@@ -271,10 +289,22 @@ public class AtomicCounter implements AutoCloseable
 
     /**
      * Set the counter with normal semantics.
+     * <p>
+     * This method is identical to {@link #setPlain(long)} and that method should be used instead.
      *
      * @param value to be set with normal semantics.
      */
     public void setWeak(final long value)
+    {
+        setPlain(value);
+    }
+
+    /**
+     * Set the counter value with plain memory semantics.
+     *
+     * @param value to be set with normal semantics.
+     */
+    public void setPlain(final long value)
     {
         UnsafeApi.putLong(byteArray, addressOffset, value);
     }
@@ -345,6 +375,17 @@ public class AtomicCounter implements AutoCloseable
      * @return the  value for the counter.
      */
     public long getWeak()
+    {
+        return getPlain();
+    }
+
+    /**
+     * Get the value of the counter using plain memory semantics. This is the same a standard read of a field.
+     *
+     * @return the  value for the counter.
+     * @since 2.1.0
+     */
+    public long getPlain()
     {
         return UnsafeApi.getLong(byteArray, addressOffset);
     }
