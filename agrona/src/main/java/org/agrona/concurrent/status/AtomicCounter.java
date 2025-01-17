@@ -200,7 +200,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform an atomic increment that will not lose updates across threads.
+     * Atomic increment of the counter.
+     * <p>
+     * This method has volatile memory semantics.
      *
      * @return the previous value of the counter
      */
@@ -210,22 +212,62 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform an atomic increment that is not safe across threads.
+     * Perform increment that is not safe across threads; it can result into lost
+     * updates to race condition.
      *
      * @return the previous value of the counter
      */
     public long incrementOrdered()
     {
+        return incrementRelease();
+    }
+
+    /**
+     * Perform a non-atomic increment.
+     * <p>
+     * It can result into lost updates due to race condition when called concurrently.
+     * <p>
+     * The load has plain memory semantics and the store has release memory semantics.
+     * <p>
+     * The typical use-case is when there is a single writer thread and one or more reader threads.
+     * <p>
+     * This method will outperform the {@link #increment()}. So if there is just a single mutator thread, and
+     * one or more reader threads, then it is likely you will prefer this method.
+     *
+     * @return the previous value of the counter
+     */
+    public long incrementRelease()
+    {
         final byte[] array = byteArray;
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue + 1);
-
         return currentValue;
     }
 
     /**
-     * Perform an atomic decrement that will not lose updates across threads.
+     * Non-atomically increment the counter.
+     * <p>
+     * This method is not atomic and this can lead to lost-updates due to race conditions. This load and store
+     * have plain memory semantics.
+     * <p>
+     * The typical use-case for this method is when writer and reader are the same thread.
+     *
+     * @return the previous value of the counter
+     */
+    public long incrementPlain()
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLong(array, offset, currentValue + 1);
+        return currentValue;
+    }
+
+    /**
+     * Atomically decrement the counter.
+     * <p>
+     * This method has volatile memory semantics.
      *
      * @return the previous value of the counter
      */
@@ -235,22 +277,41 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform an atomic decrement that is not safe across threads.
+     * Perform a decrement that is not safe across threads.
+     * <p>
+     * This method is identical to {@link #decrementRelease()}.
      *
      * @return the previous value of the counter
      */
     public long decrementOrdered()
     {
+        return decrementRelease();
+    }
+
+    /**
+     * Perform a non-atomic decrement.
+     * <p>
+     * It can result into lost updates to race condition when called concurrently.
+     * <p>
+     * The load has plain memory semantics and the store has release memory semantics.
+     * <p>
+     * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader threads.
+     * <p>
+     * This method is likely to outperform the {@link #increment()} and probably will be a better alternative.
+     *
+     * @return the previous value of the counter
+     */
+    public long decrementRelease()
+    {
         final byte[] array = byteArray;
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue - 1);
-
         return currentValue;
     }
 
     /**
-     * Set the counter with volatile semantics.
+     * Atomically set the counter value with volatile memory semantics.
      *
      * @param value to be set with volatile semantics.
      */
@@ -260,27 +321,57 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the counter with ordered semantics.
+     * Atomically set the counter value with ordered semantics.
+     * <p>
+     * This method is identical to {@link #setRelease(long)}.
      *
-     * @param value to be set with ordered semantics.
+     * @param value to be set
      */
     public void setOrdered(final long value)
+    {
+        setRelease(value);
+    }
+
+    /**
+     * Atomically set the counter value.
+     * <p>
+     * The store has release memory semantics.
+     *
+     * @param value to be set
+     */
+    public void setRelease(final long value)
     {
         UnsafeApi.putLongRelease(byteArray, addressOffset, value);
     }
 
     /**
-     * Set the counter with normal semantics.
+     * Set the counter with plain memory semantics.
+     * <p>
+     * This method is identical to {@link #setPlain(long)}.
      *
      * @param value to be set with normal semantics.
      */
     public void setWeak(final long value)
     {
+        setPlain(value);
+    }
+
+    /**
+     * Set the counter value.
+     * <p>
+     * This method has plain memory semantics.
+     *
+     * @param value to be set with normal semantics.
+     */
+    public void setPlain(final long value)
+    {
         UnsafeApi.putLong(byteArray, addressOffset, value);
     }
 
     /**
-     * Add an increment to the counter that will not lose updates across threads.
+     * Atomically add an increment to the counter.
+     * <p>
+     * This method has volatile memory semantics.
      *
      * @param increment to be added.
      * @return the previous value of the counter
@@ -291,12 +382,32 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Add an increment to the counter with ordered store semantics.
+     * Non-atomically adds an increment to the counter with ordered store semantics.
+     * <p>
+     * This method is identical to the {@link #getAndAddRelease(long)}
      *
-     * @param increment to be added with ordered store semantics.
+     * @param increment to be added
      * @return the previous value of the counter
      */
     public long getAndAddOrdered(final long increment)
+    {
+        return getAndAddRelease(increment);
+    }
+
+    /**
+     * Non atomically add an increment to the counter.
+     * <p>
+     * This method is not atomic; it can suffer from lost-updates due to race conditions.
+     * <p>
+     * The load has plain memory semantics and the store has release memory semantics.
+     * <p>
+     * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader
+     * threads.
+     *
+     * @param increment to be added
+     * @return the previous value of the counter
+     */
+    public long getAndAddRelease(final long increment)
     {
         final byte[] array = byteArray;
         final long offset = addressOffset;
@@ -308,6 +419,8 @@ public class AtomicCounter implements AutoCloseable
 
     /**
      * Get the current value of a counter and atomically set it to a new value.
+     * <p>
+     * This method has volatile memory semantics.
      *
      * @param value to be set.
      * @return the previous value of the counter
@@ -318,7 +431,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Compare the current value to expected and if true then set to the update value atomically.
+     * Atomically Compare the current value to expected and if true then set to the update value.
+     * <p>
+     * This method has volatile memory semantics.
      *
      * @param expectedValue for the counter.
      * @param updateValue   for the counter.
@@ -330,7 +445,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Get the latest value for the counter with volatile semantics.
+     * Atomically get the latest value for the counter with volatile memory semantics.
      *
      * @return the latest value for the counter.
      */
@@ -340,17 +455,41 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Get the value of the counter using weak ordering semantics. This is the same a standard read of a field.
+     * Atomically get the latest value for the counter with acquire memory semantics.
+     *
+     * @return the latest value for the counter.
+     */
+    public long getAcquire()
+    {
+        return UnsafeApi.getLongVolatile(byteArray, addressOffset);
+    }
+
+    /**
+     * Get the value of the counter using weak semantics. This is the same a standard read of a field.
+     * <p>
+     * This method is identical to {@link #setPlain(long)}.
      *
      * @return the  value for the counter.
      */
     public long getWeak()
     {
+        return getPlain();
+    }
+
+    /**
+     * Get the value of the counter using plain semantics. This is the same a standard read of a field.
+     *
+     * @return the  value for the counter.
+     */
+    public long getPlain()
+    {
         return UnsafeApi.getLong(byteArray, addressOffset);
     }
 
     /**
-     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
+     * Set the value to a new proposedValue if greater than the current value.
+     * <p>
+     * This method has plain memory semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
@@ -371,12 +510,32 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
+     * Set the value to a new proposedValue if greater than the current value.
+     * <p>
+     * This method has release memory semantics.
+     * <p>
+     * It is identical to {@link #proposeMaxRelease(long)}.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
      */
     public boolean proposeMaxOrdered(final long proposedValue)
+    {
+        return proposeMaxRelease(proposedValue);
+    }
+
+    /**
+     * Set the value to a new proposedValue if greater than the current value.
+     * <p>
+     * This call is not atomic and can suffer from lost updates to race conditions. The store has release
+     * memory semantics.
+     * <p>
+     * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader threads.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     */
+    public boolean proposeMaxRelease(final long proposedValue)
     {
         boolean updated = false;
 
