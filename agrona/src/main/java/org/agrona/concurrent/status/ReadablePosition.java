@@ -42,6 +42,13 @@ public abstract class ReadablePosition implements AutoCloseable
     public abstract long getVolatile();
 
     /**
+     * Get the current position of a component with acquire semantics.
+     *
+     * @return the current position of a component.
+     */
+    public abstract long getAcquire();
+
+    /**
      * {@inheritDoc}
      */
     public abstract void close();

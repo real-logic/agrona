@@ -102,6 +102,14 @@ public class UnsafeBufferPosition extends Position
     /**
      * {@inheritDoc}
      */
+    public long getAcquire()
+    {
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void set(final long value)
     {
         UnsafeApi.putLong(byteArray, addressOffset, value);
@@ -111,6 +119,14 @@ public class UnsafeBufferPosition extends Position
      * {@inheritDoc}
      */
     public void setOrdered(final long value)
+    {
+        setRelease(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRelease(final long value)
     {
         UnsafeApi.putLongRelease(byteArray, addressOffset, value);
     }
@@ -145,6 +161,14 @@ public class UnsafeBufferPosition extends Position
      * {@inheritDoc}
      */
     public boolean proposeMaxOrdered(final long proposedValue)
+    {
+        return proposeMaxRelease(proposedValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean proposeMaxRelease(final long proposedValue)
     {
         boolean updated = false;
 

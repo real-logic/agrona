@@ -329,7 +329,7 @@ class CountersManagerTest
         final Position writer = new UnsafeBufferPosition(valuesBuffer, id);
         final long expectedValue = 0xF_FFFF_FFFFL;
 
-        writer.setOrdered(expectedValue);
+        writer.setRelease(expectedValue);
 
         assertEquals(expectedValue, reader.getVolatile());
     }
