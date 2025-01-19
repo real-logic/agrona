@@ -200,9 +200,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomic increment of the counter.
-     * <p>
-     * This method has volatile memory semantics.
+     * Perform an atomic increment that will not lose updates across threads.
      *
      * @return the previous value of the counter
      */
@@ -212,8 +210,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform increment that is not safe across threads; it can result into lost
-     * updates to race condition.
+     * Perform an atomic increment that is not safe across threads.
+     * <p>
+     * This method is identical to {@link #incrementRelease()} and that method should be used instead.
      *
      * @return the previous value of the counter
      */
@@ -246,7 +245,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Non-atomically increment the counter.
+     * Increment the counter.
      * <p>
      * This method is not atomic and this can lead to lost-updates due to race conditions. This load and store
      * have plain memory semantics.
@@ -265,9 +264,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically decrement the counter.
-     * <p>
-     * This method has volatile memory semantics.
+     * Perform an atomic decrement that will not lose updates across threads.
      *
      * @return the previous value of the counter
      */
@@ -277,9 +274,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform a decrement that is not safe across threads.
-     * <p>
-     * This method is identical to {@link #decrementRelease()}.
+     * Perform an atomic decrement that is not safe across threads.
      *
      * @return the previous value of the counter
      */
@@ -289,7 +284,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform a non-atomic decrement.
+     * Decrements the counter non-atomically.
      * <p>
      * It can result into lost updates to race condition when called concurrently.
      * <p>
@@ -311,7 +306,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically set the counter value with volatile memory semantics.
+     * Set the counter with volatile semantics.
      *
      * @param value to be set with volatile semantics.
      */
@@ -321,11 +316,11 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically set the counter value with ordered semantics.
+     * Set the counter with ordered semantics.
      * <p>
-     * This method is identical to {@link #setRelease(long)}.
+     * This method is identical to {@link #setRelease(long)} and that method should be used instead.
      *
-     * @param value to be set
+     * @param value to be set with ordered semantics.
      */
     public void setOrdered(final long value)
     {
@@ -333,7 +328,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically set the counter value.
+     * Set the counter value atomically.
      * <p>
      * The store has release memory semantics.
      *
@@ -345,9 +340,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the counter with plain memory semantics.
+     * Set the counter with normal semantics.
      * <p>
-     * This method is identical to {@link #setPlain(long)}.
+     * This method is identical to {@link #setPlain(long)} and that method should be used instead.
      *
      * @param value to be set with normal semantics.
      */
@@ -357,9 +352,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the counter value.
-     * <p>
-     * This method has plain memory semantics.
+     * Set the counter value with plain memory semantics.
      *
      * @param value to be set with normal semantics.
      */
@@ -369,9 +362,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically add an increment to the counter.
-     * <p>
-     * This method has volatile memory semantics.
+     * Add an increment to the counter that will not lose updates across threads.
      *
      * @param increment to be added.
      * @return the previous value of the counter
@@ -382,11 +373,11 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Non-atomically adds an increment to the counter with ordered store semantics.
+     * Add an increment to the counter with ordered store semantics.
      * <p>
-     * This method is identical to the {@link #getAndAddRelease(long)}
+     * This method is identical to {@link #getAndAddRelease(long)} and that method should be used instead.
      *
-     * @param increment to be added
+     * @param increment to be added with ordered store semantics.
      * @return the previous value of the counter
      */
     public long getAndAddOrdered(final long increment)
@@ -395,7 +386,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Non atomically add an increment to the counter.
+     * Adds an increment to the counter non atomically.
      * <p>
      * This method is not atomic; it can suffer from lost-updates due to race conditions.
      * <p>
@@ -419,8 +410,6 @@ public class AtomicCounter implements AutoCloseable
 
     /**
      * Get the current value of a counter and atomically set it to a new value.
-     * <p>
-     * This method has volatile memory semantics.
      *
      * @param value to be set.
      * @return the previous value of the counter
@@ -431,9 +420,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically Compare the current value to expected and if true then set to the update value.
-     * <p>
-     * This method has volatile memory semantics.
+     * Compare the current value to expected and if true then set to the update value atomically.
      *
      * @param expectedValue for the counter.
      * @param updateValue   for the counter.
@@ -445,7 +432,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically get the latest value for the counter with volatile memory semantics.
+     * Get the latest value for the counter with volatile semantics.
      *
      * @return the latest value for the counter.
      */
@@ -455,19 +442,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Atomically get the latest value for the counter with acquire memory semantics.
-     *
-     * @return the latest value for the counter.
-     */
-    public long getAcquire()
-    {
-        return UnsafeApi.getLongVolatile(byteArray, addressOffset);
-    }
-
-    /**
-     * Get the value of the counter using weak semantics. This is the same a standard read of a field.
+     * Get the value of the counter using weak ordering semantics. This is the same a standard read of a field.
      * <p>
-     * This method is identical to {@link #setPlain(long)}.
+     * This method is identical to {@link #getPlain()} and that method should be used instead.
      *
      * @return the  value for the counter.
      */
@@ -477,7 +454,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Get the value of the counter using plain semantics. This is the same a standard read of a field.
+     * Get the value of the counter using plain memory semantics. This is the same a standard read of a field.
      *
      * @return the  value for the counter.
      */
@@ -487,9 +464,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the value to a new proposedValue if greater than the current value.
-     * <p>
-     * This method has plain memory semantics.
+     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
@@ -510,11 +485,9 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the value to a new proposedValue if greater than the current value.
+     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
      * <p>
-     * This method has release memory semantics.
-     * <p>
-     * It is identical to {@link #proposeMaxRelease(long)}.
+     * This method is identical to {@link #proposeMaxRelease(long)} and that method should be used instead.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
