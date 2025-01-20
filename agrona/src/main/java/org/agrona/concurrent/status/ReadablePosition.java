@@ -45,6 +45,7 @@ public abstract class ReadablePosition implements AutoCloseable
      * Get the current position of a component with acquire semantics.
      *
      * @return the current position of a component.
+     * @since 2.1.0
      */
     public abstract long getAcquire();
 

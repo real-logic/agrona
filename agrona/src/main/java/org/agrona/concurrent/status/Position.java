@@ -63,6 +63,7 @@ public abstract class Position extends ReadablePosition
      * Sets the current position of the component with release memory semantics.
      *
      * @param value the current position of the component.
+     * @since 2.1.0
      */
     public abstract void setRelease(long value);
 
