@@ -100,6 +100,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
+     * @since 2.1.0
      */
     long getLongAcquire(int index);
 
@@ -129,6 +130,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
+     * @since 2.1.0
      */
     void putLongRelease(int index, long value);
 
@@ -154,6 +156,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
+     * @since 2.1.0
      */
     long addLongRelease(int index, long increment);
 
@@ -217,6 +220,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes from which to get.
      * @return the value for at a given index.
+     * @since 2.1.0
      */
     int getIntAcquire(int index);
 
@@ -236,6 +240,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
+     * @since 2.1.0
      */
     void putIntRelease(int index, int value);
 
@@ -261,6 +266,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
+     * @since 2.1.0
      */
     int addIntRelease(int index, int increment);
 
