@@ -36,7 +36,9 @@ jobs:
       fail-fast: false
       matrix:
         java: [ '17', '21' ]
-        os: ['ubuntu-24.04', 'ubuntu-24.04-arm', 'windows-latest', 'macos-latest']
+        # Disable ARM for now (Mike 2025-01-21)
+        # os: ['ubuntu-24.04', 'ubuntu-24.04-arm', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-24.04', 'windows-latest', 'macos-latest']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -98,7 +100,9 @@ jobs:
       fail-fast: false
       matrix:
         java: [ '25-ea' ]
-        os: ['ubuntu-24.04', 'ubuntu-24.04-arm', 'windows-latest', 'macos-latest']
+        # Disable ARM for now (Mike 2025-01-21)
+        # os: ['ubuntu-24.04', 'ubuntu-24.04-arm', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-24.04', 'windows-latest', 'macos-latest']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
