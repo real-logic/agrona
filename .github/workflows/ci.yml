@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '17', '21' ]
+        java: [ '17', '21', '23' ]
         # Disable ARM for now (Mike 2025-01-21)
         # os: ['ubuntu-24.04', 'ubuntu-24.04-arm', 'windows-latest', 'macos-latest']
         os: ['ubuntu-24.04', 'windows-latest', 'macos-latest']
