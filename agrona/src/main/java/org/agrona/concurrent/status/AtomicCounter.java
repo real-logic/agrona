@@ -432,13 +432,23 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Get the latest value for the counter with volatile semantics.
+     * Get the value for the counter with volatile semantics.
      *
-     * @return the latest value for the counter.
+     * @return the value for the counter.
      */
     public long get()
     {
         return UnsafeApi.getLongVolatile(byteArray, addressOffset);
+    }
+
+    /**
+     * Get the value for the counter with acquire memory semantics.
+     *
+     * @return the value for the counter.
+     */
+    public long getAcquire()
+    {
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset);
     }
 
     /**
