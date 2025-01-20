@@ -51,8 +51,8 @@ public class UnsafeBufferTests
     @State
     public static class ReleaseAcquireLong
     {
-        private final static int A = 0;
-        private final static int B = 8;
+        private static final int A = 0;
+        private static final int B = 8;
         private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(16, 8));
 
         /**
@@ -91,8 +91,8 @@ public class UnsafeBufferTests
     @State
     public static class ReleaseAcquireInt
     {
-        private final static int A = 0;
-        private final static int B = 4;
+        private static final int A = 0;
+        private static final int B = 4;
         private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(8, 4));
 
         /**
