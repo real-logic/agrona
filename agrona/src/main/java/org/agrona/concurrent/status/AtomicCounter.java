@@ -303,6 +303,7 @@ public class AtomicCounter implements AutoCloseable
      * Set the counter value with plain memory semantics.
      *
      * @param value to be set with normal semantics.
+     * @since 2.1.0
      */
     public void setPlain(final long value)
     {
