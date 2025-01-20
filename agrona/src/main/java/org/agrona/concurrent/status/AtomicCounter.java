@@ -295,6 +295,7 @@ public class AtomicCounter implements AutoCloseable
      * This method is likely to outperform the {@link #increment()} and probably will be a better alternative.
      *
      * @return the previous value of the counter
+     * @since 2.1.0
      */
     public long decrementRelease()
     {
@@ -333,6 +334,7 @@ public class AtomicCounter implements AutoCloseable
      * The store has release memory semantics.
      *
      * @param value to be set
+     * @since 2.1.0
      */
     public void setRelease(final long value)
     {
@@ -397,6 +399,7 @@ public class AtomicCounter implements AutoCloseable
      *
      * @param increment to be added
      * @return the previous value of the counter
+     * @since 2.1.0
      */
     public long getAndAddRelease(final long increment)
     {
@@ -445,6 +448,7 @@ public class AtomicCounter implements AutoCloseable
      * Get the value for the counter with acquire memory semantics.
      *
      * @return the value for the counter.
+     * @since 2.1.0
      */
     public long getAcquire()
     {
@@ -467,6 +471,7 @@ public class AtomicCounter implements AutoCloseable
      * Get the value of the counter using plain memory semantics. This is the same a standard read of a field.
      *
      * @return the  value for the counter.
+     * @since 2.1.0
      */
     public long getPlain()
     {
@@ -474,7 +479,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Set the value to a new proposedValue if greater than the current value with memory ordering semantics.
+     * Set the value to a new proposedValue if greater than the current value with plain memory semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
@@ -510,13 +515,15 @@ public class AtomicCounter implements AutoCloseable
     /**
      * Set the value to a new proposedValue if greater than the current value.
      * <p>
-     * This call is not atomic and can suffer from lost updates to race conditions. The store has release
-     * memory semantics.
+     * This call is not atomic and can suffer from lost updates to race conditions.
+     * <p>
+     * The load has plain memory semantics and the store has release memory semantics.
      * <p>
      * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader threads.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
+     * @since 2.1.0
      */
     public boolean proposeMaxRelease(final long proposedValue)
     {
