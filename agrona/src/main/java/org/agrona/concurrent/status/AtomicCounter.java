@@ -232,6 +232,7 @@ public class AtomicCounter implements AutoCloseable
      * The typical use-case for this method is when writer and reader are the same thread.
      *
      * @return the previous value of the counter
+     * @since 2.1.0
      */
     public long incrementPlain()
     {
@@ -263,6 +264,27 @@ public class AtomicCounter implements AutoCloseable
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue - 1);
+
+        return currentValue;
+    }
+
+    /**
+     * Decrements the counter.
+     * <p>
+     * This method is not atomic and this can lead to lost-updates due to race conditions. This load and store
+     * have plain memory semantics.
+     * <p>
+     * The typical use-case for this method is when writer and reader are the same thread.
+     *
+     * @return the previous value of the counter
+     * @since 2.1.0
+     */
+    public long decrementPlain()
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLong(array, offset, currentValue - 1);
 
         return currentValue;
     }

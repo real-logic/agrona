@@ -31,9 +31,14 @@ public class AtomicCountersTest
         final AtomicCounter counter = new AtomicCounter(buffer, 0);
 
         assertEquals(0, counter.getPlain());
+
         counter.incrementPlain();
         assertEquals(1, counter.getPlain());
+
         counter.setPlain(42);
         assertEquals(42, counter.getPlain());
+
+        counter.decrementPlain();
+        assertEquals(41, counter.getPlain());
     }
 }
