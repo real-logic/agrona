@@ -1,24 +1,42 @@
 [versions]
-byteBuddy = "1.15.11"
+bnd = "7.1.0"
+byteBuddy = "1.16.1"
 checkstyle = "10.21.1"
-junit5 = "5.11.4"
-jmh = "1.37"
+commons-codec = "1.15"
+commons-lang3 = "3.8.1"
+findbugs = "3.0.1"
+guava = "33.4.0-jre"
 gradle = "8.11.1"
+hamcrest = "3.0"
+httpcore = "4.4.14"
+jcstress = "0.16"
+jmh = "1.37"
+junit = "5.11.4"
+junit4 = "4.13.2"
+mockito = "5.15.2"
+plexus = "3.3.0"
+shadow = "8.3.5"
+versions = "0.51.0"
 
 [libraries]
-junit4 = { group = "junit", name = "junit", version = "4.13.2" }
-guava = { group = "com.google.guava", name = "guava-testlib", version = "33.4.0-jre" }
-mockito = { group = "org.mockito", name = "mockito-core", version = "5.15.2" }
-hamcrest = { group = "org.hamcrest", name = "hamcrest", version = "3.0" }
-findbugs = { group = "com.google.code.findbugs", name = "findbugs-annotations", version = "3.0.1" }
 byteBuddy = { group = "net.bytebuddy", name = "byte-buddy", version.ref = "byteBuddy" }
 byteBuddy-agent = { group = "net.bytebuddy", name = "byte-buddy-agent", version.ref = "byteBuddy" }
 byteBuddy-gradle-plugin = { group = "net.bytebuddy", name = "byte-buddy-gradle-plugin", version.ref = "byteBuddy" }
+commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
+findbugs-annotations = { group = "com.google.code.findbugs", name = "findbugs-annotations", version.ref= "findbugs" }
+guava-testlib = { group = "com.google.guava", name = "guava-testlib", version.ref = "guava" }
+hamcrest = { group = "org.hamcrest", name = "hamcrest", version.ref = "hamcrest" }
+httpcore = { group = "org.apache.httpcomponents", name = "httpcore", version.ref = "httpcore" }
 jmh-core = { group = "org.openjdk.jmh", name = "jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { group = "org.openjdk.jmh", name = "jmh-generator-annprocess", version.ref = "jmh" }
-jcstress-core = { group = "org.openjdk.jcstress", name = "jcstress-core", version = "0.16" }
+jcstress-core = { group = "org.openjdk.jcstress", name = "jcstress-core", version.ref = "jcstress" }
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+plexus-utils = { group = "org.codehaus.plexus", name = "plexus-utils", version.ref = "plexus" }
 
 [plugins]
-versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
-bnd = { id = "biz.aQute.bnd.builder", version = "7.1.0" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
+bnd = { id = "biz.aQute.bnd.builder", version.ref = "bnd" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }

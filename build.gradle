@@ -262,11 +262,11 @@ project(':agrona') {
 
     dependencies {
         testImplementation files("${layout.buildDirectory.get()}/classes/java/generated")
-        testImplementation platform("org.junit:junit-bom:${libs.versions.junit5.get()}")
+        testImplementation platform(libs.junit.bom)
         testImplementation "org.junit.jupiter:junit-jupiter-params"
         testImplementation libs.hamcrest
         testImplementation libs.mockito
-        testImplementation libs.guava
+        testImplementation libs.guava.testlib
         testImplementation libs.junit4 // Compatibility with JUnit 4
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
@@ -384,9 +384,9 @@ project(':agrona-agent') {
     dependencies {
         implementation project(':agrona')
         implementation libs.byteBuddy
-        compileOnly libs.findbugs
-        testCompileOnly libs.findbugs
-        testImplementation platform("org.junit:junit-bom:${libs.versions.junit5.get()}")
+        compileOnly libs.findbugs.annotations
+        testCompileOnly libs.findbugs.annotations
+        testImplementation platform(libs.junit.bom)
         testImplementation 'org.junit.jupiter:junit-jupiter-params'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
