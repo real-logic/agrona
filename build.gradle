@@ -228,8 +228,7 @@ subprojects {
         systemProperties(
             'agrona.disable.bounds.checks': 'false',
             'agrona.strict.alignment.checks': 'true',
-            'net.bytebuddy.experimental': 'true',
-            'net.bytebuddy.processor': 'ASM_ONLY')
+            'net.bytebuddy.experimental': 'true')
 
         javaLauncher.set(toolchainLauncher)
     }

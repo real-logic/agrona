@@ -1,6 +1,6 @@
 [versions]
 bnd = "7.1.0"
-byteBuddy = "1.16.1"
+byteBuddy = "1.17.0"
 checkstyle = "10.21.2"
 commons-codec = "1.15"
 commons-lang3 = "3.8.1"
