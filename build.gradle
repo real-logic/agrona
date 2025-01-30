@@ -195,10 +195,6 @@ subprojects {
     }
 
     tasks.withType(JavaCompile).configureEach {
-        doFirst {
-            mkdir 'build/resources/main' // Avoid Javac warning about non-existing directory
-        }
-
         options.compilerArgs.add('--release')
         options.compilerArgs.add(java.sourceCompatibility.majorVersion)
         options.compilerArgs.addAll(['-Xlint:all', '-Werror']) // Enable all warnings and treat them as errors
@@ -314,6 +310,9 @@ project(':agrona') {
         from sourceSets.generated.output
 
         bundle {
+            // workaround for https://github.com/bndtools/bnd/issues/6346
+            properties.put("project.group", provider({project.group}))
+            // workaround
             bnd """
                 Automatic-Module-Name:  org.agrona.core
                 Bundle-Name:            org.agrona.core
@@ -359,7 +358,7 @@ project(':agrona') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
+                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -445,7 +444,7 @@ project(':agrona-agent') {
         repositories {
             maven {
                 name = 'MavenCentral'
-                url(!isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl)
+                url = !isReleaseVersion ? ossrhSnapshotsRepoUrl : ossrhReleasesRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -517,7 +516,7 @@ project(':agrona-concurrency-tests') {
 
     tasks.register('parseResultsFile', JavaExec) {
         dependsOn shadowJar
-        group 'verification'
+        group = 'verification'
         classpath = files(tasks.shadowJar)
         workingDir = layout.buildDirectory.get()
         args = ['-p', jcstressResults, '-r', 'reports/jcstress']
@@ -561,7 +560,7 @@ tasks.register('tarTestLogs', Tar) {
     dependsOn tasks.named('copyTestLogs')
     archiveBaseName.set('test_logs')
     from 'build/test_logs'
-    compression Compression.BZIP2
+    compression = Compression.BZIP2
 }
 
 wrapper {
