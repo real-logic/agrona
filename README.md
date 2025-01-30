@@ -2,17 +2,17 @@ Agrona
 ======
 
 [![Javadocs](https://www.javadoc.io/badge/org.agrona/agrona.svg)](https://www.javadoc.io/doc/org.agrona/agrona)
-[![GitHub](https://img.shields.io/github/license/real-logic/Agrona.svg)](https://github.com/real-logic/agrona/blob/master/LICENSE)
+[![GitHub](https://img.shields.io/github/license/aeron-io/Agrona.svg)](https://github.com/aeron-io/agrona/blob/master/LICENSE)
 
-[![Actions Status](https://github.com/real-logic/agrona/workflows/Continuous%20Integration/badge.svg)](https://github.com/real-logic/agrona/actions)
-[![CodeQL Status](https://github.com/real-logic/agrona/workflows/CodeQL/badge.svg)](https://github.com/real-logic/agrona/actions)
+[![Actions Status](https://github.com/aeron-io/agrona/workflows/Continuous%20Integration/badge.svg)](https://github.com/aeron-io/agrona/actions)
+[![CodeQL Status](https://github.com/aeron-io/agrona/workflows/CodeQL/badge.svg)](https://github.com/aeron-io/agrona/actions)
 
 Agrona provides a library of data structures and utility methods that are a common need when building high-performance 
-applications in Java. Many of these utilities are used in the [Aeron](https://github.com/real-logic/aeron) 
+applications in Java. Many of these utilities are used in the [Aeron](https://github.com/aeron-io/aeron) 
 efficient reliable UDP unicast, multicast, and IPC message transport and provides high-performance buffer implementations
-to support the [Simple Binary Encoding](https://github.com/real-logic/simple-binary-encoding) Message Codec.
+to support the [Simple Binary Encoding](https://github.com/aeron-io/simple-binary-encoding) Message Codec.
 
-For the latest version information and changes see the [Change Log](https://github.com/real-logic/agrona/wiki/Change-Log). 
+For the latest version information and changes see the [Change Log](https://github.com/aeron-io/agrona/wiki/Change-Log). 
 
 The latest release and **downloads** can be found in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cagrona).
 
@@ -41,7 +41,7 @@ Build
 
 ### Java Build
 
-Build the project with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/real-logic/agrona/blob/master/build.gradle) file.
+Build the project with [Gradle](http://gradle.org/) using this [build.gradle](https://github.com/aeron-io/agrona/blob/master/build.gradle) file.
 
 You require the following to build Agrona:
 

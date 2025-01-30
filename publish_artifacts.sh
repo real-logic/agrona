@@ -20,4 +20,4 @@ curl -v -H "Accept: application/vnd.github.everest-preview+json" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     --request POST \
     --data "{\"event_type\": \"publish_artifacts\", \"client_payload\": { \"gitRef\": \"${gitRef}\"}}" \
-    https://api.github.com/repos/real-logic/agrona/dispatches
+    https://api.github.com/repos/aeron-io/agrona/dispatches
