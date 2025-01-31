@@ -314,11 +314,11 @@ project(':agrona') {
             properties.put("project.group", provider({project.group}))
             // workaround
             bnd """
-                Automatic-Module-Name:  org.agrona.core
-                Bundle-Name:            org.agrona.core
-                Bundle-SymbolicName:    org.agrona.core
+                Automatic-Module-Name:  org.agrona
+                Bundle-Name:            org.agrona
+                Bundle-SymbolicName:    org.agrona
                 Implementation-Title:   Agrona
-                Implementation-Vendor:  Real Logic Limited
+                Implementation-Vendor:  Adaptive Financial Consulting
                 Implementation-Version: ${agronaVersion}
     
                 -exportcontents: org.agrona, org.agrona.*
@@ -398,7 +398,7 @@ project(':agrona-agent') {
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': agronaVersion,
-            'Implementation-Vendor': 'Real Logic Limited',
+            'Implementation-Vendor': 'Adaptive Financial Consulting',
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Can-Redefine-Classes': 'true',
