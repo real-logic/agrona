@@ -318,7 +318,7 @@ project(':agrona') {
                 Bundle-Name:            org.agrona
                 Bundle-SymbolicName:    org.agrona
                 Implementation-Title:   Agrona
-                Implementation-Vendor:  Adaptive Financial Consulting
+                Implementation-Vendor:  Adaptive Financial Consulting Limited
                 Implementation-Version: ${agronaVersion}
     
                 -exportcontents: org.agrona, org.agrona.*
@@ -398,7 +398,7 @@ project(':agrona-agent') {
         manifest.attributes(
             'Implementation-Title': 'Agrona',
             'Implementation-Version': agronaVersion,
-            'Implementation-Vendor': 'Adaptive Financial Consulting',
+            'Implementation-Vendor': 'Adaptive Financial Consulting Limited',
             'Premain-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Agent-Class': 'org.agrona.agent.BufferAlignmentAgent',
             'Can-Redefine-Classes': 'true',
