@@ -101,13 +101,13 @@ class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongRelease(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
     @Test
@@ -129,13 +129,13 @@ class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongRelease(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
     @Test
@@ -158,13 +158,13 @@ class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned);
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), recordLength);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongRelease(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 
     @Test
@@ -187,7 +187,7 @@ class BroadcastTransmitterTest
         final InOrder inOrder = inOrder(buffer);
         inOrder.verify(buffer).getLong(TAIL_COUNTER_INDEX);
 
-        inOrder.verify(buffer).putLongOrdered(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned + toEndOfBuffer);
+        inOrder.verify(buffer).putLongRelease(TAIL_INTENT_COUNTER_OFFSET, tail + recordLengthAligned + toEndOfBuffer);
 
         inOrder.verify(buffer).putInt(lengthOffset(recordOffset), toEndOfBuffer);
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), PADDING_MSG_TYPE_ID);
@@ -198,7 +198,7 @@ class BroadcastTransmitterTest
         inOrder.verify(buffer).putInt(typeOffset(recordOffset), MSG_TYPE_ID);
         inOrder.verify(buffer).putBytes(msgOffset(recordOffset), srcBuffer, srcIndex, length);
 
-        inOrder.verify(buffer).putLongOrdered(LATEST_COUNTER_INDEX, tail);
-        inOrder.verify(buffer).putLongOrdered(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
+        inOrder.verify(buffer).putLongRelease(LATEST_COUNTER_INDEX, tail);
+        inOrder.verify(buffer).putLongRelease(TAIL_COUNTER_INDEX, tail + recordLengthAligned);
     }
 }

@@ -22,6 +22,13 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Abstraction over a range of buffer types that allows type to be accessed with various memory ordering semantics.
+ * <p>
+ * Before Java 9, there was no naming standard for stores with release semantics. On the AtomicLong there was the
+ * {@link java.util.concurrent.atomic.AtomicLong#lazySet(long)}. Because there was no standard, the AtomicBuffer
+ * has methods like {@link #putLongOrdered(int, long)}. With Java 9, the 'release' name has been introduced.
+ * The AtomicBuffer also has methods with release methods which are identical to the ordered methods. All the
+ * methods with 'ordered' name will call the equivalent method with release name. This introduces a small
+ * performance penalty for the older methods and this should encourage users to switch to the newer methods.
  */
 public interface AtomicBuffer extends MutableDirectBuffer
 {
@@ -53,8 +60,8 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * Verify that the underlying buffer is correctly aligned to prevent word tearing, other ordering issues and
      * the JVM crashes. In particular this method verifies that the starting offset of the underlying buffer is properly
      * aligned. However, the actual atomic call must ensure that the index is properly aligned, i.e. it must be aligned
-     * to the size of the operand. For example a call to any of the following methods {@link #putIntOrdered(int, int)},
-     * {@link #putIntVolatile(int, int)}, {@link #addIntOrdered(int, int)}, {@link #getIntVolatile(int)},
+     * to the size of the operand. For example a call to any of the following methods {@link #putIntRelease(int, int)},
+     * {@link #putIntVolatile(int, int)}, {@link #addIntRelease(int, int)} (int, int)}, {@link #getIntVolatile(int)},
      * {@link #getAndAddInt(int, int)} or {@link #getAndSetInt(int, int)}, must have the index aligned by four bytes
      * (e.g. {@code 0, 4, 8, 12, 60 etc.}).
      * <p>
@@ -89,6 +96,15 @@ public interface AtomicBuffer extends MutableDirectBuffer
     long getLongVolatile(int index);
 
     /**
+     * Atomically get the value at a given index with acquire semantics.
+     *
+     * @param index in bytes from which to get.
+     * @return the value for at a given index.
+     * @since 2.1.0
+     */
+    long getLongAcquire(int index);
+
+    /**
      * Atomically put a value to a given index with volatile semantics.
      * <p>
      * This call has sequential-consistent semantics.
@@ -101,12 +117,36 @@ public interface AtomicBuffer extends MutableDirectBuffer
     /**
      * Atomically put a value to a given index with ordered store semantics.
      * <p>
-     * This call has release semantics.
+     * Instead of using this method, use  {@link #putLongRelease(int, long)} instead. They
+     * are identical and the putLongRelease is the preferred version.
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
      */
     void putLongOrdered(int index, long value);
+
+    /**
+     * Atomically put a value to a given index with release semantics.
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index.
+     * @since 2.1.0
+     */
+    void putLongRelease(int index, long value);
+
+    /**
+     * Atomically adds a value to a given index with ordered store semantics. Use a negative increment to decrement.
+     * <p>
+     * The load has no ordering semantics. The store has release semantics.
+     * <p>
+     * Instead of using this method, use {@link #addLongRelease(int, long)} instead. They
+     * are identical but the addLongRelease is the preferred version.
+     *
+     * @param index     in bytes for where to put.
+     * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index.
+     */
+    long addLongOrdered(int index, long increment);
 
     /**
      * Atomically adds a value to a given index with ordered store semantics. Use a negative increment to decrement.
@@ -116,8 +156,9 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
+     * @since 2.1.0
      */
-    long addLongOrdered(int index, long increment);
+    long addLongRelease(int index, long increment);
 
     /**
      * Atomic compare and set of a long given an expected value.
@@ -175,25 +216,59 @@ public interface AtomicBuffer extends MutableDirectBuffer
     void putIntVolatile(int index, int value);
 
     /**
+     * Atomically get the value at a given index with acquire semantics.
+     *
+     * @param index in bytes from which to get.
+     * @return the value for at a given index.
+     * @since 2.1.0
+     */
+    int getIntAcquire(int index);
+
+    /**
      * Atomically put a value to a given index with ordered semantics.
      * <p>
-     * This call has release semantics.
-     *
+     * Instead of using this method, use {@link #putIntRelease} instead. They
+     * are identical but the putIntRelease is the preferred version.
+
      * @param index in bytes for where to put.
      * @param value for at a given index.
      */
     void putIntOrdered(int index, int value);
 
     /**
+     * Atomically put a value to a given index with release semantics.
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index.
+     * @since 2.1.0
+     */
+    void putIntRelease(int index, int value);
+
+    /**
      * Atomically add a value to a given index with ordered store semantics. Use a negative increment to decrement.
      * <p>
      * The load has no ordering semantics. The store has release semantics.
+     * <p>
+     * Instead of using this method, use {@link #addIntRelease(int, int)} instead. They
+     * are identical but the addIntRelease is the preferred version.
      *
      * @param index     in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
      */
     int addIntOrdered(int index, int increment);
+
+    /**
+     * Atomically add a value to a given index with release semantics. Use a negative increment to decrement.
+     * <p>
+     * The load has no ordering semantics. The store has release semantics.
+     *
+     * @param index     in bytes for where to put.
+     * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index.
+     * @since 2.1.0
+     */
+    int addIntRelease(int index, int increment);
 
     /**
      * Atomic compare and set of an int given an expected value.

@@ -103,25 +103,25 @@ class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("atomicBuffers")
-    void shouldPutLongOrderedToNativeBuffer(final ByteBuffer buffer)
+    void shouldPutLongReleaseToNativeBuffer(final ByteBuffer buffer)
     {
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        unsafeBuffer.putLongOrdered(INDEX, LONG_VALUE);
+        unsafeBuffer.putLongRelease(INDEX, LONG_VALUE);
 
         assertThat(buffer.getLong(INDEX), is(LONG_VALUE));
     }
 
     @ParameterizedTest
     @MethodSource("atomicBuffers")
-    void shouldAddLongOrderedToNativeBuffer(final ByteBuffer buffer)
+    void shouldAddLongReleaseToNativeBuffer(final ByteBuffer buffer)
     {
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         final long initialValue = Integer.MAX_VALUE + 7L;
         final long increment = 9L;
-        unsafeBuffer.putLongOrdered(INDEX, initialValue);
-        unsafeBuffer.addLongOrdered(INDEX, increment);
+        unsafeBuffer.putLongRelease(INDEX, initialValue);
+        unsafeBuffer.addLongRelease(INDEX, increment);
 
         assertThat(buffer.getLong(INDEX), is(initialValue + increment));
     }
@@ -215,25 +215,25 @@ class AtomicBufferTest
 
     @ParameterizedTest
     @MethodSource("atomicBuffers")
-    void shouldPutIntOrderedToNativeBuffer(final ByteBuffer buffer)
+    void shouldPutIntReleaseToNativeBuffer(final ByteBuffer buffer)
     {
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
-        unsafeBuffer.putIntOrdered(INDEX, INT_VALUE);
+        unsafeBuffer.putIntRelease(INDEX, INT_VALUE);
 
         assertThat(buffer.getInt(INDEX), is(INT_VALUE));
     }
 
     @ParameterizedTest
     @MethodSource("atomicBuffers")
-    void shouldAddIntOrderedToNativeBuffer(final ByteBuffer buffer)
+    void shouldAddIntReleaseToNativeBuffer(final ByteBuffer buffer)
     {
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(buffer);
 
         final int initialValue = 7;
         final int increment = 9;
-        unsafeBuffer.putIntOrdered(INDEX, initialValue);
-        unsafeBuffer.addIntOrdered(INDEX, increment);
+        unsafeBuffer.putIntRelease(INDEX, initialValue);
+        unsafeBuffer.addIntRelease(INDEX, increment);
 
         assertThat(buffer.getInt(INDEX), is(initialValue + increment));
     }

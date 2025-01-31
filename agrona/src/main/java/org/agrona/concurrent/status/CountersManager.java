@@ -209,7 +209,7 @@ public class CountersManager extends CountersReader
             metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
             putLabel(recordOffset, label);
 
-            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+            metaDataBuffer.putIntRelease(recordOffset, RECORD_ALLOCATED);
         }
         catch (final Exception ex)
         {
@@ -244,7 +244,7 @@ public class CountersManager extends CountersReader
             metaDataBuffer.putLong(recordOffset + FREE_FOR_REUSE_DEADLINE_OFFSET, NOT_FREE_TO_REUSE);
             putLabel(recordOffset, label);
 
-            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+            metaDataBuffer.putIntRelease(recordOffset, RECORD_ALLOCATED);
         }
         catch (final Exception ex)
         {
@@ -297,7 +297,7 @@ public class CountersManager extends CountersReader
             metaDataBuffer.putInt(recordOffset + LABEL_OFFSET, length);
             metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, labelBuffer, labelOffset, length);
 
-            metaDataBuffer.putIntOrdered(recordOffset, RECORD_ALLOCATED);
+            metaDataBuffer.putIntRelease(recordOffset, RECORD_ALLOCATED);
         }
         catch (final Exception ex)
         {
@@ -389,7 +389,7 @@ public class CountersManager extends CountersReader
             throw new IllegalStateException("counter not allocated: id=" + counterId);
         }
 
-        metaDataBuffer.putIntOrdered(offset, RECORD_RECLAIMED);
+        metaDataBuffer.putIntRelease(offset, RECORD_RECLAIMED);
         metaDataBuffer.setMemory(offset + KEY_OFFSET, MAX_KEY_LENGTH, (byte)0);
         metaDataBuffer.putLong(offset + FREE_FOR_REUSE_DEADLINE_OFFSET, epochClock.time() + freeToReuseTimeoutMs);
         freeList.addInt(counterId);
@@ -404,7 +404,7 @@ public class CountersManager extends CountersReader
     public void setCounterValue(final int counterId, final long value)
     {
         validateCounterId(counterId);
-        valuesBuffer.putLongOrdered(counterOffset(counterId), value);
+        valuesBuffer.putLongRelease(counterOffset(counterId), value);
     }
 
     /**
@@ -416,7 +416,7 @@ public class CountersManager extends CountersReader
     public void setCounterRegistrationId(final int counterId, final long registrationId)
     {
         validateCounterId(counterId);
-        valuesBuffer.putLongOrdered(counterOffset(counterId) + REGISTRATION_ID_OFFSET, registrationId);
+        valuesBuffer.putLongRelease(counterOffset(counterId) + REGISTRATION_ID_OFFSET, registrationId);
     }
 
     /**
@@ -524,10 +524,10 @@ public class CountersManager extends CountersReader
                     freeList.remove(i);
 
                     final int offset = counterOffset(counterId);
-                    valuesBuffer.putLongOrdered(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
+                    valuesBuffer.putLongRelease(offset + REGISTRATION_ID_OFFSET, DEFAULT_REGISTRATION_ID);
                     valuesBuffer.putLong(offset + OWNER_ID_OFFSET, DEFAULT_OWNER_ID);
                     valuesBuffer.putLong(offset + REFERENCE_ID_OFFSET, DEFAULT_REFERENCE_ID);
-                    valuesBuffer.putLongOrdered(offset, 0L);
+                    valuesBuffer.putLongRelease(offset, 0L);
 
                     return counterId;
                 }
@@ -545,7 +545,7 @@ public class CountersManager extends CountersReader
         {
             final int length = metaDataBuffer.putStringWithoutLengthAscii(
                 recordOffset + LABEL_OFFSET + SIZE_OF_INT, label, 0, MAX_LABEL_LENGTH);
-            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, length);
+            metaDataBuffer.putIntRelease(recordOffset + LABEL_OFFSET, length);
         }
         else
         {
@@ -553,7 +553,7 @@ public class CountersManager extends CountersReader
             final int length = Math.min(bytes.length, MAX_LABEL_LENGTH);
 
             metaDataBuffer.putBytes(recordOffset + LABEL_OFFSET + SIZE_OF_INT, bytes, 0, length);
-            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, length);
+            metaDataBuffer.putIntRelease(recordOffset + LABEL_OFFSET, length);
         }
     }
 
@@ -567,7 +567,7 @@ public class CountersManager extends CountersReader
             final int suffixLength = metaDataBuffer.putStringWithoutLengthAscii(
                 recordOffset + LABEL_OFFSET + SIZE_OF_INT + existingLength, suffix, 0, maxSuffixLength);
 
-            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, existingLength + suffixLength);
+            metaDataBuffer.putIntRelease(recordOffset + LABEL_OFFSET, existingLength + suffixLength);
         }
         else
         {
@@ -576,7 +576,7 @@ public class CountersManager extends CountersReader
 
             metaDataBuffer.putBytes(
                 recordOffset + LABEL_OFFSET + SIZE_OF_INT + existingLength, suffixBytes, 0, suffixLength);
-            metaDataBuffer.putIntOrdered(recordOffset + LABEL_OFFSET, existingLength + suffixLength);
+            metaDataBuffer.putIntRelease(recordOffset + LABEL_OFFSET, existingLength + suffixLength);
         }
     }
 

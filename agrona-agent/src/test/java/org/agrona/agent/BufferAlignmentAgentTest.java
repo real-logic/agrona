@@ -284,16 +284,16 @@ class BufferAlignmentAgentTest
         buffer.compareAndSetLong(offset + SIZE_OF_LONG, Long.MAX_VALUE, Long.MAX_VALUE);
         buffer.getAndAddLong(offset + SIZE_OF_LONG, Long.MAX_VALUE);
         buffer.getAndSetLong(offset + SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.putLongOrdered(offset + SIZE_OF_LONG, Long.MAX_VALUE);
-        buffer.addLongOrdered(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.putLongRelease(offset + SIZE_OF_LONG, Long.MAX_VALUE);
+        buffer.addLongRelease(offset + SIZE_OF_LONG, Long.MAX_VALUE);
 
         buffer.getIntVolatile(offset + SIZE_OF_INT);
         buffer.putIntVolatile(offset + SIZE_OF_INT, Integer.MAX_VALUE);
         buffer.compareAndSetInt(offset + SIZE_OF_INT, Integer.MAX_VALUE, Integer.MAX_VALUE);
         buffer.getAndAddInt(offset + SIZE_OF_INT, Integer.MAX_VALUE);
         buffer.getAndSetInt(offset + SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.putIntOrdered(offset + SIZE_OF_INT, Integer.MAX_VALUE);
-        buffer.addIntOrdered(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.putIntRelease(offset + SIZE_OF_INT, Integer.MAX_VALUE);
+        buffer.addIntRelease(offset + SIZE_OF_INT, Integer.MAX_VALUE);
 
         buffer.getShortVolatile(offset + SIZE_OF_SHORT);
         buffer.putShortVolatile(offset + SIZE_OF_SHORT, Short.MAX_VALUE);
@@ -319,8 +319,8 @@ class BufferAlignmentAgentTest
             addressOffset, offset + SIZE_OF_INT, (i) -> buffer.compareAndSetLong(i, Long.MAX_VALUE, Long.MAX_VALUE));
         assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.getAndAddLong(i, Long.MAX_VALUE));
         assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.getAndSetLong(i, Long.MAX_VALUE));
-        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLongOrdered(i, Long.MAX_VALUE));
-        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.addLongOrdered(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.putLongRelease(i, Long.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_INT, (i) -> buffer.addLongRelease(i, Long.MAX_VALUE));
 
         assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, buffer::getIntVolatile);
         assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putIntVolatile(i, Integer.MAX_VALUE));
@@ -328,8 +328,8 @@ class BufferAlignmentAgentTest
             (i) -> buffer.compareAndSetInt(i, Integer.MAX_VALUE, Integer.MAX_VALUE));
         assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getAndAddInt(i, Integer.MAX_VALUE));
         assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.getAndSetInt(i, Integer.MAX_VALUE));
-        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putIntOrdered(i, Integer.MAX_VALUE));
-        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.addIntOrdered(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.putIntRelease(i, Integer.MAX_VALUE));
+        assertUnaligned(addressOffset, offset + SIZE_OF_SHORT, (i) -> buffer.addIntRelease(i, Integer.MAX_VALUE));
 
         assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, buffer::getShortVolatile);
         assertUnaligned(addressOffset, offset + SIZE_OF_BYTE, (i) -> buffer.putShortVolatile(i, Short.MAX_VALUE));

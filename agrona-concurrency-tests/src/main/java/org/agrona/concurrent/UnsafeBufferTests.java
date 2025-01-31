@@ -22,10 +22,7 @@ import org.openjdk.jcstress.annotations.Expect;
 import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.annotations.State;
-import org.openjdk.jcstress.infra.results.III_Result;
-import org.openjdk.jcstress.infra.results.I_Result;
-import org.openjdk.jcstress.infra.results.JJJ_Result;
-import org.openjdk.jcstress.infra.results.J_Result;
+import org.openjdk.jcstress.infra.results.*;
 
 import static java.nio.ByteBuffer.allocateDirect;
 
@@ -39,13 +36,96 @@ public class UnsafeBufferTests
     }
 
     /**
+     * Test that verifies that the {@link AtomicBuffer#putLongRelease(int, long)} and
+     * {@link AtomicBuffer#getLongAcquire(int)} provide causal consistency.
+     * <p>
+     * For causal consistency and 2 variables A and B, if first A=1 and then B=1,
+     * and another thread reads B=1, then it should also read A=1.
+     */
+    @JCStressTest
+    // first value is B, second value is A.
+    @Outcome(id = "0, 1", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "0, 0", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "1, 1", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "1, 0", expect = Expect.FORBIDDEN)
+    @State
+    public static class ReleaseAcquireLong
+    {
+        private static final int A = 0;
+        private static final int B = 8;
+        private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(16, 8));
+
+        /**
+         * Release thread.
+         */
+        @Actor
+        public void release()
+        {
+            buffer.putLong(A, 1);
+            buffer.putLongRelease(B, 1);
+        }
+
+        /**
+         * Acquire thread.
+         *
+         * @param result object.
+         */
+        @Actor
+        public void acquire(final JJ_Result result)
+        {
+            result.r1 = buffer.getLongAcquire(B);
+            result.r2 = buffer.getLong(A);
+        }
+    }
+
+    /**
+     * Test that verifies that the {@link AtomicBuffer#putIntRelease(int, int)} and
+     * {@link AtomicBuffer#getIntAcquire(int)} provide causal consistency. For more
+     * info see {@link ReleaseAcquireLong}.
+     */
+    @JCStressTest
+    @Outcome(id = "0, 1", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "0, 0", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "1, 1", expect = Expect.ACCEPTABLE)
+    @Outcome(id = "1, 0", expect = Expect.ACCEPTABLE)
+    @State
+    public static class ReleaseAcquireInt
+    {
+        private static final int A = 0;
+        private static final int B = 4;
+        private final UnsafeBuffer buffer = new UnsafeBuffer(BufferUtil.allocateDirectAligned(8, 4));
+
+        /**
+         * Writer thread.
+         */
+        @Actor
+        public void release()
+        {
+            buffer.putInt(A, 1);
+            buffer.putIntRelease(B, 1);
+        }
+
+        /**
+         * Reader thread.
+         *
+         * @param result object.
+         */
+        @Actor
+        public void acquire(final JJ_Result result)
+        {
+            result.r1 = buffer.getIntAcquire(B);
+            result.r2 = buffer.getInt(A);
+        }
+    }
+
+    /**
      * Test that verifies the atomicity of the {@link UnsafeBuffer#putLongVolatile(int, long)},
-     * {@link UnsafeBuffer#putLongOrdered(int, long)} and {@link UnsafeBuffer#getLongVolatile(int)}.
+     * {@link UnsafeBuffer#putLongRelease(int, long)} (int, long)} and {@link UnsafeBuffer#getLongVolatile(int)}.
      */
     @JCStressTest
     @Outcome(id = "0", expect = Expect.ACCEPTABLE, desc = "read before writes")
     @Outcome(id = "-1", expect = Expect.ACCEPTABLE, desc = "putLongVolatile before read")
-    @Outcome(id = "9223372036854775806", expect = Expect.ACCEPTABLE, desc = "putLongOrdered before read")
+    @Outcome(id = "9223372036854775806", expect = Expect.ACCEPTABLE, desc = "putLongRelease before read")
     @State
     public static class DirectBufferLong
     {
@@ -69,9 +149,9 @@ public class UnsafeBufferTests
          * Writer thread.
          */
         @Actor
-        public void putLongOrdered()
+        public void putLongRelease()
         {
-            buffer.putLongOrdered(WRITE_INDEX, Long.MAX_VALUE - 1);
+            buffer.putLongRelease(WRITE_INDEX, Long.MAX_VALUE - 1);
         }
 
         /**
@@ -88,7 +168,7 @@ public class UnsafeBufferTests
 
     /**
      * Test that verifies the atomicity of the {@link UnsafeBuffer#putIntVolatile(int, int)},
-     * {@link UnsafeBuffer#putIntOrdered(int, int)} and {@link UnsafeBuffer#getIntVolatile(int)}.
+     * {@link UnsafeBuffer#putIntRelease(int, int)} (int, int)} and {@link UnsafeBuffer#getIntVolatile(int)}.
      */
     @JCStressTest
     @Outcome(id = "0", expect = Expect.ACCEPTABLE, desc = "read before writes")
@@ -117,9 +197,9 @@ public class UnsafeBufferTests
          * Writer thread.
          */
         @Actor
-        public void putIntOrdered()
+        public void putIntRelease()
         {
-            buffer.putIntOrdered(WRITE_INDEX, 222222222);
+            buffer.putIntRelease(WRITE_INDEX, 222222222);
         }
 
         /**
