@@ -88,6 +88,12 @@ public class AtomicLongPosition extends Position
         return value.get();
     }
 
+    @Override
+    public long getAcquire()
+    {
+        return value.getAcquire();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -101,7 +107,15 @@ public class AtomicLongPosition extends Position
      */
     public void setOrdered(final long value)
     {
-        this.value.lazySet(value);
+        setRelease(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRelease(final long value)
+    {
+        this.value.setRelease(value);
     }
 
     /**
@@ -117,7 +131,7 @@ public class AtomicLongPosition extends Position
      */
     public boolean proposeMax(final long proposedValue)
     {
-        return proposeMaxOrdered(proposedValue);
+        return proposeMaxRelease(proposedValue);
     }
 
     /**
@@ -125,11 +139,19 @@ public class AtomicLongPosition extends Position
      */
     public boolean proposeMaxOrdered(final long proposedValue)
     {
+        return proposeMaxRelease(proposedValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean proposeMaxRelease(final long proposedValue)
+    {
         boolean updated = false;
 
-        if (get() < proposedValue)
+        if (value.get() < proposedValue)
         {
-            setOrdered(proposedValue);
+            value.setRelease(proposedValue);
             updated = true;
         }
 
