@@ -27,6 +27,16 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
 
 /**
  * Atomic counter that is backed by an {@link AtomicBuffer} that can be read across threads and processes.
+ * <p>
+ * In most cases you want to match the appropriate methods:
+ * <ol>
+ *     <li>an {@link #increment} (which has volatile semantics) should be combined with a {@link #get}.</li>
+ *     <li>an {@link #incrementRelease} with a {@link #getAcquire}.</li>
+ *     <li>an {@link #incrementOpaque} with a {@link #getOpaque}.</li>
+ *     <li>an {@link #incrementPlain} with a {@link #getPlain}.</li>
+ * </ol>
+ * If the methods aren't matched then chances are there either is a data race or race condition due to too few
+ * constraints, or suboptimal performance due to too many constraints.
  */
 public class AtomicCounter implements AutoCloseable
 {
@@ -222,18 +232,22 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Perform a non-atomic increment.
+     * Perform a non-atomic increment with release semantics.
      * <p>
      * It can result into lost updates due to race condition when called concurrently.
      * <p>
      * The load has plain memory semantics and the store has release memory semantics.
      * <p>
-     * The typical use-case is when there is a single writer thread and one or more reader threads.
+     * The typical use-case is when there is a single writer thread and one or more reader threads and causality
+     * needs to be preserved using the {@link #getAcquire()}.
      * <p>
-     * This method will outperform the {@link #increment()}. So if there is just a single mutator thread, and
+     * This method is likely to outperform the {@link #increment()}. So if there is just a single mutator thread, and
      * one or more reader threads, then it is likely you will prefer this method.
+     * <p>
+     * If no memory ordering is needed, have a look at the {@link #incrementOpaque()}.
      *
      * @return the previous value of the counter
+     * @since 2.1.0
      */
     public long incrementRelease()
     {
@@ -245,10 +259,36 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Perform a non-atomic increment using opaque semantics.
+     * <p>
+     * It can result into lost updates due to race condition when called concurrently.
+     * <p>
+     * The load has plain memory semantics and the store has opaque memory semantics.
+     * <p>
+     * The typical use-case is when there is a single writer thread and one or more reader threads and surrounding
+     * loads/stores don't need to be ordered.
+     * <p>
+     * This method should be at least fast as {@link #incrementRelease()} since it has weaker memory semantics.
+     * So if there is just a single mutator thread, and one or more reader threads and surrounding loads/stores don't
+     * need to be ordered, then it is likely you will prefer this method.
+     *
+     * @return the previous value of the counter
+     * @since 2.1.0
+     */
+    public long incrementOpaque()
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLongOpaque(array, offset, currentValue + 1);
+        return currentValue;
+    }
+
+    /**
      * Increment the counter.
      * <p>
-     * This method is not atomic and this can lead to lost-updates due to race conditions. This load and store
-     * have plain memory semantics.
+     * This method is not atomic and this can lead to lost-updates due to race conditions and data races. This
+     * load and store have plain memory semantics.
      * <p>
      * The typical use-case for this method is when writer and reader are the same thread.
      *
@@ -266,6 +306,8 @@ public class AtomicCounter implements AutoCloseable
 
     /**
      * Perform an atomic decrement that will not lose updates across threads.
+     * <p>
+     * The loads and store have volatile memory semantics.
      *
      * @return the previous value of the counter
      */
@@ -278,6 +320,7 @@ public class AtomicCounter implements AutoCloseable
      * Perform an atomic decrement that is not safe across threads.
      *
      * @return the previous value of the counter
+     * @since 2.1.0
      */
     public long decrementOrdered()
     {
@@ -285,7 +328,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Decrements the counter non-atomically.
+     * Decrements the counter non-atomically with release semantics.
      * <p>
      * It can result into lost updates to race condition when called concurrently.
      * <p>
@@ -304,6 +347,33 @@ public class AtomicCounter implements AutoCloseable
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue - 1);
+
+        return currentValue;
+    }
+
+    /**
+     * Perform a non-atomic decrement using opaque semantics.
+     * <p>
+     * It can result into lost updates due to race condition when called concurrently.
+     * <p>
+     * The load has plain memory semantics and the store has opaque memory semantics.
+     * <p>
+     * The typical use-case is when there is a single writer thread and one or more reader threads and surrounding
+     * loads/stores don't need to be ordered.
+     * <p>
+     * This method should be at least fast as {@link #decrementRelease()} since it has weaker memory semantics.
+     * So if there is just a single mutator thread, and one or more reader threads and surrounding loads/stores don't
+     * need to be ordered, then it is likely you will prefer this method.
+     *
+     * @return the previous value of the counter
+     * @since 2.1.0
+     */
+    public long decrementOpaque()
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLongOpaque(array, offset, currentValue - 1);
 
         return currentValue;
     }
@@ -365,6 +435,19 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Set the counter value atomically.
+     * <p>
+     * The store has opaque memory semantics.
+     *
+     * @param value to be set
+     * @since 2.1.0
+     */
+    public void setOpaque(final long value)
+    {
+        UnsafeApi.putLongOpaque(byteArray, addressOffset, value);
+    }
+
+    /**
      * Set the counter with normal semantics.
      * <p>
      * This method is identical to {@link #setPlain(long)} and that method should be used instead.
@@ -412,7 +495,7 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
-     * Adds an increment to the counter non atomically.
+     * Adds an increment to the counter non-atomically.
      * <p>
      * This method is not atomic; it can suffer from lost-updates due to race conditions.
      * <p>
@@ -431,6 +514,33 @@ public class AtomicCounter implements AutoCloseable
         final long offset = addressOffset;
         final long currentValue = UnsafeApi.getLong(array, offset);
         UnsafeApi.putLongRelease(array, offset, currentValue + increment);
+
+        return currentValue;
+    }
+
+    /**
+     * Adds an increment to the counter non-atomically.
+     * <p>
+     * This method is not atomic; it can suffer from lost-updates due to race conditions.
+     * <p>
+     * The load has plain memory semantics and the store has opaque memory semantics.
+     * <p>
+     * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader
+     * threads.
+     * <p>
+     * If ordering of surrounding loads/stores isn't important, then this method is likely to be faster than
+     * {@link #getAndAddRelease(long)} because it has less strict memory ordering requirements.
+     *
+     * @param increment to be added
+     * @return the previous value of the counter
+     * @since 2.1.0
+     */
+    public long getAndAddOpaque(final long increment)
+    {
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        final long currentValue = UnsafeApi.getLong(array, offset);
+        UnsafeApi.putLongOpaque(array, offset, currentValue + increment);
 
         return currentValue;
     }
@@ -469,7 +579,31 @@ public class AtomicCounter implements AutoCloseable
     }
 
     /**
+     * Get the value for the counter with acquire semantics.
+     *
+     * @return the value for the counter.
+     * @since 2.1.0
+     */
+    public long getAcquire()
+    {
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset);
+    }
+
+    /**
+     * Get the value for the counter with opaque semantics.
+     *
+     * @return the value for the counter.
+     * @since 2.1.0
+     */
+    public long getOpaque()
+    {
+        return UnsafeApi.getLongOpaque(byteArray, addressOffset);
+    }
+
+    /**
      * Get the value of the counter using weak ordering semantics. This is the same a standard read of a field.
+     * <p>
+     * This call is identical to {@link #getPlain()} and that method is preferred.
      *
      * @return the  value for the counter.
      */
@@ -545,6 +679,37 @@ public class AtomicCounter implements AutoCloseable
         if (UnsafeApi.getLong(array, offset) < proposedValue)
         {
             UnsafeApi.putLongRelease(array, offset, proposedValue);
+            updated = true;
+        }
+
+        return updated;
+    }
+
+    /**
+     * Set the value to a new proposedValue if greater than the current value.
+     * <p>
+     * This call is not atomic and can suffer from lost updates to race conditions.
+     * <p>
+     * The load has plain memory semantics and the store has opaque memory semantics.
+     * <p>
+     * The typical use-case is when there is one mutator thread, that calls this method, and one or more reader threads.
+     * <p>
+     * This method is likely to outperform {@link #proposeMaxRelease(long)} since this method has less memory ordering
+     * requirements.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     * @since 2.1.0
+     */
+    public boolean proposeMaxOpaque(final long proposedValue)
+    {
+        boolean updated = false;
+
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        if (UnsafeApi.getLong(array, offset) < proposedValue)
+        {
+            UnsafeApi.putLongOpaque(array, offset, proposedValue);
             updated = true;
         }
 
