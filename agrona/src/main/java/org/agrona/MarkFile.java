@@ -284,10 +284,22 @@ public class MarkFile implements AutoCloseable
 
     /**
      * Set timestamp field using an ordered put.
+     * <p>
+     * This method is identical to {@link #timestampRelease(long)} and that method is preferred.
      *
      * @param timestamp to be set.
      */
     public void timestampOrdered(final long timestamp)
+    {
+        timestampRelease(timestamp);
+    }
+
+    /**
+     * Set timestamp field using a release put.
+     *
+     * @param timestamp to be set.
+     */
+    public void timestampRelease(final long timestamp)
     {
         buffer.putLongRelease(timestampFieldOffset, timestamp);
     }
