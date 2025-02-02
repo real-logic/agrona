@@ -149,6 +149,34 @@ public interface AtomicBuffer extends MutableDirectBuffer
     long addLongOrdered(int index, long increment);
 
     /**
+     * Atomically put a value to a given index with opaque semantics.
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index.
+     */
+    void putLongOpaque(int index, long value);
+
+    /**
+     * Atomically get a value to a given index with opaque semantics.
+     *
+     * @param index in bytes for where to put.
+     * @return the value for at a given index.
+     */
+    long getLongOpaque(int index);
+
+    /**
+     * Adds a value to a given index with opaque semantics. The read and write
+     * will be atomic, but the combination is not atomic. So don't use this
+     * method concurrently because you can run into lost updates due to
+     * a race-condition.
+     *
+     * @param index in bytes for where to put.
+     * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index.
+     */
+    long addLongOpaque(int index, long increment);
+
+    /**
      * Atomically adds a value to a given index with ordered store semantics. Use a negative increment to decrement.
      * <p>
      * The load has no ordering semantics. The store has release semantics.
@@ -269,6 +297,34 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @since 2.1.0
      */
     int addIntRelease(int index, int increment);
+
+    /**
+     * Atomically put a value to a given index with opaque semantics.
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index.
+     */
+    void putIntOpaque(int index, int value);
+
+    /**
+     * Atomically get a value to a given index with opaque semantics.
+     *
+     * @param index in bytes for where to put.
+     * @return the value for at a given index.
+     */
+    int getIntOpaque(int index);
+
+    /**
+     * Adds a value to a given index with opaque semantics. The read and write
+     * will be atomic, but the combination is not atomic. So don't use this
+     * method concurrently because you can run into lost updates due to
+     * a race-condition.
+     *
+     * @param index in bytes for where to put.
+     * @param increment by which the value at the index will be adjusted.
+     * @return the previous value at the index.
+     */
+    int addIntOpaque(int index, int increment);
 
     /**
      * Atomic compare and set of an int given an expected value.

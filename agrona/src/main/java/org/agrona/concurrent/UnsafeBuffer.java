@@ -456,6 +456,48 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
     /**
      * {@inheritDoc}
      */
+    public void putLongOpaque(final int index, final long value)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        UnsafeApi.putLongOpaque(byteArray, addressOffset + index, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLongOpaque(final int index)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        return UnsafeApi.getLongOpaque(byteArray, addressOffset + index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long addLongOpaque(final int index, final long increment)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        final long oldValue = UnsafeApi.getLongOpaque(byteArray, addressOffset + index);
+        final long newValue = oldValue + increment;
+        UnsafeApi.putLongOpaque(byteArray, addressOffset + index, newValue);
+        return oldValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean compareAndSetLong(final int index, final long expectedValue, final long updateValue)
     {
         if (SHOULD_BOUNDS_CHECK)
@@ -571,6 +613,49 @@ public class UnsafeBuffer extends AbstractMutableDirectBuffer implements AtomicB
         }
 
         return UnsafeApi.getAndAddIntRelease(byteArray, addressOffset + index, increment);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void putIntOpaque(final int index, final int value)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        UnsafeApi.putIntOpaque(byteArray, addressOffset + index, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getIntOpaque(final int index)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        return UnsafeApi.getIntOpaque(byteArray, addressOffset + index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int addIntOpaque(final int index, final int increment)
+    {
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        final int oldValue = UnsafeApi.getIntOpaque(byteArray, addressOffset + index);
+        final int newValue = oldValue + increment;
+        UnsafeApi.putIntOpaque(byteArray, addressOffset + index, newValue);
+        return oldValue;
     }
 
     /**
