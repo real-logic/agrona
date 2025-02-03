@@ -77,7 +77,7 @@ public class AtomicLongPosition extends Position
      */
     public long get()
     {
-        return value.get();
+        return value.getPlain();
     }
 
     /**
@@ -99,7 +99,7 @@ public class AtomicLongPosition extends Position
      */
     public void set(final long value)
     {
-        this.value.lazySet(value);
+        this.value.setPlain(value);
     }
 
     /**
