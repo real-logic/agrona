@@ -33,7 +33,7 @@ class UnsafeBufferStatusIndicatorTest
         final UnsafeBufferStatusIndicator unsafeBufferStatusIndicator =
             new UnsafeBufferStatusIndicator(buffer, counterId);
 
-        unsafeBufferStatusIndicator.setOrdered(value);
+        unsafeBufferStatusIndicator.setVolatile(value);
         assertEquals(value, unsafeBufferStatusIndicator.getVolatile());
     }
 }

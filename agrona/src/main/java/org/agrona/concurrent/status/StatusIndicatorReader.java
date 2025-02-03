@@ -38,7 +38,21 @@ public abstract class StatusIndicatorReader
     /**
      * Get the current status indication of a component with volatile semantics.
      *
-     * @return the current status indication of a component with volatile semantics.
+     * @return the current status indication of a component.
      */
     public abstract long getVolatile();
+
+    /**
+     * Get the current status indication of a component with acquire semantics.
+     *
+     * @return the current status indication of a component.
+     */
+    public abstract long getAcquire();
+
+    /**
+     * Get the current status indication of a component with opaque semantics.
+     *
+     * @return the current status indication of a component.
+     */
+    public abstract long getOpaque();
 }

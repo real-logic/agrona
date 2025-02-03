@@ -64,9 +64,33 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
     /**
      * {@inheritDoc}
      */
+    public void setVolatile(final long value)
+    {
+        UnsafeApi.putLongVolatile(byteArray, addressOffset, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void setOrdered(final long value)
     {
+        setRelease(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRelease(final long value)
+    {
         UnsafeApi.putLongRelease(byteArray, addressOffset, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setOpaque(final long value)
+    {
+        UnsafeApi.putLongOpaque(byteArray, addressOffset, value);
     }
 
     /**
@@ -78,6 +102,22 @@ public class UnsafeBufferStatusIndicator extends StatusIndicator
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public long getAcquire()
+    {
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOpaque()
+    {
+        return UnsafeApi.getLongOpaque(byteArray, addressOffset);
+    }
+
+      /**
      * {@inheritDoc}
      */
     public String toString()
