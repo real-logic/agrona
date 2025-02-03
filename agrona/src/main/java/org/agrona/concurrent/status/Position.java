@@ -36,13 +36,6 @@ public abstract class Position extends ReadablePosition
      */
     public abstract boolean isClosed();
 
-     /**
-     * Get the current position of a component with plain memory semantics.
-     *
-     * @return the current position of a component
-     */
-    public abstract long get();
-
     /**
      * Sets the current position of the component with volatile memory semantics.
      *

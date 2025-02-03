@@ -35,6 +35,13 @@ public abstract class ReadablePosition implements AutoCloseable
     public abstract int id();
 
     /**
+     * Get the current position of a component with plain memory semantics.
+     *
+     * @return the current position of a component
+     */
+    public abstract long get();
+
+    /**
      * Get the current position of a component with volatile memory semantics.
      *
      * @return the current position of a component.
