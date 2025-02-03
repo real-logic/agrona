@@ -88,7 +88,9 @@ public class AtomicLongPosition extends Position
         return value.get();
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public long getAcquire()
     {
         return value.getAcquire();
@@ -97,9 +99,25 @@ public class AtomicLongPosition extends Position
     /**
      * {@inheritDoc}
      */
+    public long getOpaque()
+    {
+        return value.getOpaque();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void set(final long value)
     {
         this.value.setPlain(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setOpaque(final long value)
+    {
+        this.value.setOpaque(value);
     }
 
     /**
@@ -152,6 +170,22 @@ public class AtomicLongPosition extends Position
         if (value.get() < proposedValue)
         {
             value.setRelease(proposedValue);
+            updated = true;
+        }
+
+        return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean proposeMaxOpaque(final long proposedValue)
+    {
+        boolean updated = false;
+
+        if (value.get() < proposedValue)
+        {
+            value.setOpaque(proposedValue);
             updated = true;
         }
 

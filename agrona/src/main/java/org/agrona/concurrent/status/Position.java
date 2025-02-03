@@ -18,7 +18,7 @@ package org.agrona.concurrent.status;
 /**
  * Reports on how far through a buffer some component has progressed.
  * <p>
- * Threadsafe to write to from a single writer.
+ * Threadsafe to write to from a single writer unless methods with plain memory semantics are used.
  */
 public abstract class Position extends ReadablePosition
 {
@@ -36,19 +36,19 @@ public abstract class Position extends ReadablePosition
      */
     public abstract boolean isClosed();
 
-    /**
-     * Get the current position of a component with plain memory ordering semantics.
+     /**
+     * Get the current position of a component with plain memory semantics.
      *
      * @return the current position of a component
      */
     public abstract long get();
 
     /**
-     * Sets the current position of the component without memory ordering semantics.
+     * Sets the current position of the component with volatile memory semantics.
      *
      * @param value the current position of the component.
      */
-    public abstract void set(long value);
+    public abstract void setVolatile(long value);
 
     /**
      * Sets the current position of the component with ordered memory semantics.
@@ -68,14 +68,22 @@ public abstract class Position extends ReadablePosition
     public abstract void setRelease(long value);
 
     /**
-     * Sets the current position of the component with volatile memory semantics.
+     * Sets the current position of the component with opaque memory semantics.
+     *
+     * @param value the current position of the component.
+     * @since 2.1.0
+     */
+    public abstract void setOpaque(long value);
+
+    /**
+     * Sets the current position of the component plain memory semantics.
      *
      * @param value the current position of the component.
      */
-    public abstract void setVolatile(long value);
+    public abstract void set(long value);
 
     /**
-     * Set the position to a new proposedValue if greater than the current value without memory ordering semantics.
+     * Set the position to a new proposedValue if greater than the current value with plain memory semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
@@ -83,7 +91,7 @@ public abstract class Position extends ReadablePosition
     public abstract boolean proposeMax(long proposedValue);
 
     /**
-     * Set the position to the new proposedValue if greater than the current value with memory ordering semantics.
+     * Set the position to the new proposedValue if greater than the current value with release memory semantics.
      * <p>
      * This method is identical to {@link #proposeMaxRelease(long)} and that method should be preferred instead.
      *
@@ -93,11 +101,20 @@ public abstract class Position extends ReadablePosition
     public abstract boolean proposeMaxOrdered(long proposedValue);
 
     /**
-     * Set the position to the new proposedValue if greater than the current value with release memory ordering
+     * Set the position to the new proposedValue if greater than the current value with release memory
      * semantics.
      *
      * @param proposedValue for the new max.
      * @return true if a new max as been set otherwise false.
      */
     public abstract boolean proposeMaxRelease(long proposedValue);
+
+    /**
+     * Set the position to the new proposedValue if greater than the current value with opaque memory
+     * semantics.
+     *
+     * @param proposedValue for the new max.
+     * @return true if a new max as been set otherwise false.
+     */
+    public abstract boolean proposeMaxOpaque(long proposedValue);
 }
