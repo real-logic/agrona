@@ -29,6 +29,21 @@ import static org.agrona.BitUtil.SIZE_OF_LONG;
  * The AtomicBuffer also has methods with release methods which are identical to the ordered methods. All the
  * methods with 'ordered' name will call the equivalent method with release name. This introduces a small
  * performance penalty for the older methods and this should encourage users to switch to the newer methods.
+ * <p>
+ * In most cases you want to match the mutating method with the reading method:
+ * <ol>
+ *     <li>a {@link #putIntVolatile(int, int)} with a {@link #getIntVolatile(int)}.</li>
+ *     <li>a {@link #putIntRelease(int, int)} with a {@link #getIntAcquire(int)}.</li>
+ *     <li>a {@link #putIntOpaque(int, int)} with a {@link #getIntOpaque(int)}.</li>
+ *     <li>a {@link #putInt(int, int)}  with an {@link #getInt(int)}.</li>
+ * </ol>
+ * If the methods aren't matched then chances are there either is a data race or race condition due to too few
+ * constraints, or suboptimal performance due to too many constraints. Also, when there is a mismatch it makes
+ * understanding code harder as well because it isn't clear how much synchronization is actually needed.
+ * <p>
+ * For a read or write to be atomic, the fields needs to be naturally aligned. E.g. an int should be 4 bytes aligned
+ * and a long should be 8 bytes aligned. Some ISA's are more lenient like the X86, although there can be severe
+ * performance penalties. But other ISA's are less forgiving.
  */
 public interface AtomicBuffer extends MutableDirectBuffer
 {
@@ -153,6 +168,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
+     * @since 2.1.0
      */
     void putLongOpaque(int index, long value);
 
@@ -161,6 +177,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @return the value for at a given index.
+     * @since 2.1.0
      */
     long getLongOpaque(int index);
 
@@ -173,6 +190,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param index in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
+     * @since 2.1.0
      */
     long addLongOpaque(int index, long increment);
 
@@ -303,6 +321,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @param value for at a given index.
+     * @since 2.1.0
      */
     void putIntOpaque(int index, int value);
 
@@ -311,6 +330,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      *
      * @param index in bytes for where to put.
      * @return the value for at a given index.
+     * @since 2.1.0
      */
     int getIntOpaque(int index);
 
@@ -323,6 +343,7 @@ public interface AtomicBuffer extends MutableDirectBuffer
      * @param index in bytes for where to put.
      * @param increment by which the value at the index will be adjusted.
      * @return the previous value at the index.
+     * @since 2.1.0
      */
     int addIntOpaque(int index, int increment);
 
