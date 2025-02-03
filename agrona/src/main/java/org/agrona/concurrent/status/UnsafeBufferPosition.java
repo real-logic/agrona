@@ -86,14 +86,6 @@ public class UnsafeBufferPosition extends Position
     /**
      * {@inheritDoc}
      */
-    public long get()
-    {
-        return UnsafeApi.getLong(byteArray, addressOffset);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public long getVolatile()
     {
         return UnsafeApi.getLongVolatile(byteArray, addressOffset);
@@ -110,9 +102,25 @@ public class UnsafeBufferPosition extends Position
     /**
      * {@inheritDoc}
      */
-    public void set(final long value)
+    public long getOpaque()
     {
-        UnsafeApi.putLong(byteArray, addressOffset, value);
+        return UnsafeApi.getLongOpaque(byteArray, addressOffset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long get()
+    {
+        return UnsafeApi.getLong(byteArray, addressOffset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setVolatile(final long value)
+    {
+        UnsafeApi.putLongVolatile(byteArray, addressOffset, value);
     }
 
     /**
@@ -134,10 +142,19 @@ public class UnsafeBufferPosition extends Position
     /**
      * {@inheritDoc}
      */
-    public void setVolatile(final long value)
+    public void setOpaque(final long value)
     {
-        UnsafeApi.putLongVolatile(byteArray, addressOffset, value);
+        UnsafeApi.putLongOpaque(byteArray, addressOffset, value);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void set(final long value)
+    {
+        UnsafeApi.putLong(byteArray, addressOffset, value);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -177,6 +194,24 @@ public class UnsafeBufferPosition extends Position
         if (UnsafeApi.getLong(array, offset) < proposedValue)
         {
             UnsafeApi.putLongRelease(array, offset, proposedValue);
+            updated = true;
+        }
+
+        return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean proposeMaxOpaque(final long proposedValue)
+    {
+        boolean updated = false;
+
+        final byte[] array = byteArray;
+        final long offset = addressOffset;
+        if (UnsafeApi.getLong(array, offset) < proposedValue)
+        {
+            UnsafeApi.putLongOpaque(array, offset, proposedValue);
             updated = true;
         }
 
