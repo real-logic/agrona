@@ -29,9 +29,32 @@ public abstract class StatusIndicator extends StatusIndicatorReader
     }
 
     /**
-     * Sets the current status indication of the component with ordered atomic memory semantics.
+     * Sets the current status indication of the component with volatile memory semantics.
+     *
+     * @param value the current status indication of the component.
+     */
+    public abstract void setVolatile(long value);
+
+    /**
+     * Sets the current status indication of the component with ordered memory semantics.
+     * <p>
+     * This method is identical to {@link #setRelease(long)} and that method should be used instead.
      *
      * @param value the current status indication of the component.
      */
     public abstract void setOrdered(long value);
+
+    /**
+     * Sets the current status indication of the component with release memory semantics.
+     *
+     * @param value the current status indication of the component.
+     */
+    public abstract void setRelease(long value);
+
+    /**
+     * Sets the current status indication of the component with opaque memory semantics.
+     *
+     * @param value the current status indication of the component.
+     */
+    public abstract void setOpaque(long value);
 }
