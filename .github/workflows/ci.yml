@@ -28,6 +28,7 @@ jobs:
   build:
     name: Java ${{ matrix.java }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -92,6 +93,7 @@ jobs:
   ea-build:
     name: Java ${{ matrix.java }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
