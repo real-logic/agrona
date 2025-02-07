@@ -97,7 +97,7 @@ public class DistinctErrorLog
     private final EpochClock clock;
     private final AtomicBuffer buffer;
     private final Charset charset;
-    private DistinctObservation[] distinctObservations = new DistinctObservation[0];
+    private volatile DistinctObservation[] distinctObservations = new DistinctObservation[0];
 
     /**
      * Create a new error log that will be written to a provided {@link AtomicBuffer}.
@@ -157,38 +157,83 @@ public class DistinctErrorLog
      */
     public boolean record(final Throwable observation)
     {
-        final long timestampMs;
+        final long timestampMs = clock.time();
+
         DistinctObservation distinctObservation;
-
-        timestampMs = clock.time();
-        synchronized (this)
+        DistinctObservation[] currentDistinctObservations;
+        int searchIndex = 0;
+        for (; ; )
         {
-            distinctObservation = find(distinctObservations, observation);
+            currentDistinctObservations = this.distinctObservations;
+            distinctObservation = find(currentDistinctObservations, searchIndex, observation);
+            searchIndex = currentDistinctObservations.length;
 
-            if (null == distinctObservation)
+            if (distinctObservation != null)
             {
-                distinctObservation = newObservation(timestampMs, observation);
-                if (INSUFFICIENT_SPACE == distinctObservation)
+                // A distinctObservation was found
+                break;
+            }
+            else if (currentDistinctObservations == distinctObservations)
+            {
+                // A distinctObservation was not found, and now an attempt is made to create the new observation
+                synchronized (this)
                 {
-                    return false;
+                    // One more find is needed, because it could be a new observation was added prior to
+                    // obtaining the lock.
+                    if (currentDistinctObservations != distinctObservations)
+                    {
+                        distinctObservation = find(distinctObservations, searchIndex, observation);
+                    }
+
+                    if (null == distinctObservation)
+                    {
+                        distinctObservation = newObservation(timestampMs, observation);
+                        if (INSUFFICIENT_SPACE == distinctObservation)
+                        {
+                            return false;
+                        }
+                    }
                 }
+
+                break;
             }
         }
 
         final int offset = distinctObservation.offset;
         buffer.getAndAddInt(offset + OBSERVATION_COUNT_OFFSET, 1);
-        buffer.putLongRelease(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, timestampMs);
 
+        updateLastObservationTimestamp(offset, timestampMs);
         return true;
     }
 
+    private void updateLastObservationTimestamp(final int offset, final long timestampMs)
+    {
+        // A cas loop to ensure that the timestamp is monotonic increasing.
+        for (; ; )
+        {
+            final long current = buffer.getLongVolatile(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET);
+            if (current < timestampMs)
+            {
+                if (buffer.compareAndSetLong(offset + LAST_OBSERVATION_TIMESTAMP_OFFSET, current, timestampMs))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     private static DistinctObservation find(
-        final DistinctObservation[] existingObservations, final Throwable observation)
+        final DistinctObservation[] existingObservations, final int startIndex, final Throwable observation)
     {
         DistinctObservation existingObservation = null;
 
-        for (final DistinctObservation o : existingObservations)
+        for (int k = startIndex; k < existingObservations.length; k++)
         {
+            final DistinctObservation o = existingObservations[k];
             if (equals(o.throwable, observation))
             {
                 existingObservation = o;
