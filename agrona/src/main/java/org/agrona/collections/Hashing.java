@@ -100,6 +100,20 @@ public final class Hashing
     }
 
     /**
+     * Generate a hash for a pair of long values and apply a mask to get a remainder.
+     *
+     * @param valueA first long value to be hashed.
+     * @param valueB second long value to be hashed.
+     * @param mask mask to be applied that must be a power of 2 - 1.
+     * @return the hash of the values
+     */
+    public static int hash(final long valueA, final long valueB, final int mask)
+    {
+        final int hash = 31 * Hashing.hash(valueA) + Hashing.hash(valueB);
+        return hash & mask;
+    }
+
+    /**
      * Generate an even hash for an int value and apply mask to get a remainder that will be even.
      *
      * @param value to be hashed.
