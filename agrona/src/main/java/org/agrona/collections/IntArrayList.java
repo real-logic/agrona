@@ -202,12 +202,15 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public boolean addInt(final int element)
     {
-        ensureCapacityPrivate(size + 1);
+        if (size < elements.length)
+        {
+            elements[size] = element;
+            size++;
 
-        elements[size] = element;
-        size++;
+            return true;
+        }
 
-        return true;
+        return addIntSlow(element);
     }
 
     /**
@@ -691,10 +694,7 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public void pushInt(final int element)
     {
-        ensureCapacityPrivate(size + 1);
-
-        elements[size] = element;
-        size++;
+        addInt(element);
     }
 
     /**
@@ -937,6 +937,16 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         sb.append(']');
 
         return sb.toString();
+    }
+
+    private boolean addIntSlow(final int element)
+    {
+        ensureCapacityPrivate(size + 1);
+
+        elements[size] = element;
+        size++;
+
+        return true;
     }
 
     private void ensureCapacityPrivate(@DoNotSub final int requiredCapacity)
