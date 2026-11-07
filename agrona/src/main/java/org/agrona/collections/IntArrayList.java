@@ -15,6 +15,7 @@
  */
 package org.agrona.collections;
 
+import org.agrona.SystemUtil;
 import org.agrona.generation.DoNotSub;
 
 import java.util.AbstractList;
@@ -44,6 +45,21 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      * Initial capacity to which the array will be sized.
      */
     @DoNotSub public static final int INITIAL_CAPACITY = 10;
+
+    /**
+     * Name of the system property that specify if the bounds checks should be disabled.
+     * To disable bounds checks set this property to {@code true}.
+     */
+    public static final String DISABLE_BOUNDS_CHECKS_PROP_NAME = "agrona.disable.bounds.checks";
+
+    /**
+     * Should bounds-checks operations be done or not. Controlled by the
+     * {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system property.
+     *
+     * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
+     */
+    public static final boolean SHOULD_BOUNDS_CHECK =
+        !"true".equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
 
     private final int nullValue;
     @DoNotSub private int size = 0;
@@ -180,7 +196,10 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public int getInt(
         @DoNotSub final int index)
     {
-        checkIndex(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndex(index);
+        }
 
         return elements[index];
     }
@@ -231,7 +250,10 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int index,
         final int element)
     {
-        checkIndexForAdd(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndexForAdd(index);
+        }
 
         @DoNotSub final int requiredSize = size + 1;
         ensureCapacityPrivate(requiredSize);
@@ -269,7 +291,10 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int index,
         final int element)
     {
-        checkIndex(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndex(index);
+        }
 
         final int previous = elements[index];
         elements[index] = element;
@@ -384,7 +409,10 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
         @DoNotSub final int index,
         final IntArrayList list)
     {
-        checkIndexForAdd(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndexForAdd(index);
+        }
 
         @DoNotSub final int numElements = list.size;
         if (numElements > 0)
@@ -608,7 +636,10 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public int removeAt(
         @DoNotSub final int index)
     {
-        checkIndex(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndex(index);
+        }
 
         final int value = elements[index];
 
@@ -635,10 +666,15 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
     public int fastUnorderedRemove(
         @DoNotSub final int index)
     {
-        checkIndex(index);
+        if (SHOULD_BOUNDS_CHECK)
+        {
+            checkIndex(index);
+        }
 
         final int value = elements[index];
-        elements[index] = elements[--size];
+        @DoNotSub final int lastIndex = size - 1;
+        elements[index] = elements[lastIndex];
+        size = lastIndex;
 
         return value;
     }
@@ -705,12 +741,16 @@ public class IntArrayList extends AbstractList<Integer> implements List<Integer>
      */
     public int popInt()
     {
-        if (isEmpty())
+        if (SHOULD_BOUNDS_CHECK && isEmpty())
         {
             throw new NoSuchElementException();
         }
 
-        return elements[--size];
+        @DoNotSub final int lastIndex = size - 1;
+        final int value = elements[lastIndex];
+        size = lastIndex;
+
+        return value;
     }
 
     /**
